@@ -1180,7 +1180,6 @@ $('.stats_panel').click(function() {
   }
 });
 $('#edit_sample_lists').change(edit_data_change);
-$('.edit_sample_value').change(edit_data_change);
 $('#block_by_index').click(edit_data_change);
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);

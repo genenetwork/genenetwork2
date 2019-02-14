@@ -177,10 +177,11 @@
                    }
                 });
 
+
                 $('#samples_primary').DataTable( {
                   'initComplete': function(settings, json) {
                     $('.edit_sample_value').change(function() {
-                      edit_data_change;
+                      edit_data_change();
                     });
                   },
                   'createdRow': function ( row, data, index ) {
@@ -301,7 +302,7 @@
                 $('#samples_other').DataTable( {
                   'initComplete': function(settings, json) {
                     $('.edit_sample_value').change(function() {
-                      edit_data_change;
+                      edit_data_change();
                     });
                   },
                   'createdRow': function ( row, data, index ) {
