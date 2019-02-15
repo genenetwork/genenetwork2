@@ -271,7 +271,11 @@
                       'data': null,
                       'orderDataType': "cust-txt",
                       'render': function(data, type, row, meta) {
-                        return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="' + js_data['qnorm_vals'][0][parseInt(data.this_id)] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                        if (data.num_cases == null) {
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+                        } else {
+                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                        }
                       }
                     }{% endif %}{% if sample_groups[0].attributes|length > 0 %}{% for attribute in sample_groups[0].attributes|sort() %},
                     {
@@ -392,7 +396,11 @@
                       'data': null,
                       'orderDataType': "cust-txt",
                       'render': function(data, type, row, meta) {
-                        return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="' + js_data['qnorm_vals'][1][parseInt(data.this_id)] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                        if (data.num_cases == null) {
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+                        } else {
+                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                        }
                       }
                     }{% endif %}{% if sample_groups[1].attributes|length > 0 %}{% for attribute in sample_groups[1].attributes|sort() %},
                     {
