@@ -27,7 +27,7 @@
 import datetime
 import string
 from math import *
-from PIL import (ImageColor)
+from PIL import (Image,ImageDraw,ImageFont,ImageColor)
 import sys,os
 import cPickle
 import httplib
@@ -69,6 +69,13 @@ DARKORANGE = ImageColor.getrgb("darkorange")
 DARKVIOLET = ImageColor.getrgb("darkviolet")
 MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 # ---- END: Define common colours ---- #
+
+# ---- FONT FILES ---- #
+VERDANA_FILE = "fonts/ttf/verdana.ttf"
+TREBUC_FILE = "fonts/ttf/trebucbd.ttf"
+FNT_BS_FILE = "fonts/ttf/fnt_bs.ttf"
+ARIAL_FILE = "fonts/ttf/arial.ttf"
+# ---- END: FONT FILES ---- #
 
 #########################################
 #      Inteval Mapping Plot Page
@@ -487,21 +494,28 @@ class DisplayMappingResults(object):
         # Plots goes here
         ################################################################
         showLocusForm = ""
-        intCanvas = pid.PILCanvas(size=(self.graphWidth, self.graphHeight))
+        intCanvas = Image.new("RGBA", size=(self.graphWidth, self.graphHeight))
         with Bench("Drawing Plot"):
             gifmap = self.plotIntMapping(intCanvas, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm)
 
         self.gifmap = gifmap.__str__()
 
         self.filename= webqtlUtil.genRandStr("Itvl_")
-        intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename), format='png')
+        intCanvas.save(
+            "{}.png".format(
+                os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename)),
+            format='png')
         intImg=HT.Image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
 
         #Scales plot differently for high resolution
         if self.draw2X:
-            intCanvasX2 = pid.PILCanvas(size=(self.graphWidth*2,self.graphHeight*2))
+            intCanvasX2 = Image.new("RGBA", size=(self.graphWidth*2,self.graphHeight*2))
             gifmapX2 = self.plotIntMapping(intCanvasX2, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm, zoom=2)
-            intCanvasX2.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename+"X2"), format='png')
+            intCanvasX2.save(
+                "{}.png".format(
+                    os.path.join(webqtlConfig.GENERATED_IMAGE_DIR,
+                                 self.filename+"X2")),
+                format='png')
 
         ################################################################
         # Outputs goes here
@@ -529,6 +543,7 @@ class DisplayMappingResults(object):
             btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
     def plotIntMapping(self, canvas, offset= (80, 120, 20, 100), zoom = 1, startMb = None, endMb = None, showLocusForm = ""):
+        im_drawer = ImageDraw.Draw(canvas)
         #calculating margins
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         if self.multipleInterval:
@@ -622,6 +637,7 @@ class DisplayMappingResults(object):
         return gifmap
 
     def drawBootStrapResult(self, canvas, nboot, drawAreaHeight, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
@@ -708,8 +724,10 @@ class DisplayMappingResults(object):
                 if item[1] > xLeftOffset+plotWidth:
                     item[1] = xLeftOffset+plotWidth
                 if item[0] != item[1]:
-                    canvas.drawRect(item[0], yZero, item[1], yZero - item[2]*bootHeightThresh/maxBootCount,
-                    fillColor=self.BOOTSTRAP_BOX_COLOR)
+                    im_drawer.rectangle(
+                        xy=((item[0], yZero),
+                            (item[1], yZero - item[2]*bootHeightThresh/maxBootCount)),
+                        fill=self.BOOTSTRAP_BOX_COLOR)
 
         ###draw boot scale
         highestPercent = (maxBootCount*100.0)/nboot
@@ -718,26 +736,43 @@ class DisplayMappingResults(object):
         bootScale = bootScale[:-1] + [highestPercent]
 
         bootOffset = 50*fontZoom
-        bootScaleFont=pid.Font(ttf="verdana",size=13*fontZoom,bold=0)
-        canvas.drawRect(canvas.size[0]-bootOffset,yZero-bootHeightThresh,canvas.size[0]-bootOffset-15*zoom,yZero,fillColor = YELLOW)
-        canvas.drawLine(canvas.size[0]-bootOffset+4, yZero, canvas.size[0]-bootOffset, yZero, color=BLACK)
-        canvas.drawString('0%' ,canvas.size[0]-bootOffset+10,yZero+5,font=bootScaleFont,color=BLACK)
+        bootScaleFont=ImageFont.truetype(font=VERDANA_FILE,size=13*fontZoom)
+        im_drawer.rectangle(
+            xy=((canvas.size[0]-bootOffset, yZero-bootHeightThresh),
+                (canvas.size[0]-bootOffset-15*zoom,yZero)),
+            fill = YELLOW)
+        im_drawer.line(
+            xy=((canvas.size[0]-bootOffset+4, yZero),
+                (canvas.size[0]-bootOffset, yZero)),
+            fill=BLACK)
+        im_drawer.text(xy=(canvas.size[0]-bootOffset+10,yZero+5), text='0%',
+                       font=bootScaleFont, fill=BLACK)
+
         for item in bootScale:
             if item == 0:
                 continue
             bootY = yZero-bootHeightThresh*item/highestPercent
-            canvas.drawLine(canvas.size[0]-bootOffset+4,bootY,canvas.size[0]-bootOffset,bootY,color=BLACK)
-            canvas.drawString('%2.1f'%item ,canvas.size[0]-bootOffset+10,bootY+5,font=bootScaleFont,color=BLACK)
+            im_drawer.line(
+                xy=((canvas.size[0]-bootOffset+4,bootY),
+                 (canvas.size[0]-bootOffset,bootY)),
+                fill=BLACK)
+            im_drawer.text(xy=(canvas.size[0]-bootOffset+10,bootY+5),
+                           text='%2.1f'%item, font=bootScaleFont, color=BLACK)
 
         if self.legendChecked:
             startPosY = 30
             nCol = 2
-            smallLabelFont = pid.Font(ttf="trebuc", size=12*fontZoom, bold=1)
+            smallLabelFont = ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
             leftOffset = xLeftOffset+(nCol-1)*200
-            canvas.drawRect(leftOffset,startPosY-6, leftOffset+12,startPosY+6, fillColor=YELLOW)
-            canvas.drawString('Frequency of the Peak LRS',leftOffset+ 20, startPosY+5,font=smallLabelFont,color=BLACK)
+            im_drawer.rectangle(
+                xy=((leftOffset,startPosY-6), (leftOffset+12,startPosY+6)),
+                fill=YELLOW)
+            im_drawer.text(xy=(leftOffset+ 20, startPosY+5),
+                           text='Frequency of the Peak LRS',
+                           font=smallLabelFont, color=BLACK)
 
     def drawProbeSetPosition(self, canvas, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         if len(self.traitList) != 1:
             return
 
@@ -805,12 +840,15 @@ class DisplayMappingResults(object):
                             break
         if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel-7, yZero+14), (locPixel+7, yZero+14))
-            canvas.drawPolygon(traitPixel, edgeColor=BLACK, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
+            im_drawer.polygon(
+                xy=traitPixel, outline=BLACK,
+                fill=self.TRANSCRIPT_LOCATION_COLOR#, closed=1
+            )
 
         if self.legendChecked:
             startPosY = 15
             nCol = 2
-            smallLabelFont = pid.Font(ttf="trebuc", size=12*fontZoom, bold=1)
+            smallLabelFont = ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
             if self.manhattan_plot:
                 leftOffset = xLeftOffset
             else:
@@ -819,6 +857,7 @@ class DisplayMappingResults(object):
             canvas.drawString("Sequence Site", (leftOffset+15), (startPosY+5), smallLabelFont, self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.diffCol:
             return
 
@@ -856,12 +895,15 @@ class DisplayMappingResults(object):
             if maxCount>0:
                 for i in range(xLeftOffset, xLeftOffset + plotWidth):
                     snpDensity = float(SNPCounts[i-xLeftOffset]*SNP_HEIGHT_MODIFIER/maxCount)
-                    canvas.drawLine(i, drawSNPLocationY+(snpDensity)*zoom, i, drawSNPLocationY-(snpDensity)*zoom, color=self.SNP_COLOR, width=1)
+                    im_drawer.line(
+                        xy=((i, drawSNPLocationY+(snpDensity)*zoom),
+                           (i, drawSNPLocationY-(snpDensity)*zoom)),
+                        fill=self.SNP_COLOR, width=1)
 
     def drawMultiTraitName(self, fd, canvas, gifmap, showLocusForm, offset= (40, 120, 80, 10), zoom = 1):
         nameWidths = []
         yPaddingTop = 10
-        colorFont=pid.Font(ttf="trebuc",size=12,bold=1)
+        colorFont=ImageFont.truetype(font=TREBUC_FILE,size=12)
         if len(self.qtlresults) >20 and self.selectedChr > -1:
             rightShift = 20
             rightShiftStep = 60
@@ -880,11 +922,16 @@ class DisplayMappingResults(object):
                 rightShift += rightShiftStep
 
             name = thisTrait.displayName()
-            nameWidth = canvas.stringWidth(name,font=colorFont)
+            nameWidth, nameHeight = im_drawer.textsize(name,font=colorFont)
             nameWidths.append(nameWidth)
 
-            canvas.drawRect(rightShift,yPaddingTop+kstep*15, rectWidth+rightShift,yPaddingTop+10+kstep*15, fillColor=thisLRSColor)
-            canvas.drawString(name,rectWidth+2+rightShift,yPaddingTop+10+kstep*15,font=colorFont,color=BLACK)
+            im_drawer.rectangle(
+                xy=((rightShift,yPaddingTop+kstep*15),
+                    (rectWidth+rightShift,yPaddingTop+10+kstep*15)),
+                fill=thisLRSColor)
+            im_drawer.text(
+                text=name,xy=(rectWidth+2+rightShift,yPaddingTop+10+kstep*15),
+                font=colorFont,fill=BLACK)
             if thisTrait.db:
                 COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift,yPaddingTop+kstep*15,rectWidth+2+rightShift+nameWidth,yPaddingTop+10+kstep*15,)
                 HREF= "javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm, thisTrait.db.name, thisTrait.name)
@@ -892,6 +939,7 @@ class DisplayMappingResults(object):
                 gifmap.areas.append(Areas)
 
     def drawLegendPanel(self, canvas, offset= (40, 120, 80, 10), zoom = 1):
+        im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
@@ -900,45 +948,80 @@ class DisplayMappingResults(object):
         if zoom == 2:
             fontZoom = 1.5
 
-        labelFont=pid.Font(ttf="trebuc",size=12*fontZoom, bold=1)
+        labelFont=ImageFont.truetype(font=TREBUC_FILE,size=12*fontZoom)
         startPosY = 15
         stepPosY = 12*fontZoom
         if self.manhattan_plot != True:
-            canvas.drawLine(xLeftOffset,startPosY,xLeftOffset+32,startPosY,color=self.LRS_COLOR, width=2)
-            canvas.drawString(self.LRS_LOD, xLeftOffset+40,startPosY+5,font=labelFont,color=BLACK)
+            im_drawer.line(
+                xy=((xLeftOffset,startPosY),(xLeftOffset+32,startPosY)),
+                fill=self.LRS_COLOR, width=2)
+            im_drawer.text(
+                text=self.LRS_LOD, xy=(xLeftOffset+40,startPosY+5),
+                font=labelFont,fill=BLACK)
             startPosY += stepPosY
 
         if self.additiveChecked:
             startPosX = xLeftOffset
-            canvas.drawLine(startPosX,startPosY,startPosX+17,startPosY,color=self.ADDITIVE_COLOR_POSITIVE, width=2)
-            canvas.drawLine(startPosX+18,startPosY,startPosX+32,startPosY,color=self.ADDITIVE_COLOR_NEGATIVE, width=2)
-            canvas.drawString('Additive Effect',startPosX+40,startPosY+5,font=labelFont,color=BLACK)
+            im_drawer.line(
+                xy=((startPosX,startPosY),(startPosX+17,startPosY)),
+                fill=self.ADDITIVE_COLOR_POSITIVE, width=2)
+            im_drawer.line(
+                xy=((startPosX+18,startPosY),(startPosX+32,startPosY)),
+                fill=self.ADDITIVE_COLOR_NEGATIVE, width=2)
+            im_drawer.text(
+                text='Additive Effect',xy=(startPosX+40,startPosY+5),
+                font=labelFont,fill=BLACK)
 
         if self.genotype.type == 'intercross' and self.dominanceChecked:
             startPosX = xLeftOffset
             startPosY += stepPosY
-            canvas.drawLine(startPosX,startPosY,startPosX+17,startPosY,color=self.DOMINANCE_COLOR_POSITIVE, width=4)
-            canvas.drawLine(startPosX+18,startPosY,startPosX+35,startPosY,color=self.DOMINANCE_COLOR_NEGATIVE, width=4)
-            canvas.drawString('Dominance Effect',startPosX+42,startPosY+5,font=labelFont,color=BLACK)
+            im_drawer.line(
+                xy=((startPosX,startPosY),(startPosX+17,startPosY)),
+                fill=self.DOMINANCE_COLOR_POSITIVE, width=4)
+            im_drawer.line(
+                xy=((startPosX+18,startPosY),(startPosX+35,startPosY)),
+                fill=self.DOMINANCE_COLOR_NEGATIVE, width=4)
+            im_drawer.text(
+                text='Dominance Effect', xy=(startPosX+42,startPosY+5),
+                font=labelFont,fill=BLACK)
 
         if self.haplotypeAnalystChecked:
             startPosY += stepPosY
             startPosX = xLeftOffset
-            canvas.drawLine(startPosX,startPosY,startPosX+17,startPosY,color=self.HAPLOTYPE_POSITIVE, width=4)
-            canvas.drawLine(startPosX+18,startPosY,startPosX+35,startPosY,color=self.HAPLOTYPE_NEGATIVE, width=4)
-            canvas.drawLine(startPosX+36,startPosY,startPosX+53,startPosY,color=self.HAPLOTYPE_HETEROZYGOUS, width=4)
-            canvas.drawLine(startPosX+54,startPosY,startPosX+67,startPosY,color=self.HAPLOTYPE_RECOMBINATION, width=4)
-            canvas.drawString('Haplotypes (Pat, Mat, Het, Unk)',startPosX+76,startPosY+5,font=labelFont,color=BLACK)
+            im_drawer.line(
+                xy=((startPosX,startPosY),(startPosX+17,startPosY)),
+                fill=self.HAPLOTYPE_POSITIVE, width=4)
+            im_drawer.line(
+                xy=((startPosX+18,startPosY),(startPosX+35,startPosY)),
+                fill=self.HAPLOTYPE_NEGATIVE, width=4)
+            im_drawer.line(
+                xy=((startPosX+36,startPosY),(startPosX+53,startPosY)),
+                fill=self.HAPLOTYPE_HETEROZYGOUS, width=4)
+            im_drawer.line(
+                xy=((startPosX+54,startPosY),(startPosX+67,startPosY)),
+                fill=self.HAPLOTYPE_RECOMBINATION, width=4)
+            im_drawer.text(
+                text='Haplotypes (Pat, Mat, Het, Unk)',
+                xy=(startPosX+76,startPosY+5),font=labelFont,fill=BLACK)
 
         if self.permChecked and self.nperm > 0:
             startPosY += stepPosY
             startPosX = xLeftOffset
-            canvas.drawLine(startPosX, startPosY, startPosX + 32, startPosY, color=self.SIGNIFICANT_COLOR, width=self.SIGNIFICANT_WIDTH)
-            canvas.drawLine(startPosX, startPosY + stepPosY, startPosX + 32, startPosY + stepPosY, color=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
-            canvas.drawString('Significant %s = %2.2f' % (self.LRS_LOD, self.significant),xLeftOffset+42,startPosY +5,font=labelFont,color=BLACK)
-            canvas.drawString('Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),xLeftOffset+42,startPosY + 5 +stepPosY,font=labelFont,color=BLACK)
+            im_drawer.line(
+                xy=((startPosX, startPosY),( startPosX + 32, startPosY)),
+                fill=self.SIGNIFICANT_COLOR, width=self.SIGNIFICANT_WIDTH)
+            im_drawer.line(
+                xy=((startPosX, startPosY + stepPosY),( startPosX + 32, startPosY + stepPosY)),
+                fill=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
+            im_drawer.text(
+                text='Significant %s = %2.2f' % (self.LRS_LOD,self.significant),
+                xy=(xLeftOffset+42,startPosY +5),font=labelFont,fill=BLACK)
+            im_drawer.text(
+                text='Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),
+                xy=(xLeftOffset+42,startPosY + 5 +stepPosY),font=labelFont,
+                fill=BLACK)
 
-        labelFont = pid.Font(ttf="verdana",size=12*fontZoom)
+        labelFont = ImageFont.truetype(font=VERDANA_FILE,size=12*fontZoom)
         labelColor = BLACK
         if self.dataset.type == "Publish" or self.dataset.type == "Geno":
             dataset_label = self.dataset.fullname
@@ -1000,20 +1083,32 @@ class DisplayMappingResults(object):
                 identification += "Trait: %s" % (self.this_trait.name)
             identification += " with %s samples" % (self.n_samples)
 
-            d = 4+ max(canvas.stringWidth(identification, font=labelFont), canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
-            canvas.drawString(identification,canvas.size[0] - xRightOffset-d,20*fontZoom,font=labelFont,color=labelColor)
+            d = 4+ max(
+                im_drawer.textsize(identification, font=labelFont)[0],
+                im_drawer.textsize(string1, font=labelFont)[0],
+                im_drawer.textsize(string2, font=labelFont)[0])
+            im_drawer.text(
+                text=identification,
+                xy=(canvas.size[0] - xRightOffset-d,20*fontZoom),font=labelFont,
+                fill=labelColor)
         else:
-            d = 4+ max(canvas.stringWidth(string1, font=labelFont), canvas.stringWidth(string2, font=labelFont))
-        canvas.drawString(string1,canvas.size[0] - xRightOffset-d,35*fontZoom,font=labelFont,color=labelColor)
-        canvas.drawString(string2,canvas.size[0] - xRightOffset-d,50*fontZoom,font=labelFont,color=labelColor)
-        canvas.drawString(string3,canvas.size[0] - xRightOffset-d,65*fontZoom,font=labelFont,color=labelColor)
-        if string4 != '':
-            canvas.drawString(string4,canvas.size[0] - xRightOffset-d,80*fontZoom,font=labelFont,color=labelColor)
-            canvas.drawString("Created at: " + str(datetime.datetime.now()).split('.')[0], canvas.size[0] - xRightOffset-d,95*fontZoom,font=labelFont,color=labelColor)
-        else:
-            canvas.drawString("Created at: " + str(datetime.datetime.now()).split('.')[0], canvas.size[0] - xRightOffset-d,80*fontZoom,font=labelFont,color=labelColor)
+            d = 4+ max(
+                im_drawer.textsize(string1, font=labelFont)[0],
+                im_drawer.textsize(string2, font=labelFont)[0])
+        im_drawer.text(
+            text=string1,xy=(canvas.size[0] - xRightOffset-d,35*fontZoom),
+            font=labelFont,fill=labelColor)
+        im_drawer.text(
+            text=string2,xy=(canvas.size[0] - xRightOffset-d,50*fontZoom),
+            font=labelFont,fill=labelColor)
+        if string3 != '':
+            im_drawer.text(
+                text=string3,xy=(canvas.size[0] - xRightOffset-d,65*fontZoom),
+                font=labelFont,fill=labelColor)
+
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.geneCol:
             return
 
@@ -1126,11 +1221,15 @@ class DisplayMappingResults(object):
 
             #draw the detail view
             if self.endMb - self.startMb <= self.DRAW_DETAIL_MB and geneEndPix - geneStartPix > self.EACH_GENE_ARROW_SPACING * 3:
-                utrColor = pid.Color(0.66, 0.66, 0.66)
-                arrowColor = pid.Color(0.7, 0.7, 0.7)
+                utrColor = ImageColor.getrgb("rgb(66%, 66%, 66%)")
+                arrowColor = ImageColor.getrgb("rgb(70%, 70%, 70%)")
 
                 #draw the line that runs the entire length of the gene
-                canvas.drawLine(geneStartPix, geneYLocation + self.EACH_GENE_HEIGHT/2*zoom, geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT/2*zoom, color=outlineColor, width=1)
+                im_drawer.line(
+                    xy=(
+                        (geneStartPix, geneYLocation + self.EACH_GENE_HEIGHT/2*zoom),
+                        ( geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT/2*zoom)),
+                    fill=outlineColor, width=1)
 
                 #draw the arrows
                 if geneEndPix - geneStartPix < 1:
@@ -1141,11 +1240,30 @@ class DisplayMappingResults(object):
 
                     if (xCoord % self.EACH_GENE_ARROW_SPACING == 0 and xCoord + self.EACH_GENE_ARROW_SPACING < geneEndPix-geneStartPix) or xCoord == 0:
                         if strand == "+":
-                            canvas.drawLine(geneStartPix + xCoord, geneYLocation, geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH, geneYLocation +(self.EACH_GENE_HEIGHT / 2)*zoom, color=arrowColor, width=1)
-                            canvas.drawLine(geneStartPix + xCoord, geneYLocation + self.EACH_GENE_HEIGHT*zoom, geneStartPix + xCoord+self.EACH_GENE_ARROW_WIDTH, geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom, color=arrowColor, width=1)
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord, geneYLocation),
+                                    (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation +(self.EACH_GENE_HEIGHT / 2)*zoom)),
+                                fill=arrowColor, width=1)
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord,
+                                     geneYLocation + self.EACH_GENE_HEIGHT*zoom),
+                                    (geneStartPix + xCoord+self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                fill=arrowColor, width=1)
                         else:
-                            canvas.drawLine(geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH, geneYLocation, geneStartPix + xCoord, geneYLocation +(self.EACH_GENE_HEIGHT / 2)*zoom, color=arrowColor, width=1)
-                            canvas.drawLine(geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH, geneYLocation + self.EACH_GENE_HEIGHT*zoom, geneStartPix + xCoord, geneYLocation + (self.EACH_GENE_HEIGHT / 2)*zoom, color=arrowColor, width=1)
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation),
+                                    ( geneStartPix + xCoord,
+                                      geneYLocation +(self.EACH_GENE_HEIGHT / 2)*zoom)),
+                                fill=arrowColor, width=1)
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation + self.EACH_GENE_HEIGHT*zoom),
+                                    ( geneStartPix + xCoord,
+                                      geneYLocation + (self.EACH_GENE_HEIGHT / 2)*zoom)),
+                                fill=arrowColor, width=1)
 
                 #draw the blocks for the exon regions
                 for i in range(0, len(exonStarts)):
@@ -1159,7 +1277,10 @@ class DisplayMappingResults(object):
                         exonEndPix = xLeftOffset + plotWidth
                     if (exonStartPix > xLeftOffset + plotWidth):
                         exonStartPix = xLeftOffset + plotWidth
-                    canvas.drawRect(exonStartPix, geneYLocation, exonEndPix, (geneYLocation + self.EACH_GENE_HEIGHT*zoom), edgeColor = outlineColor, fillColor = fillColor)
+                    im_drawer.rectangle(
+                        xy=((exonStartPix, geneYLocation),
+                            (exonEndPix, (geneYLocation + self.EACH_GENE_HEIGHT*zoom))),
+                        outline = outlineColor, fill = fillColor)
 
                 #draw gray blocks for 3' and 5' UTR blocks
                 if cdsStart and cdsEnd:
@@ -1173,14 +1294,16 @@ class DisplayMappingResults(object):
                         utrEndPix = xLeftOffset + plotWidth
                     if (utrStartPix > xLeftOffset + plotWidth):
                         utrStartPix = xLeftOffset + plotWidth
-                    #canvas.drawRect(utrStartPix, geneYLocation, utrEndPix, (geneYLocation+self.EACH_GENE_HEIGHT*zoom), edgeColor=utrColor, fillColor =utrColor)
 
                     if self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
                         if strand == "-":
                             labelText = "3'"
                         else:
                             labelText = "5'"
-                        canvas.drawString(labelText, utrStartPix-9, geneYLocation+self.EACH_GENE_HEIGHT, pid.Font(face="helvetica", size=2))
+                        im_drawer.text(
+                            text=labelText,
+                            xy=(utrStartPix-9, geneYLocation+self.EACH_GENE_HEIGHT),
+                            font=ImageFont.truetype(font=ARIAL_FILE, size=2))
 
                     #the second UTR region
 
@@ -1194,18 +1317,23 @@ class DisplayMappingResults(object):
                         utrEndPix = xLeftOffset + plotWidth
                     if (utrStartPix > xLeftOffset + plotWidth):
                         utrStartPix = xLeftOffset + plotWidth
-                    #canvas.drawRect(utrStartPix, geneYLocation, utrEndPix, (geneYLocation+self.EACH_GENE_HEIGHT*zoom), edgeColor=utrColor, fillColor =utrColor)
 
                     if self.endMb - self.startMb <= self.DRAW_UTR_LABELS_MB:
                         if strand == "-":
                             labelText = "5'"
                         else:
                             labelText = "3'"
-                        canvas.drawString(labelText, utrEndPix+2, geneYLocation+self.EACH_GENE_HEIGHT, pid.Font(face="helvetica", size=2))
+                            im_drawer.text(
+                                text=labelText,
+                                xy=(utrEndPix+2,geneYLocation+self.EACH_GENE_HEIGHT),
+                                font=ImageFont.truetype(font=ARIAL_FILE, size=2))
 
             #draw the genes as rectangles
             else:
-                canvas.drawRect(geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT*zoom), edgeColor = outlineColor, fillColor = fillColor)
+                im_drawer.rectangle(
+                    xy=((geneStartPix, geneYLocation),
+                        (geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT*zoom))),
+                    outline= outlineColor, fill = fillColor)
 
             COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
             # NL: 06-02-2011 Rob required to display NCBI info in a new window
@@ -1354,12 +1482,22 @@ class DisplayMappingResults(object):
                                     else:
                                         mylineColor = self.HAPLOTYPE_RECOMBINATION # XZ: Unknown
 
-                                    canvas.drawLine(drawStart, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
+                                    im_drawer.line(
+                                        xy=((drawStart,
+                                             geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                            (drawEnd,
+                                             geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom)),
+                                        fill= mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
 
                                     fillColor=BLACK
                                     outlineColor=BLACK
                                     if lastGene == 0:
-                                        canvas.drawRect(geneStartPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT*zoom, geneEndPix, geneYLocation+2*ind*self.EACH_GENE_HEIGHT+ 2*self.EACH_GENE_HEIGHT*zoom, edgeColor = outlineColor, fillColor = fillColor)
+                                        im_drawer.rectangle(
+                                            xy=((geneStartPix,
+                                                 geneYLocation+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                                (geneEndPix,
+                                                 geneYLocation+2*ind*self.EACH_GENE_HEIGHT+ 2*self.EACH_GENE_HEIGHT*zoom)),
+                                            outline=outlineColor, fill=fillColor)
 
 
                                     COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
@@ -1372,11 +1510,21 @@ class DisplayMappingResults(object):
                                     if (plotRight < (xLeftOffset + plotWidth - 3)) and (lastGene == 0):
                                         drawEnd = xLeftOffset + plotWidth - 6
                                         mylineColor = self.HAPLOTYPE_RECOMBINATION
-                                        canvas.drawLine(plotRight, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, drawEnd, geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom, color = mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
+                                im_drawer.line(
+                                    xy=((plotRight,
+                                         geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                        (drawEnd,
+                                         geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom)),
+                                    fill= mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
 
 
                             if lastGene == 0:
-                                canvas.drawString("%s" % (_chr[j].name), geneStartPix , geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=BLACK, angle=-90)
+                                im_drawer.text(
+                                    text="%s" % (_chr[j].name),
+                                    xy=(geneStartPix,
+                                        geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom),
+                                    font=ImageFont.truetype(font=VERDANA_FILE, size=12),
+                                    fill=BLACK, angle=-90)
 
                             oldgeneEndPix = geneEndPix;
                             oldgeno = _chr[j].genotype
@@ -1405,12 +1553,23 @@ class DisplayMappingResults(object):
                                 expr = item.value
 
                         # Place where font is hardcoded
-                        canvas.drawString("%s" % (samplelist[j]), (xLeftOffset + plotWidth + 10) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=BLACK)
-                        canvas.drawString("%2.2f" % (expr), (xLeftOffset + plotWidth + 60) , geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom, font=pid.Font(ttf="verdana", size=12, bold=0), color=BLACK)
+                        im_drawer.text(
+                            text="%s" % (samplelist[j]),
+                            xy=((xLeftOffset + plotWidth + 10),
+                                geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                            font=ImageFont.truetype(font=VERDANA_FILE, size=12),
+                            fill=BLACK)
+                        im_drawer.text(
+                            text="%2.2f" % (expr),
+                            xy=((xLeftOffset + plotWidth + 60),
+                                geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                            font=ImageFont.truetype(font=VERDANA_FILE, size=12),
+                            fill=BLACK)
 
 ## END HaplotypeAnalyst
 
     def drawClickBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1:
             return
 
@@ -1426,7 +1585,7 @@ class DisplayMappingResults(object):
         # but it makes the HTML huge, and takes forever to render the page in the first place)
         # Draw the bands that you can click on to go to UCSC / Ensembl
         MAX_CLICKABLE_REGION_DIVISIONS = 100
-        clickableRegionLabelFont=pid.Font(ttf="verdana", size=9, bold=0)
+        clickableRegionLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=9)
         pixelStep = max(5, int(float(plotWidth)/MAX_CLICKABLE_REGION_DIVISIONS))
         # pixelStep: every N pixels, we make a new clickable area for the user to go to that area of the genome.
 
@@ -1463,8 +1622,14 @@ class DisplayMappingResults(object):
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
                 gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
-                canvas.drawRect(xBrowse1, paddingTop, xBrowse2, (paddingTop + self.BAND_HEIGHT), edgeColor=self.CLICKABLE_WEBQTL_REGION_COLOR, fillColor=self.CLICKABLE_WEBQTL_REGION_COLOR)
-                canvas.drawLine(xBrowse1, paddingTop, xBrowse1, (paddingTop + self.BAND_HEIGHT), color=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
+                im_drawer.rectangle(
+                    xy=((xBrowse1, paddingTop),
+                        (xBrowse2, (paddingTop + self.BAND_HEIGHT))),
+                    outline=self.CLICKABLE_WEBQTL_REGION_COLOR,
+                    fill=self.CLICKABLE_WEBQTL_REGION_COLOR)
+                im_drawer.line(
+                    xy=((xBrowse1, paddingTop),( xBrowse1, (paddingTop + self.BAND_HEIGHT))),
+                    fill=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
 
                 if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
                     PHENOGEN_COORDS = "%d, %d, %d, %d" % (xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT))
@@ -1474,8 +1639,14 @@ class DisplayMappingResults(object):
                         PHENOGEN_HREF = "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
                     gifmap.areas.append(HT.Area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
-                    canvas.drawRect(xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_PHENOGEN_REGION_COLOR, fillColor=self.CLICKABLE_PHENOGEN_REGION_COLOR)
-                    canvas.drawLine(xBrowse1, phenogenPaddingTop, xBrowse1, (phenogenPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR)
+                    im_drawer.rectangle(
+                        xy=((xBrowse1, phenogenPaddingTop),
+                            (xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT))),
+                        outline=self.CLICKABLE_PHENOGEN_REGION_COLOR,
+                        fill=self.CLICKABLE_PHENOGEN_REGION_COLOR)
+                    im_drawer.line(
+                        xy=((xBrowse1, phenogenPaddingTop),( xBrowse1, (phenogenPaddingTop+self.BAND_HEIGHT))),
+                        fill=self.CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR)
 
                 UCSC_COORDS = "%d, %d, %d, %d" %(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT))
                 if self.dataset.group.species == "mouse":
@@ -1484,8 +1655,15 @@ class DisplayMappingResults(object):
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
                 gifmap.areas.append(HT.Area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
-                canvas.drawRect(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_UCSC_REGION_COLOR, fillColor=self.CLICKABLE_UCSC_REGION_COLOR)
-                canvas.drawLine(xBrowse1, ucscPaddingTop, xBrowse1, (ucscPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_UCSC_REGION_OUTLINE_COLOR)
+                im_drawer.rectangle(
+                    xy=((xBrowse1, ucscPaddingTop),
+                        (xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT))),
+                    outline=self.CLICKABLE_UCSC_REGION_COLOR,
+                    fill=self.CLICKABLE_UCSC_REGION_COLOR)
+                im_drawer.line(
+                    xy=((xBrowse1, ucscPaddingTop),
+                        (xBrowse1, (ucscPaddingTop+self.BAND_HEIGHT))),
+                    fill=self.CLICKABLE_UCSC_REGION_OUTLINE_COLOR)
 
                 ENSEMBL_COORDS = "%d, %d, %d, %d" %(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT))
                 if self.dataset.group.species == "mouse":
@@ -1494,32 +1672,59 @@ class DisplayMappingResults(object):
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
                 gifmap.areas.append(HT.Area(shape='rect',coords=ENSEMBL_COORDS,href=ENSEMBL_HREF, title=ENSEMBL_TITLE))
-                canvas.drawRect(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_ENSEMBL_REGION_COLOR, fillColor=self.CLICKABLE_ENSEMBL_REGION_COLOR)
-                canvas.drawLine(xBrowse1, ensemblPaddingTop, xBrowse1, (ensemblPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR)
+                im_drawer.rectangle(
+                    xy=((xBrowse1, ensemblPaddingTop),
+                        (xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT))),
+                    outline=self.CLICKABLE_ENSEMBL_REGION_COLOR,
+                    fill=self.CLICKABLE_ENSEMBL_REGION_COLOR)
+                im_drawer.line(
+                    xy=((xBrowse1, ensemblPaddingTop),
+                        (xBrowse1, (ensemblPaddingTop+self.BAND_HEIGHT))),
+                    fill=self.CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR)
             # end for
 
-            canvas.drawString("Click to view the corresponding section of the genome in an 8x expanded WebQTL map", (xLeftOffset + 10), paddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_WEBQTL_TEXT_COLOR)
+            im_drawer.text(
+                text="Click to view the corresponding section of the genome in an 8x expanded WebQTL map",
+                xy=((xLeftOffset + 10), paddingTop + self.BAND_HEIGHT/2),
+                font=clickableRegionLabelFont,
+                fill=self.CLICKABLE_WEBQTL_TEXT_COLOR)
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
-                canvas.drawString("Click to view the corresponding section of the genome in PhenoGen", (xLeftOffset + 10), phenogenPaddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_PHENOGEN_TEXT_COLOR)
-            canvas.drawString("Click to view the corresponding section of the genome in the UCSC Genome Browser", (xLeftOffset + 10), ucscPaddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_UCSC_TEXT_COLOR)
-            canvas.drawString("Click to view the corresponding section of the genome in the Ensembl Genome Browser", (xLeftOffset+10), ensemblPaddingTop + self.BAND_HEIGHT/2, font=clickableRegionLabelFont, color=self.CLICKABLE_ENSEMBL_TEXT_COLOR)
+                im_drawer.text(
+                    text="Click to view the corresponding section of the genome in PhenoGen",
+                    xy=((xLeftOffset + 10), phenogenPaddingTop + self.BAND_HEIGHT/2),
+                    font=clickableRegionLabelFont, fill=self.CLICKABLE_PHENOGEN_TEXT_COLOR)
+            im_drawer.text(
+                text="Click to view the corresponding section of the genome in the UCSC Genome Browser",
+                xy=((xLeftOffset + 10), ucscPaddingTop + self.BAND_HEIGHT/2),
+                font=clickableRegionLabelFont, fill=self.CLICKABLE_UCSC_TEXT_COLOR)
+            im_drawer.text(
+                text="Click to view the corresponding section of the genome in the Ensembl Genome Browser",
+                xy=((xLeftOffset+10), ensemblPaddingTop + self.BAND_HEIGHT/2),
+                font=clickableRegionLabelFont, fill=self.CLICKABLE_ENSEMBL_TEXT_COLOR)
 
             #draw the gray text
-            chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
-            traitFont = pid.Font(ttf="verdana", size=14, bold=0)
-            chrX = xLeftOffset + plotWidth - 2 - canvas.stringWidth("Chr %s" % self.ChrList[self.selectedChr][0], font=chrFont)
-            canvas.drawString("Chr %s" % self.ChrList[self.selectedChr][0], chrX, ensemblPaddingTop-5, font=chrFont, color=GRAY)
+            chrFont = ImageFont.truetype(font=VERDANA_FILE, size=26*zoom)
+            traitFont = ImageFont.truetype(font=VERDANA_FILE, size=14)
+            chrX = xLeftOffset + plotWidth - 2 - im_drawer.textsize(
+                "Chr %s" % self.ChrList[self.selectedChr][0], font=chrFont)[0]
+            im_drawer.text(
+                text="Chr %s" % self.ChrList[self.selectedChr][0],
+                xy=(chrX, ensemblPaddingTop-5), font=chrFont, fill=GRAY)
             # end of drawBrowserClickableRegions
         else:
             #draw the gray text
-            chrFont = pid.Font(ttf="verdana", size=26*zoom, bold=1)
-            traitFont = pid.Font(ttf="verdana", size=14, bold=0)
-            chrX = xLeftOffset + (plotWidth - canvas.stringWidth("Chr %s" % currentChromosome, font=chrFont))/2
-            canvas.drawString("Chr %s" % currentChromosome, chrX, 32, font=chrFont, color=GRAY)
+            chrFont = ImageFont.truetype(font=VERDANA_FILE, size=26*zoom)
+            traitFont = ImageFont.truetype(font=VERDANA_FILE, size=14)
+            chrX = xLeftOffset + (plotWidth - im_drawer.textsize(
+                "Chr %s" % currentChromosome, font=chrFont)[0])/2
+            im_drawer.text(
+                text="Chr %s" % currentChromosome, xy=(chrX, 32), font=chrFont,
+                fill=GRAY)
             # end of drawBrowserClickableRegions
         pass
 
     def drawXAxis(self, canvas, drawAreaHeight, gifmap, plotXScale, showLocusForm, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
@@ -1535,7 +1740,7 @@ class DisplayMappingResults(object):
         X_AXIS_THICKNESS = 1*zoom
 
         # ======= Alex: Draw the X-axis labels (megabase location)
-        MBLabelFont = pid.Font(ttf="verdana", size=15*zoom, bold=0)
+        MBLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=15*zoom)
         xMajorTickHeight = 10 * zoom # How high the tick extends below the axis
         xMinorTickHeight = 5*zoom
         xAxisTickMarkColor = BLACK
@@ -1544,7 +1749,7 @@ class DisplayMappingResults(object):
         spacingFromLabelToAxis = 5
 
         if self.plotScale == 'physic':
-            strYLoc = yZero + spacingFromLabelToAxis + canvas.fontHeight(MBLabelFont)
+            strYLoc = yZero + spacingFromLabelToAxis + MBLabelFont.font.height
             ###Physical single chromosome view
             if self.selectedChr > -1:
                 XScale = Plot.detScale(startMb, endMb)
@@ -1565,13 +1770,21 @@ class DisplayMappingResults(object):
                         continue
                     Xc = xLeftOffset + plotXScale*(_Mb - startMb)
                     if counter % NUM_MINOR_TICKS == 0: # Draw a MAJOR mark, not just a minor tick mark
-                        canvas.drawLine(Xc, yZero, Xc, yZero+xMajorTickHeight, color=xAxisTickMarkColor, width=X_MAJOR_TICK_THICKNESS) # Draw the MAJOR tick mark
+                        im_drawer.line(xy=((Xc,yZero),
+                                           (Xc,yZero+xMajorTickHeight)),
+                                       fill=xAxisTickMarkColor,
+                                       width=X_MAJOR_TICK_THICKNESS) # Draw the MAJOR tick mark
                         labelStr = str(formatStr % _Mb) # What Mbase location to put on the label
-                        strWidth = canvas.stringWidth(labelStr, font=MBLabelFont)
+                        strWidth, strHeight = im_drawer.textsize(labelStr, font=MBLabelFont)
                         drawStringXc = (Xc - (strWidth / 2.0))
-                        canvas.drawString(labelStr, drawStringXc, strYLoc, font=MBLabelFont, color=xAxisLabelColor, angle=0)
+                        im_drawer.text(xy=(drawStringXc, strYLoc),
+                                       text=labelStr, font=MBLabelFont,
+                                       fill=xAxisLabelColor)
                     else:
-                        canvas.drawLine(Xc, yZero, Xc, yZero+xMinorTickHeight, color=xAxisTickMarkColor, width=X_MINOR_TICK_THICKNESS) # Draw the MINOR tick mark
+                        im_drawer.line(xy=((Xc,yZero),
+                                          (Xc,yZero+xMinorTickHeight)),
+                                       fill=xAxisTickMarkColor,
+                                       width=X_MINOR_TICK_THICKNESS) # Draw the MINOR tick mark
 
             ###Physical genome wide view
             else:
@@ -1586,17 +1799,27 @@ class DisplayMappingResults(object):
                         else:
                             distScale = 5
                     for j, tickdists in enumerate(range(distScale, int(ceil(distLen)), distScale)):
-                        canvas.drawLine(startPosX + tickdists*plotXScale, yZero, startPosX + tickdists*plotXScale, yZero + 7, color=BLACK, width=1*zoom)
+                        im_drawer.line(
+                            xy=((startPosX+tickdists*plotXScale, yZero),
+                                (startPosX+tickdists*plotXScale, yZero + 7)),
+                            fill=BLACK, width=1*zoom)
                         if j % 2 == 0:
-                            canvas.drawString(str(tickdists), startPosX+tickdists*plotXScale, yZero + 10*zoom, color=BLACK, font=MBLabelFont, angle=270)
+                            im_drawer.text(
+                                xy=(startPosX+tickdists*plotXScale, yZero+10*zoom),
+                                text=str(tickdists), fill=BLACK, font=MBLabelFont, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
-            megabaseLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
-            canvas.drawString("Megabases", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=megabaseLabelFont))/2,
-                    strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=megabaseLabelFont, color=BLACK)
+            megabaseLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
+            im_drawer.text(
+                text="Megabases",
+                xy=(
+                    xLeftOffset+(plotWidth-im_drawer.textsize(
+                        "Megabases",font=megabaseLabelFont)[0])/2,
+                    strYLoc+MBLabelFont.font.height+10*(zoom%2)+ 10),
+                font=megabaseLabelFont, fill=BLACK)
             pass
         else:
-            strYLoc = yZero + spacingFromLabelToAxis + canvas.fontHeight(MBLabelFont) + 8
+            strYLoc = yZero + spacingFromLabelToAxis + MBLabelFont.font.height + 8
             ChrAInfo = []
             preLpos = -1
             distinctCount = 0.0
@@ -1659,18 +1882,26 @@ class DisplayMappingResults(object):
                     else:
                         Zorder = 0
                     if differ:
-                        canvas.drawLine(startPosX+Lpos,yZero,xLeftOffset+offsetA,\
-                        yZero+25, color=lineColor)
-                        canvas.drawLine(xLeftOffset+offsetA,yZero+25,xLeftOffset+offsetA,\
-                        yZero+40+Zorder*(LRectWidth+3),color=lineColor)
+                        im_drawer.line(
+                            xy=((startPosX+Lpos,yZero),(xLeftOffset+offsetA,\
+                        yZero+25)),
+                            fill=lineColor)
+                        im_drawer.line(
+                            xy=((xLeftOffset+offsetA,yZero+25),(xLeftOffset+offsetA,\
+                        yZero+40+Zorder*(LRectWidth+3))),
+                            fill=lineColor)
                         rectColor = ORANGE
                     else:
-                        canvas.drawLine(xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)-3,\
-                        xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3),color=lineColor)
+                        im_drawer.line(
+                            xy=((xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)-3),(\
+                        xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3))),
+                            fill=lineColor)
                         rectColor = DEEPPINK
-                    canvas.drawRect(xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3),\
-                            xLeftOffset+offsetA-LRectHeight,yZero+40+Zorder*(LRectWidth+3)+LRectWidth,\
-                            edgeColor=rectColor,fillColor=rectColor,edgeWidth = 0)
+                    im_drawer.rectangle(
+                        xy=((xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)),
+                            (xLeftOffset+offsetA-LRectHeight,
+                             yZero+40+Zorder*(LRectWidth+3)+LRectWidth)),
+                        outline=rectColor,fill=rectColor,width = 0)
                     COORDS="%d,%d,%d,%d"%(xLeftOffset+offsetA-LRectHeight, yZero+40+Zorder*(LRectWidth+3),\
                             xLeftOffset+offsetA,yZero+40+Zorder*(LRectWidth+3)+LRectWidth)
                     HREF="/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
@@ -1679,17 +1910,25 @@ class DisplayMappingResults(object):
                     gifmap.areas.append(Areas)
                 ##piddle bug
                 if j == 0:
-                    canvas.drawLine(startPosX,yZero,startPosX,yZero+40, color=lineColor)
+                    im_drawer.line(
+                        xy=((startPosX,yZero),(startPosX,yZero+40)),
+                        fill=lineColor)
                 startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
 
-            centimorganLabelFont = pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
-            canvas.drawString("Centimorgans", xLeftOffset + (plotWidth - canvas.stringWidth("Megabases", font=centimorganLabelFont))/2,
-                    strYLoc + canvas.fontHeight(MBLabelFont)+ 10*(zoom%2) + 10, font=centimorganLabelFont, color=BLACK)
+            centimorganLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=18*zoom*1.5)
+            im_drawer.text(
+                text="Centimorgans",
+                xy=(xLeftOffset+(plotWidth-im_drawer.textsize(
+                    "Megabases", font=centimorganLabelFont)[0])/2,
+                    strYLoc + MBLabelFont.font.height+ 10*(zoom%2) + 10),
+                font=centimorganLabelFont, fill=BLACK)
 
-        canvas.drawLine(xLeftOffset, yZero, xLeftOffset+plotWidth, yZero, color=BLACK, width=X_AXIS_THICKNESS) # Draw the X axis itself
+        im_drawer.line(xy=((xLeftOffset,yZero), (xLeftOffset+plotWidth,yZero)),
+                       fill=BLACK, width=X_AXIS_THICKNESS) # Draw the X axis itself
 
 
     def drawQTL(self, canvas, drawAreaHeight, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
@@ -1787,29 +2026,40 @@ class DisplayMappingResults(object):
             else:
                 all_int = False
                 break
-
-        if all_int:
-            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 40
-        else:
-            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 30
+        # TODO(PIL): Convert from PIL
+        # if all_int:
+        #     max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 40
+        # else:
+        #     max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 30
 
         #draw the "LRS" or "LOD" string to the left of the axis
-        canvas.drawString(self.LRS_LOD, xLeftOffset - max_lrs_width - 15*(zoom-1), \
-                                          yZero - 150 - 300*(zoom - 1), font=LRSLODFont, color=BLACK, angle=90)
+        LRSScaleFont=ImageFont.truetype(font=VERDANA_FILE, size=16*zoom)
+        LRSLODFont=ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
+        yZero = yTopOffset + plotHeight
+
+        im_drawer.text(
+            text=self.LRS_LOD,
+            xy=(xLeftOffset - im_drawer.textsize("999.99", font=LRSScaleFont)[0] - 15*(zoom-1),
+                yZero - 150 - 300*(zoom - 1)),
+            font=LRSLODFont, fill=BLACK, angle=90)
 
         for item in LRSAxisList:
             if LRS_LOD_Max == 0.0:
                 LRS_LOD_Max = 0.000001
             yTopOffset + 30*(zoom - 1)
             yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
-            #yLRS = yZero - (item/LRSAxisList[-1]) * LRSHeightThresh
-            canvas.drawLine(xLeftOffset, yLRS, xLeftOffset - 4, yLRS, color=self.LRS_COLOR, width=1*zoom)
+            im_drawer.line(xy=((xLeftOffset,yLRS), (xLeftOffset-4,yLRS)),
+                           fill=self.LRS_COLOR, width=1*zoom)
             if all_int:
                 scaleStr = "%d" % item
             else:
                 scaleStr = "%2.1f" % item
             #Draw the LRS/LOD Y axis label
-            canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
+            im_drawer.text(
+                text=scaleStr,
+                xy=(xLeftOffset-4-im_drawer.textsize(scaleStr, font=LRSScaleFont)[0]-5,
+                    yLRS+3),
+                font=LRSScaleFont, fill=self.LRS_COLOR)
 
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
             significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
@@ -1824,10 +2074,19 @@ class DisplayMappingResults(object):
             #ZS: I don't know if what I did here with this inner function is clever or overly complicated, but it's the only way I could think of to avoid duplicating the code inside this function
             def add_suggestive_significant_lines_and_legend(start_pos_x, chr_length_dist):
                 rightEdge = int(start_pos_x + chr_length_dist*plotXScale - self.SUGGESTIVE_WIDTH/1.5)
-                canvas.drawLine(start_pos_x+self.SUGGESTIVE_WIDTH/1.5, suggestiveY, rightEdge, suggestiveY, color=self.SUGGESTIVE_COLOR,
-                        width=self.SUGGESTIVE_WIDTH*zoom, clipX=(xLeftOffset, xLeftOffset + plotWidth-2))
-                canvas.drawLine(start_pos_x+self.SUGGESTIVE_WIDTH/1.5, significantY, rightEdge, significantY, color=self.SIGNIFICANT_COLOR,
-                        width=self.SIGNIFICANT_WIDTH*zoom, clipX=(xLeftOffset, xLeftOffset + plotWidth-2))
+                im_drawer.line(
+                    xy=((start_pos_x+self.SUGGESTIVE_WIDTH/1.5, suggestiveY),
+                        (rightEdge, suggestiveY)),
+                    fill=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH*zoom
+                    #,clipX=(xLeftOffset, xLeftOffset + plotWidth-2)
+                )
+                im_drawer.line(
+                    xy=((start_pos_x+self.SUGGESTIVE_WIDTH/1.5, significantY),
+                       (rightEdge, significantY)),
+                    fill=self.SIGNIFICANT_COLOR,
+                    width=self.SIGNIFICANT_WIDTH*zoom
+                    #, clipX=(xLeftOffset, xLeftOffset + plotWidth-2)
+                )
                 sugg_coords = "%d, %d, %d, %d" % (start_pos_x, suggestiveY-2, rightEdge + 2*zoom, suggestiveY+2)
                 sig_coords = "%d, %d, %d, %d" % (start_pos_x, significantY-2, rightEdge + 2*zoom, significantY+2)
                 if self.LRS_LOD == 'LRS':
@@ -1868,7 +2127,7 @@ class DisplayMappingResults(object):
         AdditiveCoordXY = []
         DominanceCoordXY = []
 
-        symbolFont = pid.Font(ttf="fnt_bs", size=5,bold=0) #ZS: For Manhattan Plot
+        symbolFont = ImageFont.truetype(font=FNT_BS_FILE, size=5) #ZS: For Manhattan Plot
 
         previous_chr = 1
         previous_chr_as_int = 0
@@ -1880,7 +2139,12 @@ class DisplayMappingResults(object):
             thisLRSColor = self.colorCollection[0]
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
                 if self.manhattan_plot != True:
-                    canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                    im_drawer.polygon(
+                        xy=LRSCoordXY,
+                        outline=thisLRSColor
+                        # , closed=0, edgeWidth=lrsEdgeWidth,
+                        # clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                    )
 
                 if not self.multipleInterval and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
@@ -1895,22 +2159,58 @@ class DisplayMappingResults(object):
                                 else:
                                     Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
                                 if Yc0 < yZero:
-                                    canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                    canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                                    im_drawer.line(
+                                        xy=((Xc0, Yc0), (Xcm, yZero)),
+                                        fill=plusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
+                                    im_drawer.line(
+                                        xy=((Xcm, yZero), (Xc, yZero-(Yc-yZero))),
+                                        fill=minusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
                                 else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                                    canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                                    im_drawer.line(
+                                        xy=((Xc0, yZero-(Yc0-yZero)),
+                                            (Xcm, yZero)),
+                                        fill=minusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
+                                    im_drawer.line(
+                                        xy=((Xcm, yZero), (Xc, Yc)),
+                                        fill=plusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
                             elif (Yc0-yZero)*(Yc-yZero) > 0:
                                 if Yc < yZero:
-                                    canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                                    im_drawer.line(
+                                        xy=((Xc0, Yc0), (Xc, Yc)),
+                                        fill=plusColor,
+                                        width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
                                 else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                                    im_drawer.line(
+                                        xy=((Xc0, yZero - (Yc0-yZero)),
+                                            (Xc, yZero - (Yc-yZero))),
+                                        fill=minusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
                             else:
                                 minYc = min(Yc-yZero, Yc0-yZero)
                                 if minYc < 0:
-                                    canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                                    im_drawer.line(
+                                        xy=((Xc0, Yc0), (Xc, Yc)),
+                                        fill=plusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
                                 else:
-                                    canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                                    im_drawer.line(
+                                        xy=((Xc0, yZero - (Yc0-yZero)),
+                                            (Xc, yZero - (Yc-yZero))),
+                                        fill=minusColor, width=lineWidth
+                                        #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                                    )
 
                 LRSCoordXY = []
                 AdditiveCoordXY = []
@@ -1979,15 +2279,12 @@ class DisplayMappingResults(object):
                         point_color = RED
                     else:
                         point_color = BLUE
-
-                    final_x_pos = Xc-canvas.stringWidth("5",font=symbolFont)/2+1
-                    if final_x_pos > (xLeftOffset + plotWidth):
-                        continue
-                        #break ZS: This is temporary until issue with sorting for GEMMA is fixed
-                    elif final_x_pos < xLeftOffset:
-                        continue
-                    else:
-                        canvas.drawString("5", final_x_pos,Yc+2,color=point_color, font=symbolFont)
+                    im_drawer.text(
+                        text="5",
+                        xy=(
+                            Xc-im_drawer.textsize("5",font=symbolFont)[0]/2+1,
+                            Yc+2),
+                        fill=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
 
@@ -2000,7 +2297,11 @@ class DisplayMappingResults(object):
                 m += 1
 
         if self.manhattan_plot != True:
-            canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+            im_drawer.polygon(
+                xy=LRSCoordXY,
+                outline=thisLRSColor
+                #, closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+            )
 
         if not self.multipleInterval and self.additiveChecked:
             plusColor = self.ADDITIVE_COLOR_POSITIVE
@@ -2015,22 +2316,57 @@ class DisplayMappingResults(object):
                         else:
                             Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
                         if Yc0 < yZero:
-                            canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, Yc0), (Xcm, yZero)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
+                            im_drawer.line(
+                                xy=((Xcm, yZero), (Xc, yZero-(Yc-yZero))),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                         else:
-                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, yZero - (Yc0-yZero)),
+                                    (Xcm, yZero)),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
+                            im_drawer.line(
+                                xy=((Xcm, yZero), (Xc, Yc)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                     elif (Yc0-yZero)*(Yc-yZero) > 0:
                         if Yc < yZero:
-                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, Yc0), (Xc, Yc)), fill=plusColor,
+                                width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                         else:
-                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0,yZero-(Yc0-yZero)),
+                                    (Xc,yZero-(Yc-yZero))),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                     else:
                         minYc = min(Yc-yZero, Yc0-yZero)
                         if minYc < 0:
-                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, Yc0), (Xc, Yc)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                         else:
-                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, yZero - (Yc0-yZero)),
+                                    (Xc, yZero - (Yc-yZero))),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
 
         if not self.multipleInterval and INTERCROSS and self.dominanceChecked:
             plusColor = self.DOMINANCE_COLOR_POSITIVE
@@ -2045,27 +2381,61 @@ class DisplayMappingResults(object):
                         else:
                             Xcm = (yZero-Yc0)/((Yc-Yc0)/(Xc-Xc0)) +Xc0
                         if Yc0 < yZero:
-                            canvas.drawLine(Xc0, Yc0, Xcm, yZero, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            canvas.drawLine(Xcm, yZero, Xc, yZero-(Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, Yc0), (Xcm, yZero)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
+                            im_drawer.line(
+                                xy=((Xcm, yZero), (Xc, yZero-(Yc-yZero))),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                         else:
-                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xcm, yZero, color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
-                            canvas.drawLine(Xcm, yZero, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, yZero - (Yc0-yZero)), (Xcm, yZero)),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
+                            im_drawer.line(
+                                xy=((Xcm, yZero), (Xc, Yc)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                     elif (Yc0-yZero)*(Yc-yZero) > 0:
                         if Yc < yZero:
-                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, Yc0), (Xc, Yc)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                         else:
-                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, yZero - (Yc0-yZero)),
+                                    (Xc, yZero - (Yc-yZero))),
+                                fill=minusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                     else:
                         minYc = min(Yc-yZero, Yc0-yZero)
                         if minYc < 0:
-                            canvas.drawLine(Xc0, Yc0, Xc, Yc, color=plusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, Yc0), (Xc, Yc)),
+                                fill=plusColor, width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
                         else:
-                            canvas.drawLine(Xc0, yZero - (Yc0-yZero), Xc, yZero - (Yc-yZero), color=minusColor, width=lineWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
+                            im_drawer.line(
+                                xy=((Xc0, yZero - (Yc0-yZero)),
+                                    (Xc, yZero - (Yc-yZero))), fill=minusColor,
+                                width=lineWidth
+                                #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                            )
 
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:
-            additiveScaleFont=pid.Font(ttf="verdana",size=16*zoom,bold=0)
+            additiveScaleFont=ImageFont.truetype(font=VERDANA_FILE,size=16*zoom)
             additiveScale = Plot.detScaleOld(0,additiveMax)
             additiveStep = (additiveScale[1]-additiveScale[0])/additiveScale[2]
             additiveAxisList = Plot.frange(0, additiveScale[1], additiveStep)
@@ -2074,13 +2444,24 @@ class DisplayMappingResults(object):
             additiveAxisList.append(additiveScale[1])
             for item in additiveAxisList:
                 additiveY = yZero - item*addPlotScale
-                canvas.drawLine(xLeftOffset + plotWidth,additiveY,xLeftOffset+4+ plotWidth,additiveY,color=self.ADDITIVE_COLOR_POSITIVE, width=1*zoom)
+                im_drawer.line(
+                    xy=((xLeftOffset + plotWidth,additiveY),
+                        (xLeftOffset+4+ plotWidth,additiveY)),
+                    fill=self.ADDITIVE_COLOR_POSITIVE, width=1*zoom)
                 scaleStr = "%2.3f" % item
-                canvas.drawString(scaleStr,xLeftOffset + plotWidth +6,additiveY+5,font=additiveScaleFont,color=self.ADDITIVE_COLOR_POSITIVE)
+                im_drawer.text(
+                    text=scaleStr,
+                    xy=(xLeftOffset + plotWidth +6,additiveY+5),
+                    font=additiveScaleFont,fill=self.ADDITIVE_COLOR_POSITIVE)
 
-            canvas.drawLine(xLeftOffset+plotWidth,additiveY,xLeftOffset+plotWidth,yZero,color=self.ADDITIVE_COLOR_POSITIVE, width=1*zoom)
+            im_drawer.line(
+                xy=((xLeftOffset+plotWidth,additiveY),
+                    (xLeftOffset+plotWidth,yZero)),
+                fill=self.ADDITIVE_COLOR_POSITIVE, width=1*zoom)
 
-        canvas.drawLine(xLeftOffset, yZero, xLeftOffset, yTopOffset + 30*(zoom - 1), color=self.LRS_COLOR, width=1*zoom)  #the blue line running up the y axis
+        im_drawer.line(
+            xy=((xLeftOffset, yZero), (xLeftOffset, yTopOffset + 30*(zoom - 1))),
+            fill=self.LRS_COLOR, width=1*zoom)  #the blue line running up the y axis
 
 
     def drawGraphBackground(self, canvas, gifmap, offset= (80, 120, 80, 50), zoom = 1, startMb = None, endMb = None):
@@ -2088,6 +2469,7 @@ class DisplayMappingResults(object):
         ##multiple Chromosome view
         ##single Chromosome Physical
         ##single Chromosome Genetic
+        im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
@@ -2114,8 +2496,10 @@ class DisplayMappingResults(object):
                 else:
                     theBackColor = self.GRAPH_BACK_LIGHT_COLOR
                 i += 1
-                canvas.drawRect(startPix, yTopOffset, min(startPix+spacingAmt, xLeftOffset+plotWidth), \
-                        yBottom, edgeColor=theBackColor, fillColor=theBackColor)
+                im_drawer.rectangle(
+                    [(startPix, yTopOffset),
+                     (min(startPix+spacingAmt, xLeftOffset+plotWidth), yBottom)],
+                    outline=theBackColor, fill=theBackColor)
 
             drawRegionDistance = self.ChrLengthDistList[self.ChrList[self.selectedChr][1]]
             self.ChrLengthDistList = [drawRegionDistance]
@@ -2132,7 +2516,7 @@ class DisplayMappingResults(object):
                 chrFontZoom = 2
             else:
                 chrFontZoom = 1
-            chrLabelFont=pid.Font(ttf="verdana",size=24*chrFontZoom,bold=0)
+            chrLabelFont=ImageFont.truetype(font=VERDANA_FILE,size=24*chrFontZoom)
 
             for i, _chr in enumerate(self.genotype):
                 if (i % 2 == 0):
@@ -2141,14 +2525,18 @@ class DisplayMappingResults(object):
                     theBackColor = self.GRAPH_BACK_LIGHT_COLOR
 
                 #draw the shaded boxes and the sig/sug thick lines
-                canvas.drawRect(startPosX, yTopOffset, startPosX + self.ChrLengthDistList[i]*plotXScale, \
-                                yBottom, edgeColor=GAINSBORO,fillColor=theBackColor)
+                im_drawer.rectangle(
+                    ((startPosX, yTopOffset),
+                     (startPosX + self.ChrLengthDistList[i]*plotXScale, yBottom)),
+                    outline=GAINSBORO,
+                    fill=theBackColor)
 
-                chrNameWidth = canvas.stringWidth(_chr.name, font=chrLabelFont)
+                chrNameWidth, chrNameHeight = im_drawer.textsize(_chr.name, font=chrLabelFont)
                 chrStartPix = startPosX + (self.ChrLengthDistList[i]*plotXScale -chrNameWidth)/2
                 chrEndPix = startPosX + (self.ChrLengthDistList[i]*plotXScale +chrNameWidth)/2
 
-                canvas.drawString(_chr.name, chrStartPix, yTopOffset + 20 ,font = chrLabelFont,color=BLACK)
+                im_drawer.text(xy=(chrStartPix, yTopOffset + 20),
+                               text=_chr.name, font=chrLabelFont, fill=BLACK)
                 COORDS = "%d,%d,%d,%d" %(chrStartPix, yTopOffset, chrEndPix,yTopOffset +20)
 
                 #add by NL 09-03-2010
@@ -2164,7 +2552,7 @@ class DisplayMappingResults(object):
         #########################################
         #      Permutation Graph
         #########################################
-        myCanvas = pid.PILCanvas(size=(500,300))
+        myCanvas = Image.new("RGBA", size=(500, 300))
         if 'lod_score' in self.qtlresults[0] and self.LRS_LOD == "LRS":
             perm_output = [value*4.61 for value in self.perm_output]
         elif 'lod_score' not in self.qtlresults[0] and self.LRS_LOD == "LOD":
@@ -2174,7 +2562,8 @@ class DisplayMappingResults(object):
 
         filename= webqtlUtil.genRandStr("Reg_")
         Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
-        myCanvas.save(GENERATED_IMAGE_DIR+filename, format='gif')
+        myCanvas.save("{}.gif".format(GENERATED_IMAGE_DIR+filename),
+                      format='gif')
 
         return filename
 
