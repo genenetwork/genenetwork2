@@ -30,7 +30,7 @@ set a number of environment variables), including running scripts and
 a Python REPL, for example
 
 ```sh
-env GN2_PROFILE=~/opt/gn-latest GENENETWORK_FILES=~/data/gn2_data ./bin/genenetrk2
+env GN2_PROFILE=~/opt/gn-latest GENENETWORK_FILES=~/data/gn2_data ./bin/genenetwork2
 ```
 
 see the startup script
