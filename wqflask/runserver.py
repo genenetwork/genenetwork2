@@ -27,9 +27,11 @@ app_config()
 
 werkzeug_logger = logging.getLogger('werkzeug')
 
+from utility.tools import WEBSERVER_MODE, SERVER_PORT
+
 if WEBSERVER_MODE == 'DEBUG':
     app.run(host='0.0.0.0',
-            port=port,
+            port=SERVER_PORT,
             debug=True,
             use_debugger=False,
             threaded=False,
@@ -38,7 +40,7 @@ if WEBSERVER_MODE == 'DEBUG':
 elif WEBSERVER_MODE == 'DEV':
     werkzeug_logger.setLevel(logging.WARNING)
     app.run(host='0.0.0.0',
-            port=port,
+            port=SERVER_PORT,
             debug=False,
             use_debugger=False,
             threaded=False,
@@ -46,7 +48,7 @@ elif WEBSERVER_MODE == 'DEV':
             use_reloader=True)
 else: # staging/production modes
     app.run(host='0.0.0.0',
-            port=port,
+            port=SERVER_PORT,
             debug=False,
             use_debugger=False,
             threaded=True,
