@@ -27,8 +27,17 @@ genenetwork2
 
 (default is http://localhost:5003/). For full examples (you'll need to
 set a number of environment variables), including running scripts and
-a Python REPL, see the startup script
+a Python REPL, for example
+
+```sh
+env GN2_PROFILE=~/opt/gn-latest GENENETWORK_FILES=~/data/gn2_data ./bin/genenetrk2
+```
+
+see the startup script
 [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
+
+Also Mysql and Elasticsearch need to be running, see
+[INSTALL](./doc/README.org).
 
 ## Testing
 
