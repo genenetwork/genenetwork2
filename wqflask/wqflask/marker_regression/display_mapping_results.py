@@ -70,10 +70,13 @@ MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 # ---- END: Define common colours ---- #
 
 # ---- FONT FILES ---- #
-VERDANA_FILE = "fonts/ttf/verdana.ttf"
-TREBUC_FILE = "fonts/ttf/trebucbd.ttf"
-FNT_BS_FILE = "fonts/ttf/fnt_bs.ttf"
-ARIAL_FILE = "fonts/ttf/arial.ttf"
+VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
+TREBUC_FILE = "./wqflask/static/fonts/trebucbd.ttf"
+FNT_BS_FILE = "./wqflask/static/fonts/fnt_bs.ttf"
+ARIAL_FILE = "./wqflask/static/fonts/arial.ttf"
+
+assert(os.path.isfile(VERDANA_FILE))
+
 # ---- END: FONT FILES ---- #
 
 #########################################
