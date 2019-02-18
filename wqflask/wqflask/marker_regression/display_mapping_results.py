@@ -72,10 +72,13 @@ MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 # ---- END: Define common colours ---- #
 
 # ---- FONT FILES ---- #
-VERDANA_FILE = "fonts/ttf/verdana.ttf"
-TREBUC_FILE = "fonts/ttf/trebucbd.ttf"
-FNT_BS_FILE = "fonts/ttf/fnt_bs.ttf"
-ARIAL_FILE = "fonts/ttf/arial.ttf"
+VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
+TREBUC_FILE = "./wqflask/static/fonts/trebucbd.ttf"
+FNT_BS_FILE = "./wqflask/static/fonts/fnt_bs.ttf"
+ARIAL_FILE = "./wqflask/static/fonts/arial.ttf"
+
+assert(os.path.isfile(VERDANA_FILE))
+
 # ---- END: FONT FILES ---- #
 
 #########################################
@@ -2008,8 +2011,8 @@ class DisplayMappingResults(object):
             js_data['max_score'] = LRS_LOD_Max
         self.js_data = json.dumps(js_data)
 
-        LRSScaleFont=pid.Font(ttf="verdana", size=16*zoom, bold=0)
-        LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
+        LRSScaleFont=ImageFont.truetype(font=VERDANA_FILE, size=16*zoom)
+        LRSLODFont=ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
 
         yZero = yTopOffset + plotHeight
         LRSHeightThresh = drawAreaHeight
