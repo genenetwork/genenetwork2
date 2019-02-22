@@ -206,6 +206,7 @@ def jsonable(trait):
         return dict(name=trait.name,
                     symbol=trait.symbol,
                     dataset=dataset.name,
+                    dataset_name = dataset.shortname,
                     description=trait.description_display,
                     mean=trait.mean,
                     location=trait.location_repr,
@@ -217,6 +218,7 @@ def jsonable(trait):
         if trait.pubmed_id:
             return dict(name=trait.name,
                         dataset=dataset.name,
+                        dataset_name = dataset.shortname,
                         description=trait.description_display,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
@@ -228,6 +230,7 @@ def jsonable(trait):
         else:
             return dict(name=trait.name,
                         dataset=dataset.name,
+                        dataset_name = dataset.shortname,
                         description=trait.description_display,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
@@ -238,6 +241,7 @@ def jsonable(trait):
     elif dataset.type == "Geno":
         return dict(name=trait.name,
                     dataset=dataset.name,
+                    dataset_name = dataset.shortname,
                     location=trait.location_repr
                     )
     else:

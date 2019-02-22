@@ -1560,7 +1560,7 @@
          "AIL-LGSM-F34-A": {
             "Phenotypes": [
                [
-                  "None",
+                  "655",
                   "AIL-LGSM-F34-APublish",
                   "AIL-LGSM-F34-A Phenotypes"
                ]
@@ -1569,7 +1569,7 @@
          "AIL-LGSM-F34-F39-43-GBS": {
             "Phenotypes": [
                [
-                  "None",
+                  "654",
                   "AIL-LGSM-F34-F39-43-GBSPublish",
                   "AIL-LGSM-F34-F39-43-GBS Phenotypes"
                ]
@@ -1578,7 +1578,7 @@
          "AIL-LGSM-F34-GBS": {
             "Phenotypes": [
                [
-                  "None",
+                  "656",
                   "AIL-LGSM-F34-GBSPublish",
                   "AIL-LGSM-F34-GBS Phenotypes"
                ]
@@ -1587,7 +1587,7 @@
          "AIL-LGSM-F39-43-GBS": {
             "Phenotypes": [
                [
-                  "None",
+                  "657",
                   "AIL-LGSM-F39-43-GBSPublish",
                   "AIL-LGSM-F39-43-GBS Phenotypes"
                ]
@@ -1713,11 +1713,6 @@
          "B6D2F2": {
             "Brain mRNA": [
                [
-                  "77",
-                  "BRF2_M_0805_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
-               ],
-               [
                   "76",
                   "BRF2_M_0805_M",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
@@ -1726,6 +1721,11 @@
                   "78",
                   "BRF2_M_0805_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
+               ],
+               [
+                  "77",
+                  "BRF2_M_0805_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
                ],
                [
                   "33",
@@ -2082,14 +2082,14 @@
             ],
             "Brain mRNA": [
                [
-                  "164",
-                  "UTHSC_BXD_WB_RNASeq1112",
-                  "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM Untrimmed"
-               ],
-               [
                   "590",
                   "UTHSC_BXD_WB_RNASeqtrim1_1112",
                   "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM Trimmed 1.0"
+               ],
+               [
+                  "164",
+                  "UTHSC_BXD_WB_RNASeq1112",
+                  "UTHSC Mouse BXD Whole Brain RNA Sequence (Nov12) RPKM Untrimmed"
                ],
                [
                   "394",
@@ -2233,11 +2233,6 @@
                   "Eye M430v2 WT Gpnmb (Sep08) RMA"
                ],
                [
-                  "279",
-                  "Eye_M2_0908_R_WT",
-                  "Eye M430v2 WT Tyrp1 (Sep08) RMA"
-               ],
-               [
                   "278",
                   "Eye_M2_0908_R_MT",
                   "Eye M430v2 Mutant Tyrp1 (Sep08) RMA"
@@ -2246,6 +2241,11 @@
                   "382",
                   "Eye_M2_0908_WTWT",
                   "Eye M430v2 WT WT (Sep08) RMA"
+               ],
+               [
+                  "279",
+                  "Eye_M2_0908_R_WT",
+                  "Eye M430v2 WT Tyrp1 (Sep08) RMA"
                ],
                [
                   "400",
@@ -2531,14 +2531,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "239",
-                  "MA_M2F_0706_R",
-                  "Mouse kidney M430v2 Female (Aug06) RMA"
-               ],
-               [
                   "240",
                   "MA_M2M_0706_R",
                   "Mouse kidney M430v2 Male (Aug06) RMA"
+               ],
+               [
+                  "239",
+                  "MA_M2F_0706_R",
+                  "Mouse kidney M430v2 Female (Aug06) RMA"
                ],
                [
                   "118",
@@ -2692,6 +2692,11 @@
                   "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ],
                [
+                  "849",
+                  "EPFLMouseLiverCDEx0413",
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
                   "848",
                   "EPFLMouseLiverHFCEx0413",
                   "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
@@ -2700,11 +2705,6 @@
                   "432",
                   "EPFLMouseLiverCDRMA0413",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
-               ],
-               [
-                  "849",
-                  "EPFLMouseLiverCDEx0413",
-                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "433",
@@ -3121,6 +3121,13 @@
             ]
          },
          "BXD-Harvested": {
+            "Hippocampus mRNA": [
+               [
+                  "873",
+                  "JAX-BXD-Hip-Pro-0219",
+                  "JAX BXD Hippocampal Proteome (Feb19)"
+               ]
+            ],
             "Liver mRNA": [
                [
                   "843",
@@ -3539,11 +3546,6 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "213",
-                  "Illum_LXS_Hipp_NOS_1008",
-                  "Hippocampus Illumina NOS (Oct08) RankInv beta"
-               ],
-               [
                   "219",
                   "Illum_LXS_Hipp_NON_1008",
                   "Hippocampus Illumina NON (Oct08) RankInv beta"
@@ -3562,6 +3564,11 @@
                   "211",
                   "Illum_LXS_Hipp_RSS_1008",
                   "Hippocampus Illumina RSS (Oct08) RankInv beta"
+               ],
+               [
+                  "213",
+                  "Illum_LXS_Hipp_NOS_1008",
+                  "Hippocampus Illumina NOS (Oct08) RankInv beta"
                ],
                [
                   "143",
@@ -5331,6 +5338,10 @@
             [
                "Phenotypes",
                "Phenotypes"
+            ],
+            [
+               "Hippocampus mRNA",
+               "Hippocampus mRNA"
             ],
             [
                "Liver mRNA",

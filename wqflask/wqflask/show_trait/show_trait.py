@@ -350,6 +350,28 @@ def quantile_normalize_vals(sample_groups):
 
     return qnorm_by_group
 
+def get_z_scores(sample_groups):
+    zscore_by_group = []
+    for sample_type in sample_groups:
+        trait_vals = []
+        for sample in sample_type.sample_list:
+            try:
+                trait_vals.append(float(sample.value))
+            except:
+                continue
+
+        qnorm_vals = normf(trait_vals)
+        qnorm_vals_with_x = []
+        counter = 0
+        for sample in sample_type.sample_list:
+            if sample.display_value == "x":
+                qnorm_vals_with_x.append("x")
+            else:
+                qnorm_vals_with_x.append(qnorm_vals[counter])
+                counter += 1
+
+        qnorm_by_group.append(qnorm_vals_with_x)
+
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
     logger.debug("this_chr:", this_chr)

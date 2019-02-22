@@ -117,7 +117,7 @@
           </form>
           <br />
 
-          <div id="table_container">
+          <div id="table_container" style="width: 1400px;">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -224,10 +224,6 @@
                     }
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                     $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 55) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 55));
-                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-                    }
                     $('td', row).slice(6,10).attr("align", "right");
                     $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
                     $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
@@ -237,16 +233,8 @@
                     {% elif dataset.type == 'Publish' %}
                     $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
                     $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
-                    if ($('td', row).eq(3).text().length > 20) {
-                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 20));
-                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
-                    }
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                     $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 55) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 55));
-                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-                    }
                     $('td', row).slice(6,9).attr("align", "right");
                     $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
                     $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
@@ -288,6 +276,7 @@
                     {
                       'title': "Description",
                       'type': "natural",
+                      'width': "500px",
                       'data': "description"
                     },
                     {
@@ -321,11 +310,13 @@
                     {
                       'title': "Description",
                       'type': "natural",
+                      'width': "500px",
                       'data': "description"
                     },
                     {
                       'title': "Authors",
                       'type': "natural",
+                      'width': "300px",
                       'data': "authors"
                     },
                     {
@@ -351,17 +342,20 @@
                     {
                       'title': "Max LRS Location",
                       'type': "natural",
+                      'width': "160px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Additive<br>Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural",
+                      'width': "100px",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Geno' %},
                     {
                       'title': "Location",
                       'type': "natural",
+                      'width': "160px",
                       'data': "location"
                     }{% endif %}
                 ],

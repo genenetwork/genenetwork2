@@ -98,8 +98,6 @@ def find_outliers(vals):
 
     """
 
-    logger.debug("xerxes vals is:", pf(vals))
-
     if vals:
         #logger.debug("vals is:", pf(vals))
         stats = corestats.Stats(vals)
@@ -114,7 +112,6 @@ def find_outliers(vals):
         upper_bound = None
         lower_bound = None
 
-    logger.debug(pf(locals()))
     return upper_bound, lower_bound
 
 # parameter: data is either object returned by reaper permutation function (called by MarkerRegressionPage.py)

@@ -10,7 +10,6 @@
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 {% endblock %}
@@ -142,7 +141,6 @@
     <script type="text/javascript" src="/static/new/javascript/scatter-matrix.js"></script>
     <script type="text/javascript" src="/static/new/javascript/plotly_probability_plot.js"></script>
     <script type="text/javascript" src="/static/new/javascript/compare_traits_scatterplot.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/get_covariates_from_collection.js"></script>
 
     <script type="text/javascript" src="/static/new/javascript/show_trait_mapping_tools.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
@@ -152,6 +150,8 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/noUiSlider/nouislider.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/get_covariates_from_collection.js"></script>
+
     <script type="text/javascript" charset="utf-8">
 
             $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
@@ -177,6 +177,22 @@
                    }
                 });
 
+                //ZS: This variable is just created to get the column position of the first case attribute, since it's needed to set the row classes in createdRow for the DataTable
+                {% if sample_groups[0].attributes|length > 0 %}
+                {% if sample_groups[0].se_exists() %}
+                {% if has_num_cases %}
+                attribute_start_pos = 6
+                {% else %}
+                attribute_start_pos = 5
+                {% endif %}
+                {% else %}
+                {% if has_num_cases %}
+                attribute_start_pos = 4
+                {% else %}
+                attribute_start_pos = 3
+                {% endif %}
+                {% endif %}
+                {% endif %}
 
                 $('#samples_primary').DataTable( {
                   'initComplete': function(settings, json) {
@@ -210,6 +226,11 @@
                     $('td', row).eq(4).addClass("column_name-num_cases")
                     $('td', row).eq(4).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% endif %} {% endif %}
+                    {% if sample_groups[0].attributes|length > 0 %}
+                    {% for attribute in sample_groups[0].attributes|sort() %}
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[0].attributes[attribute].name }}")
+                    {% endfor %}
+                    {% endif %}
                   },
                   'data': js_data['sample_lists'][0],
                   'columns': [
@@ -335,6 +356,11 @@
                     $('td', row).eq(4).addClass("column_name-num_cases")
                     $('td', row).eq(4).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% endif %} {% endif %}
+                    {% if sample_groups[1].attributes|length > 0 %}
+                    {% for attribute in sample_groups[1].attributes|sort() %}
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[1].attributes[attribute].name }}")
+                    {% endfor %}
+                    {% endif %}
                   },
                   'data': js_data['sample_lists'][1],
                   'columns': [

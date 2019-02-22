@@ -2,8 +2,6 @@ var Stat_Table_Rows, is_number,
   __hasProp = {}.hasOwnProperty,
   __slice = [].slice;
 
-console.log("start_b");
-
 is_number = function(o) {
   return !isNaN((o - 0) && o !== null);
 };
@@ -65,7 +63,6 @@ var add, block_by_attribute_value, block_by_index, block_outliers, change_stats_
 add = function() {
   var trait;
   trait = $("input[name=trait_hmac]").val();
-  console.log("trait is:", trait);
   return $.colorbox({
     href: "/collections/add?traits=" + trait
   });
@@ -100,9 +97,7 @@ open_trait_selection = function() {
         inline: true,
         href: "#collections_holder",
         onComplete: function(){
-            console.log("before get script")
             $.getScript("/static/new/javascript/get_traits_from_collection.js");
-            console.log("after get script")
         }
       });
       return $('a.collection_name').attr('onClick', 'return false');
@@ -115,10 +110,10 @@ open_covariate_selection = function() {
       $.colorbox({
         inline: true,
         href: "#collections_holder",
+        width: "1000px",
+        height: "700px",
         onComplete: function(){
-            console.log("before get cov script")
             $.getScript("/static/new/javascript/get_covariates_from_collection.js");
-            console.log("after get cov script")
         }
       });
       return $('a.collection_name').attr('onClick', 'return false');
@@ -142,21 +137,16 @@ stats_mdp_change = function() {
 change_stats_value = function(sample_sets, category, value_type, decimal_places, effects) {
   var current_value, id, in_box, the_value, title_value;
   id = "#" + process_id(category, value_type);
-  console.log("the_id:", id);
   in_box = $(id).html;
   current_value = parseFloat($(in_box)).toFixed(decimal_places);
   the_value = sample_sets[category][value_type]();
-  console.log("After running sample_sets, the_value is:", the_value);
   if (decimal_places > 0) {
     title_value = the_value.toFixed(decimal_places * 2);
     the_value = the_value.toFixed(decimal_places);
   } else {
     title_value = null;
   }
-  console.log("*-* the_value:", the_value);
-  console.log("*-* current_value:", current_value);
   if (the_value !== current_value) {
-    console.log("object:", $(id).html(the_value));
     if (effects) {
       $(id).html(the_value).effect("highlight");
     } else {
@@ -179,7 +169,6 @@ update_stat_values = function(sample_sets) {
       _results1 = [];
       for (_j = 0, _len1 = Stat_Table_Rows.length; _j < _len1; _j++) {
         row = Stat_Table_Rows[_j];
-        console.log("Calling change_stats_value");
         _results1.push(change_stats_value(sample_sets, category, row.vn, row.digits, show_effects));
       }
       return _results1;
@@ -356,7 +345,6 @@ process_id = function() {
   processed = "";
   for (_i = 0, _len = values.length; _i < _len; _i++) {
     value = values[_i];
-    console.log("value:", value);
     value = value.replace(" ", "_");
     if (processed.length) {
       processed += "-";
@@ -378,7 +366,6 @@ edit_data_change = function() {
     samples_other: {},
     samples_all: {}
   };
-  console.log("at beginning:", sample_sets);
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
@@ -412,39 +399,30 @@ edit_data_change = function() {
       }
     }
   }
-  console.log("towards end:", sample_sets);
   update_stat_values(sample_sets);
 
   if ($('#histogram').hasClass('js-plotly-plot')){
-    console.log("redrawing histogram");
     redraw_histogram();
   }
   if ($('#bar_chart').hasClass('js-plotly-plot')){
-    console.log("redrawing bar chart");
     redraw_bar_chart();
   }
   if ($('#box_plot').hasClass('js-plotly-plot')){
-    console.log("redrawing box plot");
     redraw_box_plot();
   }
   if ($('#violin_plot').hasClass('js-plotly-plot')){
-    console.log("redrawing violin plot");
     redraw_violin_plot();
   }
   if ($('#prob_plot_div').hasClass('js-plotly-plot')){
-    console.log("redrawing probability plot");
     return redraw_prob_plot();
   }
 };
 show_hide_outliers = function() {
   var label;
-  console.log("FOOBAR in beginning of show_hide_outliers");
   label = $('#show_hide_outliers').val();
-  console.log("lable is:", label);
   if (label === "Hide Outliers") {
     return $('#show_hide_outliers').val("Show Outliers");
   } else if (label === "Show Outliers") {
-    console.log("Found Show Outliers");
     $('#show_hide_outliers').val("Hide Outliers");
     return console.log("Should be now Hide Outliers");
   }
@@ -452,7 +430,6 @@ show_hide_outliers = function() {
 on_corr_method_change = function() {
   var corr_method;
   corr_method = $('select[name=corr_type]').val();
-  console.log("corr_method is:", corr_method);
   $('.correlation_desc').hide();
   $('#' + corr_method + "_r_desc").show().effect("highlight");
   if (corr_method === "lit") {
@@ -487,7 +464,6 @@ create_value_dropdown = function(value) {
 };
 populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
-  console.log("in beginning of psavd");
   $('#attribute_values').empty();
   sample_attributes = {};
   _ref = js_data.attribute_names;
@@ -496,9 +472,7 @@ populate_sample_attributes_values_dropdown = function() {
     attribute_info = _ref[key];
     sample_attributes[attribute_info.name] = attribute_info.distinct_values;
   }
-  console.log("[visa] attributes is:", sample_attributes);
   selected_attribute = $('#exclude_menu').val().replace("_", " ");
-  console.log("selected_attribute is:", selected_attribute);
   _ref1 = sample_attributes[selected_attribute];
   _results = [];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -507,7 +481,7 @@ populate_sample_attributes_values_dropdown = function() {
   }
   return _results;
 };
-if (js_data.attribute_names.length > 0) {
+if (Object.keys(js_data.attribute_names).length > 0) {
   populate_sample_attributes_values_dropdown();
 }
 $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
@@ -547,21 +521,15 @@ block_by_index = function() {
       }
     } else {
       index = parseInt(index_set);
-      console.log("index:", index);
       index_list.push(index);
     }
   }
-  console.log("index_list:", index_list);
   _results = [];
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     if ($('#block_group').val() === "primary") {
-      console.log("block_group:", $('#block_group').val());
-      console.log("row:", $('#Primary_' + index.toString()));
       _results.push($('#Primary_' + index.toString()).find('.trait_value_input').val("x"));
     } else if ($('#block_group').val() === "other") {
-      console.log("block_group:", $('#block_group').val());
-      console.log("row:", $('#Other_' + index.toString()));
       _results.push($('#Other_' + index.toString()).find('.trait_value_input').val("x"));
     } else {
       _results.push(void 0);
@@ -592,9 +560,7 @@ reset_samples_table = function() {
   $('input[name="transform"]').val("");
   return $('.trait_value_input').each((function(_this) {
     return function(_index, element) {
-      console.log("value is:", $(element).val());
       $(element).val($(element).data('value'));
-      console.log("data-value is:", $(element).data('value'));
       return $(element).parents('.value_se').show();
     };
   })(this));
@@ -629,6 +595,21 @@ sqrt_normalize_data = function() {
   })(this));
 };
 
+invert_data = function() {
+  return $('.edit_sample_value').each((function(_this) {
+    return function(_index, element) {
+      current_value = parseFloat($(element).val());
+      if(isNaN(current_value)) {
+        return current_value
+      } else {
+        $(element).val(-(current_value));
+        return -(current_value)
+      }
+    };
+  })(this));
+};
+
+
 qnorm_data = function() {
   return $('.edit_sample_value').each((function(_this) {
     return function(_index, element) {
@@ -655,6 +636,9 @@ normalize_data = function() {
       sqrt_normalize_data()
       $('input[name="transform"]').val("sqrt")
     }
+  }
+  else if ($('#norm_method option:selected').val() == 'invert'){
+    invert_data()
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
@@ -696,7 +680,6 @@ get_sample_table_data = function(table_name) {
         attribute_info = _ref[key];
         row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_")).text());
       }
-      console.log("row_data is:", row_data);
       return samples.push(row_data);
     };
   })(this));
@@ -707,18 +690,14 @@ export_sample_table_data = function() {
   sample_data = {};
   sample_data.primary_samples = get_sample_table_data('samples_primary');
   sample_data.other_samples = get_sample_table_data('samples_other');
-  console.log("sample_data is:", sample_data);
   json_sample_data = JSON.stringify(sample_data);
-  console.log("json_sample_data is:", json_sample_data);
   $('input[name=export_data]').val(json_sample_data);
-  console.log("export_data is", $('input[name=export_data]').val());
   format = $('input[name=export_format]').val();
   if (format === "excel") {
     $('#trait_data_form').attr('action', '/export_trait_excel');
   } else {
     $('#trait_data_form').attr('action', '/export_trait_csv');
   }
-  console.log("action is:", $('#trait_data_form').attr('action'));
   return $('#trait_data_form').submit();
 };
 
@@ -728,9 +707,7 @@ $('.export_format').change(function() {
 });
 
 $('.export').click(export_sample_table_data);
-console.log("before registering block_outliers");
 $('#block_outliers').click(block_outliers);
-console.log("after registering block_outliers");
 _.mixin(_.str.exports());
 
 get_sample_vals = function(sample_list) {
