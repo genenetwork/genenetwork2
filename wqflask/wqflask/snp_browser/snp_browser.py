@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, division
 from flask import Flask, g, url_for
 
 import string
-import piddle as pid
+from PIL import (Image)
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -629,7 +629,7 @@ class SnpBrowser(object):
 
         canvas_width = 900
         canvas_height = 200
-        snp_canvas = pid.PILCanvas(size=(canvas_width, canvas_height))
+        snp_canvas = Image.new("RGBA", size=(canvas_width, canvas_height))
         left_offset, right_offset, top_offset, bottom_offset = (30, 30, 40, 50)
         plot_width = canvas_width - left_offset - right_offset
         plot_height = canvas_height - top_offset - bottom_offset
