@@ -50,9 +50,9 @@ BLACK = ImageColor.getrgb("black")
 # ---- END: Define common colours ---- #
 
 # ---- FONT FILES ---- #
-VERDANA_FILE = "fonts/ttf/verdana.ttf"
-COUR_FILE = "fonts/ttf/courbd.ttf"
-TAHOMA_FILE = "fonts/ttf/tahoma.ttf"
+VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
+COUR_FILE = "./wqflask/static/fonts/courbd.ttf"
+TAHOMA_FILE = "./wqflask/static/fonts/tahoma.ttf"
 # ---- END: FONT FILES ---- #
 
 def cformat(d, rank=0):
