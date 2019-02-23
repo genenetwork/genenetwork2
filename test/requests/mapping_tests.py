@@ -11,16 +11,6 @@ def load_data_from_file():
     file_data = json.loads(file_handle.read().encode("utf-8"))
     return file_data
 
-def check_pylmm_tool_selection(host, data):
-    print("")
-    print("pylmm mapping tool selection")
-    data["method"] = "pylmm"
-    page = requests.post(host+"/marker_regression", data=data)
-    doc = fromstring(page.text)
-    form = doc.forms[1]
-    assert form.fields["dataset"] == "HC_M2_0606_P"
-    assert form.fields["value:BXD1"] == "15.034" # Check value in the file
-
 def check_R_qtl_tool_selection(host, data):
     print("")
     print("R/qtl mapping tool selection")

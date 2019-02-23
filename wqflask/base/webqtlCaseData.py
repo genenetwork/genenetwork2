@@ -81,6 +81,6 @@ class webqtlCaseData(object):
     @property
     def display_num_cases(self):
         if self.num_cases != None:
-            return "%d" % self.num_cases
+            return "%s" % self.num_cases
         else:
             return "x"

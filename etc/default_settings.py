@@ -89,7 +89,6 @@ GENENETWORK_FILES   = HOME+"/genotype_files"  # base dir for all static data fil
 JS_GN_PATH = os.environ['HOME']+"/genenetwork/javascript"
 
 # ---- GN2 Executables (overwrite for testing only)
-# PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
 # PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 # GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
 # GEMMA_WRAPPER_COMMAND = str.strip(os.popen("which gemma-wrapper").read())

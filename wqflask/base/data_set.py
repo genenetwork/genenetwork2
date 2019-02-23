@@ -317,7 +317,7 @@ class DatasetGroup(object):
 
         mapping_id = g.db.execute("select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
         if mapping_id == "1":
-            mapping_names = ["QTLReaper", "PYLMM", "R/qtl"]
+            mapping_names = ["QTLReaper", "R/qtl"]
         elif mapping_id == "2":
             mapping_names = ["GEMMA"]
         elif mapping_id == "4":
