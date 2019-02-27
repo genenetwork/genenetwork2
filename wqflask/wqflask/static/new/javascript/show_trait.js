@@ -447,14 +447,14 @@ submit_special = function(url) {
 
 submit_corr = function(){
     var url;
-    url = "/corr_compute";
+    url = "/corr_loading";
     return submit_special(url);
 };
 
 $(".corr_compute").on("click", (function(_this) {
   return function() {
     var url;
-    url = "/corr_compute";
+    url = "/corr_loading";
     return submit_special(url);
   };
 })(this));

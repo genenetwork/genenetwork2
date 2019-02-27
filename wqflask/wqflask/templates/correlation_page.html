@@ -229,22 +229,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
 
     <script type="text/javascript" charset="utf-8">
-        function getValue(x) {
-            if (x.indexOf('input') >= 0) {
-                if ($(x).val() == 'x') {
-                    return 0;
-                }
-                else {
-                   return parseFloat($(x).val());
-                }
-            }
-            else if (isNaN(x)) {
-                return x;
-            }
-            return parseFloat(x);
-        }
-
-
         jQuery.fn.dataTableExt.oSort['numeric-html-asc']  = function(a,b) {
             a = Math.abs(parseFloat($(a).text()));
             b = Math.abs(parseFloat($(b).text()));
@@ -258,24 +242,19 @@
         };
 
         jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b); 
-            
-            if (x == 'N/A' || x == '') {
+            if (a == 'N/A' || a == '') {
                 return 1;
             }
-            else if (y == 'N/A' || y == '') {
+            else if (b == 'N/A' || b == '') {
                 return -1;
             }
             else {
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                return ((a < b) ? -1 : ((a > b) ? 1 : 0));
             }
         };
             
         jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+            return ((a < b) ? 1 : ((a > b) ? -1 : 0));
         };
 
 

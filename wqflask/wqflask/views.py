@@ -684,36 +684,39 @@ def mapping_results_page():
         with Bench("Total time in RunMapping"):
             template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
 
-        if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
-            template_vars.js_data = json.dumps(template_vars.js_data,
-                                               default=json_default_handler,
-                                               indent="   ")
-
-        result = template_vars.__dict__
-
-        if result['pair_scan']:
-            with Bench("Rendering template"):
-                img_path = result['pair_scan_filename']
-                logger.info("img_path:", img_path)
-                initial_start_vars = request.form
-                logger.info("initial_start_vars:", initial_start_vars)
-                imgfile = open(TEMPDIR + img_path, 'rb')
-                imgdata = imgfile.read()
-                imgB64 = imgdata.encode("base64")
-                bytesarray = array.array('B', imgB64)
-                result['pair_scan_array'] = bytesarray
-                rendered_template = render_template("pair_scan_results.html", **result)
+        if template_vars.no_results:
+            rendered_template = render_template("mapping_error.html")
         else:
-            gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-            #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-            #logger.info("pickled result length:", len(pickled_result))
-            #Redis.set(key, pickled_result)
-            #Redis.expire(key, 1*60)
+          if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
+              template_vars.js_data = json.dumps(template_vars.js_data,
+                                                 default=json_default_handler,
+                                                 indent="   ")
 
-            with Bench("Rendering template"):
-                if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                    gn1_template_vars.pop('qtlresults', None)
-                rendered_template = render_template("mapping_results.html", **gn1_template_vars)
+          result = template_vars.__dict__
+
+          if result['pair_scan']:
+              with Bench("Rendering template"):
+                  img_path = result['pair_scan_filename']
+                  logger.info("img_path:", img_path)
+                  initial_start_vars = request.form
+                  logger.info("initial_start_vars:", initial_start_vars)
+                  imgfile = open(TEMPDIR + img_path, 'rb')
+                  imgdata = imgfile.read()
+                  imgB64 = imgdata.encode("base64")
+                  bytesarray = array.array('B', imgB64)
+                  result['pair_scan_array'] = bytesarray
+                  rendered_template = render_template("pair_scan_results.html", **result)
+          else:
+              gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+              #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+              #logger.info("pickled result length:", len(pickled_result))
+              #Redis.set(key, pickled_result)
+              #Redis.expire(key, 1*60)
+
+              with Bench("Rendering template"):
+                  if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
+                      gn1_template_vars.pop('qtlresults', None)
+                  rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
@@ -768,6 +771,40 @@ def network_graph_page():
         return render_template("network_graph.html", **template_vars.__dict__)
     else:
         return render_template("empty_collection.html", **{'tool':'Network Graph'})
+
+@app.route("/corr_loading", methods=('POST',))
+def corr_loading_page():
+    logger.info(request.url)
+    initial_start_vars = request.form
+    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
+    #temp_uuid = initial_start_vars['temp_uuid']
+    wanted = (
+        'corr_type',
+        'trait_id',
+        'dataset',
+        'group',
+        'corr_sample_method',
+        'corr_samples_group',
+        'corr_dataset',
+        'min_expr',
+        'corr_return_results',
+        'loc_chr',
+        'min_loc_mb',
+        'max_loc_mb',
+        'p_range_lower',
+        'p_range_upper'
+    )
+    start_vars_container = {}
+    start_vars = {}
+    for key, value in initial_start_vars.iteritems():
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+
+    start_vars_container['start_vars'] = start_vars
+    rendered_template = render_template("loading_correlation.html", **start_vars_container)
+
+    return rendered_template
+
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
