@@ -152,7 +152,7 @@
   })(this));
 
   //ZS: This is a list of inputs to be passed to the loading page, since not all inputs on the trait page are relevant to mapping
-  var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
+  var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
@@ -198,6 +198,7 @@
       $('input[name=genofile]').val($('#genofile_gemma').val());
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
       $('input[name=tool_used]').val("Mapping");
+      $('input[name=form_url]').val("/run_mapping");
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
     };
@@ -218,6 +219,7 @@
       $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
       $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
       $('input[name=tool_used]').val("Mapping");
+      $('input[name=form_url]').val("/run_mapping");
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
     };

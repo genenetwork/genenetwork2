@@ -148,6 +148,7 @@ class DisplayMappingResults(object):
         self.this_trait = start_vars['this_trait']
         self.n_samples = len(start_vars['vals'])
         self.species = start_vars['species']
+        self.genofile_string = ""
         if 'genofile_string' in start_vars:
             self.genofile_string = start_vars['genofile_string']
 
@@ -887,7 +888,10 @@ class DisplayMappingResults(object):
 
         string1 = 'Dataset: %s' % (dataset_label)
 
-        string2 = 'Using Genotype File: %s' % self.genofile_string
+        if self.genofile_string == "":
+            string2 = 'Genotype File: %s.geno' % self.dataset.group.name
+        else:
+            string2 = 'Genotype File: %s' % self.genofile_string
 
         string4 = ''
         if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
@@ -1852,7 +1856,10 @@ class DisplayMappingResults(object):
                             Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    point_color = pid.black
+                    if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
+                        point_color = pid.grey
+                    else:
+                        point_color = pid.black
                     canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
