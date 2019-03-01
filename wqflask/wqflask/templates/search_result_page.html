@@ -51,6 +51,8 @@
 
         <div>
           <form id="trait_submission_form" target="_blank" action="/corr_matrix" method="post">
+            <input type="hidden" name="tool_used" value="" />
+            <input type="hidden" name="form_url" value="" />
             <input type="hidden" name="trait_list" id="trait_list" value= "
             {% for this_trait in trait_list %}
                 {{ this_trait.name }}:{{ this_trait.dataset }},

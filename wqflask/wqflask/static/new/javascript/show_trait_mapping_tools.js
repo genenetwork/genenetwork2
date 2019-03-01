@@ -4,9 +4,6 @@
 
   submit_special = function(url) {
     console.log("In submit_special");
-    console.log("this is:", this);
-    console.log("$(this) is:", $(this));
-    console.log("url is:", url);
     $("#trait_data_form").attr("action", url);
     return $("#trait_data_form").submit();
   };
@@ -154,6 +151,13 @@
     };
   })(this));
 
+  //ZS: This is a list of inputs to be passed to the loading page, since not all inputs on the trait page are relevant to mapping
+  var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
+                            'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
+                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
+                            'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
+                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species']
+
   $("#rqtl_geno_compute").on("click", (function(_this) {
     return function() {
       var form_data, url;
@@ -165,10 +169,10 @@
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
-      form_data = $('#trait_data_form').serialize();
-      console.log("form_data is:", form_data);
+      $('input[name=tool_used]').val("Mapping");
+      $('input[name=form_url]').val("/run_mapping");
+      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       if ($('input[name=pair_scan]:checked').val() == "true") {
-        console.log("PAIR SCAN:", $('input[name=pair_scan]:checked').val())
         run_pair_scan = confirm(runtime_warning_text)
         if (run_pair_scan == true) {
           submit_special(url);
@@ -193,8 +197,8 @@
       $('input[name=num_perm]').val(0);
       $('input[name=genofile]').val($('#genofile_gemma').val());
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
-      form_data = $('#trait_data_form').serialize();
-      console.log("form_data is:", form_data);
+      $('input[name=tool_used]').val("Mapping");
+      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
     };
   })(this));
@@ -203,7 +207,6 @@
     return function() {
       var form_data, url;
       console.log("In interval mapping");
-      //$("#progress_bar_container").modal();
       url = "/loading";
       $('input[name=method]').val("reaper");
       $('input[name=selected_chr]').val($('#chr_reaper').val());
@@ -214,10 +217,9 @@
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
       $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
       $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
-      form_data = $('#trait_data_form').serialize();
-      console.log("form_data is:", form_data);
+      $('input[name=tool_used]').val("Mapping");
+      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
-      //return do_ajax_post(url, form_data);
     };
   })(this));
 

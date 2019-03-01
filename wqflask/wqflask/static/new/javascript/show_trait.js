@@ -445,16 +445,15 @@ submit_special = function(url) {
   return $("#trait_data_form").submit();
 };
 
-submit_corr = function(){
-    var url;
-    url = "/corr_loading";
-    return submit_special(url);
-};
+var corr_input_list = ['corr_type', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
+                        'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
 $(".corr_compute").on("click", (function(_this) {
   return function() {
-    var url;
-    url = "/corr_loading";
+    $('input[name=tool_used]').val("Correlation");
+    $('input[name=form_url]').val("/corr_compute");
+    $('input[name=wanted_inputs]').val(corr_input_list.join(","));
+    url = "/loading";
     return submit_special(url);
   };
 })(this));

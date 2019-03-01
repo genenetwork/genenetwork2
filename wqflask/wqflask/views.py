@@ -550,58 +550,17 @@ def mapping_results_container_page():
 def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
-    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
-    #temp_uuid = initial_start_vars['temp_uuid']
-    wanted = (
-        'temp_uuid',
-        'trait_id',
-        'dataset',
-        'method',
-        'trimmed_markers',
-        'selected_chr',
-        'chromosomes',
-        'mapping_scale',
-        'score_type',
-        'suggestive',
-        'significant',
-        'num_perm',
-        'permCheck',
-        'perm_output',
-        'num_bootstrap',
-        'bootCheck',
-        'bootstrap_results',
-        'LRSCheck',
-        'covariates',
-        'maf',
-        'use_loco',
-        'manhattan_plot',
-        'control_marker',
-        'control_marker_db',
-        'do_control',
-        'genofile',
-        'pair_scan',
-        'startMb',
-        'endMb',
-        'graphWidth',
-        'lrsMax',
-        'additiveCheck',
-        'showSNP',
-        'showGenes',
-        'viewLegend',
-        'haplotypeAnalystCheck',
-        'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno',
-        'temp_trait',
-        'group',
-        'species'
-    )
     start_vars_container = {}
-    start_vars = {}
-    for key, value in initial_start_vars.iteritems():
-        if key in wanted or key.startswith(('value:')):
-            start_vars[key] = value
+    if 'wanted_inputs' in initial_start_vars:
+        wanted = initial_start_vars['wanted_inputs'].split(",")
+        start_vars = {}
+        for key, value in initial_start_vars.iteritems():
+            if key in wanted or key.startswith(('value:')):
+                start_vars[key] = value
 
-    start_vars_container['start_vars'] = start_vars
+        start_vars_container['start_vars'] = start_vars
+    else:
+        start_vars_container['start_vars'] = initial_start_vars
     rendered_template = render_template("loading.html", **start_vars_container)
 
     return rendered_template
@@ -772,40 +731,6 @@ def network_graph_page():
         return render_template("network_graph.html", **template_vars.__dict__)
     else:
         return render_template("empty_collection.html", **{'tool':'Network Graph'})
-
-@app.route("/corr_loading", methods=('POST',))
-def corr_loading_page():
-    logger.info(request.url)
-    initial_start_vars = request.form
-    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
-    #temp_uuid = initial_start_vars['temp_uuid']
-    wanted = (
-        'corr_type',
-        'trait_id',
-        'dataset',
-        'group',
-        'corr_sample_method',
-        'corr_samples_group',
-        'corr_dataset',
-        'min_expr',
-        'corr_return_results',
-        'loc_chr',
-        'min_loc_mb',
-        'max_loc_mb',
-        'p_range_lower',
-        'p_range_upper'
-    )
-    start_vars_container = {}
-    start_vars = {}
-    for key, value in initial_start_vars.iteritems():
-        if key in wanted or key.startswith(('value:')):
-            start_vars[key] = value
-
-    start_vars_container['start_vars'] = start_vars
-    rendered_template = render_template("loading_correlation.html", **start_vars_container)
-
-    return rendered_template
-
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
