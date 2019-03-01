@@ -615,6 +615,9 @@ def mapping_results_page():
     wanted = (
         'trait_id',
         'dataset',
+        'group',
+        'species',
+        'vals',
         'geno_db_exists',
         'method',
         'mapping_results_path',
@@ -654,9 +657,7 @@ def mapping_results_page():
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
-        'temp_trait',
-        'group',
-        'species'
+        'temp_trait'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
