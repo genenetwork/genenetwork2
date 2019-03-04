@@ -27,11 +27,19 @@ def cmp_samples(a, b):
     if b[0] == 'name':
         return 1
     elif b[0] == 'value':
-        if a[0] == 'se':
-            return 1
-        else:
+        if a[0] == 'name':
             return -1
+        else:
+            return 1
     elif b[0] == 'se':
-        return -1
+        if a[0] == 'name' or a[0] == 'value':
+            return -1
+        else:
+            return 1
+    elif b[0] == 'num_cases':
+        if a[0] == 'name' or a[0] == 'value' or a[0] == 'se':
+            return -1
+        else:
+            return 1
     else:
-        return 0
+        return -1

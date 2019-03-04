@@ -35,11 +35,33 @@ Stat_Table_Rows = [
     vn: "max",
     pretty: "Maximum",
     digits: 2
-  }, {
-    vn: "range",
-    pretty: "Range (log2)",
-    digits: 3
-  }, {
+  }
+]
+
+if (js_data.dataset_type == "ProbeSet"){
+  if (js_data.data_scale == "linear_positive" || js_data.data_scale == "log2") {
+    Stat_Table_Rows.push({
+                           vn: "range",
+                           pretty: "Range (log2)",
+                           digits: 3
+                         })
+  } else {
+    Stat_Table_Rows.push({
+                           vn: "range",
+                           pretty: "Range",
+                           digits: 3
+                         })
+  }
+} else {
+  Stat_Table_Rows.push({
+                       vn: "range",
+                       pretty: "Range",
+                       digits: 3
+                     })
+}
+
+Stat_Table_Rows.push(
+  {
     vn: "range_fold",
     pretty: "Range (fold)",
     digits: 3
@@ -57,7 +79,7 @@ Stat_Table_Rows = [
     pretty: "Kurtosis",
     digits: 3
   }
-];
+);
 
 var add, block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, redraw_bar_chart, redraw_histogram, redraw_prob_plot, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
 add = function() {
@@ -314,7 +336,7 @@ make_table = function() {
   the_rows = "<tbody>";
   for (_i = 0, _len = Stat_Table_Rows.length; _i < _len; _i++) {
     row = Stat_Table_Rows[_i];
-    if ((row.vn == "range_fold" || row.vn == "range") && js_data.dataset_type == "Publish"){
+    if ((row.vn == "range_fold") && js_data.dataset_type == "Publish"){
         continue;
     }
     row_line = "<tr>";
@@ -696,9 +718,12 @@ get_sample_table_data = function(table_name) {
       var attribute_info, key, row_data, _ref;
       row_data = {};
       row_data.name = $.trim($(element).find('.column_name-Sample').text());
-      row_data.value = $(element).find('.edit_sample_value').val();
-      if ($(element).find('.edit_sample_se').length !== -1) {
+      row_data.value = $(element).find('.edit_sample_value:eq(0)').val();
+      if ($(element).find('.edit_sample_se').length > 0) {
         row_data.se = $(element).find('.edit_sample_se').val();
+      }
+      if ($(element).find('.edit_sample_num_cases').length > 0) {
+        row_data.num_cases = $(element).find('.edit_sample_num_cases').val();
       }
       _ref = js_data.attribute_names;
       for (key in _ref) {

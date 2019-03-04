@@ -321,10 +321,8 @@ def export_trait_excel():
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     for i, row in enumerate(sample_data):
-        worksheet.write(i, 0, row[0])
-        worksheet.write(i, 1, row[1])
-        if len(row) > 2:
-            worksheet.write(i, 2, row[2])
+        for j, column in enumerate(row):
+            worksheet.write(i, j, row[j])
     workbook.close()
     excel_data = buff.getvalue()
     buff.close()
