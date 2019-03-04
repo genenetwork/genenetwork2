@@ -557,6 +557,7 @@ block_outliers = function() {
 $('#block_outliers').click(block_outliers);
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
+  $('span[name="transform_text"]').text("")
   return $('.trait_value_input').each((function(_this) {
     return function(_index, element) {
       $(element).val($(element).data('value'));
@@ -623,26 +624,52 @@ qnorm_data = function() {
   })(this));
 };
 
+zscore_data = function() {
+  return $('.edit_sample_value').each((function(_this) {
+    return function(_index, element) {
+      current_value = parseFloat($(element).data("value")) + 1;
+      if(isNaN(current_value)) {
+        return current_value
+      } else {
+        $(element).val($(element).data("zscore"));
+        return $(element).data("zscore");
+      }
+    };
+  })(this));
+};
+
 normalize_data = function() {
   if ($('#norm_method option:selected').val() == 'log2'){
     if ($('input[name="transform"]').val() != "log2") {
       log_normalize_data()
       $('input[name="transform"]').val("log2")
+      $('span[name="transform_text"]').text(" - log2 transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
     if ($('input[name="transform"]').val() != "sqrt") {
       sqrt_normalize_data()
       $('input[name="transform"]').val("sqrt")
+      $('span[name="transform_text"]').text(" - Square Root transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'invert'){
     invert_data()
+    $('input[name="transform"]').val("inverted")
+    $('span[name="transform_text"]').text(" - Inverted")
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
       qnorm_data()
       $('input[name="transform"]').val("qnorm")
+      $('span[name="transform_text"]').text(" - Quantile Normalized")
+    }
+  }
+  else if ($('#norm_method option:selected').val() == 'zscore'){
+    if ($('input[name="transform"]').val() != "zscore") {
+      zscore_data()
+      $('input[name="transform"]').val("zscore")
+      $('span[name="transform_text"]').text(" - Z-Scores")
     }
   }
 }

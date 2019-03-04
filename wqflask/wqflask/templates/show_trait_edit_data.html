@@ -13,7 +13,7 @@
     {% for sample_type in sample_groups %}
         {% set outer_loop = loop %}
         <div class="sample_group" style="width:{{ trait_table_width }};">
-            <h3>{{ sample_type.header }}</h3>
+            <h3>{{ sample_type.header }}<span name="transform_text"></span></h3>
             <hr style="margin-top: 4px; margin-bottom: 10px; height: 1px; background-color: #A9A9A9;">
             <div id="table_container">
             <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
