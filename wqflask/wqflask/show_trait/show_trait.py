@@ -199,6 +199,7 @@ class ShowTrait(object):
 
         #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
+        self.binary = "true" #ZS: So it knows whether to display the Binary R/qtl mapping method, which doesn't work unless all values are 0 or 1
         max_samplename_width = 1
         for group in self.sample_groups:
             for sample in group.sample_list:
@@ -206,6 +207,8 @@ class ShowTrait(object):
                     max_samplename_width = len(sample.name)
                 if sample.display_value != "x":
                     self.num_values += 1
+                    if sample.display_value != 0 or sample.display_value != 1:
+                        self.binary = "false"
 
         sample_column_width = max_samplename_width * 8
 

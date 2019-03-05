@@ -187,7 +187,10 @@ class RunMapping(object):
             self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.method = start_vars['mapmethod_rqtl_geno']
+            if 'mapmethod_rqtl_geno' in start_vars:
+                self.method = start_vars['mapmethod_rqtl_geno']
+            else:
+                self.method = "em"
             self.model = start_vars['mapmodel_rqtl_geno']
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
