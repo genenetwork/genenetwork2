@@ -44,6 +44,7 @@
 
 {% block js %}
     <script language="javascript" type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
@@ -79,14 +80,6 @@
 
             console.time("Creating table");
             $('#trait_table').DataTable( {
-                'drawCallback': function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                     $('.trait_checkbox:checkbox').on("change", change_buttons);
-                },
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
                     $('td', row).eq(1).attr("align", "right");

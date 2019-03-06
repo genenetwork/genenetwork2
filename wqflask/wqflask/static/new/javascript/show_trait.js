@@ -67,7 +67,7 @@ Stat_Table_Rows.push(
     digits: 3
   }, {
     vn: "interquartile",
-    pretty: "Interquartile Range",
+    pretty: "<font color='blue'>Interquartile Range</font>",
     url: "http://www.genenetwork.org/glossary.html#Interquartile",
     digits: 3
   }, {
@@ -319,7 +319,11 @@ redraw_prob_plot = function() {
 
 make_table = function() {
   var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
-  header = "<thead><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+  if (js_data.trait_symbol != null) {
+    header = "<thead><tr><th style=\"text-align: center;\" colspan=\"100%\">Trait: " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+  } else {
+    header = "<thead><tr><th style=\"text-align: center;\" colspan=\"100%\">Trait: " + js_data.trait_id + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+  }
   _ref = js_data.sample_group_types;
   for (key in _ref) {
     if (!__hasProp.call(_ref, key)) continue;

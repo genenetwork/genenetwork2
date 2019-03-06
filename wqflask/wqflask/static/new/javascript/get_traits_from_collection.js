@@ -10,6 +10,57 @@ this_trait_data = null;
 
 selected_traits = {};
 
+$('#collections_list').attr("style", "width: 100%;");
+$('#trait_table').dataTable( {
+    "drawCallback": function( settings ) {
+         $('#trait_table tr').click(function(event) {
+             if (event.target.type !== 'checkbox') {
+                 $(':checkbox', this).trigger('click');
+             }
+         });
+    },
+    "columns": [
+        { "type": "natural", "width": "3%" },
+        { "type": "natural", "width": "8%" },
+        { "type": "natural", "width": "20%" },
+        { "type": "natural", "width": "25%" },
+        { "type": "natural", "width": "25%" },
+        { "type": "natural", "width": "15%" }
+    ],
+    "columnDefs": [ {
+        "targets": 0,
+        "orderable": false
+    } ],
+    "order": [[1, "asc" ]],
+    "sDom": "RZtr",
+    "iDisplayLength": -1,
+    "autoWidth": true,
+    "bDeferRender": true,
+    "bSortClasses": false,
+    "paging": false,
+    "orderClasses": true
+} );
+
+$('#collection_table').dataTable( {
+    "createdRow": function ( row, data, index ) {
+        if ($('td', row).eq(1).text().length > 40) {
+            $('td', row).eq(1).text($('td', row).eq(2).text().substring(0, 40));
+            $('td', row).eq(1).text($('td', row).eq(2).text() + '...')
+        }
+        if ($('td', row).eq(3).text().length > 50) {
+            $('td', row).eq(3).text($('td', row).eq(4).text().substring(0, 50));
+            $('td', row).eq(3).text($('td', row).eq(4).text() + '...')
+        }
+    },
+    "order": [[0, "asc" ]],
+    "sDom": "ZRtr",
+    "iDisplayLength": -1,
+    "autoWidth": true,
+    "bSortClasses": false,
+    "paging": false,
+    "orderClasses": true
+} );
+
 collection_click = function() {
   var this_collection_url;
   //console.log("Clicking on:", $(this));
@@ -199,6 +250,7 @@ populate_cofactor_info = function(trait_info) {
 get_trait_data = function(trait_data, textStatus, jqXHR) {
   var sample, samples, this_trait_vals, trait_sample_data, vals, _i, _len;
   trait_sample_data = trait_data[1];
+  console.log("IN GET TRAIT DATA")
   if ( $('input[name=allsamples]').length ) {
     samples = $('input[name=allsamples]').val().split(" ");
   } else {
@@ -320,11 +372,11 @@ process_traits = function(trait_data, textStatus, jqXHR) {
   if ($('#scatterplot2').length){
     the_html += "    Please click the row of the trait you wish to select as a cofactor.";
   }
-  the_html += "<table class='table table-hover'>";
+  the_html += "<table id='collection_table' class='table table-hover'>";
   if ($('.corr_compute').length){
     the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
   } else {
-    the_html += "<thead><tr><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
+    the_html += "<thead><tr><th>Record</th><th>Data Set</th><th>Description</th></tr></thead>";
   }
   the_html += "<tbody>";
   for (_i = 0, _len = trait_data.length; _i < _len; _i++) {
@@ -336,7 +388,6 @@ process_traits = function(trait_data, textStatus, jqXHR) {
     the_html += "<td class='trait'>" + trait.name + "</td>";
     the_html += "<td class='dataset'>" + trait.dataset + "</td>";
     the_html += "<td>" + trait.description + "</td>";
-    the_html += "<td>" + (trait.mean || '&nbsp;') + "</td></tr>";
   }
   the_html += "</tbody>";
   the_html += "</table>";
