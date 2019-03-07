@@ -933,7 +933,7 @@ if (full_sample_lists.length > 1) {
         fillcolor: 'cls',
         pointpos: -3,
         marker: {
-            color: 'rgb(0, 0, 255)',
+            color: 'blue',
             size: 3
         },
         line: {
@@ -950,7 +950,7 @@ if (full_sample_lists.length > 1) {
         fillcolor: 'cls',
         pointpos: -3,
         marker: {
-            color: 'rgb(200, 0, 0)',
+            color: 'red',
             size: 3
         },
         line: {
@@ -967,7 +967,7 @@ if (full_sample_lists.length > 1) {
         fillcolor: 'cls',
         pointpos: -3,
         marker: {
-            color: 'rgb(0, 104, 0)',
+            color: 'green',
             size: 3
         },
         line: {
@@ -1048,7 +1048,7 @@ if (full_sample_lists.length > 1) {
           visible: true
         },
         line: {
-          color: 'green',
+          color: 'blue',
         },
         meanline: {
           visible: true
@@ -1064,7 +1064,7 @@ if (full_sample_lists.length > 1) {
           visible: true
         },
         line: {
-          color: 'green',
+          color: 'red',
         },
         meanline: {
           visible: true
