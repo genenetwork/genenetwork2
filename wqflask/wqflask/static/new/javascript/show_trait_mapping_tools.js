@@ -225,7 +225,7 @@
     };
   })(this));
 
-  $("#interval_mapping_compute").on("mouseover", (function(_this) {
+  $("#interval_mapping_compute, #gemma_compute, rqtl_geno_compute").on("mouseover", (function(_this) {
     return function() {
       if ($(".outlier").length && $(".outlier-alert").length < 1) {
         return showalert(outlier_text, "alert-success outlier-alert");

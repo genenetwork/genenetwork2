@@ -81,17 +81,22 @@ submit_click = function() {
   $('#collections_holder').find('input[type=checkbox]:checked').each(function() {
     var this_dataset, this_trait;
     this_trait = $(this).parents('tr').find('.trait').text();
+    this_trait_display = $(this).parents('tr').find('.trait').data("display_name");
     this_description = $(this).parents('tr').find('.description').text();
-    console.log("this_trait is:", this_trait);
+    console.log("this_trait is:", this_trait_display);
     this_dataset = $(this).parents('tr').find('.dataset').data("dataset");
     console.log("this_dataset is:", this_dataset);
     covariates_string += this_trait + ":" + this_dataset + ","
-    this_covariate_display_string = this_trait + ": " + this_description
+    //this_covariate_display_string = this_trait + ": " + this_description
+    this_covariate_display_string = this_trait_display
     if (this_covariate_display_string.length > 50) {
       this_covariate_display_string = this_covariate_display_string.substring(0, 45) + "..."
     }
     covariates_display_string += this_covariate_display_string + "\n"
   });
+  // Trim the last newline from display_string
+  covariates_display_string = covariates_display_string.replace(/\n$/, "")
+
   // Trim the last comma
   covariates_string = covariates_string.substring(0, covariates_string.length - 1)
   //covariates_display_string = covariates_display_string.substring(0, covariates_display_string.length - 2)
@@ -189,7 +194,13 @@ process_traits = function(trait_data, textStatus, jqXHR) {
     trait = trait_data[_i];
     the_html += "<tr class='trait_line'>";
     the_html += "<td class='select_trait'><input type='checkbox' name='selectCheck' class='checkbox edit_sample_checkbox'></td>";
-    the_html += "<td class='trait'>" + trait.name + "</td>";
+    if ("abbreviation" in trait) {
+        the_html += "<td class='trait' data-display_name='" + trait.name + " - " + trait.abbreviation + "'>" + trait.name + "</td>";
+    } else if ("symbol" in trait) {
+      the_html += "<td class='trait' data-display_name='" + trait.name + " - " + trait.symbol + "'>" + trait.name + "</td>";
+    } else {
+      the_html += "<td class='trait' data-display_name='" + trait.name + "'>" + trait.name + "</td>";
+    }
     the_html += "<td class='dataset' data-dataset='" + trait.dataset + "'>" + trait.dataset_name + "</td>";
     the_html += "<td class='description'>" + trait.description + "</td>";
   }

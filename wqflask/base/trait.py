@@ -220,6 +220,7 @@ def jsonable(trait):
                         dataset=dataset.name,
                         dataset_name = dataset.shortname,
                         description=trait.description_display,
+                        abbreviation=trait.abbreviation,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
                         pubmed_link=trait.pubmed_link,
@@ -232,6 +233,7 @@ def jsonable(trait):
                         dataset=dataset.name,
                         dataset_name = dataset.shortname,
                         description=trait.description_display,
+                        abbreviation=trait.abbreviation,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
                         lrs_score=trait.LRS_score_repr,
@@ -397,6 +399,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             #phenotype traits, then display the pre-publication description instead
             #of the post-publication description
             if trait.confidential:
+                trait.abbreviation = trait.pre_publication_abbreviation
                 trait.description_display = trait.pre_publication_description
 
                 #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
@@ -406,6 +409,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 #
                 #    description = self.pre_publication_description
             else:
+                trait.abbreviation = trait.post_publication_abbreviation
                 if description:
                     trait.description_display = description.strip()
                 else:
