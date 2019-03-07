@@ -33,6 +33,7 @@ import resource
 import json
 
 import scipy
+import numpy
 
 from pprint import pformat as pf
 
@@ -174,7 +175,6 @@ class CorrelationResults(object):
 
             self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
                                                                    key=lambda t: -abs(t[1][0])))
-
 
             if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                 #ZS: Convert min/max chromosome to an int for the location range option
@@ -456,7 +456,10 @@ class CorrelationResults(object):
             sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
 
         if num_overlap > 5:
-            self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
+            if numpy.isnan(sample_r):
+                pass
+            else:
+                self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
 
     def process_samples(self, start_vars, sample_names, excluded_samples=None):
         if not excluded_samples:
