@@ -40,7 +40,7 @@ import reaper
 import webqtlUtil
 import corestats
 from base import webqtlConfig
-
+from utility.pillow_utils import draw_rotated_text
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
@@ -224,12 +224,12 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
            font=labelFont,fill=labelColor)
 
     if YLabel:
-       im_drawer.text(
-           text=YLabel,
-           xy=(19,
-               yTopOffset+plotHeight-(plotHeight-im_drawer.textsize(
-                   YLabel,font=labelFont)[0])/2.0),
-           font=labelFont,fill=labelColor,angle=90)
+        draw_rotated_text(canvas, text=YLabel,
+                          xy=(19,
+                              yTopOffset+plotHeight-(
+                                  plotHeight-im_drawer.textsize(
+                                      YLabel,font=labelFont)[0])/2.0),
+                          font=labelFont, fill=labelColor, angle=90)
 
     labelFont=ImageFont.truetype(font=VERDANA_FILE,size=16)
     if title:
