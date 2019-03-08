@@ -45,6 +45,7 @@ from utility import Plot
 from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
+from utility.pillow_utils import draw_rotated_text
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -1519,11 +1520,12 @@ class DisplayMappingResults(object):
 
 
                             if lastGene == 0:
-                                im_drawer.text(
-                                    text="%s" % (_chr[j].name),
+                                draw_rotated_text(
+                                    canvas, text="%s" % (_chr[j].name),
+                                    font=ImageFont.truetype(font=VERDANA_FILE,
+                                                            size=12),
                                     xy=(geneStartPix,
                                         geneYLocation+17+2*maxind*self.EACH_GENE_HEIGHT*zoom),
-                                    font=ImageFont.truetype(font=VERDANA_FILE, size=12),
                                     fill=BLACK, angle=-90)
 
                             oldgeneEndPix = geneEndPix;
@@ -1804,9 +1806,10 @@ class DisplayMappingResults(object):
                                 (startPosX+tickdists*plotXScale, yZero + 7)),
                             fill=BLACK, width=1*zoom)
                         if j % 2 == 0:
-                            im_drawer.text(
-                                xy=(startPosX+tickdists*plotXScale, yZero+10*zoom),
-                                text=str(tickdists), fill=BLACK, font=MBLabelFont, angle=270)
+                            draw_rotated_text(
+                                canvas, text=str(tickdists), font=MBLabelFont,
+                                xy=(startPosX+tickdists*plotXScale,
+                                    yZero+10*zoom), fill=BLACK, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
             megabaseLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
@@ -2037,11 +2040,12 @@ class DisplayMappingResults(object):
         LRSLODFont=ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
         yZero = yTopOffset + plotHeight
 
-        im_drawer.text(
-            text=self.LRS_LOD,
-            xy=(xLeftOffset - im_drawer.textsize("999.99", font=LRSScaleFont)[0] - 15*(zoom-1),
+        draw_rotated_text(
+            canvas, text=self.LRS_LOD, font=LRSLODFont,
+            xy=(xLeftOffset - im_drawer.textsize(
+                "999.99", font=LRSScaleFont)[0] - 15*(zoom-1),
                 yZero - 150 - 300*(zoom - 1)),
-            font=LRSLODFont, fill=BLACK, angle=90)
+            fill=BLACK, angle=90)
 
         for item in LRSAxisList:
             if LRS_LOD_Max == 0.0:
