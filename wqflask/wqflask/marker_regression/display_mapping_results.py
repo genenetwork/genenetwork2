@@ -758,7 +758,7 @@ class DisplayMappingResults(object):
                  (canvas.size[0]-bootOffset,bootY)),
                 fill=BLACK)
             im_drawer.text(xy=(canvas.size[0]-bootOffset+10,bootY+5),
-                           text='%2.1f'%item, font=bootScaleFont, color=BLACK)
+                           text='%2.1f'%item, font=bootScaleFont, fill=BLACK)
 
         if self.legendChecked:
             startPosY = 30
@@ -770,7 +770,7 @@ class DisplayMappingResults(object):
                 fill=YELLOW)
             im_drawer.text(xy=(leftOffset+ 20, startPosY+5),
                            text='Frequency of the Peak LRS',
-                           font=smallLabelFont, color=BLACK)
+                           font=smallLabelFont, fill=BLACK)
 
     def drawProbeSetPosition(self, canvas, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
         im_drawer = ImageDraw.Draw(canvas)
