@@ -1777,13 +1777,14 @@ class DisplayMappingResults(object):
                                     yZero+10*zoom), fill=BLACK, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
+            TEXT_Y_DISPLACEMENT = -15
             megabaseLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
             im_drawer.text(
                 text="Megabases",
                 xy=(
                     xLeftOffset+(plotWidth-im_drawer.textsize(
                         "Megabases",font=megabaseLabelFont)[0])/2,
-                    strYLoc+MBLabelFont.font.height+10*(zoom%2)+ 10),
+                    strYLoc+MBLabelFont.font.height+10*(zoom%2)+TEXT_Y_DISPLACEMENT),
                 font=megabaseLabelFont, fill=BLACK)
             pass
         else:
@@ -1974,11 +1975,13 @@ class DisplayMappingResults(object):
         LRSLODFont=ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
         yZero = yTopOffset + plotHeight
 
+        TEXT_X_DISPLACEMENT = -20
+        TEXT_Y_DISPLACEMENT = -215
         draw_rotated_text(
             canvas, text=self.LRS_LOD, font=LRSLODFont,
             xy=(xLeftOffset - im_drawer.textsize(
-                "999.99", font=LRSScaleFont)[0] - 15*(zoom-1),
-                yZero - 150 - 300*(zoom - 1)),
+                "999.99", font=LRSScaleFont)[0] - 15*(zoom-1) + TEXT_X_DISPLACEMENT,
+                yZero + TEXT_Y_DISPLACEMENT - 300*(zoom - 1)),
             fill=BLACK, angle=90)
 
         for item in LRSAxisList:
