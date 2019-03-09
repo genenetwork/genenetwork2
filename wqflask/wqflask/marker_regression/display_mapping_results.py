@@ -728,7 +728,7 @@ class DisplayMappingResults(object):
                     im_drawer.rectangle(
                         xy=((item[0], yZero),
                             (item[1], yZero - item[2]*bootHeightThresh/maxBootCount)),
-                        fill=self.BOOTSTRAP_BOX_COLOR)
+                        fill=self.BOOTSTRAP_BOX_COLOR, outline=BLACK)
 
         ###draw boot scale
         highestPercent = (maxBootCount*100.0)/nboot
@@ -741,7 +741,7 @@ class DisplayMappingResults(object):
         im_drawer.rectangle(
             xy=((canvas.size[0]-bootOffset, yZero-bootHeightThresh),
                 (canvas.size[0]-bootOffset-15*zoom,yZero)),
-            fill = YELLOW)
+            fill = YELLOW, outline=BLACK)
         im_drawer.line(
             xy=((canvas.size[0]-bootOffset+4, yZero),
                 (canvas.size[0]-bootOffset, yZero)),
@@ -767,7 +767,7 @@ class DisplayMappingResults(object):
             leftOffset = xLeftOffset+(nCol-1)*200
             im_drawer.rectangle(
                 xy=((leftOffset,startPosY-6), (leftOffset+12,startPosY+6)),
-                fill=YELLOW)
+                fill=YELLOW, outline=BLACK)
             im_drawer.text(xy=(leftOffset+ 20, startPosY+5),
                            text='Frequency of the Peak LRS',
                            font=smallLabelFont, fill=BLACK)
@@ -937,7 +937,7 @@ class DisplayMappingResults(object):
             im_drawer.rectangle(
                 xy=((rightShift,yPaddingTop+kstep*15),
                     (rectWidth+rightShift,yPaddingTop+10+kstep*15)),
-                fill=thisLRSColor)
+                fill=thisLRSColor, outline=BLACK)
             im_drawer.text(
                 text=name,xy=(rectWidth+2+rightShift,yPaddingTop+10+kstep*15),
                 font=colorFont,fill=BLACK)
