@@ -44,7 +44,7 @@ from utility import Plot
 from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
-from utility.pillow_utils import draw_rotated_text
+from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
@@ -804,10 +804,12 @@ class DisplayMappingResults(object):
                             break
         if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
-            im_drawer.polygon(
-                xy=traitPixel, outline=BLACK,
-                fill=self.TRANSCRIPT_LOCATION_COLOR#, closed=1
-            )
+            # im_drawer.polygon(
+            #     xy=traitPixel, outline=BLACK,
+            #     fill=self.TRANSCRIPT_LOCATION_COLOR#, closed=1
+            # )
+            draw_open_polygon(canvas, xy=traitPixel, outline=BLACK,
+                              fill=self.TRANSCRIPT_LOCATION_COLOR)
 
         if self.legendChecked:
             startPosY = 15
@@ -817,12 +819,20 @@ class DisplayMappingResults(object):
                 leftOffset = xLeftOffset
             else:
                 leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
-            im_drawer.polygon(
+            # im_drawer.polygon(
+            #     xy=(
+            #         (leftOffset+6, startPosY-6),
+            #         (leftOffset, startPosY+6),
+            #         (leftOffset+12, startPosY+6)),
+            #     outline=BLACK, fill=self.TRANSCRIPT_LOCATION_COLOR#, closed=1
+            # )
+            draw_open_polygon(
+                canvas,
                 xy=(
                     (leftOffset+6, startPosY-6),
                     (leftOffset, startPosY+6),
                     (leftOffset+12, startPosY+6)),
-                outline=BLACK, fill=self.TRANSCRIPT_LOCATION_COLOR#, closed=1
+                outline=BLACK, fill=self.TRANSCRIPT_LOCATION_COLOR
             )
             im_drawer.text(
                 text="Sequence Site",
@@ -2059,12 +2069,14 @@ class DisplayMappingResults(object):
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
 
                 if self.manhattan_plot != True:
-                    im_drawer.polygon(
-                        xy=LRSCoordXY,
-                        outline=thisLRSColor
-                        # , closed=0, edgeWidth=lrsEdgeWidth,
-                        # clipX=(xLeftOffset, xLeftOffset + plotWidth)
-                    )
+                    # im_drawer.polygon(
+                    #     xy=LRSCoordXY,
+                    #     outline=thisLRSColor
+                    #     # , closed=0, edgeWidth=lrsEdgeWidth,
+                    #     # clipX=(xLeftOffset, xLeftOffset + plotWidth)
+                    # )
+                    draw_open_polygon(canvas, xy=LRSCoordXY,
+                                      outline=thisLRSColor, width=lrsEdgeWidth)
 
                 if not self.multipleInterval and not self.manhattan_plot and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
@@ -2191,11 +2203,13 @@ class DisplayMappingResults(object):
                 m += 1
 
         if self.manhattan_plot != True:
-            im_drawer.polygon(
-                xy=LRSCoordXY,
-                outline=thisLRSColor
-                #, closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth)
-            )
+            # im_drawer.polygon(
+            #     xy=LRSCoordXY,
+            #     outline=thisLRSColor
+            #     #, closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth)
+            # )
+            draw_open_polygon(canvas, xy=LRSCoordXY, outline=thisLRSColor,
+                              width=lrsEdgeWidth)
 
         if not self.multipleInterval and self.additiveChecked:
             plusColor = self.ADDITIVE_COLOR_POSITIVE
