@@ -746,7 +746,8 @@ class DisplayMappingResults(object):
             xy=((canvas.size[0]-bootOffset+4, yZero),
                 (canvas.size[0]-bootOffset, yZero)),
             fill=BLACK)
-        im_drawer.text(xy=(canvas.size[0]-bootOffset+10,yZero+5), text='0%',
+        TEXT_Y_DISPLACEMENT = -8
+        im_drawer.text(xy=(canvas.size[0]-bootOffset+10,yZero+TEXT_Y_DISPLACEMENT), text='0%',
                        font=bootScaleFont, fill=BLACK)
 
         for item in bootScale:
@@ -757,7 +758,7 @@ class DisplayMappingResults(object):
                 xy=((canvas.size[0]-bootOffset+4,bootY),
                  (canvas.size[0]-bootOffset,bootY)),
                 fill=BLACK)
-            im_drawer.text(xy=(canvas.size[0]-bootOffset+10,bootY+5),
+            im_drawer.text(xy=(canvas.size[0]-bootOffset+10,bootY+TEXT_Y_DISPLACEMENT),
                            text='%2.1f'%item, font=bootScaleFont, fill=BLACK)
 
         if self.legendChecked:
@@ -768,7 +769,7 @@ class DisplayMappingResults(object):
             im_drawer.rectangle(
                 xy=((leftOffset,startPosY-6), (leftOffset+12,startPosY+6)),
                 fill=YELLOW, outline=BLACK)
-            im_drawer.text(xy=(leftOffset+ 20, startPosY+5),
+            im_drawer.text(xy=(leftOffset+ 20, startPosY+TEXT_Y_DISPLACEMENT),
                            text='Frequency of the Peak LRS',
                            font=smallLabelFont, fill=BLACK)
 
@@ -860,9 +861,10 @@ class DisplayMappingResults(object):
                     (leftOffset+14, startPosY+7)),
                 outline=BLACK, fill=self.TRANSCRIPT_LOCATION_COLOR
             )
+            TEXT_Y_DISPLACEMENT = -8
             im_drawer.text(
                 text="Sequence Site",
-                xy=(leftOffset+15,startPosY+5), font=smallLabelFont,
+                xy=(leftOffset+15,startPosY+TEXT_Y_DISPLACEMENT), font=smallLabelFont,
                 fill=self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -953,6 +955,7 @@ class DisplayMappingResults(object):
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
         plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
         yZero = canvas.size[1] - yBottomOffset
+        TEXT_Y_DISPLACEMENT = -8
         fontZoom = zoom
         if zoom == 2:
             fontZoom = 1.5
@@ -965,7 +968,7 @@ class DisplayMappingResults(object):
                 xy=((xLeftOffset,startPosY),(xLeftOffset+32,startPosY)),
                 fill=self.LRS_COLOR, width=2)
             im_drawer.text(
-                text=self.LRS_LOD, xy=(xLeftOffset+40,startPosY+5),
+                text=self.LRS_LOD, xy=(xLeftOffset+40,startPosY+TEXT_Y_DISPLACEMENT),
                 font=labelFont,fill=BLACK)
             startPosY += stepPosY
 
@@ -978,7 +981,7 @@ class DisplayMappingResults(object):
                 xy=((startPosX+18,startPosY),(startPosX+32,startPosY)),
                 fill=self.ADDITIVE_COLOR_NEGATIVE, width=2)
             im_drawer.text(
-                text='Additive Effect',xy=(startPosX+40,startPosY+5),
+                text='Additive Effect',xy=(startPosX+40,startPosY+TEXT_Y_DISPLACEMENT),
                 font=labelFont,fill=BLACK)
 
         if self.genotype.type == 'intercross' and self.dominanceChecked:
@@ -1024,10 +1027,10 @@ class DisplayMappingResults(object):
                 fill=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
             im_drawer.text(
                 text='Significant %s = %2.2f' % (self.LRS_LOD,self.significant),
-                xy=(xLeftOffset+42,startPosY +5),font=labelFont,fill=BLACK)
+                xy=(xLeftOffset+42,startPosY+TEXT_Y_DISPLACEMENT),font=labelFont,fill=BLACK)
             im_drawer.text(
                 text='Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),
-                xy=(xLeftOffset+42,startPosY + 5 +stepPosY),font=labelFont,
+                xy=(xLeftOffset+42,startPosY + TEXT_Y_DISPLACEMENT +stepPosY),font=labelFont,
                 fill=BLACK)
 
         labelFont = ImageFont.truetype(font=VERDANA_FILE,size=12*fontZoom)
@@ -2067,10 +2070,11 @@ class DisplayMappingResults(object):
             else:
                 scaleStr = "%2.1f" % item
             #Draw the LRS/LOD Y axis label
+            TEXT_Y_DISPLACEMENT = -10
             im_drawer.text(
                 text=scaleStr,
                 xy=(xLeftOffset-4-im_drawer.textsize(scaleStr, font=LRSScaleFont)[0]-5,
-                    yLRS+3),
+                    yLRS+TEXT_Y_DISPLACEMENT),
                 font=LRSScaleFont, fill=self.LRS_COLOR)
 
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
@@ -2456,6 +2460,7 @@ class DisplayMappingResults(object):
             additiveStep = (additiveScale[1]-additiveScale[0])/additiveScale[2]
             additiveAxisList = Plot.frange(0, additiveScale[1], additiveStep)
             addPlotScale = AdditiveHeightThresh/additiveMax
+            TEXT_Y_DISPLACEMENT = -8
 
             additiveAxisList.append(additiveScale[1])
             for item in additiveAxisList:
@@ -2467,7 +2472,7 @@ class DisplayMappingResults(object):
                 scaleStr = "%2.3f" % item
                 im_drawer.text(
                     text=scaleStr,
-                    xy=(xLeftOffset + plotWidth +6,additiveY+5),
+                    xy=(xLeftOffset + plotWidth +6,additiveY+TEXT_Y_DISPLACEMENT),
                     font=additiveScaleFont,fill=self.ADDITIVE_COLOR_POSITIVE)
 
             im_drawer.line(
@@ -2551,7 +2556,8 @@ class DisplayMappingResults(object):
                 chrStartPix = startPosX + (self.ChrLengthDistList[i]*plotXScale -chrNameWidth)/2
                 chrEndPix = startPosX + (self.ChrLengthDistList[i]*plotXScale +chrNameWidth)/2
 
-                im_drawer.text(xy=(chrStartPix, yTopOffset + 20),
+                TEXT_Y_DISPLACEMENT = 0
+                im_drawer.text(xy=(chrStartPix, yTopOffset + TEXT_Y_DISPLACEMENT),
                                text=_chr.name, font=chrLabelFont, fill=BLACK)
                 COORDS = "%d,%d,%d,%d" %(chrStartPix, yTopOffset, chrEndPix,yTopOffset +20)
 
