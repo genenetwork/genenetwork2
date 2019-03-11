@@ -6,14 +6,13 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
 {% endblock %}
 {% block content %}
-    
-    {{ header("Correlation Matrix") }}
 
 <div class="container">
+<h1>Correlation Matrix</h1>
+<hr style="height: 1px; background-color: #A9A9A9;">
 {% if lowest_overlap < 8 %}
 <div style="margin: 20px;" >Caution: This matrix of correlations contains some cells with small sample sizes of fewer than 8.</div>
 {% endif %}
-
 <table class="matrix" border="1" cellpadding="5" cellspacing="1" width="80%">
   <tbody>
     <tr>

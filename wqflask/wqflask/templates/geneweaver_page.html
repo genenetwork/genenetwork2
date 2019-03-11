@@ -2,9 +2,9 @@
 {% block title %}{% if wrong_input == "True" %}WebGestalt Error{% else %}Opening WebGestalt{% endif %}{% endblock %}
 {% block content %}
   {% if wrong_input == "True" %}
-  {{ header("Error") }}
-
   <div class="container">
+    <h1>Error</h1>
+    <hr style="height: 1px; background-color: #A9A9A9;">
     {% if chip_name == "mixed" %}
     <h3>Sorry, the analysis was interrupted because your selections from GeneNetwork apparently include data from more than one array platform (i.e., Affymetrix U74A and M430 2.0). Most WebGestalt analyses assume that you are using a single array type and compute statistical values on the basis of that particular array. Please reselect traits from a signle platform and submit again.</h3>
     {% elif chip_name == "not_microarray" %}
