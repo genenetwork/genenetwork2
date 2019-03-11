@@ -44,12 +44,12 @@ $('#trait_table').dataTable( {
 $('#collection_table').dataTable( {
     "createdRow": function ( row, data, index ) {
         if ($('td', row).eq(1).text().length > 40) {
-            $('td', row).eq(1).text($('td', row).eq(2).text().substring(0, 40));
-            $('td', row).eq(1).text($('td', row).eq(2).text() + '...')
+            $('td', row).eq(1).text($('td', row).eq(1).text().substring(0, 40));
+            $('td', row).eq(1).text($('td', row).eq(1).text() + '...')
         }
         if ($('td', row).eq(3).text().length > 50) {
-            $('td', row).eq(3).text($('td', row).eq(4).text().substring(0, 50));
-            $('td', row).eq(3).text($('td', row).eq(4).text() + '...')
+            $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
+            $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
         }
     },
     "order": [[0, "asc" ]],

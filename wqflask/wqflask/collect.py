@@ -181,6 +181,10 @@ def store_traits_list():
 def collections_add():
     if g.user_session.logged_in:
         collections = g.user_session.user_collections
+        if len(collections) < 1:
+            collection_name = "Default Collection"
+            uc_id = g.user_session.add_collection(collection_name, set())
+            collections = g.user_session.user_collections
     else:
         anon_collections = user_manager.AnonUser().get_collections()
         collections = []
@@ -229,7 +233,8 @@ def collections_new():
             collection_id = params['existing_collection'].split(":")[0]
             collection_name = params['existing_collection'].split(":")[1]
         if g.user_session.logged_in:
-            traits = list(process_traits(params['traits']))
+            unprocessed_traits = Redis.get(params['hash'])
+            traits = list(process_traits(unprocessed_traits))
             g.user_session.add_traits_to_collection(collection_id, traits)
             return redirect(url_for('view_collection', uc_id=collection_id))
         else:

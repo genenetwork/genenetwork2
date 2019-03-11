@@ -172,16 +172,6 @@
 
             console.time("Creating table");
             $('#trait_table').dataTable( {
-                "createdRow": function ( row, data, index ) {
-                    if ($('td', row).eq(2).text().length > 40) {
-                        $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
-                        $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
-                    }
-                    if ($('td', row).eq(4).text().length > 50) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
-                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-                    }
-                },
                 "columns": [
                     { "type": "natural", "width": 10 },
                     { "type": "natural", "width": 50 },
