@@ -267,6 +267,14 @@
     }
   });
 
+  $("li.mapping_tab").click(function() {
+    if ($(this).hasClass("rqtl")){
+      $(".rqtl_description").css("display", "block");
+    } else {
+      $(".rqtl_description").css("display", "none");
+    }
+  });
+
   toggle_enable_disable = function(elem) {
     return $(elem).prop("disabled", !$(elem).prop("disabled"));
   };

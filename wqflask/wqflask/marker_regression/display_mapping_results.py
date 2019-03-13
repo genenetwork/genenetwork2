@@ -154,6 +154,10 @@ class DisplayMappingResults(object):
 
         self.geno_db_exists = start_vars['geno_db_exists']
 
+        self.first_run = True
+        if 'first_run' in start_vars:
+            self.first_run = start_vars['first_run']
+
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
@@ -226,6 +230,8 @@ class DisplayMappingResults(object):
             self.maf = start_vars['maf']
         if 'use_loco' in start_vars.keys():
             self.use_loco = start_vars['use_loco']
+            if self.use_loco == "True":
+                self.gwa_filename = start_vars['gwa_filename']
 
         self.selectedChr = int(start_vars['selected_chr'])
 

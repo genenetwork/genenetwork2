@@ -575,6 +575,8 @@ def mapping_results_page():
         'group',
         'species',
         'vals',
+        'first_run',
+        'gwa_filename',
         'geno_db_exists',
         'method',
         'mapping_results_path',

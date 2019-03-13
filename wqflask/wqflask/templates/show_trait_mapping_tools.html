@@ -5,23 +5,23 @@
 
             <ul class="nav nav-pills">
                 {% if dataset.group.mapping_id == "1" %}
-                <li class="active">
+                <li class="mapping_tab active">
                     <a href="#gemma" data-toggle="tab">GEMMA</a>
                 </li>
-                <li>
+                <li class="mapping_tab">
                     <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
                 </li>
-                <li>
+                <li class="mapping_tab rqtl">
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
                 {% endif %}
                 {% for mapping_method in dataset.group.mapping_names %}
                 {% if mapping_method == "GEMMA" %}
-                <li class="active">
+                <li class="mapping_tab active">
                     <a href="#gemma_plink" data-toggle="tab">GEMMA</a>
                 </li>
                 {% elif mapping_method == "PLINK" %}
-                <li>
+                <li class="mapping_tab">
                     <a href="#plink" data-toggle="tab">PLINK</a>
                 </li>
                 {% endif %}
@@ -353,6 +353,9 @@
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
              {% endif %}
         </dl>
+        <div class="rqtl_description" style="padding-top: 40px; display: none;">
+        More information on R/qtl mapping models and methods can be found <a href="http://www.rqtl.org/tutorials/rqtltour.pdf">here</a>.
+        </div>
     </div>
     <div id="mapping_result_holder_wrapper" style="display:none;">
         <div id="mapping_result_holder"></div>

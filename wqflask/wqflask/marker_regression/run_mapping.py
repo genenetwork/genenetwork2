@@ -175,10 +175,19 @@ class RunMapping(object):
             self.dataset.group.genofile = self.genofile_string.split(":")[0]
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
+            self.first_run = True
+            self.gwa_filename = None
+            if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
+                self.first_run = False
+                if 'gwa_filename' in start_vars:
+                    self.gwa_filename = start_vars['gwa_filename']
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
-                marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf)
+                if self.use_loco == "True":
+                    marker_obs, self.gwa_filename = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.gwa_filename)
+                else:
+                    marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
