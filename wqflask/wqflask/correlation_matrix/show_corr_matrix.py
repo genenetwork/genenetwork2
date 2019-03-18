@@ -26,6 +26,7 @@ import sys
 import string
 import cPickle
 import os
+import datetime
 import time
 import pp
 import math
@@ -45,6 +46,9 @@ from pprint import pformat as pf
 from htmlgen import HTMLgen2 as HT
 import reaper
 
+import redis
+Redis = redis.StrictRedis()
+
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
@@ -59,8 +63,10 @@ from MySQLdb import escape_string as escape
 
 from pprint import pformat as pf
 
-from flask import Flask, g
+from flask import Flask, g, url_for
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
 
 class CorrelationMatrix(object):
 
@@ -111,6 +117,7 @@ class CorrelationMatrix(object):
             self.corr_results = []
             self.pca_corr_results = []
             self.trait_data_array = []
+            self.shared_samples_list = self.all_sample_list
             for trait_db in self.trait_list:
                 this_trait = trait_db[0]
                 this_db = trait_db[1]
@@ -138,6 +145,8 @@ class CorrelationMatrix(object):
                     target_vals = []
                     for index, sample in enumerate(target_samples):
                         if (sample in this_sample_data) and (sample in target_sample_data):
+                            if sample not in self.shared_samples_list:
+                                self.shared_samples_list.remove(sample)
                             sample_value = this_sample_data[sample].value
                             target_sample_value = target_sample_data[sample].value
                             this_trait_vals.append(sample_value)
@@ -174,6 +183,7 @@ class CorrelationMatrix(object):
 
             try:
                 self.pca_works = "True"
+                self.pca_trait_ids = []
                 pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
                 self.loadings_array = self.process_loadings()
             except:
@@ -201,9 +211,6 @@ class CorrelationMatrix(object):
                                    cellid=None)
             self.trait_list.append((trait_ob, dataset_ob))
 
-        #print("trait_list:", self.trait_list)
-
-
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
         base = importr('base')
         stats = importr('stats')
@@ -224,9 +231,27 @@ class CorrelationMatrix(object):
         pca_traits = []
         for i, vector in enumerate(trait_array_vectors):
             if corr_eigen_value[i-1] < 100.0/len(self.trait_list):
-                pca_traits.append(vector*-1.0)
+                pca_traits.append((vector*-1.0).tolist())
 
-        print("pca_traits:", pca_traits)
+        this_group_name = self.trait_list[0][1].group.name
+        temp_dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = this_group_name)
+        temp_dataset.group.get_samplelist()
+        for i, pca_trait in enumerate(pca_traits):
+            trait_id = "PCA" + str(i+1) + "_" + temp_dataset.group.species + "_" + this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
+            this_vals_string = ""
+            position = 0
+            for sample in temp_dataset.group.all_samples_ordered():
+                if sample in self.shared_samples_list:
+                    this_vals_string += str(pca_trait[position])
+                    this_vals_string += " "
+                    position += 1
+                else:
+                    this_vals_string += "x "
+            this_vals_string = this_vals_string[:-1]
+
+            Redis.set(trait_id, this_vals_string)
+            self.pca_trait_ids.append(trait_id)
+
         return pca
 
     def process_loadings(self):

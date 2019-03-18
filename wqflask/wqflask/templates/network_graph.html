@@ -34,7 +34,11 @@
                         <select name="focus_select">
                           <option disabled selected value>Select Trait</option>
                           {% for trait in traits %}
+                          {% if trait.symbol == None %}
+                          <option value="{{ trait.name }}:{{ trait.dataset.name }}">{{ trait.name }}</option>
+                          {% else %}
                           <option value="{{ trait.name }}:{{ trait.dataset.name }}">{{ trait.symbol }} ({{ trait.name }})</option>
+                          {% endif %}
                           {% endfor %}
                         </select>
                       </td>
@@ -46,11 +50,18 @@
                     </tr>
                     <tr>
                       <td colspan="1">
+                        <div style="text-align: center;">
+                          <div style="float: left;"><font size="2"><b>-1</b></font></div>
+                          <font size="2"><b>0</b></font>
+                          <div style="float: right;"><font size="2"><b>1</b></font></div>
+                        </div>
+                        <!--
                         <font size="2"><b>-1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1</b></font><br>
-                        <input type="range" id="neg_slide" min="-1" max="0" value="0" step="0.001" list="corr_range" style="display: inline; width: 45%">
-                        <input type="range" id="pos_slide" min="0" max="1" value="0" step="0.001" list="corr_range" style="display: inline; width: 45%">
+                        -->
+                        <input type="range" id="neg_slide" min="-1" max="0" value="0" step="0.001" list="corr_range" style="display: inline; width: 49%">
+                        <input type="range" id="pos_slide" min="0" max="1" value="0" step="0.001" list="corr_range" style="display: inline; width: 49%">
                       </td>
                     </tr>
                     <tr>

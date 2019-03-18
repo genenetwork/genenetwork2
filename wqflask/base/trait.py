@@ -6,6 +6,9 @@ import codecs
 
 from htmlgen import HTMLgen2 as HT
 
+import redis
+Redis = redis.StrictRedis()
+
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
@@ -35,13 +38,15 @@ class GeneralTrait(object):
     def __init__(self, get_qtl_info=False, get_sample_info=True, **kw):
         # xor assertion
         assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
+        self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
         if kw.get('dataset_name'):
-            self.dataset = create_dataset(kw.get('dataset_name'))
-            #print(" in GeneralTrait created dataset:", self.dataset)
+            if kw.get('dataset_name') == "Temp":
+                temp_group = self.name.split("_")[2]
+                self.dataset = create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = temp_group)
+            else:
+                self.dataset = create_dataset(kw.get('dataset_name'))
         else:
             self.dataset = kw.get('dataset')
-        self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
-        #print("THE NAME IS:", self.name)
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
         self.haveinfo = kw.get('haveinfo', False)
@@ -73,8 +78,8 @@ class GeneralTrait(object):
         # So we could add a simple if statement to short-circuit this if necessary
         if self.dataset.type != "Temp":
             self = retrieve_trait_info(self, self.dataset, get_qtl_info=get_qtl_info)
-            if get_sample_info != False:
-                self = retrieve_sample_data(self, self.dataset)
+        if get_sample_info != False:
+            self = retrieve_sample_data(self, self.dataset)
 
     def export_informative(self, include_variance=0):
         """
@@ -154,18 +159,27 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
     if samplelist == None:
         samplelist = []
 
-    results = dataset.retrieve_sample_data(trait.name)
+    if dataset.type == "Temp":
+        results = Redis.get(trait.name).split()
+    else:
+        results = dataset.retrieve_sample_data(trait.name)
 
     # Todo: is this necessary? If not remove
     trait.data.clear()
 
-    all_samples_ordered = dataset.group.all_samples_ordered()
-
     if results:
-        for item in results:
-            name, value, variance, num_cases, name2 = item
-            if not samplelist or (samplelist and name in samplelist):
-                trait.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
+        if dataset.type == "Temp":
+            all_samples_ordered = dataset.group.all_samples_ordered()
+            for i, item in enumerate(results):
+                try:
+                    trait.data[all_samples_ordered[i]] = webqtlCaseData(all_samples_ordered[i], float(item))
+                except:
+                    pass
+        else:
+            for item in results:
+                name, value, variance, num_cases, name2 = item
+                if not samplelist or (samplelist and name in samplelist):
+                    trait.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
     return trait
 
 @app.route("/trait/get_sample_data")

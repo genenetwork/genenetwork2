@@ -93,7 +93,7 @@ class CorrelationResults(object):
         with Bench("Doing correlations"):
             if start_vars['dataset'] == "Temp":
                 self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
-                self.trait_id = "Temp"
+                self.trait_id = start_vars['trait_id']
                 self.this_trait = GeneralTrait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)

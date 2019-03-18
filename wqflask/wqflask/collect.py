@@ -233,7 +233,10 @@ def collections_new():
             collection_id = params['existing_collection'].split(":")[0]
             collection_name = params['existing_collection'].split(":")[1]
         if g.user_session.logged_in:
-            unprocessed_traits = Redis.get(params['hash'])
+            if "hash" in params:
+                unprocessed_traits = Redis.get(params['hash'])
+            else:
+                unprocessed_traits = params['traits']
             traits = list(process_traits(unprocessed_traits))
             g.user_session.add_traits_to_collection(collection_id, traits)
             return redirect(url_for('view_collection', uc_id=collection_id))

@@ -932,10 +932,13 @@ class DisplayMappingResults(object):
 
             if self.this_trait.symbol:
                 identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.symbol)
-            elif self.this_trait.post_publication_abbreviation:
-                identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.post_publication_abbreviation)
-            elif self.this_trait.pre_publication_abbreviation:
-                identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.pre_publication_abbreviation)
+            elif self.dataset.type == "Publish":
+                if self.this_trait.post_publication_abbreviation:
+                    identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.post_publication_abbreviation)
+                elif self.this_trait.pre_publication_abbreviation:
+                    identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.pre_publication_abbreviation)
+                else:
+                    identification += "Trait: %s" % (self.this_trait.name)
             else:
                 identification += "Trait: %s" % (self.this_trait.name)
             identification += " with %s samples" % (self.n_samples)
