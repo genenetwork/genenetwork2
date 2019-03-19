@@ -63,9 +63,12 @@
 <h2>PCA Traits</h2>
 <ul>
   {% for this_trait_id in pca_trait_ids %}
-  <li><a href="{{ url_for('show_trait_page', trait_id = pca_trait_ids[loop.index - 1], dataset = "Temp") }}">{{ pca_trait_ids[loop.index - 1] }}</a></li>
+  <li>1. <input type="checkbox" class="trait_checkbox" name="pca_trait" value="{{ data_hmac('{}:{}'.format(pca_trait_ids[loop.index - 1], "Temp")) }}">&nbsp;&nbsp;<a href="{{ url_for('show_trait_page', trait_id = pca_trait_ids[loop.index - 1], dataset = "Temp") }}">{{ pca_trait_ids[loop.index - 1] }}</a></li>
   {% endfor %}
 </ul>
+<button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+<button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+<button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
 <br>
 <h2>Factor Loadings Plot</h2>
 <div id="loadings_plot" style="margin-top: 20px; margin-bottom: 20px; width: 980px; border-style: solid; border-width: 1px;"></div>
@@ -98,6 +101,7 @@
 </table>
 </div>
 {% endif %}
+<div id="myModal"></div>
 {% endblock %}
 
 {% block js %}
@@ -109,9 +113,8 @@
 
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/chroma.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/loadings_plot.js"></script>

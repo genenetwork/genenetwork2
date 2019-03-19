@@ -49,6 +49,7 @@ import reaper
 import redis
 Redis = redis.StrictRedis()
 
+from wqflask.user_manager import data_hmac
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
