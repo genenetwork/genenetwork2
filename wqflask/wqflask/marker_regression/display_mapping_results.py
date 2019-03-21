@@ -513,16 +513,18 @@ class DisplayMappingResults(object):
         im_drawer = ImageDraw.Draw(canvas)
         #calculating margins
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+        MAX_YTOPOFFSET = 80
+        MAX_YBOTTOMOFFSET = 120
         if self.multipleInterval:
-            yTopOffset = max(80, yTopOffset)
+            yTopOffset = max(MAX_YTOPOFFSET, yTopOffset)
         else:
             if self.legendChecked:
-                yTopOffset = max(80, yTopOffset)
+                yTopOffset = max(MAX_YTOPOFFSET, yTopOffset)
             else:
                 pass
 
         if self.plotScale != 'physic':
-            yBottomOffset = max(120, yBottomOffset)
+            yBottomOffset = max(MAX_YBOTTOMOFFSET, yBottomOffset)
         fontZoom = zoom
         if zoom == 2:
             xLeftOffset += 20
