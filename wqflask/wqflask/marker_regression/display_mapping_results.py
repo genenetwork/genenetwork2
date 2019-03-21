@@ -1698,21 +1698,21 @@ class DisplayMappingResults(object):
 
             im_drawer.text(
                 text="Click to view the corresponding section of the genome in an 8x expanded WebQTL map",
-                xy=((xLeftOffset + 10), paddingTop + self.BAND_HEIGHT/2),
+                xy=((xLeftOffset + 10), paddingTop),# + self.BAND_HEIGHT/2),
                 font=clickableRegionLabelFont,
                 fill=self.CLICKABLE_WEBQTL_TEXT_COLOR)
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
                 im_drawer.text(
                     text="Click to view the corresponding section of the genome in PhenoGen",
-                    xy=((xLeftOffset + 10), phenogenPaddingTop + self.BAND_HEIGHT/2),
+                    xy=((xLeftOffset + 10), phenogenPaddingTop),# + self.BAND_HEIGHT/2),
                     font=clickableRegionLabelFont, fill=self.CLICKABLE_PHENOGEN_TEXT_COLOR)
             im_drawer.text(
                 text="Click to view the corresponding section of the genome in the UCSC Genome Browser",
-                xy=((xLeftOffset + 10), ucscPaddingTop + self.BAND_HEIGHT/2),
+                xy=((xLeftOffset + 10), ucscPaddingTop),# + self.BAND_HEIGHT/2),
                 font=clickableRegionLabelFont, fill=self.CLICKABLE_UCSC_TEXT_COLOR)
             im_drawer.text(
                 text="Click to view the corresponding section of the genome in the Ensembl Genome Browser",
-                xy=((xLeftOffset+10), ensemblPaddingTop + self.BAND_HEIGHT/2),
+                xy=((xLeftOffset+10), ensemblPaddingTop),# + self.BAND_HEIGHT/2),
                 font=clickableRegionLabelFont, fill=self.CLICKABLE_ENSEMBL_TEXT_COLOR)
 
             #draw the gray text
