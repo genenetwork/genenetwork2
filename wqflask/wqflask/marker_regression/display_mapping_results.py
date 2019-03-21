@@ -1304,10 +1304,11 @@ class DisplayMappingResults(object):
 
 ## BEGIN HaplotypeAnalyst
     def drawHaplotypeBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
+        im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.geneCol:
             return
 
-        clickableRegionLabelFont=ImageFont.truetype(font="verdana", size=9)
+        clickableRegionLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=9)
 
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
