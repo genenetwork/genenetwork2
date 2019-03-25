@@ -125,7 +125,7 @@ views.py).
             elif this_trait.dataset.type == "Geno":
                 trait_dict['location'] = this_trait.location_repr
             elif this_trait.dataset.type == "Publish":
-                trait_dict['description'] = insert_newlines(this_trait.description_display)
+                trait_dict['description'] = this_trait.description_display
                 trait_dict['authors'] = this_trait.authors
                 trait_dict['pubmed_id'] = "N/A"
                 if this_trait.pubmed_id:

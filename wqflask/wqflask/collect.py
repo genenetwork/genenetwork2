@@ -151,7 +151,8 @@ def process_traits(unprocessed_traits):
         #print("trait is:", trait)
         data, _separator, hmac = trait.rpartition(':')
         data = data.strip()
-        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
+        if g.user_session.logged_in:
+          assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
         traits.add(str(data))
 
     return traits
@@ -242,7 +243,11 @@ def collections_new():
             return redirect(url_for('view_collection', uc_id=collection_id))
         else:
             ac = AnonCollection(collection_name)
-            ac.add_traits(params)
+            if "hash" in params:
+                unprocessed_traits = Redis.get(params['hash'])
+            else:
+                unprocessed_traits = params['traits']
+            ac.add_traits(unprocessed_traits)
             return redirect(url_for('view_collection', collection_id=ac.id))
     else:
         CauseAnError
@@ -271,7 +276,7 @@ def create_new(collection_name):
 @app.route("/collections/list")
 def list_collections():
     params = request.args
-    #logger.debug("PARAMS:", params)
+
     if g.user_session.logged_in:
         user_collections = list(g.user_session.user_collections)
         #logger.debug("user_collections are:", user_collections)

@@ -63,7 +63,7 @@
 <h2>PCA Traits</h2>
 <ul>
   {% for this_trait_id in pca_trait_ids %}
-  <li>1. <input type="checkbox" class="trait_checkbox" name="pca_trait" value="{{ data_hmac('{}:{}'.format(pca_trait_ids[loop.index - 1], "Temp")) }}">&nbsp;&nbsp;<a href="{{ url_for('show_trait_page', trait_id = pca_trait_ids[loop.index - 1], dataset = "Temp") }}">{{ pca_trait_ids[loop.index - 1] }}</a></li>
+  <li>{{ loop.index }}. <input type="checkbox" class="trait_checkbox" name="pca_trait" value="{{ data_hmac('{}:{}'.format(pca_trait_ids[loop.index - 1], "Temp")) }}">&nbsp;&nbsp;<a href="{{ url_for('show_trait_page', trait_id = pca_trait_ids[loop.index - 1], dataset = "Temp") }}">{{ pca_trait_ids[loop.index - 1] }}</a></li>
   {% endfor %}
 </ul>
 <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>

@@ -81,7 +81,7 @@ Stat_Table_Rows.push(
   }
 );
 
-var add, block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, redraw_bar_chart, redraw_histogram, redraw_prob_plot, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
+var add, block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, update_bar_chart, update_histogram, update_prob_plot, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
 add = function() {
   var trait;
   trait = $("input[name=trait_hmac]").val();
@@ -211,7 +211,7 @@ update_histogram_width = function() {
   }
 }
 
-redraw_histogram = function() {
+update_histogram = function() {
   var x;
   var _i, _len, _ref, data;
   _ref = _.values(root.selected_samples[root.stats_group]);
@@ -220,12 +220,12 @@ redraw_histogram = function() {
     x = _ref[_i];
     trait_vals.push(x.value);
   }
-  Plotly.restyle('histogram', 'x', [trait_vals])
-
+  root.histogram_data[0]['x'] = trait_vals
+  Plotly.newPlot('histogram', root.histogram_data, root.histogram_layout, root.modebar_options);
   update_histogram_width()
 };
 
-redraw_bar_chart = function() {
+update_bar_chart = function() {
   var x;
   var _i, _len, _ref, data;
   _ref = _.values(root.selected_samples[root.stats_group]);
@@ -268,52 +268,66 @@ redraw_bar_chart = function() {
     visible: root.errors_exist
   }
   root.bar_data[0]['x'] = trait_samples
+
   if (trait_vals.length < 256) {
-    Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout);
+    Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout, root.modebar_options);
   }
 };
 
-redraw_box_plot = function() {
+update_box_plot = function() {
   var y_value_list = []
-  for (var sample_group in root.selected_samples){
-    var trait_sample_data = _.values(root.selected_samples[sample_group])
-    var trait_vals = [];
-    for (i = 0, len = trait_sample_data.length; i < len; i++) {
-      this_sample_data = trait_sample_data[i];
-      trait_vals.push(this_sample_data.value);
-    }
-    y_value_list.push(trait_vals)
-  }
-
-  if (Object.keys(js_data.sample_group_types).length > 1) {
-      var update = {
-        y: y_value_list
+  if (sample_lists.length > 1) {
+    i = 0;
+    for (var sample_group in root.selected_samples){
+      var trait_sample_data = _.values(root.selected_samples[sample_group])
+      var trait_vals = [];
+      for (j = 0, len = trait_sample_data.length; j < len; j++) {
+        this_sample_data = trait_sample_data[j];
+        trait_vals.push(this_sample_data.value);
       }
-      Plotly.restyle('box_plot', update, [0, 1, 2])
+      root.box_data[i]['y'] = trait_vals
+      i++;
+    }
   } else {
-      var update = {
-        y: y_value_list
-      }
-      Plotly.restyle('box_plot', update)
-  }
-}
-
-redraw_violin_plot = function() {
-  var y_value_list = []
-  for (var sample_group in root.selected_samples){
-    var trait_sample_data = _.values(root.selected_samples[sample_group])
+    var trait_sample_data = _.values(root.selected_samples['samples_all'])
     var trait_vals = [];
-    for (i = 0, len = trait_sample_data.length; i < len; i++) {
-      this_sample_data = trait_sample_data[i];
+    for (j = 0, len = trait_sample_data.length; j < len; j++) {
+      this_sample_data = trait_sample_data[j];
       trait_vals.push(this_sample_data.value);
     }
-    y_value_list.push(trait_vals)
+    root.box_data[0]['y'] = trait_vals
   }
+  Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
+}
 
+update_violin_plot = function() {
+  var y_value_list = []
+  if (sample_lists.length > 1) {
+    i = 0;
+    for (var sample_group in root.selected_samples){
+      var trait_sample_data = _.values(root.selected_samples[sample_group])
+      var trait_vals = [];
+      for (j = 0, len = trait_sample_data.length; j < len; j++) {
+        this_sample_data = trait_sample_data[j];
+        trait_vals.push(this_sample_data.value);
+      }
+      root.violin_data[i]['y'] = trait_vals
+      i++;
+    }
+  } else {
+    var trait_sample_data = _.values(root.selected_samples['samples_all'])
+    var trait_vals = [];
+    for (j = 0, len = trait_sample_data.length; j < len; j++) {
+      this_sample_data = trait_sample_data[j];
+      trait_vals.push(this_sample_data.value);
+    }
+    root.violin_data[0]['y'] = trait_vals
+  }
+  Plotly.newPlot('violin_plot', root.violin_data, root.violin_layout, root.modebar_options)
 }
 
 
-redraw_prob_plot = function() {
+update_prob_plot = function() {
   return root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group);
 };
 
@@ -428,19 +442,19 @@ edit_data_change = function() {
   update_stat_values(sample_sets);
 
   if ($('#histogram').hasClass('js-plotly-plot')){
-    redraw_histogram();
+    update_histogram();
   }
   if ($('#bar_chart').hasClass('js-plotly-plot')){
-    redraw_bar_chart();
+    update_bar_chart();
   }
   if ($('#box_plot').hasClass('js-plotly-plot')){
-    redraw_box_plot();
+    update_box_plot();
   }
   if ($('#violin_plot').hasClass('js-plotly-plot')){
-    redraw_violin_plot();
+    update_violin_plot();
   }
   if ($('#prob_plot_div').hasClass('js-plotly-plot')){
-    return redraw_prob_plot();
+    return update_prob_plot();
   }
 };
 show_hide_outliers = function() {
@@ -591,7 +605,10 @@ reset_samples_table = function() {
     };
   })(this));
 };
-$('.reset').click(reset_samples_table);
+$('.reset').click(function() {
+  reset_samples_table();
+  edit_data_change();
+});
 
 log_normalize_data = function() {
   return $('.trait_value_input').each((function(_this) {
@@ -825,7 +842,16 @@ if (Object.keys(js_data.sample_group_types).length > 1) {
 // Define Plotly Options (for the options bar at the top of each figure)
 
 root.modebar_options = {
-  modeBarButtonsToRemove:['hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines']
+  modeBarButtonsToAdd:[{
+    name: 'Export as SVG',
+    icon: Plotly.Icons.disk,
+    click: function(gd) {
+      Plotly.downloadImage(gd, {format: 'svg'})
+    }
+  }],
+  modeBarButtonsToRemove:['toImage', 'sendDataToCloud', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines'],
+  displaylogo: false
+  //modeBarButtons:['toImage2', 'zoom2d', 'pan2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
 }
 
 // Bar Chart
@@ -844,26 +870,26 @@ var bar_trace = {
 
 root.bar_data = [bar_trace]
 
-positive_error_vals = []
-negative_error_vals = []
-for (i = 0;i < get_sample_vals(sample_lists[0]).length; i++){
-    if (get_sample_errors(sample_lists[0])[0][i] != undefined) {
-        positive_error_vals.push(get_sample_vals(sample_lists[0])[i] + get_sample_errors(sample_lists[0])[0][i])
-        negative_error_vals.push(get_sample_vals(sample_lists[0])[i] - get_sample_errors(sample_lists[0])[0][i])
+get_bar_range = function(sample_list){
+  positive_error_vals = []
+  negative_error_vals = []
+  for (i = 0;i < get_sample_vals(sample_list).length; i++){
+    if (get_sample_errors(sample_list)[0][i] != undefined) {
+        positive_error_vals.push(get_sample_vals(sample_list)[i] + get_sample_errors(sample_list)[0][i])
+        negative_error_vals.push(get_sample_vals(sample_list)[i] - get_sample_errors(sample_list)[0][i])
     } else {
-        positive_error_vals.push(get_sample_vals(sample_lists[0])[i])
-        negative_error_vals.push(get_sample_vals(sample_lists[0])[i])
+        positive_error_vals.push(get_sample_vals(sample_list)[i])
+        negative_error_vals.push(get_sample_vals(sample_list)[i])
     }
-}
+  }
 
-// Calculate the y axis cutoff to avoid a situation where all bar variation is clustered at the top of the chart
-min_y_val = Math.min(...negative_error_vals)
-max_y_val = Math.max(...positive_error_vals)
+  min_y_val = Math.min(...negative_error_vals)
+  max_y_val = Math.max(...positive_error_vals)
 
-if (min_y_val == 0) {
+  if (min_y_val == 0) {
     range_top = max_y_val + Math.abs(max_y_val)*0.1
     range_bottom = 0;
-} else {
+  } else {
     range_top = max_y_val + Math.abs(max_y_val)*0.1
     range_bottom = min_y_val - Math.abs(min_y_val)*0.1
     if (min_y_val > 0) {
@@ -873,21 +899,95 @@ if (min_y_val == 0) {
     } else {
         range_bottom = 0
     }
+  }
+
+  return [range_bottom, range_top]
 }
 
-root.chart_range = [range_bottom, range_top]
+root.chart_range = get_bar_range(sample_lists[0])
 
 total_sample_count = 0
 for (i = 0, i < sample_lists.length; i++;) {
   total_sample_count += get_sample_vals(sample_lists[i]).length
 }
 
+// Histogram
+var hist_trace = {
+    x: get_sample_vals(sample_lists[0]),
+    type: 'histogram'
+};
+root.histogram_data = [hist_trace];
+root.histogram_layout = {
+  bargap: 0.05,
+  title: "Sample Values",
+  xaxis: {
+           autorange: true,
+           title: "Value",
+           titlefont: {
+             size: 16
+           },
+           ticklen: 4,
+           tickfont: {
+             size: 16
+           }
+         },
+  yaxis: {
+           autorange: true,
+           title: "Count",
+           titlefont: {
+             size: 16
+           },
+           showline: true,
+           ticklen: 4,
+           tickfont: {
+             size: 16
+           }
+         },
+  width: 500,
+  height: 600,
+  margin: {
+      l: 50,
+      r: 30,
+      t: 100,
+      b: 60
+  }
+};
+
+$('.histogram_tab').click(function() {
+  update_histogram();
+  update_histogram_width();
+});
+
+$('.histogram_samples_group').val(root.stats_group);
+$('.histogram_samples_group').change(function() {
+  root.stats_group = $(this).val();
+  return update_histogram();
+});
+
 if (js_data.num_values < 256) {
   bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
 
-  var layout = {
+  root.bar_layout = {
+    xaxis: {
+        titlefont: {
+          size: 16
+        },
+        showline: true,
+        ticklen: 4,
+        tickfont: {
+          size: 16
+        }
+    },
     yaxis: {
         range: root.chart_range,
+        titlefont: {
+          size: 16
+        },
+        showline: true,
+        ticklen: 4,
+        tickfont: {
+          size: 16
+        }
     },
     width: bar_chart_width,
     height: 600,
@@ -898,31 +998,37 @@ if (js_data.num_values < 256) {
         b: 80
     }
   };
-  root.bar_layout = layout
+
   $('.bar_chart_tab').click(function() {
-    if ($('#bar_chart').hasClass('js-plotly-plot')){
-      redraw_bar_chart();
-    } else {
-      Plotly.newPlot('bar_chart', root.bar_data, root.bar_layout, root.modebar_options)
-    }
+    update_bar_chart();
   });
 }
 
-if (full_sample_lists.length > 1) {
-    root.box_layout = {
-        boxgap: 0.2,
-        yaxis: {
-            range: [range_bottom, range_top],
+root.box_layout = {
+    xaxis: {
+        showline: true,
+        tickfont: {
+          size: 16
         },
-        width: 600,
-        height: 500,
-        margin: {
-            l: 50,
-            r: 30,
-            t: 30,
-            b: 80
+    },
+    yaxis: {
+        autorange: true,
+        showline: true,
+        ticklen: 4,
+        tickfont: {
+          size: 16
         }
-    };
+    },
+    margin: {
+        l: 50,
+        r: 30,
+        t: 30,
+        b: 80
+    }
+};
+if (full_sample_lists.length > 1) {
+    root.box_layout['width'] = 600;
+    root.box_layout['height'] = 500;
     var trace1 = {
         y: get_sample_vals(full_sample_lists[0]),
         type: 'box',
@@ -974,22 +1080,11 @@ if (full_sample_lists.length > 1) {
             width: 1
         }
     }
-    box_data = [trace1, trace2, trace3]
+    root.box_data = [trace1, trace2, trace3]
 } else {
-    root.box_layout = {
-        yaxis: {
-            range: [range_bottom, range_top],
-        },
-        width: 400,
-        height: 500,
-        margin: {
-            l: 50,
-            r: 30,
-            t: 30,
-            b: 80
-        }
-    };
-    box_data = [
+    root.box_layout['width'] = 300;
+    root.box_layout['height'] = 400;
+    root.box_data = [
       {
         type: 'box',
         y: get_sample_vals(full_sample_lists[0]),
@@ -1015,31 +1110,39 @@ box_obj = {
 }
 
 $('.box_plot_tab').click(function() {
-  if ($('#box_plot').hasClass('js-plotly-plot')){
-    redraw_box_plot();
-  } else {
-    Plotly.newPlot('box_plot', box_obj, root.modebar_options);
-  }
+  update_box_plot();
 });
 
 // Violin Plot
 
-if (full_sample_lists.length > 1) {
-    root.violin_layout = {
-      title: "Violin Plot",
-      yaxis: {
-        range: [range_bottom, range_top],
-        zeroline: false
-      },
-      width: 600,
-      height: 500,
-      margin: {
-            l: 50,
-            r: 30,
-            t: 80,
-            b: 80
+root.violin_layout = {
+  title: "Violin Plot",
+  xaxis: {
+      showline: true,
+      tickfont: {
+        size: 16
       }
-    };
+  },
+  yaxis: {
+      autorange: true,
+      showline: true,
+      ticklen: 4,
+      tickfont: {
+        size: 16
+      },
+      zeroline: false
+  },
+  margin: {
+        l: 50,
+        r: 30,
+        t: 80,
+        b: 80
+  }
+};
+
+if (full_sample_lists.length > 1) {
+    root.violin_layout['width'] = 600;
+    root.violin_layout['height'] = 500;
     var trace1 = {
         y: get_sample_vals(full_sample_lists[2]),
         type: 'violin',
@@ -1088,24 +1191,11 @@ if (full_sample_lists.length > 1) {
         name: sample_group_list[0],
         x0: sample_group_list[0]
     }
-    violin_data = [trace1, trace2, trace3]
+    root.violin_data = [trace1, trace2, trace3]
 } else {
-    root.violin_layout = {
-      title: "Violin Plot",
-      yaxis: {
-        range: [range_bottom, range_top],
-        zeroline: false
-      },
-      width: 500,
-      height: 300,
-      margin: {
-            l: 50,
-            r: 30,
-            t: 80,
-            b: 80
-      }
-    };
-    violin_data = [
+    root.violin_layout['width'] = 300;
+    root.violin_layout['height'] = 400;
+    root.violin_data = [
       {
         y: get_sample_vals(full_sample_lists[0]),
         type: 'violin',
@@ -1125,78 +1215,34 @@ if (full_sample_lists.length > 1) {
     ]
 }
 
-violin_obj = {
-  data: violin_data,
-  layout: root.violin_layout
-}
-
 $('.violin_plot_tab').click(function() {
-  if ($('#violin_plot').hasClass('js-plotly-plot')){
-    redraw_violin_plot();
-  } else {
-    Plotly.plot('violin_plot', violin_obj, root.modebar_options);
-  }
-});
-
-// Histogram
-var hist_trace = {
-    x: get_sample_vals(sample_lists[0]),
-    type: 'histogram'
-};
-var data = [hist_trace];
-var layout = {
-  bargap: 0.05,
-  title: "Sample Values",
-  xaxis: {title: "Value"},
-  yaxis: {title: "Count"},
-  margin: {
-      l: 50,
-      r: 30,
-      t: 100,
-      b: 60
-  }
-};
-
-$('.histogram_tab').click(function() {
-  if ($('#histogram').hasClass('js-plotly-plot')){
-    redraw_histogram();
-    update_histogram_width();
-  } else {
-    Plotly.newPlot('histogram', data, layout, root.modebar_options)
-    update_histogram_width()
-  }
-});
-
-$('.histogram_samples_group').val(root.stats_group);
-$('.histogram_samples_group').change(function() {
-  root.stats_group = $(this).val();
-  return redraw_histogram();
+  update_violin_plot();
 });
 
 if (get_sample_vals(sample_lists[0]).length < 256) {
   $('.bar_chart_samples_group').change(function() {
     root.stats_group = $(this).val();
-    return redraw_bar_chart();
+    return update_bar_chart();
   });
   root.bar_sort = "name"
 }
 $('.sort_by_name').click(function() {
   root.bar_sort = "name"
-  return redraw_bar_chart();
+  return update_bar_chart();
 });
 $('.sort_by_value').click(function() {
   root.bar_sort = "value"
-  return redraw_bar_chart();
+  return update_bar_chart();
 });
 
 root.prob_plot_group = 'samples_primary';
 $('.prob_plot_samples_group').val(root.prob_plot_group);
 $('.prob_plot_tab').click(function() {
-  return redraw_prob_plot();
+  return update_prob_plot();
 });
 $('.prob_plot_samples_group').change(function() {
   root.prob_plot_group = $(this).val();
-  return redraw_prob_plot();
+  return update_prob_plot();
 });
 
 function isEmpty( el ){
