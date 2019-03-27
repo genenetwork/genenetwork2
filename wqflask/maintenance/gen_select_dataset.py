@@ -200,26 +200,31 @@ def get_datasets(types):
 def build_datasets(species, group, type_name):
     """Gets dataset names from database"""
     dataset_text = dataset_value = None
+    datasets = []
     if type_name == "Phenotypes":
-        print("GROUP:", group)
-        Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+        Cursor.execute("""select InfoFiles.GN_AccesionId, PublishFreeze.Name, PublishFreeze.FullName from InfoFiles, PublishFreeze, InbredSet where
                     InbredSet.Name = '%s' and
                     PublishFreeze.InbredSetId = InbredSet.Id and
-                    InfoFiles.InfoPageName = PublishFreeze.Name and
-                    PublishFreeze.public > 0 and
-                    PublishFreeze.confidentiality < 1 order by
-                    PublishFreeze.CreateTime desc""" % group)
+                    InfoFiles.InfoPageName = PublishFreeze.Name order by
+                    PublishFreeze.CreateTime asc""" % group)
 
-        results = Cursor.fetchone()
+        results = Cursor.fetchall()
         if results != None:
-            dataset_id = str(results[0])
+            for result in results:
+                print(result)
+                dataset_id = str(result[0])
+                dataset_value = str(result[1])
+                if group == 'MDP':
+                    dataset_text = "Mouse Phenome Database"
+                else:
+                    #dataset_text = "%s Phenotypes" % group
+                    dataset_text = str(result[2])
+                datasets.append((dataset_id, dataset_value, dataset_text))
         else:
             dataset_id = "None"
-        dataset_value = "%sPublish" % group
-        if group == 'MDP':
-            dataset_text = "Mouse Phenome Database"
-        else:
+            dataset_value = "%sPublish" % group
             dataset_text = "%s Phenotypes" % group
+            datasets.append((dataset_id, dataset_value, dataset_text))
 
     elif type_name == "Genotypes":
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
@@ -237,10 +242,9 @@ def build_datasets(species, group, type_name):
             dataset_id = "None"
         dataset_value = "%sGeno" % group
         dataset_text = "%s Genotypes" % group
+        datasets.append((dataset_id, dataset_value, dataset_text))
 
-    if dataset_value:
-        return [(dataset_id, dataset_value, dataset_text)]
-    else:
+    else: # for mRNA expression/ProbeSet
         Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = '%s' and Species.Id = InbredSet.SpeciesId and
@@ -258,7 +262,7 @@ def build_datasets(species, group, type_name):
                 this_dataset_info.append(str(info))
             datasets.append(this_dataset_info)
 
-        return datasets
+    return datasets
 
 
 def main():

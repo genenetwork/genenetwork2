@@ -142,7 +142,7 @@ class GSearch(object):
                     this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[5], line[3]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
-                    if line[8] != None:
+                    if line[9] != None:
                         this_trait['description'] = line[6]
                     else:
                         this_trait['description'] = line[5]

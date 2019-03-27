@@ -5,11 +5,13 @@
 {% block content %}
 <div class="container">
     <h3>Edit: {{title}}</h3>
-    <form>
+    <form action="/update_text" method="post">
+        <input type="hidden" name="entry_type" value="{{ entry }}">
+        <input type="hidden" name="title" value="{{ title }}">
         <textarea name="ckcontent" id="ckcontent">
 			{{content|safe}}
         </textarea>
-        <script type="text/javascript" src="/static/packages/ckeditor/ckeditor.js"></script>
+        <script src="/static/packages/ckeditor/ckeditor.js"></script>
         <script type="text/javascript">
             CKEDITOR.replace('ckcontent',	{
                 height: '650px',

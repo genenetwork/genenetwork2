@@ -260,10 +260,15 @@ def ctl_results():
     result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
     return render_template("ctl_results.html", **result)      # Display them using the template
 
+#@app.route("/news")
+#def news_route():
+#    newsobject = news.News()
+#    return render_template("news.html", **newsobject.__dict__)
+
 @app.route("/news")
-def news_route():
-    newsobject = news.News()
-    return render_template("news.html", **newsobject.__dict__)
+def news():
+    doc = docs.Docs("news")
+    return render_template("docs.html", **doc.__dict__)
 
 @app.route("/references")
 def references():
@@ -289,6 +294,12 @@ def links():
 @app.route("/environments")
 def environments():
     doc = docs.Docs("environments")
+    return render_template("docs.html", **doc.__dict__)
+
+@app.route("/update_text", methods=('POST',))
+def update_page():
+    docs.update_text(request.form)
+    doc = docs.Docs(request.form['entry_type'])
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/submit_trait")
