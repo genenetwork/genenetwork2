@@ -33,8 +33,6 @@ import math
 import collections
 import resource
 
-import numarray
-import numarray.linear_algebra as la
 import numpy as np
 import scipy
 
@@ -117,7 +115,6 @@ class CorrelationMatrix(object):
 
             self.corr_results = []
             self.pca_corr_results = []
-            self.trait_data_array = []
             self.shared_samples_list = self.all_sample_list
             for trait_db in self.trait_list:
                 this_trait = trait_db[0]
@@ -125,13 +122,6 @@ class CorrelationMatrix(object):
 
                 this_db_samples = this_db.group.all_samples_ordered()
                 this_sample_data = this_trait.data
-
-                this_trait_vals = []
-                for index, sample in enumerate(this_db_samples):
-                    if (sample in this_sample_data):
-                        sample_value = this_sample_data[sample].value
-                        this_trait_vals.append(sample_value)
-                self.trait_data_array.append(this_trait_vals)
 
                 corr_result_row = []
                 pca_corr_result_row = []
@@ -146,12 +136,13 @@ class CorrelationMatrix(object):
                     target_vals = []
                     for index, sample in enumerate(target_samples):
                         if (sample in this_sample_data) and (sample in target_sample_data):
-                            if sample not in self.shared_samples_list:
-                                self.shared_samples_list.remove(sample)
                             sample_value = this_sample_data[sample].value
                             target_sample_value = target_sample_data[sample].value
                             this_trait_vals.append(sample_value)
                             target_vals.append(target_sample_value)
+                        else:
+                            if sample in self.shared_samples_list:
+                                self.shared_samples_list.remove(sample)
 
                     this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
 
@@ -175,7 +166,21 @@ class CorrelationMatrix(object):
                 self.corr_results.append(corr_result_row)
                 self.pca_corr_results.append(pca_corr_result_row)
 
-            corr_result_eigen = la.eigenvectors(numarray.array(self.pca_corr_results))
+            self.trait_data_array = []
+            for trait_db in self.trait_list:
+                this_trait = trait_db[0]
+                this_db = trait_db[1]
+                this_db_samples = this_db.group.all_samples_ordered()
+                this_sample_data = this_trait.data
+
+                this_trait_vals = []
+                for index, sample in enumerate(this_db_samples):
+                    if (sample in this_sample_data) and (sample in self.shared_samples_list):
+                        sample_value = this_sample_data[sample].value
+                        this_trait_vals.append(sample_value)
+                self.trait_data_array.append(this_trait_vals)
+
+            corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
             corr_eigen_value, corr_eigen_vectors = sortEigenVectors(corr_result_eigen)
 
             groups = []
@@ -226,7 +231,7 @@ class CorrelationMatrix(object):
         self.scale = pca.rx('scale')
 
         trait_array = zScore(self.trait_data_array)
-        trait_array = np.array(trait_array)
+        trait_array = trait_array
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
 
         pca_traits = []
@@ -307,6 +312,6 @@ def sortEigenVectors(vector):
             B.append(item[1])
         sum = reduce(lambda x,y: x+y, A, 0.0)
         A = map(lambda x:x*100.0/sum, A) 
-        return [A,B]
+        return [A, B]
     except:
         return []
