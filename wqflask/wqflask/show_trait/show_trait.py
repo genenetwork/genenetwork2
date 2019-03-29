@@ -114,7 +114,7 @@ class ShowTrait(object):
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm10', blatsequence)
                 self.UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm10', blatsequence)
             elif self.dataset.group.species == "human":
-                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
+                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg38', blatsequence)
                 self.UTHSC_BLAT_URL = ""
             else:
                 self.UCSC_BLAT_URL = ""
