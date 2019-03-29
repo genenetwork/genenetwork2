@@ -231,13 +231,13 @@ class CorrelationMatrix(object):
         self.scale = pca.rx('scale')
 
         trait_array = zScore(self.trait_data_array)
-        trait_array = trait_array
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
 
         pca_traits = []
         for i, vector in enumerate(trait_array_vectors):
-            if corr_eigen_value[i-1] < 100.0/len(self.trait_list):
-                pca_traits.append((vector*-1.0).tolist())
+            #ZS: Check if below check is necessary
+            #if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
+            pca_traits.append((vector*-1.0).tolist())
 
         this_group_name = self.trait_list[0][1].group.name
         temp_dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = this_group_name)
@@ -298,7 +298,7 @@ def zScore(trait_data_array):
 def sortEigenVectors(vector):
     try:
         eigenValues = vector[0].tolist()
-        eigenVectors = vector[1].tolist()
+        eigenVectors = vector[1].T.tolist()
         combines = []
         i = 0
         for item in eigenValues:
