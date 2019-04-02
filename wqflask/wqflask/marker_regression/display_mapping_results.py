@@ -228,7 +228,7 @@ class DisplayMappingResults(object):
             self.covariates = start_vars['covariates']
         if 'maf' in start_vars.keys():
             self.maf = start_vars['maf']
-        if 'use_loco' in start_vars.keys():
+        if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
             if self.use_loco == "True":
                 self.gwa_filename = start_vars['gwa_filename']
