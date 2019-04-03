@@ -454,17 +454,22 @@
 
     $("input[name=add_strain]").click(function() {
       var selected_strain = $("select[name=strains] option:selected").val();
-      $("#chosen_strains_select").append("<option value='" + selected_strain + "'>" + selected_strain + "</option>");
 
       var current_species = $("#species_select").val();
       if (current_species == "Mouse") {
           stored_strains = $("input[name=chosen_strains_mouse]").val().split(",")
-          stored_strains.push(selected_strain)
-          $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+          if (!(stored_strains.includes(selected_strain))){
+              stored_strains.push(selected_strain)
+              $("input[name=chosen_strains_mouse]").val(stored_strains.join(","))
+              $("#chosen_strains_select").append("<option value='" + selected_strain + "'>" + selected_strain + "</option>");
+          }
       } else if (current_species == "Rat") {
           stored_strains = $("input[name=chosen_strains_rat]").val().split(",")
-          stored_strains.push(selected_strain)
-          $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+          if (!(stored_strains.includes(selected_strain))){
+              stored_strains.push(selected_strain)
+              $("input[name=chosen_strains_rat]").val(stored_strains.join(","))
+              $("#chosen_strains_select").append("<option value='" + selected_strain + "'>" + selected_strain + "</option>");
+          }
       }
     });
 
