@@ -187,7 +187,6 @@ def get_datasets(types):
     for species, group_dict in types.iteritems():
         datasets[species] = {}
         for group, type_list in group_dict.iteritems():
-            #print("type_list: ", type_list)
             datasets[species][group] = {}
             for type_name in type_list:
                 these_datasets = build_datasets(species, group, type_name[0])
@@ -209,7 +208,7 @@ def build_datasets(species, group, type_name):
                     PublishFreeze.CreateTime asc""" % group)
 
         results = Cursor.fetchall()
-        if results != None:
+        if len(results) > 0:
             for result in results:
                 print(result)
                 dataset_id = str(result[0])
