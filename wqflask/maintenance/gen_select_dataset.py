@@ -120,10 +120,19 @@ def get_types(groups):
                 else:
                     types[species][group_name] = [("Genotypes", "Genotypes")]
             if group_name in types[species]:
-                types[species][group_name] += build_types(species, group_name)
-            else:
-                types[species][group_name] = build_types(species, group_name)
-
+                types_list = build_types(species, group_name)
+                if len(types_list) > 0:
+                    types[species][group_name] += types_list
+                else:
+                    types[species].pop(group_name, None)
+                    groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
+            else: #ZS: This whole else statement might be unnecessary, need to check
+                types_list = build_types(species, group_name)
+                if len(types_list) > 0:
+                    types[species][group_name] = types_list
+                else:
+                    types[species].pop(group_name, None)
+                    groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
     return types
 
 

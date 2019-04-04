@@ -10,56 +10,7 @@
             ]
          }
       },
-      "arabidopsis": {
-         "BayXSha": {
-            "Genotypes": [
-               [
-                  "None",
-                  "BayXShaGeno",
-                  "BayXSha Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "642",
-                  "BayXShaPublish",
-                  "BayXSha Published Phenotypes"
-               ]
-            ]
-         },
-         "ColXBur": {
-            "Genotypes": [
-               [
-                  "None",
-                  "ColXBurGeno",
-                  "ColXBur Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "623",
-                  "ColXBurPublish",
-                  "ColXBur Published Phenotypes"
-               ]
-            ]
-         },
-         "ColXCvi": {
-            "Genotypes": [
-               [
-                  "None",
-                  "ColXCviGeno",
-                  "ColXCvi Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "640",
-                  "ColXCviPublish",
-                  "ColXCvi Published Phenotypes"
-               ]
-            ]
-         }
-      },
+      "arabidopsis": {},
       "barley": {
          "QSM": {
             "Leaf mRNA": [
@@ -1330,15 +1281,6 @@
                ]
             ]
          },
-         "HCP": {
-            "Phenotypes": [
-               [
-                  "None",
-                  "HCPPublish",
-                  "HCP Private Phenotypes"
-               ]
-            ]
-         },
          "HLC": {
             "Liver mRNA": [
                [
@@ -1500,15 +1442,6 @@
                ]
             ]
          },
-         "Islets-Gerling": {
-            "Phenotypes": [
-               [
-                  "None",
-                  "Islets-GerlingPublish",
-                  "Islets-Gerling Phenotypes"
-               ]
-            ]
-         },
          "TIGEM-Retina-RNA-Seq": {
             "Phenotypes": [
                [
@@ -1554,42 +1487,6 @@
                   "845",
                   "UCSD_AIL_STR_RNA-Seq_0418",
                   "UCSD AIL Striatum (Apr18) RNA-Seq"
-               ]
-            ]
-         },
-         "AIL-LGSM-F34-A": {
-            "Phenotypes": [
-               [
-                  "655",
-                  "AIL-LGSM-F34-APublish",
-                  "AIL F34-A Phenotypes"
-               ]
-            ]
-         },
-         "AIL-LGSM-F34-F39-43-GBS": {
-            "Phenotypes": [
-               [
-                  "654",
-                  "AIL-LGSM-F34-F39-43-GBSPublish",
-                  "AIL F34-F39-43-GBS Phenotypes"
-               ]
-            ]
-         },
-         "AIL-LGSM-F34-GBS": {
-            "Phenotypes": [
-               [
-                  "656",
-                  "AIL-LGSM-F34-GBSPublish",
-                  "AIL F34-GBS Phenotypes"
-               ]
-            ]
-         },
-         "AIL-LGSM-F39-43-GBS": {
-            "Phenotypes": [
-               [
-                  "657",
-                  "AIL-LGSM-F39-43-GBSPublish",
-                  "AIL F39-43-GBS Phenotypes"
                ]
             ]
          },
@@ -1701,15 +1598,6 @@
                ]
             ]
          },
-         "B6D2": {
-            "Phenotypes": [
-               [
-                  "None",
-                  "B6D2Publish",
-                  "B6D2 Phenotypes"
-               ]
-            ]
-         },
          "B6D2F2": {
             "Brain mRNA": [
                [
@@ -1748,22 +1636,6 @@
                   "637",
                   "B6D2F2Geno",
                   "B6D2F2 Genotypes"
-               ]
-            ]
-         },
-         "B6D2F2-PSU": {
-            "Genotypes": [
-               [
-                  "617",
-                  "B6D2F2-PSUGeno",
-                  "B6D2F2-PSU Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "None",
-                  "B6D2F2-PSUPublish",
-                  "B6D2F2 PSU Phenotypes"
                ]
             ]
          },
@@ -3116,15 +2988,6 @@
                ]
             ]
          },
-         "BXD-Bone": {
-            "Phenotypes": [
-               [
-                  "650",
-                  "BXD-BonePublish",
-                  "BXD-Bone Phenotypes"
-               ]
-            ]
-         },
          "BXD-Harvested": {
             "Hippocampus mRNA": [
                [
@@ -3228,22 +3091,6 @@
                ]
             ]
          },
-         "C57BL-6JxC57BL-6NJF2": {
-            "Genotypes": [
-               [
-                  "622",
-                  "C57BL-6JxC57BL-6NJF2Geno",
-                  "C57BL-6JxC57BL-6NJF2 Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "620",
-                  "C57BL-6JxC57BL-6NJF2Publish",
-                  "C57BL/6JxC57BL/6NJ F2 CROSS Phenotypes"
-               ]
-            ]
-         },
          "CFW": {
             "Hippocampus mRNA": [
                [
@@ -3340,15 +3187,6 @@
                   "None",
                   "CIE-RMAPublish",
                   "CIE-RMA Phenotypes"
-               ]
-            ]
-         },
-         "CMS": {
-            "Phenotypes": [
-               [
-                  "None",
-                  "CMSPublish",
-                  "CMS Phenotypes"
                ]
             ]
          },
@@ -3501,7 +3339,6 @@
                ]
             ]
          },
-         "EMSR": {},
          "HS": {
             "Hippocampus mRNA": [
                [
@@ -3626,22 +3463,6 @@
                ]
             ]
          },
-         "Linsenbardt-Boehm": {
-            "Genotypes": [
-               [
-                  "None",
-                  "Linsenbardt-BoehmGeno",
-                  "Linsenbardt-Boehm Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "645",
-                  "Linsenbardt-BoehmPublish",
-                  "Linsenbardt-Boehm Published Phenotypes"
-               ]
-            ]
-         },
          "MDP": {
             "Bone Femur mRNA": [
                [
@@ -3759,29 +3580,9 @@
                   "UConn-Rheaume Retina RGC (Sep18) scRNA-Seq Siamak"
                ]
             ]
-         },
-         "SOTNOT-OHSU": {
-            "Genotypes": [
-               [
-                  "613",
-                  "SOTNOT-OHSUGeno",
-                  "SOTNOT-OHSU Genotypes"
-               ]
-            ]
-         },
-         "Scripps-2013": {}
-      },
-      "poplar": {
-         "Poplar": {
-            "Phenotypes": [
-               [
-                  "649",
-                  "PoplarPublish",
-                  "Poplar Phenotypes"
-               ]
-            ]
          }
       },
+      "poplar": {},
       "rat": {
          "HSNIH-Palmer": {
             "Infralimbic Cortex mRNA": [
@@ -3824,15 +3625,6 @@
                   "863",
                   "HSNIH-Rat-PL-RSeq-0818",
                   "HSNIH-Palmer Prelimbic Cortex RNA-Seq (Aug18) rlog"
-               ]
-            ]
-         },
-         "HSNIH-RGSMC": {
-            "Phenotypes": [
-               [
-                  "None",
-                  "HSNIH-RGSMCPublish",
-                  "HSNIH Published Phenotypes"
                ]
             ]
          },
@@ -3926,44 +3718,8 @@
             ]
          }
       },
-      "soybean": {
-         "J12XJ58F11": {
-            "Genotypes": [
-               [
-                  "None",
-                  "J12XJ58F11Geno",
-                  "J12XJ58F11 Genotypes"
-               ]
-            ],
-            "Phenotypes": [
-               [
-                  "647",
-                  "J12XJ58F11Publish",
-                  "J12XJ58F11 Phenotypes"
-               ]
-            ]
-         },
-         "J12XJ58F2": {
-            "Phenotypes": [
-               [
-                  "616",
-                  "J12XJ58F2Publish",
-                  "J12XJ58F2 Published Phenotypes"
-               ]
-            ]
-         }
-      },
-      "tomato": {
-         "LXP": {
-            "Phenotypes": [
-               [
-                  "621",
-                  "LXPPublish",
-                  "LXP Published Phenotypes"
-               ]
-            ]
-         }
-      }
+      "soybean": {},
+      "tomato": {}
    },
    "groups": {
       "All Species": [
@@ -3972,20 +3728,7 @@
             "All Groups"
          ]
       ],
-      "arabidopsis": [
-         [
-            "BayXSha",
-            "BayXSha"
-         ],
-         [
-            "ColXBur",
-            "ColXBur"
-         ],
-         [
-            "ColXCvi",
-            "ColXCvi"
-         ]
-      ],
+      "arabidopsis": [],
       "barley": [
          [
             "QSM",
@@ -4024,10 +3767,6 @@
             "Brain, Aging: Normal Gene Expression (UCI/Cotman)"
          ],
          [
-            "HCP",
-            "Brain, Cognition, Human Connectome Project"
-         ],
-         [
             "HSB",
             "Brain, Development: Normal Gene Expression (Yale/Sestan)"
          ],
@@ -4060,10 +3799,6 @@
             "Lymphoblastoid Cells: Gene Expression (CEPH, Williams)"
          ],
          [
-            "Islets-Gerling",
-            "Pancreatic: Islets (UTHSC/Gerling)"
-         ],
-         [
             "TIGEM-Retina-RNA-Seq",
             "Retina: Normal Adult Gene Expression, RNA-Seq (TIGEM)"
          ]
@@ -4072,22 +3807,6 @@
          [
             "AIL",
             "AIL Advanced Intercross Line"
-         ],
-         [
-            "AIL-LGSM-F34-A",
-            "AIL LGSM F34 (Array)"
-         ],
-         [
-            "AIL-LGSM-F34-GBS",
-            "AIL LGSM F34 (GBS)"
-         ],
-         [
-            "AIL-LGSM-F34-F39-43-GBS",
-            "AIL LGSM F34 and F39-43 (GBS)"
-         ],
-         [
-            "AIL-LGSM-F39-43-GBS",
-            "AIL LGSM F39-43 (GBS)"
          ],
          [
             "AKXD",
@@ -4102,16 +3821,8 @@
             "B6BTBRF2"
          ],
          [
-            "Linsenbardt-Boehm",
-            "B6D2 EtOH Selected Advanced Intercross"
-         ],
-         [
             "B6D2F2",
             "B6D2F2"
-         ],
-         [
-            "B6D2F2-PSU",
-            "B6D2F2 PSU"
          ],
          [
             "BDF2-1999",
@@ -4132,10 +3843,6 @@
          [
             "B6D2RI",
             "BXD Aged"
-         ],
-         [
-            "BXD-Bone",
-            "BXD Bone Individual Data"
          ],
          [
             "BXD-Harvested",
@@ -4170,24 +3877,12 @@
             "Chronic Intermittent Ethanol Phase 2"
          ],
          [
-            "CMS",
-            "Chronic Mild Stress"
-         ],
-         [
             "CXB",
             "CXB RI Family (strain means)"
          ],
          [
             "D2GM",
             "D2 Glaucoma Model"
-         ],
-         [
-            "EMSR",
-            "Ethanol-Medicated Stress Reduction"
-         ],
-         [
-            "B6D2",
-            "Glaucoma and Aged Retina, UTHSC"
          ],
          [
             "HS",
@@ -4210,28 +3905,11 @@
             "NZB/FVB N2 NCI"
          ],
          [
-            "C57BL-6JxC57BL-6NJF2",
-            "Reduced Complexity Cross (B6JxB6N F2)"
-         ],
-         [
             "Retina-RGC-Rheaume",
             "Retina RGC Rheaume"
-         ],
-         [
-            "Scripps-2013",
-            "Scripps C57BL/6J"
-         ],
-         [
-            "SOTNOT-OHSU",
-            "SOTNOT-OHSU"
          ]
       ],
-      "poplar": [
-         [
-            "Poplar",
-            "Poplar"
-         ]
-      ],
+      "poplar": [],
       "rat": [
          [
             "HXBBXH",
@@ -4242,30 +3920,12 @@
             "NIH Heterogeneous Stock (Palmer)"
          ],
          [
-            "HSNIH-RGSMC",
-            "NIH Heterogeneous Stock (RGSMC 2013)"
-         ],
-         [
             "SRxSHRSPF2",
             "UIOWA SRxSHRSP F2"
          ]
       ],
-      "soybean": [
-         [
-            "J12XJ58F11",
-            "J12XJ58F11"
-         ],
-         [
-            "J12XJ58F2",
-            "J12XJ58F2"
-         ]
-      ],
-      "tomato": [
-         [
-            "LXP",
-            "LXP"
-         ]
-      ]
+      "soybean": [],
+      "tomato": []
    },
    "species": [
       [
@@ -4318,38 +3978,7 @@
             ]
          ]
       },
-      "arabidopsis": {
-         "BayXSha": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
-            ]
-         ],
-         "ColXBur": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
-            ]
-         ],
-         "ColXCvi": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
-            ]
-         ]
-      },
+      "arabidopsis": {},
       "barley": {
          "QSM": [
             [
@@ -4889,12 +4518,6 @@
                "Primary Visual Cortex mRNA"
             ]
          ],
-         "HCP": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
          "HLC": [
             [
                "Phenotypes",
@@ -4981,12 +4604,6 @@
                "Ventrolateral Prefrontal Cortex mRNA"
             ]
          ],
-         "Islets-Gerling": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
          "TIGEM-Retina-RNA-Seq": [
             [
                "Phenotypes",
@@ -5015,30 +4632,6 @@
             [
                "Striatum mRNA",
                "Striatum mRNA"
-            ]
-         ],
-         "AIL-LGSM-F34-A": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
-         "AIL-LGSM-F34-F39-43-GBS": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
-         "AIL-LGSM-F34-GBS": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
-         "AIL-LGSM-F39-43-GBS": [
-            [
-               "Phenotypes",
-               "Phenotypes"
             ]
          ],
          "AKXD": [
@@ -5091,12 +4684,6 @@
                "Liver mRNA"
             ]
          ],
-         "B6D2": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
          "B6D2F2": [
             [
                "Genotypes",
@@ -5105,16 +4692,6 @@
             [
                "Brain mRNA",
                "Brain mRNA"
-            ]
-         ],
-         "B6D2F2-PSU": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
             ]
          ],
          "B6D2RI": [
@@ -5333,12 +4910,6 @@
                "Ventral Tegmental Area mRNA"
             ]
          ],
-         "BXD-Bone": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ],
          "BXD-Harvested": [
             [
                "Phenotypes",
@@ -5389,16 +4960,6 @@
                "Liver mRNA"
             ]
          ],
-         "C57BL-6JxC57BL-6NJF2": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
-            ]
-         ],
          "CFW": [
             [
                "Phenotypes",
@@ -5439,12 +5000,6 @@
             [
                "Midbrain mRNA",
                "Midbrain mRNA"
-            ]
-         ],
-         "CMS": [
-            [
-               "Phenotypes",
-               "Phenotypes"
             ]
          ],
          "CTB6F2": [
@@ -5509,7 +5064,6 @@
                "Retina mRNA"
             ]
          ],
-         "EMSR": [],
          "HS": [
             [
                "Phenotypes",
@@ -5550,16 +5104,6 @@
             [
                "Prefrontal Cortex mRNA",
                "Prefrontal Cortex mRNA"
-            ]
-         ],
-         "Linsenbardt-Boehm": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
             ]
          ],
          "MDP": [
@@ -5611,23 +5155,9 @@
                "Retina Single-cell RNA-Seq",
                "Retina Single-cell RNA-Seq"
             ]
-         ],
-         "SOTNOT-OHSU": [
-            [
-               "Genotypes",
-               "Genotypes"
-            ]
-         ],
-         "Scripps-2013": []
-      },
-      "poplar": {
-         "Poplar": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
          ]
       },
+      "poplar": {},
       "rat": {
          "HSNIH-Palmer": [
             [
@@ -5653,12 +5183,6 @@
             [
                "Prelimbic Cortex mRNA",
                "Prelimbic Cortex mRNA"
-            ]
-         ],
-         "HSNIH-RGSMC": [
-            [
-               "Phenotypes",
-               "Phenotypes"
             ]
          ],
          "HXBBXH": [
@@ -5706,31 +5230,7 @@
             ]
          ]
       },
-      "soybean": {
-         "J12XJ58F11": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ],
-            [
-               "Genotypes",
-               "Genotypes"
-            ]
-         ],
-         "J12XJ58F2": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ]
-      },
-      "tomato": {
-         "LXP": [
-            [
-               "Phenotypes",
-               "Phenotypes"
-            ]
-         ]
-      }
+      "soybean": {},
+      "tomato": {}
    }
 }
