@@ -79,7 +79,7 @@ class GSearch(object):
                     this_trait['mean'] = '%.3f' % line[10]
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
-                        this_trait['LRS_score_repr'] = '%3.1f' % line[10]
+                        this_trait['LRS_score_repr'] = '%3.1f' % line[11]
                     this_trait['additive'] = "N/A"
                     if line[14] != "" and line[14] != None:
                         this_trait['additive'] = '%.3f' % line[14]
