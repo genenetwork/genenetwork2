@@ -45,7 +45,10 @@ def get_trait_db_obs(self, trait_db_list):
         data = data.strip()
         assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
         trait_name, dataset_name = data.split(":")
-        dataset_ob = data_set.create_dataset(dataset_name)
+        if dataset_name == "Temp":
+            dataset_ob = data_set.create_dataset(dataset_name=dataset_name, dataset_type="Temp", group_name=trait_name.split("_")[2])
+        else:
+            dataset_ob = data_set.create_dataset(dataset_name)
         trait_ob = GeneralTrait(dataset=dataset_ob,
                                name=trait_name,
                                cellid=None)

@@ -12,7 +12,7 @@ GEMMAOPTS = "-debug"
 if WEBSERVER_MODE == 'PROD':
   GEMMAOPTS = "-no-check"
 
-def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf=0.01):
+def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf=0.01, first_run=True, gwa_output_filename=None):
     """Generates p-values for each marker using GEMMA"""
 
     if this_dataset.group.genofile != None:
@@ -20,127 +20,114 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
     else:
         genofile_name = this_dataset.group.name
 
-    trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
-    gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename)
+    if first_run:
+      trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
+      gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename)
 
-    if not os.path.isfile("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)):
-        open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name), "w+")
+      if not os.path.isfile("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)):
+          open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name), "w+")
 
-    this_chromosomes = this_dataset.species.chromosomes.chromosomes
-    chr_list_string = ""
-    for i in range(len(this_chromosomes)):
-        if i < (len(this_chromosomes) - 1):
-            chr_list_string += this_chromosomes[i+1].name + ","
-        else:
-            chr_list_string += this_chromosomes[i+1].name
+      k_output_filename = this_dataset.group.name + "_K_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+      gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-    if covariates != "":
-        gen_covariates_file(this_dataset, covariates)
+      this_chromosomes = this_dataset.species.chromosomes.chromosomes
+      chr_list_string = ""
+      for i in range(len(this_chromosomes)):
+          if i < (len(this_chromosomes) - 1):
+              chr_list_string += this_chromosomes[i+1].name + ","
+          else:
+              chr_list_string += this_chromosomes[i+1].name
 
-    k_output_filename = this_dataset.group.name + "_K_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    if use_loco == "True":
-        generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        trait_filename,
-                                                                                        flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        k_output_filename)
-        logger.debug("k_command:" + generate_k_command)
-        os.system(generate_k_command)
+      if covariates != "":
+          gen_covariates_file(this_dataset, covariates)
 
-        gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        trait_filename)
-        if covariates != "":
-            gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
-                                                                                                              this_dataset.group.name,
-                                                                                                              flat_files('genotype/bimbam'),
-                                                                                                              genofile_name,
-                                                                                                              maf,
-                                                                                                              TEMPDIR,
-                                                                                                              gwa_output_filename)
-        else:
-            gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
-                                                                                                             genofile_name,
-                                                                                                             maf,
-                                                                                                             TEMPDIR,
-                                                                                                             gwa_output_filename)
+      if use_loco == "True":
+          generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          trait_filename,
+                                                                                          flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          k_output_filename)
+          logger.debug("k_command:" + generate_k_command)
+          os.system(generate_k_command)
 
-    else:
-        generate_k_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk -outdir %s/gn2/ -o %s' % (flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        trait_filename,
-                                                                                        flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        k_output_filename)
-        #generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
-        #                                                                                genofile_name,
-        #                                                                                flat_files('genotype/bimbam'),
-        #                                                                                trait_filename,
-        #                                                                                flat_files('genotype/bimbam'),
-        #                                                                                genofile_name,
-        #                                                                                TEMPDIR,
-        #                                                                                k_output_filename)
+          gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          trait_filename)
+          if covariates != "":
+              gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
+                                                                                                                this_dataset.group.name,
+                                                                                                                flat_files('genotype/bimbam'),
+                                                                                                                genofile_name,
+                                                                                                                maf,
+                                                                                                                TEMPDIR,
+                                                                                                                gwa_output_filename)
+          else:
+              gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+                                                                                                               genofile_name,
+                                                                                                               maf,
+                                                                                                               TEMPDIR,
+                                                                                                               gwa_output_filename)
 
-        logger.debug("k_command:" + generate_k_command)
-        os.system(generate_k_command)
+      else:
+          generate_k_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk -outdir %s/gn2/ -o %s' % (flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          trait_filename,
+                                                                                          flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          k_output_filename)
+          #generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+          #                                                                                genofile_name,
+          #                                                                                flat_files('genotype/bimbam'),
+          #                                                                                trait_filename,
+          #                                                                                flat_files('genotype/bimbam'),
+          #                                                                                genofile_name,
+          #                                                                                TEMPDIR,
+          #                                                                                k_output_filename)
 
-        gemma_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -k %s/gn2/%s.cXX.txt -lmm 2 -maf %s' % (flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        trait_filename,
-                                                                                        flat_files('genotype/bimbam'),
-                                                                                        genofile_name,
-                                                                                        TEMPDIR,
-                                                                                        k_output_filename,
-                                                                                        maf)
+          logger.debug("k_command:" + generate_k_command)
+          os.system(generate_k_command)
 
-        #gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (flat_files('genotype/bimbam'),
-        #                                                                                genofile_name,
-        #                                                                                flat_files('genotype/bimbam'),
-        #                                                                                genofile_name)
+          gemma_command = GEMMA_COMMAND + ' ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -k %s/gn2/%s.cXX.txt -lmm 2 -maf %s' % (flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          trait_filename,
+                                                                                          flat_files('genotype/bimbam'),
+                                                                                          genofile_name,
+                                                                                          TEMPDIR,
+                                                                                          k_output_filename,
+                                                                                          maf)
+
+          #gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/%s_pheno.txt' % (flat_files('genotype/bimbam'),
+          #                                                                                genofile_name,
+          #                                                                                flat_files('genotype/bimbam'),
+          #                                                                                genofile_name)
 
 
-        if covariates != "":
-            gemma_command += ' -c %s/%s_covariates.txt -outdir %s -o %s_output' % (flat_files('mapping'),
-                                                                                                         this_dataset.group.name,
-                                                                                                         webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                                                         genofile_name)
-        else:
-            gemma_command += ' -outdir %s -o %s_output' % (webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                  genofile_name)
+          if covariates != "":
+              gemma_command += ' -c %s/%s_covariates.txt -outdir %s -o %s_output' % (flat_files('mapping'),
+                                                                                                           this_dataset.group.name,
+                                                                                                           webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                           genofile_name)
+          else:
+              gemma_command += ' -outdir %s -o %s_output' % (webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                    genofile_name)
 
-        #if covariates != "":
-        #    gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
-        #                                                                                                     this_dataset.group.name,
-        #                                                                                                     flat_files('genotype/bimbam'),
-        #                                                                                                     genofile_name,
-        #                                                                                                     maf,
-        #                                                                                                     TEMPDIR,
-        #                                                                                                     gwa_output_filename)
-        #else:
-        #    gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
-        #                                                                             genofile_name,
-        #                                                                             maf,
-        #                                                                             TEMPDIR,
-        #                                                                             gwa_output_filename)
 
-    logger.debug("gemma_command:" + gemma_command)
-    os.system(gemma_command)
+      logger.debug("gemma_command:" + gemma_command)
+      os.system(gemma_command)
 
     if use_loco == "True":
         marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
+        return marker_obs, gwa_output_filename
     else:
-        #marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
         marker_obs = parse_gemma_output(genofile_name)
-
-    return marker_obs
+        return marker_obs
 
 def gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename):
     """Generates phenotype file for GEMMA"""

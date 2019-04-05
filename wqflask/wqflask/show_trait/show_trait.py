@@ -12,6 +12,7 @@ from collections import OrderedDict
 import redis
 Redis = redis.StrictRedis()
 
+import numpy as np
 import scipy.stats as ss
 
 from flask import Flask, g
@@ -113,7 +114,7 @@ class ShowTrait(object):
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm10', blatsequence)
                 self.UTHSC_BLAT_URL = webqtlConfig.UTHSC_BLAT % ('mouse', 'mm10', blatsequence)
             elif self.dataset.group.species == "human":
-                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg19', blatsequence)
+                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('human', 'hg38', blatsequence)
                 self.UTHSC_BLAT_URL = ""
             else:
                 self.UCSC_BLAT_URL = ""
@@ -138,6 +139,7 @@ class ShowTrait(object):
         self.make_sample_lists()
 
         self.qnorm_vals = quantile_normalize_vals(self.sample_groups)
+        self.z_scores = get_z_scores(self.sample_groups)
 
         # Todo: Add back in the ones we actually need from below, as we discover we need them
         hddn = OrderedDict()
@@ -197,6 +199,7 @@ class ShowTrait(object):
 
         #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
+        self.binary = "true" #ZS: So it knows whether to display the Binary R/qtl mapping method, which doesn't work unless all values are 0 or 1
         max_samplename_width = 1
         for group in self.sample_groups:
             for sample in group.sample_list:
@@ -204,6 +207,8 @@ class ShowTrait(object):
                     max_samplename_width = len(sample.name)
                 if sample.display_value != "x":
                     self.num_values += 1
+                    if sample.display_value != 0 or sample.display_value != 1:
+                        self.binary = "false"
 
         sample_column_width = max_samplename_width * 8
 
@@ -226,6 +231,7 @@ class ShowTrait(object):
                        attribute_names = self.sample_groups[0].attributes,
                        num_values = self.num_values,
                        qnorm_values = self.qnorm_vals,
+                       zscore_values = self.z_scores,
                        sample_column_width = sample_column_width,
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
@@ -277,11 +283,15 @@ class ShowTrait(object):
             if self.dataset.group.species == "human":
                 primary_sample_names += other_sample_names
 
+            if other_sample_names:
+                primary_header = "%s Only" % (self.dataset.group.name)
+            else:
+                primary_header = "Samples"
             primary_samples = SampleList(dataset = self.dataset,
                                             sample_names=primary_sample_names,
                                             this_trait=self.this_trait,
                                             sample_group_type='primary',
-                                            header="%s Only" % (self.dataset.group.name))
+                                            header=primary_header)
 
             if other_sample_names and self.dataset.group.species != "human" and self.dataset.group.name != "CFW":
                 parent_f1_samples = None
@@ -292,13 +302,11 @@ class ShowTrait(object):
                 if parent_f1_samples:
                     other_sample_names = parent_f1_samples + other_sample_names
 
-                logger.debug("other_sample_names:", other_sample_names)
-
                 other_samples = SampleList(dataset=self.dataset,
                                             sample_names=other_sample_names,
                                             this_trait=self.this_trait,
                                             sample_group_type='other',
-                                            header="Non-%s" % (self.dataset.group.name))
+                                            header="Other")
 
                 self.sample_groups = (primary_samples, other_samples)
             else:
@@ -350,6 +358,30 @@ def quantile_normalize_vals(sample_groups):
 
     return qnorm_by_group
 
+def get_z_scores(sample_groups):
+    zscore_by_group = []
+    for sample_type in sample_groups:
+        trait_vals = []
+        for sample in sample_type.sample_list:
+            try:
+                trait_vals.append(float(sample.value))
+            except:
+                continue
+
+        zscores = ss.mstats.zscore(np.array(trait_vals)).tolist()
+        zscores_with_x = []
+        counter = 0
+        for sample in sample_type.sample_list:
+            if sample.display_value == "x":
+                zscores_with_x.append("x")
+            else:
+                zscores_with_x.append("%0.3f" % zscores[counter])
+                counter += 1
+
+        zscore_by_group.append(zscores_with_x)
+
+    return zscore_by_group
+
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
     logger.debug("this_chr:", this_chr)
@@ -392,7 +424,7 @@ def get_table_widths(sample_groups, has_num_cases=False):
         trait_table_width += 70
     if has_num_cases:
         trait_table_width += 30
-    trait_table_width += len(sample_groups[0].attributes)*40
+    trait_table_width += len(sample_groups[0].attributes)*70
 
     trait_table_width = str(trait_table_width) + "px"
 

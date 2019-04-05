@@ -260,10 +260,15 @@ def ctl_results():
     result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
     return render_template("ctl_results.html", **result)      # Display them using the template
 
+#@app.route("/news")
+#def news_route():
+#    newsobject = news.News()
+#    return render_template("news.html", **newsobject.__dict__)
+
 @app.route("/news")
-def news_route():
-    newsobject = news.News()
-    return render_template("news.html", **newsobject.__dict__)
+def news():
+    doc = docs.Docs("news")
+    return render_template("docs.html", **doc.__dict__)
 
 @app.route("/references")
 def references():
@@ -289,6 +294,12 @@ def links():
 @app.route("/environments")
 def environments():
     doc = docs.Docs("environments")
+    return render_template("docs.html", **doc.__dict__)
+
+@app.route("/update_text", methods=('POST',))
+def update_page():
+    docs.update_text(request.form)
+    doc = docs.Docs(request.form['entry_type'])
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/submit_trait")
@@ -321,10 +332,8 @@ def export_trait_excel():
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     for i, row in enumerate(sample_data):
-        worksheet.write(i, 0, row[0])
-        worksheet.write(i, 1, row[1])
-        if len(row) > 2:
-            worksheet.write(i, 2, row[2])
+        for j, column in enumerate(row):
+            worksheet.write(i, j, row[j])
     workbook.close()
     excel_data = buff.getvalue()
     buff.close()
@@ -550,58 +559,17 @@ def mapping_results_container_page():
 def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
-    logger.debug("Marker regression called with initial_start_vars:", initial_start_vars.items())
-    #temp_uuid = initial_start_vars['temp_uuid']
-    wanted = (
-        'temp_uuid',
-        'trait_id',
-        'dataset',
-        'method',
-        'trimmed_markers',
-        'selected_chr',
-        'chromosomes',
-        'mapping_scale',
-        'score_type',
-        'suggestive',
-        'significant',
-        'num_perm',
-        'permCheck',
-        'perm_output',
-        'num_bootstrap',
-        'bootCheck',
-        'bootstrap_results',
-        'LRSCheck',
-        'covariates',
-        'maf',
-        'use_loco',
-        'manhattan_plot',
-        'control_marker',
-        'control_marker_db',
-        'do_control',
-        'genofile',
-        'pair_scan',
-        'startMb',
-        'endMb',
-        'graphWidth',
-        'lrsMax',
-        'additiveCheck',
-        'showSNP',
-        'showGenes',
-        'viewLegend',
-        'haplotypeAnalystCheck',
-        'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno',
-        'temp_trait',
-        'group',
-        'species'
-    )
     start_vars_container = {}
-    start_vars = {}
-    for key, value in initial_start_vars.iteritems():
-        if key in wanted or key.startswith(('value:')):
-            start_vars[key] = value
+    if 'wanted_inputs' in initial_start_vars:
+        wanted = initial_start_vars['wanted_inputs'].split(",")
+        start_vars = {}
+        for key, value in initial_start_vars.iteritems():
+            if key in wanted or key.startswith(('value:')):
+                start_vars[key] = value
 
-    start_vars_container['start_vars'] = start_vars
+        start_vars_container['start_vars'] = start_vars
+    else:
+        start_vars_container['start_vars'] = initial_start_vars
     rendered_template = render_template("loading.html", **start_vars_container)
 
     return rendered_template
@@ -615,6 +583,11 @@ def mapping_results_page():
     wanted = (
         'trait_id',
         'dataset',
+        'group',
+        'species',
+        'vals',
+        'first_run',
+        'gwa_filename',
         'geno_db_exists',
         'method',
         'mapping_results_path',
@@ -654,9 +627,7 @@ def mapping_results_page():
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
-        'temp_trait',
-        'group',
-        'species'
+        'temp_trait'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
@@ -684,36 +655,39 @@ def mapping_results_page():
         with Bench("Total time in RunMapping"):
             template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
 
-        if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
-            template_vars.js_data = json.dumps(template_vars.js_data,
-                                               default=json_default_handler,
-                                               indent="   ")
-
-        result = template_vars.__dict__
-
-        if result['pair_scan']:
-            with Bench("Rendering template"):
-                img_path = result['pair_scan_filename']
-                logger.info("img_path:", img_path)
-                initial_start_vars = request.form
-                logger.info("initial_start_vars:", initial_start_vars)
-                imgfile = open(TEMPDIR + img_path, 'rb')
-                imgdata = imgfile.read()
-                imgB64 = imgdata.encode("base64")
-                bytesarray = array.array('B', imgB64)
-                result['pair_scan_array'] = bytesarray
-                rendered_template = render_template("pair_scan_results.html", **result)
+        if template_vars.no_results:
+            rendered_template = render_template("mapping_error.html")
         else:
-            gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-            #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-            #logger.info("pickled result length:", len(pickled_result))
-            #Redis.set(key, pickled_result)
-            #Redis.expire(key, 1*60)
+          if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
+              template_vars.js_data = json.dumps(template_vars.js_data,
+                                                 default=json_default_handler,
+                                                 indent="   ")
 
-            with Bench("Rendering template"):
-                if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                    gn1_template_vars.pop('qtlresults', None)
-                rendered_template = render_template("mapping_results.html", **gn1_template_vars)
+          result = template_vars.__dict__
+
+          if result['pair_scan']:
+              with Bench("Rendering template"):
+                  img_path = result['pair_scan_filename']
+                  logger.info("img_path:", img_path)
+                  initial_start_vars = request.form
+                  logger.info("initial_start_vars:", initial_start_vars)
+                  imgfile = open(TEMPDIR + img_path, 'rb')
+                  imgdata = imgfile.read()
+                  imgB64 = imgdata.encode("base64")
+                  bytesarray = array.array('B', imgB64)
+                  result['pair_scan_array'] = bytesarray
+                  rendered_template = render_template("pair_scan_results.html", **result)
+          else:
+              gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+              #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+              #logger.info("pickled result length:", len(pickled_result))
+              #Redis.set(key, pickled_result)
+              #Redis.expire(key, 1*60)
+
+              with Bench("Rendering template"):
+                  if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
+                      gn1_template_vars.pop('qtlresults', None)
+                  rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 

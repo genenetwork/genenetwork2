@@ -2,11 +2,64 @@
 var add_trait_data, assemble_into_json, back_to_collections, collection_click, collection_list, color_by_trait, create_trait_data_csv, get_this_trait_vals, get_trait_data, process_traits, selected_traits, submit_click, this_trait_data, trait_click,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-collection_list = null;
-
 this_trait_data = null;
 
 selected_traits = {};
+
+$('#collections_list').attr("style", "width: 100%;");
+$('#trait_table').dataTable( {
+    "drawCallback": function( settings ) {
+         $('#trait_table tr').click(function(event) {
+             if (event.target.type !== 'checkbox') {
+                 $(':checkbox', this).trigger('click');
+             }
+         });
+    },
+    "columns": [
+        { "type": "natural", "width": "3%" },
+        { "type": "natural", "width": "8%" },
+        { "type": "natural", "width": "20%" },
+        { "type": "natural", "width": "25%" },
+        { "type": "natural", "width": "25%" },
+        { "type": "natural", "width": "15%" }
+    ],
+    "columnDefs": [ {
+        "targets": 0,
+        "orderable": false
+    } ],
+    "order": [[1, "asc" ]],
+    "sDom": "RZtr",
+    "iDisplayLength": -1,
+    "autoWidth": true,
+    "bDeferRender": true,
+    "bSortClasses": false,
+    "paging": false,
+    "orderClasses": true
+} );
+
+$('#collection_table').dataTable( {
+    "createdRow": function ( row, data, index ) {
+        if ($('td', row).eq(2).text().length > 40) {
+            $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
+            $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
+        }
+        if ($('td', row).eq(4).text().length > 50) {
+            $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+            $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+        }
+    },
+    "columnDefs": [ {
+        "targets": 0,
+        "orderable": false
+    } ],
+    "order": [[1, "asc" ]],
+    "sDom": "ZRtr",
+    "iDisplayLength": -1,
+    "autoWidth": true,
+    "bSortClasses": false,
+    "paging": false,
+    "orderClasses": true
+} );
 
 collection_click = function() {
   var this_collection_url;
@@ -28,16 +81,25 @@ submit_click = function() {
   $('#collections_holder').find('input[type=checkbox]:checked').each(function() {
     var this_dataset, this_trait;
     this_trait = $(this).parents('tr').find('.trait').text();
-    console.log("this_trait is:", this_trait);
-    this_dataset = $(this).parents('tr').find('.dataset').text();
+    this_trait_display = $(this).parents('tr').find('.trait').data("display_name");
+    this_description = $(this).parents('tr').find('.description').text();
+    console.log("this_trait is:", this_trait_display);
+    this_dataset = $(this).parents('tr').find('.dataset').data("dataset");
     console.log("this_dataset is:", this_dataset);
     covariates_string += this_trait + ":" + this_dataset + ","
-    covariates_display_string += this_trait + "\n"
+    //this_covariate_display_string = this_trait + ": " + this_description
+    this_covariate_display_string = this_trait_display
+    if (this_covariate_display_string.length > 50) {
+      this_covariate_display_string = this_covariate_display_string.substring(0, 45) + "..."
+    }
+    covariates_display_string += this_covariate_display_string + "\n"
   });
+  // Trim the last newline from display_string
+  covariates_display_string = covariates_display_string.replace(/\n$/, "")
+
   // Trim the last comma
   covariates_string = covariates_string.substring(0, covariates_string.length - 1)
   //covariates_display_string = covariates_display_string.substring(0, covariates_display_string.length - 2)
-  console.log("COVARIATES:", covariates_string)
 
   $("input[name=covariates]").val(covariates_string)
   $(".selected_covariates").val(covariates_display_string)
@@ -125,17 +187,22 @@ process_traits = function(trait_data, textStatus, jqXHR) {
   the_html = "<button id='back_to_collections' class='btn btn-inverse btn-small'>";
   the_html += "<i class='icon-white icon-arrow-left'></i> Back </button>";
   the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
-  the_html += "<table class='table table-hover'>";
-  the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
+  the_html += "<table id='collection_table' style='padding-top: 10px;' class='table table-hover'>";
+  the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th></tr></thead>";
   the_html += "<tbody>";
   for (_i = 0, _len = trait_data.length; _i < _len; _i++) {
     trait = trait_data[_i];
     the_html += "<tr class='trait_line'>";
     the_html += "<td class='select_trait'><input type='checkbox' name='selectCheck' class='checkbox edit_sample_checkbox'></td>";
-    the_html += "<td class='trait'>" + trait.name + "</td>";
-    the_html += "<td class='dataset'>" + trait.dataset + "</td>";
-    the_html += "<td>" + trait.description + "</td>";
-    the_html += "<td>" + (trait.mean || '&nbsp;') + "</td></tr>";
+    if ("abbreviation" in trait) {
+        the_html += "<td class='trait' data-display_name='" + trait.name + " - " + trait.abbreviation + "'>" + trait.name + "</td>";
+    } else if ("symbol" in trait) {
+      the_html += "<td class='trait' data-display_name='" + trait.name + " - " + trait.symbol + "'>" + trait.name + "</td>";
+    } else {
+      the_html += "<td class='trait' data-display_name='" + trait.name + "'>" + trait.name + "</td>";
+    }
+    the_html += "<td class='dataset' data-dataset='" + trait.dataset + "'>" + trait.dataset_name + "</td>";
+    the_html += "<td class='description'>" + trait.description + "</td>";
   }
   the_html += "</tbody>";
   the_html += "</table>";

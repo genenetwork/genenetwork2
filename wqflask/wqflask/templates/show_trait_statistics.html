@@ -15,17 +15,17 @@
                 <li>
                     <a href="#probability_plot" class="prob_plot_tab" data-toggle="tab">Probability Plot</a>
                 </li>
-                {% if g.user_session.logged_in %}
-                <li>
-                    <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
-                </li>
-                {% endif %}
                 <li>
                     <a href="#box_plot_tab" class="box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>
                 <li>
                     <a href="#violin_plot_tab" class="violin_plot_tab" data-toggle="tab">Violin Plot</a>
                 </li>
+                {% if g.user_session.logged_in %}
+                <li>
+                    <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
+                </li>
+                {% endif %}
             </ul>
 
             <div class="tab-content">

@@ -228,48 +228,54 @@ $(function() {
           return $(this).val();
       }).get();
       $("#trait_list").val(traits)
-      url = $(this).data("url")
-      return submit_special(url)
+      $("input[name=tool_used]").val("Correlation Matrix")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
   });
   $("#network_graph").on("click", function() {
       traits = $("#trait_table input:checked").map(function() {
          return $(this).val();
       }).get();
       $("#trait_list").val(traits)
-      url = $(this).data("url")
-      return submit_special(url)
+      $("input[name=tool_used]").val("Network Graph")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
   });
   $("#wgcna_setup").on("click", function() {
       traits = $("#trait_table input:checked").map(function() {
           return $(this).val();
       }).get();
       $("#trait_list").val(traits)
-      url = $(this).data("url")
-      return submit_special(url)
+      $("input[name=tool_used]").val("WGCNA Setup")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
   });
   $("#ctl_setup").on("click", function() {
       traits = $("#trait_table input:checked").map(function() {
           return $(this).val();
       }).get();
       $("#trait_list").val(traits)
-      url = $(this).data("url")
-      return submit_special(url)
+      $("input[name=tool_used]").val("CTL Setup")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
   });
   $("#heatmap").on("click", function() {
       traits = $("#trait_table input:checked").map(function() {
           return $(this).val();
       }).get();
       $("#trait_list").val(traits)
-      url = $(this).data("url")
-      return submit_special(url)
+      $("input[name=tool_used]").val("Heatmap")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
   });
   $("#comp_bar_chart").on("click", function() {
       traits = $("#trait_table input:checked").map(function() {
           return $(this).val();
       }).get();
       $("#trait_list").val(traits)
-      url = $(this).data("url")
-      return submit_special(url)
+      $("input[name=tool_used]").val("Comparison Bar Chart")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
   });
 
   $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {

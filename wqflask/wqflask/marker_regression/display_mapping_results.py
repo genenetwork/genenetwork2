@@ -24,7 +24,7 @@
 #
 # Last updated by Zach 12/14/2010
 
-import time
+import datetime
 import string
 from math import *
 from PIL import (Image,ImageDraw,ImageFont,ImageColor)
@@ -178,11 +178,17 @@ class DisplayMappingResults(object):
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
+        self.n_samples = len(start_vars['vals'])
         self.species = start_vars['species']
+        self.genofile_string = ""
         if 'genofile_string' in start_vars:
             self.genofile_string = start_vars['genofile_string']
 
         self.geno_db_exists = start_vars['geno_db_exists']
+
+        self.first_run = True
+        if 'first_run' in start_vars:
+            self.first_run = start_vars['first_run']
 
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']
@@ -254,8 +260,10 @@ class DisplayMappingResults(object):
             self.covariates = start_vars['covariates']
         if 'maf' in start_vars.keys():
             self.maf = start_vars['maf']
-        if 'use_loco' in start_vars.keys():
+        if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
+            if self.use_loco == "True":
+                self.gwa_filename = start_vars['gwa_filename']
 
         self.selectedChr = int(start_vars['selected_chr'])
 
@@ -513,7 +521,7 @@ class DisplayMappingResults(object):
         im_drawer = ImageDraw.Draw(canvas)
         #calculating margins
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
-        MAX_YTOPOFFSET = 80
+        MAX_YTOPOFFSET = 90
         MAX_YBOTTOMOFFSET = 120
         if self.multipleInterval:
             yTopOffset = max(MAX_YTOPOFFSET, yTopOffset)
@@ -1011,43 +1019,62 @@ class DisplayMappingResults(object):
 
         labelFont = ImageFont.truetype(font=VERDANA_FILE,size=12*fontZoom)
         labelColor = BLACK
-        if self.selectedChr == -1:
-            string1 = 'Mapping for Dataset: %s, mapping on All Chromosomes' % self.dataset.group.name
+        if self.dataset.type == "Publish" or self.dataset.type == "Geno":
+            dataset_label = self.dataset.fullname
         else:
-            string1 = 'Mapping for Dataset: %s, mapping on Chromosome %s' % (self.dataset.group.name, self.ChrList[self.selectedChr][0])
+            dataset_label = "%s - %s" % (self.dataset.group.name, self.dataset.fullname)
 
-        string3 = ''
+        string1 = 'Dataset: %s' % (dataset_label)
+
+        if self.genofile_string == "":
+            string2 = 'Genotype File: %s.geno' % self.dataset.group.name
+        else:
+            string2 = 'Genotype File: %s' % self.genofile_string
+
+        string4 = ''
         if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
             if self.use_loco == "True":
-                string2 = 'Using GEMMA mapping method with LOCO and '
+                string3 = 'Using GEMMA mapping method with LOCO and '
             else:
-                string2 = 'Using GEMMA mapping method with '
+                string3 = 'Using GEMMA mapping method with '
             if self.covariates != "":
-                string2 += 'the cofactors below:'
+                string3 += 'the cofactors below:'
                 cofactor_names = ", ".join([covar.split(":")[0] for covar in self.covariates.split(",")])
-                string3 = cofactor_names
+                string4 = cofactor_names
             else:
-                string2 += 'no cofactors'
+                string3 += 'no cofactors'
         elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
-            string2 = 'Using R/qtl mapping method with '
+            string3 = 'Using R/qtl mapping method with '
             if self.controlLocus and self.doControl != "false":
-                string2 += '%s as control' % self.controlLocus
+                string3 += '%s as control' % self.controlLocus
             else:
-                string2 += 'no control for other QTLs'
-        elif self.mapping_method == "plink":
-            string2 = 'Using PLINK mapping method with no control for other QTLs'
+                string3 += 'no control for other QTLs'
         else:
-            string2 = 'Using Haldane mapping function with '
+            string3 = 'Using Haldane mapping function with '
             if self.controlLocus and self.doControl != "false":
-                string2 += '%s as control' % self.controlLocus
+                string3 += '%s as control' % self.controlLocus
             else:
-                string2 += 'no control for other QTLs'
+                string3 += 'no control for other QTLs'
 
         if self.this_trait.name:
-            if self.this_trait.symbol:
-                identification = "Trait ID: %s : %s : %s" % (self.this_trait.symbol, self.dataset.fullname, self.this_trait.name)
+            if self.selectedChr == -1:
+                identification = "Mapping on All Chromosomes for "
             else:
-                identification = "Trait ID: %s : %s" % (self.dataset.fullname, self.this_trait.name)
+                identification = "Mapping on Chromosome %s for " % (self.ChrList[self.selectedChr][0])
+
+            if self.this_trait.symbol:
+                identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.symbol)
+            elif self.dataset.type == "Publish":
+                if self.this_trait.post_publication_abbreviation:
+                    identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.post_publication_abbreviation)
+                elif self.this_trait.pre_publication_abbreviation:
+                    identification += "Trait: %s - %s" % (self.this_trait.name, self.this_trait.pre_publication_abbreviation)
+                else:
+                    identification += "Trait: %s" % (self.this_trait.name)
+            else:
+                identification += "Trait: %s with %s samples" % (
+                    self.this_trait.name, self.n_samples)
+
             d = 4+ max(
                 im_drawer.textsize(identification, font=labelFont)[0],
                 im_drawer.textsize(string1, font=labelFont)[0],
@@ -1066,11 +1093,22 @@ class DisplayMappingResults(object):
         im_drawer.text(
             text=string2,xy=(canvas.size[0] - xRightOffset-d,50*fontZoom),
             font=labelFont,fill=labelColor)
-        if string3 != '':
+        im_drawer.text(
+            text=string3,xy=(canvas.size[0] - xRightOffset-d,65*fontZoom),
+            font=labelFont,fill=labelColor)
+        if string4 != '':
             im_drawer.text(
-                text=string3,xy=(canvas.size[0] - xRightOffset-d,65*fontZoom),
+                text=string4,xy=(canvas.size[0] - xRightOffset-d,80*fontZoom),
                 font=labelFont,fill=labelColor)
-
+            im_drawer.text(
+                text="Created at: " + str(datetime.datetime.now()).split('.')[0],
+                xy=(canvas.size[0] - xRightOffset-d,95*fontZoom),
+                font=labelFont,fill=labelColor)
+        else:
+            im_drawer.text(
+                text="Created at: " + str(datetime.datetime.now()).split('.')[0],
+                xy=(canvas.size[0] - xRightOffset-d,80*fontZoom),
+                font=labelFont,fill=labelColor)
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
         im_drawer = ImageDraw.Draw(canvas)
@@ -2194,7 +2232,10 @@ class DisplayMappingResults(object):
                             Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    point_color = BLACK
+                    if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
+                        point_color = GREY
+                    else:
+                        point_color = BLACK
                     im_drawer.text(
                         text="5",
                         xy=(

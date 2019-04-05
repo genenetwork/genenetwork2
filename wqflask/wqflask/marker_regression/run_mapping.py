@@ -175,10 +175,19 @@ class RunMapping(object):
             self.dataset.group.genofile = self.genofile_string.split(":")[0]
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
+            self.first_run = True
+            self.gwa_filename = None
+            if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
+                self.first_run = False
+                if 'gwa_filename' in start_vars:
+                    self.gwa_filename = start_vars['gwa_filename']
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
-                marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf)
+                if self.use_loco == "True":
+                    marker_obs, self.gwa_filename = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.gwa_filename)
+                else:
+                    marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
@@ -187,7 +196,10 @@ class RunMapping(object):
             self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            self.method = start_vars['mapmethod_rqtl_geno']
+            if 'mapmethod_rqtl_geno' in start_vars:
+                self.method = start_vars['mapmethod_rqtl_geno']
+            else:
+                self.method = "em"
             self.model = start_vars['mapmodel_rqtl_geno']
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
@@ -242,99 +254,103 @@ class RunMapping(object):
         else:
             logger.debug("RUNNING NOTHING")
 
-        if self.pair_scan == True:
-            self.qtl_results = []
-            highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
-            for marker in results:
-                if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                    if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                        highest_chr = marker['chr1']
-                    if 'lod_score' in marker.keys():
-                        self.qtl_results.append(marker)
-
-            self.trimmed_markers = results
-
-            for qtl in enumerate(self.qtl_results):
-                self.json_data['chr1'].append(str(qtl['chr1']))
-                self.json_data['chr2'].append(str(qtl['chr2']))
-                self.json_data['Mb'].append(qtl['Mb'])
-                self.json_data['markernames'].append(qtl['name'])
-
-            self.js_data = dict(
-                json_data = self.json_data,
-                this_trait = self.this_trait.name,
-                data_set = self.dataset.name,
-                maf = self.maf,
-                manhattan_plot = self.manhattan_plot,
-                mapping_scale = self.mapping_scale,
-                qtl_results = self.qtl_results
-            )
-
+        self.no_results = False
+        if len(results) == 0:
+          self.no_results = True
         else:
-            self.qtl_results = []
-            highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
-            for marker in results:
-                if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                    if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                        highest_chr = marker['chr']
-                    if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
-                        self.qtl_results.append(marker)
+          if self.pair_scan == True:
+              self.qtl_results = []
+              highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
+              for marker in results:
+                  if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                      if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                          highest_chr = marker['chr1']
+                      if 'lod_score' in marker.keys():
+                          self.qtl_results.append(marker)
 
-            with Bench("Exporting Results"):
-                export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
+              self.trimmed_markers = results
 
-            with Bench("Trimming Markers for Figure"):
-                if len(self.qtl_results) > 30000:
-                    self.qtl_results = trim_markers_for_figure(self.qtl_results)
+              for qtl in enumerate(self.qtl_results):
+                  self.json_data['chr1'].append(str(qtl['chr1']))
+                  self.json_data['chr2'].append(str(qtl['chr2']))
+                  self.json_data['Mb'].append(qtl['Mb'])
+                  self.json_data['markernames'].append(qtl['name'])
 
-            with Bench("Trimming Markers for Table"):
-                self.trimmed_markers = trim_markers_for_table(results)
+              self.js_data = dict(
+                  json_data = self.json_data,
+                  this_trait = self.this_trait.name,
+                  data_set = self.dataset.name,
+                  maf = self.maf,
+                  manhattan_plot = self.manhattan_plot,
+                  mapping_scale = self.mapping_scale,
+                  qtl_results = self.qtl_results
+              )
 
-            if self.mapping_method != "gemma":
-                self.json_data['chr'] = []
-                self.json_data['pos'] = []
-                self.json_data['lod.hk'] = []
-                self.json_data['markernames'] = []
+          else:
+              self.qtl_results = []
+              highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
+              for marker in results:
+                  if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                      if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                          highest_chr = marker['chr']
+                      if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
+                          self.qtl_results.append(marker)
 
-                self.json_data['suggestive'] = self.suggestive
-                self.json_data['significant'] = self.significant
+              with Bench("Exporting Results"):
+                  export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
-                #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-                for index, qtl in enumerate(self.qtl_results):
-                    #if index<40:
-                    #    logger.debug("lod score is:", qtl['lod_score'])
-                    if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                        #logger.debug("changing to X")
-                        self.json_data['chr'].append("X")
-                    else:
-                        self.json_data['chr'].append(str(qtl['chr']))
-                    self.json_data['pos'].append(qtl['Mb'])
-                    if 'lrs_value' in qtl.keys():
-                        self.json_data['lod.hk'].append(str(qtl['lrs_value']))
-                    else:
-                        self.json_data['lod.hk'].append(str(qtl['lod_score']))
-                    self.json_data['markernames'].append(qtl['name'])
+              with Bench("Trimming Markers for Figure"):
+                  if len(self.qtl_results) > 30000:
+                      self.qtl_results = trim_markers_for_figure(self.qtl_results)
 
-                #Get chromosome lengths for drawing the interval map plot
-                chromosome_mb_lengths = {}
-                self.json_data['chrnames'] = []
-                for key in self.species.chromosomes.chromosomes.keys():
-                    self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-                    chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+              with Bench("Trimming Markers for Table"):
+                  self.trimmed_markers = trim_markers_for_table(results)
 
-                self.js_data = dict(
-                    result_score_type = self.score_type,
-                    json_data = self.json_data,
-                    this_trait = self.this_trait.name,
-                    data_set = self.dataset.name,
-                    maf = self.maf,
-                    manhattan_plot = self.manhattan_plot,
-                    mapping_scale = self.mapping_scale,
-                    chromosomes = chromosome_mb_lengths,
-                    qtl_results = self.qtl_results,
-                    num_perm = self.num_perm,
-                    perm_results = self.perm_output,
-                )
+              if self.mapping_method != "gemma":
+                  self.json_data['chr'] = []
+                  self.json_data['pos'] = []
+                  self.json_data['lod.hk'] = []
+                  self.json_data['markernames'] = []
+
+                  self.json_data['suggestive'] = self.suggestive
+                  self.json_data['significant'] = self.significant
+
+                  #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+                  for index, qtl in enumerate(self.qtl_results):
+                      #if index<40:
+                      #    logger.debug("lod score is:", qtl['lod_score'])
+                      if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
+                          #logger.debug("changing to X")
+                          self.json_data['chr'].append("X")
+                      else:
+                          self.json_data['chr'].append(str(qtl['chr']))
+                      self.json_data['pos'].append(qtl['Mb'])
+                      if 'lrs_value' in qtl.keys():
+                          self.json_data['lod.hk'].append(str(qtl['lrs_value']))
+                      else:
+                          self.json_data['lod.hk'].append(str(qtl['lod_score']))
+                      self.json_data['markernames'].append(qtl['name'])
+
+                  #Get chromosome lengths for drawing the interval map plot
+                  chromosome_mb_lengths = {}
+                  self.json_data['chrnames'] = []
+                  for key in self.species.chromosomes.chromosomes.keys():
+                      self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+                      chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+
+                  self.js_data = dict(
+                      result_score_type = self.score_type,
+                      json_data = self.json_data,
+                      this_trait = self.this_trait.name,
+                      data_set = self.dataset.name,
+                      maf = self.maf,
+                      manhattan_plot = self.manhattan_plot,
+                      mapping_scale = self.mapping_scale,
+                      chromosomes = chromosome_mb_lengths,
+                      qtl_results = self.qtl_results,
+                      num_perm = self.num_perm,
+                      perm_results = self.perm_output,
+                  )
 
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!

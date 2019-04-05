@@ -277,7 +277,6 @@ class DatasetGroup(object):
     """
     def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
-        #logger.debug("DATASET NAME2:", dataset.name)
         if name == None:
             self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
         else:
@@ -500,7 +499,7 @@ class DataSet(object):
         self.setup()
 
         if self.type == "Temp": #Need to supply group name as input if temp trait
-            self.group = DatasetGroup(self, group_name)   # sets self.group and self.group_id and gets genotype
+            self.group = DatasetGroup(self, name=group_name)   # sets self.group and self.group_id and gets genotype
         else:
             self.check_confidentiality()
             self.retrieve_other_names()

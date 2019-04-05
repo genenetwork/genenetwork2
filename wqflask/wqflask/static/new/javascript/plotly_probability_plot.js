@@ -164,7 +164,7 @@
     var layout = {
         title: 'Quantile-Quantile Plot<a href="https://en.wikipedia.org/wiki/Q-Q_plot"><sup>?</sup></a>',
         margin: {
-            l: 50,
+            l: 65,
             r: 30,
             t: 80,
             b: 80
@@ -176,6 +176,13 @@
             visible: true,
             linecolor: 'black',
             linewidth: 1,
+            titlefont: {
+              size: 16
+            },
+            ticklen: 4,
+            tickfont: {
+              size: 16
+            }
         },
         yaxis: {
             title: "Data Quantiles",
@@ -183,6 +190,13 @@
             visible: true,
             linecolor: 'black',
             linewidth: 1,
+            titlefont: {
+              size: 16
+            },
+            ticklen: 4,
+            tickfont: {
+              size: 16
+            }
         },
         hovermode: "closest"
     }
@@ -193,7 +207,11 @@
         mode: 'markers',
         type: 'scatter',
         name: 'Samples',
-        text: point_names['samples_primary']
+        text: point_names['samples_primary'],
+        marker: {
+          color: 'blue',
+          width: 6
+        }
     }
     if ("samples_other" in js_data.sample_group_types) {
         var other_trace = {
@@ -202,7 +220,11 @@
             mode: 'markers',
             type: 'scatter',
             name: js_data.sample_group_types['samples_other'],
-            text: point_names['samples_other']
+            text: point_names['samples_other'],
+            marker: {
+              color: 'blue',
+              width: 6
+            }
         }
     }
 
@@ -213,6 +235,10 @@
             mode: 'lines',
             type: 'scatter',
             name: 'Normal Function',
+            line: {
+              color: 'black',
+              width: 1
+            }
         }
     } else if (sample_group == "samples_other"){
         var other_intercept_trace = {
@@ -221,6 +247,10 @@
             mode: 'lines',
             type: 'scatter',
             name: 'Normal Function',
+            line: {
+              color: 'black',
+              width: 1
+            }
         }
     } else {
         var all_intercept_trace = {
@@ -229,19 +259,23 @@
             mode: 'lines',
             type: 'scatter',
             name: 'Normal Function',
+            line: {
+              color: 'black',
+              width: 1
+            }
         }
     }
 
     if (sample_group == "samples_primary"){
-        var data = [primary_trace, primary_intercept_trace]
+        var data = [primary_intercept_trace, primary_trace]
     } else if (sample_group == "samples_other"){
-        var data = [other_trace, other_intercept_trace]
+        var data = [other_intercept_trace, other_trace]
     } else {
-        var data = [primary_trace, other_trace, all_intercept_trace]
+        var data = [all_intercept_trace, primary_trace, other_trace]
     }
 
     console.log("TRACE:", data)
-    Plotly.newPlot('prob_plot_div', data, layout)
+    Plotly.newPlot('prob_plot_div', data, layout, root.modebar_options)
   };
 
   root.redraw_prob_plot_impl = redraw_prob_plot;

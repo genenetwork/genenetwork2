@@ -139,13 +139,15 @@ class GSearch(object):
                     this_trait['name'] = str(line[4])
                     this_trait['dataset'] = line[2]
                     this_trait['dataset_fullname'] = line[3]
-                    this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[5], line[3]))
+                    this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[4], line[2]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
-                    if line[8] != None:
+                    if line[9] != None and line[6] != None:
                         this_trait['description'] = line[6]
-                    else:
+                    elif line[5] != None:
                         this_trait['description'] = line[5]
+                    else:
+                        this_trait['description'] = "N/A"
                     this_trait['authors'] = line[7]
                     this_trait['year'] = line[8]
                     if this_trait['year'].isdigit():

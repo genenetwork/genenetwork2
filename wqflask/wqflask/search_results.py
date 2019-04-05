@@ -112,7 +112,7 @@ views.py).
             trait_dict['hmac'] = user_manager.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
             if this_trait.dataset.type == "ProbeSet":
                 trait_dict['symbol'] = this_trait.symbol
-                trait_dict['description'] = this_trait.description_display
+                trait_dict['description'] = insert_newlines(this_trait.description_display)
                 trait_dict['location'] = this_trait.location_repr
                 trait_dict['mean'] = "N/A"
                 trait_dict['additive'] = "N/A"
@@ -222,3 +222,10 @@ views.py).
             return the_search
         else:
             return None
+
+def insert_newlines(string, every=64):
+    """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
+    lines = []
+    for i in xrange(0, len(string), every):
+        lines.append(string[i:i+every])
+    return '\n'.join(lines)

@@ -39,7 +39,7 @@ class SampleList(object):
 
         #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
-        if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
+        if self.this_trait and self.dataset:
             self.get_extra_attribute_values()
 
         for counter, sample_name in enumerate(sample_names, 1):
@@ -72,10 +72,9 @@ class SampleList(object):
 
             self.sample_list.append(sample)
 
-        logger.debug("self.attributes is", pf(self.attributes))
+        #logger.debug("attribute vals are", pf(self.sample_attribute_values))
 
         self.do_outliers()
-        logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
 
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))
@@ -98,11 +97,11 @@ class SampleList(object):
 
         # Get attribute names and distinct values for each attribute
         results = g.db.execute('''
-                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttributeXRef.Value
-                        FROM CaseAttribute, CaseAttributeXRef
-                        WHERE CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id
-                        AND CaseAttributeXRef.ProbeSetFreezeId = %s
-                        ORDER BY CaseAttribute.Name''', (str(self.dataset.id),))
+                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttributeXRefNew.Value
+                        FROM CaseAttribute, CaseAttributeXRefNew
+                        WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
+                        AND CaseAttributeXRefNew.InbredSetId = %s
+                        ORDER BY CaseAttribute.Name''', (str(self.dataset.group.id),))
 
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
@@ -115,16 +114,17 @@ class SampleList(object):
 
     def get_extra_attribute_values(self):
         if self.attributes:
-            results = g.db.execute('''
-                        SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRef.Value
-                        FROM Strain, StrainXRef, InbredSet, CaseAttributeXRef
+            query = '''
+                        SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRefNew.Value
+                        FROM Strain, StrainXRef, InbredSet, CaseAttributeXRefNew
                         WHERE StrainXRef.StrainId = Strain.Id
                         AND InbredSet.Id = StrainXRef.InbredSetId
-                        AND CaseAttributeXRef.StrainId = Strain.Id
-                        AND InbredSet.Name = %s
-                        AND CaseAttributeXRef.ProbeSetFreezeId = %s
-                        ORDER BY SampleName''',
-                       (self.dataset.group.name, self.this_trait.dataset.id))
+                        AND CaseAttributeXRefNew.StrainId = Strain.Id
+                        AND InbredSet.Id = CaseAttributeXRefNew.InbredSetId
+                        AND CaseAttributeXRefNew.InbredSetId = %s
+                        ORDER BY SampleName''' % self.dataset.group.id
+
+            results = g.db.execute(query)
 
             for sample_name, items in itertools.groupby(results.fetchall(), lambda row: row.SampleName):
                 attribute_values = {}

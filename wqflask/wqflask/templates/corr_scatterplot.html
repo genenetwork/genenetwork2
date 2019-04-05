@@ -20,15 +20,16 @@
   <input type="hidden" name="ranked_cofactor3_vals"></input>
   <input type="hidden" name="selecting_which_cofactor"></input>
 
-  <h2>Correlation Scatterplot</h2>
+  <h1>Correlation Scatterplot</h1>
+  <hr style="height: 1px; background-color: #A9A9A9;">
 
-  <table class="table">
+  <table>
     <tr>
       <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="800" style="width: 44px; height: 22px;"> px</td>
       <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="700" style="width: 44px; height: 22px;"> px</td>
     </tr>
   </table>
-  <hr>
+  <hr style="height: 1px; background-color: #A9A9A9;">
   {% if collections_exist == "True" %}
   <div>
     <div style="margin-bottom: 10px;">
@@ -323,7 +324,9 @@
     <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <!--<script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>-->
     <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot.js"></script>
 {% endblock %}
