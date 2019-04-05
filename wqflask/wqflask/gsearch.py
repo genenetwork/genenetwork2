@@ -170,8 +170,11 @@ class GSearch(object):
                     #this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     this_trait['max_lrs_text'] = "N/A"
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
-                      trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
-                      if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
-                          this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
+                      try:
+                        trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                        if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
+                            this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
+                      except:
+                          this_trait['max_lrs_text'] = "N/A"
 
                     self.trait_list.append(this_trait)
