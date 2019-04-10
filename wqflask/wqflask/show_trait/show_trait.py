@@ -52,13 +52,12 @@ class ShowTrait(object):
             self.temp_species = kw['species']
             self.temp_group = kw['group']
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+            # Put values in Redis so they can be looked up later if added to a collection
+            Redis.set(self.trait_id, kw['trait_paste'])
+            self.trait_vals = kw['trait_paste'].split()
             self.this_trait = GeneralTrait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
-            self.trait_vals = kw['trait_paste'].split()
-
-            # Put values in Redis so they can be looked up later if added to a collection
-            Redis.set(self.trait_id, kw['trait_paste'])
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
