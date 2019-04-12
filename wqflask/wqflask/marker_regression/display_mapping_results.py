@@ -2155,8 +2155,8 @@ class DisplayMappingResults(object):
                         humanStartString = humanChr = humanStartDisplay = "--"
 
                     geneDescription = theGO["GeneDescription"]
-                    if len(geneDescription) > 26:
-                        geneDescription = geneDescription[:26]+"..."
+                    if len(geneDescription) > 70:
+                        geneDescription = geneDescription[:70]+"..."
 
                     if theGO["snpDensity"] < 0.000001:
                         snpDensityStr = "0"

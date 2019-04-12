@@ -347,6 +347,16 @@
             } );
 
             $('#interval_analyst').dataTable( {
+                "createdRow": function ( row, data, index ) {
+                  $('td', row).eq(1).attr("align", "right");
+                  $('td', row).eq(3).attr("align", "right");
+                  $('td', row).eq(4).attr("align", "right");
+                  $('td', row).eq(5).attr("align", "right");
+                  $('td', row).eq(6).attr("align", "right");
+                  $('td', row).eq(7).attr("align", "right");
+                  $('td', row).eq(8).attr("align", "center");
+                  $('td', row).eq(9).attr("align", "right");
+                },
                 "columns": [
                     { "bSortable": false},
                     { "type": "natural" },
