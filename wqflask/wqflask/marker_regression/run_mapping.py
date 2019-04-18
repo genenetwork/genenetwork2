@@ -56,27 +56,35 @@ class RunMapping(object):
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
 
-        self.samples = [] # Want only ones with values
-        self.vals = []
-
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         primary_sample_names = list(all_samples_ordered)
 
-        for sample in self.dataset.group.samplelist:
-            # sample is actually the name of an individual
-            in_trait_data = False
-            for item in self.this_trait.data:
-                if self.this_trait.data[item].name == sample:
-                    value = start_vars['value:' + self.this_trait.data[item].name]
-                    self.samples.append(self.this_trait.data[item].name)
-                    self.vals.append(value)
-                    in_trait_data = True
-                    break
-            if not in_trait_data:
+        self.vals = []
+        if 'samples' in start_vars:
+            self.samples = start_vars['samples'].split(",")
+            for sample in self.samples:
                 value = start_vars.get('value:' + sample)
                 if value:
-                    self.samples.append(sample)
                     self.vals.append(value)
+        else:
+            self.samples = []
+
+            for sample in self.dataset.group.samplelist:
+                # sample is actually the name of an individual
+                in_trait_data = False
+                for item in self.this_trait.data:
+                    if self.this_trait.data[item].name == sample:
+                        value = start_vars['value:' + self.this_trait.data[item].name]
+                        if value != "x":
+                            self.samples.append(self.this_trait.data[item].name)
+                            self.vals.append(value)
+                        in_trait_data = True
+                        break
+                if not in_trait_data:
+                    value = start_vars.get('value:' + sample)
+                    if value:
+                        self.samples.append(sample)
+                        self.vals.append(value)
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
         if "geno_db_exists" in start_vars:
