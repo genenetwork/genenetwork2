@@ -346,9 +346,12 @@ class DisplayMappingResults(object):
             thisTrait = self.this_trait
             _strains, _vals, _vars, _aliases = thisTrait.export_informative()
             smd=[]
-            for ii, _val in enumerate(_vals):
-                temp = GeneralObject(name=_strains[ii], value=_val)
-                smd.append(temp)
+            for ii, _val in enumerate(self.vals):
+                if _val != "x":
+                    temp = GeneralObject(name=self.samples[ii], value=float(_val))
+                    smd.append(temp)
+                else:
+                    continue
             samplelist = list(self.genotype.prgy)
             for j,_geno in enumerate (self.genotype[0][1].genotype):
                 for item in smd:
@@ -1167,10 +1170,12 @@ class DisplayMappingResults(object):
         _strains, _vals, _vars, _aliases = thisTrait.export_informative()
 
         smd=[]
-        for ii, _val in enumerate(_vals):
-            if _strains[ii] in self.samples:
-                temp = GeneralObject(name=_strains[ii], value=_val)
+        for ii, _val in enumerate(self.vals):
+            if _val != "x":
+                temp = GeneralObject(name=self.samples[ii], value=float(_val))
                 smd.append(temp)
+            else:
+                continue
 
         smd.sort(lambda A, B: cmp(A.value, B.value))
         smd.reverse()
