@@ -75,9 +75,8 @@ class RunMapping(object):
                 for item in self.this_trait.data:
                     if self.this_trait.data[item].name == sample:
                         value = start_vars['value:' + self.this_trait.data[item].name]
-                        if value != "x":
-                            self.samples.append(self.this_trait.data[item].name)
-                            self.vals.append(value)
+                        self.samples.append(self.this_trait.data[item].name)
+                        self.vals.append(value)
                         in_trait_data = True
                         break
                 if not in_trait_data:
