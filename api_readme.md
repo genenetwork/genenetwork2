@@ -32,6 +32,12 @@ curl http://gn2-zach.genenetwork.org/api/v_pre1/mouse/groups (for just mouse gro
 [ { "DisplayName": "BXD", "FullName": "BXD RI Family", "GeneticType": "riset", "Id": 1, "MappingMethodId": "1", "Name": "BXD", "SpeciesId": 1, "public": 2 }, ... { "DisplayName": "AIL LGSM F34 and F39-43 (GBS)", "FullName": "AIL LGSM F34 and F39-43 (GBS)", "GeneticType": "intercross", "Id": 72, "MappingMethodId": "2", "Name": "AIL-LGSM-F34-F39-43-GBS", "SpeciesId": 1, "public": 2 } ]
 ```
 
+## Fetch Genotypes for Group/RISet ##
+```
+curl http://gn2-zach.genenetwork.org/api/v_pre1/genotypes/BXD
+```
+Returns a CSV file with metadata in the first few rows, sample/strain names as columns, and markers as rows. Currently only works for genotypes we have stored in .geno files; I'll add the option to download BIMBAM files soon.
+
 ## Fetch Datasets ##
 ```
 curl http://gn2-zach.genenetwork.org/api/v_pre1/datasets/bxd
@@ -42,6 +48,13 @@ curl http://gn2-zach.genenetwork.org/api/v_pre1/datasets/mouse/bxd
 [ { "AvgID": 1, "CreateTime": "Fri, 01 Aug 2003 00:00:00 GMT", "DataScale": "log2", "FullName": "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction A, CD Cohorts (Mar 2017) log2", "Id": 1, "Long_Abbreviation": "BXDMicroArray_ProbeSet_August03", "ProbeFreezeId": 3, "ShortName": "Brain U74Av2 08/03 MAS5", "Short_Abbreviation": "Br_U_0803_M", "confidentiality": 0, "public": 0 }, ... { "AvgID": 3, "CreateTime": "Tue, 14 Aug 2018 00:00:00 GMT", "DataScale": "log2", "FullName": "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA", "Id": 859, "Long_Abbreviation": "EPFLMouseLiverCDRMAApr18", "ProbeFreezeId": 181, "ShortName": "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Aug18) RMA", "Short_Abbreviation": "EPFLMouseLiverCDRMA0818", "confidentiality": 0, "public": 1 } ]
 ```
 (I added the option to specify species just in case we end up with the same group name across multiple species at some point, though it's currently unnecessary)
+
+## Fetch Sample Data for Dataset ##
+``` 
+curl http://gn2-zach.genenetwork.org/api/v_pre1/sample_data/HSNIH-PalmerPublish.csv
+```
+
+Returns a CSV file with sample/strain names as the columns and trait IDs as rows
 
 ## Fetch Individual Dataset Info ##
 ### For mRNA Assay/"ProbeSet" ###
