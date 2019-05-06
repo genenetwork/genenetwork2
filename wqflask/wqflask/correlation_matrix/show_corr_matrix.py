@@ -41,7 +41,6 @@ import rpy2.robjects as robjects
 
 from pprint import pformat as pf
 
-from htmlgen import HTMLgen2 as HT
 import reaper
 
 import redis

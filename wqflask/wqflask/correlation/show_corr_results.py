@@ -37,7 +37,6 @@ import numpy
 
 from pprint import pformat as pf
 
-from htmlgen import HTMLgen2 as HT
 import reaper
 
 from base import webqtlConfig

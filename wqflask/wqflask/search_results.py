@@ -116,7 +116,7 @@ views.py).
                 trait_dict['location'] = this_trait.location_repr
                 trait_dict['mean'] = "N/A"
                 trait_dict['additive'] = "N/A"
-                if this_trait.mean != "":
+                if this_trait.mean != "" and this_trait.mean != None:
                     trait_dict['mean'] = '%.3f' % this_trait.mean
                 trait_dict['lrs_score'] = this_trait.LRS_score_repr
                 trait_dict['lrs_location'] = this_trait.LRS_location_repr

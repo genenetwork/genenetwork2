@@ -2,8 +2,6 @@ from __future__ import absolute_import, print_function, division
 
 from flask import Flask, g, url_for
 
-from htmlgen import HTMLgen2 as HT
-
 import string
 import piddle as pid
 
@@ -639,8 +637,8 @@ class SnpBrowser(object):
 
         x_scale = plot_width/(self.end_mb - self.start_mb)
 
-        #draw clickable image map
-        #gifmap = HT.Map
+        #draw clickable image map at some point
+
         n_click = 80.0
         click_step = plot_width/n_click
         click_mb_step = (self.end_mb - self.start_mb)/n_click

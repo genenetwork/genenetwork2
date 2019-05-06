@@ -4,8 +4,6 @@ import string
 import resource
 import codecs
 
-from htmlgen import HTMLgen2 as HT
-
 import redis
 Redis = redis.StrictRedis()
 
