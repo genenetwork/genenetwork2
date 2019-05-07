@@ -98,6 +98,11 @@
                 GTEx Portal
             </a>
             &nbsp;&nbsp;
+            {% if (dataset.group.species == "mouse" or dataset.group.species == "human") and this_trait.symbol %}
+            <a href="https://www.systems-genetics.org/modules_by_gene/{{ this_trait.symbol }}?organism={{ dataset.group.species }}">
+                GeneBridge
+            </a>
+            {% endif %}
         {% endif %}
         </td>
     </tr>
