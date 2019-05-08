@@ -132,7 +132,10 @@
                       'title': "Description",
                       'type': "natural",
                       'width': "25%",
-                      'data': "description"
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        return decodeURIComponent(escape(data.description))
+                      }
                     },
                     {
                       'title': "Authors",
