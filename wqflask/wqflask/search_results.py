@@ -175,7 +175,6 @@ views.py).
                         else:
                             combined_where_clause += "OR"
                 else:
-                    logger.debug("Search failed 1")
                     self.search_term_exists = False
             if self.search_term_exists:
                 combined_where_clause = "(" + combined_where_clause + ")"
@@ -184,9 +183,7 @@ views.py).
                 results = the_search.execute(final_query)
                 self.results.extend(results)
         else:
-            logger.debug("len(search_terms)<=1")
             if self.search_terms == []:
-                logger.debug("Search failed 2")
                 self.search_term_exists = False
             else:
                 for a_search in self.search_terms:
@@ -194,7 +191,6 @@ views.py).
                     if the_search != None:
                         self.results.extend(the_search.run())
                     else:
-                        logger.debug("Search failed 3")
                         self.search_term_exists = False
 
         if self.search_term_exists:

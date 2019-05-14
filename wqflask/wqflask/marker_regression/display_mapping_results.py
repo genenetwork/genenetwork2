@@ -306,8 +306,6 @@ class DisplayMappingResults(object):
         for i, indChr in enumerate(self.genotype):
             self.ChrList.append((indChr.name, i))
 
-
-
         self.ChrLengthMbList = g.db.execute("""
                 Select
                         Length from Chr_Length, InbredSet

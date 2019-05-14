@@ -122,6 +122,8 @@ class ShowTrait(object):
             self.UCSC_BLAT_URL = ""
             self.UTHSC_BLAT_URL = ""
 
+        self.get_external_links()
+
         self.build_correlation_tools()
 
         #Get nearest marker for composite mapping
@@ -234,6 +236,64 @@ class ShowTrait(object):
                        sample_column_width = sample_column_width,
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
+
+    def get_external_links(self):
+        #ZS: There's some weirdness here because some fields don't exist while others are empty strings
+        self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if hasattr(self.this_trait, 'pubmed_id') else None
+        self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if hasattr(self.this_trait, 'geneid') else None
+        self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if hasattr(self.this_trait, 'omim') else None
+        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if (hasattr(self.this_trait, 'unigeneid') and self.this_trait.unigeneid != "") else None
+        self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if hasattr(self.this_trait, 'homologeneid') else None
+
+        self.genbank_link = None
+        if hasattr(self.this_trait, 'genbankid') and self.this_trait.genbankid != None:
+            genbank_id = '|'.join(self.this_trait.genbankid.split('|')[0:10])
+            if genbank_id[-1] == '|':
+                genbank_id = genbank_id[0:-1]
+            self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
+
+        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = None
+        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = None
+        if self.this_trait.symbol:
+            self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
+            self.gtex_link = webqtlConfig.GTEX_URL % self.this_trait.symbol
+            self.string_link = webqtlConfig.STRING_URL % self.this_trait.symbol
+            self.panther_link = webqtlConfig.PANTHER_URL % self.this_trait.symbol
+            self.ebi_gwas_link = webqtlConfig.EBIGWAS_URL % self.this_trait.symbol
+
+            if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
+                self.genebridge_link = webqtlConfig.GENEBRIDGE_URL % (self.this_trait.symbol, self.dataset.group.species)
+
+                if self.dataset.group.species == "mouse":
+                    self.aba_link = webqtlConfig.ABA_URL % self.this_trait.symbol
+
+                    query = """SELECT chromosome, txStart, txEnd
+                            FROM GeneList
+                            WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
+
+                    chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                    if chr and transcript_start and transcript_end and self.this_trait.refseq_transcriptid:
+                        transcript_start = int(transcript_start*1000000)
+                        transcript_end = int(transcript_end*1000000)
+                        self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('mm10', self.this_trait.refseq_transcriptid, chr, transcript_start, transcript_end)
+
+            if self.dataset.group.species == "rat":
+                query = """SELECT kgID, chromosome, txStart, txEnd
+                        FROM GeneLink_rn33
+                        WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
+
+                kgId, chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                if chr and transcript_start and transcript_end and kgId:
+                    transcript_start = int(transcript_start*1000000) # Convert to bases from megabases
+                    transcript_end = int(transcript_end*1000000)
+                    self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('rn3', kgId, chr, transcript_start, transcript_end)
+
+            if self.this_trait.geneid and (self.dataset.group.species == "mouse" or self.dataset.group.species == "rat" or self.dataset.group.species == "human"):
+                self.biogps_link = webqtlConfig.BIOGPS_URL % (self.dataset.group.species, self.this_trait.geneid)
+                self.gemma_link = webqtlConfig.GEMMA_URL % self.this_trait.geneid
+
+                if self.dataset.group.species == "human":
+                    self.aba_link = webqtlConfig.ABA_URL % self.this_trait.geneid
 
     def build_correlation_tools(self):
         if self.temp_trait == True:
