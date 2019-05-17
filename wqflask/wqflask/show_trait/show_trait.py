@@ -122,8 +122,8 @@ class ShowTrait(object):
             self.UCSC_BLAT_URL = ""
             self.UTHSC_BLAT_URL = ""
 
+        trait_units = get_trait_units(self.this_trait)
         self.get_external_links()
-
         self.build_correlation_tools()
 
         #Get nearest marker for composite mapping
@@ -201,6 +201,7 @@ class ShowTrait(object):
         #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
         self.binary = "true" #ZS: So it knows whether to display the Binary R/qtl mapping method, which doesn't work unless all values are 0 or 1
+        self.negative_vals_exist = "false" #ZS: Since we don't want to show log2 transform option for situations where it doesn't make sense
         max_samplename_width = 1
         for group in self.sample_groups:
             for sample in group.sample_list:
@@ -210,6 +211,8 @@ class ShowTrait(object):
                     self.num_values += 1
                     if sample.display_value != 0 or sample.display_value != 1:
                         self.binary = "false"
+                    if sample.value < 0:
+                        self.negative_vals_exist = "true"
 
         sample_column_width = max_samplename_width * 8
 
@@ -225,6 +228,7 @@ class ShowTrait(object):
 
         js_data = dict(trait_id = self.trait_id,
                        trait_symbol = trait_symbol,
+                       unit_type = trait_units,
                        dataset_type = self.dataset.type,
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
@@ -242,7 +246,7 @@ class ShowTrait(object):
         self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if hasattr(self.this_trait, 'pubmed_id') else None
         self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if hasattr(self.this_trait, 'geneid') else None
         self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if hasattr(self.this_trait, 'omim') else None
-        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if (hasattr(self.this_trait, 'unigeneid') and self.this_trait.unigeneid != "") else None
+        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if (hasattr(self.this_trait, 'unigeneid') and self.this_trait.unigeneid != "" and self.this_trait.unigeneid != None) else None
         self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if hasattr(self.this_trait, 'homologeneid') else None
 
         self.genbank_link = None
@@ -498,3 +502,18 @@ def has_num_cases(this_trait):
                 break
 
     return has_n
+
+def get_trait_units(this_trait):
+    unit_type = ""
+    inside_brackets = False
+    if this_trait.description_fmt:
+        if ("[" in this_trait.description_fmt) and ("]" in this_trait.description_fmt):
+            for i in this_trait.description_fmt:
+                if inside_brackets:
+                    if i != "]":
+                        unit_type += i
+                    else:
+                        inside_brackets = False
+                if i == "[":
+                    inside_brackets = True
+    return unit_type
