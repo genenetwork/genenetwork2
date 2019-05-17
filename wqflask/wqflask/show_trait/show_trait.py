@@ -128,7 +128,7 @@ class ShowTrait(object):
 
         #Get nearest marker for composite mapping
         if not self.temp_trait:
-            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+            if check_if_attr_exists(self.this_trait, 'locus_chr') and self.dataset.type != "Geno" and self.dataset.type != "Publish":
                 self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
                 #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
                 #self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
@@ -243,14 +243,14 @@ class ShowTrait(object):
 
     def get_external_links(self):
         #ZS: There's some weirdness here because some fields don't exist while others are empty strings
-        self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if hasattr(self.this_trait, 'pubmed_id') else None
-        self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if hasattr(self.this_trait, 'geneid') else None
-        self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if hasattr(self.this_trait, 'omim') else None
-        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if (hasattr(self.this_trait, 'unigeneid') and self.this_trait.unigeneid != "" and self.this_trait.unigeneid != None) else None
-        self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if hasattr(self.this_trait, 'homologeneid') else None
+        self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if check_if_attr_exists(self.this_trait, 'pubmed_id') else None
+        self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if check_if_attr_exists(self.this_trait, 'geneid') else None
+        self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if check_if_attr_exists(self.this_trait, 'omim') else None
+        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if check_if_attr_exists(self.this_trait, 'unigeneid') else None
+        self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if check_if_attr_exists(self.this_trait, 'homologeneid') else None
 
         self.genbank_link = None
-        if hasattr(self.this_trait, 'genbankid') and self.this_trait.genbankid != None:
+        if check_if_attr_exists(self.this_trait, 'genbankid'):
             genbank_id = '|'.join(self.this_trait.genbankid.split('|')[0:10])
             if genbank_id[-1] == '|':
                 genbank_id = genbank_id[0:-1]
@@ -517,3 +517,12 @@ def get_trait_units(this_trait):
                 if i == "[":
                     inside_brackets = True
     return unit_type
+
+def check_if_attr_exists(the_trait, id_type):
+    if hasattr(the_trait, id_type):
+        if getattr(the_trait, id_type) == None or getattr(the_trait, id_type) == "":
+            return False
+        else:
+            return True
+    else:
+        return False
