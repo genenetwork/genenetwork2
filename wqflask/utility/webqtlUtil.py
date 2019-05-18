@@ -30,8 +30,6 @@ import re
 import math
 from math import *
 
-from htmlgen import HTMLgen2 as HT
-
 from base import webqtlConfig
 
 # NL, 07/27/2010. moved from webqtlForm.py

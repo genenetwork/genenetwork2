@@ -52,13 +52,12 @@ class ShowTrait(object):
             self.temp_species = kw['species']
             self.temp_group = kw['group']
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+            # Put values in Redis so they can be looked up later if added to a collection
+            Redis.set(self.trait_id, kw['trait_paste'])
+            self.trait_vals = kw['trait_paste'].split()
             self.this_trait = GeneralTrait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
-            self.trait_vals = kw['trait_paste'].split()
-
-            # Put values in Redis so they can be looked up later if added to a collection
-            Redis.set(self.trait_id, kw['trait_paste'])
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
@@ -123,11 +122,13 @@ class ShowTrait(object):
             self.UCSC_BLAT_URL = ""
             self.UTHSC_BLAT_URL = ""
 
+        trait_units = get_trait_units(self.this_trait)
+        self.get_external_links()
         self.build_correlation_tools()
 
         #Get nearest marker for composite mapping
         if not self.temp_trait:
-            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+            if check_if_attr_exists(self.this_trait, 'locus_chr') and self.dataset.type != "Geno" and self.dataset.type != "Publish":
                 self.nearest_marker = get_nearest_marker(self.this_trait, self.dataset)
                 #self.nearest_marker1 = get_nearest_marker(self.this_trait, self.dataset)[0]
                 #self.nearest_marker2 = get_nearest_marker(self.this_trait, self.dataset)[1]
@@ -200,6 +201,7 @@ class ShowTrait(object):
         #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
         self.binary = "true" #ZS: So it knows whether to display the Binary R/qtl mapping method, which doesn't work unless all values are 0 or 1
+        self.negative_vals_exist = "false" #ZS: Since we don't want to show log2 transform option for situations where it doesn't make sense
         max_samplename_width = 1
         for group in self.sample_groups:
             for sample in group.sample_list:
@@ -209,6 +211,8 @@ class ShowTrait(object):
                     self.num_values += 1
                     if sample.display_value != 0 or sample.display_value != 1:
                         self.binary = "false"
+                    if sample.value < 0:
+                        self.negative_vals_exist = "true"
 
         sample_column_width = max_samplename_width * 8
 
@@ -224,6 +228,7 @@ class ShowTrait(object):
 
         js_data = dict(trait_id = self.trait_id,
                        trait_symbol = trait_symbol,
+                       unit_type = trait_units,
                        dataset_type = self.dataset.type,
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
@@ -235,6 +240,64 @@ class ShowTrait(object):
                        sample_column_width = sample_column_width,
                        temp_uuid = self.temp_uuid)
         self.js_data = js_data
+
+    def get_external_links(self):
+        #ZS: There's some weirdness here because some fields don't exist while others are empty strings
+        self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if check_if_attr_exists(self.this_trait, 'pubmed_id') else None
+        self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if check_if_attr_exists(self.this_trait, 'geneid') else None
+        self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if check_if_attr_exists(self.this_trait, 'omim') else None
+        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if check_if_attr_exists(self.this_trait, 'unigeneid') else None
+        self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if check_if_attr_exists(self.this_trait, 'homologeneid') else None
+
+        self.genbank_link = None
+        if check_if_attr_exists(self.this_trait, 'genbankid'):
+            genbank_id = '|'.join(self.this_trait.genbankid.split('|')[0:10])
+            if genbank_id[-1] == '|':
+                genbank_id = genbank_id[0:-1]
+            self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
+
+        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = None
+        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = None
+        if self.this_trait.symbol:
+            self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
+            self.gtex_link = webqtlConfig.GTEX_URL % self.this_trait.symbol
+            self.string_link = webqtlConfig.STRING_URL % self.this_trait.symbol
+            self.panther_link = webqtlConfig.PANTHER_URL % self.this_trait.symbol
+            self.ebi_gwas_link = webqtlConfig.EBIGWAS_URL % self.this_trait.symbol
+
+            if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
+                self.genebridge_link = webqtlConfig.GENEBRIDGE_URL % (self.this_trait.symbol, self.dataset.group.species)
+
+                if self.dataset.group.species == "mouse":
+                    self.aba_link = webqtlConfig.ABA_URL % self.this_trait.symbol
+
+                    query = """SELECT chromosome, txStart, txEnd
+                            FROM GeneList
+                            WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
+
+                    chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                    if chr and transcript_start and transcript_end and self.this_trait.refseq_transcriptid:
+                        transcript_start = int(transcript_start*1000000)
+                        transcript_end = int(transcript_end*1000000)
+                        self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('mm10', self.this_trait.refseq_transcriptid, chr, transcript_start, transcript_end)
+
+            if self.dataset.group.species == "rat":
+                query = """SELECT kgID, chromosome, txStart, txEnd
+                        FROM GeneLink_rn33
+                        WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
+
+                kgId, chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                if chr and transcript_start and transcript_end and kgId:
+                    transcript_start = int(transcript_start*1000000) # Convert to bases from megabases
+                    transcript_end = int(transcript_end*1000000)
+                    self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('rn3', kgId, chr, transcript_start, transcript_end)
+
+            if self.this_trait.geneid and (self.dataset.group.species == "mouse" or self.dataset.group.species == "rat" or self.dataset.group.species == "human"):
+                self.biogps_link = webqtlConfig.BIOGPS_URL % (self.dataset.group.species, self.this_trait.geneid)
+                self.gemma_link = webqtlConfig.GEMMA_URL % self.this_trait.geneid
+
+                if self.dataset.group.species == "human":
+                    self.aba_link = webqtlConfig.ABA_URL % self.this_trait.geneid
 
     def build_correlation_tools(self):
         if self.temp_trait == True:
@@ -439,3 +502,27 @@ def has_num_cases(this_trait):
                 break
 
     return has_n
+
+def get_trait_units(this_trait):
+    unit_type = ""
+    inside_brackets = False
+    if this_trait.description_fmt:
+        if ("[" in this_trait.description_fmt) and ("]" in this_trait.description_fmt):
+            for i in this_trait.description_fmt:
+                if inside_brackets:
+                    if i != "]":
+                        unit_type += i
+                    else:
+                        inside_brackets = False
+                if i == "[":
+                    inside_brackets = True
+    return unit_type
+
+def check_if_attr_exists(the_trait, id_type):
+    if hasattr(the_trait, id_type):
+        if getattr(the_trait, id_type) == None or getattr(the_trait, id_type) == "":
+            return False
+        else:
+            return True
+    else:
+        return False

@@ -267,7 +267,7 @@ class DisplayMappingResults(object):
 
         self.selectedChr = int(start_vars['selected_chr'])
 
-        self.strainlist = self.dataset.group.samplelist
+        self.strainlist = start_vars['samples']
         self.genotype = self.dataset.group.read_genotype_file()
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
             self.genotype = self.genotype.addinterval()
@@ -338,8 +338,6 @@ class DisplayMappingResults(object):
         for i, indChr in enumerate(self.genotype):
             self.ChrList.append((indChr.name, i))
 
-
-
         self.ChrLengthMbList = g.db.execute("""
                 Select
                         Length from Chr_Length, InbredSet
@@ -375,20 +373,22 @@ class DisplayMappingResults(object):
 ## BEGIN HaplotypeAnalyst
 ## count the amount of individuals to be plotted, and increase self.graphHeight
         if self.haplotypeAnalystChecked and self.selectedChr > -1:
-           #thisTrait = self.traitList[0]
-           thisTrait = self.this_trait
-           _strains, _vals, _vars, _aliases = thisTrait.export_informative()
-           smd=[]
-           for ii, _val in enumerate(_vals):
-               temp = GeneralObject(name=_strains[ii], value=_val)
-               smd.append(temp)
-           samplelist = list(self.genotype.prgy)
-           for j,_geno in enumerate (self.genotype[0][1].genotype):
-               for item in smd:
-                   if item.name == samplelist[j]:
-                       self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
+            thisTrait = self.this_trait
+            _strains, _vals, _vars, _aliases = thisTrait.export_informative()
+            smd=[]
+            for ii, _val in enumerate(self.vals):
+                if _val != "x":
+                    temp = GeneralObject(name=self.samples[ii], value=float(_val))
+                    smd.append(temp)
+                else:
+                    continue
+            samplelist = list(self.genotype.prgy)
+            for j,_geno in enumerate (self.genotype[0][1].genotype):
+                for item in smd:
+                    if item.name == samplelist[j]:
+                        self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
 # default:
-           self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS+10) * self.EACH_GENE_HEIGHT
+            self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS+10) * self.EACH_GENE_HEIGHT
 ## END HaplotypeAnalyst
 
         ################################################################
@@ -1348,13 +1348,8 @@ class DisplayMappingResults(object):
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.geneCol:
             return
 
-        clickableRegionLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=9)
-
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
-        plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-        yZero = canvas.size[1] - yBottomOffset
-        fontZoom = zoom
 
         yPaddingTop = yTopOffset
 
@@ -1362,10 +1357,12 @@ class DisplayMappingResults(object):
         _strains, _vals, _vars, _aliases = thisTrait.export_informative()
 
         smd=[]
-        for ii, _val in enumerate(_vals):
-            if _strains[ii] in self.dataset.group.samplelist:
-                temp = GeneralObject(name=_strains[ii], value=_val)
+        for ii, _val in enumerate(self.vals):
+            if _val != "x":
+                temp = GeneralObject(name=self.samples[ii], value=float(_val))
                 smd.append(temp)
+            else:
+                continue
 
         smd.sort(lambda A, B: cmp(A.value, B.value))
         smd.reverse()
@@ -1377,11 +1374,11 @@ class DisplayMappingResults(object):
         plotRight = xRightOffset
 
 #### find out PlotRight
-        for i, _chr in enumerate(self.genotype):
+        for _chr in self.genotype:
             if _chr.name == self.ChrList[self.selectedChr][0]:
-                for j, _locus in enumerate(_chr):
-                    txStart = _chr[j].Mb
-                    txEnd   = _chr[j].Mb
+                for i, _locus in enumerate(_chr):
+                    txStart = _chr[i].Mb
+                    txEnd   = _chr[i].Mb
 
                     geneStartPix = xLeftOffset + plotXScale*(float(txStart) - startMb)  - 0
                     geneEndPix = xLeftOffset + plotXScale*(float(txEnd) - startMb) - 0
@@ -1393,7 +1390,7 @@ class DisplayMappingResults(object):
                         drawit = 0;
 
                     if drawit == 1:
-                        if _chr[j].name != " - " :
+                        if _chr[i].name != " - " :
                             plotRight = geneEndPix + 4
 
 #### end find out PlotRight
@@ -2623,8 +2620,8 @@ class DisplayMappingResults(object):
                         humanStartString = humanChr = humanStartDisplay = "--"
 
                     geneDescription = theGO["GeneDescription"]
-                    if len(geneDescription) > 26:
-                        geneDescription = geneDescription[:26]+"..."
+                    if len(geneDescription) > 70:
+                        geneDescription = geneDescription[:70]+"..."
 
                     if theGO["snpDensity"] < 0.000001:
                         snpDensityStr = "0"

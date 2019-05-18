@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, division
 
+import json
+
 from flask import Flask, g
 from base.data_set import create_dataset
 from base.trait import GeneralTrait
@@ -59,7 +61,7 @@ class GSearch(object):
             with Bench("Running query"):
                 logger.sql(sql)
                 re = g.db.execute(sql).fetchall()
-            self.trait_list = []
+            trait_list = []
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
                     this_trait = {}
@@ -79,7 +81,7 @@ class GSearch(object):
                     this_trait['mean'] = '%.3f' % line[10]
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
-                        this_trait['LRS_score_repr'] = '%3.1f' % line[10]
+                        this_trait['LRS_score_repr'] = '%3.1f' % line[11]
                     this_trait['additive'] = "N/A"
                     if line[14] != "" and line[14] != None:
                         this_trait['additive'] = '%.3f' % line[14]
@@ -93,7 +95,9 @@ class GSearch(object):
                         max_lrs_text = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
                     this_trait['max_lrs_text'] = max_lrs_text
 
-                    self.trait_list.append(this_trait)
+                    trait_list.append(this_trait)
+
+            self.trait_list = json.dumps(trait_list)
 
         elif self.type == "phenotype":
             sql = """
@@ -131,7 +135,7 @@ class GSearch(object):
                 """ % (self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms)
             logger.sql(sql)
             re = g.db.execute(sql).fetchall()
-            self.trait_list = []
+            trait_list = []
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
                     this_trait = {}
@@ -143,9 +147,9 @@ class GSearch(object):
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     if line[9] != None and line[6] != None:
-                        this_trait['description'] = line[6]
+                        this_trait['description'] = unicode(line[6], "utf-8", "ignore")
                     elif line[5] != None:
-                        this_trait['description'] = line[5]
+                        this_trait['description'] = unicode(line[5], "utf-8", "ignore")
                     else:
                         this_trait['description'] = "N/A"
                     this_trait['authors'] = line[7]
@@ -170,8 +174,13 @@ class GSearch(object):
                     #this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     this_trait['max_lrs_text'] = "N/A"
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
-                      trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
-                      if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
-                          this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
+                      try:
+                        trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                        if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
+                            this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
+                      except:
+                          this_trait['max_lrs_text'] = "N/A"
 
-                    self.trait_list.append(this_trait)
+                    trait_list.append(this_trait)
+
+            self.trait_list = json.dumps(trait_list)

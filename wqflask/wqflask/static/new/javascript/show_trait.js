@@ -829,6 +829,23 @@ get_sample_names = function(sample_list) {
   })();
 };
 
+get_bar_bottom_margin = function(sample_list){
+  bottom_margin = 80
+  max_length = 0
+  sample_names = get_sample_names(sample_list)
+  for (i=0; i < sample_names.length; i++){
+    if (sample_names[i].length > max_length) {
+      max_length = sample_names[i].length
+    }
+  }
+
+  if (max_length > 6){
+    bottom_margin += 9*(max_length - 6)
+  }
+
+  return bottom_margin;
+}
+
 root.stats_group = 'samples_primary';
 
 if (Object.keys(js_data.sample_group_types).length > 1) {
@@ -906,6 +923,49 @@ get_bar_range = function(sample_list){
 
 root.chart_range = get_bar_range(sample_lists[0])
 
+if (js_data.num_values < 256) {
+  bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
+
+  //ZS: Set bottom margin dependent on longest sample name length, since those can get long
+  bottom_margin = get_bar_bottom_margin(sample_lists[0])
+
+  root.bar_layout = {
+    xaxis: {
+        titlefont: {
+          size: 16
+        },
+        showline: true,
+        ticklen: 4,
+        tickfont: {
+          size: 16
+        }
+    },
+    yaxis: {
+        range: root.chart_range,
+        titlefont: {
+          size: 16
+        },
+        showline: true,
+        ticklen: 4,
+        tickfont: {
+          size: 16
+        }
+    },
+    width: bar_chart_width,
+    height: 600,
+    margin: {
+        l: 50,
+        r: 30,
+        t: 30,
+        b: bottom_margin
+    }
+  };
+
+  $('.bar_chart_tab').click(function() {
+    update_bar_chart();
+  });
+}
+
 total_sample_count = 0
 for (i = 0, i < sample_lists.length; i++;) {
   total_sample_count += get_sample_vals(sample_lists[i]).length
@@ -963,46 +1023,6 @@ $('.histogram_samples_group').change(function() {
   root.stats_group = $(this).val();
   return update_histogram();
 });
-
-if (js_data.num_values < 256) {
-  bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
-
-  root.bar_layout = {
-    xaxis: {
-        titlefont: {
-          size: 16
-        },
-        showline: true,
-        ticklen: 4,
-        tickfont: {
-          size: 16
-        }
-    },
-    yaxis: {
-        range: root.chart_range,
-        titlefont: {
-          size: 16
-        },
-        showline: true,
-        ticklen: 4,
-        tickfont: {
-          size: 16
-        }
-    },
-    width: bar_chart_width,
-    height: 600,
-    margin: {
-        l: 50,
-        r: 30,
-        t: 30,
-        b: 80
-    }
-  };
-
-  $('.bar_chart_tab').click(function() {
-    update_bar_chart();
-  });
-}
 
 root.box_layout = {
     xaxis: {

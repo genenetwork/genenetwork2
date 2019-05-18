@@ -102,6 +102,7 @@
                             <th data-export="Index">Index</th>
                             <th data-export="Dataset">Dataset</th>
                             <th data-export="Record">Record</th>
+                            <th data-export="Symbol">Symbol</th>
                             <th data-export="Description">Description</th>
                             <th data-export="Location">Location</th>
                             <th data-export="Mean">Mean</th>
@@ -128,13 +129,17 @@
                                     {{ this_trait.name }}
                                 </a>
                             </TD>
+                            {% if this_trait.symbol %}
+                            <TD data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</TD>
+                            {% else %}
+                            <TD data-export="N/A">N/A</TD>
+                            {% endif %}
                             <TD title="{{ this_trait.description_display }}" data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
                             <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
                             <TD data-export="{{ this_trait.mean }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
                             <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
                             <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
                             <TD data-export="{{ this_trait.additive }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
-
                         </TR>
                     {% endfor %}
                     </tbody>

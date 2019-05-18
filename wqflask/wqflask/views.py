@@ -585,6 +585,7 @@ def mapping_results_page():
         'dataset',
         'group',
         'species',
+        'samples',
         'vals',
         'first_run',
         'gwa_filename',

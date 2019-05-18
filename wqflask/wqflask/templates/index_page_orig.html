@@ -148,6 +148,9 @@
                         highly expressed genes (15 to 16 log2 units) AND with peak <a href="http://www.genenetwork.org/glossary.html#L">LRS</a>
                         linkage between 23 and 46.</li>
 
+                        <li><b>RANGE=(1.5 2.5)</b> in the <b>Any</b> field finds traits with values with a specified fold-range (minimum = 1). 
+                        Useful for finding "housekeeping genes" <b>(1.0 1.2)</b> or highly variable molecular assays <b>(10 100)</b>.</li>
+
                         <li><b>RIF=mitochondrial</b> searches RNA databases for <a href="https://en.wikipedia.org/wiki/GeneRIF">
                         GeneRIF</a> links.</li>
 
@@ -173,25 +176,35 @@
             </div>
 
             <div style="padding-left:120px" class="col-xs-4" style="width: 600px !important;">
-                <section id="websites">
-                    <div class="page-header">
-                        <h1>Github</h1>
+	        <section id="affiliates">
+	            <div class="page-header">
+                        <h1>Affiliates</h1>
+                        <ul>
+                          <li><a href="http://ucscbrowser.genenetwork.org/">Genome browser</a> at UTHSC</li>
+                          <li><a href="http://galaxy.genenetwork.org/">Galaxy</a> at UTHSC</li>
+                          <li><a href="https://systems-genetics.org/">Systems Genetics</a> @ EPFL</li>
+                        </ul>
                     </div>
-                    <ul>
-                      <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
-                      <li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>
-                      <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
-                      <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
-                    </ul>
-               </section>
+                </section>
                 <section id="news-section">
                     <div class="page-header">
                         <h1>News</h1>
+                        <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
+                        <div align="right">
+                          <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                        </div>
                     </div>
-                    <div id="tweets"></div>
-                    <div align="right">
-                      <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                <section id="websites">
+                    <div class="page-header">
+                        <h1>Github</h1>
+                        <ul>
+                          <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
+                          <li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>
+                          <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
+                          <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
+                        </ul>
                     </div>
+               </section>
               <!--
                 <section id="tour-info">
                     <div class="page-header">
@@ -237,18 +250,6 @@
                         <li><a href="http://ec2.genenetwork.org/">Amazon
                             Cloud (EC2)</a></li>
                         </ul>
-                      <h3>Affiliates</h3>
-                      <ul>
-                        <li><a href="http://ucscbrowser.genenetwork.org/">Genome
-                        browser</a> at UTHSC</li>
-
-                        <li><a href="http://galaxy.genenetwork.org/">Galaxy</a> at
-                        UTHSC</li>
-
-                    </ul>
-
-
-
                </section>
 
                 <!--<section id="getting-started">
@@ -321,7 +322,7 @@
       "enableLinks": true,
       "showUser": false,
       "showTime": true,
-      "showImages": false,
+      "showImages": true,
       "lang": 'en'
       };
       twitterFetcher.fetch(configProfile);

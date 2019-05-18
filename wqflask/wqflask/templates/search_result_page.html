@@ -279,7 +279,10 @@
                       'title': "Description",
                       'type': "natural",
                       'width': "300px",
-                      'data': "description"
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        return decodeURIComponent(escape(data.description))
+                      }
                     },
                     {
                       'title': "Location",
@@ -315,7 +318,10 @@
                       'title': "Description",
                       'type': "natural",
                       'width': "500px",
-                      'data': "description"
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        return decodeURIComponent(escape(data.description))
+                      }
                     },
                     {
                       'title': "Authors",

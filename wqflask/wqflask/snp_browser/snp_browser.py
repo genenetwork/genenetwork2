@@ -2,8 +2,6 @@ from __future__ import absolute_import, print_function, division
 
 from flask import Flask, g, url_for
 
-from htmlgen import HTMLgen2 as HT
-
 import string
 from PIL import (Image)
 
@@ -302,7 +300,7 @@ class SnpBrowser(object):
                             gene_id = get_gene_id(self.species_id, self.gene_name)
                             gene = [gene_id, self.gene_name]
                         else:
-                            gene = ""
+                            gene = check_if_in_gene(species_id, chr, mb)
                         transcript = exon = function = function_details = ''
                         if self.redundant == "false" or last_mb != mb: # filter redundant
                             if self.include_record(domain, function, snp_source, conservation_score):
@@ -446,8 +444,8 @@ class SnpBrowser(object):
                 if domain:
                     domain_1 = domain[0]
                     domain_2 = domain[1]
-                    if domain_1 == "Intergenic" and self.gene_name != "":
-                        domain_1 = self.gene_name
+                    if domain_1 == "Intergenic" and gene != "":
+                        domain_1 = gene_name
                     else:
                         if domain_1 == "Exon":
                             domain_1 = domain_1 + " " + exon
@@ -639,8 +637,8 @@ class SnpBrowser(object):
 
         x_scale = plot_width/(self.end_mb - self.start_mb)
 
-        #draw clickable image map
-        #gifmap = HT.Map
+        #draw clickable image map at some point
+
         n_click = 80.0
         click_step = plot_width/n_click
         click_mb_step = (self.end_mb - self.start_mb)/n_click
@@ -876,3 +874,23 @@ def get_gene_id_name_dict(species_id, gene_name_list):
         pass
 
     return gene_id_name_dict
+
+def check_if_in_gene(species_id, chr, mb):
+    if species_id != 0: #ZS: Check if this is necessary
+        query = """SELECT geneId, geneSymbol
+                   FROM GeneList
+                   WHERE SpeciesId = {0} AND chromosome = '{1}' AND
+                        (txStart < {2} AND txEnd > {2}); """.format(species_id, chr, mb)
+    else:
+        query = """SELECT geneId,geneSymbol
+                   FROM GeneList
+                   WHERE chromosome = '{0}' AND
+                        (txStart < {1} AND txEnd > {1}); """.format(species_id, chr, mb)
+
+    result = g.db.execute(query).fetchone()
+
+    if result:
+        return [result[0], result[1]]
+    else:
+        return ""
+

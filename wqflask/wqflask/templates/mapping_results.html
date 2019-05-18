@@ -22,6 +22,7 @@
         {% endif %}
         <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
+        <input type="hidden" name="samples" value="{{ samples|join(",") }}">
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
@@ -347,6 +348,16 @@
             } );
 
             $('#interval_analyst').dataTable( {
+                "createdRow": function ( row, data, index ) {
+                  $('td', row).eq(1).attr("align", "right");
+                  $('td', row).eq(3).attr("align", "right");
+                  $('td', row).eq(4).attr("align", "right");
+                  $('td', row).eq(5).attr("align", "right");
+                  $('td', row).eq(6).attr("align", "right");
+                  $('td', row).eq(7).attr("align", "right");
+                  $('td', row).eq(8).attr("align", "center");
+                  $('td', row).eq(9).attr("align", "right");
+                },
                 "columns": [
                     { "bSortable": false},
                     { "type": "natural" },

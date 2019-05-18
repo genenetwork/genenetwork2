@@ -37,7 +37,6 @@ import numpy
 
 from pprint import pformat as pf
 
-from htmlgen import HTMLgen2 as HT
 import reaper
 
 from base import webqtlConfig
@@ -207,35 +206,20 @@ class CorrelationResults(object):
                         elif (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
                             continue
 
-                        (trait_object.sample_r,
-                        trait_object.sample_p,
-                        trait_object.num_overlap) = self.correlation_data[trait]
+                    (trait_object.sample_r,
+                    trait_object.sample_p,
+                    trait_object.num_overlap) = self.correlation_data[trait]
 
-                        # Set some sane defaults
-                        trait_object.tissue_corr = 0
-                        trait_object.tissue_pvalue = 0
-                        trait_object.lit_corr = 0
-                        if self.corr_type == "tissue" and tissue_corr_data != None:
-                            trait_object.tissue_corr = tissue_corr_data[trait][1]
-                            trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-                        elif self.corr_type == "lit":
-                            trait_object.lit_corr = lit_corr_data[trait][1]
-                        self.correlation_results.append(trait_object)
-                    else:
-                        (trait_object.sample_r,
-                        trait_object.sample_p,
-                        trait_object.num_overlap) = self.correlation_data[trait]
-
-                        # Set some sane defaults
-                        trait_object.tissue_corr = 0
-                        trait_object.tissue_pvalue = 0
-                        trait_object.lit_corr = 0
-                        if self.corr_type == "tissue":
-                            trait_object.tissue_corr = tissue_corr_data[trait][1]
-                            trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-                        elif self.corr_type == "lit":
-                            trait_object.lit_corr = lit_corr_data[trait][1]
-                        self.correlation_results.append(trait_object)
+                    # Set some sane defaults
+                    trait_object.tissue_corr = 0
+                    trait_object.tissue_pvalue = 0
+                    trait_object.lit_corr = 0
+                    if self.corr_type == "tissue" and tissue_corr_data != None:
+                        trait_object.tissue_corr = tissue_corr_data[trait][1]
+                        trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                    elif self.corr_type == "lit":
+                        trait_object.lit_corr = lit_corr_data[trait][1]
+                    self.correlation_results.append(trait_object)
 
             self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
 
@@ -473,13 +457,16 @@ class CorrelationResults(object):
                     if not value.strip().lower() == 'x':
                         self.sample_data[str(sample)] = float(value)
 
-def generate_corr_json(corr_results, this_trait, dataset, target_dataset):
+def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
     results_list = []
     for i, trait in enumerate(corr_results):
         results_dict = {}
-        results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + user_manager.data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
-        results_dict['index'] = i + 1
-        results_dict['trait_id'] = "<a href='/show_trait?trait_id="+str(trait.name)+"&dataset="+str(dataset.name)+"'>"+str(trait.name)+"</a>"
+        if not for_api:
+            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + user_manager.data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
+            results_dict['index'] = i + 1
+            results_dict['trait_id'] = "<a href='/show_trait?trait_id="+str(trait.name)+"&dataset="+str(dataset.name)+"'>"+str(trait.name)+"</a>"
+        else:
+            results_dict['trait_id'] = trait.name
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
             results_dict['description'] = trait.description_display
@@ -494,7 +481,10 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset):
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
             else:
                 results_dict['additive'] = "N/A"
-            results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
+            if for_api:
+                results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
+            else:
+                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
             if trait.lit_corr == "" or trait.lit_corr == 0:
@@ -509,21 +499,35 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset):
             results_dict['description'] = trait.description_display
             results_dict['authors'] = trait.authors
             if trait.pubmed_id:
-                results_dict['pubmed'] = "<a href='" + trait.pubmed_link + "'> " + trait.pubmed_text + "</a>"
+                if for_api:
+                    results_dict['pubmed_id'] = trait.pubmed_id
+                    results_dict['year'] = trait.pubmed_text
+                else:
+                    results_dict['pubmed'] = "<a href='" + trait.pubmed_link + "'> " + trait.pubmed_text + "</a>"
             else:
-                results_dict['pubmed'] = "N/A"
+                if for_api:
+                    results_dict['pubmed_id'] = "N/A"
+                    results_dict['year'] = "N/A"
+                else:
+                    results_dict['pubmed'] = "N/A"
             results_dict['lrs_score'] = trait.LRS_score_repr
             results_dict['lrs_location'] = trait.LRS_location_repr
             if trait.additive != "":
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
             else:
                 results_dict['additive'] = "N/A"
-            results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % trait.sample_r + "</a>"
+            if for_api:
+                results_dict['sample_r'] = "%0.3f" % trait.sample_r
+            else:
+                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % trait.sample_r + "</a>"
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
         else:
             results_dict['lrs_location'] = trait.LRS_location_repr
-            results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
+            if for_api:
+                results_dict['sample_r'] = "%0.3f" % trait.sample_r
+            else:
+                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
 
