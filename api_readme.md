@@ -1,5 +1,7 @@
 # API Query Documentation #
-
+---
+# Fetching Dataset/Trait info/data #
+---
 ## Fetch Species List ##
 
 To get a list of species with data available in GN (and their associated names and ids):
@@ -98,14 +100,52 @@ curl http://gn2-zach.genenetwork.org/api/v_pre1/trait/BXD/10001
 { "additive": 2.39444435069444, "id": 4, "locus": "rs48756159", "lrs": 13.4974911471087 }
 ```
 
+---
+
+# Analyses #
+---
+## Mapping ##
+Currently two mapping tools can be used - GEMMA and R/qtl. qtlreaper will be added later with Christian Fischer's RUST implementation - https://github.com/chfi/rust-qtlreaper
+
+Each method's query takes the following parameters respectively (more will be added):
+### GEMMA ###
+* trait_id (*required*) - ID for trait being mapped
+* db (*required*) - DB name for trait above (Short_Abbreviation listed when you query for datasets)
+* use_loco - Whether to use LOCO (leave one chromosome out) method (default = false)
+* maf - minor allele frequency (default = 0.01)
+
+Example query:
+```
+curl http://gn2-zach.genenetwork.org/api/v_pre1/mapping?trait_id=10015&db=BXDPublish&method=gemma&use_loco=true
+```
+
+### R/qtl ###
+(See the R/qtl guide for information on some of these options - http://www.rqtl.org/manual/qtl-manual.pdf)
+* trait_id (*required*) - ID for trait being mapped
+* db (*required*) - DB name for trait above (Short_Abbreviation listed when you query for datasets)
+* rqtl_method - hk (default) | ehk | em | imp | mr | mr-imp | mr-argmax ; Corresponds to the "method" option for the R/qtl scanone function.
+* rqtl_model - normal (default) | binary | 2-part | np ; corresponds to the "model" option for the R/qtl scanone function
+* num_perm - number of permutations; 0 by default
+* control_marker - Name of marker to use as control; this relies on the user knowing the name of the marker they want to use as a covariate
+* interval_mapping - Whether to use interval mapping; "false" by default
+* pair_scan - *NYI*
+
+Example query:
+```
+curl http://gn2-zach.genenetwork.org/api/v_pre1/mapping?trait_id=1418701_at&db=HC_M2_0606_P&method=rqtl&num_perm=100
+```
+
+Some combinations of methods/models may not make sense. The R/qtl manual should be referred to for any questions on its use (specifically the scanone function in this case)
+
 ## Calculate Correlation ##
-Currently only Pearson Sample and Tissue correlations are implemented
+Currently only Sample and Tissue correlations are implemented
 
 This query currently takes the following parameters (though more will be added):
 * trait_id (*required*) - ID for trait used for correlation
 * db (*required*) - DB name for the trait above (this is the Short_Abbreviation listed when you query for datasets)
 * target_db (*required*) - Target DB name to be correlated against
-* type - Sample or Tissue (default = Sample)
+* type - sample (default) | tissue
+* method - pearson (default) | spearman
 * return - Number of results to return (default = 500)
 
 Example query:
