@@ -281,7 +281,11 @@
                       'width': "300px",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return decodeURIComponent(escape(data.description))
+                        try {
+                          return decodeURIComponent(escape(data.description))
+                        } catch {
+                          return escape(data.description)
+                        }
                       }
                     },
                     {
