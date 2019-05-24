@@ -161,8 +161,14 @@
         intercept_line['samples_all'] = [[first_x, last_x], [first_value, last_value]]
     }
 
+    if (Math.max(y_values['samples_all']) - Math.min(y_values['samples_all']) < 6){
+      tick_digits = '.1f'
+    } else {
+      tick_digits = 'f'
+    }
+
     var layout = {
-        title: 'Quantile-Quantile Plot<a href="https://en.wikipedia.org/wiki/Q-Q_plot"><sup>?</sup></a>',
+        title: js_data.trait_id,
         margin: {
             l: 65,
             r: 30,
@@ -196,7 +202,8 @@
             ticklen: 4,
             tickfont: {
               size: 16
-            }
+            },
+            tickformat: tick_digits
         },
         hovermode: "closest"
     }
