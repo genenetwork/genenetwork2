@@ -43,6 +43,7 @@ from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
+from utility import gen_geno_ob
 from utility.tools import locate, locate_ignore_error, flat_files
 
 from maintenance import get_group_samplelists
@@ -388,14 +389,16 @@ class DatasetGroup(object):
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
-        genotype_1 = reaper.Dataset()
+        #genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
             full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
-        genotype_1.read(full_filename)
+        #genotype_1.read(full_filename)
+
+        genotype_1 = gen_geno_ob.genotype(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
