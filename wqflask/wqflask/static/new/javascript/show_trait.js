@@ -394,7 +394,7 @@ process_id = function() {
   return processed;
 };
 edit_data_change = function() {
-  var already_seen, checkbox, checked, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
+  var already_seen, checkbox, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
   already_seen = {};
   sample_sets = {
     samples_primary: new Stats([]),
@@ -416,8 +416,7 @@ edit_data_change = function() {
       name = $.trim(name);
       real_value = $(row).find('.edit_sample_value').val();
       checkbox = $(row).find(".edit_sample_checkbox");
-      checked = $(checkbox).prop('checked');
-      if (checked && is_number(real_value) && real_value !== "") {
+      if (is_number(real_value) && real_value !== "") {
         real_value = parseFloat(real_value);
         sample_sets[table].add_value(real_value);
         real_variance = $(row).find('.edit_sample_se').val();
