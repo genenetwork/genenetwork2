@@ -93,7 +93,7 @@ def get_groups_list(species_name=None):
 
         return flask.jsonify(groups_list)
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/group/<path:group_name>".format(version))
 @app.route("/api/v_{}/group/<path:group_name>.<path:file_format>".format(version))
@@ -136,7 +136,7 @@ def get_group_info(group_name, species_name = None, file_format = "json"):
 
         return flask.jsonify(group_dict)
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/datasets/<path:group_name>".format(version))
 @app.route("/api/v_{}/datasets/<path:species_name>/<path:group_name>".format(version))
@@ -188,7 +188,7 @@ def get_datasets_for_group(group_name, species_name=None):
 
         return flask.jsonify(datasets_list)
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/dataset/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/dataset/<path:dataset_name>.<path:file_format>".format(version))
@@ -288,7 +288,7 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
     elif len(datasets_list) == 1:
         return flask.jsonify(dataset_dict)
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
@@ -382,9 +382,9 @@ def all_sample_data(dataset_name, file_format = "csv"):
             output.headers["Content-type"] = "text/csv"
             return output
         else:
-            return render_template("/api/no_results.html")
+            return return_error(source=request.url_rule.rule, title="No Results", details="")
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
@@ -473,7 +473,7 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
 
             return flask.jsonify(sample_list)
         else:
-            return render_template("/api/no_results.html") 
+            return return_error(source=request.url_rule.rule, title="No Results", details="") 
 
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
@@ -544,7 +544,7 @@ def get_trait_info(dataset_name, trait_name, file_format = "json"):
 
             return flask.jsonify(trait_dict)
         else:
-            return render_template("/api/no_results.html")
+            return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/correlation".format(version), methods=('GET',))
 def get_corr_results():
@@ -553,7 +553,7 @@ def get_corr_results():
     if len(results) > 0:
         return flask.jsonify(results) #ZS: I think flask.jsonify expects a dict/list instead of JSON
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/mapping".format(version), methods=('GET',))
 def get_mapping_results():
@@ -571,7 +571,7 @@ def get_mapping_results():
 
         return output
     else:
-        return render_template("/api/no_results.html")
+        return return_error(source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/genotypes/<path:group_name>".format(version))
 @app.route("/api/v_{}/genotypes/<path:group_name>.<path:file_format>".format(version))
@@ -591,7 +591,7 @@ def get_genotypes(group_name, file_format="csv"):
 
             csv_writer = csv.writer(si, delimiter = '\t', escapechar = "\\", quoting = csv.QUOTE_NONE)
         else:
-            return render_template("/api/no_results.html")
+            return return_error(source=request.url_rule.rule, title="No Results", details="")
     else:
         filename = group_name + ".bimbam"
 
@@ -603,7 +603,7 @@ def get_genotypes(group_name, file_format="csv"):
 
             csv_writer = csv.writer(si, delimiter = ',')
         else:
-            return render_template("/api/no_results.html")
+            return return_error(source=request.url_rule.rule, title="No Results", details="")
 
     csv_writer.writerows(output_lines)
     output = make_response(si.getvalue())
@@ -618,6 +618,17 @@ def get_traits(dataset_name, file_format = "json"):
     #ZS: Need to check about the "start" and "stop" stuff since it seems to just limit the number of results to stop - start + 1 in Pjotr's elixir code
 
     NotImplemented
+
+def return_error(source, title, details):
+    json_ob = {"errors": [
+        {
+            "source": { "pointer": source },
+            "title" : title,
+            "detail": details
+        }
+    ]}
+
+    return flask.jsonify(json_ob)
 
 def get_dataset_trait_ids(dataset_name):
     if "Geno" in dataset_name:
