@@ -22,3 +22,4 @@ app.jinja_env.globals.update(
 )
 
 import wqflask.views
+from wqflask.api import router
