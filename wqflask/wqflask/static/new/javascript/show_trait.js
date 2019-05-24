@@ -922,6 +922,11 @@ get_bar_range = function(sample_list){
 }
 
 root.chart_range = get_bar_range(sample_lists[0])
+if (root.chart_range[1] - root.chart_range[0] < 4){
+  tick_digits = '.1f'
+} else {
+  tick_digits = 'f'
+}
 
 if (js_data.num_values < 256) {
   bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
@@ -930,6 +935,7 @@ if (js_data.num_values < 256) {
   bottom_margin = get_bar_bottom_margin(sample_lists[0])
 
   root.bar_layout = {
+    title: js_data.trait_id,
     xaxis: {
         titlefont: {
           size: 16
@@ -941,6 +947,7 @@ if (js_data.num_values < 256) {
         }
     },
     yaxis: {
+        title: js_data.unit_type,
         range: root.chart_range,
         titlefont: {
           size: 16
@@ -949,12 +956,13 @@ if (js_data.num_values < 256) {
         ticklen: 4,
         tickfont: {
           size: 16
-        }
+        },
+        tickformat: tick_digits
     },
     width: bar_chart_width,
     height: 600,
     margin: {
-        l: 50,
+        l: 55,
         r: 30,
         t: 30,
         b: bottom_margin
@@ -979,7 +987,7 @@ var hist_trace = {
 root.histogram_data = [hist_trace];
 root.histogram_layout = {
   bargap: 0.05,
-  title: "Sample Values",
+  title: js_data.trait_id,
   xaxis: {
            autorange: true,
            title: "Value",
@@ -1025,6 +1033,7 @@ $('.histogram_samples_group').change(function() {
 });
 
 root.box_layout = {
+    title: js_data.trait_id,
     xaxis: {
         showline: true,
         tickfont: {
@@ -1032,12 +1041,14 @@ root.box_layout = {
         },
     },
     yaxis: {
+        title: js_data.unit_type,
         autorange: true,
         showline: true,
         ticklen: 4,
         tickfont: {
           size: 16
-        }
+        },
+        tickformat: tick_digits
     },
     margin: {
         l: 50,
@@ -1136,7 +1147,7 @@ $('.box_plot_tab').click(function() {
 // Violin Plot
 
 root.violin_layout = {
-  title: "Violin Plot",
+  title: js_data.trait_id,
   xaxis: {
       showline: true,
       tickfont: {
@@ -1144,12 +1155,14 @@ root.violin_layout = {
       }
   },
   yaxis: {
+      title: js_data.unit_type,
       autorange: true,
       showline: true,
       ticklen: 4,
       tickfont: {
         size: 16
       },
+      tickformat: tick_digits,
       zeroline: false
   },
   margin: {

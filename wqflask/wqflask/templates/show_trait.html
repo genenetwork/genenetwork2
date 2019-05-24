@@ -271,7 +271,7 @@
                       'data': null,
                       'orderDataType': "dom-checkbox",
                       'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="" checked="checked">'
+                        return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
                       }
                     },
                     {
@@ -403,7 +403,7 @@
                       'data': null,
                       'orderDataType': "dom-checkbox",
                       'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="" checked="checked">'
+                        return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
                       }
                     },
                     {
@@ -491,7 +491,20 @@
                 } );
                 {% endif %}
 
-                $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'yellow')
+                $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'orange')
+
+                $('.edit_sample_checkbox:checkbox').change(function() {
+                    if ($(this).is(":checked")) {
+                        if (!$(this).closest('tr').hasClass('selected')) {
+                            $(this).closest('tr').addClass('selected')
+                        }
+                    }
+                    else {
+                        if ($(this).closest('tr').hasClass('selected')) {
+                            $(this).closest('tr').removeClass('selected')
+                        }
+                    }
+                });
 
                 var slider = document.getElementById('p_range_slider');
                 noUiSlider.create(slider, {
