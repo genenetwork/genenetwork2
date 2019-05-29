@@ -51,13 +51,6 @@ curl http://gn2-zach.genenetwork.org/api/v_pre1/datasets/mouse/bxd
 ```
 (I added the option to specify species just in case we end up with the same group name across multiple species at some point, though it's currently unnecessary)
 
-## Fetch Sample Data for Dataset ##
-``` 
-curl http://gn2-zach.genenetwork.org/api/v_pre1/sample_data/HSNIH-PalmerPublish.csv
-```
-
-Returns a CSV file with sample/strain names as the columns and trait IDs as rows
-
 ## Fetch Individual Dataset Info ##
 ### For mRNA Assay/"ProbeSet" ###
 
@@ -78,11 +71,26 @@ curl http://gn2-zach.genenetwork.org/api/v_pre1/dataset/bxd/10001
 { "dataset_type": "phenotype", "description": "Central nervous system, morphology: Cerebellum weight, whole, bilateral in adults of both sexes [mg]", "id": 10001, "name": "CBLWT2", "pubmed_id": 11438585, "title": "Genetic control of the mouse cerebellum: identification of quantitative trait loci modulating size and architecture", "year": "2001" }
 ```
 
+## Fetch Sample Data for Dataset ##
+``` 
+curl http://gn2-zach.genenetwork.org/api/v_pre1/sample_data/HSNIH-PalmerPublish.csv
+```
+
+Returns a CSV file with sample/strain names as the columns and trait IDs as rows
+
 ## Fetch Sample Data for Single Trait ##
 ```
 curl http://gn2-zach.genenetwork.org/api/v_pre1/sample_data/HC_M2_0606_P/1436869_at
 [ { "data_id": 23415463, "sample_name": "129S1/SvImJ", "sample_name_2": "129S1/SvImJ", "se": 0.123, "value": 8.201 }, { "data_id": 23415463, "sample_name": "A/J", "sample_name_2": "A/J", "se": 0.046, "value": 8.413 }, { "data_id": 23415463, "sample_name": "AKR/J", "sample_name_2": "AKR/J", "se": 0.134, "value": 8.856 }, ... ]
 ```
+
+## Fetch Trait List for Dataset ##
+```
+curl http://gn2-zach.genenetwork.org/api/v_pre1/traits/HXBBXHPublish.json
+[ { "Additive": 0.0499967532467532, "Id": 10001, "LRS": 16.2831307029479, "Locus": "rs106114574", "PhenotypeId": 1449, "PublicationId": 319, "Sequence": 1 }, ... ]
+```
+
+Both JSON and CSV formats can be specified, with CSV as default. There is also an optional "ids_only" parameter that will only return a list of trait IDs.
 
 ## Fetch Trait Info (Name, Description, Location, etc) ##
 ### For mRNA Expression/"ProbeSet" ###
