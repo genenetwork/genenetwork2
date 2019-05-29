@@ -290,6 +290,106 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+@app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=('GET',))
+@app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=('GET',))
+def fetch_traits(dataset_name, file_format = "csv"):
+    trait_ids, _trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name)
+    if ('ids_only' in request.args) and (len(trait_ids) > 0):
+        if file_format == "json":
+            filename = dataset_name + "_trait_ids.json"
+            return flask.jsonify(trait_ids)
+        else:
+            filename = dataset_name + "_trait_ids.csv"
+
+            si = StringIO.StringIO()
+            csv_writer = csv.writer(si)
+            csv_writer.writerows([[trait_id] for trait_id in trait_ids])
+            output = make_response(si.getvalue())
+            output.headers["Content-Disposition"] = "attachment; filename=" + filename
+            output.headers["Content-type"] = "text/csv"
+            return output
+    else:
+        if len(trait_ids) > 0:
+            if data_type == "ProbeSet":
+                query = """
+                            SELECT
+                                ProbeSet.Id, ProbeSet.Name, ProbeSet.Symbol, ProbeSet.description, ProbeSet.Chr, ProbeSet.Mb, ProbeSet.alias,
+                                ProbeSetXRef.mean, ProbeSetXRef.se, ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.additive, ProbeSetXRef.h2
+                            FROM
+                                ProbeSet, ProbeSetXRef
+                            WHERE
+                                ProbeSetXRef.ProbeSetFreezeId = '{0}' AND
+                                ProbeSetXRef.ProbeSetId = ProbeSet.Id
+                            ORDER BY
+                                ProbeSet.Id
+                        """
+
+                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb", "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
+            elif data_type == "Geno":
+                query = """
+                            SELECT
+                                Geno.Id, Geno.Name, Geno.Marker_Name, Geno.Chr, Geno.Mb, Geno.Sequence, Geno.Source
+                            FROM
+                                Geno, GenoXRef
+                            WHERE
+                                GenoXRef.GenoFreezeId = '{0}' AND
+                                GenoXRef.GenoId = Geno.Id
+                            ORDER BY
+                                Geno.Id
+                        """
+
+                field_list = ["Id", "Name", "Marker_Name", "Chr", "Mb", "Sequence", "Source"]
+            else:
+                query = """
+                            SELECT
+                                PublishXRef.Id, PublishXRef.PhenotypeId, PublishXRef.PublicationId, PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive, PublishXRef.Sequence
+                            FROM
+                                PublishXRef
+                            WHERE
+                                PublishXRef.InbredSetId = {0}
+                            ORDER BY
+                                PublishXRef.Id
+                        """
+
+                field_list = ["Id", "PhenotypeId", "PublicationId", "Locus", "LRS", "Additive", "Sequence"]
+
+            if file_format == "json":
+                filename = dataset_name + "_traits.json"
+
+                final_query = query.format(dataset_id)
+
+                result_list = []
+                for result in g.db.execute(final_query).fetchall():
+                    trait_dict = {}
+                    for i, field in enumerate(field_list):
+                        if result[i]:
+                            trait_dict[field] = result[i]
+                    result_list.append(trait_dict)
+
+                return flask.jsonify(result_list)
+            elif file_format == "csv":
+                filename = dataset_name + "_traits.csv"
+
+                results_list = []
+                header_list = []
+                header_list += field_list
+                results_list.append(header_list)
+
+                final_query = query.format(dataset_id)
+                for result in g.db.execute(final_query).fetchall():
+                    results_list.append(result)
+
+                si = StringIO.StringIO()
+                csv_writer = csv.writer(si)
+                csv_writer.writerows(results_list)
+                output = make_response(si.getvalue())
+                output.headers["Content-Disposition"] = "attachment; filename=" + filename
+                output.headers["Content-type"] = "text/csv"
+                return output
+            else:
+                return return_error(code=400, source=request.url_rule.rule, title="Invalid Output Format", details="Current formats available are JSON and CSV, with CSV as default")
+        else:
+            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
@@ -528,8 +628,6 @@ def get_trait_info(dataset_name, trait_name, file_format = "json"):
                              PublishXRef.Id = '{0}' AND
                              PublishXRef.InbredSetId = '{1}'
                       """.format(trait_name, group_id)
-        
-        logger.debug("QUERY:", pheno_query)
 
         pheno_results = g.db.execute(pheno_query)
 
@@ -612,13 +710,6 @@ def get_genotypes(group_name, file_format="csv"):
 
     return output
 
-@app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=('GET',))
-@app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=('GET',))
-def get_traits(dataset_name, file_format = "json"):
-    #ZS: Need to check about the "start" and "stop" stuff since it seems to just limit the number of results to stop - start + 1 in Pjotr's elixir code
-
-    NotImplemented
-
 def return_error(code, source, title, details):
     json_ob = {"errors": [
         {
@@ -652,7 +743,7 @@ def get_dataset_trait_ids(dataset_name):
         dataset_id = results[0][2]
         return trait_ids, trait_names, data_type, dataset_id
 
-    elif "Publish" in dataset_name:
+    elif "Publish" in dataset_name or get_group_id(dataset_name):
         data_type = "Publish"
         dataset_name = dataset_name.replace("Publish", "")
         dataset_id = get_group_id(dataset_name)
@@ -743,7 +834,10 @@ def get_group_id_from_dataset(dataset_name):
 
     result = g.db.execute(query).fetchone()
 
-    return result[0]
+    if len(result) > 0:
+        return result[0]
+    else:
+        return None
 
 def get_group_id(group_name):
     query = """
