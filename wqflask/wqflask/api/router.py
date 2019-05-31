@@ -292,8 +292,8 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
 
 @app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=('GET',))
 @app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=('GET',))
-def fetch_traits(dataset_name, file_format = "csv"):
-    trait_ids, _trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name)
+def fetch_traits(dataset_name, file_format = "json"):
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name)
     if ('ids_only' in request.args) and (len(trait_ids) > 0):
         if file_format == "json":
             filename = dataset_name + "_trait_ids.json"
@@ -304,6 +304,20 @@ def fetch_traits(dataset_name, file_format = "csv"):
             si = StringIO.StringIO()
             csv_writer = csv.writer(si)
             csv_writer.writerows([[trait_id] for trait_id in trait_ids])
+            output = make_response(si.getvalue())
+            output.headers["Content-Disposition"] = "attachment; filename=" + filename
+            output.headers["Content-type"] = "text/csv"
+            return output
+    elif ('names_only' in request.args) and (len(trait_ids) > 0):
+        if file_format == "json":
+            filename = dataset_name + "_trait_names.json"
+            return flask.jsonify(trait_names)
+        else:
+            filename = dataset_name + "_trait_names.csv"
+
+            si = StringIO.StringIO()
+            csv_writer = csv.writer(si)
+            csv_writer.writerows([[trait_name] for trait_name in trait_names])
             output = make_response(si.getvalue())
             output.headers["Content-Disposition"] = "attachment; filename=" + filename
             output.headers["Content-type"] = "text/csv"
@@ -534,7 +548,7 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
             dataset_or_group = dataset_name
 
         pheno_query = """
-                         SELECT
+                         SELECT DISTINCT
                              Strain.Name, Strain.Name2, PublishData.value, PublishData.Id, PublishSE.error, NStrain.count
                          FROM
                              (PublishData, Strain, PublishXRef, PublishFreeze)
