@@ -90,7 +90,7 @@ curl http://gn2-zach.genenetwork.org/api/v_pre1/traits/HXBBXHPublish.json
 [ { "Additive": 0.0499967532467532, "Id": 10001, "LRS": 16.2831307029479, "Locus": "rs106114574", "PhenotypeId": 1449, "PublicationId": 319, "Sequence": 1 }, ... ]
 ```
 
-Both JSON and CSV formats can be specified, with CSV as default. There is also an optional "ids_only" parameter that will only return a list of trait IDs.
+Both JSON and CSV formats can be specified, with JSON as default. There is also an optional "ids_only" and "names_only" parameter that will only return a list of trait IDs or names, respectively.
 
 ## Fetch Trait Info (Name, Description, Location, etc) ##
 ### For mRNA Expression/"ProbeSet" ###
