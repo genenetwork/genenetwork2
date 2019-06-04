@@ -1335,7 +1335,7 @@
                [
                   "None",
                   "HCPPublish",
-                  "HCP Phenotypes"
+                  "HCP Private Phenotypes"
                ]
             ]
          },
@@ -1347,14 +1347,14 @@
                   "GSE9588 Human Liver Normal (Mar11) Both Sexes"
                ],
                [
-                  "383",
-                  "HLCM_0311",
-                  "GSE9588 Human Liver Normal (Mar11) Males"
-               ],
-               [
                   "384",
                   "HLCF_0311",
                   "GSE9588 Human Liver Normal (Mar11) Females"
+               ],
+               [
+                  "383",
+                  "HLCM_0311",
+                  "GSE9588 Human Liver Normal (Mar11) Males"
                ]
             ],
             "Phenotypes": [
@@ -1530,6 +1530,11 @@
          "AIL": {
             "Hippocampus mRNA": [
                [
+                  "874",
+                  "UCSD_AIL_HIP_RNA-Seq_log2_0418",
+                  "UCSD AIL Hippocampus (Apr18) RNA-Seq Log2"
+               ],
+               [
                   "844",
                   "UCSD_AIL_HIP_RNA-Seq_0418",
                   "UCSD AIL Hippocampus (Apr18) RNA-Seq"
@@ -1544,12 +1549,22 @@
             ],
             "Prefrontal Cortex mRNA": [
                [
+                  "876",
+                  "UCSD_AIL_PFC_RNA-Seq_log2_0418",
+                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq Log2"
+               ],
+               [
                   "846",
                   "UCSD_AIL_PFC_RNA-Seq_0418",
                   "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq"
                ]
             ],
             "Striatum mRNA": [
+               [
+                  "875",
+                  "UCSD_AIL_STR_RNA-Seq_log2_0418",
+                  "UCSD AIL Striatum (Apr18) RNA-Seq Log2"
+               ],
                [
                   "845",
                   "UCSD_AIL_STR_RNA-Seq_0418",
@@ -1819,6 +1834,11 @@
             ],
             "Striatum mRNA": [
                [
+                  "85",
+                  "SA_M2_0905_P",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
+               ],
+               [
                   "84",
                   "SA_M2_0905_R",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
@@ -1827,25 +1847,20 @@
                   "83",
                   "SA_M2_0905_M",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
-               ],
-               [
-                  "85",
-                  "SA_M2_0905_P",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
                ]
             ]
          },
          "BHF2": {
             "Adipose mRNA": [
                [
-                  "196",
-                  "UCLA_BHF2_ADIPOSE_MALE",
-                  "UCLA BHF2 Adipose Male mlratio"
-               ],
-               [
                   "197",
                   "UCLA_BHF2_ADIPOSE_FEMALE",
                   "UCLA BHF2 Adipose Female mlratio"
+               ],
+               [
+                  "196",
+                  "UCLA_BHF2_ADIPOSE_MALE",
+                  "UCLA BHF2 Adipose Male mlratio"
                ],
                [
                   "165",
@@ -1855,14 +1870,14 @@
             ],
             "Brain mRNA": [
                [
-                  "198",
-                  "UCLA_BHF2_BRAIN_MALE",
-                  "UCLA BHF2 Brain Male mlratio"
-               ],
-               [
                   "199",
                   "UCLA_BHF2_BRAIN_FEMALE",
                   "UCLA BHF2 Brain Female mlratio"
+               ],
+               [
+                  "198",
+                  "UCLA_BHF2_BRAIN_MALE",
+                  "UCLA BHF2 Brain Male mlratio"
                ],
                [
                   "166",
@@ -1879,14 +1894,14 @@
             ],
             "Liver mRNA": [
                [
-                  "200",
-                  "UCLA_BHF2_LIVER_MALE",
-                  "UCLA BHF2 Liver Male mlratio"
-               ],
-               [
                   "201",
                   "UCLA_BHF2_LIVER_FEMALE",
                   "UCLA BHF2 Liver Female mlratio"
+               ],
+               [
+                  "200",
+                  "UCLA_BHF2_LIVER_MALE",
+                  "UCLA BHF2 Liver Male mlratio"
                ],
                [
                   "167",
@@ -2122,6 +2137,11 @@
                   "UTHSC Brain mRNA U74Av2 (Nov05) PDNN"
                ],
                [
+                  "81",
+                  "BR_U_0805_P",
+                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
+               ],
+               [
                   "80",
                   "BR_U_0805_M",
                   "UTHSC Brain mRNA U74Av2 (Aug05) MAS5"
@@ -2130,11 +2150,6 @@
                   "82",
                   "BR_U_0805_R",
                   "UTHSC Brain mRNA U74Av2 (Aug05) RMA"
-               ],
-               [
-                  "81",
-                  "BR_U_0805_P",
-                  "UTHSC Brain mRNA U74Av2 (Aug05) PDNN"
                ],
                [
                   "42",
@@ -2682,6 +2697,11 @@
                   "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ],
                [
+                  "848",
+                  "EPFLMouseLiverHFCEx0413",
+                  "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ],
+               [
                   "432",
                   "EPFLMouseLiverCDRMA0413",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
@@ -2690,11 +2710,6 @@
                   "849",
                   "EPFLMouseLiverCDEx0413",
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
-               ],
-               [
-                  "848",
-                  "EPFLMouseLiverHFCEx0413",
-                  "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ],
                [
                   "433",
@@ -2850,14 +2865,14 @@
                   "HQF BXD Neocortex ILM6v1.1 (Feb08) RankInv"
                ],
                [
-                  "274",
-                  "DevNeocortex_ILM6.2P3RInv_1110",
-                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
-               ],
-               [
                   "275",
                   "DevNeocortex_ILM6.2P14RInv_1110",
                   "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov10) RankInv"
+               ],
+               [
+                  "274",
+                  "DevNeocortex_ILM6.2P3RInv_1110",
+                  "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
                ]
             ],
             "Nucleus Accumbens mRNA": [
@@ -3090,6 +3105,11 @@
             ],
             "Ventral Tegmental Area mRNA": [
                [
+                  "230",
+                  "VCUEtvsSal_0609_R",
+                  "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
+               ],
+               [
                   "229",
                   "VCUEtOH_0609_R",
                   "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA"
@@ -3098,11 +3118,6 @@
                   "228",
                   "VCUSal_0609_R",
                   "VCU BXD VTA Sal M430 2.0 (Jun09) RMA"
-               ],
-               [
-                  "230",
-                  "VCUEtvsSal_0609_R",
-                  "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
                ]
             ]
          },
@@ -3134,7 +3149,7 @@
                [
                   "None",
                   "BXD-HarvestedPublish",
-                  "BXD-Harvested Phenotypes"
+                  "BXD-NIA-Longevity Phenotypes"
                ]
             ]
          },
