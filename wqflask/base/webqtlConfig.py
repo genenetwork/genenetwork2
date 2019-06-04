@@ -43,6 +43,7 @@ HOMOLOGENE_ID = "http://www.ncbi.nlm.nih.gov/homologene/?term=%s"
 GENOTATION_URL = "http://www.genotation.org/Getd2g.pl?gene_list=%s"
 GTEX_URL = "https://www.gtexportal.org/home/gene/%s"
 GENEBRIDGE_URL = "https://www.systems-genetics.org/modules_by_gene/%s?organism=%s"
+GENEMANIA_URL = "https://genemania.org/search/%s/%s"
 UCSC_REFSEQ = "http://genome.cse.ucsc.edu/cgi-bin/hgTracks?db=%s&hgg_gene=%s&hgg_chrom=chr%s&hgg_start=%s&hgg_end=%s"
 BIOGPS_URL = "http://biogps.org/?org=%s#goto=genereport&id=%s"
 STRING_URL = "http://string-db.org/newstring_cgi/show_network_section.pl?identifier=%s"
@@ -87,4 +88,3 @@ if not valid_path(JSON_GENODIR):
 PORTADDR = "http://50.16.251.170"
 INFOPAGEHREF = '/dbdoc/%s.html'
 CGIDIR = '/webqtl/' #XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
-SCRIPTFILE = 'main.py'

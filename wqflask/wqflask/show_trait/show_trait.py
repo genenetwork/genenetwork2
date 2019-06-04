@@ -257,7 +257,7 @@ class ShowTrait(object):
             self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
 
         self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = None
-        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = None
+        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = None
         if self.this_trait.symbol:
             self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
             self.gtex_link = webqtlConfig.GTEX_URL % self.this_trait.symbol
@@ -266,7 +266,10 @@ class ShowTrait(object):
             self.ebi_gwas_link = webqtlConfig.EBIGWAS_URL % self.this_trait.symbol
 
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
-                self.genebridge_link = webqtlConfig.GENEBRIDGE_URL % (self.this_trait.symbol, self.dataset.group.species)
+                if self.dataset.group.species == "mouse":
+                    self.genemania_link = webqtlConfig.GENEMANIA_URL % ("mus-musculus", self.this_trait.symbol)
+                else:
+                    self.genemania_link = webqtlConfig.GENEMANIA_URL % ("homo-sapiens", self.this_trait.symbol)
 
                 if self.dataset.group.species == "mouse":
                     self.aba_link = webqtlConfig.ABA_URL % self.this_trait.symbol
@@ -282,8 +285,10 @@ class ShowTrait(object):
                         self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('mm10', self.this_trait.refseq_transcriptid, chr, transcript_start, transcript_end)
 
             if self.dataset.group.species == "rat":
+                self.genemania_link = webqtlConfig.GENEMANIA_URL % ("rattus-norvegicus", self.this_trait.symbol)
+
                 query = """SELECT kgID, chromosome, txStart, txEnd
-                        FROM GeneLink_rn33
+                        FROM GeneList_rn33
                         WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
 
                 kgId, chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
