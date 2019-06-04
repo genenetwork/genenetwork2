@@ -921,8 +921,12 @@ get_bar_range = function(sample_list){
 }
 
 root.chart_range = get_bar_range(sample_lists[0])
-if (root.chart_range[1] - root.chart_range[0] < 4){
+val_range = root.chart_range[1] - root.chart_range[0]
+
+if (val_range < 4){
   tick_digits = '.1f'
+} else if (val_range < 0.4) {
+  tick_digits = '.2f'
 } else {
   tick_digits = 'f'
 }

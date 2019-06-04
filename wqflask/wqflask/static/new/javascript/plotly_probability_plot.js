@@ -161,8 +161,11 @@
         intercept_line['samples_all'] = [[first_x, last_x], [first_value, last_value]]
     }
 
-    if (Math.max(...y_values['samples_all']) - Math.min(...y_values['samples_all']) < 4){
+    val_range = Math.max(...y_values['samples_all']) - Math.min(...y_values['samples_all'])
+    if (val_range < 4){
       tick_digits = '.1f'
+    } else if (val_range < 0.4) {
+      tick_digits = '.2f'
     } else {
       tick_digits = 'f'
     }
