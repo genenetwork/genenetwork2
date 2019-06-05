@@ -1868,7 +1868,14 @@ class DisplayMappingResults(object):
                         point_color = pid.grey
                     else:
                         point_color = pid.black
-                    canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=point_color, font=symbolFont)
+
+                    final_x_pos = Xc-canvas.stringWidth("5",font=symbolFont)/2+1
+                    if final_x_pos > (xLeftOffset + plotWidth):
+                        break
+                    elif final_x_pos < xLeftOffset:
+                        continue
+                    else:
+                        canvas.drawString("5", final_x_pos,Yc+2,color=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
 
