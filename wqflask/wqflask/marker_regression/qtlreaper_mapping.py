@@ -2,7 +2,7 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 def gen_reaper_results(this_trait, dataset, samples_before, trait_vals, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
-    genotype = dataset.group.read_genotype_file()
+    genotype = dataset.group.read_genotype_file(use_reaper=True)
 
     if manhattan_plot != True:
         genotype = genotype.addinterval()

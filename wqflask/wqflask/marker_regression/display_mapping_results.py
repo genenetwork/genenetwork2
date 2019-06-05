@@ -236,9 +236,11 @@ class DisplayMappingResults(object):
         self.selectedChr = int(start_vars['selected_chr'])
 
         self.strainlist = start_vars['samples']
-        self.genotype = self.dataset.group.read_genotype_file()
+
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
-            self.genotype = self.genotype.addinterval()
+            self.genotype = self.dataset.group.read_genotype_file(use_reaper=True)
+        else:
+            self.genotype = self.dataset.group.read_genotype_file()
 
         #Darwing Options
         try:

@@ -384,7 +384,7 @@ class DatasetGroup(object):
         [result.extend(l) for l in lists if l]
         return result
 
-    def read_genotype_file(self):
+    def read_genotype_file(self, use_reaper=False):
         '''Read genotype from .geno file instead of database'''
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
@@ -396,9 +396,12 @@ class DatasetGroup(object):
             full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
-        #genotype_1.read(full_filename)
 
-        genotype_1 = gen_geno_ob.genotype(full_filename)
+        if use_reaper:
+            genotype_1 = reaper.Dataset()
+            genotype_1.read(full_filename)
+        else:
+            genotype_1 = gen_geno_ob.genotype(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
