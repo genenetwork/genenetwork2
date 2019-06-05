@@ -1794,7 +1794,7 @@ class DisplayMappingResults(object):
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
-                if not self.multipleInterval and not self.manhattan_plot and self.additiveChecked:
+                if not self.multipleInterval and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
                     minusColor = self.ADDITIVE_COLOR_NEGATIVE
                     for k, aPoint in enumerate(AdditiveCoordXY):
