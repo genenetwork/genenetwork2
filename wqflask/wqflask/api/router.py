@@ -58,12 +58,12 @@ def get_species_info(species_name, file_format = "json"):
     return flask.jsonify(species_dict)
 
 @app.route("/api/v_{}/groups".format(version))
-@app.route("/api/v_{}/<path:species_name>/groups".format(version))
+@app.route("/api/v_{}/groups/<path:species_name>".format(version))
 def get_groups_list(species_name=None):
     if species_name:
         results = g.db.execute("""SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, InbredSet.InbredSetName,
                                          InbredSet.Name, InbredSet.FullName, InbredSet.public,
-                                         ISNULL(InbredSet.MappingMethodId, "None"), ISNULL(InbredSet.GeneticType, "None")
+                                         IFNULL(InbredSet.MappingMethodId, "None"), IFNULL(InbredSet.GeneticType, "None")
                                   FROM InbredSet, Species
                                   WHERE InbredSet.SpeciesId = Species.Id AND
                                         (Species.Name = "{0}" OR
@@ -72,7 +72,7 @@ def get_groups_list(species_name=None):
     else:
         results = g.db.execute("""SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, InbredSet.InbredSetName, 
                                          InbredSet.Name, InbredSet.FullName, InbredSet.public, 
-                                         ISNULL(InbredSet.MappingMethodId, "None"), ISNULL(InbredSet.GeneticType, "None")
+                                         IFNULL(InbredSet.MappingMethodId, "None"), IFNULL(InbredSet.GeneticType, "None")
                                   FROM InbredSet;""")
 
     the_groups = results.fetchall()
@@ -103,7 +103,7 @@ def get_group_info(group_name, species_name = None, file_format = "json"):
     if species_name:
         results = g.db.execute("""SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, InbredSet.InbredSetName, 
                                          InbredSet.Name, InbredSet.FullName, InbredSet.public, 
-                                         ISNULL(InbredSet.MappingMethodId, "None"), ISNULL(InbredSet.GeneticType, "None")
+                                         IFNULL(InbredSet.MappingMethodId, "None"), IFNULL(InbredSet.GeneticType, "None")
                                   FROM InbredSet, Species
                                   WHERE InbredSet.SpeciesId = Species.Id AND
                                         (InbredSet.InbredSetName = "{0}" OR
@@ -115,7 +115,7 @@ def get_group_info(group_name, species_name = None, file_format = "json"):
     else:
         results = g.db.execute("""SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, InbredSet.InbredSetName, 
                                          InbredSet.Name, InbredSet.FullName, InbredSet.public, 
-                                         ISNULL(InbredSet.MappingMethodId, "None"), ISNULL(InbredSet.GeneticType, "None")
+                                         IFNULL(InbredSet.MappingMethodId, "None"), IFNULL(InbredSet.GeneticType, "None")
                                   FROM InbredSet
                                   WHERE (InbredSet.InbredSetName = "{0}" OR
                                          InbredSet.Name = "{0}" OR
