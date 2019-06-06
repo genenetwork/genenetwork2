@@ -293,7 +293,7 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
 @app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
 @app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
 def fetch_traits(dataset_name, file_format = "json"):
-    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name)
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
     if ("ids_only" in request.args) and (len(trait_ids) > 0):
         if file_format == "json":
             filename = dataset_name + "_trait_ids.json"
@@ -367,6 +367,10 @@ def fetch_traits(dataset_name, file_format = "json"):
 
                 field_list = ["Id", "PhenotypeId", "PublicationId", "Locus", "LRS", "Additive", "Sequence"]
 
+            if 'limit_to' in request.args:
+                limit_number = request.args['limit_to']
+                query += "LIMIT " + str(limit_number)
+
             if file_format == "json":
                 filename = dataset_name + "_traits.json"
 
@@ -408,7 +412,7 @@ def fetch_traits(dataset_name, file_format = "json"):
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
 def all_sample_data(dataset_name, file_format = "csv"):
-    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name)
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
 
     if len(trait_ids) > 0:
         sample_list = get_samplelist(dataset_name)
@@ -496,7 +500,7 @@ def all_sample_data(dataset_name, file_format = "csv"):
             output.headers["Content-type"] = "text/csv"
             return output
         else:
-            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+            return return_error(code=415, source=request.url_rule.rule, title="Unsupported file format", details="")
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
@@ -669,25 +673,35 @@ def get_corr_results():
 
 @app.route("/api/v_{}/mapping".format(version), methods=("GET",))
 def get_mapping_results():
-    results = mapping.do_mapping_for_api(request.args)
+    results, format = mapping.do_mapping_for_api(request.args)
 
     if len(results) > 0:
-        filename = "mapping_" + datetime.datetime.utcnow().strftime("%b_%d_%Y_%I:%M%p") + ".csv"
+        if format == "csv":
+            filename = "mapping_" + datetime.datetime.utcnow().strftime("%b_%d_%Y_%I:%M%p") + ".csv"
 
-        si = StringIO.StringIO()
-        csv_writer = csv.writer(si)
-        csv_writer.writerows(results)
-        output = make_response(si.getvalue())
-        output.headers["Content-Disposition"] = "attachment; filename=" + filename
-        output.headers["Content-type"] = "text/csv"
+            si = StringIO.StringIO()
+            csv_writer = csv.writer(si)
+            csv_writer.writerows(results)
+            output = make_response(si.getvalue())
+            output.headers["Content-Disposition"] = "attachment; filename=" + filename
+            output.headers["Content-type"] = "text/csv"
 
-        return output
+            return output
+        elif format == "json":
+            return flask.jsonify(results)
+        else:
+            return return_error(code=415, source=request.url_rule.rule, title="Unsupported Format", details="")
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 @app.route("/api/v_{}/genotypes/<path:group_name>".format(version))
 @app.route("/api/v_{}/genotypes/<path:group_name>.<path:file_format>".format(version))
 def get_genotypes(group_name, file_format="csv"):
+    limit_num = None
+    if 'limit_to' in request.args:
+        if request.args['limit_to'].isdigit():
+            limit_num = int(request.args['limit_to'])
+
     si = StringIO.StringIO()
     if file_format == "csv" or file_format == "geno":
         filename = group_name + ".geno"
@@ -695,11 +709,15 @@ def get_genotypes(group_name, file_format="csv"):
         if os.path.isfile("{0}/{1}.geno".format(flat_files("genotype"), group_name)):
             output_lines = []
             with open("{0}/{1}.geno".format(flat_files("genotype"), group_name)) as genofile:
+                i = 0
                 for line in genofile:
                     if line[0] == "#" or line[0] == "@":
                         output_lines.append([line.strip()])
                     else:
+                        if i >= limit_num:
+                            break
                         output_lines.append(line.split())
+                        i += 1
 
             csv_writer = csv.writer(si, delimiter = "\t", escapechar = "\\", quoting = csv.QUOTE_NONE)
         else:
@@ -710,8 +728,12 @@ def get_genotypes(group_name, file_format="csv"):
         if os.path.isfile("{0}/{1}.geno".format(flat_files("genotype"), group_name)):
             output_lines = []
             with open("{0}/{1}_geno.txt".format(flat_files("genotype/bimbam"), group_name)) as genofile:
+                i = 0
                 for line in genofile:
+                    if i >= limit_num:
+                        break
                     output_lines.append([line.strip() for line in line.split(",")])
+                    i += 1
 
             csv_writer = csv.writer(si, delimiter = ",")
         else:
@@ -736,7 +758,13 @@ def return_error(code, source, title, details):
 
     return flask.jsonify(json_ob)
 
-def get_dataset_trait_ids(dataset_name):
+def get_dataset_trait_ids(dataset_name, start_vars):
+
+    if 'limit_to' in start_vars:
+        limit_string = "LIMIT " + str(start_vars['limit_to'])
+    else:
+        limit_string = ""
+
     if "Geno" in dataset_name:
         data_type = "Geno" #ZS: Need to pass back the dataset type
         query =    """
@@ -748,7 +776,8 @@ def get_dataset_trait_ids(dataset_name):
                                 Geno.Id = GenoXRef.GenoId AND
                                 GenoXRef.GenoFreezeId = GenoFreeze.Id AND
                                 GenoFreeze.Name = "{0}"
-                        """.format(dataset_name)
+                            {1}
+                        """.format(dataset_name, limit_string)
 
         results = g.db.execute(query).fetchall()
 
@@ -769,7 +798,8 @@ def get_dataset_trait_ids(dataset_name):
                              PublishXRef
                          WHERE
                              PublishXRef.InbredSetId = "{0}"
-                      """.format(dataset_id)
+                         {1}
+                      """.format(dataset_id, limit_string)
 
         results = g.db.execute(query).fetchall()
 
@@ -788,7 +818,8 @@ def get_dataset_trait_ids(dataset_name):
                             ProbeSet.Id = ProbeSetXRef.ProbeSetId AND
                             ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
                             ProbeSetFreeze.Name = "{0}"
-                     """.format(dataset_name)
+                        {1}
+                     """.format(dataset_name, limit_string)
 
         results = g.db.execute(query).fetchall()
 

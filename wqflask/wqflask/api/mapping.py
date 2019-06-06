@@ -47,29 +47,48 @@ def do_mapping_for_api(start_vars):
         else:
             result_markers = gemma_mapping.run_gemma(this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
     elif mapping_params['mapping_method'] == "rqtl":
-        header_row = ["name", "chr", "Mb", "lod_score"]
+        header_row = ["name", "chr", "cM", "lod_score"]
         if mapping_params['num_perm'] > 0:
-            _sperm_output, _suggestive, _significant, result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'], 
-                                                                                        mapping_params['perm_check'], mapping_params['num_perm'], 
-                                                                                        mapping_params['do_control'], mapping_params['control_marker'], 
+            _sperm_output, _suggestive, _significant, result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'],
+                                                                                        mapping_params['perm_check'], mapping_params['num_perm'],
+                                                                                        mapping_params['do_control'], mapping_params['control_marker'],
                                                                                         mapping_params['manhattan_plot'], mapping_params['pair_scan'])
         else:
-            result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'], 
-                                                 mapping_params['perm_check'], mapping_params['num_perm'], 
-                                                 mapping_params['do_control'], mapping_params['control_marker'], 
+            result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'],
+                                                 mapping_params['perm_check'], mapping_params['num_perm'],
+                                                 mapping_params['do_control'], mapping_params['control_marker'],
                                                  mapping_params['manhattan_plot'], mapping_params['pair_scan'])
 
-    output_rows = []
-    output_rows.append(header_row)
-    for marker in result_markers:
-        this_row = [marker[header] for header in header_row]
-        output_rows.append(this_row)
+    if mapping_params['limit_to']:
+        result_markers = result_markers[:mapping_params['limit_to']]
 
-    return output_rows
+    if mapping_params['format'] == "csv":
+        output_rows = []
+        output_rows.append(header_row)
+        for marker in result_markers:
+            this_row = [marker[header] for header in header_row]
+            output_rows.append(this_row)
+
+        return output_rows, mapping_params['format']
+    elif mapping_params['format'] == "json":
+        return result_markers, mapping_params['format']
+    else:
+        return result_markers, None
+
 
 
 def initialize_parameters(start_vars, dataset, this_trait):
     mapping_params = {}
+
+    mapping_params['format'] = "json"
+    if 'format' in start_vars:
+        mapping_params['format'] = start_vars['format']
+
+    mapping_params['limit_to'] = False
+    if 'limit_to' in start_vars:
+        if start_vars['limit_to'].isdigit():
+            mapping_params['limit_to'] = int(start_vars['limit_to'])
+
     mapping_params['mapping_method'] = "gemma"
     if 'method' in start_vars:
         mapping_params['mapping_method'] = start_vars['method']
@@ -103,10 +122,10 @@ def initialize_parameters(start_vars, dataset, this_trait):
     if 'maf' in start_vars:
         mapping_params['maf'] = start_vars['maf'] # Minor allele frequency
 
-    mapping_params['use_loco'] = False
+    mapping_params['use_loco'] = True
     if 'use_loco' in start_vars:
-        if start_vars['use_loco'].lower() != "false":
-            mapping_params['use_loco'] = start_vars['use_loco']
+        if (start_vars['use_loco'].lower() == "false") or (start_vars['use_loco'].lower() == "no"):
+            mapping_params['use_loco'] = False
 
     mapping_params['num_perm'] = 0
     mapping_params['perm_check'] = False
@@ -118,5 +137,5 @@ def initialize_parameters(start_vars, dataset, this_trait):
             mapping_params['perm_check'] = False
 
     return mapping_params
-    
+
 
