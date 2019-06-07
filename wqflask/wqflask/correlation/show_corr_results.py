@@ -83,7 +83,7 @@ class CorrelationResults(object):
         assert('corr_sample_method' in start_vars)
         assert('corr_samples_group' in start_vars)
         assert('corr_dataset' in start_vars)
-        assert('min_expr' in start_vars)
+        #assert('min_expr' in start_vars)
         assert('corr_return_results' in start_vars)
         if 'loc_chr' in start_vars:
             assert('min_loc_mb' in start_vars)
