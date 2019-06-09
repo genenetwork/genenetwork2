@@ -78,7 +78,10 @@ class GSearch(object):
                     this_trait['location_repr'] = 'N/A'
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (line[8], float(line[9]))
-                    this_trait['mean'] = '%.3f' % line[10]
+                    try:
+                        this_trait['mean'] = '%.3f' % line[10]
+                    except:
+                        this_trait['mean'] = "N/A"
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
                         this_trait['LRS_score_repr'] = '%3.1f' % line[11]
