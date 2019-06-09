@@ -120,7 +120,7 @@ class Heatmap(object):
             self.dataset.group.get_markers()
             this_trait = trait_db[0]
             #this_db = trait_db[1]
-            genotype = self.dataset.group.read_genotype_file()
+            genotype = self.dataset.group.read_genotype_file(use_reaper=True)
             samples, values, variances, sample_aliases = this_trait.export_informative()
 
             trimmed_samples = []
