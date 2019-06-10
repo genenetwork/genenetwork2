@@ -134,7 +134,11 @@
                       'width': "25%",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return decodeURIComponent(escape(data.description))
+			try {
+                            return decodeURIComponent(escape(data.description))
+			} except {
+			    return escape(data.description)
+                        }
                       }
                     },
                     {
