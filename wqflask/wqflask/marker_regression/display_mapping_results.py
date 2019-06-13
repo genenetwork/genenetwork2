@@ -2215,7 +2215,8 @@ class DisplayMappingResults(object):
                 this_row = [] #container for the cells of each row
                 selectCheck = HT.Input(type="checkbox", name="searchResult", Class="checkbox", onClick="highlight(this)").__str__() #checkbox for each row
 
-                webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
+                #ZS: May want to get this working again later
+                #webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
                     geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blank").__str__()
@@ -2256,7 +2257,7 @@ class DisplayMappingResults(object):
 
                 this_row = [selectCheck.__str__(),
                             str(gIndex+1),
-                            webqtlSearch.__str__() + geneSymbolNCBI,
+                            geneSymbolNCBI,
                             theGO["TxStart"],
                             HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)).__str__(),
                             avgExprVal,
