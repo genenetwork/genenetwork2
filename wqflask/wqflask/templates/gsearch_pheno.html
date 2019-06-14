@@ -9,7 +9,8 @@
 
     <div class="container">
 
-        <p>You searched for {{ terms }}.</p>
+        <h3>GN searched 51 datasets and 13763 traits across 10 species, and found {{ trait_count }} results that match your query.
+        You can filter these results by adding key words in the fields below and you can also sort results on most columns.</h3>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -28,8 +29,8 @@
               <button class="btn btn-default" id="export_traits">Download CSV</button>
             </form>
             <br />
-            <div>
-              <table id="trait_table" width="100%" class="table-hover table-striped cell-border" style="float: left;">
+            <div style="width: 100%;">
+              <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>

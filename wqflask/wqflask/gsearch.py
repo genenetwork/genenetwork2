@@ -61,6 +61,7 @@ class GSearch(object):
             with Bench("Running query"):
                 logger.sql(sql)
                 re = g.db.execute(sql).fetchall()
+
             trait_list = []
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
@@ -100,6 +101,7 @@ class GSearch(object):
 
                     trait_list.append(this_trait)
 
+            self.trait_count = len(trait_list)
             self.trait_list = json.dumps(trait_list)
 
         elif self.type == "phenotype":
@@ -186,4 +188,5 @@ class GSearch(object):
 
                     trait_list.append(this_trait)
 
+            self.trait_count = len(trait_list)
             self.trait_list = json.dumps(trait_list)
