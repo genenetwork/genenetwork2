@@ -37,15 +37,16 @@
                     {% elif word.key|lower == "position" %}
                     with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% else %}
-                    that match the <u>TERM</u> <b>{{ word.search_term[0] }}</b>{% if loop.last %},{% else %} and {% endif %}
+                    {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match:<br>{% endif %}<b>"{{ word.search_term[0] }}"</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
                     {% endif %}
                 {% endfor %}
-                and found {{ results|count }} records.
+                <br>
+                {{ results|count }} records are shown below.
         </p>
 
-        <p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>
+        <!--<p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>-->
 
-        <hr style="height: 1px; background-color: #A9A9A9;">
+        <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
 
         </div>
 
@@ -104,21 +105,19 @@
 
         <div>
           <br />
-          <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-          <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+          <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select</button>
+          <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
           <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
           <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
           <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
           <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-          <br />
-          <br />
-          <form id="export_form" method="POST" action="/export_traits_csv">
+          <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
             <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
             <input type="hidden" name="export_data" id="export_data" value="">
-            <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <button class="btn btn-default" id="export_traits">Download</button>
           </form>
           <br />
-
+          <br />
           <div id="table_container">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
@@ -410,25 +409,6 @@
                   'processing': 'Loading...'
                 }
             } );
-
-            if (trait_list.length > 20) {
-              $('#trait_table').append(
-                '<tfoot>' +
-                  '<tr>' +
-                    '<th></th>' +
-                    '<th>Index</th>' +
-                    '<th>Record</th>' +
-                    '<th>Symbol</th> ' +
-                    '<th>Description</th>' +
-                    '<th>Location</th>' +
-                    '<th>Mean</th>' +
-                    '<th>Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
-                    '<th>Max LRS Location</th>' +
-                    '<th>Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
-                  '</tr>' +
-                '</tfoot>'
-              );
-            }
 
             console.timeEnd("Creating table");
             
