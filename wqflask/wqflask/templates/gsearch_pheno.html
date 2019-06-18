@@ -135,10 +135,10 @@
                       'width': "25%",
                       'data': null,
                       'render': function(data, type, row, meta) {
-			try {
+			                  try {
                             return decodeURIComponent(escape(data.description))
-			} catch {
-			    return escape(data.description)
+			                  } catch {
+			                      return data.description
                         }
                       }
                     },
@@ -146,7 +146,15 @@
                       'title': "Authors",
                       'type': "natural",
                       'width': "25%",
-                      'data': "authors"
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        author_list = data.authors.split(",")
+                        if (author_list.length >= 6) {
+                          return author_list.slice(0, 6).join(",") + ", et al."
+                        } else{
+                          return data.authors
+                        }
+                      }
                     },
                     {
                       'title': "Year",
