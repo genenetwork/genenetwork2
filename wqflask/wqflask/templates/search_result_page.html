@@ -13,7 +13,7 @@
 
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
         <!-- Need to customize text more for other types of searches -->
-        <p>We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{dataset.id}}">{{ dataset.fullname }}</a>
+        <p>We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
            to find all records
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}

@@ -289,7 +289,6 @@ class DatasetGroup(object):
         self.parlist = None
         self.get_f1_parent_strains()
 
-        self.accession_id = self.get_accession_id()
         self.mapping_id, self.mapping_names = self.get_mapping_methods()
 
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
@@ -298,20 +297,6 @@ class DatasetGroup(object):
         self.allsamples = None
         self._datasets = None
         self.genofile = None
-
-    def get_accession_id(self):
-        results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
-                    InbredSet.Name = %s and
-                    PublishFreeze.InbredSetId = InbredSet.Id and
-                    InfoFiles.InfoPageName = PublishFreeze.Name and
-                    PublishFreeze.public > 0 and
-                    PublishFreeze.confidentiality < 1 order by
-                    PublishFreeze.CreateTime desc""", (self.name)).fetchone()
-
-        if results != None:
-            return str(results[0])
-        else:
-            return "None"
 
     def get_mapping_methods(self):
 
@@ -510,6 +495,7 @@ class DataSet(object):
             self.check_confidentiality()
             self.retrieve_other_names()
             self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+            self.accession_id = self.get_accession_id()
         if get_samplelist == True:
              self.group.get_samplelist()
         self.species = species.TheSpecies(self)
@@ -523,6 +509,31 @@ class DataSet(object):
     @property
     def riset():
         Weve_Renamed_This_As_Group
+
+    def get_accession_id(self):
+        if self.type == "Publish":
+            results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+                        InbredSet.Name = %s and
+                        PublishFreeze.InbredSetId = InbredSet.Id and
+                        InfoFiles.InfoPageName = PublishFreeze.Name and
+                        PublishFreeze.public > 0 and
+                        PublishFreeze.confidentiality < 1 order by
+                        PublishFreeze.CreateTime desc""", (self.group.name)).fetchone()
+        elif self.type == "Geno":
+            results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
+                        InbredSet.Name = %s and
+                        GenoFreeze.InbredSetId = InbredSet.Id and
+                        InfoFiles.InfoPageName = GenoFreeze.ShortName and
+                        GenoFreeze.public > 0 and
+                        GenoFreeze.confidentiality < 1 order by
+                        GenoFreeze.CreateTime desc""", (self.group.name)).fetchone()
+        else:
+            results = None
+
+        if results != None:
+            return str(results[0])
+        else:
+            return "None"
 
     def retrieve_other_names(self):
         """This method fetches the the dataset names in search_result.
