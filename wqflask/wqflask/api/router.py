@@ -714,7 +714,7 @@ def get_genotypes(group_name, file_format="csv"):
                     if line[0] == "#" or line[0] == "@":
                         output_lines.append([line.strip()])
                     else:
-                        if i >= limit_num:
+                        if limit_num and i >= limit_num:
                             break
                         output_lines.append(line.split())
                         i += 1
@@ -730,7 +730,7 @@ def get_genotypes(group_name, file_format="csv"):
             with open("{0}/{1}_geno.txt".format(flat_files("genotype/bimbam"), group_name)) as genofile:
                 i = 0
                 for line in genofile:
-                    if i >= limit_num:
+                    if limit_num and i >= limit_num:
                         break
                     output_lines.append([line.strip() for line in line.split(",")])
                     i += 1
