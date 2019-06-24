@@ -262,7 +262,7 @@
         <div style="width: 100%;">
           <h2>Interval Analyst</h2>
           <div id="table_container">
-          <table id="interval_analyst" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
+          <table id="trait_table" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
             <thead>
               <tr>
                 {% for header in gene_table_header %}
@@ -322,6 +322,7 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
+            {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural", "width": "5%" },
@@ -346,8 +347,8 @@
                 "scrollCollapse": false,
                 "paging": false
             } );
-
-            $('#interval_analyst').dataTable( {
+            {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
+            $('#trait_table').dataTable( {
                 "createdRow": function ( row, data, index ) {
                   $('td', row).eq(1).attr("align", "right");
                   $('td', row).eq(3).attr("align", "right");
@@ -384,6 +385,7 @@
                 "scrollCollapse": false,
                 "paging": false
             } );
+            {% endif %}
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();

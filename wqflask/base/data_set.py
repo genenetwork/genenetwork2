@@ -433,7 +433,7 @@ def datasets(group_name, this_group = None):
             and InbredSet.Name like %s
             and ProbeSetFreeze.public > %s
             and ProbeSetFreeze.confidentiality < 1
-          ORDER BY Tissue.Name)
+          ORDER BY Tissue.Name, ProbeSetFreeze.OrderList DESC)
         ''' % (group_name, webqtlConfig.PUBLICTHRESH,
               group_name, webqtlConfig.PUBLICTHRESH,
               "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))

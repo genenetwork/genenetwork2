@@ -168,7 +168,7 @@ class ShowTrait(object):
                 hddn['control_marker'] = self.nearest_marker
                 #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         hddn['do_control'] = False
-        hddn['maf'] = 0.01
+        hddn['maf'] = 0.05
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"

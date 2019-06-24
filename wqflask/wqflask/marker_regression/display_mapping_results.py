@@ -2127,7 +2127,7 @@ class DisplayMappingResults(object):
                 tableIterationsCnt = tableIterationsCnt + 1
 
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="searchResult", value=theGO["GeneSymbol"], Class="checkbox trait_checkbox") #checkbox for each row
+                selectCheck = HT.Input(type="checkbox", name="selectCheck", value=theGO["GeneSymbol"], Class="checkbox trait_checkbox") #checkbox for each row
 
                 geneLength = (theGO["TxEnd"] - theGO["TxStart"])*1000.0
                 tenPercentLength = geneLength*0.0001
@@ -2213,7 +2213,7 @@ class DisplayMappingResults(object):
         elif self.dataset.group.species == 'rat':
             for gIndex, theGO in enumerate(geneCol):
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="searchResult", Class="checkbox", onClick="highlight(this)").__str__() #checkbox for each row
+                selectCheck = HT.Input(type="checkbox", name="selectCheck", Class="checkbox trait_checkbox").__str__() #checkbox for each row
 
                 #ZS: May want to get this working again later
                 #webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
@@ -2240,14 +2240,14 @@ class DisplayMappingResults(object):
                 #Mouse Gene
                 if theGO['mouseGene']:
                     mouseChr = theGO['mouseGene']["Chromosome"]
-                    mouseTxStart = theGO['mouseGene']["TxStart"]
+                    mouseTxStart = "%0.6f" % theGO['mouseGene']["TxStart"]
                 else:
                     mouseChr = mouseTxStart = ""
 
                 #the chromosomes for human 1 are 1qXX.XX
                 if theGO['humanGene']:
                     humanChr = theGO['humanGene']["Chromosome"]
-                    humanTxStart = theGO['humanGene']["TxStart"]
+                    humanTxStart = "%0.6f" % theGO['humanGene']["TxStart"]
                 else:
                     humanChr = humanTxStart = ""
 
@@ -2258,7 +2258,7 @@ class DisplayMappingResults(object):
                 this_row = [selectCheck.__str__(),
                             str(gIndex+1),
                             geneSymbolNCBI,
-                            theGO["TxStart"],
+                            "%0.6f" % theGO["TxStart"],
                             HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)).__str__(),
                             avgExprVal,
                             mouseChr,
