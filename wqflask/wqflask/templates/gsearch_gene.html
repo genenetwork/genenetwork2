@@ -161,7 +161,7 @@
                       'render': function(data, type, row, meta) {
                         try {
                             return decodeURIComponent(escape(data.description))
-                        } catch {
+                        } catch(err) {
                             return escape(data.description)
                         }
                       }

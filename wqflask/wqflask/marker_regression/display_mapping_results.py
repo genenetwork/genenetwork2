@@ -753,7 +753,7 @@ class DisplayMappingResults(object):
                             locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
                             break
         if locPixel >= 0 and self.plotScale == 'physic':
-            traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
+            traitPixel = ((locPixel, yZero), (locPixel-7, yZero+14), (locPixel+7, yZero+14))
             canvas.drawPolygon(traitPixel, edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
 
         if self.legendChecked:
@@ -764,7 +764,7 @@ class DisplayMappingResults(object):
                 leftOffset = xLeftOffset
             else:
                 leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
-            canvas.drawPolygon(((leftOffset+6, startPosY-6), (leftOffset, startPosY+6), (leftOffset+12, startPosY+6)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
+            canvas.drawPolygon(((leftOffset+7, startPosY-7), (leftOffset, startPosY+7), (leftOffset+14, startPosY+7)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
             canvas.drawString("Sequence Site", (leftOffset+15), (startPosY+5), smallLabelFont, self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
