@@ -11,7 +11,7 @@ from flask import g, Response, request, make_response, render_template, send_fro
 import sqlalchemy
 from wqflask import app
 
-from wqflask.api import correlation, mapping
+from wqflask.api import correlation, mapping, gen_menu
 
 from utility.tools import flat_files
 
@@ -745,6 +745,15 @@ def get_genotypes(group_name, file_format="csv"):
     output.headers["Content-type"] = "text/csv"
 
     return output
+
+@app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
+def gen_dropdown_menu():
+    results = gen_menu.gen_dropdown_json()
+
+    if len(results) > 0:
+        return flask.jsonify(results)
+    else:
+        return return_error(code=500, source=request.url_rule.rule, title="Some error occurred", details="")
 
 def return_error(code, source, title, details):
     json_ob = {"errors": [

@@ -6,10 +6,11 @@ process_json = function(data) {
     return apply_default();
   }
 };
-$.ajax('/static/new/javascript/dataset_menu_structure.json', {
+$.ajax('/api/v_pre1/gen_dropdown', {
   dataType: 'json',
   success: process_json
 });
+
 populate_species = function() {
   var species_list;
   species_list = this.jdata.species;
