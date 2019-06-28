@@ -179,8 +179,9 @@ class CorrelationResults(object):
                 #ZS: Convert min/max chromosome to an int for the location range option
                 range_chr_as_int = None
                 for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                    if chr_info.name == self.location_chr:
-                        range_chr_as_int = order_id
+                    if 'loc_chr' in start_vars:
+                        if chr_info.name == self.location_chr:
+                            range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)

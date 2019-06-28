@@ -11,6 +11,7 @@ var layout = {
         b: 50
     },
     xaxis: {
+        range: [js_data.x_range[0], js_data.x_range[1]],
         title: js_data.trait_1,
         zeroline: false,
         visible: true,
@@ -18,6 +19,7 @@ var layout = {
         linewidth: 1,
     },
     yaxis: {
+        range: [js_data.y_range[0], js_data.y_range[1]],
         title: js_data.trait_2,
         zeroline: false,
         visible: true,
@@ -25,6 +27,34 @@ var layout = {
         linewidth: 1,
     },
     hovermode: "closest"
+}
+
+var sr_layout = {
+  height: 700,
+  width: 800,
+  margin: {
+      l: 60,
+      r: 30,
+      t: 80,
+      b: 50
+  },
+  xaxis: {
+      range: [js_data.sr_range[0], js_data.sr_range[1]],
+      title: js_data.trait_1,
+      zeroline: false,
+      visible: true,
+      linecolor: 'black',
+      linewidth: 1,
+  },
+  yaxis: {
+      range: [js_data.sr_range[0], js_data.sr_range[1]],
+      title: js_data.trait_2,
+      zeroline: false,
+      visible: true,
+      linecolor: 'black',
+      linewidth: 1,
+  },
+  hovermode: "closest"
 }
 
 cofactor1_dict = {}
@@ -48,14 +78,23 @@ function drawg() {
       sample_names.push(js_data.indIDs[j])
     }
 
-    var trace = {
+    var trace1 = {
         x: x_values,
         y: y_values,
         mode: 'markers',
         text: sample_names
     }
 
-    Plotly.newPlot('scatterplot2', [trace], layout)
+    var trace2 = {
+      x: [js_data.intercept_coords[0][0], js_data.intercept_coords[1][0]],
+      y: [js_data.intercept_coords[0][1], js_data.intercept_coords[1][1]],
+      mode: 'lines',
+      line: {
+        color: 'rgb(250, 60, 73)'
+      }
+    }
+
+    Plotly.newPlot('scatterplot2', [trace2, trace1], layout)
 
 }
 
@@ -69,14 +108,14 @@ function srdrawg() {
       sample_names.push(js_data.indIDs[j])
     }
 
-    var trace = {
+    var trace1 = {
         x: x_values,
         y: y_values,
         mode: 'markers',
         text: sample_names
     }
 
-    Plotly.newPlot('srscatterplot2', [trace], layout)
+    Plotly.newPlot('srscatterplot2', [trace1], sr_layout)
 }
 
 function getdata() {
@@ -256,32 +295,41 @@ function getdata() {
       point_text.push(this_text)
     }
 
-    console.log("symbol list:", symbol_list)
-
     if (symbol_list.length > 0) {
-      var trace = {
+      var trace1 = {
         x: x_values,
         y: y_values,
         mode: 'markers',
         text: point_text,
         marker: {
+          color: 'rgb(66, 66, 245)',
           symbol: symbol_list,
           size: sizes
         }
       }
     } else {
-      var trace = {
+      var trace1 = {
         x: x_values,
         y: y_values,
         mode: 'markers',
         text: point_text,
         marker: {
+          color: 'rgb(66, 66, 245)',
           size: sizes
         }
       }
     }
 
-    return [trace];
+    var trace2 = {
+      x: [js_data.intercept_coords[0][0], js_data.intercept_coords[1][0]],
+      y: [js_data.intercept_coords[0][1], js_data.intercept_coords[1][1]],
+      mode: 'lines',
+      line: {
+        color: 'rgb(250, 60, 73)'
+      }
+    }
+
+    return [trace2, trace1];
 }
 
 function map1to2 (min1, max1, min2, max2, v1) {
@@ -465,18 +513,28 @@ function srgetdata() {
       point_text.push(this_text)
     }
 
-    var trace = {
+    var trace1 = {
         x: x_values,
         y: y_values,
         mode: 'markers',
         text: point_text,
         marker: {
+          color: 'rgb(66, 66, 245)',
           symbol: symbol_list,
           size: sizes
         }
     }
 
-    return [trace];
+    var trace2 = {
+      x: [js_data.sr_intercept_coords[0][0], js_data.sr_intercept_coords[1][0]],
+      y: [js_data.sr_intercept_coords[0][1], js_data.sr_intercept_coords[1][1]],
+      mode: 'lines',
+      line: {
+        color: 'rgb(250, 60, 73)'
+      }
+    }
+
+    return [trace2, trace1];
 }
 
 function chartupdatewh() {
@@ -490,7 +548,8 @@ function chartupdatewh() {
 
     Plotly.newPlot('scatterplot2', getdata(), layout)
     Plotly.relayout('scatterplot2', width_height_update)
-    Plotly.newPlot('srscatterplot2', srgetdata(), layout)
+
+    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout)
     Plotly.relayout('srscatterplot2', width_height_update)
 }
 
@@ -567,7 +626,7 @@ function chartupdatedata() {
 
     Plotly.newPlot('scatterplot2', getdata(), layout)
     Plotly.relayout('scatterplot2', pearson_title_update)
-    Plotly.newPlot('srscatterplot2', srgetdata(), layout)
+    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout)
     Plotly.relayout('srscatterplot2', spearman_title_update)
 
     if ($('#cofactor1_type option:selected').val() == "color"){

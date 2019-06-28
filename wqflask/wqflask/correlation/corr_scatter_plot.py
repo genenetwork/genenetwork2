@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, division
 
+import math
+
 from flask import g
 
 from base.trait import GeneralTrait
@@ -39,12 +41,27 @@ class CorrScatterPlot(object):
         y = np.array(vals_2)
         slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
         
+        x_buffer = (max(vals_1) - min(vals_1))*0.1
+        y_buffer = (max(vals_2) - min(vals_2))*0.1
+
+        x_range = [min(vals_1) - x_buffer, max(vals_1) + x_buffer]
+        y_range = [min(vals_2) - y_buffer, max(vals_2) + y_buffer]
+
+        intercept_coords = get_intercept_coords(slope, intercept, x_range, y_range)
+
         rx = stats.rankdata(x)
         ry = stats.rankdata(y)        
         self.rdata = []
         self.rdata.append(rx.tolist())
         self.rdata.append(ry.tolist())        
         srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(rx, ry)
+
+        x_buffer = (max(rx) - min(rx))*0.1
+        y_buffer = (max(ry) - min(ry))*0.1
+
+        sr_range = [min(rx) - x_buffer, max(rx) + x_buffer]
+
+        sr_intercept_coords = get_intercept_coords(srslope, srintercept, sr_range, sr_range)
 
         #vals_3 = []
         #for sample in self.trait_3.data:
@@ -68,6 +85,11 @@ class CorrScatterPlot(object):
             num_overlap = num_overlap,
             vals_1 = vals_1,
             vals_2 = vals_2,
+            x_range = x_range,
+            y_range = y_range,
+            sr_range = sr_range,
+            intercept_coords = intercept_coords,
+            sr_intercept_coords = sr_intercept_coords,
 
             slope = slope,
             intercept = intercept,
@@ -83,3 +105,37 @@ class CorrScatterPlot(object):
             #vals_3 = vals_3
         )
         self.jsdata = self.js_data
+
+
+def get_intercept_coords(slope, intercept, x_range, y_range):
+    intercept_coords = []
+
+    y1 = slope*x_range[0] + intercept
+    if slope > 0:
+        if (y1 < y_range[0]):
+            x1 = (y_range[0] - intercept)/slope
+        else:
+            x1 = x_range[0]
+        intercept_coords.append([x1, y1])
+
+        x2 = (y_range[1] - intercept)/slope
+        if (x2 > x_range[1]):
+            y2 = slope*x_range[1] + intercept
+        else:
+            y2 = y_range[1]
+    else:
+        if (y1 > y_range[1]):
+            x1 = (y_range[0] - intercept)/slope
+        else:
+            x1 = x_range[0]
+        intercept_coords.append([x1, y1])
+
+        x2 = (y_range[0] - intercept)/slope
+        if (x2 > x_range[1]):
+            y2 = slope*x_range[1] + intercept
+        else:
+            y2 = y_range[0]
+
+    intercept_coords.append([x2, y2])
+
+    return intercept_coords

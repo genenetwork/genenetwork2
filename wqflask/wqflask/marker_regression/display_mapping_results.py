@@ -1865,9 +1865,9 @@ class DisplayMappingResults(object):
 
                 if self.manhattan_plot == True:
                     if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
-                        point_color = pid.grey
+                        point_color = pid.red
                     else:
-                        point_color = pid.black
+                        point_color = pid.blue
 
                     final_x_pos = Xc-canvas.stringWidth("5",font=symbolFont)/2+1
                     if final_x_pos > (xLeftOffset + plotWidth):
