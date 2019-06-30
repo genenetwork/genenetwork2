@@ -18,7 +18,7 @@
     </tr>
     <tr>
         <td>Journal</td>
-        <td>{{ this_trait.journal }} (<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" title="PubMed">{{ this_trait.year }}</a>)</td>
+        <td>{{ this_trait.journal }} (<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" target="_blank" title="PubMed">{{ this_trait.year }}</a>)</td>
     </tr>
     {% else %}
     <tr>
@@ -47,7 +47,7 @@
     <tr>
         <td>Database</td>
         <td>
-            <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}">
+            <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" target="_blank">
                 {{ dataset.fullname }}
             </a>
         </td>
@@ -56,7 +56,7 @@
     <tr>
         <td>Target Score</td>
         <td>
-            <a href="http://genenetwork.org/blatInfo.html" title="Values higher than 2 for the specificity are good">
+            <a href="http://genenetwork.org/blatInfo.html" target="_blank" title="Values higher than 2 for the specificity are good">
                 BLAT Specificity
             </a>: 
             {{ "%0.3f" | format(this_trait.probe_set_specificity|float) }}
@@ -72,106 +72,106 @@
         <td>Resource Links</td>
         <td>
             {% if pubmed_link %}
-            <a href="{{ pubmed_link }}" title="PubMed">
+            <a href="{{ pubmed_link }}" target="_blank" title="PubMed">
                 PubMed
             </a>
             {% endif %}
             {% if ncbi_gene_link %}
-            <a href="{{ ncbi_gene_link }}" title="Info from NCBI Entrez Gene">
+            <a href="{{ ncbi_gene_link }}" target="_blank" title="Info from NCBI Entrez Gene">
                 Gene
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if omim_link %}
-            <a href="{{ omim_link }}" title="Summary from On Mendelion Inheritance in Man">
+            <a href="{{ omim_link }}" target="_blank" title="Summary from On Mendelion Inheritance in Man">
                 OMIM
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if genemania_link %}
-            <a href="{{ genemania_link }}" title="GeneMANIA">
+            <a href="{{ genemania_link }}" target="_blank" title="GeneMANIA">
                 GeneMANIA
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if unigene_link %}
-            <a href="{{ unigene_link }}" title="NCBI UniGene">
+            <a href="{{ unigene_link }}" target="_blank" title="NCBI UniGene">
                 UniGene
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if genbank_link %}
-            <a href="{{ genbank_link }}" title="Find the original GenBank sequence used to design the probes">
+            <a href="{{ genbank_link }}" target="_blank" title="Find the original GenBank sequence used to design the probes">
                 GenBank
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if homologene_link %}
-            <a href="{{ homologene_link }}" title="Find similar genes in other species">
+            <a href="{{ homologene_link }}" target="_blank" title="Find similar genes in other species">
                 HomoloGene
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if this_trait.symbol %}
-            <a href="{{ genotation_link }}" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
+            <a href="{{ genotation_link }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
                 Genotation
             </a>
             &nbsp;&nbsp;
-            <a href="{{ gtex_link }}" title="GTEx Portal">
+            <a href="{{ gtex_link }}" target="_blank" title="GTEx Portal">
                 GTEx Portal
             </a>
             &nbsp;&nbsp;
             {% if genebridge_link %}
-            <a href="{{ genebridge_link }}">
+            <a href="{{ genebridge_link }}" target="_blank">
                 GeneBridge
             </a>
             {% endif %}
             {% endif %}
             <br>
             {% if ucsc_blat_link %}
-            <a href="{{ ucsc_blat_link }}" title="Info from UCSC Genome Browser">
+            <a href="{{ ucsc_blat_link }}" target="_blank" title="Info from UCSC Genome Browser">
                 UCSC
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if biogps_link %}
-            <a href="{{ biogps_link }}" title="Expression across many tissues and cell types">
+            <a href="{{ biogps_link }}" target="_blank" title="Expression across many tissues and cell types">
                 BioGPS
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if string_link %}
-            <a href="{{ string_link }}" title="Protein interactions: known and inferred">
+            <a href="{{ string_link }}" target="_blank" title="Protein interactions: known and inferred">
                 STRING
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if panther_link %}
-            <a href="{{ panther_link }}" title="Gene and protein data resources from Celera-ABI">
+            <a href="{{ panther_link }}" target="_blank" title="Gene and protein data resources from Celera-ABI">
                 PANTHER
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if gemma_link %}
-            <a href="{{ gemma_link }}" title="Meta-analysis of gene expression data">
+            <a href="{{ gemma_link }}" target="_blank" title="Meta-analysis of gene expression data">
                 Gemma
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if aba_link %}
-            <a href="{{ aba_link }}" title="Allen Brain Atlas">
+            <a href="{{ aba_link }}" target="_blank" title="Allen Brain Atlas">
                 ABA
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if ebi_gwas_link %}
-            <a href="{{ ebi_gwas_link }}" title="EBI GWAS">
+            <a href="{{ ebi_gwas_link }}" target="_blank" title="EBI GWAS">
                 EBI GWAS
             </a>
             &nbsp;&nbsp;
             {% endif %}
             {% if wiki_pi_link %}
-            <a href="{{ wiki_pi_link }}" title="Wiki-Pi">
+            <a href="{{ wiki_pi_link }}" target="_blank" title="Wiki-Pi">
                 Wiki-Pi
             </a>
             &nbsp;&nbsp;
