@@ -26,7 +26,8 @@ var layout = {
         linecolor: 'black',
         linewidth: 1,
     },
-    hovermode: "closest"
+    hovermode: "closest",
+    showlegend: false
 }
 
 var sr_layout = {
@@ -54,7 +55,8 @@ var sr_layout = {
       linecolor: 'black',
       linewidth: 1,
   },
-  hovermode: "closest"
+  hovermode: "closest",
+  showlegend: false
 }
 
 cofactor1_dict = {}

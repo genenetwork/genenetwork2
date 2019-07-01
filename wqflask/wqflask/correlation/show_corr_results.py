@@ -117,6 +117,8 @@ class CorrelationResults(object):
                 self.location_chr = get_string(start_vars,'loc_chr')
                 self.min_location_mb = get_int(start_vars,'min_loc_mb')
                 self.max_location_mb = get_int(start_vars,'max_loc_mb')
+            else:
+                self.location_chr = self.min_location_mb = self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
