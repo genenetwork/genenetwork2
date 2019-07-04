@@ -44,10 +44,19 @@
                             <a href="/intro">Intro</a>
                         </li>
                         <li class="">
-                            <a href="/">Search</a>
+                            <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Info <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="/news">News</a></li>
+                              <li><a href="http://genenetwork.org/faq.html">FAQ</a></li>
+                              <li><a href="http://genenetwork.org/glossary.html">Glossary of Term</a></li>
+                              <li><a href="/references">References</a></li>
+                              <li><a href="/policies">Policies</a></li>
+                              <li><a href="/links">Links</a></li>
+                              <li><a href="/environments">Environments</a></li>
+                            </ul>
                         </li>
                         <li class="">
-                            <a href="/submit_trait">Submit Trait</a>
+                            <a href="/submit_trait">Submit Data</a>
                         </li>
                         <li class="">
                             <a href="/collections/list">Collections
@@ -62,29 +71,19 @@
                             <a href="/snp_browser">SNP Browser</a>
                         </li>
                         <li class="">
-                            <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></a>
-                            <ul class="dropdown-menu">
-                              <li><a href="/news">News</a></li>
-                              <li><a href="http://genenetwork.org/faq.html">FAQ</a></li>
-                              <li><a href="http://genenetwork.org/glossary.html">Glossary of Term</a></li>
-                              <li><a href="/references">References</a></li>
-                              <li><a href="/policies">Policies</a></li>
-                              <li><a href="/links">Links</a></li>
-                              <li><a href="/environments">Environments</a></li>
-                            </ul>
-                        </li>
-                        <li class="">
                             {% if g.user_session.logged_in %}
                             <a id="login_out" title="Signed in as {{ g.user_session.user_name }}" href="/n/logout">Sign out</a>
                             {% else %}
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        <!--
                         <li style="margin-left: 20px;">
                             <a href="http://gn2-staging.genenetwork.org" style="font-weight: bold;" >Use Staging Branch</a>
                         </li>
+                        -->
                         <li style="margin-left: 20px;">
-                            <a href="http://www.genenetwork.org" style="font-weight: bold;" >Use GeneNetwork 1</a>
+                            <a href="http://www.genenetwork.org" style="font-weight: bold;" >Use GN1</a>
                         </li>
                     </ul>
                 </div>
