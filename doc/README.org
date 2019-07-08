@@ -7,8 +7,8 @@
    - [[#docker][Docker]]
    - [[#with-source][With source]]
  - [[#running-gn2][Running GN2]]
- - [[#run-mysql-server][Run MySQL server]]
-   - [[#install-mysql-with-gnu-guix][Install MySQL with GNU GUIx]]
+ - [[#run-mariadb-server][Run MariaDB server]]
+   - [[#install-mariadb-with-gnu-guix][Install MariaDB with GNU GUIx]]
    - [[#load-the-small-database-in-mysql][Load the small database in MySQL]]
  - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#working-with-the-gn2-source-code][Working with the GN2 source code]]
@@ -94,8 +94,10 @@ or you can set environment variables to override individual parameters, e.g.
 the debug and logging switches can be particularly useful when
 developing GN2.
 
-* Run MySQL server
-** Install MySQL with GNU GUIx
+* Run MariaDB server
+** Install MariaDB with GNU GUIx
+
+/Note we are moving to MariaDB/
 
 These are the steps you can take to install a fresh installation of
 mysql (which comes as part of the GNU Guix genenetwork2 install).
@@ -103,30 +105,30 @@ mysql (which comes as part of the GNU Guix genenetwork2 install).
 As root configure and run
 
 #+BEGIN_SRC bash
-adduser mysql && addgroup mysql
-mysqld --datadir=/var/mysql --initialize-insecure
-mkdir -p /var/run/mysqld
-chown mysql.mysql ~/mysql /var/run/mysqld
-mysqld -u mysql --datadir=/var/mysql --explicit_defaults_for_timestamp -P 12048"
+adduser mariadb && addgroup mariadb
+mysqld --datadir=/home/mariadb/database --initialize-insecure
+mkdir -p /var/run/mariadbd
+chown mariadb.mariadb /var/run/mariadbd
+mysqld -u mariadb --datadir=/home/mariadb/database/mariadb --explicit_defaults_for_timestamp -P 12048"
 #+END_SRC
 
 If you want to run as root you may have to set
 
 : /etc/my.cnf
-: [mysqld]
+: [mariadbd]
 : user=root
 
 To check error output in a file on start-up run with something like
 
-: mysqld -u mysql --console  --explicit_defaults_for_timestamp  --datadir=/gnu/mysql --log-error=~/test.log
+: mariadbd -u mariadb --console  --explicit_defaults_for_timestamp  --datadir=/gnu/mariadb --log-error=~/test.log
 
-Other tips are that Guix installs mysqld in your profile, so this may work
+Other tips are that Guix installs mariadbd in your profile, so this may work
 
-: /home/user/.guix-profile/bin/mysqld -u mysql --explicit_defaults_for_timestamp  --datadir=/gnu/mysql
+: /home/user/.guix-profile/bin/mariadbd -u mariadb --explicit_defaults_for_timestamp  --datadir=/gnu/mariadb
 
 When you get errors like:
 
-: qlalchemy.exc.IntegrityError: (_mysql_exceptions.IntegrityError) (1215, 'Cannot add foreign key constraint')
+: qlalchemy.exc.IntegrityError: (_mariadb_exceptions.IntegrityError) (1215, 'Cannot add foreign key constraint')
 
 you may need to set
 
