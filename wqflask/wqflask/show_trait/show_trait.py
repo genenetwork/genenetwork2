@@ -278,7 +278,12 @@ class ShowTrait(object):
                             FROM GeneList
                             WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
 
-                    chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                    results = g.db.execute(query).fetchone()
+                    if results:
+                        chr, transcript_start, transcript_end = results
+                    else:
+                        chr = transcript_start = transcript_end = None
+
                     if chr and transcript_start and transcript_end and self.this_trait.refseq_transcriptid:
                         transcript_start = int(transcript_start*1000000)
                         transcript_end = int(transcript_end*1000000)
@@ -292,7 +297,7 @@ class ShowTrait(object):
                         WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
 
                 results = g.db.execute(query).fetchone()
-		if results:
+                if results:
                     kgId, chr, transcript_start, transcript_end = results
                 else:
                     kgId = chr = transcript_start = transcript_end = None

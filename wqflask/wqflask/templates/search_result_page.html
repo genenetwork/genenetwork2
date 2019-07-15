@@ -205,7 +205,7 @@
             $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
+                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
                              $(':checkbox', this).trigger('click');
                          }
                      });
@@ -398,7 +398,7 @@
                         postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
-                'sDom': "Btir",
+                'sDom': "Bitir",
                 'autoWidth': false,
                 'deferRender': true,
                 'paging': false,
