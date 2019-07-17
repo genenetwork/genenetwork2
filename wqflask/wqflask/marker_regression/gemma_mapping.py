@@ -221,7 +221,11 @@ def parse_loco_output(this_dataset, gwa_output_filename):
     marker_obs = []
     previous_chr = 0
 
+    no_results = False
     for this_file in output_filelist:
+        if not os.path.isfile(this_file):
+            no_results = True
+            break
         with open(this_file) as output_file:
             for line in output_file:
                 if line.startswith("chr\t"):
