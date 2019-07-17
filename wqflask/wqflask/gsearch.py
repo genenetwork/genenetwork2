@@ -75,7 +75,7 @@ class GSearch(object):
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
                     this_trait['symbol'] = line[6]
-                    this_trait['description'] = line[7]
+                    this_trait['description'] = line[7].decode('utf-8', 'replace')
                     this_trait['location_repr'] = 'N/A'
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (line[8], float(line[9]))
@@ -152,9 +152,9 @@ class GSearch(object):
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     if line[9] != None and line[6] != None:
-                        this_trait['description'] = unicode(line[6], "utf-8", "ignore")
+                        this_trait['description'] = line[6].decode('utf-8', 'replace')
                     elif line[5] != None:
-                        this_trait['description'] = unicode(line[5], "utf-8", "ignore")
+                        this_trait['description'] = line[5].decode('utf-8', 'replace')
                     else:
                         this_trait['description'] = "N/A"
                     this_trait['authors'] = line[7]

@@ -112,7 +112,7 @@ views.py).
             trait_dict['hmac'] = user_manager.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
             if this_trait.dataset.type == "ProbeSet":
                 trait_dict['symbol'] = this_trait.symbol
-                trait_dict['description'] = this_trait.description_display
+                trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
                 trait_dict['location'] = this_trait.location_repr
                 trait_dict['mean'] = "N/A"
                 trait_dict['additive'] = "N/A"
@@ -125,7 +125,7 @@ views.py).
             elif this_trait.dataset.type == "Geno":
                 trait_dict['location'] = this_trait.location_repr
             elif this_trait.dataset.type == "Publish":
-                trait_dict['description'] = this_trait.description_display
+                trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
                 trait_dict['authors'] = this_trait.authors
                 trait_dict['pubmed_id'] = "N/A"
                 if this_trait.pubmed_id:
@@ -179,7 +179,6 @@ views.py).
             if self.search_term_exists:
                 combined_where_clause = "(" + combined_where_clause + ")"
                 final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
-                # logger.debug("final_query",final_query)
                 results = the_search.execute(final_query)
                 self.results.extend(results)
         else:
