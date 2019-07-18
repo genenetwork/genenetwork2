@@ -80,7 +80,7 @@ def connect_db():
     db = getattr(g, '_database', None)
     if db is None:
         logger.debug("Get new database connector")
-        g.db = g._database = sqlalchemy.create_engine(SQL_URI)
+        g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
         logger.debug(g.db)
 
 @app.teardown_appcontext

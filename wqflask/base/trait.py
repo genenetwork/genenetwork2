@@ -396,8 +396,10 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         #XZ: assign SQL query result to trait attributes.
         for i, field in enumerate(dataset.display_fields):
             holder = trait_info[i]
-            if isinstance(trait_info[i], basestring):
-                holder = unicode(trait_info[i], "utf-8", "ignore")
+            # if isinstance(trait_info[i], basestring):
+            #     logger.debug("HOLDER:", holder)
+            #     logger.debug("HOLDER2:", holder.decode(encoding='latin1'))
+            #     holder = unicode(trait_info[i], "utf-8", "ignore")
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
