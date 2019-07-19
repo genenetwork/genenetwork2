@@ -448,8 +448,8 @@ class LrsSearch(DoSearch):
 
     def get_from_clause(self):
         #If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
-        if len(self.search_term) > 2 and "Chr" in self.search_term[2]:
-            chr_num = self.search_term[2].replace("Chr", "")
+        if len(self.search_term) > 2 and "chr" in self.search_term[2].lower():
+            chr_num = self.search_term[2].lower().replace("chr", "")
             self.search_term[2] = chr_num
 
         self.search_term = [float(value) for value in self.search_term]
