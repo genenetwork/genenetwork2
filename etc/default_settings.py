@@ -91,4 +91,5 @@ JS_GN_PATH = os.environ['HOME']+"/genenetwork/javascript"
 # ---- GN2 Executables (overwrite for testing only)
 # PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 # GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
+REAPER_COMMAND = HOME + "/gn2-zach/rust-qtlreaper/target/release/qtlreaper"
 # GEMMA_WRAPPER_COMMAND = str.strip(os.popen("which gemma-wrapper").read())

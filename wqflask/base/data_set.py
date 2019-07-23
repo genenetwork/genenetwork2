@@ -46,6 +46,8 @@ from utility import chunks
 from utility import gen_geno_ob
 from utility.tools import locate, locate_ignore_error, flat_files
 
+from wqflask.api import gen_menu
+
 from maintenance import get_group_samplelists
 
 from MySQLdb import escape_string as escape
@@ -92,7 +94,7 @@ Publish or ProbeSet. E.g.
         """
         self.datasets = {}
         if USE_GN_SERVER:
-            data = menu_main()
+            data = gen_menu.gen_dropdown_json()
         else:
             file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
             with open(file_name, 'r') as fh:

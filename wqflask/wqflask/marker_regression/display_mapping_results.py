@@ -1790,7 +1790,6 @@ class DisplayMappingResults(object):
             m = 0
             thisLRSColor = self.colorCollection[0]
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
-
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 

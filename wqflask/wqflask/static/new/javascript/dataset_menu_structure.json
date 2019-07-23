@@ -1440,7 +1440,7 @@
                [
                   "None",
                   "HSBPublish",
-                  "HSB Phenotypes"
+                  "HSB Published Phenotypes"
                ]
             ],
             "Posterior Inferior Parietal Cortex mRNA": [
@@ -1721,7 +1721,7 @@
                [
                   "None",
                   "B6D2Publish",
-                  "B6D2 Phenotypes"
+                  "UTHSC-Glaucoma-Aged-Retina Phenotypes"
                ]
             ]
          },
@@ -2248,6 +2248,11 @@
                   "Eye M430v2 WT Gpnmb (Sep08) RMA"
                ],
                [
+                  "382",
+                  "Eye_M2_0908_WTWT",
+                  "Eye M430v2 WT WT (Sep08) RMA"
+               ],
+               [
                   "279",
                   "Eye_M2_0908_R_WT",
                   "Eye M430v2 WT Tyrp1 (Sep08) RMA"
@@ -2256,11 +2261,6 @@
                   "278",
                   "Eye_M2_0908_R_MT",
                   "Eye M430v2 Mutant Tyrp1 (Sep08) RMA"
-               ],
-               [
-                  "382",
-                  "Eye_M2_0908_WTWT",
-                  "Eye M430v2 WT WT (Sep08) RMA"
                ],
                [
                   "400",
@@ -2500,6 +2500,11 @@
                   "245",
                   "UT_ILM_BXD_hipp_RSE_0909",
                   "UTHSC Hippocampus Illumina v6.1 RSE (Sep09) RankInv"
+               ],
+               [
+                  "711",
+                  "UTHSC_BXD_AgeHipp0515",
+                  "UTHSC BXD Aged Hippocampus Affy MoGene1.0 ST (May15) RMA Gene Level"
                ]
             ],
             "Hypothalamus mRNA": [
@@ -3029,16 +3034,6 @@
             ],
             "Striatum mRNA": [
                [
-                  "376",
-                  "DevStriatum_ILM6.2P3RInv_1111",
-                  "BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
-                  "377",
-                  "DevStriatum_ILM6.2P14RInv_1111",
-                  "BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
                   "399",
                   "Striatum_Exon_1212",
                   "HQF Striatum Affy Mouse Exon 1.0ST Gene Level (Dec09) RMA"
@@ -3047,6 +3042,16 @@
                   "163",
                   "Striatum_Exon_0209",
                   "HQF Striatum Affy Mouse Exon 1.0ST Exon Level (Dec09) RMA"
+               ],
+               [
+                  "376",
+                  "DevStriatum_ILM6.2P3RInv_1111",
+                  "BIDMC/UTHSC Dev Striatum P3 ILMv6.2 (Nov11) RankInv"
+               ],
+               [
+                  "377",
+                  "DevStriatum_ILM6.2P14RInv_1111",
+                  "BIDMC/UTHSC Dev Striatum P14 ILMv6.2 (Nov11) RankInv"
                ],
                [
                   "285",
@@ -3555,6 +3560,11 @@
             ],
             "Hippocampus mRNA": [
                [
+                  "211",
+                  "Illum_LXS_Hipp_RSS_1008",
+                  "Hippocampus Illumina RSS (Oct08) RankInv beta"
+               ],
+               [
                   "213",
                   "Illum_LXS_Hipp_NOS_1008",
                   "Hippocampus Illumina NOS (Oct08) RankInv beta"
@@ -3573,11 +3583,6 @@
                   "214",
                   "Illum_LXS_Hipp_NOE_1008",
                   "Hippocampus Illumina NOE (Oct08) RankInv beta"
-               ],
-               [
-                  "211",
-                  "Illum_LXS_Hipp_RSS_1008",
-                  "Hippocampus Illumina RSS (Oct08) RankInv beta"
                ],
                [
                   "143",
@@ -3835,7 +3840,7 @@
                [
                   "None",
                   "HSNIH-RGSMCPublish",
-                  "HSNIH-RGSMC Phenotypes"
+                  "HSNIH Published Phenotypes"
                ]
             ]
          },
