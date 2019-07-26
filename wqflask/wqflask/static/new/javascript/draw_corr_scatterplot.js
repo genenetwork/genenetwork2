@@ -4,10 +4,9 @@ var srchart;
 x_val_range = js_data.x_range[1] - js_data.x_range[0]
 y_val_range = js_data.y_range[1] - js_data.y_range[0]
 
-
-if (x_val_range < 4 || y_val_range < 4){
+if (x_val_range < 9 || y_val_range < 9){
   tick_digits = '.1f'
-} else if (x_val_range < 0.4 || y_val_range < 0.4) {
+} else if (x_val_range < 2 || y_val_range < 2) {
   tick_digits = '.2f'
 } else {
   tick_digits = 'f'
@@ -19,7 +18,7 @@ var layout = {
     margin: {
         l: 60,
         r: 30,
-        t: 80,
+        t: 90,
         b: 50
     },
     xaxis: {
@@ -29,6 +28,7 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
+        ticklen: 4,
         tickformat: tick_digits
     },
     yaxis: {
@@ -38,10 +38,37 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
+        ticklen: 4,
         tickformat: tick_digits
     },
     hovermode: "closest",
-    showlegend: false
+    showlegend: false,
+    annotations:[{
+      xref: 'paper',
+      yref: 'paper',
+      x: 1,
+      xanchor: 'right',
+      y: 1.05,
+      yanchor: 'top',
+      text: 'r = ' + js_data.r_value.toFixed(3) + ' P = ' + js_data.p_value.toExponential(),
+      showarrow: false,
+      font: {
+        size: 14
+      },
+    }, {
+      xref: 'paper',
+      yref: 'paper',
+      x: 0,
+      xanchor: 'left',
+      y: 1.05,
+      yanchor: 'top',
+      text: 'N=' + js_data.num_overlap,
+      showarrow: false,
+      font: {
+        size: 14
+      },
+    }
+  ]
 }
 
 var sr_layout = {
@@ -70,7 +97,33 @@ var sr_layout = {
       linewidth: 1,
   },
   hovermode: "closest",
-  showlegend: false
+  showlegend: false,
+  annotations:[{
+    xref: 'paper',
+    yref: 'paper',
+    x: 1,
+    xanchor: 'right',
+    y: 1.05,
+    yanchor: 'top',
+    text: 'r = ' + js_data.srr_value.toFixed(3) + ' P = ' + js_data.srp_value.toExponential(),
+    showarrow: false,
+    font: {
+      size: 14
+    },
+  }, {
+    xref: 'paper',
+    yref: 'paper',
+    x: 0,
+    xanchor: 'left',
+    y: 1.05,
+    yanchor: 'top',
+    text: 'N=' + js_data.num_overlap,
+    showarrow: false,
+    font: {
+      size: 14
+    },
+  }
+]
 }
 
 cofactor1_dict = {}

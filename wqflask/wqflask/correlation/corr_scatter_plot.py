@@ -37,9 +37,7 @@ class CorrScatterPlot(object):
             vals_2.append(samples_2[sample].value)
         self.data.append(vals_2)
 
-        x = np.array(vals_1)
-        y = np.array(vals_2)
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(vals_1, vals_2)
         
         x_buffer = (max(vals_1) - min(vals_1))*0.1
         y_buffer = (max(vals_2) - min(vals_2))*0.1
@@ -49,8 +47,8 @@ class CorrScatterPlot(object):
 
         intercept_coords = get_intercept_coords(slope, intercept, x_range, y_range)
 
-        rx = stats.rankdata(x)
-        ry = stats.rankdata(y)        
+        rx = stats.rankdata(vals_1)
+        ry = stats.rankdata(vals_2)
         self.rdata = []
         self.rdata.append(rx.tolist())
         self.rdata.append(ry.tolist())        
@@ -111,31 +109,11 @@ def get_intercept_coords(slope, intercept, x_range, y_range):
     intercept_coords = []
 
     y1 = slope*x_range[0] + intercept
-    if slope > 0:
-        if (y1 < y_range[0]):
-            x1 = (y_range[0] - intercept)/slope
-        else:
-            x1 = x_range[0]
-        intercept_coords.append([x1, y1])
+    y2 = slope*x_range[1] + intercept
+    x1 = (y1-intercept)/slope
+    x2 = (y2-intercept)/slope
 
-        x2 = (y_range[1] - intercept)/slope
-        if (x2 > x_range[1]):
-            y2 = slope*x_range[1] + intercept
-        else:
-            y2 = y_range[1]
-    else:
-        if (y1 > y_range[1]):
-            x1 = (y_range[0] - intercept)/slope
-        else:
-            x1 = x_range[0]
-        intercept_coords.append([x1, y1])
-
-        x2 = (y_range[0] - intercept)/slope
-        if (x2 > x_range[1]):
-            y2 = slope*x_range[1] + intercept
-        else:
-            y2 = y_range[0]
-
+    intercept_coords.append([x1, y1])
     intercept_coords.append([x2, y2])
 
     return intercept_coords
