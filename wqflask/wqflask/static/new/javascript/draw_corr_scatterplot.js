@@ -1,6 +1,18 @@
 var chart;
 var srchart;
 
+x_val_range = js_data.x_range[1] - js_data.x_range[0]
+y_val_range = js_data.y_range[1] - js_data.y_range[0]
+
+
+if (x_val_range < 4 || y_val_range < 4){
+  tick_digits = '.1f'
+} else if (x_val_range < 0.4 || y_val_range < 0.4) {
+  tick_digits = '.2f'
+} else {
+  tick_digits = 'f'
+}
+
 var layout = {
     height: 700,
     width: 800,
@@ -17,6 +29,7 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
+        tickformat: tick_digits
     },
     yaxis: {
         range: [js_data.y_range[0], js_data.y_range[1]],
@@ -25,6 +38,7 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
+        tickformat: tick_digits
     },
     hovermode: "closest",
     showlegend: false
