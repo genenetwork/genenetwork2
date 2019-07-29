@@ -116,6 +116,15 @@
                 <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
+                            <label for="reaper_version" style="text-align: right;" class="col-xs-3 control-label">Version<sup><a title="'New' is the new qtlreaper implementation written in RUST by Christian Fischer. 'Original' corresponds to the original version written in C.">?</a></sup></label>
+                            <div style="margin-left:20px;" class="col-xs-3 controls">
+                                <select id="reaper_version" class="form-control">
+                                    <option value="new">New</option>
+                                    <option value="original">Original</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
                             <label for="chr_select" style="text-align: right;" class="col-xs-3 control-label">Chromosome</label>
                             <div style="margin-left:20px;" class="col-xs-2 controls">
                                 <select id="chr_reaper" class="form-control">
@@ -347,9 +356,11 @@
              <dt>GEMMA</dt>
              <dd>GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).</dd>
              {% if dataset.group.mapping_id == "1" %}
-             <dt>Interval Mapping</dt>
-             <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
-             <dt>R/qtl</dt>
+             <dt style="margin-top: 20px;">Interval Mapping</dt>
+             <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.<br><br>
+                 The default option is a version of qtlrearper rewritten in RUST that should fix some of the issues the original had. You can still use the original with the Version option.<br>
+                 <i>Please let us know if you encounter any issues while using the new version.</i></dd>
+             <dt style="margin-top: 20px;">R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
              {% endif %}
         </dl>

@@ -239,33 +239,36 @@ class RunMapping(object):
                     self.bootCheck = False
                     self.num_bootstrap = 0
 
+            self.reaper_version = start_vars['reaper_version']
+
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             logger.info("Running qtlreaper")
 
-            results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = rust_reaper_mapping.run_reaper(self.this_trait,
-                                                                                                                                                        self.dataset,
-                                                                                                                                                        self.samples,
-                                                                                                                                                        self.vals,
-                                                                                                                                                        self.json_data,
-                                                                                                                                                        self.num_perm,
-                                                                                                                                                        self.bootCheck,
-                                                                                                                                                        self.num_bootstrap,
-                                                                                                                                                        self.do_control,
-                                                                                                                                                        self.control_marker,
-                                                                                                                                                        self.manhattan_plot)
-
-            # results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
-            #                                                                                                                                             self.dataset,
-            #                                                                                                                                             self.samples,
-            #                                                                                                                                             self.vals,
-            #                                                                                                                                             self.json_data,
-            #                                                                                                                                             self.num_perm,
-            #                                                                                                                                             self.bootCheck,
-            #                                                                                                                                             self.num_bootstrap,
-            #                                                                                                                                             self.do_control,
-            #                                                                                                                                             self.control_marker,
-            #                                                                                                                                             self.manhattan_plot)
+            if self.reaper_version == "new":
+                results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_reaper(self.this_trait,
+                                                                                                                                    self.dataset,
+                                                                                                                                    self.samples,
+                                                                                                                                    self.vals,
+                                                                                                                                    self.json_data,
+                                                                                                                                    self.num_perm,
+                                                                                                                                    self.bootCheck,
+                                                                                                                                    self.num_bootstrap,
+                                                                                                                                    self.do_control,
+                                                                                                                                    self.control_marker,
+                                                                                                                                    self.manhattan_plot)
+            else:
+                results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_original_reaper(self.this_trait,
+                                                                                                                                                             self.dataset,
+                                                                                                                                                             self.samples,
+                                                                                                                                                             self.vals,
+                                                                                                                                                             self.json_data,
+                                                                                                                                                             self.num_perm,
+                                                                                                                                                             self.bootCheck,
+                                                                                                                                                             self.num_bootstrap,
+                                                                                                                                                             self.do_control,
+                                                                                                                                                             self.control_marker,
+                                                                                                                                                             self.manhattan_plot)
         elif self.mapping_method == "plink":
             self.score_type = "-log(p)"
             self.manhattan_plot = True

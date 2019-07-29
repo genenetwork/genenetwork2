@@ -628,7 +628,8 @@ def mapping_results_page():
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
-        'temp_trait'
+        'temp_trait',
+        'reaper_version'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():

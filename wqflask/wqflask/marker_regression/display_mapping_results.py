@@ -233,6 +233,9 @@ class DisplayMappingResults(object):
             if self.use_loco == "True":
                 self.gwa_filename = start_vars['gwa_filename']
 
+        if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
+            self.reaper_version = start_vars['reaper_version']
+
         self.selectedChr = int(start_vars['selected_chr'])
 
         self.strainlist = start_vars['samples']
