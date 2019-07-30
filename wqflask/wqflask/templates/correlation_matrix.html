@@ -13,24 +13,24 @@
 {% if lowest_overlap < 8 %}
 <div style="margin: 20px;" >Caution: This matrix of correlations contains some cells with small sample sizes of fewer than 8.</div>
 {% endif %}
-<table class="matrix" border="1" cellpadding="5" cellspacing="1" width="80%">
+<table class="matrix" border="1" cellpadding="5" cellspacing="1">
   <tbody>
     <tr>
-      <td style="background-color: royalblue;" ></td>
-      <td align="center" colspan="{{traits|length + 1 }}" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: royalblue;">Spearman Rank Correlation (rho)</td>
+      <td style="background-color: #369;" ></td>
+      <td align="center" colspan="{{traits|length + 1 }}" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: #369;">Spearman Rank Correlation (rho)</td>
     </tr>
     <tr>
-      <td align="center" rowspan="{{traits|length + 1 }}" width="10" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: royalblue;">P e a r s o n &nbsp;&nbsp;&nbsp; r</td>
+      <td align="center" rowspan="{{traits|length + 1 }}" width="10" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: #369;">P e a r s o n &nbsp;&nbsp;&nbsp; r</td>
       <td width="300"></td>
       {% for trait in traits %}
-      <td align="center">
+      <td align="center" style="padding: 5px;">
         <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}" style="font-weight: Bold;">Trait{{ loop.index }}</a>
       </td>
       {% endfor %}
     </tr>
     {% for trait in traits %}
     <tr>
-      <td>
+      <td style="padding-left: 3px;">
         <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}" style="font-weight: Bold;">Trait {{ loop.index }}: {{ trait.dataset.name }}::{{ trait.name }}</a>
         <div class="shortName" style="display:none">{% if trait.dataset.type == "ProbeSet" %}Symbol: {{ trait.symbol }}{% elif trait.dataset.type == "Publish" %}Phenotype: {{ trait.post_publication_abbreviation }}{% else %}Genotype{% endif %} </div>
         <div class="verboseName" style="display: none;">
@@ -45,9 +45,9 @@
       </td>
       {% for result in corr_results[loop.index-1] %}
       {% if result[0].name == trait.name %}
-      <td nowrap="ON" align="center" bgcolor="#cccccc" style="line-height: 1.1;"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 12px; color: #000000;" ><em>n</em><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="center" bgcolor="#cccccc" style="line-height: 1.1;"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 12px; color: #3071a9;" ><em>n</em><br>{{ result[2] }}</font></a></td>
       {% else %}
-      <td nowrap="ON" align="middle" class="corr_cell" style="line-height: 1.1;"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #000000;" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="middle" class="corr_cell" style="line-height: 1.1;"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #3071a9;" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
       {% endif %}
       {% endfor %}
     </tr>
