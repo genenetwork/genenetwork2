@@ -4,19 +4,33 @@ var srchart;
 x_val_range = js_data.x_range[1] - js_data.x_range[0]
 y_val_range = js_data.y_range[1] - js_data.y_range[0]
 
-if (x_val_range < 9 || y_val_range < 9){
-  tick_digits = '.1f'
-} else if (x_val_range < 2 || y_val_range < 2) {
-  tick_digits = '.2f'
+if (x_val_range >= 2 && x_val_range < 9){
+  x_tick_digits = '.1f'
+} else if (x_val_range >= 0.8 && x_val_range < 2) {
+  x_tick_digits = '.2f'
+} else if (x_val_range < 0.8) {
+  x_tick_digits = '.3f'
 } else {
-  tick_digits = 'f'
+  x_tick_digits = 'f'
 }
+
+if (y_val_range >= 2 && y_val_range < 8){
+  y_tick_digits = '.1f'
+} else if (y_val_range >= 0.8 && y_val_range < 2) {
+  y_tick_digits = '.2f'
+} else if (y_val_range < 0.8) {
+  y_tick_digits = '.3f'
+} else {
+  y_tick_digits = 'f'
+}
+
+console.log("y_digits:", y_tick_digits)
 
 var layout = {
     height: 700,
     width: 800,
     margin: {
-        l: 60,
+        l: 70,
         r: 30,
         t: 90,
         b: 50
@@ -29,7 +43,7 @@ var layout = {
         linecolor: 'black',
         linewidth: 1,
         ticklen: 4,
-        tickformat: tick_digits
+        tickformat: x_tick_digits
     },
     yaxis: {
         range: [js_data.y_range[0], js_data.y_range[1]],
@@ -39,7 +53,8 @@ var layout = {
         linecolor: 'black',
         linewidth: 1,
         ticklen: 4,
-        tickformat: tick_digits
+        tickformat: y_tick_digits,
+        automargin: true
     },
     hovermode: "closest",
     showlegend: false,
@@ -50,19 +65,7 @@ var layout = {
       xanchor: 'right',
       y: 1.05,
       yanchor: 'top',
-      text: 'r = ' + js_data.r_value.toFixed(3) + ' P = ' + js_data.p_value.toExponential(),
-      showarrow: false,
-      font: {
-        size: 14
-      },
-    }, {
-      xref: 'paper',
-      yref: 'paper',
-      x: 0,
-      xanchor: 'left',
-      y: 1.05,
-      yanchor: 'top',
-      text: 'N=' + js_data.num_overlap,
+      text: '<i>r</i> = ' + js_data.r_value.toFixed(3) + ', <i>p</i> = ' + js_data.p_value.toExponential(3) + ', <i>n</i> = ' + js_data.num_overlap,
       showarrow: false,
       font: {
         size: 14
@@ -105,19 +108,7 @@ var sr_layout = {
     xanchor: 'right',
     y: 1.05,
     yanchor: 'top',
-    text: 'r = ' + js_data.srr_value.toFixed(3) + ' P = ' + js_data.srp_value.toExponential(),
-    showarrow: false,
-    font: {
-      size: 14
-    },
-  }, {
-    xref: 'paper',
-    yref: 'paper',
-    x: 0,
-    xanchor: 'left',
-    y: 1.05,
-    yanchor: 'top',
-    text: 'N=' + js_data.num_overlap,
+    text: '<i>r</i> = ' + js_data.srr_value.toFixed(3) + ', <i>P</i> = ' + js_data.srp_value.toExponential(3) + ', <i>n</i> = ' + js_data.num_overlap,
     showarrow: false,
     font: {
       size: 14

@@ -92,8 +92,6 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script>
             $('#trait_table').dataTable( {
                 "drawCallback": function( settings ) {
@@ -116,12 +114,11 @@
                     "orderable": false
                 } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtr",
+                "sDom": "Ztr",
                 "iDisplayLength": -1,
-                "autoWidth": true,
+                "autoWidth": false,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "600px",
                 "scrollCollapse": true,
                 "paging": false,
                 "orderClasses": true

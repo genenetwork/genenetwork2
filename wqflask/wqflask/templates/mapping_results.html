@@ -9,7 +9,7 @@
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
-    <div class="container">
+    <div class="container" style="min-width: 900px;">
         <form method="post" target="_blank" action="/run_mapping" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">

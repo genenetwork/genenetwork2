@@ -21,10 +21,10 @@
 
 </head>
 
-<body style="width: 100% !important;">
+<body style="width: 100%">
     <!-- Navbar ================================================== -->
 
-    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%; white-space: nowrap;">
+    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%; min-width: 770px; white-space: nowrap;">
     <!--<div class="navbar navbar-default" style="width: 100%; white-space: nowrap;">-->
             <div class="container-fluid" style="width: 100%;">
                 <!-- Brand and toggle get grouped for better mobile display -->
@@ -90,16 +90,16 @@
             </div>
     </div>
 
-    <div class="container-fluid" style="position: relative; background-color: #d5d5d5; height: 95px;">
+    <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative; background-color: #d5d5d5; height: 84px;">
 
         <form method="get" action="/gsearch">
-            <div class="row" style="position: absolute; bottom: 0; top: 30px;">
-                <select class="form-control col-xs-2" style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
+            <div class="row" style="width: 100%; position: absolute; bottom: 0; top: 30px;">
+                <select style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
                     <option value="gene">Genes / Molecules</option>
                     <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                 </select>
-                <input class="btn btn-primary form-control col-xs-2" style="width: 100px; margin-top: 15px; margin-left: 10px;" type="submit" value="Search All">
-                <input class="form-control col-xs-6" style="width: 600px; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
+                <input class="btn btn-primary" style="width: 100px; margin-left: 10px;" type="submit" value="Search All">
+                <input style="width: 50%; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
             </div>
         </form>
     </div>

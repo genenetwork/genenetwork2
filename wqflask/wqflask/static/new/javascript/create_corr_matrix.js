@@ -1,5 +1,5 @@
-var neg_color_scale = chroma.scale(['#FF0000', '#FFFFFF']).domain([-1, -0.4]);
-var pos_color_scale = chroma.scale(['#FFFFFF', '#00FFFF']).domain([0.4, 1])
+var neg_color_scale = chroma.scale(['#91bfdb', '#ffffff']).domain([-1, -0.4]);
+var pos_color_scale = chroma.scale(['#ffffff', '#fc8d59']).domain([0.4, 1])
 $('.corr_cell').each( function () {
   corr_value = parseFloat($(this).find('span.corr_value').text())
   if (corr_value >= 0.5){
@@ -14,6 +14,11 @@ $('.corr_cell').each( function () {
 });
 
 $('#short_labels').click( function (){
+  if ($('.short_check').css("display") == "none"){
+    $('.short_check').css("display", "inline-block")
+  } else {
+    $('.short_check').css("display", "none")
+  }
   $('.shortName').each( function() {
     if ($(this).css("display") == "none"){
       $(this).css("display", "block");
@@ -25,6 +30,11 @@ $('#short_labels').click( function (){
 });
 
 $('#long_labels').click( function (){
+  if ($('.long_check').css("display") == "none"){
+    $('.long_check').css("display", "inline-block")
+  } else {
+    $('.long_check').css("display", "none")
+  }
   $('.verboseName').each( function() {
     if ($(this).css("display") == "none"){
       $(this).css("display", "block");

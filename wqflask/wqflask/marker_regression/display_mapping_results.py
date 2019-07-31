@@ -1873,7 +1873,8 @@ class DisplayMappingResults(object):
 
                     final_x_pos = Xc-canvas.stringWidth("5",font=symbolFont)/2+1
                     if final_x_pos > (xLeftOffset + plotWidth):
-                        break
+                        continue
+                        #break ZS: This is temporary until issue with sorting for GEMMA is fixed
                     elif final_x_pos < xLeftOffset:
                         continue
                     else:
