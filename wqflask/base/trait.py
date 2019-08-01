@@ -135,9 +135,20 @@ class GeneralTrait(object):
 
         alias = 'Not available'
         if self.symbol:
-            response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol)
-            alias_list = json.loads(response.content)
-            alias = "; ".join(alias_list)
+            human_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.upper())
+            mouse_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.capitalize())
+            other_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.lower())
+            alias_list = json.loads(human_response.content) + json.loads(mouse_response.content) + json.loads(other_response.content)
+
+            filtered_aliases = []
+            seen = set()
+            for item in alias_list:
+                if item in seen:
+                    continue
+                else:
+                    filtered_aliases.append(item)
+                    seen.add(item)
+            alias = "; ".join(filtered_aliases)
 
         return alias
 
