@@ -123,15 +123,21 @@ class GeneralTrait(object):
         '''Return a text formatted alias'''
 
         alias = 'Not available'
+        if self.alias:
+            alias = string.replace(self.alias, ";", " ")
+            alias = string.join(string.split(alias), ", ")
+
+        return alias
+
+    @property
+    def wikidata_alias_fmt(self):
+        '''Return a text formatted alias'''
+
+        alias = 'Not available'
         if self.symbol:
             response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol)
             alias_list = json.loads(response.content)
             alias = "; ".join(alias_list)
-
-        if alias == 'Not available':
-            if self.alias:
-                alias = string.replace(self.alias, ";", " ")
-                alias = string.join(string.split(alias), ", ")
 
         return alias
 

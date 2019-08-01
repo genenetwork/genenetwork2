@@ -1,6 +1,6 @@
 <table class="table">
     <tr>
-        <td>Species and Group</td>
+        <td width="150px">Species and Group</td>
         <td>{{ this_trait.dataset.group.species }}, {{ this_trait.dataset.group.name }}</td>
     </tr>
     {% if this_trait.dataset.type == 'Publish' %}
@@ -18,7 +18,7 @@
     </tr>
     <tr>
         <td>Journal</td>
-        <td>{{ this_trait.journal }} (<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" target="_blank" title="PubMed">{{ this_trait.year }}</a>)</td>
+        <td>{{ this_trait.journal }} ({% if this_trait.pubmed_id %}<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" target="_blank" title="PubMed">{{ this_trait.year }}</a>{% else %}{{ this_trait.year }}{% endif %})</td>
     </tr>
     {% else %}
     <tr>
@@ -35,8 +35,14 @@
     {% endif %}
     <tr>
         <td>Aliases</td>
-        <td>{{ this_trait.alias_fmt|replace(",",";") }}</td>
+        <td>Wikidata: {{ this_trait.wikidata_alias_fmt|replace(",",";") }}</td>
     </tr>
+    {% if this_trait.alias_fmt != "Not Available" %}
+    <tr>
+        <td></td>
+        <td>GeneNetwork: {{ this_trait.alias_fmt|replace(",",";") }}</td>
+    </tr>
+    {% endif %}
     {% endif %}
     {% if this_trait.dataset.type != 'Publish' %}
     <tr>
