@@ -30,11 +30,11 @@ Stat_Table_Rows = [
   }, {
     vn: "min",
     pretty: "Minimum",
-    digits: 2
+    digits: 3
   }, {
     vn: "max",
     pretty: "Maximum",
-    digits: 2
+    digits: 3
   }
 ]
 
@@ -67,7 +67,7 @@ Stat_Table_Rows.push(
     digits: 3
   }, {
     vn: "interquartile",
-    pretty: "<font color='blue'>Interquartile Range</font>",
+    pretty: "<font color='black'>Interquartile Range</font>",
     url: "http://www.genenetwork.org/glossary.html#Interquartile",
     digits: 3
   }, {
@@ -334,9 +334,9 @@ update_prob_plot = function() {
 make_table = function() {
   var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
   if (js_data.trait_symbol != null) {
-    header = "<thead><tr><th style=\"text-align: center;\" colspan=\"100%\">Trait: " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+    header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
   } else {
-    header = "<thead><tr><th style=\"text-align: center;\" colspan=\"100%\">Trait: " + js_data.trait_id + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+    header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
   }
   _ref = js_data.sample_group_types;
   for (key in _ref) {
@@ -990,12 +990,13 @@ var hist_trace = {
 root.histogram_data = [hist_trace];
 root.histogram_layout = {
   bargap: 0.05,
-  title: js_data.trait_id,
+  title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
   xaxis: {
            autorange: true,
-           title: "Value",
+           title: "<b>Value</b>",
            titlefont: {
-             size: 16
+             family: "arial",
+             size: 20
            },
            ticklen: 4,
            tickfont: {
@@ -1004,23 +1005,25 @@ root.histogram_layout = {
          },
   yaxis: {
            autorange: true,
-           title: "Count",
+           title: "<b>Count</b>",
            titlefont: {
-             size: 16
+             family: "arial",
+             size: 20
            },
            showline: true,
            ticklen: 4,
            tickfont: {
              size: 16
-           }
+           },
+           automargin: true
          },
   width: 500,
   height: 600,
   margin: {
-      l: 50,
+      l: 70,
       r: 30,
       t: 100,
-      b: 60
+      b: 50
   }
 };
 
@@ -1036,25 +1039,34 @@ $('.histogram_samples_group').change(function() {
 });
 
 root.box_layout = {
-    title: js_data.trait_id,
     xaxis: {
         showline: true,
+        titlefont: {
+          family: "arial",
+          size: 20
+        },
         tickfont: {
           size: 16
         },
     },
     yaxis: {
-        title: js_data.unit_type,
+        title: "<b>" + js_data.unit_type +"</b>",
         autorange: true,
         showline: true,
+        titlefont: {
+          family: "arial",
+          size: 20
+        },
         ticklen: 4,
         tickfont: {
           size: 16
         },
-        tickformat: tick_digits
+        tickformat: tick_digits,
+        zeroline: false,
+        automargin: true
     },
     margin: {
-        l: 50,
+        l: 90,
         r: 30,
         t: 30,
         b: 80
@@ -1122,7 +1134,7 @@ if (full_sample_lists.length > 1) {
       {
         type: 'box',
         y: get_sample_vals(full_sample_lists[0]),
-        name: sample_group_list[0],
+        name: "<b>Trait " + js_data.trait_id + "</b>",
         boxpoints: 'Outliers',
         jitter: 0.5,
         whiskerwidth: 0.2,
@@ -1150,28 +1162,36 @@ $('.box_plot_tab').click(function() {
 // Violin Plot
 
 root.violin_layout = {
-  title: js_data.trait_id,
   xaxis: {
       showline: true,
+      titlefont: {
+        family: "arial",
+        size: 20
+      },
       tickfont: {
         size: 16
       }
   },
   yaxis: {
-      title: js_data.unit_type,
+      title: "<b>"+js_data.unit_type+"</b>",
       autorange: true,
       showline: true,
+      titlefont: {
+        family: "arial",
+        size: 20
+      },
       ticklen: 4,
       tickfont: {
         size: 16
       },
       tickformat: tick_digits,
-      zeroline: false
+      zeroline: false,
+      automargin: true
   },
   margin: {
-        l: 50,
+        l: 90,
         r: 30,
-        t: 80,
+        t: 30,
         b: 80
   }
 };
@@ -1239,14 +1259,11 @@ if (full_sample_lists.length > 1) {
         box: {
           visible: true
         },
-        line: {
-          color: 'green',
-        },
         meanline: {
           visible: true
         },
-        name: sample_group_list[0],
-        x0: sample_group_list[0]
+        name: "<b>Trait " + js_data.trait_id + "</b>",
+        x0: "<b>Trait " + js_data.trait_id + "</b>"
       }
     ]
 }

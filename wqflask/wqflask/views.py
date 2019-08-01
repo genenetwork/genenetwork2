@@ -560,12 +560,22 @@ def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
+    num_vals = 0 #ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
         for key, value in initial_start_vars.iteritems():
             if key in wanted or key.startswith(('value:')):
                 start_vars[key] = value
+
+        if 'primary_samples' in start_vars:
+            samples = start_vars['primary_samples'].split(",")
+            for sample in samples:
+                value = start_vars.get('value:' + sample)
+                if value != "x":
+                    num_vals += 1
+
+        start_vars['num_vals'] = num_vals
 
         start_vars_container['start_vars'] = start_vars
     else:

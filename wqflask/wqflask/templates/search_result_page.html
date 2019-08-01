@@ -13,7 +13,7 @@
 
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
         <!-- Need to customize text more for other types of searches -->
-        <p>We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
+        <p><b>Search Results:</b> We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
            to find all records
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}
@@ -249,6 +249,7 @@
                 'columns': [
                     {
                       'data': null,
+                      'width': "30px",
                       'orderDataType': "dom-checkbox",
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
@@ -258,12 +259,14 @@
                     {
                       'title': "Index",
                       'type': "natural",
+                      'width': "30px",
                       'data': "index"
                     },
                     {
                       'title': "Record",
                       'type': "natural",
                       'data': null,
+                      'width': "60px",
                       'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
                         return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
@@ -277,7 +280,6 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "300px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         try {
@@ -290,12 +292,13 @@
                     {
                       'title': "Location",
                       'type': "natural",
-                      'width': "140px",
+                      'width': "120px",
                       'data': "location"
                     },
                     {
                       'title': "Mean",
                       'type': "natural",
+                      'width': "40px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
@@ -308,7 +311,7 @@
                     {
                       'title': "Max LRS Location",
                       'type': "natural",
-                      'width': "140px",
+                      'width': "120px",
                       'data': "lrs_location"
                     },
                     {

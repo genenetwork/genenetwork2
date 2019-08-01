@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import string
 import resource
 import codecs
+import requests
 
 import redis
 Redis = redis.StrictRedis()
@@ -120,11 +121,17 @@ class GeneralTrait(object):
     @property
     def alias_fmt(self):
         '''Return a text formatted alias'''
-        if self.alias:
-            alias = string.replace(self.alias, ";", " ")
-            alias = string.join(string.split(alias), ", ")
-        else:
-            alias = 'Not available'
+
+        alias = 'Not available'
+        if self.symbol:
+            response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol)
+            alias_list = json.loads(response.content)
+            alias = "; ".join(alias_list)
+
+        if alias == 'Not available':
+            if self.alias:
+                alias = string.replace(self.alias, ";", " ")
+                alias = string.join(string.split(alias), ", ")
 
         return alias
 

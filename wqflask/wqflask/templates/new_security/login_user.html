@@ -2,53 +2,11 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 
-    <div class="container">
+    <div class="container" style="min-width: 1250px;">
 
         {{ flash_me() }}
 
-        <div class="page-header">
-            <h1>&nbsp;&nbsp;&nbsp;&nbsp;Login</h1>
-        </div>
-
-
-        <div class="security_box">
-
-            <h4>Don't have an account?</h4>
-
-            {% if es_server: %}
-	    <a href="/n/register" class="btn btn-primary modalize">Create a new account</a>
-	    {% else: %}
-	    <div class="alert alert-warning">
-	      <p>You cannot create an account at this moment.<br />
-		Please try again later.</p>
-	    </div>
-	    {% endif %}
-
-	    <hr />
-	    <h4>Login with external services</h4>
-
-	    {% if external_login: %}
-	    <div>
-	      {% if external_login["github"]: %}
-	      <a href="{{external_login['github']}}" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>
-              {% else %}
-              <p>Github login is not available right now</p>
-	      {% endif %}
-
-	      {% if external_login["orcid"]: %}
-	      <a href="{{external_login['orcid']}}" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>
-              {% else %}
-              <p>ORCID login is not available right now</p>
-	      {% endif %}
-	    </div>
-	    {% else: %}
-	    <div class="alert alert-warning">
-	      <p>Sorry, you cannot login with Github or ORCID at this time.</p>
-	    </div>
-	    {% endif %}
-	    <hr />
-
-            <h4>Already have an account? Sign in here.</h4>
+        <h4>Already have an account? Sign in here.</h4>
 
 	    {% if es_server: %}
             <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form" id="loginUserForm">
@@ -69,7 +27,6 @@
                         </div>
                     </div>
 
-
                     <div class="form-group">
                         <label class="col-xs-1 control-label" for="remember"></label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
@@ -86,6 +43,42 @@
                         </div>
                     </div>
               </fieldset>
+
+              <div class="security_box">
+
+                    <h4>Don't have an account?</h4>
+
+                    {% if es_server: %}
+                <a href="/n/register" class="btn btn-primary modalize">Create a new account</a>
+                {% else: %}
+                <div class="alert alert-warning">
+                  <p>You cannot create an account at this moment.<br />
+                Please try again later.</p>
+                </div>
+                {% endif %}
+
+                <hr />
+                <h4>Login with external services</h4>
+
+                {% if external_login: %}
+                <div>
+                  {% if external_login["github"]: %}
+                  <a href="{{external_login['github']}}" title="Login with GitHub" class="btn btn-info btn-group">Login with Github</a>
+                      {% else %}
+                      <p>Github login is not available right now</p>
+                  {% endif %}
+
+                  {% if external_login["orcid"]: %}
+                  <a href="{{external_login['orcid']}}" title="Login with ORCID" class="btn btn-info btn-group">Login with ORCID</a>
+                      {% else %}
+                      <p>ORCID login is not available right now</p>
+                  {% endif %}
+                </div>
+                {% else: %}
+                <div class="alert alert-warning">
+                  <p>Sorry, you cannot login with Github or ORCID at this time.</p>
+                </div>
+                {% endif %}
 
             </form>
 	    {% else: %}

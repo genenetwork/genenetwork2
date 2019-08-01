@@ -142,40 +142,6 @@ class ShowTrait(object):
         self.qnorm_vals = quantile_normalize_vals(self.sample_groups)
         self.z_scores = get_z_scores(self.sample_groups)
 
-        # Todo: Add back in the ones we actually need from below, as we discover we need them
-        hddn = OrderedDict()
-
-        if self.dataset.group.allsamples:
-            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
-
-        hddn['trait_id'] = self.trait_id
-        hddn['dataset'] = self.dataset.name
-        hddn['temp_trait'] = False
-        if self.temp_trait:
-           hddn['temp_trait'] = True
-           hddn['group'] = self.temp_group
-           hddn['species'] = self.temp_species
-        hddn['use_outliers'] = False
-        hddn['method'] = "gemma"
-        hddn['selected_chr'] = -1
-        hddn['mapping_display_all'] = True
-        hddn['suggestive'] = 0
-        hddn['num_perm'] = 0
-        hddn['manhattan_plot'] = ""
-        hddn['control_marker'] = ""
-        if not self.temp_trait:
-            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-                hddn['control_marker'] = self.nearest_marker
-                #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
-        hddn['do_control'] = False
-        hddn['maf'] = 0.05
-        hddn['compare_traits'] = []
-        hddn['export_data'] = ""
-        hddn['export_format'] = "excel"
-
-        # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
-        self.hddn = hddn
-
         self.temp_uuid = uuid.uuid4()
 
         self.sample_group_types = OrderedDict()
@@ -216,18 +182,61 @@ class ShowTrait(object):
 
         sample_column_width = max_samplename_width * 8
 
-        if self.num_values >= 500:
+        if self.num_values >= 5000:
             self.maf = 0.01
         else:
             self.maf = 0.05
 
         trait_symbol = None
+        short_description = None
         if not self.temp_trait:
             if self.this_trait.symbol:
                 trait_symbol = self.this_trait.symbol
+                short_description = trait_symbol
+
+            elif self.this_trait.post_publication_abbreviation:
+                short_description = self.this_trait.post_publication_abbreviation
+
+            elif self.this_trait.pre_publication_abbreviation:
+                short_description = self.this_trait.pre_publication_abbreviation
+
+        # Todo: Add back in the ones we actually need from below, as we discover we need them
+        hddn = OrderedDict()
+
+        if self.dataset.group.allsamples:
+            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
+        hddn['primary_samples'] = string.join(self.primary_sample_names, ',')
+        hddn['trait_id'] = self.trait_id
+        hddn['dataset'] = self.dataset.name
+        hddn['temp_trait'] = False
+        if self.temp_trait:
+           hddn['temp_trait'] = True
+           hddn['group'] = self.temp_group
+           hddn['species'] = self.temp_species
+        hddn['use_outliers'] = False
+        hddn['method'] = "gemma"
+        hddn['selected_chr'] = -1
+        hddn['mapping_display_all'] = True
+        hddn['suggestive'] = 0
+        hddn['num_perm'] = 0
+        hddn['manhattan_plot'] = ""
+        hddn['control_marker'] = ""
+        if not self.temp_trait:
+            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+                hddn['control_marker'] = self.nearest_marker
+                #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
+        hddn['do_control'] = False
+        hddn['maf'] = 0.05
+        hddn['compare_traits'] = []
+        hddn['export_data'] = ""
+        hddn['export_format'] = "excel"
+
+        # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
+        self.hddn = hddn
 
         js_data = dict(trait_id = self.trait_id,
                        trait_symbol = trait_symbol,
+                       short_description = short_description,
                        unit_type = trait_units,
                        dataset_type = self.dataset.type,
                        data_scale = self.dataset.data_scale,
@@ -396,6 +405,8 @@ class ShowTrait(object):
                                             sample_group_type='primary',
                                             header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
+
+        self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
 
 def quantile_normalize_vals(sample_groups):
@@ -493,7 +504,7 @@ def get_genofiles(this_dataset):
     return jsondata['genofile']
 
 def get_table_widths(sample_groups, has_num_cases=False):
-    stats_table_width = 200
+    stats_table_width = 250
     if len(sample_groups) > 1:
         stats_table_width = 450
 
