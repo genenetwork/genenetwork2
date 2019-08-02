@@ -127,7 +127,7 @@ class Heatmap(object):
             trimmed_values = []
             for i in range(0, len(samples)):
                 if samples[i] in self.dataset.group.samplelist:
-                    trimmed_samples.append(samples[i])
+                    trimmed_samples.append(str(samples[i]))
                     trimmed_values.append(values[i])
 
             reaper_results = genotype.regression(strains = trimmed_samples,
