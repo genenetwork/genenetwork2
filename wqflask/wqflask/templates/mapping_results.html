@@ -3,9 +3,11 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/static/packages/purescript_genome_browser/css/purescript_genetics_browser_v01.css" />
 
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
@@ -29,6 +31,7 @@
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
+        <input type="hidden" name="num_vals" value="{{ n_samples }}">
         <input type="hidden" name="maf">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
@@ -153,11 +156,9 @@
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
-            {% if mapping_method != "gemma" and mapping_method != "plink" %}
-            <li id="vector_map_tab">
-              <a href="#vector_map" data-toggle="tab" {% if mapping_method != "gemma" and mapping_method != "plink" %}aria-expanded="false"{% else %}aria-expanded="true"{% endif %}>Vector Map</a>
+            <li id="browser_tab">
+                <a href="#browser_holder" data-toggle="tab" aria-expanded="true">Genome Browser</a>
             </li>
-            {% endif %}
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="gn1_map">
@@ -177,19 +178,31 @@
                   {% endif %}
               </div>
             </div>
-            {% if mapping_method != "gemma" and mapping_method != "plink" %}
-            <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
-              <div id="chart_container">
-                <div class="qtlcharts" id="topchart"></div>
-              </div>
+            <div class="tab-pane" id="browser_holder" style="height: 500px;">
+                <div id="browser">
+                    <div id="controls">
+                        <button id="scrollLeft"  type="button" >
+                          <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <button id="scrollRight" type="button" >
+                          <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button id="zoomOut" type="button" >
+                          <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button id="zoomIn"  type="button" >
+                          <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button id="reset"  type="button" >Reset</button>
+                    </div>
+                </div>
             </div>
-            {% endif %}
           </div>
         </div>
 
         </form>
         {% if selectedChr == -1 %}
-        <div class="container" style="padding-left: 30px;">
+        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative;">
           <h2>Mapping Statistics</h2>
         <br />
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
@@ -307,20 +320,14 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/purescript_genome_browser/js/purescript-genetics-browser_v01.js"></script>
 
-    {% if mapping_method != "gemma" and mapping_method != "plink" %}
     <script>
         js_data = {{ js_data | safe }}
     </script>
-    {% endif %}
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-    {% if mapping_method != "gemma" and mapping_method != "plink" %}
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
-    {% endif %}
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/init_genome_browser.js"></script>
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
@@ -332,7 +339,8 @@
                     { "type": "natural", "width": "8%" },
                     { "type": "natural", "width": "25%" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "8%" },
+                    { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "natural" }{% if 'additive' in marker %},
                     { "type": "natural" }{% endif %}{% if 'dominance' in marker and dataset.group.genetic_type != "riset" %},
                     { "type": "natural" }{% endif %}
@@ -438,6 +446,12 @@
             return $('#marker_regression_form').submit();
         }
 
+        $('#browser_tab').click(function() {
+          $('#gn1_map_options').css("display", "none")
+        })
+        $('#gn1_map_tab').click(function() {
+          $('#gn1_map_options').css("display", "block")
+        })
     </script>
 
 {% endblock %}

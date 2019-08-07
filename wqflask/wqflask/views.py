@@ -639,7 +639,8 @@ def mapping_results_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
         'temp_trait',
-        'reaper_version'
+        'reaper_version',
+        'num_vals'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
@@ -670,8 +671,8 @@ def mapping_results_page():
         if template_vars.no_results:
             rendered_template = render_template("mapping_error.html")
         else:
-          if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
-              template_vars.js_data = json.dumps(template_vars.js_data,
+          #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
+          template_vars.js_data = json.dumps(template_vars.js_data,
                                                  default=json_default_handler,
                                                  indent="   ")
 
@@ -807,6 +808,17 @@ def get_temp_data():
     logger.info(request.url)
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
+@app.route("/browser_input", methods=('GET',))
+def browser_inputs():
+    """  Returns JSON from tmp directory for the purescript genome browser"""
+
+    filename = request.args['filename']
+
+    with open("{}/gn2/".format(TEMPDIR) + filename + ".json", "r") as the_file:
+        file_contents = json.load(the_file)
+
+    return flask.jsonify(file_contents)
 
 ##########################################################################
 

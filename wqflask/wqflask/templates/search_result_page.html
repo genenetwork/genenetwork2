@@ -15,6 +15,9 @@
         <!-- Need to customize text more for other types of searches -->
         <p><b>Search Results:</b> We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
            to find all records
+                {% if go_term is not none %}
+                with <u>Gene Ontology ID</u> <strong>GO:{{ go_term }}</strong>.
+                {% else %}
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}
                     with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
@@ -40,9 +43,13 @@
                     {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match:<br>{% endif %}<b>"{{ word.search_term[0] }}"</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
                     {% endif %}
                 {% endfor %}
+                {% endif %}
                 <br>
                 {{ results|count }} records are shown below.
         </p>
+        {% if go_term is not none %}
+        <p><b>The associated genes include:</b><br><br>{% for word in search_terms %}{{ word.search_term[0] }}{% endfor %}</p>
+        {% endif %}
 
         <!--<p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>-->
 

@@ -85,6 +85,8 @@ class RunMapping(object):
                         self.samples.append(sample)
                         self.vals.append(value)
 
+        self.num_vals = start_vars['num_vals']
+
         #ZS: Check if genotypes exist in the DB in order to create links for markers
         if "geno_db_exists" in start_vars:
             self.geno_db_exists = start_vars['geno_db_exists']
@@ -311,13 +313,31 @@ class RunMapping(object):
 
           else:
               self.qtl_results = []
+              self.qtl_results_for_browser = []
               highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
               for marker in results:
+                  browser_marker = dict(
+                      chr = str(marker['chr']),
+                      rs  = marker['name'],
+                      ps  = marker['Mb']*1000000
+                  )
+                  if 'p_value' in marker:
+                      browser_marker['p_wald'] = marker['p_value']
+                  else:
+                      if 'lrs_value' in marker and marker['lrs_value'] > 0:
+                        browser_marker['p_wald'] = -math.log10(marker['lrs_value']/4.16)
+                      elif 'lod_score' in marker and marker['lod_score'] > 0:
+                        browser_marker['p_wald'] = -math.log10(marker['lod_score'])
+                      else:
+                        browser_marker['p_wald'] = 0
+                  self.qtl_results_for_browser.append(browser_marker)
                   if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                       if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                           highest_chr = marker['chr']
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                           self.qtl_results.append(marker)
+
+              browser_files = write_input_for_browser(self.dataset, self.qtl_results_for_browser)
 
               with Bench("Exporting Results"):
                   export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
@@ -330,50 +350,23 @@ class RunMapping(object):
                   self.trimmed_markers = trim_markers_for_table(results)
 
               if self.mapping_method != "gemma":
-                  self.json_data['chr'] = []
-                  self.json_data['pos'] = []
-                  self.json_data['lod.hk'] = []
-                  self.json_data['markernames'] = []
-
-                  self.json_data['suggestive'] = self.suggestive
-                  self.json_data['significant'] = self.significant
-
-                  #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-                  for index, qtl in enumerate(self.qtl_results):
-                      #if index<40:
-                      #    logger.debug("lod score is:", qtl['lod_score'])
-                      if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                          #logger.debug("changing to X")
-                          self.json_data['chr'].append("X")
-                      else:
-                          self.json_data['chr'].append(str(qtl['chr']))
-                      self.json_data['pos'].append(qtl['Mb'])
-                      if 'lrs_value' in qtl.keys():
-                          self.json_data['lod.hk'].append(str(qtl['lrs_value']))
-                      else:
-                          self.json_data['lod.hk'].append(str(qtl['lod_score']))
-                      self.json_data['markernames'].append(qtl['name'])
-
-                  #Get chromosome lengths for drawing the interval map plot
-                  chromosome_mb_lengths = {}
-                  self.json_data['chrnames'] = []
-                  for key in self.species.chromosomes.chromosomes.keys():
-                      self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-                      chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
-
                   self.js_data = dict(
-                      result_score_type = self.score_type,
-                      json_data = self.json_data,
-                      this_trait = self.this_trait.name,
-                      data_set = self.dataset.name,
-                      maf = self.maf,
-                      manhattan_plot = self.manhattan_plot,
-                      mapping_scale = self.mapping_scale,
-                      chromosomes = chromosome_mb_lengths,
-                      qtl_results = self.qtl_results,
+                      #result_score_type = self.score_type,
+                      #this_trait = self.this_trait.name,
+                      #data_set = self.dataset.name,
+                      #maf = self.maf,
+                      #manhattan_plot = self.manhattan_plot,
+                      #mapping_scale = self.mapping_scale,
+                      #chromosomes = chromosome_mb_lengths,
+                      #qtl_results = self.qtl_results,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
+                      browser_files = browser_files
                   )
+              else:
+                self.js_data = dict(
+                    browser_files = browser_files
+                )
 
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!
@@ -497,3 +490,17 @@ def trim_markers_for_table(markers):
         return trimmed_sorted_markers
     else:
         return sorted_markers
+
+def write_input_for_browser(this_dataset, markers):
+    file_base = this_dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+    gwas_filename = file_base + "_GWAS"
+    annot_filename = file_base + "_ANNOT"
+    gwas_path = "{}/gn2/".format(TEMPDIR) + gwas_filename
+    annot_path = "{}/gn2/".format(TEMPDIR) + annot_filename
+
+    with open(gwas_path + ".json", "w") as gwas_file, open(annot_path + ".json", "w") as annot_file:
+        gwas_file.write(json.dumps(markers))
+        annot_file.write(json.dumps([]))
+
+    return [gwas_filename, annot_filename]
+    #return [gwas_filename, annot_filename]

@@ -25,7 +25,7 @@ from db import webqtlDatabaseFunction
 
 from wqflask import user_manager
 
-from flask import render_template
+from flask import render_template, Flask, g
 
 from utility import formatting
 from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
@@ -47,6 +47,7 @@ views.py).
         ###########################################
 
         self.uc_id = uuid.uuid4()
+        self.go_term = None
         logger.debug("uc_id:", self.uc_id) # contains a unique id
 
         logger.debug("kw is:", kw)         # dict containing search terms
@@ -157,25 +158,31 @@ views.py).
             combined_where_clause = ""
             previous_from_clauses = [] #The same table can't be referenced twice in the from clause
             for i, a_search in enumerate(self.search_terms):
-                the_search = self.get_search_ob(a_search)
-                if the_search != None:
-                    get_from_clause = getattr(the_search, "get_from_clause", None)
-                    if callable(get_from_clause):
-                        from_clause = the_search.get_from_clause()
-                        if from_clause in previous_from_clauses:
-                            pass
-                        else:
-                            previous_from_clauses.append(from_clause)
-                            combined_from_clause += from_clause
-                    where_clause = the_search.get_where_clause()
-                    combined_where_clause += "(" + where_clause + ")"
-                    if (i+1) < len(self.search_terms):
-                        if self.and_or == "and":
-                            combined_where_clause += "AND"
-                        else:
-                            combined_where_clause += "OR"
+                if a_search['key'] == "GO":
+                    self.go_term = a_search['search_term'][0]
+                    gene_list = get_GO_symbols(a_search)
+                    self.search_terms += gene_list
+                    continue
                 else:
-                    self.search_term_exists = False
+                    the_search = self.get_search_ob(a_search)
+                    if the_search != None:
+                        get_from_clause = getattr(the_search, "get_from_clause", None)
+                        if callable(get_from_clause):
+                            from_clause = the_search.get_from_clause()
+                            if from_clause in previous_from_clauses:
+                                pass
+                            else:
+                                previous_from_clauses.append(from_clause)
+                                combined_from_clause += from_clause
+                        where_clause = the_search.get_where_clause()
+                        combined_where_clause += "(" + where_clause + ")"
+                        if (i+1) < len(self.search_terms):
+                            if self.and_or == "and":
+                                combined_where_clause += "AND"
+                            else:
+                                combined_where_clause += "OR"
+                    else:
+                        self.search_term_exists = False
             if self.search_term_exists:
                 combined_where_clause = "(" + combined_where_clause + ")"
                 final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
@@ -186,11 +193,19 @@ views.py).
                 self.search_term_exists = False
             else:
                 for a_search in self.search_terms:
-                    the_search = self.get_search_ob(a_search)
-                    if the_search != None:
-                        self.results.extend(the_search.run())
+                    logger.debug("TERMS:", self.search_terms)
+                    if a_search['key'] == "GO":
+                        self.go_term = a_search['search_term'][0]
+                        gene_list = get_GO_symbols(a_search)
+                        self.search_terms += gene_list
+                        self.search_terms.pop(0)
+                        continue
                     else:
-                        self.search_term_exists = False
+                        the_search = self.get_search_ob(a_search)
+                        if the_search != None:
+                            self.results.extend(the_search.run())
+                        else:
+                            self.search_term_exists = False
 
         if self.search_term_exists:
             if the_search != None:
@@ -218,9 +233,27 @@ views.py).
         else:
             return None
 
+def get_GO_symbols(a_search):
+    query = """SELECT genes
+               FROM GORef
+               WHERE goterm='{0}:{1}'""".format(a_search['key'], a_search['search_term'][0])
+
+    gene_list = g.db.execute(query).fetchone()[0].strip().split()
+
+    new_terms = []
+    for gene in gene_list:
+        this_term = dict(key=None,
+                         separator=None,
+                         search_term=[gene])
+
+        new_terms.append(this_term)
+
+    return new_terms
+
 def insert_newlines(string, every=64):
     """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
     lines = []
     for i in xrange(0, len(string), every):
         lines.append(string[i:i+every])
     return '\n'.join(lines)
+

@@ -1,40 +1,40 @@
 <table class="table">
     <tr>
-        <td width="150px">Species and Group</td>
+        <td width="150px"><b>Species and Group</b></td>
         <td>{{ this_trait.dataset.group.species }}, {{ this_trait.dataset.group.name }}</td>
     </tr>
     {% if this_trait.dataset.type == 'Publish' %}
     <tr>
-        <td>Phenotype</td>
+        <td><b>Phenotype</b></td>
         <td><div style="width:40%;">{{ this_trait.description_fmt }}</div></td>
     </tr>
     <tr>
-        <td>Authors</td>
+        <td><b>Authors</b></td>
         <td><div style="width:40%;">{{ this_trait.authors }}</div></td>
     </tr>
     <tr>
-        <td>Title</td>
+        <td><b>Title</b></td>
         <td><div style="width:40%;">{{ this_trait.title }}</div></td>
     </tr>
     <tr>
-        <td>Journal</td>
+        <td><b>Journal</b></td>
         <td>{{ this_trait.journal }} ({% if this_trait.pubmed_id %}<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" target="_blank" title="PubMed">{{ this_trait.year }}</a>{% else %}{{ this_trait.year }}{% endif %})</td>
     </tr>
     {% else %}
     <tr>
-        <td>Tissue</td>
+        <td><b>Tissue</b></td>
         <td>{{ this_trait.dataset.tissue }}</td>
     </tr>
     {% endif %}
     {% if this_trait.dataset.type == 'ProbeSet' %}
     {% if this_trait.symbol != None %}
     <tr>
-        <td>Gene Symbol</td>
+        <td><b>Gene Symbol</b></td>
         <td>{{ this_trait.symbol }}</td>
     </tr>
     {% endif %}
     <tr>
-        <td>Aliases</td>
+        <td><b>Aliases</b></td>
         <td>Wikidata: {{ this_trait.wikidata_alias_fmt|replace(",",";") }}</td>
     </tr>
     {% if this_trait.alias_fmt != "Not Available" %}
@@ -46,12 +46,12 @@
     {% endif %}
     {% if this_trait.dataset.type != 'Publish' %}
     <tr>
-        <td>Location</td>
+        <td><b>Location</b></td>
         <td>{{ this_trait.location_fmt }}</td>
     </tr>
     {% endif %}
     <tr>
-        <td>Database</td>
+        <td><b>Database</b></td>
         <td>
             <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" target="_blank">
                 {{ dataset.fullname }}
@@ -60,7 +60,7 @@
     </tr>
     {% if this_trait.probe_set_specificity %}
     <tr>
-        <td>Target Score</td>
+        <td><b>Target Score</b></td>
         <td>
             <a href="http://genenetwork.org/blatInfo.html" target="_blank" title="Values higher than 2 for the specificity are good">
                 BLAT Specificity
@@ -75,7 +75,7 @@
     {% endif %}
     {% if this_trait.pubmed_id or this_trait.geneid or this_trait.omim or this_trait.symbol %}
     <tr>
-        <td>Resource Links</td>
+        <td><b>Resource Links</b></td>
         <td>
             {% if pubmed_link %}
             <a href="{{ pubmed_link }}" target="_blank" title="PubMed">

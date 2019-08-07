@@ -146,7 +146,7 @@ class DisplayMappingResults(object):
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
-        self.n_samples = len(start_vars['vals'])
+        self.n_samples = start_vars['num_vals']
         self.species = start_vars['species']
         self.genofile_string = ""
         if 'genofile_string' in start_vars:
@@ -168,8 +168,8 @@ class DisplayMappingResults(object):
             self.mapmodel_rqtl_geno = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
 
-        if self.mapping_method != "gemma" and self.mapping_method != "plink":
-            self.js_data = start_vars['js_data']
+        #if self.mapping_method != "gemma" and self.mapping_method != "plink":
+        self.js_data = start_vars['js_data']
         self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
         if self.dataset.group.species == "rat":

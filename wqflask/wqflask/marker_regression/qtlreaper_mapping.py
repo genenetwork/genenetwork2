@@ -95,7 +95,8 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                     marker['chr'] = line.split("\t")[2]
                 marker['cM'] = float(line.split("\t")[3])
                 marker['Mb'] = float(line.split("\t")[4])
-                marker['p_value'] = float(line.split("\t")[7])
+                if float(line.split("\t")[7]) != 1:
+                    marker['p_value'] = float(line.split("\t")[7])
                 marker['lrs_value'] = float(line.split("\t")[5])
                 marker['lod_score'] = marker['lrs_value'] / 4.61
                 marker['additive'] = float(line.split("\t")[6])

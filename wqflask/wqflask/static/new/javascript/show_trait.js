@@ -940,6 +940,7 @@ if (js_data.num_values < 256) {
   root.bar_layout = {
     title: js_data.trait_id,
     xaxis: {
+        type: 'category',
         titlefont: {
           size: 16
         },
@@ -947,7 +948,7 @@ if (js_data.num_values < 256) {
         ticklen: 4,
         tickfont: {
           size: 16
-        }
+        },
     },
     yaxis: {
         title: js_data.unit_type,
