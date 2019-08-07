@@ -671,36 +671,36 @@ def mapping_results_page():
         if template_vars.no_results:
             rendered_template = render_template("mapping_error.html")
         else:
-          #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
-          template_vars.js_data = json.dumps(template_vars.js_data,
-                                                 default=json_default_handler,
-                                                 indent="   ")
+            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                                    default=json_default_handler,
+                                                    indent="   ")
 
-          result = template_vars.__dict__
+            result = template_vars.__dict__
 
-          if result['pair_scan']:
-              with Bench("Rendering template"):
-                  img_path = result['pair_scan_filename']
-                  logger.info("img_path:", img_path)
-                  initial_start_vars = request.form
-                  logger.info("initial_start_vars:", initial_start_vars)
-                  imgfile = open(TEMPDIR + img_path, 'rb')
-                  imgdata = imgfile.read()
-                  imgB64 = imgdata.encode("base64")
-                  bytesarray = array.array('B', imgB64)
-                  result['pair_scan_array'] = bytesarray
-                  rendered_template = render_template("pair_scan_results.html", **result)
-          else:
-              gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-              #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-              #logger.info("pickled result length:", len(pickled_result))
-              #Redis.set(key, pickled_result)
-              #Redis.expire(key, 1*60)
+            if result['pair_scan']:
+                with Bench("Rendering template"):
+                    img_path = result['pair_scan_filename']
+                    logger.info("img_path:", img_path)
+                    initial_start_vars = request.form
+                    logger.info("initial_start_vars:", initial_start_vars)
+                    imgfile = open(TEMPDIR + img_path, 'rb')
+                    imgdata = imgfile.read()
+                    imgB64 = imgdata.encode("base64")
+                    bytesarray = array.array('B', imgB64)
+                    result['pair_scan_array'] = bytesarray
+                    rendered_template = render_template("pair_scan_results.html", **result)
+            else:
+                gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+                #logger.info("pickled result length:", len(pickled_result))
+                #Redis.set(key, pickled_result)
+                #Redis.expire(key, 1*60)
 
-              with Bench("Rendering template"):
-                  if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                      gn1_template_vars.pop('qtlresults', None)
-                  rendered_template = render_template("mapping_results.html", **gn1_template_vars)
+                with Bench("Rendering template"):
+                    if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
+                        gn1_template_vars.pop('qtlresults', None)
+                    rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
