@@ -7,6 +7,7 @@ from pprint import pformat as pf
 
 import string
 import math
+from decimal import Decimal
 import random
 import sys
 import datetime
@@ -314,30 +315,41 @@ class RunMapping(object):
           else:
               self.qtl_results = []
               self.qtl_results_for_browser = []
+              self.annotations_for_browser = []
               highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
               for marker in results:
                   browser_marker = dict(
                       chr = str(marker['chr']),
                       rs  = marker['name'],
-                      ps  = marker['Mb']*1000000
+                      ps  = marker['Mb']*1000000,
+                      url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
                   )
-                  if 'p_value' in marker:
-                      browser_marker['p_wald'] = marker['p_value']
+                  annot_marker = dict(
+                      name = str(marker['name']),
+                      chr = str(marker['chr']),
+                      rs  = marker['name'],
+                      pos  = marker['Mb']*1000000,
+                      url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
+                  )
+                  #if 'p_value' in marker:
+                  #    logger.debug("P EXISTS:", marker['p_value'])
+                  #else:
+                  if 'lrs_value' in marker and marker['lrs_value'] > 0:
+                      browser_marker['p_wald'] = 10**-(marker['lrs_value']/4.61)
+                  elif 'lod_score' in marker and marker['lod_score'] > 0:
+                      browser_marker['p_wald'] = 10**-(marker['lod_score'])
                   else:
-                      if 'lrs_value' in marker and marker['lrs_value'] > 0:
-                        browser_marker['p_wald'] = -math.log10(marker['lrs_value']/4.16)
-                      elif 'lod_score' in marker and marker['lod_score'] > 0:
-                        browser_marker['p_wald'] = -math.log10(marker['lod_score'])
-                      else:
-                        browser_marker['p_wald'] = 0
+                      browser_marker['p_wald'] = 0
+
                   self.qtl_results_for_browser.append(browser_marker)
+                  self.annotations_for_browser.append(annot_marker)
                   if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                       if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                           highest_chr = marker['chr']
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                           self.qtl_results.append(marker)
 
-              browser_files = write_input_for_browser(self.dataset, self.qtl_results_for_browser)
+              browser_files = write_input_for_browser(self.dataset, self.qtl_results_for_browser, self.annotations_for_browser)
 
               with Bench("Exporting Results"):
                   export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
@@ -350,6 +362,11 @@ class RunMapping(object):
                   self.trimmed_markers = trim_markers_for_table(results)
 
               if self.mapping_method != "gemma":
+                  if self.score_type == "LRS":
+                      significant_for_browser = self.significant / 4.16
+                  else:
+                      significant_for_browser = self.significant
+
                   self.js_data = dict(
                       #result_score_type = self.score_type,
                       #this_trait = self.this_trait.name,
@@ -361,7 +378,8 @@ class RunMapping(object):
                       #qtl_results = self.qtl_results,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
-                      browser_files = browser_files
+                      browser_files = browser_files,
+                      significant = significant_for_browser
                   )
               else:
                 self.js_data = dict(
@@ -406,6 +424,7 @@ class RunMapping(object):
 
 def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type):
     with open(results_path, "w+") as output_file:
+        output_file.write("Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
         output_file.write("Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
         output_file.write("Data Set: " + dataset.fullname + "\n")
         if dataset.type == "ProbeSet":
@@ -413,6 +432,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
         output_file.write("\n")
         output_file.write("Name,Chr,")
+        if score_type.lower() == "-log(p)":
+            score_type = "'-log(p)"
         if mapping_scale == "physic":
             output_file.write("Mb," + score_type)
         else:
@@ -491,7 +512,7 @@ def trim_markers_for_table(markers):
     else:
         return sorted_markers
 
-def write_input_for_browser(this_dataset, markers):
+def write_input_for_browser(this_dataset, gwas_results, annotations):
     file_base = this_dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     gwas_filename = file_base + "_GWAS"
     annot_filename = file_base + "_ANNOT"
@@ -499,8 +520,8 @@ def write_input_for_browser(this_dataset, markers):
     annot_path = "{}/gn2/".format(TEMPDIR) + annot_filename
 
     with open(gwas_path + ".json", "w") as gwas_file, open(annot_path + ".json", "w") as annot_file:
-        gwas_file.write(json.dumps(markers))
-        annot_file.write(json.dumps([]))
+        gwas_file.write(json.dumps(gwas_results))
+        annot_file.write(json.dumps(annotations))
 
     return [gwas_filename, annot_filename]
     #return [gwas_filename, annot_filename]

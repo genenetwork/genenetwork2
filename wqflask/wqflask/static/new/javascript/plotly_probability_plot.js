@@ -195,7 +195,6 @@
             }
         },
         yaxis: {
-            title: "<b>Data Quantiles</b>",
             zeroline: false,
             visible: true,
             linecolor: 'black',

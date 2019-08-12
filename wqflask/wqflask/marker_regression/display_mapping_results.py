@@ -31,6 +31,7 @@ import piddle as pid
 import sys,os
 import cPickle
 import httplib
+import json
 
 from flask import Flask, g
 
@@ -1695,6 +1696,14 @@ class DisplayMappingResults(object):
             LRS_LOD_Max = min(LRS_LOD_Max, webqtlConfig.MAXLRS)
         else:
             LRS_LOD_Max = self.lrsMax
+
+        #ZS: Needed to pass to genome browser
+        js_data = json.loads(self.js_data)
+        if self.LRS_LOD == "LRS":
+            js_data['max_score'] = LRS_LOD_Max/4.16
+        else:
+            js_data['max_score'] = LRS_LOD_Max
+        self.js_data = json.dumps(js_data)
 
         if LRS_LOD_Max > 100:
             LRSScale = 20.0

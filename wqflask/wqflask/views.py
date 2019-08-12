@@ -698,8 +698,8 @@ def mapping_results_page():
                 #Redis.expire(key, 1*60)
 
                 with Bench("Rendering template"):
-                    if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                        gn1_template_vars.pop('qtlresults', None)
+                    #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
+                    #gn1_template_vars.pop('qtlresults', None)
                     rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template

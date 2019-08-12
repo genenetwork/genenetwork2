@@ -194,10 +194,10 @@ class ShowTrait(object):
                 trait_symbol = self.this_trait.symbol
                 short_description = trait_symbol
 
-            elif self.this_trait.post_publication_abbreviation:
+            elif hasattr(self.this_trait, 'post_publication_abbreviation'):
                 short_description = self.this_trait.post_publication_abbreviation
 
-            elif self.this_trait.pre_publication_abbreviation:
+            elif hasattr(self.this_trait, 'pre_publication_abbreviation'):
                 short_description = self.this_trait.pre_publication_abbreviation
 
         # Todo: Add back in the ones we actually need from below, as we discover we need them
