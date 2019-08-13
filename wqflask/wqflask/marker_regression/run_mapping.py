@@ -89,13 +89,8 @@ class RunMapping(object):
         self.num_vals = start_vars['num_vals']
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
-        if "geno_db_exists" in start_vars:
-            self.geno_db_exists = start_vars['geno_db_exists']
-        else:
-          try:
-            self.geno_db_exists = "True"
-          except:
-            self.geno_db_exists = "False"
+
+        self.geno_db_exists = geno_db_exists(self.dataset)
 
         self.mapping_method = start_vars['method']
         if "results_path" in start_vars:
@@ -324,13 +319,22 @@ class RunMapping(object):
                       ps  = marker['Mb']*1000000,
                       url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
                   )
-                  annot_marker = dict(
-                      name = str(marker['name']),
-                      chr = str(marker['chr']),
-                      rs  = marker['name'],
-                      pos  = marker['Mb']*1000000,
-                      url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
-                  )
+
+                  if self.geno_db_exists == "True":
+                      annot_marker = dict(
+                          name = str(marker['name']),
+                          chr = str(marker['chr']),
+                          rs  = marker['name'],
+                          pos  = marker['Mb']*1000000,
+                          url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
+                      )
+                  else:
+                      annot_marker = dict(
+                          name = str(marker['name']),
+                          chr = str(marker['chr']),
+                          rs  = marker['name'],
+                          pos  = marker['Mb']*1000000
+                      )
                   #if 'p_value' in marker:
                   #    logger.debug("P EXISTS:", marker['p_value'])
                   #else:
@@ -524,4 +528,11 @@ def write_input_for_browser(this_dataset, gwas_results, annotations):
         annot_file.write(json.dumps(annotations))
 
     return [gwas_filename, annot_filename]
-    #return [gwas_filename, annot_filename]
+
+def geno_db_exists(this_dataset):
+    geno_db_name = this_dataset.group.name + "Geno"
+    try:
+        geno_db = data_set.create_dataset(dataset_name=geno_db_name, get_samplelist=False)
+        return "True"
+    except:
+        return "False"
