@@ -17,7 +17,7 @@ var legendWidth = 140.0;
 if ('significant' in js_data) {
   var significant_score = parseFloat(js_data.significant)
 } else {
-  var significant_score = 4
+  var significant_score = js_data.max_score * 0.75
 }
 var score = { min: 0.0, max: js_data.max_score, sig: significant_score };
 var gwasPadding = { top: 35.0,
