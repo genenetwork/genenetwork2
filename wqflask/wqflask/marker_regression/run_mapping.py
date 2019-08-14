@@ -365,6 +365,8 @@ class RunMapping(object):
               with Bench("Trimming Markers for Table"):
                   self.trimmed_markers = trim_markers_for_table(results)
 
+              chr_lengths = get_chr_lengths(self.mapping_scale, self.dataset, self.qtl_results_for_browser)
+
               if self.mapping_method != "gemma":
                   if self.score_type == "LRS":
                       significant_for_browser = self.significant / 4.16
@@ -380,6 +382,7 @@ class RunMapping(object):
                       #mapping_scale = self.mapping_scale,
                       #chromosomes = chromosome_mb_lengths,
                       #qtl_results = self.qtl_results,
+                      chr_lengths = chr_lengths,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
                       browser_files = browser_files,
@@ -387,6 +390,7 @@ class RunMapping(object):
                   )
               else:
                 self.js_data = dict(
+                    chr_lengths = chr_lengths,
                     browser_files = browser_files
                 )
 
@@ -536,3 +540,26 @@ def geno_db_exists(this_dataset):
         return "True"
     except:
         return "False"
+
+def get_chr_lengths(mapping_scale, dataset, qtl_results):
+    chr_lengths = []
+    if mapping_scale == "physic":
+        for i, the_chr in enumerate(dataset.species.chromosomes.chromosomes):
+            this_chr = {
+                "chr": dataset.species.chromosomes.chromosomes[the_chr].name,
+                "size": str(dataset.species.chromosomes.chromosomes[the_chr].length)
+            }
+            chr_lengths.append(this_chr)
+    else:
+        this_chr = 1
+        highest_pos = 0
+        for i, result in enumerate(qtl_results):
+            if int(result['chr']) > this_chr or i == (len(qtl_results) - 1):
+                chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
+                this_chr = int(result['chr'])
+                highest_pos = 0
+            else:
+                if float(result['ps']) > highest_pos:
+                    highest_pos = float(result['ps'])
+
+    return chr_lengths

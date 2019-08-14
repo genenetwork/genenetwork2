@@ -9,28 +9,7 @@ localUrls =
   annotations: annot_filename
 };
 
-var coordinateSystem =
-          [
-              { chr: "1", size: "195471971" },
-              { chr: "2", size: "182113224" },
-              { chr: "3", size: "160039680" },
-              { chr: "4", size: "156508116" },
-              { chr: "5", size: "151834684" },
-              { chr: "6", size: "149736546" },
-              { chr: "7", size: "145441459" },
-              { chr: "8", size: "129401213" },
-              { chr: "9", size: "124595110" },
-              { chr: "10", size: "130694993" },
-              { chr: "11", size: "122082543" },
-              { chr: "12", size: "120129022" },
-              { chr: "13", size: "120421639" },
-              { chr: "14", size: "124902244" },
-              { chr: "15", size: "104043685" },
-              { chr: "16", size: "98207768" },
-              { chr: "17", size: "94987271" },
-              { chr: "18", size: "90702639" },
-              { chr: "19", size: "61431566" },
-          ];
+var coordinateSystem = js_data.chr_lengths
 
 var vscaleWidth = 90.0;
 var legendWidth = 140.0;
