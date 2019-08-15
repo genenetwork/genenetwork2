@@ -228,6 +228,7 @@ views.py).
             the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,
+                                    search_type['key']
                                     )
             return the_search
         else:
