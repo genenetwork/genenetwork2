@@ -70,7 +70,7 @@ class DoSearch(object):
         logger.debug("search_types are:", pf(cls.search_types))
 
         search_type_string = search_type['dataset_type']
-        if 'key' in search_type:
+        if 'key' in search_type and search_type['key'] != None:
             search_type_string += '_' + search_type['key']
 
         logger.debug("search_type_string is:", search_type_string)

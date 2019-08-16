@@ -219,6 +219,8 @@ views.py).
         search_type['dataset_type'] = self.dataset.type
         if a_search['key']:
             search_type['key'] = a_search['key'].upper()
+        else:
+            search_type['key'] = None
         logger.debug("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)
