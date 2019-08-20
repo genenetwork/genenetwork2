@@ -12,7 +12,7 @@ localUrls =
 var coordinateSystem = js_data.chr_lengths
 
 var vscaleWidth = 90.0;
-var legendWidth = 140.0;
+var legendWidth = 150.0;
 
 if ('significant' in js_data) {
   var significant_score = parseFloat(js_data.significant)
@@ -24,7 +24,7 @@ var gwasPadding = { top: 35.0,
                     bottom: 35.0,
                     left: vscaleWidth,
                     right: legendWidth };
-var gwasHeight = 320.0;
+var gwasHeight = 500.0;
 var config =
 {   score: score,
     urls: localUrls,
@@ -51,7 +51,7 @@ var config =
             score: score,
             legend: {
                 fontSize: 14,
-                hPad: 0.2,
+                hPad: 0.1,
                 vPad: 0.2
             },
             vscale: {

@@ -336,7 +336,7 @@ make_table = function() {
   if (js_data.trait_symbol != null) {
     header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
   } else {
-    header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+    header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + ": " + js_data.short_description + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
   }
   _ref = js_data.sample_group_types;
   for (key in _ref) {
@@ -938,7 +938,7 @@ if (js_data.num_values < 256) {
   bottom_margin = get_bar_bottom_margin(sample_lists[0])
 
   root.bar_layout = {
-    title: js_data.trait_id,
+    title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
     xaxis: {
         type: 'category',
         titlefont: {

@@ -160,7 +160,7 @@
                 <a href="#browser_holder" data-toggle="tab" aria-expanded="true">Genome Browser</a>
             </li>
           </ul>
-          <div class="tab-content">
+          <div class="tab-content" style="overflow-x: auto;">
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
@@ -169,17 +169,10 @@
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
-                  {% if nperm > 0 and permChecked == "ON" %}
-                  <br><br>
-                  <img src="/generated/{{ perm_filename }}.gif">
-                  <br><br>
-                  Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
-                  <br>
-                  {% endif %}
               </div>
             </div>
             <div class="tab-pane" id="browser_holder" style="height: 500px;">
-                <div id="browser">
+                <div id="browser" style="margin-right: 20px; width: 90%;">
                     <div id="controls">
                         <button id="scrollLeft"  type="button" >
                           <i class="fas fa-arrow-left"></i>
@@ -199,6 +192,15 @@
                 </div>
             </div>
           </div>
+        </div>
+        <div>
+            {% if nperm > 0 and permChecked == "ON" %}
+            <br><br>
+            <img src="/generated/{{ perm_filename }}.gif">
+            <br><br>
+            Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
+            <br>
+            {% endif %}
         </div>
 
         </form>
