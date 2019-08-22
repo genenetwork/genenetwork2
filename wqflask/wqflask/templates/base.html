@@ -41,7 +41,12 @@
                             <a href="/" style="font-weight: bold;">GeneNetwork</a>
                         </li>
                         <li class="">
-                            <a href="/intro">Intro</a>
+                            <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Intro <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/intro">Intro</a></li>
+                                <li><a href="/submit_trait">Submit Trait</a></li>
+                                <li><a href="http://genenetwork.org/webqtl/main.py?FormID=batSubmit">Batch Submission</a></li>
+                            </ul>
                         </li>
                         <li class="">
                             <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Info <span class="caret"></a>
@@ -56,7 +61,13 @@
                             </ul>
                         </li>
                         <li class="">
-                            <a href="/submit_trait">Submit Data</a>
+                                <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></a>
+                                <ul class="dropdown-menu">
+                                  <li><a href="/snp_browser">Variant Browser</a></li>
+                                  <li><a href="http://bnw.genenetwork.org/BNW/sourcecodes/home.php">Bayesian Network Webserver</a></li>
+                                  <li><a href="https://systems-genetics.org/">Systems Genetics PheWAS</a></li>
+                                  <li><a href="http://ucscbrowser.genenetwork.org/">Genome Browser</a></li>
+                                </ul>
                         </li>
                         <li class="">
                             <a href="/collections/list">Collections
@@ -66,9 +77,6 @@
                                 <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
                                 {% endif %}
                             </a>
-                        </li>
-                        <li class="">
-                            <a href="/snp_browser">SNP Browser</a>
                         </li>
                         <li class="">
                             {% if g.user_session.logged_in %}
@@ -82,9 +90,6 @@
                             <a href="http://gn2-staging.genenetwork.org" style="font-weight: bold;" >Use Staging Branch</a>
                         </li>
                         -->
-                        <li style="margin-left: 20px;">
-                            <a href="http://www.genenetwork.org" style="font-weight: bold;" >Use GN1</a>
-                        </li>
                     </ul>
                 </div>
             </div>

@@ -54,6 +54,8 @@ EBIGWAS_URL = "https://www.ebi.ac.uk/gwas/search?query=%s"
 WIKI_PI_URL = "http://severus.dbmi.pitt.edu/wiki-pi/index.php/search?q=%s"
 ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Transcript/Idhistory?t=%s"
 DBSNP = 'http://ensembl.org/Mus_musculus/Variation/Population?v=%s'
+PROTEIN_ATLAS_URL = "http://www.proteinatlas.org/search/%s"
+OPEN_TARGETS_URL = "https://genetics.opentargets.org/gene/%s"
 
 # Temporary storage (note that this TMPDIR can be set as an
 # environment variable - use utility.tools.TEMPDIR when you

@@ -255,7 +255,6 @@ class ShowTrait(object):
         self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if check_if_attr_exists(self.this_trait, 'pubmed_id') else None
         self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if check_if_attr_exists(self.this_trait, 'geneid') else None
         self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if check_if_attr_exists(self.this_trait, 'omim') else None
-        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if check_if_attr_exists(self.this_trait, 'unigeneid') else None
         self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if check_if_attr_exists(self.this_trait, 'homologeneid') else None
 
         self.genbank_link = None
@@ -265,14 +264,16 @@ class ShowTrait(object):
                 genbank_id = genbank_id[0:-1]
             self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
 
-        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = None
-        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = None
+        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
+        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
         if self.this_trait.symbol:
             self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
             self.gtex_link = webqtlConfig.GTEX_URL % self.this_trait.symbol
             self.string_link = webqtlConfig.STRING_URL % self.this_trait.symbol
             self.panther_link = webqtlConfig.PANTHER_URL % self.this_trait.symbol
             self.ebi_gwas_link = webqtlConfig.EBIGWAS_URL % self.this_trait.symbol
+            self.protein_atlas_link = webqtlConfig.PROTEIN_ATLAS_URL % self.this_trait.symbol
+            self.open_targets_link = webqtlConfig.OPEN_TARGETS_URL % self.this_trait.symbol
 
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
                 if self.dataset.group.species == "mouse":

@@ -100,15 +100,15 @@
             </a>
             &nbsp;&nbsp;
             {% endif %}
-            {% if unigene_link %}
-            <a href="{{ unigene_link }}" target="_blank" title="NCBI UniGene">
-                UniGene
+            {% if protein_atlas_link %}
+            <a href="{{ protein_atlas_link }}" target="_blank" title="Human Protein Atlas">
+                    Protein Atlas
             </a>
             &nbsp;&nbsp;
             {% endif %}
-            {% if genbank_link %}
-            <a href="{{ genbank_link }}" target="_blank" title="Find the original GenBank sequence used to design the probes">
-                GenBank
+            {% if open_targets_link %}
+            <a href="{{ open_targets_link }}" target="_blank" title="Open Targets">
+                Open Targets
             </a>
             &nbsp;&nbsp;
             {% endif %}
@@ -219,6 +219,9 @@
         </a>
         {% endif %}
         {% endif %}
+        <a target="_blank" href="http://www.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
+        <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1">View in GN1</button>
+        </a>
     </div>
 </div>
 
