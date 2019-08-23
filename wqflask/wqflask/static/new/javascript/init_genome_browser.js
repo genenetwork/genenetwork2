@@ -69,8 +69,10 @@ var config =
     },
     // initialChrs: { left: "1", right: "5" }
     coordinateSystem: coordinateSystem,
-  };
+};
 
-GenomeBrowser.main(config)();
+$('#browser_tab').click(function() {
+  GenomeBrowser.main(config)();
+});
 
 document.getElementById("controls").style.visibility = "visible";

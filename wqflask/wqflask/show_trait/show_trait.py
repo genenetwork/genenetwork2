@@ -273,7 +273,7 @@ class ShowTrait(object):
             self.panther_link = webqtlConfig.PANTHER_URL % self.this_trait.symbol
             self.ebi_gwas_link = webqtlConfig.EBIGWAS_URL % self.this_trait.symbol
             self.protein_atlas_link = webqtlConfig.PROTEIN_ATLAS_URL % self.this_trait.symbol
-            self.open_targets_link = webqtlConfig.OPEN_TARGETS_URL % self.this_trait.symbol
+            #self.open_targets_link = webqtlConfig.OPEN_TARGETS_URL % self.this_trait.symbol
 
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
                 if self.dataset.group.species == "mouse":
