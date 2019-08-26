@@ -181,16 +181,16 @@ class RunMapping(object):
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.first_run = True
-            self.gwa_filename = None
+            self.output_files= None
             if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
                 self.first_run = False
-                if 'gwa_filename' in start_vars:
-                    self.gwa_filename = start_vars['gwa_filename']
+                if 'output_files' in start_vars:
+                    self.output_files = start_vars['output_files']
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 if self.use_loco == "True":
-                    marker_obs, self.gwa_filename = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.gwa_filename)
+                    marker_obs, self.output_files = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
                 else:
                     marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run)
             results = marker_obs
@@ -244,7 +244,14 @@ class RunMapping(object):
             logger.info("Running qtlreaper")
 
             if self.reaper_version == "new":
-                results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_reaper(self.this_trait,
+                self.first_run = True
+                self.output_files = None
+                if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
+                    self.first_run = False
+                    if 'output_files' in start_vars:
+                        self.output_files = start_vars['output_files'].split(",")
+
+                results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
                                                                                                                                     self.dataset,
                                                                                                                                     self.samples,
                                                                                                                                     self.vals,
@@ -254,7 +261,9 @@ class RunMapping(object):
                                                                                                                                     self.num_bootstrap,
                                                                                                                                     self.do_control,
                                                                                                                                     self.control_marker,
-                                                                                                                                    self.manhattan_plot)
+                                                                                                                                    self.manhattan_plot,
+                                                                                                                                    self.first_run,
+                                                                                                                                    self.output_files)
             else:
                 results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_original_reaper(self.this_trait,
                                                                                                                                                              self.dataset,

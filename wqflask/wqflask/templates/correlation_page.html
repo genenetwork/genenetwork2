@@ -70,19 +70,42 @@
                 </button>
           </form>
         </div>
+        <br />
         <div>
-        <br />
-        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-        <button id="redraw" class="btn btn-default">Reset Columns</button>
-        <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-        <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-        <br />
-        <br />
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button id="redraw" class="btn btn-default">Reset Columns</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+            <br />
+            <br />
+            <button id="more_options" class="btn btn-primary">More Options...</button>
+            <br />
+            <br />
+            <div id="filter_options" style="display: none;">
+            <span style="border: 1px dashed #999999; padding: 8px; background-color: #ddf; font-size: 12px;">
+                <button id="select_traits" class="btn btn-primary" style="font-size: 12px; padding: 2px 3px;">Select Traits</button> with r >
+                <input type="text" name="r_greater_select" value="-1.0" size="6" maxlength="10">
+                <select id="r_and_or" size="1">
+                    <option value="and" selected>AND</option>
+                    <option value="or">OR</option>
+                </select>
+                r <
+                <input type="text" name="r_less_select" value="1.0" size="6" maxlength="10">, with mean >
+                <input type="text" name="mean_greater_select" value="0" size="6" maxlength="10">
+                <select id="mean_and_or" size="1">
+                    <option value="and" selected>AND</option>
+                    <option value="or">OR</option>
+                </select>
+                mean <
+                <input type="text" name="mean_less_select" value="100" size="6" maxlength="10">
+            </span>
+            <br />
+            <br />
+            </div>
         </div>
-
         <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
             <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
                 <thead>
@@ -262,6 +285,48 @@
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
 
+        //$.fn.dataTableExt.afnFiltering.push(
+
+        $.fn.dataTable.ext.search.push( function( settings, data, dataIndex ) {
+                var r_column = 10;
+                var r_greater = parseFloat($('input[name=r_greater_select]').val())
+                var r_less = parseFloat($('input[name=r_less_select]').val());
+                var r_and_or = $('#r_and_or').val();
+
+                var mean_column = 6;
+                var mean_greater = parseFloat($('input[name=mean_greater_select]').val());
+                var mean_less = parseFloat($('input[name=mean_less_select]').val());
+                var mean_and_or = $('#mean_and_or').val();
+
+
+                if (r_and_or == "and" && mean_and_or == "and"){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && (data[mean_column] > mean_greater && data[mean_column] < mean_less) ){
+                        return true
+                    }
+                    else {
+                        return false
+                    }
+                } else if (r_and_or == "and" && mean_and_or == "or"){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && (data[mean_column] >= mean_greater || data[mean_column] <= mean_less) ){
+                        return true
+                    } else {
+                        return false
+                    }
+                } else if (r_and_or == "or" && mean_and_or == "and") {
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && (data[mean_column] >= mean_greater && data[mean_column] <= mean_less) ){
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && (data[mean_column] >= mean_greater || data[mean_column] <= mean_less) ){
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                return true
+        });
 
         $(document).ready( function () {
 
@@ -301,7 +366,7 @@
             console.time("Creating table");
 
             {% if target_dataset.type == "ProbeSet" %}
-            $('#trait_table').dataTable( {
+            table_conf = {
                 "drawCallback": function( settings ) {
                      $('#trait_table tr').click(function(event) {
                          if (event.target.type !== 'checkbox') {
@@ -361,12 +426,10 @@
                 "scroller": true,
                 "paging": false,
                 "orderClasses": true
-            } );
-
-            var table = $('#trait_table').DataTable();
+            }
 
             {% elif target_dataset.type == "Publish" %}
-            $('#trait_table').dataTable( {
+            table_conf =  {
                 "paging": false,
                 "buttons": [
                     {
@@ -414,9 +477,9 @@
                 "bDeferRender": true,
                 "scrollY": "800px",
                 "scrollCollapse": false
-            } );
+            }
             {% elif target_dataset.type == "Geno" %}
-            $('#trait_table').dataTable( {
+            table_conf = {
                 "paging": false,
                 "buttons": [
                     {
@@ -447,8 +510,11 @@
                 "bDeferRender": true,
                 "scrollY": "800px",
                 "scrollCollapse": false
-            } );
+            }
             {% endif %}
+
+            var the_table = $('#trait_table').DataTable(table_conf);
+
             console.timeEnd("Creating table");
 
             submit_special = function(url) {
@@ -459,6 +525,15 @@
             $("#delete").on("click", function() {
                 url = $(this).data("url")
                 return submit_special(url)
+            });
+
+            $("#more_options").click(function() {
+                $("div#filter_options").toggle();
+            });
+
+            $("#select_traits").click(function() {
+                console.log("redrawing")
+                the_table.draw();
             });
         });
     </script>

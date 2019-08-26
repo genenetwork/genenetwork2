@@ -598,7 +598,7 @@ def mapping_results_page():
         'samples',
         'vals',
         'first_run',
-        'gwa_filename',
+        'output_files',
         'geno_db_exists',
         'method',
         'mapping_results_path',

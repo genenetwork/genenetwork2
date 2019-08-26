@@ -8,45 +8,48 @@ from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot):
+def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
     """Generates p-values for each marker using qtlreaper"""
 
-    if this_dataset.group.genofile != None:
-        genofile_name = this_dataset.group.genofile[:-5]
+    if first_run:
+        if this_dataset.group.genofile != None:
+            genofile_name = this_dataset.group.genofile[:-5]
+        else:
+            genofile_name = this_dataset.group.name
+
+        trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
+        gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename)
+
+        output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        bootstrap_filename = None
+        permu_filename = None
+
+        opt_list = []
+        if boot_check and num_bootstrap > 0:
+            bootstrap_filename = this_dataset.group.name + "_BOOTSTRAP_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+
+            opt_list.append("-b")
+            opt_list.append("--n_bootstrap " + str(num_bootstrap))
+            opt_list.append("--bootstrap_output " + webqtlConfig.GENERATED_IMAGE_DIR + bootstrap_filename + ".txt")
+        if num_perm > 0:
+            permu_filename = this_dataset.group.name + "_PERM_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            opt_list.append("-n " + str(num_perm))
+            opt_list.append("--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
+        if control_marker != "" and do_control == "true":
+            opt_list.append("-c " + control_marker)
+
+        reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
+                                                                                                                genofile_name,
+                                                                                                                TEMPDIR,
+                                                                                                                trait_filename,
+                                                                                                                " ".join(opt_list),
+                                                                                                                webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                                output_filename)
+
+        logger.debug("reaper_command:" + reaper_command)
+        os.system(reaper_command)
     else:
-        genofile_name = this_dataset.group.name
-
-    trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
-    gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename)
-
-    output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    bootstrap_filename = None
-    permu_filename = None
-
-    opt_list = []
-    if boot_check and num_bootstrap > 0:
-        bootstrap_filename = this_dataset.group.name + "_BOOTSTRAP_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-
-        opt_list.append("-b")
-        opt_list.append("--n_bootstrap " + str(num_bootstrap))
-        opt_list.append("--bootstrap_output " + webqtlConfig.GENERATED_IMAGE_DIR + bootstrap_filename + ".txt")
-    if num_perm > 0:
-        permu_filename = this_dataset.group.name + "_PERM_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-        opt_list.append("-n " + str(num_perm))
-        opt_list.append("--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
-    if control_marker != "" and do_control == "true":
-        opt_list.append("-c " + control_marker)
-
-    reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
-                                                                                                            genofile_name,
-                                                                                                            TEMPDIR,
-                                                                                                            trait_filename,
-                                                                                                            " ".join(opt_list),
-                                                                                                            webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                                                            output_filename)
-
-    logger.debug("reaper_command:" + reaper_command)
-    os.system(reaper_command)
+        output_filename, permu_filename, bootstrap_filename = output_files
 
     marker_obs, permu_vals, bootstrap_vals = parse_reaper_output(output_filename, permu_filename, bootstrap_filename)
 
@@ -56,7 +59,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         suggestive = permu_vals[int(num_perm*0.37-1)]
         significant = permu_vals[int(num_perm*0.95-1)]
 
-    return marker_obs, permu_vals, suggestive, significant, bootstrap_vals
+    return marker_obs, permu_vals, suggestive, significant, bootstrap_vals, [output_filename, permu_filename, bootstrap_filename]
 
 def gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename):
     """Generates phenotype file for GEMMA"""

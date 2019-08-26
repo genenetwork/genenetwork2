@@ -232,10 +232,12 @@ class DisplayMappingResults(object):
         if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
             if self.use_loco == "True":
-                self.gwa_filename = start_vars['gwa_filename']
+                self.output_files = start_vars['output_files']
 
         if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
             self.reaper_version = start_vars['reaper_version']
+            if 'output_files' in start_vars:
+                self.output_files = ",".join(start_vars['output_files'])
 
         self.selectedChr = int(start_vars['selected_chr'])
 

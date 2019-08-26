@@ -19,8 +19,8 @@
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
         <input type="hidden" name="geno_db_exists" value="{{ geno_db_exists }}">
         <input type="hidden" name="first_run" value="{{ first_run }}">
-        {% if gwa_filename is defined %}
-        <input type="hidden" name="gwa_filename" value="{{ gwa_filename }}">
+        {% if output_files is defined %}
+        <input type="hidden" name="output_files" value="{{ output_files }}">
         {% endif %}
         {% if reaper_version is defined %}
         <input type="hidden" name="reaper_version" value="{{ reaper_version }}">
@@ -171,7 +171,7 @@
                   {% endif %}
               </div>
             </div>
-            <div class="tab-pane" id="browser_holder" style="height: 500px;">
+            <div class="tab-pane" id="browser_holder" style="height: 600px;">
                 <div id="browser" style="margin-right: 20px; width: 90%;">
                     <div id="controls">
                         <button id="scrollLeft"  type="button" >

@@ -12,7 +12,7 @@ GEMMAOPTS = "-debug"
 if WEBSERVER_MODE == 'PROD':
   GEMMAOPTS = "-no-check"
 
-def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf=0.01, first_run=True, gwa_output_filename=None):
+def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf=0.01, first_run=True, output_files=None):
     """Generates p-values for each marker using GEMMA"""
 
     if this_dataset.group.genofile != None:
@@ -101,6 +101,8 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
 
       logger.debug("gemma_command:" + gemma_command)
       os.system(gemma_command)
+    else:
+      gwa_output_filename = output_files
 
     if use_loco == "True":
         marker_obs = parse_loco_output(this_dataset, gwa_output_filename)

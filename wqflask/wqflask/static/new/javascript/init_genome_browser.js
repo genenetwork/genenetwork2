@@ -72,7 +72,9 @@ var config =
 };
 
 $('#browser_tab').click(function() {
-  GenomeBrowser.main(config)();
+  if ($('#gwas').length == 0){
+    GenomeBrowser.main(config)();
+  }
 });
 
 document.getElementById("controls").style.visibility = "visible";
