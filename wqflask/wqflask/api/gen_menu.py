@@ -5,6 +5,7 @@ import sys
 from flask import g
 
 from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
+from utility.benchmark import Bench
 
 import MySQLdb
 
@@ -54,15 +55,22 @@ def get_groups(species):
     groups = {}
     for species_name, _species_full_name in species:
         groups[species_name] = []
+        # results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName
+        #                         FROM InbredSet, Species, ProbeFreeze, GenoFreeze, PublishFreeze
+        #                         WHERE Species.Name = '{}' AND
+        #                                 InbredSet.SpeciesId = Species.Id AND
+        #                                 (PublishFreeze.InbredSetId = InbredSet.Id OR
+        #                                 GenoFreeze.InbredSetId = InbredSet.Id OR
+        #                                 ProbeFreeze.InbredSetId = InbredSet.Id)
+        #                         GROUP by InbredSet.Name
+        #                         ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
+
         results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName
-                                  FROM InbredSet, Species, ProbeFreeze, GenoFreeze, PublishFreeze
-                                  WHERE Species.Name = '{}' AND
-                                        InbredSet.SpeciesId = Species.Id AND
-                                        (PublishFreeze.InbredSetId = InbredSet.Id OR
-                                         GenoFreeze.InbredSetId = InbredSet.Id OR
-                                         ProbeFreeze.InbredSetId = InbredSet.Id)
-                                  GROUP by InbredSet.Name
-                                  ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
+                                FROM InbredSet, Species
+                                WHERE Species.Name = '{}' AND
+                                        InbredSet.SpeciesId = Species.Id
+                                GROUP by InbredSet.Name
+                                ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
 
         for result in results:
             groups[species_name].append([str(result[0]), str(result[1])])
