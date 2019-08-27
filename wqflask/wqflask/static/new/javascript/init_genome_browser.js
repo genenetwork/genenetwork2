@@ -71,6 +71,10 @@ var config =
     coordinateSystem: coordinateSystem,
 };
 
+if (js_data.selected_chr != -1) {
+    config['initialChrs'] = {left: js_data.selected_chr, right: js_data.selected_chr}
+}
+
 $('#browser_tab').click(function() {
   if ($('#gwas').length == 0){
     GenomeBrowser.main(config)();

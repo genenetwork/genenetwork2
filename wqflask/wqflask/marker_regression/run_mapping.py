@@ -376,6 +376,25 @@ class RunMapping(object):
 
               chr_lengths = get_chr_lengths(self.mapping_scale, self.dataset, self.qtl_results_for_browser)
 
+              #ZS: For zooming into genome browser, need to pass chromosome name instead of number
+              if self.dataset.group.species == "mouse":
+                  if self.selected_chr == 20:
+                      this_chr = "X"
+                  else:
+                      this_chr = str(self.selected_chr)
+              elif self.dataset.group.species == "rat":
+                  if self.selected_chr == 21:
+                      this_chr = "X"
+                  else:
+                      this_chr = str(self.selected_chr)
+              else:
+                  if self.selected_chr == 22:
+                      this_chr = "X"
+                  elif self.selected_chr == 23:
+                      this_chr = "Y"
+                  else:
+                      this_chr = str(self.selected_chr)
+
               if self.mapping_method != "gemma":
                   if self.score_type == "LRS":
                       significant_for_browser = self.significant / 4.16
@@ -395,12 +414,14 @@ class RunMapping(object):
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
                       browser_files = browser_files,
-                      significant = significant_for_browser
+                      significant = significant_for_browser,
+                      selected_chr = this_chr
                   )
               else:
                 self.js_data = dict(
                     chr_lengths = chr_lengths,
-                    browser_files = browser_files
+                    browser_files = browser_files,
+                    selected_chr = this_chr
                 )
 
     def run_rqtl_plink(self):
