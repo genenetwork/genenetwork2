@@ -477,8 +477,8 @@ class SnpBrowser(object):
 
                 the_bases = []
                 for j, item in enumerate(allele_value_list):
-                    if item and isinstance(item, str):
-                        this_base = [item, base_color_dict[item]]
+                    if item and isinstance(item, basestring):
+                        this_base = [str(item), base_color_dict[item]]
                     else:
                         this_base = ""
 
@@ -486,24 +486,24 @@ class SnpBrowser(object):
 
                 this_row = {
                     "index": i + 1,
-                    "rs": rs,
-                    "snp_url": snp_url,
-                    "snp_name": snp_name,
-                    "chr": chr,
+                    "rs": str(rs),
+                    "snp_url": str(snp_url),
+                    "snp_name": str(snp_name),
+                    "chr": str(chr),
                     "mb_formatted": mb_formatted,
-                    "alleles": alleles,
-                    "snp_source": snp_source,
+                    "alleles": str(alleles),
+                    "snp_source": str(snp_source),
                     "source_urls": source_urls,
-                    "conservation_score": conservation_score,
-                    "gene_name": gene_name,
-                    "gene_link": gene_link,
-                    "transcript": transcript,
-                    "transcript_link": transcript_link,
-                    "exon": exon,
-                    "domain_1": domain_1,
-                    "domain_2": domain_2,
-                    "function": function, 
-                    "function_details": function_details,
+                    "conservation_score": str(conservation_score),
+                    "gene_name": str(gene_name),
+                    "gene_link": str(gene_link),
+                    "transcript": str(transcript),
+                    "transcript_link": str(transcript_link),
+                    "exon": str(exon),
+                    "domain_1": str(domain_1),
+                    "domain_2": str(domain_2),
+                    "function": str(function),
+                    "function_details": str(function_details),
                     "allele_value_list": the_bases
                 }
 
@@ -511,15 +511,15 @@ class SnpBrowser(object):
                 indel_name, indel_chr, indel_mb_s, indel_mb_e, indel_strand, indel_type, indel_size, indel_sequence, source_name = result
                 this_row = {
                     "index": i,
-                    "indel_name": indel_name,
-                    "indel_chr": indel_chr,
-                    "indel_mb_s": indel_mb_s,
-                    "indel_mb_e": indel_mb_e,
-                    "indel_strand": indel_strand,
-                    "indel_type": indel_type,
-                    "indel_size": indel_size,
-                    "indel_sequence": indel_sequence,
-                    "source_name": source_name
+                    "indel_name": str(indel_name),
+                    "indel_chr": str(indel_chr),
+                    "indel_mb_s": str(indel_mb_s),
+                    "indel_mb_e": str(indel_mb_e),
+                    "indel_strand": str(indel_strand),
+                    "indel_type": str(indel_type),
+                    "indel_size": str(indel_size),
+                    "indel_sequence": str(indel_sequence),
+                    "source_name": str(source_name)
                 }
                 #this_row = [indel_name, indel_chr, indel_mb_s, indel_mb_e, indel_strand, indel_type, indel_size, indel_sequence, source_name]
             else:
@@ -612,7 +612,7 @@ class SnpBrowser(object):
             this_allele_list = []
 
             for item in self.allele_list:
-                if item and isinstance(item, str) and (item.lower() not in this_allele_list) and (item != "-"):
+                if item and isinstance(item, basestring) and (item.lower() not in this_allele_list) and (item != "-"):
                     this_allele_list.append(item.lower())
 
             total_allele_count = len(this_allele_list)
