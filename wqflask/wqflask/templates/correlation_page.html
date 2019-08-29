@@ -161,12 +161,12 @@
                                 {{ trait.pubmed_text }}
                             </a>
                         </td>
-                        <td align="right">{{ trait.LRS_score_repr }}</td>
-                        <td align="right">{{ trait.LRS_location_repr }}</td>
-                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                         <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                         <td align="right">{{ trait.num_overlap }}</td>
                         <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td align="right">{{ trait.LRS_score_repr }}</td>
+                        <td align="right">{{ trait.LRS_location_repr }}</td>
+                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Geno" %}
                         <td align="right">{{ trait.location_repr }}</TD>
                         <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
@@ -233,38 +233,37 @@
         //$.fn.dataTableExt.afnFiltering.push(
 
         $.fn.dataTable.ext.search.push( function( settings, data, dataIndex ) {
-                var r_column = 10;
+                var r_column = {{ filter_cols[0] }};
                 var r_greater = parseFloat($('input[name=r_greater_select]').val())
                 var r_less = parseFloat($('input[name=r_less_select]').val());
                 var r_and_or = $('#r_and_or').val();
 
-                var mean_column = 6;
+                var mean_column = {{ filter_cols[1] }};
                 var mean_greater = parseFloat($('input[name=mean_greater_select]').val());
                 var mean_less = parseFloat($('input[name=mean_less_select]').val());
                 var mean_and_or = $('#mean_and_or').val();
 
-
                 if (r_and_or == "and" && mean_and_or == "and"){
-                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && (data[mean_column] > mean_greater && data[mean_column] < mean_less) ){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] > mean_greater && data[mean_column] < mean_less){% else %} true{% endif %} ){
                         return true
                     }
                     else {
                         return false
                     }
                 } else if (r_and_or == "and" && mean_and_or == "or"){
-                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && (data[mean_column] >= mean_greater || data[mean_column] <= mean_less) ){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater || data[mean_column] <= mean_less){% else %} true{% endif %} ){
                         return true
                     } else {
                         return false
                     }
                 } else if (r_and_or == "or" && mean_and_or == "and") {
-                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && (data[mean_column] >= mean_greater && data[mean_column] <= mean_less) ){
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater && data[mean_column] <= mean_less){% else %} true{% endif %} ){
                         return true
                     } else {
                         return false
                     }
                 } else {
-                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && (data[mean_column] >= mean_greater || data[mean_column] <= mean_less) ){
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater || data[mean_column] <= mean_less){% else %} true{% endif %} ){
                         return true
                     } else {
                         return false
@@ -360,7 +359,7 @@
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
-                "order": [[12, "asc" ]],
+                "order": [[9, "asc" ]],
                 "sDom": "tir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
@@ -395,11 +394,11 @@
                     { "type": "natural", "width": "12%" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
                     { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
+                    { "type": "scientific" },
                     { "type": "natural" },
-                    { "type": "scientific" }
+                    { "type": "natural" },
+                    { "type": "natural" }
                 ],
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
@@ -413,12 +412,10 @@
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
-                "order": [[11, "asc" ]],
-                "sDom": "Btir",
+                "order": [[8, "asc" ]],
+                "sDom": "tir",
                 "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false
+                "bDeferRender": true
             }
             {% elif target_dataset.type == "Geno" %}
             table_conf = {

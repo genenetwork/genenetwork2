@@ -150,6 +150,13 @@ class CorrelationResults(object):
 
             self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
 
+            if self.target_dataset.type == "ProbeSet":
+                self.filter_cols = [7, 6]
+            elif self.target_dataset.type == "Publish":
+                self.filter_cols = [6, 0]
+            else:
+                self.filter_cols = [4, 0]
+
             self.correlation_results = []
 
             self.correlation_data = {}
@@ -583,7 +590,10 @@ def get_header_fields(data_type, corr_method):
                             'Year',
                             'Sample r',
                             'N',
-                            'Sample p(r)']
+                            'Sample p(r)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
         else:
             header_fields = ['Index',
                             'Record',
@@ -592,7 +602,10 @@ def get_header_fields(data_type, corr_method):
                             'Year',
                             'Sample rho',
                             'N',
-                            'Sample p(rho)']
+                            'Sample p(rho)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
     else:
         if corr_method == "pearson":
             header_fields = ['Index',
