@@ -148,6 +148,8 @@ class CorrelationResults(object):
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
             self.target_dataset.get_trait_data(self.sample_data.keys())
 
+            self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
+
             self.correlation_results = []
 
             self.correlation_data = {}
@@ -537,3 +539,74 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_list.append(results_dict)
 
     return json.dumps(results_list)
+
+def get_header_fields(data_type, corr_method):
+    if data_type == "ProbeSet":
+        if corr_method == "pearson":
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample r',
+                                'N',
+                                'Sample p(r)',
+                                'Lit r',
+                                'Tissue r',
+                                'Tissue p(r)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+        else:
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample rho',
+                                'N',
+                                'Sample p(rho)',
+                                'Lit rho',
+                                'Tissue rho',
+                                'Tissue p(rho)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+    elif data_type == "Publish":
+        if corr_method == "pearson":
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample r',
+                            'N',
+                            'Sample p(r)']
+        else:
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample rho',
+                            'N',
+                            'Sample p(rho)']
+    else:
+        if corr_method == "pearson":
+            header_fields = ['Index',
+                                'ID',
+                                'Location'
+                                'Sample r',
+                                'N',
+                                'Sample p(r)']
+        else:
+            header_fields = ['Index',
+                                'ID',
+                                'Location'
+                                'Sample rho',
+                                'N',
+                                'Sample p(rho)']
+
+    return header_fields
