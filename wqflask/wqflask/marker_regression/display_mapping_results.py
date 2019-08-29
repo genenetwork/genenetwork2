@@ -229,10 +229,10 @@ class DisplayMappingResults(object):
             self.covariates = start_vars['covariates']
         if 'maf' in start_vars.keys():
             self.maf = start_vars['maf']
+        if 'output_files' in start_vars.keys():
+            self.output_files = start_vars['output_files']
         if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
-            if self.use_loco == "True":
-                self.output_files = start_vars['output_files']
 
         if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
             self.reaper_version = start_vars['reaper_version']
@@ -1702,7 +1702,7 @@ class DisplayMappingResults(object):
         #ZS: Needed to pass to genome browser
         js_data = json.loads(self.js_data)
         if self.LRS_LOD == "LRS":
-            js_data['max_score'] = LRS_LOD_Max/4.16
+            js_data['max_score'] = LRS_LOD_Max/4.61
         else:
             js_data['max_score'] = LRS_LOD_Max
         self.js_data = json.dumps(js_data)
@@ -2068,9 +2068,9 @@ class DisplayMappingResults(object):
         #########################################
         myCanvas = pid.PILCanvas(size=(400,300))
         if 'lod_score' in self.qtlresults[0] and self.LRS_LOD == "LRS":
-            perm_output = [value*4.16 for value in self.perm_output]
+            perm_output = [value*4.61 for value in self.perm_output]
         elif 'lod_score' not in self.qtlresults[0] and self.LRS_LOD == "LOD":
-            perm_output = [value/4.16 for value in self.perm_output]
+            perm_output = [value/4.61 for value in self.perm_output]
         else:
             perm_output = self.perm_output
 

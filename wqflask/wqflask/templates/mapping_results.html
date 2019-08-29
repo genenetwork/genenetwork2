@@ -250,11 +250,11 @@
                 {% if 'lod_score' in marker %}
                 <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                 {% else %}
-                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.61) }}</td>
                 {% endif %}
                 {% else %}
                 {% if 'lod_score' in marker %}
-                <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.61) }}</td>
                 {% else %}
                 <td align="right">{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
                 {% endif %}

@@ -109,7 +109,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
         return marker_obs, gwa_output_filename
     else:
         marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
-        return marker_obs
+        return marker_obs, gwa_output_filename
 
 def gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename):
     """Generates phenotype file for GEMMA"""

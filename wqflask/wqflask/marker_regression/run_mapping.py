@@ -181,18 +181,18 @@ class RunMapping(object):
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.first_run = True
-            self.output_files= None
+            self.output_files = None
+            if 'output_files' in start_vars:
+                self.output_files = start_vars['output_files']
             if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
                 self.first_run = False
-                if 'output_files' in start_vars:
-                    self.output_files = start_vars['output_files']
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 if self.use_loco == "True":
                     marker_obs, self.output_files = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
                 else:
-                    marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run)
+                    marker_obs, self.output_files = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
@@ -397,7 +397,7 @@ class RunMapping(object):
 
               if self.mapping_method != "gemma":
                   if self.score_type == "LRS":
-                      significant_for_browser = self.significant / 4.16
+                      significant_for_browser = self.significant / 4.61
                   else:
                       significant_for_browser = self.significant
 
@@ -521,15 +521,15 @@ def trim_markers_for_figure(markers):
             else:
                 filtered_markers.append(marker)
         else:
-            if marker[score_type] < 4.16:
+            if marker[score_type] < 4.61:
                 if low_counter % 20 == 0:
                     filtered_markers.append(marker)
                 low_counter += 1
-            elif 4.16 <= marker[score_type] < (2*4.16):
+            elif 4.61 <= marker[score_type] < (2*4.61):
                 if med_counter % 10 == 0:
                     filtered_markers.append(marker)
                 med_counter += 1
-            elif (2*4.16) <= marker[score_type] <= (3*4.16):
+            elif (2*4.61) <= marker[score_type] <= (3*4.61):
                 if high_counter % 2 == 0:
                     filtered_markers.append(marker)
                 high_counter += 1
