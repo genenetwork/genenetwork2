@@ -118,6 +118,13 @@ If you want to run as root you may have to set
 : [mariadbd]
 : user=root
 
+You also need to set
+
+: ft_min_word_len = 3
+
+To make sure word text searches (shh) work and rebuild the tables if
+required.
+
 To check error output in a file on start-up run with something like
 
 : mariadbd -u mariadb --console  --explicit_defaults_for_timestamp  --datadir=/gnu/mariadb --log-error=~/test.log
