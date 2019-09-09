@@ -2,6 +2,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
 {% endblock %}
 {% block content %}
     <div class="container" style="min-width: 1250px;">
@@ -188,10 +189,9 @@
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
 
     <script type="text/javascript" charset="utf-8">
@@ -319,15 +319,17 @@
                      });
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ {
@@ -360,7 +362,7 @@
                     }
                 },
                 "order": [[9, "asc" ]],
-                "sDom": "tir",
+                "sDom": "Btir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
@@ -372,15 +374,17 @@
             {% elif target_dataset.type == "Publish" %}
             table_conf =  {
                 "paging": false,
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ 
@@ -413,22 +417,24 @@
                     }
                 },
                 "order": [[8, "asc" ]],
-                "sDom": "tir",
+                "sDom": "Btir",
                 "autoWidth": false,
                 "bDeferRender": true
             }
             {% elif target_dataset.type == "Geno" %}
             table_conf = {
                 "paging": false,
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ 
