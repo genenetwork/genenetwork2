@@ -289,11 +289,14 @@ assert_dir(TEMPDIR)
 JS_GUIX_PATH = get_setting("JS_GUIX_PATH")
 assert_dir(JS_GUIX_PATH)
 assert_dir(JS_GUIX_PATH+'/cytoscape-panzoom')
+
 CSS_PATH = "UNKNOWN"
 # assert_dir(JS_PATH)
-JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("Twitter-Post-Fetcher"))
+
+JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("javascript-twitter-post-fetcher"))
 assert_dir(JS_TWITTER_POST_FETCHER_PATH)
 assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
+
 JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH",js_path("cytoscape"))
 assert_dir(JS_CYTOSCAPE_PATH)
 assert_file(JS_CYTOSCAPE_PATH+'/cytoscape.min.js')
