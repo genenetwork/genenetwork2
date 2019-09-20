@@ -14,6 +14,10 @@
     <div class="container" style="min-width: 900px;">
         <form method="post" target="_blank" action="/run_mapping" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
+        {% if temp_trait is defined %}
+        <input type="hidden" name="temp_trait" value="{{ temp_trait }}">
+        <input type="hidden" name="group" value="{{ group }}">
+        {% endif %}
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
@@ -196,7 +200,8 @@
         <div>
             {% if nperm > 0 and permChecked == "ON" %}
             <br><br>
-            <img src="/generated/{{ perm_filename }}.gif">
+            <div id="perm_histogram" class="barchart"></div>
+            <!--<img src="/generated/{{ perm_filename }}.gif">-->
             <br><br>
             Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
             <br>
@@ -318,6 +323,7 @@
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
 
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
@@ -441,6 +447,66 @@
             $('#marker_regression_form').attr('action', '/export_perm_data');
             return $('#marker_regression_form').submit();
         }
+
+        modebar_options = {
+          modeBarButtonsToAdd:[{
+            name: 'Export as SVG',
+            icon: Plotly.Icons.disk,
+            click: function(gd) {
+              Plotly.downloadImage(gd, {format: 'svg'})
+            }
+          }],
+          modeBarButtonsToRemove:['toImage', 'sendDataToCloud', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines'],
+          displaylogo: false
+          //modeBarButtons:['toImage2', 'zoom2d', 'pan2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
+        }
+
+        perm_data = js_data.perm_results
+        var hist_trace = {
+            x: perm_data,
+            type: 'histogram'
+        };
+        histogram_data = [hist_trace];
+        histogram_layout = {
+          bargap: 0.05,
+          title: "<b>Histogram of Permutation Test</b>",
+          xaxis: {
+                  autorange: true,
+                  title: "<b>LRS</b>",
+                  titlefont: {
+                    family: "arial",
+                    size: 20
+                  },
+                  ticklen: 4,
+                  tickfont: {
+                    size: 16
+                  }
+                },
+          yaxis: {
+                  autorange: true,
+                  title: "<b>Frequency</b>",
+                  titlefont: {
+                    family: "arial",
+                    size: 20
+                  },
+                  showline: true,
+                  ticklen: 4,
+                  tickfont: {
+                    size: 16
+                  },
+                  automargin: true
+                },
+          width: 500,
+          height: 300,
+          margin: {
+              l: 70,
+              r: 30,
+              t: 100,
+              b: 50
+          }
+        };
+
+        Plotly.newPlot('perm_histogram', histogram_data, histogram_layout, modebar_options);
         {% endif %}
 
         export_mapping_results = function() {
