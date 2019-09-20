@@ -27,7 +27,7 @@ def get_float(vars,name,default=None):
     if name in vars:
         if is_float(vars[name]):
             return float(vars[name])
-    return None
+    return default
 
 def get_int(vars,name,default=None):
     if name in vars:

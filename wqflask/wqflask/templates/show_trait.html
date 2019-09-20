@@ -18,7 +18,7 @@
     <div class="container">
         <h2>Trait Data and Analysis for <b>{{ this_trait.name }}</b></h2>
         {% if this_trait.dataset.type != 'Publish' %}
-        <h3>{{ this_trait.description_fmt }}</h3>
+        <h3>{{ this_trait.description_fmt[0]|upper }}{{ this_trait.description_fmt[1:] }}</h3>
         {% endif %}
     </div>
 
@@ -39,7 +39,7 @@
         <input type="hidden" name="covariates" value="">
         <input type="hidden" name="transform" value="">
 
-        <div class="container">
+        <div class="container" style="min-width: 1450px;">
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true">
@@ -183,10 +183,10 @@
                 var x = getValue(a);
                 var y = getValue(b);
 
-                if (x == 'x' || x == '') {
+                if (x == 'x' || x === '') {
                     return 1;
                 }
-                else if (y == 'x' || y == '') {
+                else if (y == 'x' || y === '') {
                     return -1;
                 }
                 else {
@@ -296,7 +296,7 @@
                         if (data.value == null) {
                           return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id)] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id)] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% if sample_groups[0].se_exists() %},

@@ -8,7 +8,7 @@
 {% block content %}
 <!-- Start of body -->
 
-    <div class="container">
+    <div class="container" style="min-width: 1250px;">
         {% if uc %}
         <h1>{{ uc.name }}</h1>
         {% else %}
@@ -84,8 +84,8 @@
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete From Collection</button>
-            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy Record to Other Collection</button>
+            <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete Rows</button>
+            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy to Other Collection</button>
             <br />
             <br />
             <form id="export_form" method="POST" action="/export_traits_csv">
@@ -181,6 +181,7 @@
                     { "type": "natural", "width": 10 },
                     { "type": "natural", "width": 50 },
                     { "type": "natural" },
+                    { "type": "natural", "width": 120 },
                     { "type": "natural", "width": 120 },
                     { "type": "natural"  },
                     { "type": "natural", "width": 130 },

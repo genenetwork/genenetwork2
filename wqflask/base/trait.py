@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import string
 import resource
 import codecs
+import requests
 
 import redis
 Redis = redis.StrictRedis()
@@ -120,11 +121,34 @@ class GeneralTrait(object):
     @property
     def alias_fmt(self):
         '''Return a text formatted alias'''
+
+        alias = 'Not available'
         if self.alias:
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
-        else:
-            alias = 'Not available'
+
+        return alias
+
+    @property
+    def wikidata_alias_fmt(self):
+        '''Return a text formatted alias'''
+
+        alias = 'Not available'
+        if self.symbol:
+            human_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.upper())
+            mouse_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.capitalize())
+            other_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.lower())
+            alias_list = json.loads(human_response.content) + json.loads(mouse_response.content) + json.loads(other_response.content)
+
+            filtered_aliases = []
+            seen = set()
+            for item in alias_list:
+                if item in seen:
+                    continue
+                else:
+                    filtered_aliases.append(item)
+                    seen.add(item)
+            alias = "; ".join(filtered_aliases)
 
         return alias
 
@@ -396,8 +420,10 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         #XZ: assign SQL query result to trait attributes.
         for i, field in enumerate(dataset.display_fields):
             holder = trait_info[i]
-            if isinstance(trait_info[i], basestring):
-                holder = unicode(trait_info[i], "utf-8", "ignore")
+            # if isinstance(trait_info[i], basestring):
+            #     logger.debug("HOLDER:", holder)
+            #     logger.debug("HOLDER2:", holder.decode(encoding='latin1'))
+            #     holder = unicode(trait_info[i], "utf-8", "ignore")
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':

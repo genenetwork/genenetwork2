@@ -1,8 +1,126 @@
+import os, math, string, random, json
+
+from base import webqtlConfig
+from base.trait import GeneralTrait
+from base.data_set import create_dataset
+from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
+
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def gen_reaper_results(this_trait, dataset, samples_before, trait_vals, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
-    genotype = dataset.group.read_genotype_file()
+def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
+    """Generates p-values for each marker using qtlreaper"""
+
+    if first_run:
+        if this_dataset.group.genofile != None:
+            genofile_name = this_dataset.group.genofile[:-5]
+        else:
+            genofile_name = this_dataset.group.name
+
+        trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
+        gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename)
+
+        output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        bootstrap_filename = None
+        permu_filename = None
+
+        opt_list = []
+        if boot_check and num_bootstrap > 0:
+            bootstrap_filename = this_dataset.group.name + "_BOOTSTRAP_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+
+            opt_list.append("-b")
+            opt_list.append("--n_bootstrap " + str(num_bootstrap))
+            opt_list.append("--bootstrap_output " + webqtlConfig.GENERATED_IMAGE_DIR + bootstrap_filename + ".txt")
+        if num_perm > 0:
+            permu_filename = this_dataset.group.name + "_PERM_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            opt_list.append("-n " + str(num_perm))
+            opt_list.append("--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
+        if control_marker != "" and do_control == "true":
+            opt_list.append("-c " + control_marker)
+
+        reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
+                                                                                                                genofile_name,
+                                                                                                                TEMPDIR,
+                                                                                                                trait_filename,
+                                                                                                                " ".join(opt_list),
+                                                                                                                webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                                output_filename)
+
+        logger.debug("reaper_command:" + reaper_command)
+        os.system(reaper_command)
+    else:
+        output_filename, permu_filename, bootstrap_filename = output_files
+
+    marker_obs, permu_vals, bootstrap_vals = parse_reaper_output(output_filename, permu_filename, bootstrap_filename)
+
+    suggestive = 0
+    significant = 0
+    if len(permu_vals) > 0:
+        suggestive = permu_vals[int(num_perm*0.37-1)]
+        significant = permu_vals[int(num_perm*0.95-1)]
+
+    return marker_obs, permu_vals, suggestive, significant, bootstrap_vals, [output_filename, permu_filename, bootstrap_filename]
+
+def gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename):
+    """Generates phenotype file for GEMMA"""
+
+    with open("{}/gn2/{}.txt".format(TEMPDIR, trait_filename), "w") as outfile:
+        outfile.write("Trait\t")
+
+        filtered_sample_list = []
+        filtered_vals_list = []
+        for i, sample in enumerate(samples):
+            if vals[i] != "x":
+                filtered_sample_list.append(sample)
+                filtered_vals_list.append(vals[i])
+
+        samples_string = "\t".join(filtered_sample_list)
+        outfile.write(samples_string + "\n")
+        outfile.write("T1\t")
+        values_string = "\t".join(filtered_vals_list)
+        outfile.write(values_string)
+
+def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
+    included_markers = []
+    p_values = []
+    marker_obs = []
+
+    with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, gwa_filename)) as output_file:
+        for line in output_file:
+            if line.startswith("ID\t"):
+                continue
+            else:
+                marker = {}
+                marker['name'] = line.split("\t")[1]
+                try:
+                    marker['chr'] = int(line.split("\t")[2])
+                except:
+                    marker['chr'] = line.split("\t")[2]
+                marker['cM'] = float(line.split("\t")[3])
+                marker['Mb'] = float(line.split("\t")[4])
+                if float(line.split("\t")[7]) != 1:
+                    marker['p_value'] = float(line.split("\t")[7])
+                marker['lrs_value'] = float(line.split("\t")[5])
+                marker['lod_score'] = marker['lrs_value'] / 4.61
+                marker['additive'] = float(line.split("\t")[6])
+                marker_obs.append(marker)
+
+    permu_vals = []
+    if permu_filename:
+        with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, permu_filename)) as permu_file:
+            for line in permu_file:
+                permu_vals.append(float(line))
+
+    bootstrap_vals = []
+    if bootstrap_filename:
+        with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, bootstrap_filename)) as bootstrap_file:
+            for line in bootstrap_file:
+                bootstrap_vals.append(int(line))
+
+    return marker_obs, permu_vals, bootstrap_vals
+
+def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
+    genotype = dataset.group.read_genotype_file(use_reaper=True)
 
     if manhattan_plot != True:
         genotype = genotype.addinterval()

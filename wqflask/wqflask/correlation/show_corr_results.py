@@ -83,7 +83,7 @@ class CorrelationResults(object):
         assert('corr_sample_method' in start_vars)
         assert('corr_samples_group' in start_vars)
         assert('corr_dataset' in start_vars)
-        assert('min_expr' in start_vars)
+        #assert('min_expr' in start_vars)
         assert('corr_return_results' in start_vars)
         if 'loc_chr' in start_vars:
             assert('min_loc_mb' in start_vars)
@@ -117,6 +117,8 @@ class CorrelationResults(object):
                 self.location_chr = get_string(start_vars,'loc_chr')
                 self.min_location_mb = get_int(start_vars,'min_loc_mb')
                 self.max_location_mb = get_int(start_vars,'max_loc_mb')
+            else:
+                self.location_chr = self.min_location_mb = self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -145,6 +147,15 @@ class CorrelationResults(object):
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
             self.target_dataset.get_trait_data(self.sample_data.keys())
+
+            self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
+
+            if self.target_dataset.type == "ProbeSet":
+                self.filter_cols = [7, 6]
+            elif self.target_dataset.type == "Publish":
+                self.filter_cols = [6, 0]
+            else:
+                self.filter_cols = [4, 0]
 
             self.correlation_results = []
 
@@ -179,8 +190,9 @@ class CorrelationResults(object):
                 #ZS: Convert min/max chromosome to an int for the location range option
                 range_chr_as_int = None
                 for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                    if chr_info.name == self.location_chr:
-                        range_chr_as_int = order_id
+                    if 'loc_chr' in start_vars:
+                        if chr_info.name == self.location_chr:
+                            range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
@@ -534,3 +546,80 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_list.append(results_dict)
 
     return json.dumps(results_list)
+
+def get_header_fields(data_type, corr_method):
+    if data_type == "ProbeSet":
+        if corr_method == "pearson":
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample r',
+                                'N',
+                                'Sample p(r)',
+                                'Lit r',
+                                'Tissue r',
+                                'Tissue p(r)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+        else:
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample rho',
+                                'N',
+                                'Sample p(rho)',
+                                'Lit rho',
+                                'Tissue rho',
+                                'Tissue p(rho)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+    elif data_type == "Publish":
+        if corr_method == "pearson":
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample r',
+                            'N',
+                            'Sample p(r)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
+        else:
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample rho',
+                            'N',
+                            'Sample p(rho)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
+    else:
+        if corr_method == "pearson":
+            header_fields = ['Index',
+                                'ID',
+                                'Location'
+                                'Sample r',
+                                'N',
+                                'Sample p(r)']
+        else:
+            header_fields = ['Index',
+                                'ID',
+                                'Location'
+                                'Sample rho',
+                                'N',
+                                'Sample p(rho)']
+
+    return header_fields

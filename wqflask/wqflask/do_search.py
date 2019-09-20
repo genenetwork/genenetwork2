@@ -22,12 +22,13 @@ class DoSearch(object):
     # Used to translate search phrases into classes
     search_types = dict()
 
-    def __init__(self, search_term, search_operator=None, dataset=None):
+    def __init__(self, search_term, search_operator=None, dataset=None, search_type=None):
         self.search_term = search_term
         # Make sure search_operator is something we expect
         assert search_operator in (None, "=", "<", ">", "<=", ">="), "Bad search operator"
         self.search_operator = search_operator
         self.dataset = dataset
+        self.search_type = search_type
 
         if self.dataset:
             logger.debug("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
@@ -69,7 +70,7 @@ class DoSearch(object):
         logger.debug("search_types are:", pf(cls.search_types))
 
         search_type_string = search_type['dataset_type']
-        if 'key' in search_type:
+        if 'key' in search_type and search_type['key'] != None:
             search_type_string += '_' + search_type['key']
 
         logger.debug("search_type_string is:", search_type_string)
@@ -444,12 +445,13 @@ class LrsSearch(DoSearch):
 
     """
 
-    DoSearch.search_types['LRS'] = 'LrsSearch'
+    for search_key in ('LRS', 'LOD'):
+        DoSearch.search_types[search_key] = "LrsSearch"
 
     def get_from_clause(self):
         #If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
-        if len(self.search_term) > 2 and "Chr" in self.search_term[2]:
-            chr_num = self.search_term[2].replace("Chr", "")
+        if len(self.search_term) > 2 and "chr" in self.search_term[2].lower():
+            chr_num = self.search_term[2].lower().replace("chr", "")
             self.search_term[2] = chr_num
 
         self.search_term = [float(value) for value in self.search_term]
@@ -465,6 +467,9 @@ class LrsSearch(DoSearch):
         if self.search_operator == "=":
             assert isinstance(self.search_term, (list, tuple))
             lrs_min, lrs_max = self.search_term[:2]
+            if self.search_type == "LOD":
+                lrs_min = lrs_min*4.61
+                lrs_max = lrs_max*4.61
 
             where_clause = """ %sXRef.LRS > %s and
                              %sXRef.LRS < %s """ % self.mescape(self.dataset.type,
@@ -489,6 +494,10 @@ class LrsSearch(DoSearch):
         else:
             # Deal with >, <, >=, and <=
             logger.debug("self.search_term is:", self.search_term)
+            lrs_val = self.search_term[0]
+            if self.search_type == "LOD":
+                lrs_val = lrs_val*4.61
+
             where_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
                                                                         self.search_operator,
                                                                         self.search_term[0])
@@ -505,9 +514,11 @@ class LrsSearch(DoSearch):
 
         return self.execute(self.query)
 
+
 class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
 
-    DoSearch.search_types['ProbeSet_LRS'] = 'MrnaLrsSearch'
+    for search_key in ('LRS', 'LOD'):
+        DoSearch.search_types['ProbeSet_' + search_key] = "MrnaLrsSearch"
 
     def run(self):
 
@@ -520,7 +531,8 @@ class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
 
 class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
-    DoSearch.search_types['Publish_LRS'] = 'PhenotypeLrsSearch'
+    for search_key in ('LRS', 'LOD'):
+        DoSearch.search_types['Publish_' + search_key] = "PhenotypeLrsSearch"
 
     def run(self):
 
@@ -530,7 +542,6 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
         self.query = self.compile_final_query(from_clause = self.from_clause, where_clause = self.where_clause)
 
         return self.execute(self.query)
-
 
 
 class CisTransLrsSearch(DoSearch):
@@ -556,6 +567,10 @@ class CisTransLrsSearch(DoSearch):
 
             else:
                 SomeError
+
+            if self.search_type == "CISLOD" or self.search_type == "TRANSLOD":
+                lrs_min = lrs_min * 4.61
+                lrs_max = lrs_max * 4.61
 
             sub_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and """  % (
@@ -619,7 +634,8 @@ class CisLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
 
     """
 
-    DoSearch.search_types['ProbeSet_CISLRS'] = 'CisLrsSearch'
+    for search_key in ('LRS', 'LOD'):
+        DoSearch.search_types['ProbeSet_CIS'+search_key] = "CisLrsSearch"
 
     def get_where_clause(self):
         return CisTransLrsSearch.get_where_clause(self, "cis")
@@ -648,7 +664,8 @@ class TransLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
 
     """
 
-    DoSearch.search_types['ProbeSet_TRANSLRS'] = 'TransLrsSearch'
+    for search_key in ('LRS', 'LOD'):
+        DoSearch.search_types['ProbeSet_TRANS'+search_key] = "TransLrsSearch"
 
     def get_where_clause(self):
         return CisTransLrsSearch.get_where_clause(self, "trans")

@@ -61,6 +61,7 @@ class GSearch(object):
             with Bench("Running query"):
                 logger.sql(sql)
                 re = g.db.execute(sql).fetchall()
+
             trait_list = []
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
@@ -74,11 +75,14 @@ class GSearch(object):
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
                     this_trait['symbol'] = line[6]
-                    this_trait['description'] = line[7]
+                    this_trait['description'] = line[7].decode('utf-8', 'replace')
                     this_trait['location_repr'] = 'N/A'
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (line[8], float(line[9]))
-                    this_trait['mean'] = '%.3f' % line[10]
+                    try:
+                        this_trait['mean'] = '%.3f' % line[10]
+                    except:
+                        this_trait['mean'] = "N/A"
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
                         this_trait['LRS_score_repr'] = '%3.1f' % line[11]
@@ -97,6 +101,7 @@ class GSearch(object):
 
                     trait_list.append(this_trait)
 
+            self.trait_count = len(trait_list)
             self.trait_list = json.dumps(trait_list)
 
         elif self.type == "phenotype":
@@ -147,9 +152,9 @@ class GSearch(object):
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     if line[9] != None and line[6] != None:
-                        this_trait['description'] = unicode(line[6], "utf-8", "ignore")
+                        this_trait['description'] = line[6].decode('utf-8', 'replace')
                     elif line[5] != None:
-                        this_trait['description'] = unicode(line[5], "utf-8", "ignore")
+                        this_trait['description'] = line[5].decode('utf-8', 'replace')
                     else:
                         this_trait['description'] = "N/A"
                     this_trait['authors'] = line[7]
@@ -183,4 +188,5 @@ class GSearch(object):
 
                     trait_list.append(this_trait)
 
+            self.trait_count = len(trait_list)
             self.trait_list = json.dumps(trait_list)

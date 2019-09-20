@@ -31,6 +31,7 @@ import piddle as pid
 import sys,os
 import cPickle
 import httplib
+import json
 
 from flask import Flask, g
 
@@ -182,7 +183,7 @@ class DisplayMappingResults(object):
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
-        self.n_samples = len(start_vars['vals'])
+        self.n_samples = start_vars['num_vals']
         self.species = start_vars['species']
         self.genofile_string = ""
         if 'genofile_string' in start_vars:
@@ -204,8 +205,8 @@ class DisplayMappingResults(object):
             self.mapmodel_rqtl_geno = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
 
-        if self.mapping_method != "gemma" and self.mapping_method != "plink":
-            self.js_data = start_vars['js_data']
+        #if self.mapping_method != "gemma" and self.mapping_method != "plink":
+        self.js_data = start_vars['js_data']
         self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
         if self.dataset.group.species == "rat":
@@ -264,17 +265,24 @@ class DisplayMappingResults(object):
             self.covariates = start_vars['covariates']
         if 'maf' in start_vars.keys():
             self.maf = start_vars['maf']
+        if 'output_files' in start_vars.keys():
+            self.output_files = start_vars['output_files']
         if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
-            if self.use_loco == "True":
-                self.gwa_filename = start_vars['gwa_filename']
+
+        if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
+            self.reaper_version = start_vars['reaper_version']
+            if 'output_files' in start_vars:
+                self.output_files = ",".join(start_vars['output_files'])
 
         self.selectedChr = int(start_vars['selected_chr'])
 
         self.strainlist = start_vars['samples']
-        self.genotype = self.dataset.group.read_genotype_file()
+
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
-            self.genotype = self.genotype.addinterval()
+            self.genotype = self.dataset.group.read_genotype_file(use_reaper=True)
+        else:
+            self.genotype = self.dataset.group.read_genotype_file()
 
         #Darwing Options
         try:
@@ -790,7 +798,7 @@ class DisplayMappingResults(object):
                             locPixel += (Mb*(_chr[-1].cM-_chr[0].cM)/self.ChrLengthCMList[i])*plotXScale
                             break
         if locPixel >= 0 and self.plotScale == 'physic':
-            traitPixel = ((locPixel, yZero), (locPixel-6, yZero+12), (locPixel+6, yZero+12))
+            traitPixel = ((locPixel, yZero), (locPixel-7, yZero+14), (locPixel+7, yZero+14))
             canvas.drawPolygon(traitPixel, edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
 
         if self.legendChecked:
@@ -801,7 +809,7 @@ class DisplayMappingResults(object):
                 leftOffset = xLeftOffset
             else:
                 leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
-            canvas.drawPolygon(((leftOffset+6, startPosY-6), (leftOffset, startPosY+6), (leftOffset+12, startPosY+6)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
+            canvas.drawPolygon(((leftOffset+7, startPosY-7), (leftOffset, startPosY+7), (leftOffset+14, startPosY+7)), edgeColor=pid.black, fillColor=self.TRANSCRIPT_LOCATION_COLOR, closed=1)
             canvas.drawString("Sequence Site", (leftOffset+15), (startPosY+5), smallLabelFont, self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -1451,9 +1459,9 @@ class DisplayMappingResults(object):
                 if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
                     PHENOGEN_COORDS = "%d, %d, %d, %d" % (xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT))
                     if self.dataset.group.species == "mouse":
-                        PHENOGEN_HREF = "https://phenogen.ucdenver.edu/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                        PHENOGEN_HREF = "https://phenogen.org/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     else:
-                        PHENOGEN_HREF = "https://phenogen.ucdenver.edu/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                        PHENOGEN_HREF = "https://phenogen.org/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
                     gifmap.areas.append(make_map_area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
                     canvas.drawRect(xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_PHENOGEN_REGION_COLOR, fillColor=self.CLICKABLE_PHENOGEN_REGION_COLOR)
@@ -1730,6 +1738,14 @@ class DisplayMappingResults(object):
         else:
             LRS_LOD_Max = self.lrsMax
 
+        #ZS: Needed to pass to genome browser
+        js_data = json.loads(self.js_data)
+        if self.LRS_LOD == "LRS":
+            js_data['max_score'] = LRS_LOD_Max/4.61
+        else:
+            js_data['max_score'] = LRS_LOD_Max
+        self.js_data = json.dumps(js_data)
+
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
         elif LRS_LOD_Max > 20:
@@ -1827,11 +1843,10 @@ class DisplayMappingResults(object):
             m = 0
             thisLRSColor = self.colorCollection[0]
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
-
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
-                if not self.multipleInterval and not self.manhattan_plot and self.additiveChecked:
+                if not self.multipleInterval and self.additiveChecked:
                     plusColor = self.ADDITIVE_COLOR_POSITIVE
                     minusColor = self.ADDITIVE_COLOR_NEGATIVE
                     for k, aPoint in enumerate(AdditiveCoordXY):
@@ -1902,10 +1917,18 @@ class DisplayMappingResults(object):
 
                 if self.manhattan_plot == True:
                     if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
-                        point_color = pid.grey
+                        point_color = pid.red
                     else:
-                        point_color = pid.black
-                    canvas.drawString("5", Xc-canvas.stringWidth("5",font=symbolFont)/2+1,Yc+2,color=point_color, font=symbolFont)
+                        point_color = pid.blue
+
+                    final_x_pos = Xc-canvas.stringWidth("5",font=symbolFont)/2+1
+                    if final_x_pos > (xLeftOffset + plotWidth):
+                        continue
+                        #break ZS: This is temporary until issue with sorting for GEMMA is fixed
+                    elif final_x_pos < xLeftOffset:
+                        continue
+                    else:
+                        canvas.drawString("5", final_x_pos,Yc+2,color=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
 
@@ -2082,11 +2105,11 @@ class DisplayMappingResults(object):
         #########################################
         #      Permutation Graph
         #########################################
-        myCanvas = pid.PILCanvas(size=(400,300))
+        myCanvas = pid.PILCanvas(size=(500,300))
         if 'lod_score' in self.qtlresults[0] and self.LRS_LOD == "LRS":
-            perm_output = [value*4.16 for value in self.perm_output]
+            perm_output = [value*4.61 for value in self.perm_output]
         elif 'lod_score' not in self.qtlresults[0] and self.LRS_LOD == "LOD":
-            perm_output = [value/4.16 for value in self.perm_output]
+            perm_output = [value/4.61 for value in self.perm_output]
         else:
             perm_output = self.perm_output
 
@@ -2245,7 +2268,7 @@ class DisplayMappingResults(object):
                 this_row = [] #container for the cells of each row
                 selectCheck = make_input(type_="checkbox", name="searchResult", class_="checkbox", onClick="highlight(this)").__str__() #checkbox for each row
 
-                webqtlSearch = make_link(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], content=(">>",), target="_blank").__str__()
+                #webqtlSearch = make_link(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], content=(">>",), target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
                     geneSymbolNCBI = make_link("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], content=(theGO["GeneSymbol"],), class_="normalsize", target="_blank").__str__()
@@ -2269,14 +2292,14 @@ class DisplayMappingResults(object):
                 #Mouse Gene
                 if theGO['mouseGene']:
                     mouseChr = theGO['mouseGene']["Chromosome"]
-                    mouseTxStart = theGO['mouseGene']["TxStart"]
+                    mouseTxStart = "%0.6f" % theGO['mouseGene']["TxStart"]
                 else:
                     mouseChr = mouseTxStart = ""
 
                 #the chromosomes for human 1 are 1qXX.XX
                 if theGO['humanGene']:
                     humanChr = theGO['humanGene']["Chromosome"]
-                    humanTxStart = theGO['humanGene']["TxStart"]
+                    humanTxStart = "%0.6f" % theGO['humanGene']["TxStart"]
                 else:
                     humanChr = humanTxStart = ""
 
@@ -2286,9 +2309,9 @@ class DisplayMappingResults(object):
 
                 this_row = [selectCheck.__str__(),
                             str(gIndex+1),
-                            webqtlSearch.__str__() + geneSymbolNCBI,
-                            theGO["TxStart"],
-                            make_link(geneLengthURL, content=("%0.3f" % (geneLength*1000.0),)).__str__(),
+                            geneSymbolNCBI,
+                            "%0.6f" % theGO["TxStart"],
+                            HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)).__str__(),
                             avgExprVal,
                             mouseChr,
                             mouseTxStart,

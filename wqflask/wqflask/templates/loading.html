@@ -6,13 +6,34 @@
   {% endfor %}
   <div class="container">
     <div>
-      <div style="min-height: 80vh; display: flex; align-items: center;">
-        <div style="margin-bottom: 10px; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); position: absolute;">
+      <div style="min-height: 80vh; display: flex; align-items: center; text-align: center;">
+        <div style="margin-bottom: 5px; left: 50%; margin-right: -50%; margin-top: 10%; transform: translate(-50%, -50%); position: absolute;">
+        {% if start_vars.tool_used == "Mapping" %}
+        <h1>Computing the Map</h1>
+        <br>
+        <i>n</i> = {{ start_vars.num_vals }}
+        <br>
+        Method = {{ start_vars.method }}
+        <br>
+        {% if start_vars.transform != "" %}
+        transform = {{ start_vars.transform }}
+        <br>
+        {% endif %}
+        MAF = {{ start_vars.maf }}
+        {% else %}
         <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
+        {% endif %}
+        <br><br>
+        <img align="center" src="/static/gif/89.gif">
         </div>
-        <div class="progress center-block" style="margin-top: 5px; margin-left: 25%; margin-right: 25%; position: absolute; height:50px; width:50%; top:50%;">
+        <!--<div style="margin-left: auto; margin-right: auto; display: block; width: 50%; top:50%;">
+            <img align="center" src="/static/gif/89.gif">
+        </div>-->
+        <!--
+        <div class="progress center-block" style="margin-left: 25%; margin-right: 25%; position: absolute; height:50px; width:50%; top:50%;">
           <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"></div>
         </div>
+        -->
       </div>
     </div>
   </div>
@@ -22,5 +43,5 @@
 <script  type="text/javascript">
 
 $("#loading_form").attr("action", "{{ start_vars.form_url }}");
-$("#loading_form").submit();
+setTimeout(function(){ $("#loading_form").submit()}, 350);
 </script>

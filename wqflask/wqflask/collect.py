@@ -214,6 +214,8 @@ def collections_new():
     if "create_new" in params:
         logger.debug("in create_new")
         collection_name = params['new_collection']
+        if collection_name.strip() == "":
+            collection_name = datetime.datetime.utcnow().strftime('Collection_%b_%d_%H:%M')
         return create_new(collection_name)
     elif "add_to_existing" in params:
         logger.debug("in add to existing")

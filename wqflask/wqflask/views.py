@@ -80,7 +80,7 @@ def connect_db():
     db = getattr(g, '_database', None)
     if db is None:
         logger.debug("Get new database connector")
-        g.db = g._database = sqlalchemy.create_engine(SQL_URI)
+        g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
         logger.debug(g.db)
 
 @app.teardown_appcontext
@@ -560,12 +560,22 @@ def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
+    num_vals = 0 #ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
         for key, value in initial_start_vars.iteritems():
             if key in wanted or key.startswith(('value:')):
                 start_vars[key] = value
+
+        if 'primary_samples' in start_vars:
+            samples = start_vars['primary_samples'].split(",")
+            for sample in samples:
+                value = start_vars.get('value:' + sample)
+                if value != "x":
+                    num_vals += 1
+
+        start_vars['num_vals'] = num_vals
 
         start_vars_container['start_vars'] = start_vars
     else:
@@ -588,7 +598,7 @@ def mapping_results_page():
         'samples',
         'vals',
         'first_run',
-        'gwa_filename',
+        'output_files',
         'geno_db_exists',
         'method',
         'mapping_results_path',
@@ -628,7 +638,9 @@ def mapping_results_page():
         'haplotypeAnalystCheck',
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
-        'temp_trait'
+        'temp_trait',
+        'reaper_version',
+        'num_vals'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():
@@ -659,36 +671,36 @@ def mapping_results_page():
         if template_vars.no_results:
             rendered_template = render_template("mapping_error.html")
         else:
-          if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
-              template_vars.js_data = json.dumps(template_vars.js_data,
-                                                 default=json_default_handler,
-                                                 indent="   ")
+            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                                    default=json_default_handler,
+                                                    indent="   ")
 
-          result = template_vars.__dict__
+            result = template_vars.__dict__
 
-          if result['pair_scan']:
-              with Bench("Rendering template"):
-                  img_path = result['pair_scan_filename']
-                  logger.info("img_path:", img_path)
-                  initial_start_vars = request.form
-                  logger.info("initial_start_vars:", initial_start_vars)
-                  imgfile = open(TEMPDIR + img_path, 'rb')
-                  imgdata = imgfile.read()
-                  imgB64 = imgdata.encode("base64")
-                  bytesarray = array.array('B', imgB64)
-                  result['pair_scan_array'] = bytesarray
-                  rendered_template = render_template("pair_scan_results.html", **result)
-          else:
-              gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-              #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-              #logger.info("pickled result length:", len(pickled_result))
-              #Redis.set(key, pickled_result)
-              #Redis.expire(key, 1*60)
+            if result['pair_scan']:
+                with Bench("Rendering template"):
+                    img_path = result['pair_scan_filename']
+                    logger.info("img_path:", img_path)
+                    initial_start_vars = request.form
+                    logger.info("initial_start_vars:", initial_start_vars)
+                    imgfile = open(TEMPDIR + img_path, 'rb')
+                    imgdata = imgfile.read()
+                    imgB64 = imgdata.encode("base64")
+                    bytesarray = array.array('B', imgB64)
+                    result['pair_scan_array'] = bytesarray
+                    rendered_template = render_template("pair_scan_results.html", **result)
+            else:
+                gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+                #logger.info("pickled result length:", len(pickled_result))
+                #Redis.set(key, pickled_result)
+                #Redis.expire(key, 1*60)
 
-              with Bench("Rendering template"):
-                  if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                      gn1_template_vars.pop('qtlresults', None)
-                  rendered_template = render_template("mapping_results.html", **gn1_template_vars)
+                with Bench("Rendering template"):
+                    #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
+                    #gn1_template_vars.pop('qtlresults', None)
+                    rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
@@ -796,6 +808,17 @@ def get_temp_data():
     logger.info(request.url)
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
+@app.route("/browser_input", methods=('GET',))
+def browser_inputs():
+    """  Returns JSON from tmp directory for the purescript genome browser"""
+
+    filename = request.args['filename']
+
+    with open("{}/gn2/".format(TEMPDIR) + filename + ".json", "r") as the_file:
+        file_contents = json.load(the_file)
+
+    return flask.jsonify(file_contents)
 
 ##########################################################################
 

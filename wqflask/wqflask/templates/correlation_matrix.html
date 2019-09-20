@@ -2,52 +2,56 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/corr_matrix.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
 {% endblock %}
 {% block content %}
 
-<div class="container">
+<div class="container" width="100%">
 <h1>Correlation Matrix</h1>
+<div style="width: 100%; max-width: 850px;">Lower left cells list Pearson product-moment correlations; upper right cells list Spearman rank order correlations. Each cell also contains the n of cases. Values ranging from 0.4 to 1.0 range from orange to white, while values ranging from -0.4 to -1.0 range from dark blue to white. Select any cell to generate a scatter plot. Select trait labels for more information.</div>
 <hr style="height: 1px; background-color: #A9A9A9;">
 {% if lowest_overlap < 8 %}
-<div style="margin: 20px;" >Caution: This matrix of correlations contains some cells with small sample sizes of fewer than 8.</div>
+<div style="margin-bottom: 10px;"><i><font style="color: red;">Caution</font>: This matrix of correlations contains some cells with small sample sizes of fewer than 8.</i></div>
 {% endif %}
-<table class="matrix" border="1" cellpadding="5" cellspacing="1" width="80%">
+<table class="matrix" border="1" cellpadding="5" cellspacing="1" width="100%">
   <tbody>
     <tr>
-      <td style="background-color: royalblue;" ></td>
-      <td align="center" colspan="{{traits|length + 1 }}" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: royalblue;">Spearman Rank Correlation (rho)</td>
+      <td style="background-color: #369;" ></td>
+      <td align="center" colspan="{{traits|length + 2 }}" style="font-weight: Bold; border: 1px solid #000000; padding: 3px; color: #fff; background-color: #369;">Spearman Rank Correlation (rho)</td>
     </tr>
     <tr>
-      <td align="center" rowspan="{{traits|length + 1 }}" width="10" style="font-weight: Bold; border: 1px solid #999999; padding: 3px; color: #fff; background-color: royalblue;">P e a r s o n &nbsp;&nbsp;&nbsp; r</td>
-      <td width="300"></td>
+      <td align="center" rowspan="{{traits|length + 2 }}" width="10" style="font-weight: Bold; border: 1px solid #000000; padding: 3px; color: #fff; background-color: #369;">P e a r s o n &nbsp;&nbsp;&nbsp; r</td>
+      <td></td>
+      <td width="300" align="center" style="white-space: nowrap"><div style="display: inline-block; margin: 4px;"><button class="btn btn-default" id="short_labels" style="display: inline-block"><span style="display: none;" class="short_check glyphicon glyphicon-ok"></span>&nbsp;Short Labels</button>&nbsp;&nbsp;<button class="btn btn-default" id="long_labels" style="display: inline-block;"><span style="display: none;" class="long_check glyphicon glyphicon-ok"></span>&nbsp;Long Labels</button></div></td>
       {% for trait in traits %}
-      <td align="center">
-        <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}" style="font-weight: Bold;">Trait{{ loop.index }}</a>
+      <td align="center" style="padding: 5px;">
+        <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 14px;"><b>{{ loop.index }}</b></font></a>
       </td>
       {% endfor %}
     </tr>
     {% for trait in traits %}
     <tr>
-      <td>
-        <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}" style="font-weight: Bold;">Trait {{ loop.index }}: {{ trait.dataset.name }}::{{ trait.name }}</a>
-        <div class="shortName" style="display:none">{% if trait.dataset.type == "ProbeSet" %}Symbol: {{ trait.symbol }}{% elif trait.dataset.type == "Publish" %}Phenotype: {{ trait.post_publication_abbreviation }}{% else %}Genotype{% endif %} </div>
+      <td align="center"><input type="checkbox" class="checkbox" style="margin-left: 3px; margin-right: 1px;"></td>
+      <td align="right" style="padding-right: 4px;" >
+        <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 14px; font-style: Bold;"><b>Trait {{ loop.index }}: {{ trait.dataset.name }}&nbsp;&nbsp;{{ trait.name }}</b></font></a>
+        <div class="shortName" style="display:none">{% if trait.dataset.type == "ProbeSet" %}Gene Symbol: {{ trait.symbol }}{% elif trait.dataset.type == "Publish" %}Trait Symbol: {{ trait.post_publication_abbreviation }}{% elif trait.dataset.type == "Geno" %}Genotype{% endif %} </div>
         <div class="verboseName" style="display: none;">
         {% if trait.dataset.type == "ProbeSet" %}
           <div>{{ trait.symbol }} on Chr {{ trait.chr }} @ {{ trait.mb }} Mb</div><div>{{ trait.description }}</div><div>{{ trait.probe_target_description }}</div>
         {% elif trait.dataset.type == "Publish" %}
-          <div>PubMed {{ trait.pubmed_id }}: RecordID/{{ trait.name }}</div><div>Phenotype: {{ trait.description_display }}</div>
-        {% else %}
+          <div>PMID: <a href="http://www.ncbi.nlm.nih.gov/pubmed/?term={{ trait.pubmed_id }}">{{ trait.pubmed_id }}</a>, Record ID {{ trait.name }}</div><div>Phenotype: {{ trait.description_display }}</div>
+        {% elif trait.dataset.type == "Geno" %}
           <div>Locus {{ trait.name }}</div><div>Chr {{ trait.chr }} @ {{ trait.mb }} Mb</div>
         {% endif %}
         </div>
       </td>
       {% for result in corr_results[loop.index-1] %}
       {% if result[0].name == trait.name %}
-      <td nowrap="ON" align="center" bgcolor="#cccccc" style="line-height: 1.1;"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 12px; color: #000000;" ><em>n</em><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="center" bgcolor="#cccccc" style="padding: 3px; line-height: 1.1;"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><em>n</em><br>{{ result[2] }}</font></a></td>
       {% else %}
-      <td nowrap="ON" align="middle" class="corr_cell" style="line-height: 1.1;"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #000000;" ><span class="corr_value">{{ '%0.3f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="middle" class="corr_cell" style="padding: 3px; line-height: 1.1;"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><span class="corr_value">{{ '%0.2f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
       {% endif %}
       {% endfor %}
     </tr>
@@ -55,28 +59,40 @@
   </tbody>
 </table>
 <br>
-<button class="btn btn-default" id="short_labels">Short Labels</button>
-<button class="btn btn-default" id="long_labels">Long Labels</button>
 {% if pca_works == "True" %}
-<br>
-<br>
 <h2>PCA Traits</h2>
-<ul>
+<div style="margin-bottom: 20px; overflow:hidden;">
+<table id="pca_table" class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+  <thead>
+  <tr>
+    <th></th>
+    <th>Index</th>
+    <th>PCA Trait</th>
+    </tr>
+  </tr>
+  </thead>
+  <tbody>
   {% for this_trait_id in pca_trait_ids %}
-  <li>{{ loop.index }}. <input type="checkbox" class="trait_checkbox" name="pca_trait" value="{{ data_hmac('{}:{}'.format(pca_trait_ids[loop.index - 1], "Temp")) }}">&nbsp;&nbsp;<a href="{{ url_for('show_trait_page', trait_id = pca_trait_ids[loop.index - 1], dataset = "Temp") }}">{{ pca_trait_ids[loop.index - 1] }}</a></li>
+  <tr>
+    <td align="center" style="padding: 0px;"><input type="checkbox" class="trait_checkbox" name="pca_trait" value="{{ data_hmac('{}:{}'.format(pca_trait_ids[loop.index - 1], "Temp")) }}"></td>
+    <td align="right">{{ loop.index }}</td>
+    <td><a href="{{ url_for('show_trait_page', trait_id = pca_trait_ids[loop.index - 1], dataset = "Temp") }}">{{ pca_trait_ids[loop.index - 1] }}</a></td>
+  </tr>
   {% endfor %}
-</ul>
+  </tbody>
+</table>
+<br>
 <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
 <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
 <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-<br>
+</div>
 <h2>Factor Loadings Plot</h2>
 <div id="loadings_plot" style="margin-top: 20px; margin-bottom: 20px; width: 980px; border-style: solid; border-width: 1px;"></div>
 <h2>Factor Loadings Table</h2>
-<table class="table table-hover table-striped" border="1" style="margin-top: 20px; margin-bottom: 20px;" width="30%">
+<table id="loadings_table" class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
   <thead>
     <tr>
-      <th></th>
+      <th>Trait</th>
       <th style="text-align: right;" >Factor 1</th>
       <th style="text-align: right;" >Factor 2</th>
       {% if trait_list|length > 2 %}<th style="text-align: right;">Factor 3</th>{% endif %}
@@ -87,7 +103,7 @@
     {% set row_counter = loop.index-1 %}
     <tr>
       <td>
-        <a href="{{ url_for('show_trait_page', trait_id = traits[loop.index-1].name, dataset = traits[loop.index-1].dataset.name) }}">
+        <a title="{% if traits[loop.index-1].dataset.type == "ProbeSet" %}{{ traits[loop.index-1].symbol }}{% elif traits[loop.index-1].dataset.type == "Publish" %}{{ traits[loop.index-1].post_publication_abbreviation }}{% endif %}" href="{{ url_for('show_trait_page', trait_id = traits[loop.index-1].name, dataset = traits[loop.index-1].dataset.name) }}">
           {{ traits[loop.index-1].name }}
         </a>
       </td>
@@ -119,5 +135,39 @@
     <script language="javascript" type="text/javascript" src="/static/new/js_external/chroma.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/loadings_plot.js"></script>
     <script type="text/javascript" src="/static/new/javascript/create_corr_matrix.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
+    <script>
+       $('#pca_table').dataTable( {
+        "columnDefs": [ {
+            "targets": 0,
+            "orderable": false
+        } ],
+        "order": [[1, "asc" ]],
+        "sDom": "t",
+        "iDisplayLength": -1,
+        "autoWidth": true,
+        "bDeferRender": true,
+        "bSortClasses": false,
+        "paging": false,
+        "orderClasses": true
+      } );
+
+      $('#loadings_table').dataTable( {
+        "columnDefs": [ {
+            "targets": 0,
+            "orderable": false
+        } ],
+        "order": [[1, "asc" ]],
+        "sDom": "t",
+        "iDisplayLength": -1,
+        "autoWidth": true,
+        "bDeferRender": true,
+        "bSortClasses": false,
+        "paging": false,
+        "orderClasses": true
+      } );
+    </script>
 
 {% endblock %}

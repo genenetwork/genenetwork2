@@ -9,7 +9,8 @@
 
     <div class="container">
 
-        <p>You searched for {{ terms }}.</p>
+        <h3>GN searched 51 datasets and 13763 traits across 10 species, and found {{ trait_count }} results that match your query.
+        You can filter these results by adding key words in the fields below and you can also sort results on most columns.</h3>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -20,16 +21,15 @@
             <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-            <br />
-            <br />
-            <form id="export_form" method="POST" action="/export_traits_csv">
+            <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
               <input type="hidden" name="database_name" id="database_name" value="None">
               <input type="hidden" name="export_data" id="export_data" value="">
               <button class="btn btn-default" id="export_traits">Download CSV</button>
             </form>
             <br />
-            <div>
-              <table id="trait_table" width="100%" class="table-hover table-striped cell-border" style="float: left;">
+            <br />
+            <div style="width: 100%;">
+              <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -78,8 +78,43 @@
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
             $('#trait_table').DataTable( {
+                'drawCallback': function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
                     $('td', row).eq(1).attr("align", "right");
@@ -134,14 +169,26 @@
                       'width': "25%",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return decodeURIComponent(escape(data.description))
+			                  try {
+                            return decodeURIComponent(escape(data.description))
+			                  } catch(err) {
+			                      return data.description
+                        }
                       }
                     },
                     {
                       'title': "Authors",
                       'type': "natural",
                       'width': "25%",
-                      'data': "authors"
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        author_list = data.authors.split(",")
+                        if (author_list.length >= 6) {
+                          return author_list.slice(0, 6).join(",") + ", et al."
+                        } else{
+                          return data.authors
+                        }
+                      }
                     },
                     {
                       'title': "Year",

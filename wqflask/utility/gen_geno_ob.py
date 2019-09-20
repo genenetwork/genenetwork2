@@ -87,7 +87,9 @@ class genotype(object):
                         this_chr = line.split("\t")[0]
                         chr_ob = Chr(line.split("\t")[0], self)
                     chr_ob.add_marker(line.split("\t"))
-                    
+
+            self.chromosomes.append(chr_ob)
+
 class Chr(object):
     def __init__(self, name, geno_ob):
         self.name = name
@@ -105,7 +107,7 @@ class Chr(object):
 
     def __len__(self):
         return len(self.loci)
-    
+
     def add_marker(self, marker_row):
         self.loci.append(Locus(marker_row, self.geno_ob))
 

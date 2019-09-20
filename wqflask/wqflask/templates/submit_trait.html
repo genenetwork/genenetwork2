@@ -8,7 +8,7 @@
         {{ flash_me() }}
 
         <div class="row" style="width: 1400px !important;">
-            <div class="col-xs-5">
+            <div class="col-xs-3">
                 <section id="description">
                     <div>
                         <h2 style="color: #5a5a5a;">Introduction</h2>
@@ -33,7 +33,7 @@
                         <h2 style="color: #5a5a5a;">Trait Submission Form</h2>
                         <hr>
                         <div style="padding-bottom: 50px;" class="form-horizontal">
-                          <h3>1. Choose cross or RI set:</h3>
+                          <h3>1. Choose Species and Group:</h3>
                           <br>
                           <div class="col-xs-2" style="min-height: 15vh; display: flex; align-items: center;">
                             <img src="/static/new/images/step1.gif">
@@ -52,7 +52,6 @@
                               </div>
                             </div>
                           </div>
-                          <div class="form-horizontal"><img src="/static/new/images/arrowdown.gif" style="display:block; margin-left: 50%; margin-right: 50%;"></div>
                         </div>
                         <div style="padding-bottom: 50px;" class="form-horizontal">
                           <h3>2. Enter Trait Data:</h3>
@@ -66,9 +65,9 @@
                             <div class="form-group" style="padding-left: 15px;">
                               <p>
                                  <b>From a File:</b> You can enter data by entering a file name here. The file should contain a series of numbers representing trait values. 
-                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each progeny individual 
-	                         or recombinant inbred line. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set,  
-                                 when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name here, any data that 
+                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each progeny individual
+	                         or recombinant inbred line. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set,
+                                 when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name here, any data that
                                  you paste into the next section will be ignored.
                               </p>
                               <input type="file" name="trait_file" style="border-width: 1px; border-style: solid; border-color: #999999;">
@@ -77,10 +76,10 @@
                             <div class="form-group" style="padding-left: 15px;">
                               <p>
                                  <b>Paste or Type Multiple Values:</b> You can enter data by pasting a series of numbers representing trait values into this area. 
-                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each progeny individual 
-                                 or recombinant inbredline. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set, 
-                                 when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name in the previous section, 
-                                 any data that you paste here will be ignored. Check sample data for the correct format. 
+                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each individual 
+                                 or line. Use an "x" for missing values. If you have chosen a set of inbred strains, then your data will be displayed in a form in 
+                                 which you can confirm and/or edit. If you enter a file name in the previous section, 
+                                 any data that you paste here will be ignored. Check <a href="http://genenetwork.org/RIsample.html">sample data</a> for the correct format. 
                               </p>
                               <textarea name="trait_paste" rows="6" cols="70"></textarea>
                             </div>

@@ -2,9 +2,10 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
 {% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container" style="min-width: 1250px;">
         <div class="page-header">
             <h1>Correlation Table</h1>
             <h2>Trait: {{ this_trait.name }}
@@ -12,8 +13,8 @@
             <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
 
-        <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ dataset.group.accession_id }}">{{ dataset.fullname }}</a>
-        dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ target_dataset.group.accession_id }}">{{ target_dataset.fullname }}</a>
+        <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
+        dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id != 'None' %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
         dataset. The top {{ return_number }} correlations ranked by the {{ formatted_corr_type }} are displayed.
         You can resort this list by clicking the headers. Select the Record ID to open the trait data
         and analysis page.
@@ -70,82 +71,50 @@
                 </button>
           </form>
         </div>
+        <br />
         <div>
-        <br />
-        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-        <button id="redraw" class="btn btn-default">Reset Columns</button>
-        <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-        <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-        <br />
-        <br />
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button id="redraw" class="btn btn-default">Reset Columns</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+            <br />
+            <br />
+            <button id="more_options" class="btn btn-primary">More Options...</button>
+            <br />
+            <br />
+            <div id="filter_options" style="display: none;">
+            <span style="border: 1px dashed #999999; padding: 8px; background-color: #ddf; font-size: 12px;">
+                <button id="select_traits" class="btn btn-primary" style="font-size: 12px; padding: 2px 3px;">Select Traits</button> with r >
+                <input type="text" name="r_greater_select" value="-1.0" size="6" maxlength="10">
+                <select id="r_and_or" size="1">
+                    <option value="and" selected>AND</option>
+                    <option value="or">OR</option>
+                </select>
+                r <
+                <input type="text" name="r_less_select" value="1.0" size="6" maxlength="10">, with mean >
+                <input type="text" name="mean_greater_select" value="0" size="6" maxlength="10">
+                <select id="mean_and_or" size="1">
+                    <option value="and" selected>AND</option>
+                    <option value="or">OR</option>
+                </select>
+                mean <
+                <input type="text" name="mean_less_select" value="100" size="6" maxlength="10">
+            </span>
+            <br />
+            <br />
+            </div>
         </div>
-
         <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
             <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
                 <thead>
                     <tr>
                         <th></th>
-                    {% for header in target_dataset.header_fields %}
-                        {% if header == 'Year' %}
+                    {% for header in header_fields %}
                         <th>{{header}}</th>
-                        {% elif header == 'Max LRS' %}
-                        <th>Max LRS</th>
-                        {% elif header == 'Max LRS Location' %}
-                        <th>{{header}}</th>
-                        {% elif header == 'Location' %}
-                        <th>{{header}}</th>
-                        {% elif header == 'Mean' %}
-                        <th>{{header}}</th>
-                        {% elif header == 'Additive Effect' %}
-                        <th>Additive Effect</th>
-                        {% elif header == 'Index' %}
-                        <th>{{header}}</th>
-                        {% elif header == 'N' %}
-                        <th>{{header}}</th>
-                        {% else %}
-                        <th>{{header}}</th>
-                        {% endif %}
                     {% endfor %}
-                    {% if target_dataset.type == "ProbeSet" %}
-                        {% if corr_method == 'pearson' %}
-                        <th>Sample r</th>
-                        <th>N</th>
-                        <th>Sample p(r)</th>
-                        <th>Lit r</th>
-                        <th>Tissue r</th>
-                        <th>Tissue p(r)</th>
-                        {% else %}
-                        <th>Sample rho</th>
-                        <th>N</th>
-                        <th>Sample p(rho)</th>
-                        <th>Lit r</th>
-                        <th>Tissue rho</th>
-                        <th>Tissue p(rho)</th>
-                        {% endif %}
-                    {% elif target_dataset.type == "Publish" %}
-                        {% if corr_method == 'pearson' %}
-                        <th>Sample r</th>
-                        <th>&nbsp;&nbsp;N</th>
-                        <th>Sample p(r)</th>
-                        {% else %}
-                        <th>Sample rho</th>
-                        <th>&nbsp;&nbsp;N</th>
-                        <th>Sample p(rho)</th>
-                        {% endif %}
-                    {% elif target_dataset.type == "Geno" %}
-                        {% if corr_method == 'pearson' %}
-                        <th>Sample r</th>
-                        <th>N</th>
-                        <th>Sample p(r)</th>
-                        {% else %}
-                        <th>Sample rho</th>
-                        <th>N</th>
-                        <th>Sample p(rho)</th>
-                        {% endif %}
-                    {% endif %}
                     </tr>
                 </thead>
 
@@ -167,9 +136,6 @@
                         <td>{{ trait.description_display }}</TD>
                         <td style="white-space: nowrap;">{{ trait.location_repr }}</td>
                         <td align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right">{{ trait.LRS_location_repr }}</td>
-                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                         <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                         <td align="right">{{ trait.num_overlap }}</td>
                         <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
@@ -185,6 +151,9 @@
                         <td align="right">{{'%0.3f'|format(trait.tissue_corr)}}</td>
                         <td align="right">{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
                         {% endif %}
+                        <td align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
+                        <td align="right">{{ trait.LRS_location_repr }}</td>
+                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Publish" %}
                         <td>{{ trait.description_display }}</td>
                         <td>{{ trait.authors }}</td>
@@ -193,12 +162,12 @@
                                 {{ trait.pubmed_text }}
                             </a>
                         </td>
-                        <td align="right">{{ trait.LRS_score_repr }}</td>
-                        <td align="right">{{ trait.LRS_location_repr }}</td>
-                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                         <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
                         <td align="right">{{ trait.num_overlap }}</td>
                         <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td align="right">{{ trait.LRS_score_repr }}</td>
+                        <td align="right">{{ trait.LRS_location_repr }}</td>
+                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Geno" %}
                         <td align="right">{{ trait.location_repr }}</TD>
                         <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
@@ -220,10 +189,9 @@
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
 
     <script type="text/javascript" charset="utf-8">
@@ -262,6 +230,47 @@
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
 
+        //$.fn.dataTableExt.afnFiltering.push(
+
+        $.fn.dataTable.ext.search.push( function( settings, data, dataIndex ) {
+                var r_column = {{ filter_cols[0] }};
+                var r_greater = parseFloat($('input[name=r_greater_select]').val())
+                var r_less = parseFloat($('input[name=r_less_select]').val());
+                var r_and_or = $('#r_and_or').val();
+
+                var mean_column = {{ filter_cols[1] }};
+                var mean_greater = parseFloat($('input[name=mean_greater_select]').val());
+                var mean_less = parseFloat($('input[name=mean_less_select]').val());
+                var mean_and_or = $('#mean_and_or').val();
+
+                if (r_and_or == "and" && mean_and_or == "and"){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] > mean_greater && data[mean_column] < mean_less){% else %} true{% endif %} ){
+                        return true
+                    }
+                    else {
+                        return false
+                    }
+                } else if (r_and_or == "and" && mean_and_or == "or"){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater || data[mean_column] <= mean_less){% else %} true{% endif %} ){
+                        return true
+                    } else {
+                        return false
+                    }
+                } else if (r_and_or == "or" && mean_and_or == "and") {
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater && data[mean_column] <= mean_less){% else %} true{% endif %} ){
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater || data[mean_column] <= mean_less){% else %} true{% endif %} ){
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                return true
+        });
 
         $(document).ready( function () {
 
@@ -301,7 +310,7 @@
             console.time("Creating table");
 
             {% if target_dataset.type == "ProbeSet" %}
-            $('#trait_table').dataTable( {
+            table_conf = {
                 "drawCallback": function( settings ) {
                      $('#trait_table tr').click(function(event) {
                          if (event.target.type !== 'checkbox') {
@@ -310,15 +319,17 @@
                      });
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ {
@@ -333,15 +344,15 @@
                     { "type": "natural", "width": "15%" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
                     { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
                     { "type": "natural" },
                     { "type": "scientific" },
                     { "type": "numeric-html", 'orderSequence': [ "desc", "asc"] },
                     { "type": "numeric-html", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "scientific" }
+                    { "type": "scientific" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
                 ],
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
@@ -350,33 +361,30 @@
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
-                "order": [[12, "asc" ]],
-                "sDom": "BRZtir",
+                "order": [[9, "asc" ]],
+                "sDom": "Btir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
                 "bSortClasses": false,
-                "scrollY": "800px",
-                "scrollCollapse": false,
-                "scroller": true,
                 "paging": false,
                 "orderClasses": true
-            } );
-
-            var table = $('#trait_table').DataTable();
+            }
 
             {% elif target_dataset.type == "Publish" %}
-            $('#trait_table').dataTable( {
+            table_conf =  {
                 "paging": false,
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ 
@@ -390,11 +398,11 @@
                     { "type": "natural", "width": "12%" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
                     { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
+                    { "type": "scientific" },
                     { "type": "natural" },
-                    { "type": "scientific" }
+                    { "type": "natural" },
+                    { "type": "natural" }
                 ],
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
@@ -408,25 +416,25 @@
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
-                "order": [[11, "asc" ]],
+                "order": [[8, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false
-            } );
+                "bDeferRender": true
+            }
             {% elif target_dataset.type == "Geno" %}
-            $('#trait_table').dataTable( {
+            table_conf = {
                 "paging": false,
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ 
@@ -447,8 +455,11 @@
                 "bDeferRender": true,
                 "scrollY": "800px",
                 "scrollCollapse": false
-            } );
+            }
             {% endif %}
+
+            var the_table = $('#trait_table').DataTable(table_conf);
+
             console.timeEnd("Creating table");
 
             submit_special = function(url) {
@@ -459,6 +470,15 @@
             $("#delete").on("click", function() {
                 url = $(this).data("url")
                 return submit_special(url)
+            });
+
+            $("#more_options").click(function() {
+                $("div#filter_options").toggle();
+            });
+
+            $("#select_traits").click(function() {
+                console.log("redrawing")
+                the_table.draw();
             });
         });
     </script>

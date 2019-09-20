@@ -3,13 +3,15 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/static/packages/purescript_genome_browser/css/purescript-genetics-browser.css" />
 
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
-    <div class="container">
+    <div class="container" style="min-width: 900px;">
         <form method="post" target="_blank" action="/run_mapping" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
@@ -17,8 +19,11 @@
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
         <input type="hidden" name="geno_db_exists" value="{{ geno_db_exists }}">
         <input type="hidden" name="first_run" value="{{ first_run }}">
-        {% if gwa_filename is defined %}
-        <input type="hidden" name="gwa_filename" value="{{ gwa_filename }}">
+        {% if output_files is defined %}
+        <input type="hidden" name="output_files" value="{{ output_files }}">
+        {% endif %}
+        {% if reaper_version is defined %}
+        <input type="hidden" name="reaper_version" value="{{ reaper_version }}">
         {% endif %}
         <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
@@ -26,6 +31,7 @@
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
+        <input type="hidden" name="num_vals" value="{{ n_samples }}">
         <input type="hidden" name="maf">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
@@ -150,13 +156,11 @@
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
-            {% if mapping_method != "gemma" and mapping_method != "plink" %}
-            <li id="vector_map_tab">
-              <a href="#vector_map" data-toggle="tab" {% if mapping_method != "gemma" and mapping_method != "plink" %}aria-expanded="false"{% else %}aria-expanded="true"{% endif %}>Vector Map</a>
+            <li id="browser_tab">
+                <a href="#browser_holder" data-toggle="tab" aria-expanded="true">Genome Browser</a>
             </li>
-            {% endif %}
           </ul>
-          <div class="tab-content">
+          <div class="tab-content" style="overflow-x: auto;">
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
@@ -165,28 +169,43 @@
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
-                  {% if nperm > 0 and permChecked == "ON" %}
-                  <br><br>
-                  <img src="/generated/{{ perm_filename }}.gif">
-                  <br><br>
-                  Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
-                  <br>
-                  {% endif %}
               </div>
             </div>
-            {% if mapping_method != "gemma" and mapping_method != "plink" %}
-            <div class="tab-pane {% if mapping_method == "gemma" %}active{% endif %}" id="vector_map">
-              <div id="chart_container">
-                <div class="qtlcharts" id="topchart"></div>
-              </div>
+            <div class="tab-pane" id="browser_holder" style="height: 600px;">
+                <div id="browser" style="margin-right: 20px; width: 90%;">
+                    <div id="controls">
+                        <button id="scrollLeft"  type="button" >
+                          <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <button id="scrollRight" type="button" >
+                          <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button id="zoomOut" type="button" >
+                          <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button id="zoomIn"  type="button" >
+                          <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button id="reset"  type="button" >Reset</button>
+                    </div>
+                    <div id="infoBox"></div>
+                </div>
             </div>
-            {% endif %}
           </div>
+        </div>
+        <div>
+            {% if nperm > 0 and permChecked == "ON" %}
+            <br><br>
+            <img src="/generated/{{ perm_filename }}.gif">
+            <br><br>
+            Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
+            <br>
+            {% endif %}
         </div>
 
         </form>
         {% if selectedChr == -1 %}
-        <div class="container" style="padding-left: 30px;">
+        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative;">
           <h2>Mapping Statistics</h2>
         <br />
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
@@ -195,7 +214,7 @@
         <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
         <br />
         <br />
-          <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}480{% else %}450{% endif %}px;">
+          <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}500{% else %}470{% endif %}px;">
           <table id="trait_table" class="table-hover table-striped cell-border dataTable no-footer">
             <thead>
               <tr>
@@ -231,11 +250,11 @@
                 {% if 'lod_score' in marker %}
                 <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                 {% else %}
-                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.16) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.61) }}</td>
                 {% endif %}
                 {% else %}
                 {% if 'lod_score' in marker %}
-                <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.16) }}</td>
+                <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.61) }}</td>
                 {% else %}
                 <td align="right">{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
                 {% endif %}
@@ -262,7 +281,7 @@
         <div style="width: 100%;">
           <h2>Interval Analyst</h2>
           <div id="table_container">
-          <table id="interval_analyst" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
+          <table id="trait_table" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
             <thead>
               <tr>
                 {% for header in gene_table_header %}
@@ -304,33 +323,28 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.scientific.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/purescript_genome_browser/js/purescript-genetics-browser.js"></script>
 
-    {% if mapping_method != "gemma" and mapping_method != "plink" %}
     <script>
         js_data = {{ js_data | safe }}
     </script>
-    {% endif %}
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-    {% if mapping_method != "gemma" and mapping_method != "plink" %}
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/chr_lod_chart.js"></script> 
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_lodchart.js"></script>
-    {% endif %}
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/init_genome_browser.js"></script>
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
+            {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
                     { "type": "natural", "width": "25%" },
                     { "type": "natural" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural" }{% if 'additive' in marker %},
-                    { "type": "natural" }{% endif %}{% if 'dominance' in marker and dataset.group.genetic_type != "riset" %},
+                    { "type": "natural" },
+                    { "type": "natural" }{% if 'additive' in qtlresults[0] %},
+                    { "type": "natural" }{% endif %}{% if 'dominance' in qtlresults[0] and dataset.group.genetic_type != "riset" %},
                     { "type": "natural" }{% endif %}
                 ],
                 "columnDefs": [ {
@@ -346,8 +360,8 @@
                 "scrollCollapse": false,
                 "paging": false
             } );
-
-            $('#interval_analyst').dataTable( {
+            {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
+            $('#trait_table').dataTable( {
                 "createdRow": function ( row, data, index ) {
                   $('td', row).eq(1).attr("align", "right");
                   $('td', row).eq(3).attr("align", "right");
@@ -384,6 +398,7 @@
                 "scrollCollapse": false,
                 "paging": false
             } );
+            {% endif %}
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
@@ -433,6 +448,12 @@
             return $('#marker_regression_form').submit();
         }
 
+        $('#browser_tab').click(function() {
+          $('#gn1_map_options').css("display", "none")
+        })
+        $('#gn1_map_tab').click(function() {
+          $('#gn1_map_options').css("display", "block")
+        })
     </script>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 <div>
     {% if dataset.group.mapping_names|length > 0 %}
-    <div class="col-xs-5">
+    <div class="col-xs-4" style="min-width: 600px;">
         <div class="tabbable"> <!-- Only required for left/right tabs -->
 
             <ul class="nav nav-pills">
@@ -9,7 +9,7 @@
                     <a href="#gemma" data-toggle="tab">GEMMA</a>
                 </li>
                 <li class="mapping_tab">
-                    <a href="#interval_mapping" data-toggle="tab">Interval Mapping</a>
+                    <a href="#interval_mapping" data-toggle="tab">Haley-Knott Regression</a>
                 </li>
                 <li class="mapping_tab rqtl">
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
@@ -116,6 +116,15 @@
                 <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
+                            <label for="reaper_version" style="text-align: right;" class="col-xs-3 control-label">Version<sup><a title="'New' is the new qtlreaper implementation written in RUST by Christian Fischer. 'Original' corresponds to the original version written in C.">?</a></sup></label>
+                            <div style="margin-left:20px;" class="col-xs-3 controls">
+                                <select name="reaper_version" class="form-control">
+                                    <option value="new">New</option>
+                                    <option value="original">Original</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
                             <label for="chr_select" style="text-align: right;" class="col-xs-3 control-label">Chromosome</label>
                             <div style="margin-left:20px;" class="col-xs-2 controls">
                                 <select id="chr_reaper" class="form-control">
@@ -150,13 +159,15 @@
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
-                            <label style="text-align: right;" for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
+                            <label style="text-align: right;" for="control_for" class="col-xs-3 control-label">Control&nbsp;for<br>Cofactors</label>
                             <div style="margin-left:20px;" class="col-xs-6 controls">
                                 {% if dataset.type == 'ProbeSet' and this_trait.locus_chr != "" %}
-                                <input name="control_reaper" value="{{ nearest_marker }}" type="text" style="width: 160px;" class="form-control" />
+                                <input name="control_reaper" value="{{ nearest_marker }}" type="text" style="width: 160px; display: inline-block;" class="form-control" />
                                 {% else %}
-                                <input name="control_reaper" value="" type="text" class="form-control" />
+                                <input name="control_reaper" value="" type="text" style="display: inline-block; padding-right: 10px;" class="form-control" />
                                 {% endif %}
+                                <input type="radio" name="do_control_reaper" value="true"> Yes&nbsp;&nbsp;<input type="radio" name="do_control_reaper" value="false" checked="" style="margin-left: 10px;"> No</span>
+                                <!--
                                 <label class="radio-inline">
                                     <input type="radio" name="do_control_reaper" value="true">
                                     Yes
@@ -165,6 +176,7 @@
                                     <input type="radio" name="do_control_reaper" value="false" checked="">
                                     No
                                 </label>
+                            -->
                             </div>
                         </div>
 
@@ -193,14 +205,14 @@
                         </div>
 -->
                         <div class="mapping_method_fields form-group">
-                            <label style="text-align: right;" class="col-xs-3 control-label">Marker<br>Regression</label>
+                            <label style="text-align: right;" class="col-xs-3 control-label">Interval Map</label>
                             <div style="margin-left:20px;" class="col-xs-6 controls">
                                 <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_reaper" value="True">
+                                    <input type="radio" name="manhattan_plot_reaper" value="False" checked="">
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="manhattan_plot_reaper" value="False" checked="">
+                                    <input type="radio" name="manhattan_plot_reaper" value="True">
                                     No
                                </label>
                             </div>
@@ -342,14 +354,15 @@
             </div>
         </div>
     </div>
-    <div class="col-xs-5">
+    <div class="col-xs-6">
         <dl>
              <dt>GEMMA</dt>
              <dd>GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).</dd>
              {% if dataset.group.mapping_id == "1" %}
-             <dt>Interval Mapping</dt>
-             <dd>Interval mapping is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.</dd>
-             <dt>R/qtl</dt>
+             <dt style="margin-top: 20px;">Haley-Knott Regression</dt>
+             <dd>This method is implementing using the tool QTLReaper. Interval mapping (the last option) is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.<br><br>
+                 The default option is a version of QTLReaper rewritten in RUST that should fix some of the issues the original had. You can still use the original with the Version option.</dd>
+             <dt style="margin-top: 20px;">R/qtl</dt>
              <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
              {% endif %}
         </dl>

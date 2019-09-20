@@ -107,7 +107,7 @@ class ShowTrait(object):
                     blatsequence += '%3EProbe_' + string.strip(seqt[1]) + '%0A' + string.strip(seqt[0]) + '%0A'
 
             if self.dataset.group.species == "rat":
-                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn3', blatsequence)
+                self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn6', blatsequence)
                 self.UTHSC_BLAT_URL = ""
             elif self.dataset.group.species == "mouse":
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('mouse', 'mm10', blatsequence)
@@ -141,40 +141,6 @@ class ShowTrait(object):
 
         self.qnorm_vals = quantile_normalize_vals(self.sample_groups)
         self.z_scores = get_z_scores(self.sample_groups)
-
-        # Todo: Add back in the ones we actually need from below, as we discover we need them
-        hddn = OrderedDict()
-
-        if self.dataset.group.allsamples:
-            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
-
-        hddn['trait_id'] = self.trait_id
-        hddn['dataset'] = self.dataset.name
-        hddn['temp_trait'] = False
-        if self.temp_trait:
-           hddn['temp_trait'] = True
-           hddn['group'] = self.temp_group
-           hddn['species'] = self.temp_species
-        hddn['use_outliers'] = False
-        hddn['method'] = "gemma"
-        hddn['selected_chr'] = -1
-        hddn['mapping_display_all'] = True
-        hddn['suggestive'] = 0
-        hddn['num_perm'] = 0
-        hddn['manhattan_plot'] = ""
-        hddn['control_marker'] = ""
-        if not self.temp_trait:
-            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
-                hddn['control_marker'] = self.nearest_marker
-                #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
-        hddn['do_control'] = False
-        hddn['maf'] = 0.01
-        hddn['compare_traits'] = []
-        hddn['export_data'] = ""
-        hddn['export_format'] = "excel"
-
-        # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
-        self.hddn = hddn
 
         self.temp_uuid = uuid.uuid4()
 
@@ -216,18 +182,61 @@ class ShowTrait(object):
 
         sample_column_width = max_samplename_width * 8
 
-        if self.num_values >= 500:
+        if self.num_values >= 5000:
             self.maf = 0.01
         else:
             self.maf = 0.05
 
         trait_symbol = None
+        short_description = None
         if not self.temp_trait:
             if self.this_trait.symbol:
                 trait_symbol = self.this_trait.symbol
+                short_description = trait_symbol
+
+            elif hasattr(self.this_trait, 'post_publication_abbreviation'):
+                short_description = self.this_trait.post_publication_abbreviation
+
+            elif hasattr(self.this_trait, 'pre_publication_abbreviation'):
+                short_description = self.this_trait.pre_publication_abbreviation
+
+        # Todo: Add back in the ones we actually need from below, as we discover we need them
+        hddn = OrderedDict()
+
+        if self.dataset.group.allsamples:
+            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
+        hddn['primary_samples'] = string.join(self.primary_sample_names, ',')
+        hddn['trait_id'] = self.trait_id
+        hddn['dataset'] = self.dataset.name
+        hddn['temp_trait'] = False
+        if self.temp_trait:
+           hddn['temp_trait'] = True
+           hddn['group'] = self.temp_group
+           hddn['species'] = self.temp_species
+        hddn['use_outliers'] = False
+        hddn['method'] = "gemma"
+        hddn['selected_chr'] = -1
+        hddn['mapping_display_all'] = True
+        hddn['suggestive'] = 0
+        hddn['num_perm'] = 0
+        hddn['manhattan_plot'] = ""
+        hddn['control_marker'] = ""
+        if not self.temp_trait:
+            if hasattr(self.this_trait, 'locus_chr') and self.this_trait.locus_chr != "" and self.dataset.type != "Geno" and self.dataset.type != "Publish":
+                hddn['control_marker'] = self.nearest_marker
+                #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
+        hddn['do_control'] = False
+        hddn['maf'] = 0.05
+        hddn['compare_traits'] = []
+        hddn['export_data'] = ""
+        hddn['export_format'] = "excel"
+
+        # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
+        self.hddn = hddn
 
         js_data = dict(trait_id = self.trait_id,
                        trait_symbol = trait_symbol,
+                       short_description = short_description,
                        unit_type = trait_units,
                        dataset_type = self.dataset.type,
                        data_scale = self.dataset.data_scale,
@@ -246,7 +255,6 @@ class ShowTrait(object):
         self.pubmed_link = webqtlConfig.PUBMEDLINK_URL % self.this_trait.pubmed_id if check_if_attr_exists(self.this_trait, 'pubmed_id') else None
         self.ncbi_gene_link = webqtlConfig.NCBI_LOCUSID % self.this_trait.geneid if check_if_attr_exists(self.this_trait, 'geneid') else None
         self.omim_link = webqtlConfig.OMIM_ID % self.this_trait.omim if check_if_attr_exists(self.this_trait, 'omim') else None
-        self.unigene_link = webqtlConfig.UNIGEN_ID % tuple(string.split(self.this_trait.unigeneid, '.')[:2]) if check_if_attr_exists(self.this_trait, 'unigeneid') else None
         self.homologene_link = webqtlConfig.HOMOLOGENE_ID % self.this_trait.homologeneid if check_if_attr_exists(self.this_trait, 'homologeneid') else None
 
         self.genbank_link = None
@@ -256,17 +264,22 @@ class ShowTrait(object):
                 genbank_id = genbank_id[0:-1]
             self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
 
-        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = None
-        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = None
+        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
+        self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
         if self.this_trait.symbol:
             self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
             self.gtex_link = webqtlConfig.GTEX_URL % self.this_trait.symbol
             self.string_link = webqtlConfig.STRING_URL % self.this_trait.symbol
             self.panther_link = webqtlConfig.PANTHER_URL % self.this_trait.symbol
             self.ebi_gwas_link = webqtlConfig.EBIGWAS_URL % self.this_trait.symbol
+            self.protein_atlas_link = webqtlConfig.PROTEIN_ATLAS_URL % self.this_trait.symbol
+            #self.open_targets_link = webqtlConfig.OPEN_TARGETS_URL % self.this_trait.symbol
 
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
-                self.genebridge_link = webqtlConfig.GENEBRIDGE_URL % (self.this_trait.symbol, self.dataset.group.species)
+                if self.dataset.group.species == "mouse":
+                    self.genemania_link = webqtlConfig.GENEMANIA_URL % ("mus-musculus", self.this_trait.symbol)
+                else:
+                    self.genemania_link = webqtlConfig.GENEMANIA_URL % ("homo-sapiens", self.this_trait.symbol)
 
                 if self.dataset.group.species == "mouse":
                     self.aba_link = webqtlConfig.ABA_URL % self.this_trait.symbol
@@ -275,22 +288,34 @@ class ShowTrait(object):
                             FROM GeneList
                             WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
 
-                    chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                    results = g.db.execute(query).fetchone()
+                    if results:
+                        chr, transcript_start, transcript_end = results
+                    else:
+                        chr = transcript_start = transcript_end = None
+
                     if chr and transcript_start and transcript_end and self.this_trait.refseq_transcriptid:
                         transcript_start = int(transcript_start*1000000)
                         transcript_end = int(transcript_end*1000000)
                         self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('mm10', self.this_trait.refseq_transcriptid, chr, transcript_start, transcript_end)
 
             if self.dataset.group.species == "rat":
+                self.genemania_link = webqtlConfig.GENEMANIA_URL % ("rattus-norvegicus", self.this_trait.symbol)
+
                 query = """SELECT kgID, chromosome, txStart, txEnd
-                        FROM GeneLink_rn33
+                        FROM GeneList_rn33
                         WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
 
-                kgId, chr, transcript_start, transcript_end = g.db.execute(query).fetchall()[0] if len(g.db.execute(query).fetchall()) > 0 else None
+                results = g.db.execute(query).fetchone()
+                if results:
+                    kgId, chr, transcript_start, transcript_end = results
+                else:
+                    kgId = chr = transcript_start = transcript_end = None
+
                 if chr and transcript_start and transcript_end and kgId:
                     transcript_start = int(transcript_start*1000000) # Convert to bases from megabases
                     transcript_end = int(transcript_end*1000000)
-                    self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('rn3', kgId, chr, transcript_start, transcript_end)
+                    self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('rn6', kgId, chr, transcript_start, transcript_end)
 
             if self.this_trait.geneid and (self.dataset.group.species == "mouse" or self.dataset.group.species == "rat" or self.dataset.group.species == "human"):
                 self.biogps_link = webqtlConfig.BIOGPS_URL % (self.dataset.group.species, self.this_trait.geneid)
@@ -381,6 +406,8 @@ class ShowTrait(object):
                                             sample_group_type='primary',
                                             header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
+
+        self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
 
 def quantile_normalize_vals(sample_groups):
@@ -478,7 +505,7 @@ def get_genofiles(this_dataset):
     return jsondata['genofile']
 
 def get_table_widths(sample_groups, has_num_cases=False):
-    stats_table_width = 200
+    stats_table_width = 250
     if len(sample_groups) > 1:
         stats_table_width = 450
 

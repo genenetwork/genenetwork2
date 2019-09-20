@@ -17,7 +17,7 @@
     </header>
 -->
 
-    <div class="container-fluid">
+    <div class="container-fluid" style="min-width: 1200px;">
 
         {{ flash_me() }}
 
@@ -28,7 +28,7 @@
                     <div class="page-header">
                         <h1>Select and search</h1>
                     </div>
-                    <form method="get" action="/search" name="SEARCHFORM">
+                    <form method="get" action="/search" target="_blank" name="SEARCHFORM">
                         <fieldset>
                             <div style="padding: 20px" class="form-horizontal">
 
@@ -36,7 +36,7 @@
                                     <label for="species" class="col-xs-1 control-label" style="width: 65px !important;">Species:</label>
                                     <div class="col-xs-10 controls input-append" style="display: flex; padding-left: 20px;">
                                         <div class="col-8">
-                                          <select name="species" id="species" class="form-control" style="width: 280px !important;"></select>
+                                          <select name="species" id="species" class="form-control" style="width: 280px !important;"><option>Loading...</option></select>
                                         </div>
                                         <div class="col-4" style="margin-left: 10px;">
                                           <button type="button" id="make_default" class="btn btn-primary form-control">Make Default</button>
@@ -48,7 +48,7 @@
                                     <label for="group" class="col-xs-1 control-label" style="width: 65px !important;">Group:</label>
                                     <div class="col-xs-10 controls input-append" style="padding-left: 20px;">
                                         <div class="col-8">
-                                          <select name="group" id="group" class="form-control" style="width: 280px !important;"></select>
+                                          <select name="group" id="group" class="form-control" style="width: 280px !important;"><option>Loading...</option></select>
                                           <i class="icon-question-sign"></i>
                                         </div>
                                     </div>
@@ -58,7 +58,7 @@
                                     <label for="tissue" class="col-xs-1 control-label" style="width: 65px !important;">Type:</label>
                                     <div class="col-xs-10 controls" style="padding-left: 20px;">
                                         <div class="col-8">
-                                          <select name="type" id="type" class="form-control" style="width: 280px !important;"></select>
+                                          <select name="type" id="type" class="form-control" style="width: 280px !important;"><option>Loading...</option></select>
                                         </div>
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@
                                     <label for="dataset" class="col-xs-1 control-label" style="width: 65px !important;">Dataset:</label>
                                     <div class="col-xs-10 controls input-append" style="display: flex; padding-left: 20px;">
                                         <div class="col-9">
-                                          <select name="dataset" id="dataset" class="form-control" style="width: 340px !important;"></select>
+                                          <select name="dataset" id="dataset" class="form-control" style="width: 340px !important;"><option>Loading...</option></select>
                                           <i class="icon-question-sign"></i>
                                         </div>
                                         <div class="col-3" style="margin-left: 10px;">
@@ -138,18 +138,31 @@
                         <h2>Advanced commands</h2>
                     </div>
 
-                    <p>You can also use advanced commands. Copy these simple examples into the Get Any or Combined search fields:</p>
+                    <p>You can also use advanced commands. Copy these simple examples into the Get Any field for single term searches and Combined for searches with multiple terms:</p>
 
                       <ul>
                         <li><b>POSITION=(chr1 25 30)</b> finds genes, markers, or transcripts on
                         chromosome 1 between 25 and 30 Mb.</li>
 
-                        <li><b>MEAN=(15 16) LRS=(23 46)</b> in the <b>Combined</b> field finds
-                        highly expressed genes (15 to 16 log2 units) AND with peak <a href="http://www.genenetwork.org/glossary.html#L">LRS</a>
-                        linkage between 23 and 46.</li>
+                        <li><b>MEAN=(15 16)</b> in the <b>Combined</b> field finds
+                        highly expressed genes (15 to 16 log2 units)</li>
 
                         <li><b>RANGE=(1.5 2.5)</b> in the <b>Any</b> field finds traits with values with a specified fold-range (minimum = 1). 
                         Useful for finding "housekeeping genes" <b>(1.0 1.2)</b> or highly variable molecular assays <b>(10 100)</b>.</li>
+
+                        <li><b>LRS=(15 1000)</b> or <b>LOD=(2 8)</b> finds all traits with peak LRS or LOD scores between lower and upper limits.</li>
+
+                        <li><b>LRS=(9 999 Chr4 122 155)</b> finds all traits on Chr 4 from 122 and 155 Mb with LRS scores between 9 and 999.</li>
+
+                        <li><b>cisLRS=(15 1000 5)</b> or <b>cisLOD=(2 8 5)</b> finds all cis eQTLs with peak LRS or LOD scores between lower and upper limits,
+                            with an <b>inclusion</b> zone of 5 Mb around the parent gene.</li>
+
+                        <li><b>transLRS=(15 1000 5)</b> or <b>transLOD=(2 8 5)</b> finds all trans eQTLs with peak LRS or LOD scores between lower and upper limits,
+                            with an <b>exclusion</b> zone of 5 Mb around the parent gene.</li>
+
+                        <li><b>POSITION=(Chr4 122 130) cisLRS=(9 999 10)</b>
+                            finds all traits on Chr 4 from 122 and 155 Mb with cisLRS scores
+                            between 9 and 999 and an inclusion zone of 10 Mb.</li>
 
                         <li><b>RIF=mitochondrial</b> searches RNA databases for <a href="https://en.wikipedia.org/wiki/GeneRIF">
                         GeneRIF</a> links.</li>
@@ -161,11 +174,6 @@
                         <li><b>GO:0045202</b> searches for synapse-associated genes listed in the
                         <a href="http://amigo.geneontology.org/amigo/medial_search?q=GO%3A0045202">
                             Gene Ontology</a>.</li>
-
-                        <li><b>GO:0045202 LRS=(9 99 Chr4 122 155) cisLRS=(9 999 10)</b>
-                        finds synapse-associated genes with <a href="http://www.genenetwork.org/glossary.html#E">
-                        cis eQTL</a> on Chr 4 from 122 and 155 Mb with LRS scores
-                        between 9 and 999.</li>
 
                         <li><b>RIF=diabetes LRS=(9 999 Chr2 100 105) transLRS=(9 999 10)</b>
                         finds diabetes-associated transcripts with peak <a href="http://www.genenetwork.org/glossary.html#E">
@@ -181,8 +189,9 @@
                         <h1>Affiliates</h1>
                         <ul>
                           <li><a href="http://ucscbrowser.genenetwork.org/">Genome browser</a> at UTHSC</li>
-                          <li><a href="http://galaxy.genenetwork.org/">Galaxy</a> at UTHSC</li>
                           <li><a href="https://systems-genetics.org/">Systems Genetics</a> @ EPFL</li>
+                          <li>UTHSC <a href="http://bnw.genenetwork.org/">Bayesian Network Web Server</a></li>
+                          <li><a href="http://genenetwork.org">GeneNetwork 1</a></li>
                         </ul>
                     </div>
                 </section>
@@ -199,9 +208,9 @@
                         <h1>Github</h1>
                         <ul>
                           <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
-                          <li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>
-                          <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
                           <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
+                          <!--<li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>-->
+                          <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
                         </ul>
                     </div>
                </section>
@@ -241,13 +250,12 @@
                     <h3>GeneNetwork v2:</h3>
                       <ul>
                         <li><a href="http://gn2.genenetwork.org/">Main website</a> at UTHSC</li>
-                        <li><a href="http://test-gn2.genenetwork.org/">Testing website</a> at UTHSC</li>
+                        <!--<li><a href="http://test-gn2.genenetwork.org/">Testing website</a> at UTHSC</li>-->
                       </ul>
                     <h3>GeneNetwork v1:</h3>
                     <ul>
                         <li><a href="http://www.genenetwork.org/">Main website</a> at UTHSC</li>
-                        <li><a href="http://genenetwork.helmholtz-hzi.de/">Website</a> at the HZI (Germany)</li>
-                        <li><a href="http://ec2.genenetwork.org/">Amazon
+                        <li><a href="http://artemis.uthsc.edu/">Time Machine</a>: Full GN versions from 2009 to 2016 (mm9)</li>
                             Cloud (EC2)</a></li>
                         </ul>
                </section>

@@ -161,29 +161,33 @@
         intercept_line['samples_all'] = [[first_x, last_x], [first_value, last_value]]
     }
 
-    if (Math.max(y_values['samples_all']) - Math.min(y_values['samples_all']) < 6){
+    val_range = Math.max(...y_values['samples_all']) - Math.min(...y_values['samples_all'])
+    if (val_range < 4){
       tick_digits = '.1f'
+    } else if (val_range < 0.4) {
+      tick_digits = '.2f'
     } else {
       tick_digits = 'f'
     }
 
     var layout = {
-        title: js_data.trait_id,
+        title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
         margin: {
-            l: 65,
+            l: 100,
             r: 30,
             t: 80,
-            b: 80
+            b: 60
         },
         xaxis: {
-            title: "Normal Theoretical Quantiles",
+            title: "<b>Normal Theoretical Quantiles</b>",
             range: [first_x, last_x],
             zeroline: false,
             visible: true,
             linecolor: 'black',
             linewidth: 1,
             titlefont: {
-              size: 16
+              family: "arial",
+              size: 20
             },
             ticklen: 4,
             tickfont: {
@@ -191,19 +195,20 @@
             }
         },
         yaxis: {
-            title: "Data Quantiles",
             zeroline: false,
             visible: true,
             linecolor: 'black',
             linewidth: 1,
             titlefont: {
-              size: 16
+              family: "arial",
+              size: 20
             },
             ticklen: 4,
             tickfont: {
               size: 16
             },
-            tickformat: tick_digits
+            tickformat: tick_digits,
+            automargin: true
         },
         hovermode: "closest"
     }
