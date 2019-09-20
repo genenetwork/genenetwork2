@@ -159,6 +159,10 @@ class DisplayMappingResults(object):
         if 'first_run' in start_vars:
             self.first_run = start_vars['first_run']
 
+        if 'temp_trait' in start_vars:
+            self.temp_trait = "True"
+            self.group = start_vars['group']
+
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
@@ -2074,8 +2078,8 @@ class DisplayMappingResults(object):
         else:
             perm_output = self.perm_output
 
-        Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
+        Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         myCanvas.save(GENERATED_IMAGE_DIR+filename, format='gif')
 
         return filename
