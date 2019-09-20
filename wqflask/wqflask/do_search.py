@@ -1,6 +1,8 @@
 from __future__ import print_function, division
 
 import string
+import requests
+import json
 
 from flask import Flask, g
 
@@ -108,6 +110,12 @@ class MrnaAssaySearch(DoSearch):
 
     def get_where_clause(self):
 
+        aliases = get_aliases(escape(self.search_term[0]), self.dataset.group.species)
+        if len(aliases) > 0:
+            search_string = " ".join(aliases)
+        else:
+            search_string = escape(self.search_term[0])
+
         if self.search_term[0] != "*":
             match_clause = """(MATCH (ProbeSet.Name,
                         ProbeSet.description,
@@ -117,7 +125,7 @@ class MrnaAssaySearch(DoSearch):
                         UniGeneId,
                         Probe_Target_Description)
                         AGAINST ('%s' IN BOOLEAN MODE)) and
-                                """ % (escape(self.search_term[0]))
+                                """ % (search_string)
         else:
             match_clause = ""
 
@@ -867,6 +875,26 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
+def get_aliases(symbol, species):
+    if species == "mouse":
+        symbol_string = symbol.capitalize()
+    elif species == "human":
+        symbol_string = symbol.upper()
+
+    response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + symbol_string)
+    alias_list = json.loads(response.content)
+
+    filtered_aliases = []
+    seen = set()
+    for item in alias_list:
+        if item in seen:
+            continue
+        else:
+            filtered_aliases.append(item)
+            seen.add(item)
+
+    return filtered_aliases
 
 if __name__ == "__main__":
     ### Usually this will be used as a library, but call it from the command line for testing
