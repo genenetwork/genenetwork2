@@ -35,7 +35,8 @@ import json
 
 from flask import Flask, g
 
-from htmlgen import HTMLgen2 as HT
+from htmlgen import (Element,Paragraph,LineBreak,Image,Link,Form,
+                     Input)
 
 from base import webqtlConfig
 from base.GeneralObject import GeneralObject
@@ -48,6 +49,41 @@ from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
+
+def set_attributes(element, attributes):
+    for attr_name, attr_value in attributes.items():
+        if attr_value is not None:
+            if attr_value.endswith("_"):
+                element.set_attribute(attr_name[:-1], attr_value)
+            else:
+                element.set_attribute(attr_name, attr_value)
+
+    return element
+
+def make_map(**kwargs):
+    return set_attributes(Element("map"), kwargs)
+
+def make_map_area(**kwargs):
+    return set_attributes(Element("area"), kwargs)
+
+def make_image(url, alt=None, width=None, height=None, border=None):
+    img = Image(url=url, alternate_text=alt)
+    if width:
+        img.width = width
+
+    if height:
+        img.height = height
+
+    if border:
+        img.border = border
+
+    return img
+
+def make_input(type_, name, value, class_=None, onClick=None):
+    return set_attributes(Input(type_=type_), kwargs)
+
+def make_link(url, content=(), **kwargs):
+    return set_attributes(Link(url, *content), kwargs)
 
 #########################################
 #      Inteval Mapping Plot Page
@@ -80,7 +116,7 @@ class DisplayMappingResults(object):
     DRAW_DETAIL_MB = 4
     DRAW_UTR_LABELS_MB = 4
 
-    qmarkImg = HT.Image('/images/qmarkBoxBlue.gif', width=10, height=13, border=0, alt='Glossary')
+    qmarkImg = make_image('/images/qmarkBoxBlue.gif', width=10, height=13, border=0, alt='Glossary')
     # Note that "qmark.gif" is a similar, smaller, rounded-edges question mark. It doesn't look
     # like the ones on the image, though, which is why we don't use it here.
 
@@ -453,7 +489,7 @@ class DisplayMappingResults(object):
 
         self.filename= webqtlUtil.genRandStr("Itvl_")
         intCanvas.save(os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename), format='png')
-        intImg=HT.Image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
+        intImg=make_image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
 
         #Scales plot differently for high resolution
         if self.draw2X:
@@ -466,11 +502,13 @@ class DisplayMappingResults(object):
         ################################################################
         #this form is used for opening Locus page or trait page, only available for genetic mapping
         if showLocusForm:
-            showLocusForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data',
-                name=showLocusForm, submit=HT.Input(type='hidden'))
+            showLocusForm = Form(url= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE))
+            showLocusForm.multipart = True # enctype='multipart/form-data'
+            showLocusForm.set_attribute("name", showLocusForm)
+            showLocusForm.append(make_input(type='hidden', name="submit"))
             hddn = {'FormID':'showDatabase', 'ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
             for key in hddn.keys():
-                showLocusForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
+                showLocusForm.append(make_input(name=key, value=hddn[key], type='hidden'))
             showLocusForm.append(intImg)
         else:
             showLocusForm = intImg
@@ -481,10 +519,11 @@ class DisplayMappingResults(object):
         ################################################################
         # footnote goes here
         ################################################################
-        btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
+        btminfo = Paragraph()
+        btminfo.set_attribute("id", "smallsize") #Small('More information about this graph is available here.')
 
         if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
-            btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
+            btminfo.append(LineBreak(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
     def plotIntMapping(self, canvas, offset= (80, 120, 20, 100), zoom = 1, startMb = None, endMb = None, showLocusForm = ""):
         #calculating margins
@@ -537,7 +576,7 @@ class DisplayMappingResults(object):
             drawAreaHeight -= 60
 
         #Image map
-        gifmap = HT.Map(name = "WebQTLImageMap")
+        gifmap = make_map(name = "WebQTLImageMap")
 
         newoffset = (xLeftOffset, xRightOffset, yTopOffset, yBottomOffset)
         # Draw the alternating-color background first and get plotXScale
@@ -843,7 +882,7 @@ class DisplayMappingResults(object):
             if thisTrait.db:
                 COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift,yPaddingTop+kstep*15,rectWidth+2+rightShift+nameWidth,yPaddingTop+10+kstep*15,)
                 HREF= "javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm, thisTrait.db.name, thisTrait.name)
-                Areas = HT.Area(shape='rect',coords=COORDS,href=HREF)
+                Areas = make_map_area(shape='rect',coords=COORDS,href=HREF)
                 gifmap.areas.append(Areas)
 
     def drawLegendPanel(self, canvas, offset= (40, 120, 80, 10), zoom = 1):
@@ -1160,7 +1199,7 @@ class DisplayMappingResults(object):
 
             COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
             # NL: 06-02-2011 Rob required to display NCBI info in a new window
-            gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE,target="_blank"))
+            gifmap.areas.append(make_map_area(shape='rect',coords=COORDS,href=HREF, title=TITLE,target="_blank"))
 
 ## BEGIN HaplotypeAnalyst
     def drawHaplotypeBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -1316,7 +1355,7 @@ class DisplayMappingResults(object):
                                     COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
                                     TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[k], _chr[j].name, float(txStart))
                                     HREF = ''
-                                    gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE))
+                                    gifmap.areas.append(make_map_area(shape='rect',coords=COORDS,href=HREF, title=TITLE))
 
                                     # if there are no more markers in a chromosome, the plotRight value calculated above will be before the plotWidth
                                     # resulting in some empty space on the right side of the plot area. This draws an "unknown" bar from plotRight to the edge.
@@ -1413,7 +1452,7 @@ class DisplayMappingResults(object):
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
-                gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
+                gifmap.areas.append(make_map_area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
                 canvas.drawRect(xBrowse1, paddingTop, xBrowse2, (paddingTop + self.BAND_HEIGHT), edgeColor=self.CLICKABLE_WEBQTL_REGION_COLOR, fillColor=self.CLICKABLE_WEBQTL_REGION_COLOR)
                 canvas.drawLine(xBrowse1, paddingTop, xBrowse1, (paddingTop + self.BAND_HEIGHT), color=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
 
@@ -1424,7 +1463,7 @@ class DisplayMappingResults(object):
                     else:
                         PHENOGEN_HREF = "https://phenogen.org/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
-                    gifmap.areas.append(HT.Area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
+                    gifmap.areas.append(make_map_area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
                     canvas.drawRect(xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_PHENOGEN_REGION_COLOR, fillColor=self.CLICKABLE_PHENOGEN_REGION_COLOR)
                     canvas.drawLine(xBrowse1, phenogenPaddingTop, xBrowse1, (phenogenPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR)
 
@@ -1434,7 +1473,7 @@ class DisplayMappingResults(object):
                 else:
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
-                gifmap.areas.append(HT.Area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
+                gifmap.areas.append(make_map_area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
                 canvas.drawRect(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_UCSC_REGION_COLOR, fillColor=self.CLICKABLE_UCSC_REGION_COLOR)
                 canvas.drawLine(xBrowse1, ucscPaddingTop, xBrowse1, (ucscPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_UCSC_REGION_OUTLINE_COLOR)
 
@@ -1444,7 +1483,7 @@ class DisplayMappingResults(object):
                 else:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
-                gifmap.areas.append(HT.Area(shape='rect',coords=ENSEMBL_COORDS,href=ENSEMBL_HREF, title=ENSEMBL_TITLE))
+                gifmap.areas.append(make_map_area(shape='rect',coords=ENSEMBL_COORDS,href=ENSEMBL_HREF, title=ENSEMBL_TITLE))
                 canvas.drawRect(xBrowse1, ensemblPaddingTop, xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_ENSEMBL_REGION_COLOR, fillColor=self.CLICKABLE_ENSEMBL_REGION_COLOR)
                 canvas.drawLine(xBrowse1, ensemblPaddingTop, xBrowse1, (ensemblPaddingTop+self.BAND_HEIGHT), color=self.CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR)
             # end for
@@ -1626,7 +1665,7 @@ class DisplayMappingResults(object):
                             xLeftOffset+offsetA,yZero+40+Zorder*(LRectWidth+3)+LRectWidth)
                     HREF="/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
                     #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
-                    Areas=HT.Area(shape='rect', coords=COORDS, href=HREF, target="_blank", title="Locus : " + Lname)
+                    Areas=make_map_area(shape='rect', coords=COORDS, href=HREF, target="_blank", title="Locus : " + Lname)
                     gifmap.areas.append(Areas)
                 ##piddle bug
                 if j == 0:
@@ -1761,8 +1800,8 @@ class DisplayMappingResults(object):
                 else:
                     sugg_title = "Suggestive LOD = %0.2f" % (self.suggestive/4.61)
                     sig_title = "Significant LOD = %0.2f" % (self.significant/4.61)
-                Areas1 = HT.Area(shape='rect',coords=sugg_coords,title=sugg_title)
-                Areas2 = HT.Area(shape='rect',coords=sig_coords,title=sig_title)
+                Areas1 = make_map_area(shape='rect',coords=sugg_coords,title=sugg_title)
+                Areas2 = make_map_area(shape='rect',coords=sig_coords,title=sig_title)
                 gifmap.areas.append(Areas1)
                 gifmap.areas.append(Areas2)
 
@@ -2056,7 +2095,7 @@ class DisplayMappingResults(object):
                 #add by NL 09-03-2010
                 HREF = "javascript:chrView(%d,%s);" % (i,self.ChrLengthMbList)
                 #HREF = "javascript:changeView(%d,%s);" % (i,self.ChrLengthMbList)
-                Areas = HT.Area(shape='rect',coords=COORDS,href=HREF)
+                Areas = make_map_area(shape='rect',coords=COORDS,href=HREF)
                 gifmap.areas.append(Areas)
                 startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
@@ -2141,7 +2180,7 @@ class DisplayMappingResults(object):
                 tableIterationsCnt = tableIterationsCnt + 1
 
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="selectCheck", value=theGO["GeneSymbol"], Class="checkbox trait_checkbox") #checkbox for each row
+                selectCheck = make_input(type="checkbox", name="searchResult", value=theGO["GeneSymbol"], class_="checkbox trait_checkbox") #checkbox for each row
 
                 geneLength = (theGO["TxEnd"] - theGO["TxStart"])*1000.0
                 tenPercentLength = geneLength*0.0001
@@ -2152,9 +2191,9 @@ class DisplayMappingResults(object):
                     geneIdString = 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s' % theGO["GeneID"]
 
                     if theGO["snpCount"]:
-                        snpString = HT.Href(url="http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (theGO["Chromosome"],
+                        snpString = make_link(url="http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (theGO["Chromosome"],
                                 theGO["TxStart"], theGO["TxEnd"], theGO["GeneSymbol"], self.diffCol[0], self.diffCol[1]),
-                                text=theGO["snpCount"], target="_blank", Class="normalsize")
+                                content=(theGO["snpCount"],), target="_blank", class_="normalsize")
                     else:
                         snpString = 0
 
@@ -2199,27 +2238,27 @@ class DisplayMappingResults(object):
 
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
-                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__(),
-                                    HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    make_link(geneIdString, content=(theGO["GeneSymbol"],), target="_blank").__str__(),
+                                    make_link(mouseStartString, content=("%0.6f" % txStart,), target="_blank").__str__(),
+                                    make_link("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), content=("%0.3f" % geneLength,)).__str__(),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
                                     humanChr,
-                                    HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
+                                    make_link(humanStartString, content=(humanStartDisplay,), target="_blank").__str__(),
                                     literatureCorrelationString,
                                     geneDescription]
                     else:
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
-                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__(),
-                                    HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    make_link(geneIdString, content=(theGO["GeneSymbol"],), target="_blank").__str__(),
+                                    make_link(mouseStartString, content=("%0.6f" % txStart,), target="_blank").__str__(),
+                                    make_link("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), content=("%0.3f" % geneLength,)).__str__(),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
                                     humanChr,
-                                    HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
+                                    make_link(humanStartString, content=(humanStartDisplay,), target="_blank").__str__(),
                                     geneDescription]
 
                 gene_table_body.append(this_row)
@@ -2227,13 +2266,12 @@ class DisplayMappingResults(object):
         elif self.dataset.group.species == 'rat':
             for gIndex, theGO in enumerate(geneCol):
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="selectCheck", Class="checkbox trait_checkbox").__str__() #checkbox for each row
+                selectCheck = make_input(type_="checkbox", name="searchResult", class_="checkbox", onClick="highlight(this)").__str__() #checkbox for each row
 
-                #ZS: May want to get this working again later
-                #webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
+                #webqtlSearch = make_link(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], content=(">>",), target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
-                    geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blank").__str__()
+                    geneSymbolNCBI = make_link("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], content=(theGO["GeneSymbol"],), class_="normalsize", target="_blank").__str__()
                 else:
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
