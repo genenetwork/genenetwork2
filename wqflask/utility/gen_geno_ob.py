@@ -115,7 +115,10 @@ class Locus(object):
     def __init__(self, marker_row, geno_ob):
         self.chr = marker_row[0]
         self.name = marker_row[1]
-        self.cM = float(marker_row[geno_ob.cm_column])
+        try:
+            self.cM = float(marker_row[geno_ob.cm_column])
+        except:
+            self.cM = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else 0
         self.Mb = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else None
 
         geno_table = {
