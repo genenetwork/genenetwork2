@@ -49,13 +49,12 @@ logger = utility.logger.getLogger(__name__ )
 class RunMapping(object):
 
     def __init__(self, start_vars, temp_uuid):
-
         helper_functions.get_species_dataset_trait(self, start_vars)
 
         self.temp_uuid = temp_uuid #needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
 
         #ZS: Needed to zoom in or remap temp traits like PCA traits
-        if "temp_trait" in start_vars:
+        if "temp_trait" in start_vars and start_vars['temp_trait'] != "False":
             self.temp_trait = "True"
             self.group = self.dataset.group.name
 

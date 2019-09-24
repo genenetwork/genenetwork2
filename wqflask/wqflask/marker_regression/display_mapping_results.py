@@ -159,7 +159,7 @@ class DisplayMappingResults(object):
         if 'first_run' in start_vars:
             self.first_run = start_vars['first_run']
 
-        if 'temp_trait' in start_vars:
+        if 'temp_trait' in start_vars and start_vars['temp_trait'] != "False":
             self.temp_trait = "True"
             self.group = start_vars['group']
 
