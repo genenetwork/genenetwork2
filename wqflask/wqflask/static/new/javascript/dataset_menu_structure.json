@@ -117,14 +117,14 @@
                   "Barley1 Leaf MAS 5.0 SCRI (Dec06)"
                ],
                [
-                  "126",
-                  "B30_K_1206_Rn",
-                  "Barley1 Leaf gcRMAn SCRI (Dec06)"
-               ],
-               [
                   "125",
                   "B30_K_1206_R",
                   "Barley1 Leaf gcRMA SCRI (Dec06)"
+               ],
+               [
+                  "126",
+                  "B30_K_1206_Rn",
+                  "Barley1 Leaf gcRMAn SCRI (Dec06)"
                ]
             ],
             "Phenotypes": [
@@ -1623,14 +1623,14 @@
                   "NCI Mammary LMT miRNA v2 (Apr09) RMA"
                ],
                [
-                  "37",
-                  "MA_M_0704_R",
-                  "NCI Mammary mRNA M430 (July04) RMA"
-               ],
-               [
                   "36",
                   "MA_M_0704_M",
                   "NCI Mammary mRNA M430 (July04) MAS5"
+               ],
+               [
+                  "37",
+                  "MA_M_0704_R",
+                  "NCI Mammary mRNA M430 (July04) RMA"
                ]
             ]
          },
@@ -1698,14 +1698,14 @@
             ],
             "Liver mRNA": [
                [
-                  "39",
-                  "LVF2_M_0704_R",
-                  "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) RMA"
-               ],
-               [
                   "38",
                   "LVF2_M_0704_M",
                   "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) MAS5"
+               ],
+               [
+                  "39",
+                  "LVF2_M_0704_R",
+                  "(B6 x BTBR)F2-ob/ob Liver mRNA M430 (Jul04) RMA"
                ]
             ],
             "Phenotypes": [
@@ -1728,6 +1728,11 @@
          "B6D2F2": {
             "Brain mRNA": [
                [
+                  "78",
+                  "BRF2_M_0805_P",
+                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
+               ],
+               [
                   "77",
                   "BRF2_M_0805_R",
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) RMA"
@@ -1738,24 +1743,19 @@
                   "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) MAS5"
                ],
                [
-                  "78",
-                  "BRF2_M_0805_P",
-                  "OHSU/VA B6D2F2 Brain mRNA M430 (Aug05) PDNN"
-               ],
-               [
                   "33",
                   "BRF2_M_0304_P",
                   "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) PDNN"
                ],
                [
-                  "32",
-                  "BRF2_M_0304_R",
-                  "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) RMA"
-               ],
-               [
                   "31",
                   "BRF2_M_0304_M",
                   "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) MAS5"
+               ],
+               [
+                  "32",
+                  "BRF2_M_0304_R",
+                  "OHSU/VA B6D2F2 Brain mRNA M430A (Mar04) RMA"
                ]
             ],
             "Genotypes": [
@@ -1834,6 +1834,11 @@
             ],
             "Striatum mRNA": [
                [
+                  "83",
+                  "SA_M2_0905_M",
+                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
+               ],
+               [
                   "85",
                   "SA_M2_0905_P",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) PDNN"
@@ -1842,11 +1847,6 @@
                   "84",
                   "SA_M2_0905_R",
                   "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) RMA"
-               ],
-               [
-                  "83",
-                  "SA_M2_0905_M",
-                  "OHSU/VA B6D2F2 Striatum M430v2 (Sep05) MAS5"
                ]
             ]
          },
@@ -2122,14 +2122,14 @@
                   "INIA Brain mRNA M430 (Jun06) RMA"
                ],
                [
-                  "102",
-                  "IBR_M_0106_R",
-                  "INIA Brain mRNA M430 (Jan06) RMA"
-               ],
-               [
                   "101",
                   "IBR_M_0106_P",
                   "INIA Brain mRNA M430 (Jan06) PDNN"
+               ],
+               [
+                  "102",
+                  "IBR_M_0106_R",
+                  "INIA Brain mRNA M430 (Jan06) RMA"
                ],
                [
                   "95",
@@ -2551,14 +2551,14 @@
             ],
             "Kidney mRNA": [
                [
-                  "239",
-                  "MA_M2F_0706_R",
-                  "Mouse kidney M430v2 Female (Aug06) RMA"
-               ],
-               [
                   "240",
                   "MA_M2M_0706_R",
                   "Mouse kidney M430v2 Male (Aug06) RMA"
+               ],
+               [
+                  "239",
+                  "MA_M2F_0706_R",
+                  "Mouse kidney M430v2 Female (Aug06) RMA"
                ],
                [
                   "118",
@@ -2571,26 +2571,26 @@
                   "Mouse Kidney M430v2 Sex Balanced (Aug06) PDNN"
                ],
                [
-                  "116",
-                  "MA_M2_0706_P",
-                  "Mouse Kidney M430v2 (Jul06) PDNN"
-               ],
-               [
                   "115",
                   "MA_M2_0706_R",
                   "Mouse Kidney M430v2 (Jul06) RMA"
+               ],
+               [
+                  "116",
+                  "MA_M2_0706_P",
+                  "Mouse Kidney M430v2 (Jul06) PDNN"
                ]
             ],
             "Liver Metabolome": [
                [
-                  "836",
-                  "UTHSC-ETHZ-EPFL_LivPMetExtAHFD0817",
-                  "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction, HFD Cohorts (Jul 2017) log2"
-               ],
-               [
                   "835",
                   "UTHSC-ETHZ-EPFL_LivPMetExtACD0817",
                   "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction, Chow Diet Cohorts (Jul 2017) log2"
+               ],
+               [
+                  "836",
+                  "UTHSC-ETHZ-EPFL_LivPMetExtAHFD0817",
+                  "UTHSC/ETHZ/EPFL BXD Liver Polar Metabolites Extraction, HFD Cohorts (Jul 2017) log2"
                ],
                [
                   "473",
@@ -2845,14 +2845,14 @@
             ],
             "Neocortex mRNA": [
                [
-                  "375",
-                  "DevNeocortex_ILM6.2P14RInv_1111",
-                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
-               ],
-               [
                   "374",
                   "DevNeocortex_ILM6.2P3RInv_1111",
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov11) RankInv"
+               ],
+               [
+                  "375",
+                  "DevNeocortex_ILM6.2P14RInv_1111",
+                  "BIDMC/UTHSC Dev Neocortex P14 ILMv6.2 (Nov11) RankInv"
                ],
                [
                   "284",
@@ -3110,6 +3110,11 @@
             ],
             "Ventral Tegmental Area mRNA": [
                [
+                  "228",
+                  "VCUSal_0609_R",
+                  "VCU BXD VTA Sal M430 2.0 (Jun09) RMA"
+               ],
+               [
                   "230",
                   "VCUEtvsSal_0609_R",
                   "VCU BXD VTA Et vs Sal M430 2.0 (Jun09) RMA"
@@ -3118,11 +3123,6 @@
                   "229",
                   "VCUEtOH_0609_R",
                   "VCU BXD VTA EtOH M430 2.0 (Jun09) RMA"
-               ],
-               [
-                  "228",
-                  "VCUSal_0609_R",
-                  "VCU BXD VTA Sal M430 2.0 (Jun09) RMA"
                ]
             ]
          },
@@ -3264,7 +3264,7 @@
                [
                   "808",
                   "UCSD_CFW_HIP_RNA-Seq_0117",
-                  "UCSD CFW Hippocampus (Jan17) RNA-Seq"
+                  "UCSD CFW Hippocampus RNA-Seq (Jan17) FPKM Quantile"
                ]
             ],
             "Phenotypes": [
@@ -3463,14 +3463,14 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "100",
-                  "HC_M2CB_1205_R",
-                  "Hippocampus Consortium M430v2 CXB (Dec05) RMA"
-               ],
-               [
                   "99",
                   "HC_M2CB_1205_P",
                   "Hippocampus Consortium M430v2 CXB (Dec05) PDNN"
+               ],
+               [
+                  "100",
+                  "HC_M2CB_1205_R",
+                  "Hippocampus Consortium M430v2 CXB (Dec05) RMA"
                ]
             ],
             "Liver mRNA": [
@@ -3675,14 +3675,14 @@
             ],
             "Hippocampus mRNA": [
                [
-                  "273",
-                  "UMUTAffyExon_0209_RMA_MDP",
-                  "UMUTAffy Hippocampus Exon (Feb09) RMA MDP"
-               ],
-               [
                   "272",
                   "HC_M2_0606_MDP",
                   "Hippocampus Consortium M430v2 (Jun06) RMA MDP"
+               ],
+               [
+                  "273",
+                  "UMUTAffyExon_0209_RMA_MDP",
+                  "UMUTAffy Hippocampus Exon (Feb09) RMA MDP"
                ]
             ],
             "Liver mRNA": [

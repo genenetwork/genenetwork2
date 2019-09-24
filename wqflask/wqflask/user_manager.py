@@ -789,7 +789,7 @@ class LoginUser(object):
         user_details = get_user_by_unique_column(es, "user_id", user_id)
         if user_details:
             user = model.User()
-            user.id = user_details["user_id"]
+            user.id = user_details["user_id"] if user_details["user_id"] == None else "N/A"
             user.full_name = user_details["name"]
             user.login_type = user_details["login_type"]
             return self.actual_login(user)
@@ -886,6 +886,9 @@ class LoginUser(object):
         session_id_signature = actual_hmac_creation(login_rec.session_id)
         session_id_signed = login_rec.session_id + ":" + session_id_signature
         logger.debug("session_id_signed:", session_id_signed)
+
+        if not user.id:
+            user.id = ''
 
         session = dict(login_time = time.time(),
                        user_id = user.id,

@@ -54,6 +54,11 @@ class RunMapping(object):
 
         self.temp_uuid = temp_uuid #needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
 
+        #ZS: Needed to zoom in or remap temp traits like PCA traits
+        if "temp_trait" in start_vars:
+            self.temp_trait = "True"
+            self.group = self.dataset.group.name
+
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
 

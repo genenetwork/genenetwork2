@@ -25,7 +25,7 @@
 # webserver) run from the base-dir with settings file and add that
 # script with a -c switch, e.g.
 #
-#   env GN2_PROFILE=/usr/local/guix-profiles/gn-latest-20181119 TMPDIR=/export/local/home/zas1024/gn2-zach/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/local/home/zas1024/gn2-zach/genotype_files SQL_URI=mysql://webqtlout:webqtlout@lily.uthsc.edu/db_webqtl ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_select_dataset.py
+#   env GN2_PROFILE=/usr/local/guix-profiles/gn-latest-20190905 TMPDIR=/export/local/home/zas1024/gn2-zach/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/local/home/zas1024/gn2-zach/genotype_files SQL_URI=mysql://webqtlout:webqtlout@lily.uthsc.edu/db_webqtl ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_select_dataset.py
 #
 # To run any script in the environment
 #

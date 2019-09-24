@@ -10,6 +10,7 @@ import datetime
 import time
 import pp
 import math
+import random
 import collections
 import resource
 
@@ -23,9 +24,11 @@ import reaper
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
+from base import webqtlConfig
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
+from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 
 from MySQLdb import escape_string as escape
 
@@ -119,9 +122,14 @@ class Heatmap(object):
         for trait_db in self.trait_list:
             self.dataset.group.get_markers()
             this_trait = trait_db[0]
-            #this_db = trait_db[1]
-            genotype = self.dataset.group.read_genotype_file(use_reaper=True)
+
+            genotype = self.dataset.group.read_genotype_file(use_reaper=False)
             samples, values, variances, sample_aliases = this_trait.export_informative()
+
+            if self.dataset.group.genofile != None:
+                genofile_name = self.dataset.group.genofile[:-5]
+            else:
+                genofile_name = self.dataset.group.name
 
             trimmed_samples = []
             trimmed_values = []
@@ -130,14 +138,73 @@ class Heatmap(object):
                     trimmed_samples.append(str(samples[i]))
                     trimmed_values.append(values[i])
 
-            reaper_results = genotype.regression(strains = trimmed_samples,
-                                                 trait = trimmed_values)
+            trait_filename = str(this_trait.name) + "_" + str(self.dataset.name) + "_pheno"
+            gen_pheno_txt_file(trimmed_samples, trimmed_values, trait_filename)
 
-            lrs_values = [float(qtl.lrs) for qtl in reaper_results]
+            output_filename = self.dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+
+            reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt -n 1000 -o {4}{5}.txt'.format(flat_files('genotype'),
+                                                                                                                    genofile_name,
+                                                                                                                    TEMPDIR,
+                                                                                                                    trait_filename,
+                                                                                                                    webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                                    output_filename)
+
+            os.system(reaper_command)                                                                                                        
+
+            reaper_results = parse_reaper_output(output_filename)
+
+            lrs_values = [float(qtl['lrs_value']) for qtl in reaper_results]
 
             self.trait_results[this_trait.name] = []
             for qtl in reaper_results:
-                if qtl.additive > 0:
-                    self.trait_results[this_trait.name].append(-float(qtl.lrs))
+                if qtl['additive'] > 0:
+                    self.trait_results[this_trait.name].append(-float(qtl['lrs_value']))
                 else:
-                    self.trait_results[this_trait.name].append(float(qtl.lrs))
+                    self.trait_results[this_trait.name].append(float(qtl['lrs_value']))
+
+def gen_pheno_txt_file(samples, vals, filename):
+    """Generates phenotype file for GEMMA"""
+
+    with open("{0}/gn2/{1}.txt".format(TEMPDIR, filename), "w") as outfile:
+        outfile.write("Trait\t")
+
+        filtered_sample_list = []
+        filtered_vals_list = []
+        for i, sample in enumerate(samples):
+            if vals[i] != "x":
+                filtered_sample_list.append(sample)
+                filtered_vals_list.append(str(vals[i]))
+
+        samples_string = "\t".join(filtered_sample_list)
+        outfile.write(samples_string + "\n")
+        outfile.write("T1\t")
+        values_string = "\t".join(filtered_vals_list)
+        outfile.write(values_string)
+
+def parse_reaper_output(gwa_filename):
+    included_markers = []
+    p_values = []
+    marker_obs = []
+
+    with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, gwa_filename)) as output_file:
+        for line in output_file:
+            if line.startswith("ID\t"):
+                continue
+            else:
+                marker = {}
+                marker['name'] = line.split("\t")[1]
+                try:
+                    marker['chr'] = int(line.split("\t")[2])
+                except:
+                    marker['chr'] = line.split("\t")[2]
+                marker['cM'] = float(line.split("\t")[3])
+                marker['Mb'] = float(line.split("\t")[4])
+                if float(line.split("\t")[7]) != 1:
+                    marker['p_value'] = float(line.split("\t")[7])
+                marker['lrs_value'] = float(line.split("\t")[5])
+                marker['lod_score'] = marker['lrs_value'] / 4.61
+                marker['additive'] = float(line.split("\t")[6])
+                marker_obs.append(marker)
+
+    return marker_obs

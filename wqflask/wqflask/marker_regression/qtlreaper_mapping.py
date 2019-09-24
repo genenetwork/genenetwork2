@@ -18,7 +18,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             genofile_name = this_dataset.group.name
 
         trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
-        gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename)
+        gen_pheno_txt_file(samples, vals, trait_filename)
 
         output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
         bootstrap_filename = None
@@ -61,7 +61,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
 
     return marker_obs, permu_vals, suggestive, significant, bootstrap_vals, [output_filename, permu_filename, bootstrap_filename]
 
-def gen_pheno_txt_file(this_dataset, genofile_name, samples, vals, trait_filename):
+def gen_pheno_txt_file(samples, vals, trait_filename):
     """Generates phenotype file for GEMMA"""
 
     with open("{}/gn2/{}.txt".format(TEMPDIR, trait_filename), "w") as outfile:
