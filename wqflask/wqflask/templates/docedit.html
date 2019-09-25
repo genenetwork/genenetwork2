@@ -8,6 +8,9 @@
     <form action="/update_text" method="post">
         <input type="hidden" name="entry_type" value="{{ entry }}">
         <input type="hidden" name="title" value="{{ title }}">
+        {% if editable is defined %}
+        <input type="hidden" name="edit" value="{{ editable }}">
+        {% endif %}
         <textarea name="ckcontent" id="ckcontent">
 			{{content|safe}}
         </textarea>

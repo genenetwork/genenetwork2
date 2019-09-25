@@ -6,9 +6,11 @@
 <div class="container">
 	<h3>{{title}}</h3>
 	<div style="text-align: right;">
-		<!--<a href="docedit?entry={{entry}}">-->
+		{% if editable == "true" %}
+		<a href="docedit?entry={{entry}}&edit=true">
 			<img style="width: 16px;" src="/static/new/images/edit.gif">
-		<!--</a>-->
+		</a>
+		{% endif %}
 	</div>
 	{{content|safe}}
 </div>
