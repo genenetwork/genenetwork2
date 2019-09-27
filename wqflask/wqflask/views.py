@@ -307,7 +307,7 @@ def submit_trait_form():
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     logger.info(request.url)
-    print("REQUEST.FORM:", request.form)
+
     #template_vars = submit_trait.SubmitTrait(request.form)
 
     doc = docs.Docs("links")
