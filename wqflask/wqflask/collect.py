@@ -259,7 +259,7 @@ def create_new(collection_name):
 
     if "hash" in params:
         unprocessed_traits = Redis.get(params['hash'])
-        Redis.delete(hash)
+        Redis.delete(params['hash'])
     else:
         unprocessed_traits = params['traits']
 
