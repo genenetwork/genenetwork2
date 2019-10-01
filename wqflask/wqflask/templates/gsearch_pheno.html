@@ -184,10 +184,17 @@
                       'render': function(data, type, row, meta) {
                         author_list = data.authors.split(",")
                         if (author_list.length >= 6) {
-                          return author_list.slice(0, 6).join(",") + ", et al."
+                          author_string = author_list.slice(0, 6).join(",") + ", et al."
                         } else{
-                          return data.authors
+                          author_string = data.authors
                         }
+
+			                  try {
+                            return decodeURIComponent(escape(author_string))
+			                  } catch(err) {
+			                      return author_string
+                        }
+
                       }
                     },
                     {

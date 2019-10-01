@@ -109,23 +109,26 @@ class MrnaAssaySearch(DoSearch):
                      'Additive Effect']
 
     def get_where_clause(self):
-
-        aliases = get_aliases(escape(self.search_term[0]), self.dataset.group.species)
-        if len(aliases) > 0:
-            search_string = " ".join(aliases)
-        else:
-            search_string = escape(self.search_term[0])
+        search_string = escape(self.search_term[0])
 
         if self.search_term[0] != "*":
-            match_clause = """(MATCH (ProbeSet.Name,
+            match_clause = """((MATCH (ProbeSet.Name,
                         ProbeSet.description,
                         ProbeSet.symbol,
                         alias,
                         GenbankId,
                         UniGeneId,
                         Probe_Target_Description)
-                        AGAINST ('%s' IN BOOLEAN MODE)) and
+                        AGAINST ('%s' IN BOOLEAN MODE))
                                 """ % (search_string)
+
+            aliases = get_aliases(search_string, self.dataset.group.species)
+            if len(aliases) > 0:
+                match_clause += " or "
+                alias_string = " ".join(aliases)
+                match_clause += "(MATCH (ProbeSet.symbol) AGAINST ('%s' IN BOOLEAN MODE))) and " % alias_string
+            else:
+                match_clause += ") and "
         else:
             match_clause = ""
 
