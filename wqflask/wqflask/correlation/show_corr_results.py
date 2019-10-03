@@ -610,14 +610,14 @@ def get_header_fields(data_type, corr_method):
         if corr_method == "pearson":
             header_fields = ['Index',
                                 'ID',
-                                'Location'
+                                'Location',
                                 'Sample r',
                                 'N',
                                 'Sample p(r)']
         else:
             header_fields = ['Index',
                                 'ID',
-                                'Location'
+                                'Location',
                                 'Sample rho',
                                 'N',
                                 'Sample p(rho)']

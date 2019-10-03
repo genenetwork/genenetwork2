@@ -125,7 +125,10 @@ class MrnaAssaySearch(DoSearch):
             aliases = get_aliases(search_string, self.dataset.group.species)
             if len(aliases) > 0:
                 match_clause += " or "
-                alias_string = " ".join(aliases)
+                alias_string_list = []
+                for alias in aliases:
+                    alias_string_list.append('"'+alias+'"')
+                alias_string = " ".join(alias_string_list)
                 match_clause += "(MATCH (ProbeSet.symbol) AGAINST ('%s' IN BOOLEAN MODE))) and " % alias_string
             else:
                 match_clause += ") and "
