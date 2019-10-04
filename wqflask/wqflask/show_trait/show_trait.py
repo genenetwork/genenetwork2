@@ -122,6 +122,9 @@ class ShowTrait(object):
             self.UCSC_BLAT_URL = ""
             self.UTHSC_BLAT_URL = ""
 
+        if self.dataset.type == "ProbeSet":
+            self.show_probes = "True"
+
         trait_units = get_trait_units(self.this_trait)
         self.get_external_links()
         self.build_correlation_tools()
