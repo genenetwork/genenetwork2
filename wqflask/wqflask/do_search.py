@@ -888,17 +888,18 @@ def get_aliases(symbol, species):
     elif species == "human":
         symbol_string = symbol.upper()
 
-    response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + symbol_string)
-    alias_list = json.loads(response.content)
-
     filtered_aliases = []
-    seen = set()
-    for item in alias_list:
-        if item in seen:
-            continue
-        else:
-            filtered_aliases.append(item)
-            seen.add(item)
+    response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + symbol_string)
+    if response:
+        alias_list = json.loads(response.content)
+
+        seen = set()
+        for item in alias_list:
+            if item in seen:
+                continue
+            else:
+                filtered_aliases.append(item)
+                seen.add(item)
 
     return filtered_aliases
 
