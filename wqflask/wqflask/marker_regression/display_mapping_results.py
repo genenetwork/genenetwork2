@@ -1341,7 +1341,7 @@ class DisplayMappingResults(object):
 
         for i, _chr in enumerate(self.genotype):
             if _chr.name == self.ChrList[self.selectedChr][0]:
-                for j, _geno in enumerate(_chr[1]):
+                for j, _geno in enumerate(_chr[1].genotype):
 
                     plotbxd=0
                     for item in smd:

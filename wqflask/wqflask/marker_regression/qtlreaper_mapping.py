@@ -1,4 +1,4 @@
-import os, math, string, random, json
+import os, math, string, random, json, re
 
 from base import webqtlConfig
 from base.trait import GeneralTrait
@@ -105,6 +105,9 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                 marker['additive'] = float(line.split("\t")[6])
                 marker_obs.append(marker)
 
+    #ZS: Results have to be reordered because the new reaper returns results sorted alphabetically by chr for some reason, resulting in chr 1 being followed by 10, etc
+    sorted_indices = natural_sort(marker_obs)
+
     permu_vals = []
     if permu_filename:
         with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, permu_filename)) as permu_file:
@@ -116,6 +119,9 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
         with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, bootstrap_filename)) as bootstrap_file:
             for line in bootstrap_file:
                 bootstrap_vals.append(int(line))
+
+    marker_obs = [marker_obs[i] for i in sorted_indices]
+    bootstrap_vals = [bootstrap_vals[i] for i in sorted_indices]
 
     return marker_obs, permu_vals, bootstrap_vals
 
@@ -210,3 +216,12 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
                "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
         qtl_results.append(qtl)
     return qtl_results, json_data, perm_output, suggestive, significant, bootstrap_results
+
+def natural_sort(marker_list):
+    """
+    Function to naturally sort numbers + strings, adopted from user Mark Byers here: https://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
+    Changed to return indices instead of values, though, since the same reordering needs to be applied to bootstrap results
+    """
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', str(marker_list[key]['chr'])) ]
+    return sorted(range(len(marker_list)), key = alphanum_key)
