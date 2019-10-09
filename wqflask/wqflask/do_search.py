@@ -887,6 +887,8 @@ def get_aliases(symbol, species):
         symbol_string = symbol.capitalize()
     elif species == "human":
         symbol_string = symbol.upper()
+    else:
+        return []
 
     filtered_aliases = []
     response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + symbol_string)
