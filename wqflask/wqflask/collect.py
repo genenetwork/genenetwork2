@@ -53,7 +53,7 @@ class AnonCollection(object):
 
         #ZS: Find id and set it if the collection doesn't already exist
         if Redis.get(self.key) == "None" or Redis.get(self.key) == None:
-            Redis.set(self.key, None) #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
+            Redis.set(self.key, "None") #ZS: For some reason I get the error "Operation against a key holding the wrong kind of value" if I don't do this
         else:
             collections_list = json.loads(Redis.get(self.key))
             collection_position = 0 #ZS: Position of collection in collection_list, if it exists
