@@ -238,7 +238,7 @@
                [
                   "None",
                   "Aging-Brain-UCIPublish",
-                  "Aging-Brain-UCI Phenotypes"
+                  "Aging-Brain-UCI Published Phenotypes"
                ]
             ],
             "Postcentral Gyrus mRNA": [
@@ -3144,6 +3144,11 @@
                ]
             ],
             "Liver mRNA": [
+               [
+                  "877",
+                  "UTHSC-BXD-Harv_Liv-1019",
+                  "UTHSC BXD Harvested Liver RNA-Seq (Oct19) TPM Log2"
+               ],
                [
                   "843",
                   "UTHSC-BXD-Harv_Liv-0118",
