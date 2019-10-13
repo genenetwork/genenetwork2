@@ -3136,6 +3136,13 @@
             ]
          },
          "BXD-Harvested": {
+            "Genotypes": [
+               [
+                  "None",
+                  "BXD-HarvestedGeno",
+                  "BXD-Harvested Genotypes"
+               ]
+            ],
             "Hippocampus mRNA": [
                [
                   "873",
@@ -5348,6 +5355,10 @@
             [
                "Phenotypes",
                "Phenotypes"
+            ],
+            [
+               "Genotypes",
+               "Genotypes"
             ],
             [
                "Hippocampus mRNA",
