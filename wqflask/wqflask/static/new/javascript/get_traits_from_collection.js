@@ -182,7 +182,7 @@ trait_row_click = function() {
   var dataset, this_trait_url, trait;
   console.log("Clicking on:", $(this));
   trait = $(this).find('.trait').text();
-  dataset = $(this).find('.dataset').text();
+  dataset = $(this).find('.dataset').data("dataset");
   this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
   $.ajax({
     dataType: "json",
@@ -340,7 +340,6 @@ get_this_trait_vals = function(samples) {
       this_trait_vals.push(null);
     }
   }
-  console.log("this_trait_vals:", this_trait_vals);
   this_vals_json = '[' + this_trait_vals.toString() + ']';
   return this_trait_vals;
 };
@@ -390,7 +389,7 @@ process_traits = function(trait_data, textStatus, jqXHR) {
   }
   the_html += "</tbody>";
   the_html += "</table>";
-  the_html += "<script type='text/javascript' src='/static/new/javascript/get_covariates_from_collection.js'></script>"
+  the_html += "<script type='text/javascript' src='/static/new/javascript/get_traits_from_collection.js'></script>"
   $("#collections_holder").html(the_html);
   return $('#collections_holder').colorbox.resize();
 };
