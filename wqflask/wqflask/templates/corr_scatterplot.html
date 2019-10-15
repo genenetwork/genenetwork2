@@ -25,7 +25,7 @@
 
   <table>
     <tr>
-      <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="800" style="width: 44px; height: 22px;"> px</td>
+      <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="800" style="width: 44px; height: 22px;"> px </td>
       <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="700" style="width: 44px; height: 22px;"> px</td>
     </tr>
   </table>
@@ -192,6 +192,16 @@
           <a href="{{trait_1.pubmed_link}}">PubMed: {{trait_1.pubmed_text}}</a>
             {{trait_1.description_display}}
         </div>
+        {% elif trait_1.dataset.type == "Geno" %}
+        <div>
+          X axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+            {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.name + ": " + trait_1.name|string}}
+          </a>
+        </div>
+        <div>
+          Location: {{trait_1.location_repr}} Mb
+        </div>
         {% endif %}
 
         <br/>
@@ -217,6 +227,16 @@
         <div>
           <a href="{{trait_2.pubmed_link}}">PubMed: {{trait_2.pubmed_text}}</a>
             {{trait_2.description_display}}
+        </div>
+        {% elif trait_2.dataset.type == "Geno" %}
+        <div>
+          Y axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+            {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.name + ": " + trait_2.name|string}}
+          </a>
+        </div>
+        <div>
+          Location: {{trait_2.location_repr}} Mb
         </div>
         {% endif %}
       </div>

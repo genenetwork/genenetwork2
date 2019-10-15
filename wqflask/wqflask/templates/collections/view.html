@@ -134,7 +134,13 @@
                             {% else %}
                             <TD data-export="N/A">N/A</TD>
                             {% endif %}
+                            {% if this_trait.dataset.type == "Geno" %}
+                            <TD title="Marker: {{ this_trait.name }}" data-export="Marker: {{ this_trait.name }}">Marker: {{ this_trait.name }}</TD>
+                            {% elif this_trait.description_display != "" %}
                             <TD title="{{ this_trait.description_display }}" data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
+                            {% else %}
+                            <TD title="N/A" data-export="N/A">N/A</TD>
+                            {% endif %}
                             <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
                             <TD data-export="{{ this_trait.mean }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
                             <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
