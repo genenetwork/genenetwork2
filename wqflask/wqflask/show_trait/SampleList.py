@@ -68,7 +68,7 @@ class SampleList(object):
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
+                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
 

@@ -525,7 +525,7 @@ def get_table_widths(sample_groups, has_num_cases=False):
 
 def has_num_cases(this_trait):
     has_n = False
-    if this_trait.dataset.type != "ProbeSet":
+    if this_trait.dataset.type != "ProbeSet" and this_trait.dataset.type != "Geno":
         for name, sample in this_trait.data.iteritems():
             if sample.num_cases:
                 has_n = True
