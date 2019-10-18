@@ -284,13 +284,13 @@ def main():
     types = get_types(groups)
     datasets = get_datasets(types)
 
-    species.append(('All Species', 'All Species'))
-    groups['All Species'] = [('All Groups', 'All Groups')]
-    types['All Species'] = {}
-    types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
-    datasets['All Species'] = {}
-    datasets['All Species']['All Groups'] = {}
-    datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
+    #species.append(('All Species', 'All Species'))
+    #groups['All Species'] = [('All Groups', 'All Groups')]
+    #types['All Species'] = {}
+    #types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
+    #datasets['All Species'] = {}
+    #datasets['All Species']['All Groups'] = {}
+    #datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
 
     data = dict(species=species,
                 groups=groups,

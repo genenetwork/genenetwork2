@@ -182,6 +182,12 @@
             </a>
             &nbsp;&nbsp;
             {% endif %}
+            {% if uniprot_link %}
+            <a href="{{ uniprot_link }}" target="_blank" title="UniProt">
+                UniProt
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
         </td>
     </tr>
     {% endif %}

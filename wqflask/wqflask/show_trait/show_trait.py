@@ -267,6 +267,10 @@ class ShowTrait(object):
                 genbank_id = genbank_id[0:-1]
             self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
 
+        self.uniprot_link = None
+        if check_if_attr_exists(self.this_trait, 'proteinid'):
+            self.uniprot_link = webqtlConfig.UNIPROT_URL % self.this_trait.proteinid
+
         self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
         self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
         if self.this_trait.symbol:
@@ -359,6 +363,10 @@ class ShowTrait(object):
     def make_sample_lists(self):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         
+        parent_f1_samples = []
+        if self.dataset.group.parlist and self.dataset.group.f1list:
+            parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
+
         primary_sample_names = list(all_samples_ordered)
 
         if not self.temp_trait:
@@ -371,8 +379,10 @@ class ShowTrait(object):
                     all_samples_ordered.append(sample)
                     other_sample_names.append(sample)
 
-            if self.dataset.group.species == "human":
+            #ZS: CFW is here because the .geno file doesn't properly contain its full list of samples. This should probably be fixed.
+            if self.dataset.group.species == "human" or (set(primary_sample_names) == set(parent_f1_samples)) or self.dataset.group.name == "CFW":
                 primary_sample_names += other_sample_names
+                other_sample_names = []
 
             if other_sample_names:
                 primary_header = "%s Only" % (self.dataset.group.name)
@@ -384,11 +394,8 @@ class ShowTrait(object):
                                             sample_group_type='primary',
                                             header=primary_header)
 
-            if other_sample_names and self.dataset.group.species != "human" and self.dataset.group.name != "CFW":
-                parent_f1_samples = None
-                if self.dataset.group.parlist and self.dataset.group.f1list:
-                    parent_f1_samples = self.dataset.group.parlist + self.dataset.group.f1list
-
+            #if other_sample_names and self.dataset.group.species != "human" and self.dataset.group.name != "CFW":
+            if len(other_sample_names) > 0:
                 other_sample_names.sort() #Sort other samples
                 if parent_f1_samples:
                     other_sample_names = parent_f1_samples + other_sample_names

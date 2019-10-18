@@ -56,6 +56,7 @@ ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Transcript/Idhist
 DBSNP = 'http://ensembl.org/Mus_musculus/Variation/Population?v=%s'
 PROTEIN_ATLAS_URL = "http://www.proteinatlas.org/search/%s"
 OPEN_TARGETS_URL = "https://genetics.opentargets.org/gene/%s"
+UNIPROT_URL = "https://www.uniprot.org/uniprot/%s"
 
 # Temporary storage (note that this TMPDIR can be set as an
 # environment variable - use utility.tools.TEMPDIR when you

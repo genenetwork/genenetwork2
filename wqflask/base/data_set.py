@@ -912,6 +912,7 @@ class MrnaAssayDataSet(DataSet):
                                'blatseq', 'targetseq',
                                'chipid', 'comments',
                                'strand_probe', 'strand_gene',
+                               'proteinid',
                                'probe_set_target_region',
                                'probe_set_specificity',
                                'probe_set_blat_score',
