@@ -100,7 +100,7 @@ class AnonCollection(object):
                     collection_exists = True
                     break
             if collection_exists:
-                collections_list[collection_position]['members'].extend(self.traits)
+                collections_list[collection_position]['members'] += list(set(self.traits) - set(collections_list[collection_position]['members']))
                 collections_list[collection_position]['num_members'] = len(collections_list[collection_position]['members'])
                 collections_list[collection_position]['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
             else:

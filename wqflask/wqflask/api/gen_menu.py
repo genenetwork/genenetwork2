@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 
 import sys
+import json
 
 from flask import g
 
@@ -34,6 +35,11 @@ def gen_dropdown_json():
                 groups=groups,
                 types=types,
                 datasets=datasets)
+
+    output_file = """./wqflask/static/new/javascript/dataset_menu_structure.json"""
+
+    with open(output_file, 'w') as fh:
+        json.dump(data, fh, indent=3, sort_keys=True)
 
     return data
 

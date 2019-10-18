@@ -99,6 +99,8 @@ class AnonUser(object):
             for collection in collections:
                 collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
                 collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
+
+            collections = sorted(collections, key = lambda i: i['changed_timestamp'], reverse = True)
             return collections
 
     def import_traits_to_user(self):
@@ -234,7 +236,8 @@ class UserSession(object):
         user_info = response['hits']['hits'][0]['_source']
         if 'collections' in user_info.keys():
             if len(user_info['collections']) > 0:
-                return json.loads(user_info['collections'])
+                collection_list = json.loads(user_info['collections'])
+                return sorted(collection_list, key = lambda i: datetime.datetime.strptime(i['changed_timestamp'], '%b %d %Y %I:%M%p'), reverse=True)
             else:
                 return []
         else:
