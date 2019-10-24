@@ -553,6 +553,10 @@ def get_trait_units(this_trait):
                         inside_brackets = False
                 if i == "[":
                     inside_brackets = True
+
+    if unit_type == "":
+        unit_type = "Value"
+
     return unit_type
 
 def check_if_attr_exists(the_trait, id_type):

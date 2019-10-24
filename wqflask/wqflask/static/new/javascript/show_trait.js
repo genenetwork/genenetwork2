@@ -1005,7 +1005,7 @@ root.histogram_layout = {
   title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
   xaxis: {
            autorange: true,
-           title: "<b>Value</b>",
+           title: js_data.unit_type,
            titlefont: {
              family: "arial",
              size: 20
