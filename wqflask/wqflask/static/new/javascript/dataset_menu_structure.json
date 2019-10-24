@@ -1518,6 +1518,13 @@
       }, 
       "mouse": {
          "AIL": {
+            "Genotypes": [
+               [
+                  "None", 
+                  "AILGeno", 
+                  "AIL Genotypes"
+               ]
+            ], 
             "Hippocampus mRNA": [
                [
                   "874", 
@@ -1768,7 +1775,7 @@
                [
                   "None", 
                   "B6D2F2-PSUPublish", 
-                  "B6D2F2-PSU Phenotypes"
+                  "B6D2F2 PSU Phenotypes"
                ]
             ]
          }, 
@@ -3189,7 +3196,7 @@
                [
                   "None", 
                   "BXD300Publish", 
-                  "BXD300 Phenotypes"
+                  "BXD300 Published Phenotypes"
                ]
             ]
          }, 
@@ -3323,7 +3330,7 @@
                [
                   "None", 
                   "CIE-INIAPublish", 
-                  "CIE-INIA Phenotypes"
+                  "LCM Phenotypes"
                ]
             ]
          }, 
@@ -3549,6 +3556,15 @@
                   "304", 
                   "OHSU_HS-CC_ILMStr_0211", 
                   "OHSU HS-CC Striatum ILM6v1 (Feb11) RankInv"
+               ]
+            ]
+         }, 
+         "LGSM-AIG34_50-56-GBS": {
+            "Phenotypes": [
+               [
+                  "None", 
+                  "LGSM-AIG34_50-56-GBSPublish", 
+                  "LGSM AIG34/50-56 GBS Phenotypes"
                ]
             ]
          }, 
@@ -4216,6 +4232,10 @@
          [
             "LXS", 
             "ILSXISS (LXS) RI Family (strain means)"
+         ], 
+         [
+            "LGSM-AIG34_50-56-GBS", 
+            "LGSM AI G34/50-56 Lionikas (GBS)"
          ], 
          [
             "MDP", 
@@ -5009,6 +5029,10 @@
                "Phenotypes"
             ], 
             [
+               "Genotypes", 
+               "Genotypes"
+            ], 
+            [
                "Hippocampus mRNA", 
                "Hippocampus mRNA"
             ], 
@@ -5539,6 +5563,12 @@
             [
                "Striatum mRNA", 
                "Striatum mRNA"
+            ]
+         ], 
+         "LGSM-AIG34_50-56-GBS": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
             ]
          ], 
          "LXS": [

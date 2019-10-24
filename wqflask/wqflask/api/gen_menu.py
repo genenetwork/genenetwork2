@@ -201,9 +201,15 @@ def build_datasets(species, group, type_name):
                     dataset_text = str(result[2])
                 datasets.append([dataset_id, dataset_value, dataset_text])
         else:
+            result = g.db.execute("""SELECT PublishFreeze.Name, PublishFreeze.FullName
+                                      FROM PublishFreeze, InbredSet
+                                      WHERE InbredSet.Name = '{}' AND
+                                          PublishFreeze.InbredSetId = InbredSet.Id
+                                      ORDER BY PublishFreeze.CreateTime ASC""".format(group)).fetchone()
+
             dataset_id = "None"
-            dataset_value = "%sPublish" % group
-            dataset_text = "%s Phenotypes" % group
+            dataset_value = str(result[0])
+            dataset_text = str(result[1])
             datasets.append([dataset_id, dataset_value, dataset_text])
 
     elif type_name == "Genotypes":

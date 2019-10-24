@@ -346,7 +346,7 @@ class DatasetGroup(object):
 
     def get_samplelist(self):
         result = None
-        key = "samplelist:v2:" + self.name
+        key = "samplelist:v3:" + self.name
         if USE_REDIS:
             result = Redis.get(key)
 
