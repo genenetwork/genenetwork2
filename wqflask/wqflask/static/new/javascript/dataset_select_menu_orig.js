@@ -74,7 +74,6 @@ redo_dropdown = function(dropdown, items) {
       }
     }
 
-    group_family_list.sort(function(a, b){return a[3] > b[3]})
     current_family = ""
     this_opt_group = null
     for (_i = 0, _len = group_family_list.length; _i < _len; _i++) {

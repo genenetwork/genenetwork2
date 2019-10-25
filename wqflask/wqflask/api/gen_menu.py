@@ -76,7 +76,7 @@ def get_groups(species):
                                 WHERE Species.Name = '{}' AND
                                         InbredSet.SpeciesId = Species.Id
                                 GROUP by InbredSet.Name
-                                ORDER BY IFNULL(InbredSet.Family, InbredSet.FullName) ASC, InbredSet.FullName ASC""".format(species_name)).fetchall()
+                                ORDER BY IFNULL(InbredSet.Family, InbredSet.FullName) ASC, InbredSet.FullName ASC, InbredSet.MenuOrderId ASC""".format(species_name)).fetchall()
 
         for result in results:
             family_name = "Family:" + str(result[2])
