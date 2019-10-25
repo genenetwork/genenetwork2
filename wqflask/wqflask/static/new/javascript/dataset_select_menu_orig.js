@@ -67,26 +67,27 @@ redo_dropdown = function(dropdown, items) {
     for (_i = 0, _len = items.length; _i < _len; _i++) {
       item = items[_i];
       group_family = item[2].toString().split(":")[1]
-      if (group_family != "None"){
-        group_family_list.push([item[0], item[1], group_family, group_family])
-      } else {
-        group_family_list.push([item[0], item[1], group_family, item[1]])
-      }
+      group_family_list.push([item[0], item[1], group_family])
     }
 
     current_family = ""
     this_opt_group = null
     for (_i = 0, _len = group_family_list.length; _i < _len; _i++) {
       item = group_family_list[_i];
+      console.log("THE ITEM:", item)
       if (item[2] != "None" && current_family == ""){
         current_family = item[2]
         this_opt_group = $("<optgroup label=\"" + item[2] + "\">")
       } else if (current_family != "" && item[2] == current_family){
         this_opt_group.append($("<option />").val(item[0]).text(item[1]));
-      } else if (current_family != "" && item[2] != "None"){
+      } else if (current_family != "" && item[2] != current_family && item[2] != "None"){
         current_family = item[2]
         _results.push(dropdown.append(this_opt_group))
-        this_opt_group = $("<optgroup label=\"" + item[2] + "\">")
+        this_opt_group = $("<optgroup label=\"" + current_family + "\">")
+      } else if (current_family != "" && this_opt_group != null && item[2] == "None"){
+        _results.push(dropdown.append(this_opt_group))
+        current_family = ""
+        _results.push(dropdown.append($("<option />").val(item[0]).text(item[1])));
       } else {
         _results.push(dropdown.append($("<option />").val(item[0]).text(item[1])));
       }
