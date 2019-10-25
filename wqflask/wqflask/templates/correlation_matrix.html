@@ -48,7 +48,7 @@
         </div>
       </td>
       {% for result in corr_results[loop.index-1] %}
-      {% if result[0].name == trait.name %}
+      {% if result[0].name == trait.name and result[0].dataset == trait.dataset %}
       <td nowrap="ON" align="center" bgcolor="#cccccc" style="padding: 3px; line-height: 1.1;"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><em>n</em><br>{{ result[2] }}</font></a></td>
       {% else %}
       <td nowrap="ON" align="middle" class="corr_cell" style="padding: 3px; line-height: 1.1;"><a href="/corr_scatter_plot?dataset_1={{ trait.dataset.name }}&dataset_2={{ result[0].dataset.name }}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><span class="corr_value">{{ '%0.2f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
