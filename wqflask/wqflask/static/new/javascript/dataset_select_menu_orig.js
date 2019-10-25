@@ -66,7 +66,7 @@ redo_dropdown = function(dropdown, items) {
     group_family_list = [];
     for (_i = 0, _len = items.length; _i < _len; _i++) {
       item = items[_i];
-      group_family = item[2].split(":")[1]
+      group_family = item[2].toString().split(":")[1]
       if (group_family != "None"){
         group_family_list.push([item[0], item[1], group_family, group_family])
       } else {
