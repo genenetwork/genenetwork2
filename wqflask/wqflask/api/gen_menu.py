@@ -71,15 +71,16 @@ def get_groups(species):
         #                         GROUP by InbredSet.Name
         #                         ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
 
-        results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName
+        results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName, IFNULL(InbredSet.Family, 'None')
                                 FROM InbredSet, Species
                                 WHERE Species.Name = '{}' AND
                                         InbredSet.SpeciesId = Species.Id
                                 GROUP by InbredSet.Name
-                                ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
+                                ORDER BY IFNULL(InbredSet.Family, InbredSet.FullName) ASC, InbredSet.FullName ASC""".format(species_name)).fetchall()
 
         for result in results:
-            groups[species_name].append([str(result[0]), str(result[1])])
+            family_name = "Family:" + str(result[2])
+            groups[species_name].append([str(result[0]), str(result[1]), family_name])
 
     return groups
 
@@ -89,7 +90,7 @@ def get_types(groups):
 
     for species, group_dict in groups.iteritems():
         types[species] = {}
-        for group_name, _group_full_name in group_dict:
+        for group_name, _group_full_name, _family_name in group_dict:
             if phenotypes_exist(group_name):
                 types[species][group_name] = [("Phenotypes", "Phenotypes")]
             if genotypes_exist(group_name):
