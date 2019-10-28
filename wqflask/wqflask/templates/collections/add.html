@@ -23,21 +23,27 @@
                 {% endif %}
               </div>
             </fieldset>
+            {% if collections|length > 0 %}
             <hr />
             <fieldset>
               <legend>2. Add to an existing collection</legend>
               <div style="margin-left: 20px;">  
                 <!--<label>Existing collection name:</label>-->
                 <select name="existing_collection" class="form-control">
-                    <option selected disabled>Select Collection</option>
+                    <!--<option selected disabled>Select Collection</option>-->
                 {% for col in collections %}
+                    {% if loop.index == 1 %}
+                    <option value="{{ col.id }}:{{ col.name }}" selected>{{ col.name }}</option>
+                    {% else %}
                     <option value="{{ col.id }}:{{ col.name }}">{{ col.name }}</option>
+                    {% endif %}
                 {% endfor %}
                 </select>
                 <br />
                 <button type="submit" name="add_to_existing" class="btn btn-primary">Add to existing collection</button>
               </div>
             </fieldset>
+            {% endif %}
         </form>
     </div>
 </div>
