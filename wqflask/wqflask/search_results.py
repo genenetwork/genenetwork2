@@ -11,6 +11,7 @@ import math
 import datetime
 import collections
 import re
+import requests
 
 from pprint import pformat as pf
 
@@ -152,60 +153,68 @@ views.py).
         self.search_terms = parser.parse(self.search_terms)
         logger.debug("After parsing:", self.search_terms)
 
-        if len(self.search_terms) > 1:
-            logger.debug("len(search_terms)>1")
-            combined_from_clause = ""
-            combined_where_clause = ""
-            previous_from_clauses = [] #The same table can't be referenced twice in the from clause
-            for i, a_search in enumerate(self.search_terms):
-                if a_search['key'] == "GO":
-                    self.go_term = a_search['search_term'][0]
-                    gene_list = get_GO_symbols(a_search)
-                    self.search_terms += gene_list
-                    continue
-                else:
-                    the_search = self.get_search_ob(a_search)
-                    if the_search != None:
-                        get_from_clause = getattr(the_search, "get_from_clause", None)
-                        if callable(get_from_clause):
-                            from_clause = the_search.get_from_clause()
-                            if from_clause in previous_from_clauses:
-                                pass
-                            else:
-                                previous_from_clauses.append(from_clause)
-                                combined_from_clause += from_clause
-                        where_clause = the_search.get_where_clause()
-                        combined_where_clause += "(" + where_clause + ")"
-                        if (i+1) < len(self.search_terms):
-                            if self.and_or == "and":
-                                combined_where_clause += "AND"
-                            else:
-                                combined_where_clause += "OR"
-                    else:
-                        self.search_term_exists = False
-            if self.search_term_exists:
-                combined_where_clause = "(" + combined_where_clause + ")"
-                final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
-                results = the_search.execute(final_query)
-                self.results.extend(results)
-        else:
-            if self.search_terms == []:
-                self.search_term_exists = False
-            else:
-                for a_search in self.search_terms:
-                    logger.debug("TERMS:", self.search_terms)
-                    if a_search['key'] == "GO":
-                        self.go_term = a_search['search_term'][0]
-                        gene_list = get_GO_symbols(a_search)
-                        self.search_terms += gene_list
-                        self.search_terms.pop(0)
-                        continue
-                    else:
-                        the_search = self.get_search_ob(a_search)
-                        if the_search != None:
-                            self.results.extend(the_search.run())
+        combined_from_clause = ""
+        combined_where_clause = ""
+        previous_from_clauses = [] #The same table can't be referenced twice in the from clause
+
+        logger.debug("len(search_terms)>1")
+        symbol_list = []
+        if self.dataset.type == "ProbeSet":
+            for a_search in self.search_terms:
+                if a_search['key'] == None:
+                    symbol_list.append(a_search['search_term'][0])
+
+            alias_terms = get_aliases(symbol_list, self.dataset.group.species)
+
+            for i, a_search in enumerate(alias_terms):
+                the_search = self.get_search_ob(a_search)
+                if the_search != None:
+                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    if callable(get_from_clause):
+                        from_clause = the_search.get_from_clause()
+                        if from_clause in previous_from_clauses:
+                            pass
                         else:
-                            self.search_term_exists = False
+                            previous_from_clauses.append(from_clause)
+                            combined_from_clause += from_clause
+                    where_clause = the_search.get_alias_where_clause()
+                    combined_where_clause += "(" + where_clause + ")"
+                    if self.and_or == "and":
+                        combined_where_clause += "AND"
+                    else:
+                        combined_where_clause += "OR"
+
+        for i, a_search in enumerate(self.search_terms):
+            if a_search['key'] == "GO":
+                self.go_term = a_search['search_term'][0]
+                gene_list = get_GO_symbols(a_search)
+                self.search_terms += gene_list
+                continue
+            else:
+                the_search = self.get_search_ob(a_search)
+                if the_search != None:
+                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    if callable(get_from_clause):
+                        from_clause = the_search.get_from_clause()
+                        if from_clause in previous_from_clauses:
+                            pass
+                        else:
+                            previous_from_clauses.append(from_clause)
+                            combined_from_clause += from_clause
+                    where_clause = the_search.get_where_clause()
+                    combined_where_clause += "(" + where_clause + ")"
+                    if (i+1) < len(self.search_terms):
+                        if self.and_or == "and":
+                            combined_where_clause += "AND"
+                        else:
+                            combined_where_clause += "OR"
+                else:
+                    self.search_term_exists = False
+        if self.search_term_exists:
+            combined_where_clause = "(" + combined_where_clause + ")"
+            final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+            results = the_search.execute(final_query)
+            self.results.extend(results)
 
         if self.search_term_exists:
             if the_search != None:
@@ -259,4 +268,39 @@ def insert_newlines(string, every=64):
     for i in xrange(0, len(string), every):
         lines.append(string[i:i+every])
     return '\n'.join(lines)
+
+def get_aliases(symbol_list, species):
+
+    updated_symbols = []
+    for symbol in symbol_list:
+        if species == "mouse":
+            updated_symbols.append(symbol.capitalize())
+        elif species == "human":
+            updated_symbols.append(symbol.upper())
+        else:
+            updated_symbols.append(symbol)
+
+    symbols_string = ",".join(updated_symbols)
+
+    filtered_aliases = []
+    response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases2/" + symbols_string)
+    if response:
+        alias_lists = json.loads(response.content)
+        seen = set()
+        for aliases in alias_lists:
+            for item in aliases[1]:
+                if item in seen:
+                    continue
+                else:
+                    filtered_aliases.append(item)
+                    seen.add(item)
+
+    search_terms = []
+    for alias in filtered_aliases:
+        the_search_term = {'key':         None,
+                           'search_term': [alias],
+                           'separator' :  None}
+        search_terms.append(the_search_term)
+
+    return search_terms
 

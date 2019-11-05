@@ -108,6 +108,21 @@ class MrnaAssaySearch(DoSearch):
                      'Max LRS Location',
                      'Additive Effect']
 
+    def get_alias_where_clause(self):
+        search_string = escape(self.search_term[0])
+
+        if self.search_term[0] != "*":
+            match_clause = """((MATCH (ProbeSet.symbol) AGAINST ('%s' IN BOOLEAN MODE))) and """ % (search_string)
+        else:
+            match_clause = ""
+
+        where_clause = (match_clause +
+            """ProbeSet.Id = ProbeSetXRef.ProbeSetId
+               and ProbeSetXRef.ProbeSetFreezeId = %s
+                        """ % (escape(str(self.dataset.id))))
+
+        return where_clause
+
     def get_where_clause(self):
         search_string = escape(self.search_term[0])
 
@@ -119,19 +134,8 @@ class MrnaAssaySearch(DoSearch):
                         GenbankId,
                         UniGeneId,
                         Probe_Target_Description)
-                        AGAINST ('%s' IN BOOLEAN MODE))
+                        AGAINST ('%s' IN BOOLEAN MODE))) AND
                                 """ % (search_string)
-
-            aliases = get_aliases(search_string, self.dataset.group.species)
-            if len(aliases) > 0:
-                match_clause += " or "
-                alias_string_list = []
-                for alias in aliases:
-                    alias_string_list.append('"'+alias+'"')
-                alias_string = " ".join(alias_string_list)
-                match_clause += "(MATCH (ProbeSet.symbol) AGAINST ('%s' IN BOOLEAN MODE))) and " % alias_string
-            else:
-                match_clause += ") and "
         else:
             match_clause = ""
 
