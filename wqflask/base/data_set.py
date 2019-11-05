@@ -418,7 +418,8 @@ def datasets(group_name, this_group = None):
           WHERE PublishFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
             and PublishFreeze.public > %s
-            and PublishFreeze.confidentiality < 1)
+            and PublishFreeze.confidentiality < 1
+          ORDER BY PublishFreeze.Id ASC)
          UNION
          (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
           FROM GenoFreeze, InbredSet
@@ -442,12 +443,21 @@ def datasets(group_name, this_group = None):
 
     sorted_results = sorted(the_results, key=lambda kv: kv[0])
 
+    pheno_inserted = False #ZS: This is kind of awkward, but need to ensure Phenotypes show up before Genotypes in dropdown
+    geno_inserted = False
     for dataset_item in sorted_results:
         tissue_name = dataset_item[0]
         dataset = dataset_item[1]
         dataset_short = dataset_item[2]
         if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
-            dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
+            if tissue_name == '#PublishFreeze' and (dataset_short == group_name + 'Publish'):
+                dataset_menu.insert(0, dict(tissue=None, datasets=[(dataset, dataset_short)]))
+                pheno_inserted = True
+            elif pheno_inserted and tissue_name == '#GenoFreeze':
+                dataset_menu.insert(1, dict(tissue=None, datasets=[(dataset, dataset_short)]))
+                geno_inserted = True
+            else:
+                dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
         else:
             tissue_already_exists = False
             for i, tissue_dict in enumerate(dataset_menu):
