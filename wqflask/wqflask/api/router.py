@@ -209,6 +209,8 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
     where_statement = """
                          WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
                                ProbeFreeze.TissueId = Tissue.Id AND
+                               ProbeSetFreeze.public > 0 AND
+                               ProbeSetFreeze.confidentiality < 1 AND
                       """
     if dataset_name.isdigit():
         where_statement += """
@@ -249,6 +251,8 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
                          WHERE PublishXRef.InbredSetId = InbredSet.Id AND
                                PublishXRef.PhenotypeId = Phenotype.Id AND
                                PublishXRef.PublicationId = Publication.Id AND
+                               PublishFreeze.public > 0 AND
+                               PublishFreeze.confidentiality < 1 AND
                                InbredSet.Name = "{0}" AND PublishXRef.Id = "{1}"
                       """.format(group_name, dataset_name)
 
@@ -330,10 +334,13 @@ def fetch_traits(dataset_name, file_format = "json"):
                                 ProbeSet.Id, ProbeSet.Name, ProbeSet.Symbol, ProbeSet.description, ProbeSet.Chr, ProbeSet.Mb, ProbeSet.alias,
                                 ProbeSetXRef.mean, ProbeSetXRef.se, ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.additive, ProbeSetXRef.h2
                             FROM
-                                ProbeSet, ProbeSetXRef
+                                ProbeSet, ProbeSetXRef, ProbeSetFreeze
                             WHERE
                                 ProbeSetXRef.ProbeSetFreezeId = "{0}" AND
-                                ProbeSetXRef.ProbeSetId = ProbeSet.Id
+                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                                ProbeSetFreeze.public > 0 AND
+                                ProbeSetFreeze.confidentiality < 1
                             ORDER BY
                                 ProbeSet.Id
                         """
@@ -344,10 +351,13 @@ def fetch_traits(dataset_name, file_format = "json"):
                             SELECT
                                 Geno.Id, Geno.Name, Geno.Marker_Name, Geno.Chr, Geno.Mb, Geno.Sequence, Geno.Source
                             FROM
-                                Geno, GenoXRef
+                                Geno, GenoXRef, GenoFreeze
                             WHERE
                                 GenoXRef.GenoFreezeId = "{0}" AND
-                                GenoXRef.GenoId = Geno.Id
+                                GenoXRef.GenoId = Geno.Id AND
+                                GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                                GenoFreeze.public > 0 AND
+                                GenoFreeze.confidentiality < 1
                             ORDER BY
                                 Geno.Id
                         """
@@ -358,9 +368,12 @@ def fetch_traits(dataset_name, file_format = "json"):
                             SELECT
                                 PublishXRef.Id, PublishXRef.PhenotypeId, PublishXRef.PublicationId, PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive, PublishXRef.Sequence
                             FROM
-                                PublishXRef
+                                PublishXRef, PublishFreeze
                             WHERE
-                                PublishXRef.InbredSetId = {0}
+                                PublishXRef.InbredSetId = {0} AND
+                                PublishFreeze.InbredSetId = PublishXRef.InbredSetId AND
+                                PublishFreeze.public > 0 AND
+                                PublishFreeze.confidentiality < 1
                             ORDER BY
                                 PublishXRef.Id
                         """
@@ -422,14 +435,17 @@ def all_sample_data(dataset_name, file_format = "csv"):
                         SELECT
                             Strain.Name, Strain.Name2, ProbeSetData.value, ProbeSetData.Id, ProbeSetSE.error
                         FROM
-                            (ProbeSetData, Strain, ProbeSetXRef)
+                            (ProbeSetData, Strain, ProbeSetXRef, ProbeSetFreeze)
                         LEFT JOIN ProbeSetSE ON
                             (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
                         WHERE
                             ProbeSetXRef.ProbeSetFreezeId = "{0}" AND
                             ProbeSetXRef.ProbeSetId = "{1}" AND
                             ProbeSetXRef.DataId = ProbeSetData.Id AND
-                            ProbeSetData.StrainId = Strain.Id
+                            ProbeSetData.StrainId = Strain.Id AND
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetFreeze.public > 0 AND
+                            ProbeSetFreeze.confidentiality < 1
                         ORDER BY
                             Strain.Name
                     """
@@ -438,14 +454,17 @@ def all_sample_data(dataset_name, file_format = "csv"):
                         SELECT
                             Strain.Name, Strain.Name2, GenoData.value, GenoData.Id, GenoSE.error
                         FROM
-                            (GenoData, Strain, GenoXRef)
+                            (GenoData, Strain, GenoXRef, GenoFreeze)
                         LEFT JOIN GenoSE ON
                             (GenoSE.DataId = GenoData.Id AND GenoSE.StrainId = GenoData.StrainId)
                         WHERE
                             GenoXRef.GenoFreezeId = "{0}" AND
                             GenoXRef.GenoId = "{1}" AND
                             GenoXRef.DataId = GenoData.Id AND
-                            GenoData.StrainId = Strain.Id
+                            GenoData.StrainId = Strain.Id AND
+                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                            GenoFreeze.public > 0 AND
+                            GenoFreeze.confidentiality < 1
                         ORDER BY
                             Strain.Name
                     """
@@ -454,7 +473,7 @@ def all_sample_data(dataset_name, file_format = "csv"):
                         SELECT
                             Strain.Name, Strain.Name2, PublishData.value, PublishData.Id, PublishSE.error, NStrain.count
                         FROM
-                            (PublishData, Strain, PublishXRef)
+                            (PublishData, Strain, PublishXRef, PublishFreeze)
                         LEFT JOIN PublishSE ON
                             (PublishSE.DataId = PublishData.Id AND PublishSE.StrainId = PublishData.StrainId)
                         LEFT JOIN NStrain ON
@@ -464,7 +483,10 @@ def all_sample_data(dataset_name, file_format = "csv"):
                             PublishXRef.InbredSetId = "{0}" AND
                             PublishXRef.PhenotypeId = "{1}" AND
                             PublishData.Id = PublishXRef.DataId AND
-                            PublishData.StrainId = Strain.Id
+                            PublishData.StrainId = Strain.Id AND
+                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                            PublishFreeze.public > 0 AND
+                            PublishFreeze.confidentiality < 1
                         ORDER BY
                             Strain.Name
                     """
