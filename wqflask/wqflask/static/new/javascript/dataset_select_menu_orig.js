@@ -78,12 +78,14 @@ redo_dropdown = function(dropdown, items) {
       if (item[2] != "None" && current_family == ""){
         current_family = item[2]
         this_opt_group = $("<optgroup label=\"" + item[2] + "\">")
+        this_opt_group.append($("<option />").val(item[0]).text(item[1]));
       } else if (current_family != "" && item[2] == current_family){
         this_opt_group.append($("<option />").val(item[0]).text(item[1]));
       } else if (current_family != "" && item[2] != current_family && item[2] != "None"){
         current_family = item[2]
         _results.push(dropdown.append(this_opt_group))
         this_opt_group = $("<optgroup label=\"" + current_family + "\">")
+        this_opt_group.append($("<option />").val(item[0]).text(item[1]));
       } else if (current_family != "" && this_opt_group != null && item[2] == "None"){
         _results.push(dropdown.append(this_opt_group))
         current_family = ""
