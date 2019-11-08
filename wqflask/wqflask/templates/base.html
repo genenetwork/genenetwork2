@@ -58,7 +58,6 @@
                               <li><a href="/links">Links</a></li>
                               <li><a href="/environments">Environments</a></li>
                               <li><a href="/news">GN1 News</a></li>
-                              <li><a href="https://github.com/genenetwork/genenetwork2/blob/testing/doc/API_readme.md">REST API Documentation</a></li>
                             </ul>
                         </li>
                         <li class="">
@@ -78,6 +77,15 @@
                                 <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
                                 {% endif %}
                             </a>
+                        </li>
+                        <li class="">
+                            <a href="/repositories" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Open Source Code <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
+                              <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
+                              <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
+                              <li><a href="https://github.com/genenetwork/genenetwork2/blob/testing/doc/API_readme.md">REST API Documentation</a></li>
+                            </ul>
                         </li>
                         <li class="">
                             {% if g.user_session.logged_in %}
