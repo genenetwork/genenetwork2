@@ -328,7 +328,7 @@
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        if (data.num_cases == null) {
+                        if (data.num_cases == null || data.num_cases == undefined) {
                           return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
                         } else {
                           return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
@@ -340,7 +340,11 @@
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}']
+                        if (data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}'] != null && data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}'] != undefined){
+                          return data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}']
+                        } else {
+                          return ""
+                        }
                       }
                     }{% endfor %}{% endif %}
                   ],
@@ -479,7 +483,11 @@
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}']
+                        if (data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}'] != null && data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}'] != undefined){
+                          return data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}']
+                        } else {
+                          return ""
+                        }
                       }
                     }{% endfor %}{% endif %}
                   ],
