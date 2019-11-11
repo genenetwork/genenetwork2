@@ -13,15 +13,16 @@
     {% for sample_type in sample_groups %}
         {% set outer_loop = loop %}
         <div class="sample_group" style="width:{{ trait_table_width }};">
-            <h3>{{ sample_type.header }}<span name="transform_text"></span></h3>
-            <hr style="margin-top: 4px; margin-bottom: 10px; height: 1px; background-color: #A9A9A9;">
-            <div id="table_container">
-            <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
-                <tbody>
-                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
-                </tbody>
-            </table>
-            </div>
+          <div style="position: relative;">
+            <div style="display: inline;"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3><input type="text" id="{{ sample_type.sample_group_type }}_searchbox" class="form-control" style="width: 200px; display: inline; float: right; vertical-align: top;" placeholder="Search This Table For ..."></div>
+          </div>
+          <div id="table_container">
+          <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
+              <tbody>
+                <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+              </tbody>
+          </table>
+          </div>
         </div>
         <br>
         {% endfor %}

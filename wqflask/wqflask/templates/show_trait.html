@@ -225,7 +225,7 @@
                 {% endif %}
                 {% endif %}
 
-                $('#samples_primary').DataTable( {
+                var primary_table = $('#samples_primary').DataTable( {
                   'initComplete': function(settings, json) {
                     $('.edit_sample_value').change(function() {
                       edit_data_change();
@@ -268,6 +268,7 @@
                     {
                       'data': null,
                       'orderDataType': "dom-checkbox",
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
                       }
@@ -275,7 +276,8 @@
                     {
                       'title': "ID",
                       'type': "natural",
-                      'data': "this_id"
+                      'data': "this_id",
+                      'searchable' : false
                     },
                     {
                       'title': "Sample",
@@ -302,6 +304,7 @@
                       'bSortable': false,
                       'type': "natural",
                       'data': null,
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '±'
                       }
@@ -356,8 +359,12 @@
                   }
                 } );
 
+                $('#primary_searchbox').on( 'keyup', function () {
+                  primary_table.search($(this).val()).draw();
+                } );
+
                 {% if sample_groups|length != 1 %}
-                $('#samples_other').DataTable( {
+                var other_table = $('#samples_other').DataTable( {
                   'initComplete': function(settings, json) {
                     $('.edit_sample_value').change(function() {
                       edit_data_change();
@@ -400,6 +407,7 @@
                     {
                       'data': null,
                       'orderDataType': "dom-checkbox",
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
                       }
@@ -407,7 +415,8 @@
                     {
                       'title': "ID",
                       'type': "natural",
-                      'data': "this_id"
+                      'data': "this_id",
+                      'searchable' : false
                     },
                     {
                       'title': "Sample",
@@ -434,6 +443,7 @@
                       'bSortable': false,
                       'type': "natural",
                       'data': null,
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '±'
                       }
@@ -486,6 +496,10 @@
                     'loadingRecords': '&nbsp;',
                     'processing': 'Loading...'
                   }
+                } );
+
+                $('#other_searchbox').on( 'keyup', function () {
+                  other_table.search($(this).val()).draw();
                 } );
                 {% endif %}
 
