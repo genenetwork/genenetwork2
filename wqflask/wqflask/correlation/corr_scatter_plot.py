@@ -38,6 +38,11 @@ class CorrScatterPlot(object):
         self.data.append(vals_2)
 
         slope, intercept, r_value, p_value, std_err = stats.linregress(vals_1, vals_2)
+
+        if slope < 0.001:
+            slope_string = '%.3E' % slope
+        else:
+            slope_string = str(slope)
         
         x_buffer = (max(vals_1) - min(vals_1))*0.1
         y_buffer = (max(vals_2) - min(vals_2))*0.1
@@ -53,6 +58,11 @@ class CorrScatterPlot(object):
         self.rdata.append(rx.tolist())
         self.rdata.append(ry.tolist())        
         srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(rx, ry)
+
+        if srslope < 0.001:
+            srslope_string = '%.3E' % srslope
+        else:
+            srslope_string = str(srslope)
 
         x_buffer = (max(rx) - min(rx))*0.1
         y_buffer = (max(ry) - min(ry))*0.1
@@ -90,11 +100,13 @@ class CorrScatterPlot(object):
             sr_intercept_coords = sr_intercept_coords,
 
             slope = slope,
+            slope_string = slope_string,
             intercept = intercept,
             r_value = r_value,
             p_value = p_value,
 
             srslope = srslope,
+            srslope_string = srslope_string,
             srintercept = srintercept,
             srr_value = srr_value,
             srp_value = srp_value

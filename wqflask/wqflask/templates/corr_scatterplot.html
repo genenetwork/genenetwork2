@@ -145,7 +145,7 @@
           </tr>
           <tr>
             <td>Slope</td>
-            <td>{{'%0.3f' % jsdata.slope}}</td>
+            <td>{{ jsdata.slope_string }}</td>
           </tr>
           <tr>
             <td>Intercept</td>
@@ -163,7 +163,7 @@
             <td style="text-align: left;" colspan="2">
               Regression Line
               <br>
-              y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
+              y = {{ jsdata.slope_string }} * x + {{'%0.3f' % jsdata.intercept}}
             </td>
           </tr>
         </tbody>
@@ -260,7 +260,7 @@
             </tr>
             <tr>
               <td>Slope</td>
-              <td>{{'%0.3f' % jsdata.srslope}}</td>
+              <td>{{ jsdata.srslope_string }}</td>
             </tr>
             <tr>
               <td>Intercept</td>
@@ -273,6 +273,13 @@
 	    <tr>
               <td>P value</td>
               <td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td>
+            </tr>
+            <tr>
+              <td style="text-align: left;" colspan="2">
+                Regression Line
+                <br>
+                y = {{ jsdata.srslope_string }} * x + {{'%0.3f' % jsdata.srintercept}}
+              </td>
             </tr>
           </tbody>
         </table>
