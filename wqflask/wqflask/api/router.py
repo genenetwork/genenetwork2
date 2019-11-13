@@ -247,10 +247,11 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
                          SELECT PublishXRef.Id, Phenotype.Post_publication_abbreviation, Phenotype.Post_publication_description,
                                 Phenotype.Pre_publication_abbreviation, Phenotype.Pre_publication_description,
                                 Publication.PubMed_ID, Publication.Title, Publication.Year
-                         FROM PublishXRef, Phenotype, Publication, InbredSet
+                         FROM PublishXRef, Phenotype, Publication, InbredSet, PublishFreeze
                          WHERE PublishXRef.InbredSetId = InbredSet.Id AND
                                PublishXRef.PhenotypeId = Phenotype.Id AND
                                PublishXRef.PublicationId = Publication.Id AND
+                               PublishFreeze.InbredSetId = InbredSet.Id AND
                                PublishFreeze.public > 0 AND
                                PublishFreeze.confidentiality < 1 AND
                                InbredSet.Name = "{0}" AND PublishXRef.Id = "{1}"
