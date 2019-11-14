@@ -119,8 +119,12 @@ Publish or ProbeSet. E.g.
     def __call__(self, name):
         return self.datasets[name]
 
+def rebuild_dataset_ob():
+    Dataset_Getter = Dataset_Types()
+    return Dataset_Getter
+
 # Do the intensive work at startup one time only
-Dataset_Getter = Dataset_Types()
+Dataset_Getter = rebuild_dataset_ob()
 
 def create_datasets_list():
     if USE_REDIS:
@@ -922,7 +926,7 @@ class MrnaAssayDataSet(DataSet):
                                'blatseq', 'targetseq',
                                'chipid', 'comments',
                                'strand_probe', 'strand_gene',
-                               'proteinid',
+                               'proteinid', 'uniprotid',
                                'probe_set_target_region',
                                'probe_set_specificity',
                                'probe_set_blat_score',

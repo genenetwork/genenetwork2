@@ -45,6 +45,7 @@ class ShowTrait(object):
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
+            data_set.rebuild_dataset_ob()
             helper_functions.get_species_dataset_trait(self, kw)
         elif 'group' in kw:
             self.temp_trait = True
@@ -268,8 +269,8 @@ class ShowTrait(object):
             self.genbank_link = webqtlConfig.GENBANK_ID % genbank_id
 
         self.uniprot_link = None
-        if check_if_attr_exists(self.this_trait, 'proteinid'):
-            self.uniprot_link = webqtlConfig.UNIPROT_URL % self.this_trait.proteinid
+        if check_if_attr_exists(self.this_trait, 'uniprotid'):
+            self.uniprot_link = webqtlConfig.UNIPROT_URL % self.this_trait.uniprotid
 
         self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
         self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
