@@ -2,12 +2,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-import os, io, csv, json, datetime
+import os, io, csv, json, datetime, requests
+from zipfile import ZipFile
 
 import StringIO
 
 import flask
-from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect
+from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, send_file
 import sqlalchemy
 from wqflask import app
 
@@ -497,7 +498,7 @@ def all_sample_data(dataset_name, file_format = "csv"):
 
             results_list = []
             header_list = []
-            header_list.append("Trait ID")
+            header_list.append("id")
             header_list += sample_list
             results_list.append(header_list)
             for i, trait_id in enumerate(trait_ids):
@@ -717,7 +718,8 @@ def get_mapping_results():
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
-@app.route("/api/v_{}/genotypes/<path:group_name>".format(version))
+@app.route("/api/v_{}/genotypes/<path:group_name>.<path:file_format>".format(version))
+@app.route("/api/v_{}/genotypes/<path:file_format>/<path:group_name>".format(version))
 @app.route("/api/v_{}/genotypes/<path:group_name>.<path:file_format>".format(version))
 def get_genotypes(group_name, file_format="csv"):
     limit_num = None
@@ -743,6 +745,26 @@ def get_genotypes(group_name, file_format="csv"):
                         i += 1
 
             csv_writer = csv.writer(si, delimiter = "\t", escapechar = "\\", quoting = csv.QUOTE_NONE)
+        else:
+            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+    elif file_format == "rqtl2":
+        memory_file = io.BytesIO()
+        filename = group_name + "_rqtl.zip"
+
+        if os.path.isfile("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name)):
+            config_file = open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))
+            geno_file = open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))
+            gmap_file = open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))
+            phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
+
+            with ZipFile(memory_file, 'w') as zf:
+                for this_file in [config_file, geno_file, gmap_file]:
+                    zf.writestr(this_file.name.split("/")[-1], this_file.read())
+                zf.writestr("{0}_pheno.csv".format(group_name), phenotypes.content)
+
+            memory_file.seek(0)
+
+            return send_file(memory_file, attachment_filename=filename, as_attachment=True)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     else:
