@@ -431,6 +431,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
         trait.display_name = trait.name
         if dataset.type == 'Publish':
+            if trait.group_code:
+                trait.display_name = trait.group_code + "_" + str(trait.name)
+
             trait.confidential = 0
             if trait.pre_publication_description and not trait.pubmed_id:
                 trait.confidential = 1
@@ -464,9 +467,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
             if trait.pubmed_id:
                 trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
-            else:
-                if trait.group_code:
-                    trait.display_name = trait.group_code + "_" + str(trait.name)
 
         if dataset.type == 'ProbeSet' and dataset.group:
             description_string = unicode(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
