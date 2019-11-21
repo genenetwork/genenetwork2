@@ -251,7 +251,8 @@ class PhenotypeSearch(DoSearch):
                         WHERE PublishXRef.InbredSetId = %s
                         and PublishXRef.PhenotypeId = Phenotype.Id
                         and PublishXRef.PublicationId = Publication.Id
-                        and PublishFreeze.Id = %s""" % (
+                        and PublishFreeze.Id = %s
+                        ORDER BY PublishXRef.Id""" % (
                             from_clause,
                             escape(str(self.dataset.group.id)),
                             escape(str(self.dataset.id))))
@@ -262,7 +263,8 @@ class PhenotypeSearch(DoSearch):
                         and PublishXRef.InbredSetId = %s
                         and PublishXRef.PhenotypeId = Phenotype.Id
                         and PublishXRef.PublicationId = Publication.Id
-                        and PublishFreeze.Id = %s""" % (
+                        and PublishFreeze.Id = %s
+                        ORDER BY PublishXRef.Id""" % (
                             from_clause,
                             where_clause,
                             escape(str(self.dataset.group.id)),

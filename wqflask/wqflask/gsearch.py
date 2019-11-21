@@ -118,7 +118,8 @@ class GSearch(object):
                 Publication.`Year`,
                 Publication.`PubMed_ID`,
                 PublishXRef.`LRS`,
-                PublishXRef.`additive`
+                PublishXRef.`additive`,
+                InbredSet.`InbredSetCode`
                 FROM Species,InbredSet,PublishFreeze,PublishXRef,Phenotype,Publication
                 WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
                 AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
@@ -146,6 +147,7 @@ class GSearch(object):
                     this_trait = {}
                     this_trait['index'] = i + 1
                     this_trait['name'] = str(line[4])
+                    this_trait['display_name'] = this_trait['name']
                     this_trait['dataset'] = line[2]
                     this_trait['dataset_fullname'] = line[3]
                     this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[4], line[2]))
@@ -167,6 +169,8 @@ class GSearch(object):
                         this_trait['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[8]
                     else:
                         this_trait['pubmed_link'] = "N/A"
+                        if line[12]:
+                            this_trait['display_name'] = line[12] + "_" + str(this_trait['name'])
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[10] != "" and line[10] != None:
                         this_trait['LRS_score_repr'] = '%3.1f' % line[10]

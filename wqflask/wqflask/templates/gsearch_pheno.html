@@ -9,8 +9,10 @@
 
     <div class="container">
 
-        <h3>GN searched 51 datasets and 13763 traits across 10 species, and found {{ trait_count }} results that match your query.
-        You can filter these results by adding key words in the fields below and you can also sort results on most columns.</h3>
+        <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 51 datasets and 13763 traits across 10 species<br/>
+            and found <b>{{ trait_count }}</b> results that match your query.<br/>
+            You can filter these results by adding key words in the fields below<br/>
+            and you can also sort results on most columns.</h3>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -160,7 +162,7 @@
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
+                        return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
                       }
                     },
                     {

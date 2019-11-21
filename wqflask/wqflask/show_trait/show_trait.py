@@ -45,7 +45,6 @@ class ShowTrait(object):
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
-            data_set.rebuild_dataset_ob()
             helper_functions.get_species_dataset_trait(self, kw)
         elif 'group' in kw:
             self.temp_trait = True

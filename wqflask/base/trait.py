@@ -352,7 +352,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     if dataset.type == 'Publish':
         query = """
                 SELECT
-                        PublishXRef.Id, Publication.PubMed_ID,
+                        PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
                         Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
                         Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
                         Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
@@ -361,12 +361,13 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                         Publication.Month, Publication.Year, PublishXRef.Sequence,
                         Phenotype.Units, PublishXRef.comments
                 FROM
-                        PublishXRef, Publication, Phenotype, PublishFreeze
+                        PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
                 WHERE
                         PublishXRef.Id = %s AND
                         Phenotype.Id = PublishXRef.PhenotypeId AND
                         Publication.Id = PublishXRef.PublicationId AND
                         PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                        PublishXRef.InbredSetId = InbredSet.Id AND
                         PublishFreeze.Id = %s
                 """ % (trait.name, dataset.id)
 
@@ -428,6 +429,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             #     holder = unicode(trait_info[i], "utf-8", "ignore")
             setattr(trait, field, holder)
 
+        trait.display_name = trait.name
         if dataset.type == 'Publish':
             trait.confidential = 0
             if trait.pre_publication_description and not trait.pubmed_id:
@@ -462,6 +464,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
             if trait.pubmed_id:
                 trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
+            else:
+                if trait.group_code:
+                    trait.display_name = trait.group_code + "_" + str(trait.name)
 
         if dataset.type == 'ProbeSet' and dataset.group:
             description_string = unicode(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')

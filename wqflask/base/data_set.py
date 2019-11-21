@@ -26,6 +26,7 @@ import collections
 import codecs
 
 import json
+import requests
 import gzip
 import cPickle as pickle
 import itertools
@@ -63,7 +64,7 @@ logger = getLogger(__name__ )
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
+def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
         logger.debug("dataset_type", dataset_type)
@@ -77,7 +78,7 @@ def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, gro
 
 class Dataset_Types(object):
 
-    def __init__(self):
+    def __init__(self, rebuild=False):
         """Create a dictionary of samples where the value is set to Geno,
 Publish or ProbeSet. E.g.
 
@@ -93,8 +94,10 @@ Publish or ProbeSet. E.g.
 
         """
         self.datasets = {}
-        if USE_GN_SERVER:
-            data = gen_menu.gen_dropdown_json()
+        if rebuild: #ZS: May make this the only option
+            data = json.loads(requests.get("http://gn2.genenetwork.org/api/v_pre1/gen_dropdown").content)
+            logger.debug("THE DATA:", data)
+            #data = gen_menu.gen_dropdown_json()
         else:
             file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
             with open(file_name, 'r') as fh:
@@ -119,12 +122,8 @@ Publish or ProbeSet. E.g.
     def __call__(self, name):
         return self.datasets[name]
 
-def rebuild_dataset_ob():
-    Dataset_Getter = Dataset_Types()
-    return Dataset_Getter
-
 # Do the intensive work at startup one time only
-Dataset_Getter = rebuild_dataset_ob()
+Dataset_Getter = Dataset_Types()
 
 def create_datasets_list():
     if USE_REDIS:
@@ -705,7 +704,7 @@ class PhenotypeDataSet(DataSet):
                             'PublishXRef.Id']
 
         # Figure out what display_fields is
-        self.display_fields = ['name',
+        self.display_fields = ['name', 'group_code',
                                'pubmed_id',
                                'pre_publication_description',
                                'post_publication_description',

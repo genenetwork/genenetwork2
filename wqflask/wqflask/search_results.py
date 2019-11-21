@@ -110,6 +110,10 @@ views.py).
             trait_dict['index'] = index + 1
             this_trait = trait.GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
             trait_dict['name'] = this_trait.name
+            if this_trait.dataset.type == "Publish":
+                trait_dict['display_name'] = this_trait.display_name
+            else:
+                trait_dict['display_name'] = this_trait.name
             trait_dict['dataset'] = this_trait.dataset.name
             trait_dict['hmac'] = user_manager.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
             if this_trait.dataset.type == "ProbeSet":
