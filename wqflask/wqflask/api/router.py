@@ -3,7 +3,8 @@
 from __future__ import absolute_import, division, print_function
 
 import os, io, csv, json, datetime, requests
-from zipfile import ZipFile
+import zlib
+from zipfile import ZipFile, ZIP_DEFLATED
 
 import StringIO
 
@@ -757,7 +758,7 @@ def get_genotypes(group_name, file_format="csv"):
             gmap_file = open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))
             phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
 
-            with ZipFile(memory_file, 'w') as zf:
+            with ZipFile(memory_file, 'w', compression=ZIP_DEFLATED) as zf:
                 for this_file in [config_file, geno_file, gmap_file]:
                     zf.writestr(this_file.name.split("/")[-1], this_file.read())
                 zf.writestr("{0}_pheno.csv".format(group_name), phenotypes.content)
