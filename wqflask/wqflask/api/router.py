@@ -719,10 +719,12 @@ def get_mapping_results():
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
-@app.route("/api/v_{}/genotypes/<path:group_name>.<path:file_format>".format(version))
-@app.route("/api/v_{}/genotypes/<path:file_format>/<path:group_name>".format(version))
-@app.route("/api/v_{}/genotypes/<path:group_name>.<path:file_format>".format(version))
-def get_genotypes(group_name, file_format="csv"):
+@app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>.zip".format(version))
+@app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>".format(version))
+@app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>.zip".format(version))
+@app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>".format(version))
+@app.route("/api/v_{}/genotypes/<string:group_name>.<string:file_format>".format(version))
+def get_genotypes(group_name, file_format="csv", dataset_name=None):
     limit_num = None
     if 'limit_to' in request.args:
         if request.args['limit_to'].isdigit():
@@ -756,7 +758,10 @@ def get_genotypes(group_name, file_format="csv"):
             config_file = open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))
             geno_file = open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))
             gmap_file = open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))
-            phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
+            if dataset_name:
+                phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
+            else:
+                phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
 
             with ZipFile(memory_file, 'w', compression=ZIP_DEFLATED) as zf:
                 for this_file in [config_file, geno_file, gmap_file]:
