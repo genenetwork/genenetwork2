@@ -34,6 +34,11 @@ import json
 
 import scipy
 import numpy
+import rpy2.robjects as ro                    # R Objects
+import rpy2.rinterface as ri
+
+from rpy2.robjects.packages import importr
+utils = importr("utils")
 
 from pprint import pformat as pf
 
@@ -258,6 +263,8 @@ class CorrelationResults(object):
             self.formatted_corr_type += "(Pearson's r)"
         elif self.corr_method == "spearman":
             self.formatted_corr_type += "(Spearman's rho)"
+        elif self.corr_method == "bicor":
+            self.formatted_corr_type += "(Biweight r)"
 
     def do_tissue_correlation_for_trait_list(self, tissue_dataset_id=1):
         """Given a list of correlation results (self.correlation_results), gets the tissue correlation value for each"""
@@ -446,7 +453,9 @@ class CorrelationResults(object):
         self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
 
         #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
-        if self.corr_method == 'pearson':
+        if self.corr_method == 'bicor':
+            sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
+        elif self.corr_method == 'pearson':
             sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
         else:
             sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
@@ -468,6 +477,22 @@ class CorrelationResults(object):
                 if value:
                     if not value.strip().lower() == 'x':
                         self.sample_data[str(sample)] = float(value)
+
+def do_bicor(this_trait_vals, target_trait_vals):
+    r_library = ro.r["library"]             # Map the library function
+    r_options = ro.r["options"]             # Map the options function
+
+    r_library("WGCNA")
+    r_bicor = ro.r["bicorAndPvalue"]        # Map the bicorAndPvalue function
+
+    r_options(stringsAsFactors = False)
+
+    this_vals = ro.Vector(this_trait_vals)
+    target_vals = ro.Vector(target_trait_vals)
+
+    the_r, the_p, _fisher_transform, _the_t, _n_obs = [numpy.asarray(x) for x in r_bicor(x = this_vals, y = target_vals)]
+
+    return the_r, the_p
 
 def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
     results_list = []
@@ -549,23 +574,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
 
 def get_header_fields(data_type, corr_method):
     if data_type == "ProbeSet":
-        if corr_method == "pearson":
-            header_fields = ['Index',
-                                'Record',
-                                'Symbol',
-                                'Description',
-                                'Location',
-                                'Mean',
-                                'Sample r',
-                                'N',
-                                'Sample p(r)',
-                                'Lit r',
-                                'Tissue r',
-                                'Tissue p(r)',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
-        else:
+        if corr_method == "spearman":
             header_fields = ['Index',
                                 'Record',
                                 'Symbol',
@@ -581,20 +590,24 @@ def get_header_fields(data_type, corr_method):
                                 'Max LRS',
                                 'Max LRS Location',
                                 'Additive Effect']
-    elif data_type == "Publish":
-        if corr_method == "pearson":
-            header_fields = ['Index',
-                            'Record',
-                            'Description',
-                            'Authors',
-                            'Year',
-                            'Sample r',
-                            'N',
-                            'Sample p(r)',
-                            'Max LRS',
-                            'Max LRS Location',
-                            'Additive Effect']
         else:
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample r',
+                                'N',
+                                'Sample p(r)',
+                                'Lit r',
+                                'Tissue r',
+                                'Tissue p(r)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+    elif data_type == "Publish":
+        if corr_method == "spearman":
             header_fields = ['Index',
                             'Record',
                             'Description',
@@ -606,20 +619,33 @@ def get_header_fields(data_type, corr_method):
                             'Max LRS',
                             'Max LRS Location',
                             'Additive Effect']
-    else:
-        if corr_method == "pearson":
-            header_fields = ['Index',
-                                'ID',
-                                'Location',
-                                'Sample r',
-                                'N',
-                                'Sample p(r)']
         else:
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample r',
+                            'N',
+                            'Sample p(r)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
+
+    else:
+        if corr_method == "spearman":
             header_fields = ['Index',
                                 'ID',
                                 'Location',
                                 'Sample rho',
                                 'N',
                                 'Sample p(rho)']
+        else:
+            header_fields = ['Index',
+                                'ID',
+                                'Location',
+                                'Sample r',
+                                'N',
+                                'Sample p(r)']
 
     return header_fields
