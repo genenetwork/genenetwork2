@@ -389,7 +389,7 @@ class DisplayMappingResults(object):
         RISet = self.dataset.group.name
         if RISet in ('AXB', 'BXA', 'AXBXA'):
             self.diffCol = ['B6J', 'A/J']
-        elif RISet in ('BXD', 'BXD300', 'B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2'):
+        elif RISet in ('BXD', 'BXD300', 'B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2', 'BXD-Harvested'):
             self.diffCol = ['B6J', 'D2J']
         elif RISet in ('CXB'):
             self.diffCol = ['CBY', 'B6J']
