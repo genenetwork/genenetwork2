@@ -14,9 +14,8 @@
         {% else %}
         <h1>Your Collections</h1>
         {% endif %}
-        <h2>You have {{ '{}'.format(numify(collections|count, "collection", "collections")) }}.</h1>
 
-        <hr style="height: 1px; background-color: #A9A9A9;">
+        <!-- <hr style="height: 1px; background-color: #A9A9A9;">-->
 
         <!--
         <div class="page-header">
@@ -35,9 +34,12 @@
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
             <button class="btn btn-danger" id="remove_collections" data-url="/collections/delete">Remove Collections</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
         </div>
         <br>
         <div id="collections_list" style="width:50%; margin-top: 20px; margin-bottom: 20px;">
+        {% if collections|length > 0 %}
         <table class="table-hover table-striped cell-border" id='trait_table'>
             <thead>
                 <tr>
@@ -76,6 +78,9 @@
             {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        You have no collections yet.
+        {% endif %}
         </div>
     </div>
 
@@ -92,6 +97,7 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
     <script>
             $('#trait_table').dataTable( {
                 "drawCallback": function( settings ) {
@@ -114,7 +120,7 @@
                     "orderable": false
                 } ],
                 "order": [[1, "asc" ]],
-                "sDom": "Ztr",
+                "sDom": "BZtr",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "bDeferRender": true,

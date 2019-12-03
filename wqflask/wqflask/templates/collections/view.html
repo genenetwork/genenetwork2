@@ -14,9 +14,9 @@
         {% else %}
         <h1>{{ collection_name }}</h1>
         {% endif %}
-        <h2>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h2>
+        <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
-        <hr style="height: 1px; background-color: #A9A9A9;">
+        <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
 
         <div>
           <form id="collection_form" action="/delete" method="post">
@@ -86,6 +86,8 @@
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
             <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete Rows</button>
             <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy to Other Collection</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
             <br />
             <br />
             <form id="export_form" method="POST" action="/export_traits_csv">
@@ -126,7 +128,7 @@
                                         trait_id = this_trait.name,
                                         dataset = this_trait.dataset.name
                                         )}}">
-                                    {{ this_trait.name }}
+                                    {{ this_trait.display_name }}
                                 </a>
                             </TD>
                             {% if this_trait.symbol %}
