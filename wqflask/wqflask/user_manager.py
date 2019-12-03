@@ -70,7 +70,7 @@ class AnonUser(object):
                                members = new_collection.get_members())
 
         Redis.set(self.key, json.dumps(collection_dict))
-        Redis.expire(self.key, 60 * 60 * 24 * 30)
+        Redis.expire(self.key, 60 * 60 * 24 * 365)
 
     def delete_collection(self, collection_name):
         existing_collections = self.get_collections()
