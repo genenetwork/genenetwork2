@@ -40,6 +40,11 @@ $(function() {
   };
 
   $('#searchbox').keyup(function(){
+      if ($(this).val() != ""){
+        $('#filter_term').val($(this).val());
+      } else {
+        $('#filter_term').val("None");
+      }
       $('#trait_table').DataTable().search($(this).val()).draw();
   });
 

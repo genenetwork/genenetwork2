@@ -59,6 +59,7 @@ views.py).
             self.and_or = "and"
             self.search_terms = kw['search_terms_and']
         search = self.search_terms
+        self.original_search_string = self.search_terms
         # check for dodgy search terms
         rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*',re.IGNORECASE)
         if rx.match(search):
