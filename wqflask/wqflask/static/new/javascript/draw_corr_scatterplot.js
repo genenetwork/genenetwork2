@@ -142,7 +142,8 @@ function drawg() {
         x: x_values,
         y: y_values,
         mode: 'markers',
-        text: sample_names
+        text: sample_names,
+        hoverinfo: "text+x+y"
     }
 
     var trace2 = {
@@ -172,7 +173,8 @@ function srdrawg() {
         x: x_values,
         y: y_values,
         mode: 'markers',
-        text: sample_names
+        text: sample_names,
+        hoverinfo: "text+x+y"
     }
 
     Plotly.newPlot('srscatterplot2', [trace1], sr_layout)
@@ -361,6 +363,7 @@ function getdata() {
         y: y_values,
         mode: 'markers',
         text: point_text,
+        hoverinfo: "text+x+y",
         marker: {
           color: 'rgb(66, 66, 245)',
           symbol: symbol_list,
@@ -373,6 +376,7 @@ function getdata() {
         y: y_values,
         mode: 'markers',
         text: point_text,
+        hoverinfo: "text+x+y",
         marker: {
           color: 'rgb(66, 66, 245)',
           size: sizes
@@ -578,6 +582,7 @@ function srgetdata() {
         y: y_values,
         mode: 'markers',
         text: point_text,
+        hoverinfo: "text+x+y",
         marker: {
           color: 'rgb(66, 66, 245)',
           symbol: symbol_list,

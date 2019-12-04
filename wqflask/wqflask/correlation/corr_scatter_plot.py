@@ -42,7 +42,7 @@ class CorrScatterPlot(object):
         if slope < 0.001:
             slope_string = '%.3E' % slope
         else:
-            slope_string = str(slope)
+            slope_string = '%.3f' % slope
         
         x_buffer = (max(vals_1) - min(vals_1))*0.1
         y_buffer = (max(vals_2) - min(vals_2))*0.1
@@ -62,7 +62,7 @@ class CorrScatterPlot(object):
         if srslope < 0.001:
             srslope_string = '%.3E' % srslope
         else:
-            srslope_string = str(srslope)
+            srslope_string = '%.3f' % srslope
 
         x_buffer = (max(rx) - min(rx))*0.1
         y_buffer = (max(ry) - min(ry))*0.1
