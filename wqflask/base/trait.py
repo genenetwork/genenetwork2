@@ -497,6 +497,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             #LRS and its location
             trait.LRS_score_repr = "N/A"
             trait.LRS_location_repr = "N/A"
+            trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.mean = trait.additive = ""
             if dataset.type == 'ProbeSet' and not trait.cellid:
                 query = """
                         SELECT
@@ -528,9 +529,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                     else:
                         trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
-                else:
-                    trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.mean = trait.additive = ""
-
 
             if dataset.type == 'Publish':
                 query = """
