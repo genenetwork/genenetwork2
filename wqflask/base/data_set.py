@@ -195,7 +195,7 @@ class Markers(object):
                 markers.append(marker)
 
         for marker in markers:
-            if (marker['chr'] != "X") and (marker['chr'] != "Y"):
+            if (marker['chr'] != "X") and (marker['chr'] != "Y") and (marker['chr'] != "M"):
                 marker['chr'] = int(marker['chr'])
             marker['Mb'] = float(marker['Mb'])
 
