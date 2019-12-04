@@ -356,15 +356,14 @@
         </div>
     </div>
     <div class="col-xs-7">
-        <dl style="width: 400px;">
+        <dl style="width: 500px;">
              <dt style="padding-top: 20px;">GEMMA</dt>
-             <dd>GEMMA is software implementing the Genome-wide Efficient Mixed Model Association algorithm for a standard linear mixed model for genome-wide association studies (GWAS).</dd>
+             <dd>Maps traits with correction for kinship among samples using a linear mixed model method, and also allows users to fit multiple covariates such as sex, age, treatment, and genetic markers (<a href="https://www.ncbi.nlm.nih.gov/pubmed/24531419">PMID: 2453419</a>, and <a href="https://github.com/genetics-statistics/GEMMA"> GitHub code</a>). GEMMA incorporates the Leave One Chromosome Out (LOCO) method to ensure that the correction for kinship does not remove useful genetic variance near each marker. Genotypes can be filtered to omit those markers with low minor allele frequencies (MAF of 0.05 is the default).</dd>
              {% if dataset.group.mapping_id == "1" %}
-             <dt style="margin-top: 20px;">Haley-Knott Regression</dt>
-             <dd>This method is implementing using the tool QTLReaper. Interval mapping (the last option) is a process in which the statistical significance of a hypothetical QTL is evaluated at regular points across a chromosome, even in the absence of explicit genotype data at those points.<br><br>
-                 The default option is a version of QTLReaper rewritten in RUST that should fix some of the issues the original had. You can still use the original with the Version option.</dd>
              <dt style="margin-top: 20px;">R/qtl</dt>
-             <dd>R/qtl is an extensible, interactive environment for mapping quantitative trait loci (QTL) in experimental crosses.</dd>
+             <dd>Major upgrade of R/qtl that supports most experimental populations including those with complex admixture and two or more parental lines as well as large omic data sets (<a href="https://www.ncbi.nlm.nih.gov/pubmed/30591514">PMID: 30591514</a>). Both R/qtl and R/qtl2 are available as a stand-alone R packages (<a href="https://kbroman.org/pages/software.html">R suite</a>).</dd>
+             <dt style="margin-top: 20px;">Haley-Knott Regression</dt>
+             <dd>Fast mapping linear mapping method (<a href="https://www.ncbi.nlm.nih.gov/pubmed/16718932">PMID 16718932</a>) works well with F2 intercrosses and backcrosses, but that is not recommended for complex or admixed populations (e.g., GWAS or heterogeneous stock studies) or for advanced intercrosses, recombinant inbred families, or diallel crosses. Interactive plots in GeneNetwork have relied on the fast HK mapping for two decades and we still use this method for mapping omics data sets and computing genome-wide permutation threshold (<a href="https://github.com/pjotrp/QTLReaper">QTL Reaper code</a>).</dd>
              {% endif %}
         </dl>
         <div class="rqtl_description" style="padding-top: 40px; display: none;">
