@@ -20,16 +20,20 @@ def export_search_results_csv(targs):
     
     metadata = []
 
-    if targs['database_name'] != "None":
-        metadata.append(["Data Set: " + targs['database_name']])
-    if targs['accession_id'] != "None":
-        metadata.append(["Metadata Link: http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + targs['accession_id']])
+    if 'database_name' in targs:
+        if targs['database_name'] != "None":
+            metadata.append(["Data Set: " + targs['database_name']])
+    if 'accession_id' in targs:
+        if targs['accession_id'] != "None":
+            metadata.append(["Metadata Link: http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + targs['accession_id']])
     metadata.append(["Export Date: " + datetime.datetime.now().strftime("%B %d, %Y")])
     metadata.append(["Export Time: " + datetime.datetime.now().strftime("%H:%M GMT")])
-    if targs['accession_id'] != "None":
-        metadata.append(["Data Ownership and References: Please see http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + targs['accession_id']])
-    metadata.append(["Search Query: " + targs['search_string']])
-    metadata.append(["Search Filter Terms: " + targs['filter_term']])
+    if 'search_string' in targs:
+        if targs['search_string'] != "None":
+            metadata.append(["Search Query: " + targs['search_string']])
+    if 'filter_term' in targs:
+        if targs['filter_term'] != "None":
+            metadata.append(["Search Filter Terms: " + targs['filter_term']])
     metadata.append(["Exported Row Number: " + str(len(table_rows))])
 
     for metadata_row in metadata:
