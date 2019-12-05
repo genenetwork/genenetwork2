@@ -214,7 +214,7 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                 else:
                     marker = {}
                     marker['name'] = line.split("\t")[1]
-                    if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y":
+                    if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y" and line.split("\t")[0] != "Y" and line.split("\t")[0] != "M":
                         if "chr" in line.split("\t")[0]:
                             marker['chr'] = int(line.split("\t")[0][3:])
                         else:
