@@ -474,7 +474,14 @@ class LrsSearch(DoSearch):
             chr_num = self.search_term[2].lower().replace("chr", "")
             self.search_term[2] = chr_num
 
-        self.search_term = [float(value) for value in self.search_term]
+        converted_search_term = []
+        for value in self.search_term:
+            try:
+                converted_search_term.append(float(value))
+            except:
+                converted_search_term.append(value)
+
+        self.search_term = converted_search_term
 
         if len(self.search_term) > 2:
             from_clause = ", Geno"
@@ -499,7 +506,7 @@ class LrsSearch(DoSearch):
 
             if len(self.search_term) > 2:
                 chr_num = self.search_term[2]
-                where_clause += """ and Geno.Chr = %s """ % (chr_num)
+                where_clause += """ and Geno.Chr = '%s' """ % (chr_num)
                 if len(self.search_term) == 5:
                     mb_low, mb_high = self.search_term[3:]
                     where_clause += """ and Geno.Mb > %s and
