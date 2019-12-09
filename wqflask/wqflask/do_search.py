@@ -577,21 +577,26 @@ class CisTransLrsSearch(DoSearch):
         return ", Geno"
 
     def get_where_clause(self, cis_trans):
-        self.search_term = [float(value) for value in self.search_term]
         self.mb_buffer = 5  # default
+        chromosome = None
         if cis_trans == "cis":
             the_operator = "<"
         else:
             the_operator = ">"
 
         if self.search_operator == "=":
+            if len(self.search_term) == 2 or len(self.search_term) == 3:
+                self.search_term = [float(value) for value in self.search_term]
             if len(self.search_term) == 2:
                 lrs_min, lrs_max = self.search_term
                 #[int(value) for value in self.search_term]
-
             elif len(self.search_term) == 3:
                 lrs_min, lrs_max, self.mb_buffer = self.search_term
-
+            elif len(self.search_term) == 4:
+                lrs_min, lrs_max, self.mb_buffer = [float(value) for value in self.search_term[:3]]
+                chromosome = self.search_term[3]
+                if "Chr" in chromosome or "chr" in chromosome:
+                    chromosome = float(chromosome[3:])
             else:
                 SomeError
 
@@ -628,18 +633,24 @@ class CisTransLrsSearch(DoSearch):
                         escape(self.dataset.type)
                         )
         else:
+            if chromosome:
+                location_clause = "(%s.Chr = %s and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) %s %s) or (%s.Chr != Geno.Chr and Geno.Chr = %s)" % (escape(self.dataset.type),
+                                                                                                                                                  chromosome,
+                                                                                                                                                  escape(self.dataset.type),
+                                                                                                                                                  escape(self.dataset.type),
+                                                                                                                                                  the_operator,
+                                                                                                                                                  escape(str(self.mb_buffer)),
+                                                                                                                                                  escape(self.dataset.type),
+                                                                                                                                                  chromosome)
+            else:
+                location_clause = "(ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or (%s.Chr != Geno.Chr)" % (escape(self.dataset.type), the_operator, escape(str(self.mb_buffer)), escape(self.dataset.type))
             where_clause = sub_clause + """
                     %sXRef.Locus = Geno.name and
                     Geno.SpeciesId = %s and
-                    ((ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or
-                    (%s.Chr != Geno.Chr))""" % (
+                    (%s)""" % (
                         escape(self.dataset.type),
                         escape(str(self.species_id)),
-                        escape(self.dataset.type),
-                        the_operator,
-                        escape(str(self.mb_buffer)),
-                        escape(self.dataset.type),
-                        escape(self.dataset.type)
+                        location_clause
                         )
 
         return where_clause
