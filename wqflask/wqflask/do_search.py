@@ -797,7 +797,7 @@ class PositionSearch(DoSearch):
         self.chr = str(chr).lower()
         self.get_chr()
 
-        where_clause = """ %s.Chr = %s and
+        where_clause = """ %s.Chr = '%s' and
                                 %s.Mb > %s and
                                 %s.Mb < %s """ % self.mescape(self.dataset.type,
                                                               self.chr,
