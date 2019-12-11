@@ -158,7 +158,8 @@
                             with an <b>inclusion</b> zone of 5 Mb around the parent gene.</li>
 
                         <li><b>transLRS=(15 1000 5)</b> or <b>transLOD=(2 8 5)</b> finds all trans eQTLs with peak LRS or LOD scores between lower and upper limits,
-                            with an <b>exclusion</b> zone of 5 Mb around the parent gene.</li>
+                            with an <b>exclusion</b> zone of 5 Mb around the parent gene. You can also add a fourth term specifying which chromosome you want the transLRS to be on
+                            (for example transLRS=(15 1000 5 7) would find all trans eQTLs with peak LRS on chromosome 7 that is also a trans eQTL with exclusionary zone of 5Mb).</li>
 
                         <li><b>POSITION=(Chr4 122 130) cisLRS=(9 999 10)</b>
                             finds all traits on Chr 4 from 122 and 155 Mb with cisLRS scores
