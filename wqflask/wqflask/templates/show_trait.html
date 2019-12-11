@@ -289,7 +289,7 @@
                       }
                     },
                     {
-                      'title': "Value",
+                      'title': "<div style='text-align: right;'>Value</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -337,7 +337,7 @@
                       }
                     }{% endif %}{% if sample_groups[0].attributes|length > 0 %}{% for attribute in sample_groups[0].attributes|sort() %},
                     {
-                      'title': "{{ sample_groups[0].attributes[attribute].name }}",
+                      'title': "<div style='text-align: {{ sample_groups[0].attributes[attribute].alignment }}'>{{ sample_groups[0].attributes[attribute].name }}</div>",
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
@@ -433,7 +433,7 @@
                       }
                     },
                     {
-                      'title': "Value",
+                      'title': "<div style='text-align: right;'>Value</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -481,7 +481,7 @@
                       }
                     }{% endif %}{% if sample_groups[1].attributes|length > 0 %}{% for attribute in sample_groups[1].attributes|sort() %},
                     {
-                      'title': "{{ sample_groups[1].attributes[attribute].name }}",
+                      'title': "<div style='text-align: {{ sample_groups[1].attributes[attribute].alignment }}'>{{ sample_groups[1].attributes[attribute].name }}</div>",
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
