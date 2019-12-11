@@ -1,7 +1,7 @@
 <table class="table">
     <tr>
-        <td width="150px"><b>Species and Group</b></td>
-        <td>{{ this_trait.dataset.group.species }}, {{ this_trait.dataset.group.name }}</td>
+        <td width="150px"><b>Group</b></td>
+        <td>{{ this_trait.dataset.group.species[0]|upper }}{{ this_trait.dataset.group.species[1:] }}: {{ this_trait.dataset.group.name }} group</td>
     </tr>
     {% if this_trait.dataset.type == 'Publish' %}
     <tr>
