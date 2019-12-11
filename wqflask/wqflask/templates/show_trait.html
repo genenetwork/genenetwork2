@@ -260,6 +260,7 @@
                     {% if sample_groups[0].attributes|length > 0 %}
                     {% for attribute in sample_groups[0].attributes|sort() %}
                     $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[0].attributes[attribute].name }}")
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).attr("style", "text-align: {{ sample_groups[0].attributes[attribute].alignment }}; padding-top: 2px; padding-bottom: 0px;")
                     {% endfor %}
                     {% endif %}
                   },
@@ -403,6 +404,7 @@
                     {% if sample_groups[1].attributes|length > 0 %}
                     {% for attribute in sample_groups[1].attributes|sort() %}
                     $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[1].attributes[attribute].name }}")
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).attr("style", "text-align: {{ sample_groups[1].attributes[attribute].alignment }}; padding-top: 2px; padding-bottom: 0px;")
                     {% endfor %}
                     {% endif %}
                   },

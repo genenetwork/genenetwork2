@@ -112,6 +112,18 @@ class SampleList(object):
             self.attributes[key].distinct_values = [item.Value for item in values]
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
+            all_numbers = True
+            for value in self.attributes[key].distinct_values:
+                try:
+                    val_as_float = float(value)
+                except:
+                    all_numbers = False
+
+            if all_numbers:
+                self.attributes[key].alignment = "right"
+            else:
+                self.attributes[key].alignment = "left"
+
     def get_extra_attribute_values(self):
         if self.attributes:
             query = '''
