@@ -634,7 +634,7 @@ class CisTransLrsSearch(DoSearch):
                         )
         else:
             if chromosome:
-                location_clause = "(%s.Chr = %s and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) %s %s) or (%s.Chr != Geno.Chr and Geno.Chr = %s)" % (escape(self.dataset.type),
+                location_clause = "(%s.Chr = '%s' and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) %s %s) or (%s.Chr != Geno.Chr and Geno.Chr = '%s')" % (escape(self.dataset.type),
                                                                                                                                                   chromosome,
                                                                                                                                                   escape(self.dataset.type),
                                                                                                                                                   escape(self.dataset.type),
