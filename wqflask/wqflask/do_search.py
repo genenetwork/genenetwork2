@@ -596,7 +596,7 @@ class CisTransLrsSearch(DoSearch):
                 lrs_min, lrs_max, self.mb_buffer = [float(value) for value in self.search_term[:3]]
                 chromosome = self.search_term[3]
                 if "Chr" in chromosome or "chr" in chromosome:
-                    chromosome = float(chromosome[3:])
+                    chromosome = int(chromosome[3:])
             else:
                 SomeError
 
