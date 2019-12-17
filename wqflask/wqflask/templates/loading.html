@@ -13,13 +13,13 @@
         <br>
         <i>n</i> = {{ start_vars.num_vals }}
         <br>
-        Method = {{ start_vars.method }}
+        Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
         <br>
         {% if start_vars.transform != "" %}
         transform = {{ start_vars.transform }}
         <br>
         {% endif %}
-        MAF = {{ start_vars.maf }}
+        MAF >= {{ start_vars.maf }}
         {% else %}
         <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
         {% endif %}
