@@ -119,10 +119,18 @@
             &nbsp;&nbsp;
             {% endif %}
             {% if this_trait.symbol %}
+            <!--
             <a href="{{ genotation_link }}" target="_blank" title="Related descriptive, genomic, clinical, functional and drug-therapy information">
                 Genotation
             </a>
             &nbsp;&nbsp;
+            -->
+            {% if rgd_link %}
+            <a href="{{ rgd_link }}" target="_blank">
+                Rat Genome DB
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
             <a href="{{ gtex_link }}" target="_blank" title="GTEx Portal">
                 GTEx Portal
             </a>

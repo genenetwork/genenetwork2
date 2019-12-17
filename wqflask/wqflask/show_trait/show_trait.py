@@ -271,7 +271,7 @@ class ShowTrait(object):
         if check_if_attr_exists(self.this_trait, 'uniprotid'):
             self.uniprot_link = webqtlConfig.UNIPROT_URL % self.this_trait.uniprotid
 
-        self.genotation_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
+        self.genotation_link = self.rgd_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
         self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
         if self.this_trait.symbol:
             self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
@@ -283,6 +283,7 @@ class ShowTrait(object):
             #self.open_targets_link = webqtlConfig.OPEN_TARGETS_URL % self.this_trait.symbol
 
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "human":
+                self.rgd_link = webqtlConfig.RGD_URL % (self.this_trait.symbol, self.dataset.group.species.capitalize())
                 if self.dataset.group.species == "mouse":
                     self.genemania_link = webqtlConfig.GENEMANIA_URL % ("mus-musculus", self.this_trait.symbol)
                 else:
@@ -307,6 +308,7 @@ class ShowTrait(object):
                         self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % ('mm10', self.this_trait.refseq_transcriptid, chr, transcript_start, transcript_end)
 
             if self.dataset.group.species == "rat":
+                self.rgd_link = webqtlConfig.RGD_URL % (self.this_trait.symbol, self.dataset.group.species.capitalize())
                 self.genemania_link = webqtlConfig.GENEMANIA_URL % ("rattus-norvegicus", self.this_trait.symbol)
 
                 query = """SELECT kgID, chromosome, txStart, txEnd
