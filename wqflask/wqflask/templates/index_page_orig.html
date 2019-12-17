@@ -38,9 +38,6 @@
                                         <div class="col-8">
                                           <select name="species" id="species" class="form-control" style="width: 280px !important;"><option>Loading...</option></select>
                                         </div>
-                                        <div class="col-4" style="margin-left: 10px;">
-                                          <button type="button" id="make_default" class="btn btn-primary form-control">Make Default</button>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -115,9 +112,12 @@
 
                                 <div class="form-group">
                                     <label for="btsearch" class="col-xs-1 control-label" style="width: 65px !important;"></label>
-                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
-                                        <div class="col-2 controls" style="width: 100px !important;">
+                                    <div class="col-xs-10 controls" style="display: flex; padding-left: 20px;">
+                                        <div class="col-2 controls">
                                             <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
+                                        </div>
+                                        <div class="col-2 controls" style="padding-left: 20px;">
+                                            <button type="button" id="make_default" class="btn btn-primary form-control">Make Default</button>
                                         </div>
                                     </div>
                                 </div>
