@@ -862,7 +862,7 @@ get_bar_bottom_margin = function(sample_list){
   }
 
   if (max_length > 6){
-    bottom_margin += 9*(max_length - 6)
+    bottom_margin += 11*(max_length - 6)
   }
 
   return bottom_margin;
