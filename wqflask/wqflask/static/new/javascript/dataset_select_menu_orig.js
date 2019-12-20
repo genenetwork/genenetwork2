@@ -142,10 +142,10 @@ $('#group_info').click(group_info);
 dataset_info = function() {
   var dataset, url;
   accession_id = $('#dataset option:selected').data("id");
+  name = $('#dataset option:selected').val();
   if (accession_id != "None") {
-    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id;
+    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id + "&InfoPageName=" + name;
   } else {
-    name = $('#dataset option:selected').val();
     url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + name;
   }
   return open_window(url, "Dataset Info");
