@@ -36,6 +36,11 @@ class DoSearch(object):
             logger.debug("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
             logger.debug("self.dataset.group is: ", pf(self.dataset.group))
             #Get group information for dataset and the species id
+
+            if self.dataset.type == "Publish":
+                if len(self.search_term[0].split("_")) > 1:
+                    self.search_term[0] = self.search_term[0].split("_")[1]
+
             self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group.name)
 
     def execute(self, query):
@@ -228,6 +233,7 @@ class PhenotypeSearch(DoSearch):
 
         #Todo: Zach will figure out exactly what both these lines mean
         #and comment here
+
         if "'" not in self.search_term[0]:
             search_term = "[[:<:]]" + self.handle_wildcard(self.search_term[0]) + "[[:>:]]"
 
