@@ -121,7 +121,8 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                 bootstrap_vals.append(int(line))
 
     marker_obs = [marker_obs[i] for i in sorted_indices]
-    bootstrap_vals = [bootstrap_vals[i] for i in sorted_indices]
+    if len(bootstrap_vals) > 0:
+        bootstrap_vals = [bootstrap_vals[i] for i in sorted_indices]
 
     return marker_obs, permu_vals, bootstrap_vals
 

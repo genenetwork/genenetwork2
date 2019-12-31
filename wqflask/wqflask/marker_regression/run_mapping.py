@@ -62,7 +62,6 @@ class RunMapping(object):
         self.json_data['lodnames'] = ['lod.hk']
 
         all_samples_ordered = self.dataset.group.all_samples_ordered()
-        primary_sample_names = list(all_samples_ordered)
 
         self.vals = []
         if 'samples' in start_vars:
