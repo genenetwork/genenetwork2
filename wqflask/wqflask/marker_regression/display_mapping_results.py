@@ -1711,6 +1711,11 @@ class DisplayMappingResults(object):
             js_data['max_score'] = LRS_LOD_Max
         self.js_data = json.dumps(js_data)
 
+        LRSScaleFont=pid.Font(ttf="verdana", size=16*zoom, bold=0)
+        LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
+
+        yZero = yTopOffset + plotHeight
+
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
         elif LRS_LOD_Max > 20:
@@ -1725,12 +1730,22 @@ class DisplayMappingResults(object):
         #update by NL 6-21-2011: round the LOD value to 100 when LRS_LOD_Max is equal to 460
         LRSAxisList.append(round(LRS_LOD_Max))
 
-        #draw the "LRS" or "LOD" string to the left of the axis
-        LRSScaleFont=pid.Font(ttf="verdana", size=16*zoom, bold=0)
-        LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
-        yZero = yTopOffset + plotHeight
+        #ZS: Convert to int if all axis values are whole numbers
+        all_int = True
+        for item in LRSAxisList:
+            if item.is_integer():
+                continue
+            else:
+                all_int = False
+                break
 
-        canvas.drawString(self.LRS_LOD, xLeftOffset - canvas.stringWidth("999.99", font=LRSScaleFont) - 15*(zoom-1), \
+        if all_int:
+            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 30
+        else:
+            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 20
+
+        #draw the "LRS" or "LOD" string to the left of the axis
+        canvas.drawString(self.LRS_LOD, xLeftOffset - max_lrs_width - 15*(zoom-1), \
                                           yZero - 150 - 300*(zoom - 1), font=LRSLODFont, color=pid.black, angle=90)
 
         for item in LRSAxisList:
@@ -1738,7 +1753,10 @@ class DisplayMappingResults(object):
                 LRS_LOD_Max = 0.000001
             yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
             canvas.drawLine(xLeftOffset, yLRS, xLeftOffset - 4, yLRS, color=self.LRS_COLOR, width=1*zoom)
-            scaleStr = "%2.1f" % item
+            if all_int:
+                scaleStr = "%d" % item
+            else:
+                scaleStr = "%2.1f" % item
             #Draw the LRS/LOD Y axis label
             canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
 
