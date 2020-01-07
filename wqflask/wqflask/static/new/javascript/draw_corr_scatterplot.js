@@ -117,6 +117,25 @@ var sr_layout = {
 ]
 }
 
+var modebar_options = {
+  modeBarButtonsToAdd:[{
+    name: 'Export as SVG',
+    icon: Plotly.Icons.camera,
+    click: function(gd) {
+      Plotly.downloadImage(gd, {format: 'svg'})
+    }
+  },
+  {
+    name: 'Export as JPEG',
+    icon: Plotly.Icons.disk,
+    click: function(gd) {
+      Plotly.downloadImage(gd, {format: 'jpeg'})
+    }
+  }],
+  modeBarButtonsToRemove:['toImage', 'sendDataToCloud', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines'],
+  displaylogo: false
+}
+
 cofactor1_dict = {}
 ranked_cofactor1_dict = {}
 //cofactor1_values = []
@@ -155,7 +174,7 @@ function drawg() {
       }
     }
 
-    Plotly.newPlot('scatterplot2', [trace2, trace1], layout)
+    Plotly.newPlot('scatterplot2', [trace2, trace1], layout, modebar_options)
 
 }
 
@@ -177,7 +196,7 @@ function srdrawg() {
         hoverinfo: "text+x+y"
     }
 
-    Plotly.newPlot('srscatterplot2', [trace1], sr_layout)
+    Plotly.newPlot('srscatterplot2', [trace1], sr_layout, modebar_options)
 }
 
 function getdata() {
@@ -611,10 +630,10 @@ function chartupdatewh() {
       width: width
     }
 
-    Plotly.newPlot('scatterplot2', getdata(), layout)
+    Plotly.newPlot('scatterplot2', getdata(), layout, modebar_options)
     Plotly.relayout('scatterplot2', width_height_update)
 
-    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout)
+    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout, modebar_options)
     Plotly.relayout('srscatterplot2', width_height_update)
 }
 
@@ -689,9 +708,9 @@ function chartupdatedata() {
       title: "Spearman Rank Correlation Scatterplot"
     }
 
-    Plotly.newPlot('scatterplot2', getdata(), layout)
+    Plotly.newPlot('scatterplot2', getdata(), layout, modebar_options)
     Plotly.relayout('scatterplot2', pearson_title_update)
-    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout)
+    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout, modebar_options)
     Plotly.relayout('srscatterplot2', spearman_title_update)
 
     if ($('#cofactor1_type option:selected').val() == "color"){
