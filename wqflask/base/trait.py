@@ -427,6 +427,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             #     logger.debug("HOLDER:", holder)
             #     logger.debug("HOLDER2:", holder.decode(encoding='latin1'))
             #     holder = unicode(trait_info[i], "utf-8", "ignore")
+            if isinstance(trait_info[i], basestring):
+                holder = holder.encode('latin1')
             setattr(trait, field, holder)
 
         trait.display_name = trait.name
