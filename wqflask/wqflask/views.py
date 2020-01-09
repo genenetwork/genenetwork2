@@ -345,7 +345,7 @@ def export_trait_csv():
     logger.info("In export_trait_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    sample_data = export_trait_data.export_sample_table(request.form)
+    trait_name, sample_data = export_trait_data.export_sample_table(request.form)
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
@@ -358,7 +358,7 @@ def export_trait_csv():
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=sample_data.csv"})
+                    headers={"Content-Disposition":"attachment;filename="+ trait_name + ".csv"})
 
 @app.route('/export_traits_csv', methods=('POST',))
 def export_traits_csv():
