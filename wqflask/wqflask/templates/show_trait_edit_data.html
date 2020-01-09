@@ -1,20 +1,22 @@
 <div>
-    <div style="padding-bottom: 10px;">
-      <input type="button" class="btn btn-success reset" value="Reset">
-      <span class="input-append">
-        <input type="button" class="btn btn-default export" value="Export">
-        <select class="select optional span2 export_format">
-          <option value="excel">Excel</option>
-          <option value="csv">CSV</option>
-        </select>
-      </span>
-    </div>
-
     {% for sample_type in sample_groups %}
+      <div style="padding-bottom: 10px;">
+        <div style="display: inline; height: 40px;">
+          <input type="text" id="{{ sample_type.sample_group_type }}_searchbox" class="form-control" style="width: 200px; display: inline; float: left; vertical-align: top;" placeholder="Search This Table For ...">
+        </div>
+        <div style="padding-left: 10px; display: inline;">
+          <input type="button" class="btn btn-default export" value="Export">
+          <select class="select optional span2 export_format">
+            <option value="excel">Excel</option>
+            <option value="csv">CSV</option>
+          </select>
+          <input type="button" class="btn btn-success reset" value="Reset">
+        </div>
+      </div>
         {% set outer_loop = loop %}
         <div class="sample_group" style="width:{{ trait_table_width }};">
           <div style="position: relative;">
-            <div style="display: inline;"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3><input type="text" id="{{ sample_type.sample_group_type }}_searchbox" class="form-control" style="width: 200px; display: inline; float: right; vertical-align: top;" placeholder="Search This Table For ..."></div>
+            <div style="display: inline;"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3>
           </div>
           <div id="table_container">
           <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
