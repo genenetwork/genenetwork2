@@ -475,11 +475,6 @@ class LrsSearch(DoSearch):
         DoSearch.search_types[search_key] = "LrsSearch"
 
     def get_from_clause(self):
-        #If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
-        if len(self.search_term) > 2 and "chr" in self.search_term[2].lower():
-            chr_num = self.search_term[2].lower().replace("chr", "")
-            self.search_term[2] = chr_num
-
         converted_search_term = []
         for value in self.search_term:
             try:
@@ -511,7 +506,11 @@ class LrsSearch(DoSearch):
                                                                 max(lrs_min, lrs_max))
 
             if len(self.search_term) > 2:
+                #If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
                 chr_num = self.search_term[2]
+                if "chr" in self.search_term[2].lower():
+                    chr_num = self.search_term[2].lower().replace("chr", "")
+                    self.search_term[2] = chr_num
                 where_clause += """ and Geno.Chr = '%s' """ % (chr_num)
                 if len(self.search_term) == 5:
                     mb_low, mb_high = self.search_term[3:]
@@ -554,7 +553,6 @@ class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
         DoSearch.search_types['ProbeSet_' + search_key] = "MrnaLrsSearch"
 
     def run(self):
-
         self.from_clause = self.get_from_clause()
         self.where_clause = self.get_where_clause()
 
