@@ -321,7 +321,7 @@ def export_trait_excel():
     logger.info("In export_trait_excel")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    sample_data = export_trait_data.export_sample_table(request.form)
+    trait_name, sample_data = export_trait_data.export_sample_table(request.form)
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
@@ -337,7 +337,7 @@ def export_trait_excel():
 
     return Response(excel_data,
                     mimetype='application/vnd.ms-excel',
-                    headers={"Content-Disposition":"attachment;filename=sample_data.xlsx"})
+                    headers={"Content-Disposition":"attachment;filename="+ trait_name + ".xlsx"})
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():

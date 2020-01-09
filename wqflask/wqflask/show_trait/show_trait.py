@@ -210,6 +210,7 @@ class ShowTrait(object):
             hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
         hddn['primary_samples'] = string.join(self.primary_sample_names, ',')
         hddn['trait_id'] = self.trait_id
+        hddn['trait_display_name'] = self.this_trait.display_name
         hddn['dataset'] = self.dataset.name
         hddn['temp_trait'] = False
         if self.temp_trait:

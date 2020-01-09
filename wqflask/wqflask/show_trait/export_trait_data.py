@@ -7,6 +7,7 @@ from pprint import pformat as pf
 def export_sample_table(targs):
 
     sample_data = json.loads(targs['export_data'])
+    trait_name = targs['trait_display_name']
     final_sample_data = []
 
     for sample_group in ['primary_samples', 'other_samples']:
@@ -15,7 +16,7 @@ def export_sample_table(targs):
             print("sorted_row is:", pf(sorted_row))
             final_sample_data.append(sorted_row)
 
-    return final_sample_data
+    return trait_name, final_sample_data
 
 def dict_to_sorted_list(dictionary):
     sorted_list = [item for item in dictionary.iteritems()]
