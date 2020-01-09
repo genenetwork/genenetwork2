@@ -13,6 +13,18 @@
           <input type="button" class="btn btn-success reset" value="Reset">
         </div>
       </div>
+      <div id="export_code" style="width: 600px; display: none;">
+        <pre style="padding-top: 0px; padding-bottom: 0px; height: 150px;">
+          <code>
+# read into R
+trait <- read.csv("{{ this_trait.display_name}}.csv", header = TRUE, comment.char = "#")
+
+# read into python
+import pandas as pd
+trait = pd.read_csv("{{ this_trait.display_name}}.csv", header = 0, comment = "#")
+          </code>
+        </pre>
+      </div>
         {% set outer_loop = loop %}
         <div class="sample_group" style="width:{{ trait_table_width }};">
           <div style="position: relative;">

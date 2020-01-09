@@ -796,6 +796,11 @@ export_sample_table_data = function() {
 };
 
 $('.export_format').change(function() {
+  if (this.value  == "csv"){
+    $('#export_code').css("display", "block")
+  } else{
+    $('#export_code').css("display", "none")
+  }
   $('input[name=export_format]').val( this.value );
   $('.export_format').val( this.value );
 });
