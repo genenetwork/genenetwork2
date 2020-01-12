@@ -53,7 +53,7 @@
     <tr>
         <td><b>Database</b></td>
         <td>
-            <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" target="_blank">
+            <a href="http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" target="_blank">
                 {{ dataset.fullname }}
             </a>
         </td>
@@ -62,7 +62,7 @@
     <tr>
         <td><b>Target Score</b></td>
         <td>
-            <a href="http://genenetwork.org/blatInfo.html" target="_blank" title="Values higher than 2 for the specificity are good">
+            <a href="http://gn1.genenetwork.org/blatInfo.html" target="_blank" title="Values higher than 2 for the specificity are good">
                 BLAT Specificity
             </a>: 
             {{ "%0.3f" | format(this_trait.probe_set_specificity|float) }}
@@ -208,7 +208,7 @@
         </a>
         {% if this_trait.dataset.type == 'ProbeSet' %}
         {% if this_trait.symbol != None %}
-        <a target="_blank" href="http://www.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
+        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
         <button type="button" class="btn btn-default" title="Find similar expression data">Find</button>
         </a>
         {% endif %}
@@ -218,7 +218,7 @@
         </a>
         {% endif %}
         {% if this_trait.symbol != None %}
-        <a target="_blank" href="http://genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}">
+        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}">
         <button type="button" class="btn btn-default" title="Write or review comments about this gene">GeneWiki</button>
         </a>
         {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
@@ -228,12 +228,12 @@
         {% endif %}
         {% endif %}
         {% if show_probes == "True" %}
-        <a target="_blank" href="http://genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
+        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
         <button type="button" class="btn btn-default" title="Check sequence of probes">Probes</button>
         </a>
         {% endif %}
         {% endif %}
-        <a target="_blank" href="http://www.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
+        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
         <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1">View in GN1</button>
         </a>
     </div>
