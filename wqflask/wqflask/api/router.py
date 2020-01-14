@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-import os, io, csv, json, datetime, requests
+import os, io, csv, json, datetime, requests, yaml
 import zlib
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -754,25 +754,34 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     elif file_format == "rqtl2":
         memory_file = io.BytesIO()
-        filename = group_name + "_rqtl.zip"
+        if dataset_name:
+            filename = dataset_name
+        else:
+            filename = group_name
 
         if os.path.isfile("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name)):
-            config_file = open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))
-            geno_file = open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))
-            gmap_file = open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))
+            yaml_file = json.load(open("{0}/{1}.json".format(flat_files("genotype/rqtl2"), group_name)))
+            yaml_file["geno"] = filename + "_geno.csv"
+            yaml_file["gmap"] = filename + "_gmap.csv"
+            yaml_file["pheno"] = filename + "_pheno.csv"
+            config_file = [filename + ".json", json.dumps(yaml_file)]
+            #config_file = [filename + ".yaml", open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))]
+            geno_file = [filename + "_geno.csv", open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
+            gmap_file = [filename + "_gmap.csv", open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
             if dataset_name:
                 phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
             else:
                 phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
 
             with ZipFile(memory_file, 'w', compression=ZIP_DEFLATED) as zf:
-                for this_file in [config_file, geno_file, gmap_file]:
-                    zf.writestr(this_file.name.split("/")[-1], this_file.read())
-                zf.writestr("{0}_pheno.csv".format(group_name), phenotypes.content)
+                zf.writestr(config_file[0], config_file[1])
+                for this_file in [geno_file, gmap_file]:
+                    zf.writestr(this_file[0], this_file[1].read())
+                zf.writestr(filename + "_pheno.csv", phenotypes.content)
 
             memory_file.seek(0)
 
-            return send_file(memory_file, attachment_filename=filename, as_attachment=True)
+            return send_file(memory_file, attachment_filename=filename + ".zip", as_attachment=True)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     else:
