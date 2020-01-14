@@ -22,10 +22,13 @@ class Docs(object):
             self.title = result[0]
             self.content = result[1]
 
-        if 'edit' in start_vars and start_vars['edit'] == "true":
-            self.editable = "true"
-        else:
-            self.editable = "false"
+        self.editable = "false"
+        try:
+            if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
+                self.editable = "true"
+        except:
+            pass
+
 
 def update_text(start_vars):
     content = start_vars['ckcontent']
