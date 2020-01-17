@@ -65,7 +65,7 @@
               {% endif %}
               <br>
               <br>
-              <a href="javascript:export_mapping_results();" target="_blank" >Download Full Results</a>
+              <a id="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -513,6 +513,8 @@
             $('#marker_regression_form').attr('action', '/export_mapping_results');
             return $('#marker_regression_form').submit();
         }
+
+        $('#export_mapping_results').click(export_mapping_results);
 
         $('#browser_tab').click(function() {
           $('#gn1_map_options').css("display", "none")
