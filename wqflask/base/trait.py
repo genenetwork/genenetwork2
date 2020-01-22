@@ -61,6 +61,7 @@ class GeneralTrait(object):
         self.num_overlap = None
         self.strand_probe = None
         self.symbol = None
+        self.display_name = self.name
 
         self.LRS_score_repr = "N/A"
         self.LRS_location_repr = "N/A"
@@ -417,6 +418,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         trait_info = g.db.execute(query,
                                   (string.join(dataset.display_fields,','),
                                                dataset.type, trait.name)).fetchone()
+
     if trait_info:
         trait.haveinfo = True
 
@@ -431,7 +433,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 holder = holder.encode('latin1')
             setattr(trait, field, holder)
 
-        trait.display_name = trait.name
         if dataset.type == 'Publish':
             if trait.group_code:
                 trait.display_name = trait.group_code + "_" + str(trait.name)
