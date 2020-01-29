@@ -174,7 +174,7 @@ class SnpBrowser(object):
                         self.start_mb = result_snp[0][2]
                         self.end_mb = result_snp[0][3]
                     else:
-                        return
+                        return []
                 elif self.variant_type == "InDel":
                     if self.gene_name[0] == "I":
                         if self.species_id != 0:
@@ -188,7 +188,7 @@ class SnpBrowser(object):
                         self.start_mb = result_snp[0][2]
                         self.end_mb = result_snp[0][3]
                     else:
-                        return
+                        return []
 
         if self.variant_type == "SNP":
             mouse_query = """
