@@ -76,6 +76,7 @@ class CorrelationMatrix(object):
         self.all_sample_list = []
         self.traits = []
         self.insufficient_shared_samples = False
+        self.do_PCA = True
         this_group = self.trait_list[0][1].group.name #ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         for trait_db in self.trait_list:
             if trait_db[1].group.name != this_group:
@@ -108,7 +109,7 @@ class CorrelationMatrix(object):
                 self.sample_data.append(this_trait_vals)
 
             if len(this_trait_vals) < len(self.trait_list): #Shouldn't do PCA if there are more traits than observations/samples
-                return False
+                self.do_PCA = False
 
             self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
 
@@ -187,10 +188,13 @@ class CorrelationMatrix(object):
                 groups.append(1)
 
             try:
-                self.pca_works = "True"
-                self.pca_trait_ids = []
-                pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
-                self.loadings_array = self.process_loadings()
+                if self.do_PCA == True:
+                    self.pca_works = "True"
+                    self.pca_trait_ids = []
+                    pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+                    self.loadings_array = self.process_loadings()
+                else:
+                    self.pca_works = "False"
             except:
                 self.pca_works = "False"
 
