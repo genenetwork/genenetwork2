@@ -104,6 +104,20 @@ class GSearch(object):
             self.trait_count = len(trait_list)
             self.trait_list = json.dumps(trait_list)
 
+            self.header_fields = ['Index',
+                                'Record',
+                                'Species',
+                                'Group',
+                                'Tissue',
+                                'Dataset',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+
         elif self.type == "phenotype":
             sql = """
                 SELECT
@@ -194,3 +208,14 @@ class GSearch(object):
 
             self.trait_count = len(trait_list)
             self.trait_list = json.dumps(trait_list)
+
+            self.header_fields = ['Index',
+                                'Species',
+                                'Group',
+                                'Record',
+                                'Description',
+                                'Authors',
+                                'Year',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
