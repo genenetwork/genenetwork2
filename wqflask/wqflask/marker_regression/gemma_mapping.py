@@ -39,7 +39,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
               chr_list_string += this_chromosomes[i+1].name
 
       if covariates != "":
-          gen_covariates_file(this_dataset, covariates)
+          gen_covariates_file(this_dataset, covariates, samples)
 
       if use_loco == "True":
           generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
@@ -122,7 +122,7 @@ def gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename):
             else:
                 outfile.write(value + "\n")
 
-def gen_covariates_file(this_dataset, covariates):
+def gen_covariates_file(this_dataset, covariates, samples):
     covariate_list = covariates.split(",")
     covariate_data_object = []
     for covariate in covariate_list:
@@ -140,11 +140,12 @@ def gen_covariates_file(this_dataset, covariates):
         trait_sample_data = trait_ob.data
         logger.debug("SAMPLE DATA:", trait_sample_data)
         for index, sample in enumerate(trait_samples):
-            if sample in trait_sample_data:
-                sample_value = trait_sample_data[sample].value
-                this_covariate_data.append(sample_value)
-            else:
-                this_covariate_data.append("-9")
+            if sample in samples:
+                if sample in trait_sample_data:
+                    sample_value = trait_sample_data[sample].value
+                    this_covariate_data.append(sample_value)
+                else:
+                    this_covariate_data.append("-9")
         covariate_data_object.append(this_covariate_data)
 
     with open("{}/{}_covariates.txt".format(flat_files('mapping'), this_dataset.group.name), "w") as outfile:

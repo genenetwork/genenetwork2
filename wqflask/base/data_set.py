@@ -347,6 +347,15 @@ class DatasetGroup(object):
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
+    def get_genofiles(self):
+        jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
+        try:
+            f = open(jsonfile)
+        except:
+            return None
+        jsondata = json.load(f)
+        return jsondata['genofile']
+
     def get_samplelist(self):
         result = None
         key = "samplelist:v3:" + self.name

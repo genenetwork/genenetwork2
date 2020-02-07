@@ -161,7 +161,7 @@ class ShowTrait(object):
         for i, this_chr in enumerate(self.dataset.species.chromosomes.chromosomes):
             self.chr_list.append([self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
 
-        self.genofiles = get_genofiles(self.dataset)
+        self.genofiles = self.dataset.group.get_genofiles()
 
         self.has_num_cases = has_num_cases(self.this_trait)
 
@@ -507,15 +507,6 @@ def get_nearest_marker(this_trait, this_db):
         #return "", ""
     else:
         return result[0][0]
-
-def get_genofiles(this_dataset):
-    jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, this_dataset.group.name)
-    try:
-        f = open(jsonfile)
-    except:
-        return None
-    jsondata = json.load(f)
-    return jsondata['genofile']
 
 def get_table_widths(sample_groups, has_num_cases=False):
     stats_table_width = 250

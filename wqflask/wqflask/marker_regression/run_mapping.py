@@ -61,33 +61,42 @@ class RunMapping(object):
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
 
+        #ZS: Sometimes a group may have a genofile that only includes a subset of samples
+        genofile_samplelist = []
+        if 'genofile' in start_vars:
+          if start_vars['genofile'] != "":
+            self.genofile_string = start_vars['genofile']
+            self.dataset.group.genofile = self.genofile_string.split(":")[0]
+            genofile_samplelist = get_genofile_samplelist(self.dataset)
+
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         self.vals = []
         if 'samples' in start_vars:
             self.samples = start_vars['samples'].split(",")
             for sample in self.samples:
-                value = start_vars.get('value:' + sample)
-                if value:
-                    self.vals.append(value)
+                if (len(genofile_samplelist) == 0) or (sample in genofile_samplelist):
+                    value = start_vars.get('value:' + sample)
+                    if value:
+                        self.vals.append(value)
         else:
             self.samples = []
 
-            for sample in self.dataset.group.samplelist:
-                # sample is actually the name of an individual
-                in_trait_data = False
-                for item in self.this_trait.data:
-                    if self.this_trait.data[item].name == sample:
-                        value = start_vars['value:' + self.this_trait.data[item].name]
-                        self.samples.append(self.this_trait.data[item].name)
-                        self.vals.append(value)
-                        in_trait_data = True
-                        break
-                if not in_trait_data:
-                    value = start_vars.get('value:' + sample)
-                    if value:
-                        self.samples.append(sample)
-                        self.vals.append(value)
+            for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
+                if (len(genofile_samplelist) == 0) or (sample in genofile_samplelist):
+                    in_trait_data = False
+                    for item in self.this_trait.data:
+                        if self.this_trait.data[item].name == sample:
+                            value = start_vars['value:' + self.this_trait.data[item].name]
+                            self.samples.append(self.this_trait.data[item].name)
+                            self.vals.append(value)
+                            in_trait_data = True
+                            break
+                    if not in_trait_data:
+                        value = start_vars.get('value:' + sample)
+                        if value:
+                            self.samples.append(sample)
+                            self.vals.append(value)
 
         self.num_vals = start_vars['num_vals']
 
@@ -177,10 +186,6 @@ class RunMapping(object):
             self.showGenes = "ON"
             self.viewLegend = "ON"
 
-        if 'genofile' in start_vars:
-          if start_vars['genofile'] != "":
-            self.genofile_string = start_vars['genofile']
-            self.dataset.group.genofile = self.genofile_string.split(":")[0]
         self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.first_run = True
@@ -321,7 +326,7 @@ class RunMapping(object):
 
           else:
               self.qtl_results = []
-              self.qtl_results_for_browser = []
+              self.results_for_browser = []
               self.annotations_for_browser = []
               highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
               for marker in results:
@@ -357,7 +362,7 @@ class RunMapping(object):
                   else:
                       browser_marker['p_wald'] = 0
 
-                  self.qtl_results_for_browser.append(browser_marker)
+                  self.results_for_browser.append(browser_marker)
                   self.annotations_for_browser.append(annot_marker)
                   if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                       if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
@@ -365,19 +370,28 @@ class RunMapping(object):
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                           self.qtl_results.append(marker)
 
-              browser_files = write_input_for_browser(self.dataset, self.qtl_results_for_browser, self.annotations_for_browser)
-
               with Bench("Exporting Results"):
                   export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
               with Bench("Trimming Markers for Figure"):
                   if len(self.qtl_results) > 30000:
                       self.qtl_results = trim_markers_for_figure(self.qtl_results)
+                      self.results_for_browser = trim_markers_for_figure(self.results_for_browser)
+                      filtered_annotations = []
+                      for marker in self.results_for_browser:
+                          for annot_marker in self.annotations_for_browser:
+                              if annot_marker['rs'] == marker['rs']:
+                                  filtered_annotations.append(annot_marker)
+                                  break
+                      self.annotations_for_browser = filtered_annotations
+                      browser_files = write_input_for_browser(self.dataset, self.results_for_browser, self.annotations_for_browser)
+                  else:
+                      browser_files = write_input_for_browser(self.dataset, self.results_for_browser, self.annotations_for_browser)
 
               with Bench("Trimming Markers for Table"):
                   self.trimmed_markers = trim_markers_for_table(results)
 
-              chr_lengths = get_chr_lengths(self.mapping_scale, self.dataset, self.qtl_results_for_browser)
+              chr_lengths = get_chr_lengths(self.mapping_scale, self.dataset, self.qtl_results)
 
               #ZS: For zooming into genome browser, need to pass chromosome name instead of number
               if self.dataset.group.species == "mouse":
@@ -498,7 +512,9 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
                 output_file.write("\n")
 
 def trim_markers_for_figure(markers):
-    if 'lod_score' in markers[0].keys():
+    if 'p_wald' in markers[0].keys():
+        score_type = 'p_wald'
+    elif 'lod_score' in markers[0].keys():
         score_type = 'lod_score'
     else:
         score_type = 'lrs_value'
@@ -508,7 +524,22 @@ def trim_markers_for_figure(markers):
     med_counter = 0
     high_counter = 0
     for marker in markers:
-        if score_type == 'lod_score':
+        if score_type == 'p_wald':
+            if marker[score_type] > 0.1:
+                if low_counter % 20 == 0:
+                    filtered_markers.append(marker)
+                low_counter += 1
+            elif 0.1 >= marker[score_type] > 0.01:
+                if med_counter % 10 == 0:
+                    filtered_markers.append(marker)
+                med_counter += 1
+            elif 0.01 >= marker[score_type] > 0.001:
+                if high_counter % 2 == 0:
+                    filtered_markers.append(marker)
+                high_counter += 1
+            else:
+                filtered_markers.append(marker)
+        elif score_type == 'lod_score':
             if marker[score_type] < 1:
                 if low_counter % 20 == 0:
                     filtered_markers.append(marker)
@@ -596,3 +627,13 @@ def get_chr_lengths(mapping_scale, dataset, qtl_results):
                     highest_pos = float(result['ps'])
 
     return chr_lengths
+
+def get_genofile_samplelist(dataset):
+    genofile_samplelist = []
+
+    genofile_json = dataset.group.get_genofiles()
+    for genofile in genofile_json:
+        if genofile['location'] == dataset.group.genofile and 'sample_list' in genofile:
+            genofile_samplelist = genofile['sample_list']
+
+    return genofile_samplelist
