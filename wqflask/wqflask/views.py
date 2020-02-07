@@ -66,6 +66,7 @@ from utility.benchmark import Bench
 from pprint import pformat as pf
 
 from wqflask import user_manager
+
 from wqflask import collect
 from wqflask.database import db_session
 
@@ -792,6 +793,12 @@ def snp_browser_page():
     template_vars = snp_browser.SnpBrowser(request.args)
 
     return render_template("snp_browser.html", **template_vars.__dict__)
+
+@app.route("/tutorial/WebQTLTour", methods=('GET',))
+def tutorial_page():
+    #ZS: Currently just links to GN1
+    logger.info(request.url)
+    return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
