@@ -158,9 +158,9 @@
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                             'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples']
 
-  $("#rqtl_geno_compute").on("click", (function(_this) {
+  $(".rqtl_tab, #rqtl_geno_compute").on("click", (function(_this) {
     return function() {
-      if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_compute"){
+      if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
         var form_data, url;
         url = "/loading";
         $('input[name=method]').val("rqtl_geno");
@@ -173,18 +173,7 @@
         $('input[name=tool_used]').val("Mapping");
         $('input[name=form_url]').val("/run_mapping");
         $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
-        if ($('input[name=pair_scan]:checked').val() == "true") {
-          run_pair_scan = confirm(runtime_warning_text)
-          if (run_pair_scan == true) {
-            submit_special(url);
-          }
-          else {
-            return false
-          }
-        }
-        else {
-          return submit_special(url);
-        }
+        return submit_special(url);
       } else {
         return true
       }

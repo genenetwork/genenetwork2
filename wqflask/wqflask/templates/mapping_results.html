@@ -160,9 +160,11 @@
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
+            {% if mapping_method == "gemma" or mapping_method == "reaper" %}
             <li id="browser_tab">
                 <a href="#browser_holder" data-toggle="tab" aria-expanded="true">Genome Browser</a>
             </li>
+            {% endif %}
           </ul>
           <div class="tab-content" style="overflow-x: auto;">
             <div class="tab-pane active" id="gn1_map">
@@ -175,6 +177,7 @@
                   {% endif %}
               </div>
             </div>
+            {% if mapping_method == "gemma" or mapping_method == "reaper" %}
             <div class="tab-pane" id="browser_holder" style="height: 600px;">
                 <div id="browser" style="margin-right: 20px; width: 90%;">
                     <div id="controls">
@@ -195,6 +198,7 @@
                     <div id="infoBox"></div>
                 </div>
             </div>
+            {% endif %}
           </div>
         </div>
         <div>
@@ -336,7 +340,9 @@
     </script>
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    {% if mapping_method == "gemma" or mapping_method == "reaper" %}
     <script language="javascript" type="text/javascript" src="/static/new/javascript/init_genome_browser.js"></script>
+    {% endif %}
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {

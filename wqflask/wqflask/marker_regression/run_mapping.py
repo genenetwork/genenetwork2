@@ -623,8 +623,8 @@ def get_chr_lengths(mapping_scale, dataset, qtl_results):
                 this_chr = int(result['chr'])
                 highest_pos = 0
             else:
-                if float(result['ps']) > highest_pos:
-                    highest_pos = float(result['ps'])
+                if float(result['Mb']) > highest_pos:
+                    highest_pos = float(result['Mb'])
 
     return chr_lengths
 
