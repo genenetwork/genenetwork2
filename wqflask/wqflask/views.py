@@ -65,6 +65,8 @@ from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
+#from wqflask import user_login
+#from wqflask import user_session
 from wqflask import user_manager
 
 from wqflask import collect
@@ -270,8 +272,8 @@ def news():
 @app.route("/references")
 def references():
     doc = docs.Docs("references", request.args)
-    return render_template("docs.html", **doc.__dict__)
-    # return render_template("reference.html")
+    # return render_template("docs.html", **doc.__dict__)
+    return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
@@ -281,7 +283,8 @@ def intro():
 @app.route("/policies")
 def policies():
     doc = docs.Docs("policies", request.args)
-    return render_template("docs.html", **doc.__dict__)
+    return render_template("policies.html")
+    # return render_template("docs.html", **doc.__dict__)
 
 @app.route("/links")
 def links():
@@ -292,7 +295,8 @@ def links():
 @app.route("/environments")
 def environments():
     doc = docs.Docs("environments", request.args)
-    return render_template("docs.html", **doc.__dict__)
+    # return render_template("docs.html", **doc.__dict__)
+    return render_template("environments.html", **doc.__dict__)
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
