@@ -23,11 +23,12 @@ class Docs(object):
             self.content = result[1]
 
         self.editable = "false"
-        try:
-            if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
-                self.editable = "true"
-        except:
-            pass
+        # ZS: Removing option to edit to see if text still gets vandalized
+        # try:
+        #     if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
+        #         self.editable = "true"
+        # except:
+        #     pass
 
 
 def update_text(start_vars):
