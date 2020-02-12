@@ -12,11 +12,18 @@ from flask import (render_template, flash)
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+def is_redis_available():
+    try:
+        Redis.ping()
+    except:
+        return False
+    return True
+
 def get_user_id(column_name, column_value):
     user_list = Redis.hgetall("users")
     for key in user_list:
         user_ob = json.loads(user_list[key])
-        if user_ob[column_name] == column_value:
+        if column_name in user_ob and user_ob[column_name] == column_value:
             return key
 
     return None
@@ -28,7 +35,7 @@ def get_user_by_unique_column(column_name, column_value):
     if column_name != "user_id":
         for key in user_list:
             user_ob = json.loads(user_list[key])
-            if user_ob[column_name] == column_value:
+            if column_name in user_ob and user_ob[column_name] == column_value:
                 item_details = user_ob
     else:
         item_details = json.loads(user_list[column_value])
@@ -70,4 +77,4 @@ def check_verification_code(code):
         return user_details
     else:
         return None
-        #flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+        flash("Invalid code: Password reset code does not exist or might have expired!", "error")
