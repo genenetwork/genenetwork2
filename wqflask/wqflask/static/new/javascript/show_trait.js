@@ -632,19 +632,40 @@ $('.reset').click(function() {
   edit_data_change();
 });
 
-log_normalize_data = function() {
+log2_normalize_data = function(zero_to_one_vals_exist) {
   return $('.trait_value_input').each((function(_this) {
     return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
+      current_value = $(element).data("value")
       if(isNaN(current_value)) {
         return current_value
       } else {
+        if (zero_to_one_vals_exist){
+          current_value = parseFloat(current_value) + 1;
+        }
         $(element).val(Math.log2(current_value).toFixed(3));
         return Math.log2(current_value).toFixed(3)
       }
     };
   })(this));
 };
+
+log10_normalize_data = function(zero_to_one_vals_exist) {
+  return $('.trait_value_input').each((function(_this) {
+    return function(_index, element) {
+      current_value = $(element).data("value")
+      if(isNaN(current_value)) {
+        return current_value
+      } else {
+        if (zero_to_one_vals_exist){
+          current_value = parseFloat(current_value) + 1;
+        }
+        $(element).val(Math.log10(current_value).toFixed(3));
+        return Math.log10(current_value).toFixed(3)
+      }
+    };
+  })(this));
+};
+
 
 sqrt_normalize_data = function() {
   return $('.edit_sample_value').each((function(_this) {
@@ -703,12 +724,36 @@ zscore_data = function() {
   })(this));
 };
 
+check_for_zero_to_one_vals = function() {
+  zero_to_one_vals_exist = false
+  $('.trait_value_input').each(function() {
+    current_value = $(this).data("value")
+    if(isNaN(current_value)) {
+      return;
+    } else {
+      current_value = parseFloat(current_value)
+      if (0 < current_value && current_value < 1){
+        zero_to_one_vals_exist = true
+        return false;
+      }
+    }
+  });
+  return zero_to_one_vals_exist
+}
+
 normalize_data = function() {
-  if ($('#norm_method option:selected').val() == 'log2'){
-    if ($('input[name="transform"]').val() != "log2") {
-      log_normalize_data()
+  if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
+    zero_to_one_vals_exist = check_for_zero_to_one_vals();
+    if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
+      log2_normalize_data(zero_to_one_vals_exist)
       $('input[name="transform"]').val("log2")
       $('span[name="transform_text"]').text(" - log2 transformed")
+    } else {
+      if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
+        log10_normalize_data(zero_to_one_vals_exist)
+        $('input[name="transform"]').val("log10")
+        $('span[name="transform_text"]').text(" - log10 transformed")
+      }
     }
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
