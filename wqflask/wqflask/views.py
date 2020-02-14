@@ -220,8 +220,15 @@ def gsearch_updating():
 @app.route("/docedit")
 def docedit():
     logger.info(request.url)
-    doc = docs.Docs(request.args['entry'], request.args)
-    return render_template("docedit.html", **doc.__dict__)
+    try:
+        if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
+            doc = docs.Docs(request.args['entry'], request.args)
+            return render_template("docedit.html", **doc.__dict__)
+        else:
+            return "You shouldn't be here!"
+    except:
+        return "You shouldn't be here!"
+
 
 @app.route('/generated/<filename>')
 def generated_file(filename):
@@ -272,8 +279,8 @@ def news():
 @app.route("/references")
 def references():
     doc = docs.Docs("references", request.args)
-    # return render_template("docs.html", **doc.__dict__)
-    return render_template("reference.html")
+    return render_template("docs.html", **doc.__dict__)
+    #return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
@@ -283,20 +290,20 @@ def intro():
 @app.route("/policies")
 def policies():
     doc = docs.Docs("policies", request.args)
-    return render_template("policies.html")
-    # return render_template("docs.html", **doc.__dict__)
+    #return render_template("policies.html")
+    return render_template("docs.html", **doc.__dict__)
 
 @app.route("/links")
 def links():
-    #doc = docs.Docs("links")
+    #doc = docs.Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("links.html")
 
 @app.route("/environments")
 def environments():
     doc = docs.Docs("environments", request.args)
-    # return render_template("docs.html", **doc.__dict__)
-    return render_template("environments.html", **doc.__dict__)
+    return render_template("docs.html", **doc.__dict__)
+    #return render_template("environments.html", **doc.__dict__)
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
