@@ -569,6 +569,20 @@ block_by_index = function() {
   _ref = index_string.split(",");
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     index_set = _ref[_i];
+    /*
+    if (index_set.indexOf('<') !== -1) {
+      try {
+        start_index = parseInt(index_set.split("<")[0]);
+        end_index = parseInt(index_set.split("<")[1]);
+        for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
+          index_list.push(index);
+        }
+      } catch (_error) {
+        error = _error;
+        alert("Syntax error");
+      }
+    }
+    */
     if (index_set.indexOf('-') !== -1) {
       try {
         start_index = parseInt(index_set.split("-")[0]);
@@ -1041,7 +1055,8 @@ if (js_data.num_values < 256) {
         tickfont: {
           size: 16
         },
-        tickformat: tick_digits
+        tickformat: tick_digits,
+        fixedrange: true
     },
     width: bar_chart_width,
     height: 600,
@@ -1096,7 +1111,8 @@ root.histogram_layout = {
            tickfont: {
              size: 16
            },
-           automargin: true
+           automargin: true,
+           fixedrange: true
          },
   width: 500,
   height: 600,
