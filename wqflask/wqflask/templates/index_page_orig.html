@@ -53,22 +53,22 @@
 
                                 <div class="form-group">
                                     <label for="tissue" class="col-xs-1 control-label" style="width: 65px !important;">Type:</label>
-                                    <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                    <div class="col-xs-10 controls input-append" style="display: flex; padding-left: 20px;">
                                         <div class="col-9">
                                           <select name="type" id="type" class="form-control" style="width: 340px !important;"><option>Loading...</option></select>
+                                        </div>
+                                        <div class="col-3" style="margin-left: 10px;">
+                                            <button type="button" id="dataset_info" class="btn btn-primary form-control" style="width: 75px !important;">Info</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="dataset" class="col-xs-1 control-label" style="width: 65px !important;">Dataset:</label>
-                                    <div class="col-xs-10 controls input-append" style="display: flex; padding-left: 20px;">
+                                    <div class="col-xs-10 controls" style="display: flex; padding-left: 20px;">
                                         <div class="col-9">
-                                          <select name="dataset" id="dataset" class="form-control" style="width: 365px !important;"><option>Loading...</option></select>
+                                          <select name="dataset" id="dataset" class="form-control" style="max-width: 550px; width: 450px !important;"><option>Loading...</option></select>
                                           <i class="icon-question-sign"></i>
-                                        </div>
-                                        <div class="col-3" style="margin-left: 10px;">
-                                          <button type="button" id="dataset_info" class="btn btn-primary form-control" style="width: 75px !important;">Info</button>
                                         </div>
                                     </div>
                                 </div>
@@ -290,7 +290,7 @@
                   <li>Select a <b>Dataset</b></li>
 
                   <li>Enter terms in the search field: words,
-                  genes, ID numbers, probes, advanced search commands</li>
+                  genes, probes, advanced search commands</li>
 
                   <li>Click the <b>Search</b> button</li>
 
