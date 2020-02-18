@@ -5,6 +5,7 @@ import os
 import datetime
 import cPickle
 import uuid
+import requests
 import json as json
 
 from collections import OrderedDict
@@ -128,6 +129,8 @@ class ShowTrait(object):
         trait_units = get_trait_units(self.this_trait)
         self.get_external_links()
         self.build_correlation_tools()
+
+        self.ncbi_summary = get_ncbi_summary(self.this_trait)
 
         #Get nearest marker for composite mapping
         if not self.temp_trait:
@@ -561,3 +564,16 @@ def check_if_attr_exists(the_trait, id_type):
             return True
     else:
         return False
+
+def get_ncbi_summary(this_trait):
+    if check_if_attr_exists(this_trait, 'geneid'):
+        #ZS: Need to switch this try/except to something that checks the output later
+        try:
+            response = requests.get("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=%s&retmode=json" % this_trait.geneid)
+            logger.debug("NCBI:", json.loads(response.content)['result'][this_trait.geneid])
+            summary = json.loads(response.content)['result'][this_trait.geneid]['summary']
+            return summary
+        except:
+            return None
+    else:
+        return None

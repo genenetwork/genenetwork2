@@ -50,6 +50,12 @@
         <td>{{ this_trait.location_fmt }}</td>
     </tr>
     {% endif %}
+    {% if ncbi_summary != None and ncbi_summary != "" %}
+    <tr>
+        <td><b>Summary</b></td>
+        <td>{{ ncbi_summary }}</td>
+    </tr>
+    {% endif %}
     <tr>
         <td><b>Database</b></td>
         <td>
