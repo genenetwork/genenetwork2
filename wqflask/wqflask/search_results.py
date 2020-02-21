@@ -81,7 +81,12 @@ views.py).
         assert(is_str(kw.get('dataset')))
         self.dataset = create_dataset(kw['dataset'], dataset_type)
         logger.debug("search_terms:", self.search_terms)
-        self.search()
+
+        #ZS: I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
+        try:
+            self.search()
+        except:
+            self.search_term_exists = False
         if self.search_term_exists:
             self.gen_search_result()
 
