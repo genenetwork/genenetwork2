@@ -675,10 +675,12 @@ def mapping_results_page():
     else:
         logger.info("Cache miss!!!")
         with Bench("Total time in RunMapping"):
-            template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
-
-        if template_vars.no_results:
-            rendered_template = render_template("mapping_error.html")
+            try:
+                template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+                if template_vars.no_results:
+                    rendered_template = render_template("mapping_error.html")
+            except:
+                rendered_template = render_template("mapping_error.html")
         else:
             #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
