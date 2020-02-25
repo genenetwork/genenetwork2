@@ -119,6 +119,12 @@ class GSearch(object):
                                 'Additive Effect']
 
         elif self.type == "phenotype":
+            search_term = self.terms
+            group_clause = ""
+            if "_" in self.terms:
+                if len(self.terms.split("_")[0]) == 3:
+                    search_term = self.terms.split("_")[1]
+                    group_clause = "AND InbredSet.`InbredSetCode` = '{}'".format(self.terms.split("_")[0])
             sql = """
                 SELECT
                 Species.`Name`,
@@ -138,21 +144,22 @@ class GSearch(object):
                 WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
                 AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
                 AND InbredSet.`SpeciesId`=Species.`Id`
+                {0}
                 AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
                 AND PublishXRef.`PublicationId`=Publication.`Id`
-                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Phenotype.Lab_code REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Publication.PubMed_ID REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Publication.Abstract REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Publication.Title REGEXP "[[:<:]]%s[[:>:]]"
-                    OR Publication.Authors REGEXP "[[:<:]]%s[[:>:]]"
-                    OR PublishXRef.Id REGEXP "[[:<:]]%s[[:>:]]")
+                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Phenotype.Lab_code REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Publication.PubMed_ID REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Publication.Abstract REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Publication.Title REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR Publication.Authors REGEXP "[[:<:]]{1}[[:>:]]"
+                    OR PublishXRef.Id REGEXP "[[:<:]]{1}[[:>:]]")
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000
-                """ % (self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms)
+                """.format(group_clause, search_term)
             logger.sql(sql)
             re = g.db.execute(sql).fetchall()
             trait_list = []
@@ -161,7 +168,10 @@ class GSearch(object):
                     this_trait = {}
                     this_trait['index'] = i + 1
                     this_trait['name'] = str(line[4])
-                    this_trait['display_name'] = this_trait['name']
+                    if len(str(line[12])) == 3:
+                        this_trait['display_name'] = str(line[12]) + "_" + this_trait['name']
+                    else:
+                        this_trait['display_name'] = this_trait['name']
                     this_trait['dataset'] = line[2]
                     this_trait['dataset_fullname'] = line[3]
                     this_trait['hmac'] = user_manager.data_hmac('{}:{}'.format(line[4], line[2]))
