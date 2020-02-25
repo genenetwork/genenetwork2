@@ -178,7 +178,7 @@ class DisplayMappingResults(object):
         self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
         if self.dataset.group.species == "rat":
-            self._ucscDb = "rn3"
+            self._ucscDb = "rn6"
         elif self.dataset.group.species == "mouse":
             self._ucscDb = "mm9"
         else:
