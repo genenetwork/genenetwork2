@@ -679,9 +679,11 @@ def mapping_results_page():
                 template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
                 if template_vars.no_results:
                     rendered_template = render_template("mapping_error.html")
+                    return rendered_template
             except:
                 rendered_template = render_template("mapping_error.html")
-        else:
+                return rendered_template
+
             #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                     default=json_default_handler,
