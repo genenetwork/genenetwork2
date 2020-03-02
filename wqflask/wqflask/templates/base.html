@@ -7,8 +7,8 @@
     <title>{% block title %}{% endblock %}</title>
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" type="image/png" sizes="64x64" href="/static/new/images/ipad_icon3.png">
-    <link rel="apple-touch-icon" type="image/png" sizes="64x64" href="/static/new/images/ipad_icon3.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/non-responsive.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/docs.css" />
@@ -124,65 +124,75 @@
     {% endblock %}
 
     <footer class="footer">
-      <div class="container">
-        <p>	Web services initiated January, 1994 as
-        <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">
-            The Portable Dictionary of the Mouse Genome
-        </a>; June 15, 2001 as <a href="https://www.ncbi.nlm.nih.gov/pubmed/15043217">WebQTL</a>; and Jan 5, 2005 as GeneNetwork.
-        </p>
-        <p>
-          This site is currently operated by 
-            <a href="mailto:rwilliams@uthsc.edu">Rob Williams</a>,
-            <a href="http://thebird.nl/">Pjotr Prins</a>,
-            <a href="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</a>,
-            <a href="mailto:acenteno@uthsc.edu">Arthur Centeno</a>,
-            and <a href="mailto:cfische7@uthsc.edu">Christian Fischer</a>.
-        </p>
-        <p>Design and code by Pjotr Prins, Zach Sloan, Arthur Centeno, Christan Fischer, Danny Arends, Sam Ockman, Lei Yan, Xiaodong Zhou, Christian Fernandez, 
-           Ning Liu, Rudi Alberts, Elissa Chesler, Sujoy Roy, Evan G. Williams, Alexander G. Williams, Kenneth Manly, Jintao Wang, and Robert W. Williams, 
-          <a href="http://genenetwork.org/credit.html">colleagues</a>.</p>
-          <br />
-        <p>GeneNetwork support from:</p>
-        <ul>
-            <li>
-                <a href="http://citg.uthsc.edu">
-                    The UT Center for Integrative and Translational Genomics
-                </a>
-            </li>
-            <li>
-                <a href="https://www.nigms.nih.gov/">NIGMS</a>
-                Systems Genetics and Precision Medicine Project (R01 GM123489, 2017-2021)
-            </li>
-            <li>
-                <a href="https://www.drugabuse.gov/">NIDA</a>
-                NIDA Core Center of Excellence in Transcriptomics, Systems Genetics, and the Addictome (P30 DA044223, 2017-2022)
-            </li>
-            <li>
-                <a href="http://www.nia.nih.gov/">NIA</a>
-                Translational Systems Genetics of Mitochondria, Metabolism, and Aging (R01AG043930, 2013-2018)
-            </li>
-            <li>
-                <a href="http://www.iniastress.org/">NIAAA</a>
-                Integrative Neuroscience Initiative on Alcoholism (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425, 2006-2017)
-            </li>
-            <li>
-                <a href="http://www.drugabuse.gov/">NIDA</a>, <a href="http://www.nimh.nih.gov/">NIMH</a>, and <a href="http://www.niaaa.nih.gov/">NIAAA</a>
-                (P20-DA 21131, 2001-2012)
-            </li>
-            <li>
-                NCI <a href="http://emice.nci.nih.gov/">MMHCC</a> (U01CA105417), NCRR, <a href="http://www.birncommunity.org/">BIRN</a>, (U24 RR021760)
-            </li>
-        </UL>
-        <!--</p>-->
-        <p>Published in
-                <a href="http://joss.theoj.org/papers/10.21105/joss.00025"><img src="https://camo.githubusercontent.com/846b750f582ae8f1d0b4f7e8fee78bed705c88ba/687474703a2f2f6a6f73732e7468656f6a2e6f72672f7061706572732f31302e32313130352f6a6f73732e30303032352f7374617475732e737667" alt="JOSS" data-canonical-src="http://joss.theoj.org/papers/10.21105/joss.00025/status.svg" style="max-width:100%;"></a>
-        </p>
-        <p>
-          Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</a> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
-        {% if version: %}
-        <p><small>GeneNetwork {{ version }}</small></p>
-        {% endif %}
+      <div class="row" style="margin: 10px; width: 100%; min-width: 1200px;">
+        <div class="col-xs-6">
+            <p>	Web services initiated January, 1994 as
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">
+                The Portable Dictionary of the Mouse Genome
+            </a>; June 15, 2001 as <a href="https://www.ncbi.nlm.nih.gov/pubmed/15043217">WebQTL</a>; and Jan 5, 2005 as GeneNetwork.
+            </p>
+            <p>
+            This site is currently operated by 
+                <a href="mailto:rwilliams@uthsc.edu">Rob Williams</a>,
+                <a href="http://thebird.nl/">Pjotr Prins</a>,
+                <a href="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</a>,
+                <a href="mailto:acenteno@uthsc.edu">Arthur Centeno</a>,
+                and <a href="mailto:cfische7@uthsc.edu">Christian Fischer</a>.
+            </p>
+            <p>Design and code by Pjotr Prins, Zach Sloan, Arthur Centeno, Christan Fischer, Danny Arends, Sam Ockman, Lei Yan, Xiaodong Zhou, Christian Fernandez, 
+            Ning Liu, Rudi Alberts, Elissa Chesler, Sujoy Roy, Evan G. Williams, Alexander G. Williams, Kenneth Manly, Jintao Wang, and Robert W. Williams, 
+            <a href="http://genenetwork.org/credit.html">colleagues</a>.</p>
+            <br />
+            <p>GeneNetwork support from:</p>
+            <ul>
+                <li>
+                    <a href="http://citg.uthsc.edu">
+                        The UT Center for Integrative and Translational Genomics
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.nigms.nih.gov/">NIGMS</a>
+                    Systems Genetics and Precision Medicine Project (R01 GM123489, 2017-2021)
+                </li>
+                <li>
+                    <a href="https://www.drugabuse.gov/">NIDA</a>
+                    NIDA Core Center of Excellence in Transcriptomics, Systems Genetics, and the Addictome (P30 DA044223, 2017-2022)
+                </li>
+                <li>
+                    <a href="http://www.nia.nih.gov/">NIA</a>
+                    Translational Systems Genetics of Mitochondria, Metabolism, and Aging (R01AG043930, 2013-2018)
+                </li>
+                <li>
+                    <a href="http://www.iniastress.org/">NIAAA</a>
+                    Integrative Neuroscience Initiative on Alcoholism (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425, 2006-2017)
+                </li>
+                <li>
+                    <a href="http://www.drugabuse.gov/">NIDA</a>, <a href="http://www.nimh.nih.gov/">NIMH</a>, and <a href="http://www.niaaa.nih.gov/">NIAAA</a>
+                    (P20-DA 21131, 2001-2012)
+                </li>
+                <li>
+                    NCI <a href="http://emice.nci.nih.gov/">MMHCC</a> (U01CA105417), NCRR, <a href="http://www.birncommunity.org/">BIRN</a>, (U24 RR021760)
+                </li>
+            </UL>
+            <!--</p>-->
+            <p>Published in
+                    <a href="http://joss.theoj.org/papers/10.21105/joss.00025"><img src="https://camo.githubusercontent.com/846b750f582ae8f1d0b4f7e8fee78bed705c88ba/687474703a2f2f6a6f73732e7468656f6a2e6f72672f7061706572732f31302e32313130352f6a6f73732e30303032352f7374617475732e737667" alt="JOSS" data-canonical-src="http://joss.theoj.org/papers/10.21105/joss.00025/status.svg" style="max-width:100%;"></a>
+            </p>
+            <p>
+            Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</a> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
+            {% if version: %}
+            <p><small>GeneNetwork {{ version }}</small></p>
+            {% endif %}
 
+        </div>
+        <div class="col-xs-2">
+            <a href="http://www.python.org/" target="_blank">
+                <img src="/static/new/images/PythonLogo.png" alt="Python Powered" border="0">
+            </a>
+            <a href="http://www.neuinfo.org" target="_blank">
+                <img src="/static/new/images/Nif.png" alt="Registered with Nif" border="0">
+            </a>
+        </div>
       </div>
     </footer>
 
