@@ -13,6 +13,7 @@ from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
 from db import webqtlDatabaseFunction
 from utility import webqtlUtil
+from utility import hmac
 
 from wqflask import app
 
@@ -24,8 +25,6 @@ from flask import Flask, g, request, url_for
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
-
-from wqflask import user_manager
 
 class GeneralTrait(object):
     """
@@ -304,7 +303,7 @@ def jsonable_table_row(trait, dataset_name, index):
             additive = "N/A"
         else:
             additive = "%.3f" % round(float(trait.additive), 2)
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.hmac_creation('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                 index,
                 '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                 trait.symbol,
@@ -320,7 +319,7 @@ def jsonable_table_row(trait, dataset_name, index):
         else:
             additive = "%.2f" % round(float(trait.additive), 2)
         if trait.pubmed_id:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.hmac_creation('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                     index,
                     '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                     trait.description_display,
@@ -330,7 +329,7 @@ def jsonable_table_row(trait, dataset_name, index):
                     trait.LRS_location_repr,
                     additive]
         else:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.hmac_creation('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                     index,
                     '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                     trait.description_display,
@@ -340,7 +339,7 @@ def jsonable_table_row(trait, dataset_name, index):
                     trait.LRS_location_repr,
                     additive]
     elif dataset.type == "Geno":
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.hmac_creation('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                 index,
                 '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                 trait.location_repr]

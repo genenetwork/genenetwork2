@@ -49,14 +49,13 @@ from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
-from utility import webqtlUtil, helper_functions, corr_result_helpers
+from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
 from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 import utility.webqtlUtil
 from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
-from wqflask import user_manager
 
 from MySQLdb import escape_string as escape
 
@@ -499,7 +498,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
     for i, trait in enumerate(corr_results):
         results_dict = {}
         if not for_api:
-            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + user_manager.data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
+            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + hmac.hmac_creation('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
             results_dict['index'] = i + 1
             results_dict['trait_id'] = "<a href='/show_trait?trait_id="+str(trait.name)+"&dataset="+str(dataset.name)+"'>"+str(trait.name)+"</a>"
         else:

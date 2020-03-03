@@ -24,11 +24,10 @@ from wqflask import do_search
 from utility import webqtlUtil,tools
 from db import webqtlDatabaseFunction
 
-from wqflask import user_manager
-
 from flask import render_template, Flask, g
 
 from utility import formatting
+from utility import hmac
 from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
 
 from utility.logger import getLogger
@@ -121,7 +120,7 @@ views.py).
             else:
                 trait_dict['display_name'] = this_trait.name
             trait_dict['dataset'] = this_trait.dataset.name
-            trait_dict['hmac'] = user_manager.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
+            trait_dict['hmac'] = hmac.hmac_creation('{}:{}'.format(this_trait.name, this_trait.dataset.name))
             if this_trait.dataset.type == "ProbeSet":
                 trait_dict['symbol'] = this_trait.symbol
                 trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
