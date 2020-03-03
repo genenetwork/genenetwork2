@@ -65,9 +65,8 @@ from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
-#from wqflask import user_login
-#from wqflask import user_session
-from wqflask import user_manager
+from wqflask import user_login
+from wqflask import user_session
 
 from wqflask import collect
 from wqflask.database import db_session
@@ -838,6 +837,8 @@ def browser_inputs():
         file_contents = json.load(the_file)
 
     return flask.jsonify(file_contents)
+
+
 
 ##########################################################################
 

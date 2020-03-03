@@ -254,7 +254,6 @@ JS_GN_PATH         = get_setting('JS_GN_PATH')
 
 GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
-GITHUB_AUTH_URL = None
 if GITHUB_CLIENT_ID != 'UNKNOWN' and GITHUB_CLIENT_SECRET:
     GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id=" + \
                       GITHUB_CLIENT_ID+"&client_secret="+GITHUB_CLIENT_SECRET
@@ -264,7 +263,7 @@ ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
 ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
 ORCID_AUTH_URL = None
 if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
-    ORCID_AUTH_URL = "https://sandbox.orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
+    ORCID_AUTH_URL = "https://orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
                       ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
