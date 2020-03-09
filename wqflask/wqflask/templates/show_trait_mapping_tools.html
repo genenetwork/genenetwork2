@@ -81,7 +81,6 @@
                             <font size="2">Select covariate(s) from a collection</font>
                             </div>
                             <div style="margin-left:20px;" class="col-xs-7">
-                              {% if g.user_session.logged_in %}
                               {% if g.user_session.num_collections < 1 %}
                               No collections available. Please add traits to a collection to use them as covariates.
                               {% else %}
@@ -90,16 +89,6 @@
                                 <button type="button" id="remove_covariates" class="btn btn-default" style="width: 80px;">Remove</button>
                               </div>
                               <textarea rows="3" cols="50" readonly placeholder="No covariates selected" style="overflow-y: scroll; resize: none; width: 200px;" class="selected_covariates"></textarea>
-                              {% endif %}
-                              {% elif g.cookie_session.display_num_collections() == "" %}
-                              No collections available. Please add traits to a collection to use them as covariates.
-                              {% else %}
-                              <div style="margin-bottom: 10px;" class="btn-group" role="group">
-                                <button type="button" id="select_covariates" class="btn btn-default">Select</button>
-                                <button type="button" id="remove_covariates" class="btn btn-default">Remove</button>
-                              </div>
-                              <br>
-                              <textarea rows="3" cols="30" readonly placeholder="No covariates selected" style="overflow-y: scroll; resize: none;" class="selected_covariates"></textarea>
                               {% endif %}
                             </div>
                         </div>

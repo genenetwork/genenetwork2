@@ -10,6 +10,7 @@
 
 	    {% if redis_is_available: %}
             <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form" id="loginUserForm">
+                 <input name="anon_id" type="hidden" value="{{ g.user_session.user_id }}">
                  <fieldset>
                     <div class="form-group">
                         <label style="text-align:left;" class="col-xs-1 control-label" for="email_address">Email&nbsp;Address</label>

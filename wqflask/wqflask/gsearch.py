@@ -70,7 +70,7 @@ class GSearch(object):
                     this_trait['name'] = line[5]
                     this_trait['dataset'] = line[3]
                     this_trait['dataset_fullname'] = line[4]
-                    this_trait['hmac'] = hmac.hmac_creation('{}:{}'.format(line[5], line[3]))
+                    this_trait['hmac'] = hmac.data_hmac('{}:{}'.format(line[5], line[3]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
@@ -174,7 +174,7 @@ class GSearch(object):
                         this_trait['display_name'] = this_trait['name']
                     this_trait['dataset'] = line[2]
                     this_trait['dataset_fullname'] = line[3]
-                    this_trait['hmac'] = hmac.hmac_creation('{}:{}'.format(line[4], line[2]))
+                    this_trait['hmac'] = hmac.data_hmac('{}:{}'.format(line[4], line[2]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     if line[9] != None and line[6] != None:

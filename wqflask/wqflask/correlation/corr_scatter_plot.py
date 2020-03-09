@@ -71,15 +71,8 @@ class CorrScatterPlot(object):
 
         sr_intercept_coords = get_intercept_coords(srslope, srintercept, sr_range, sr_range)
 
-        #vals_3 = []
-        #for sample in self.trait_3.data:
-        #    vals_3.append(self.trait_3.data[sample].value)
-
         self.collections_exist = "False"
-        if g.user_session.logged_in:
-            if g.user_session.num_collections > 0:
-                self.collections_exist = "True"
-        elif g.cookie_session.display_num_collections() != "":
+        if g.user_session.num_collections > 0:
             self.collections_exist = "True"
 
         self.js_data = dict(

@@ -21,9 +21,9 @@ from flask import (Flask, g, render_template, url_for, request, make_response,
 
 from wqflask import app
 from wqflask import pbkdf2
-from wqflask.hmac_func import hmac_creation
 from wqflask.user_session import UserSession
 
+from utility import hmac
 from utility.redis_tools import is_redis_available, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
 
 from utility.logger import getLogger
@@ -83,7 +83,7 @@ def encrypt_password(unencrypted_password, pwfields):
 def get_signed_session_id(user):
     session_id = str(uuid.uuid4())
 
-    session_id_signature = hmac_creation(session_id)
+    session_id_signature = hmac.hmac_creation(session_id)
     session_id_signed = session_id + ":" + session_id_signature
 
     #ZS: Need to check if this is ever actually used or exists
@@ -197,12 +197,14 @@ def login():
             if password_match: # If password correct
                 if user_details['confirmed']: # If account confirmed
                     import_col = "false"
+                    anon_id = ""
                     if 'import_collections' in params:
                         import_col = "true"
+                        anon_id = params['anon_id']
 
                     session_id_signed = get_signed_session_id(user_details)
                     flash("Thank you for logging in {}.".format(user_details['full_name']), "alert-success")
-                    response = make_response(redirect(url_for('index_page', import_collections = import_col)))
+                    response = make_response(redirect(url_for('index_page', import_collections = import_col, anon_id = anon_id)))
                     response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
                     return response
                 else:

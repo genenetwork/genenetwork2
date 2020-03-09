@@ -13,7 +13,7 @@ from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
 from wqflask import app
-from wqflask.hmac_func import hmac_creation
+from utility import hmac
 
 #from utility.elasticsearch_tools import get_elasticsearch_connection
 from utility.redis_tools import get_user_id, get_user_by_unique_column, get_user_collections, save_collections
@@ -28,12 +28,12 @@ def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
     assert len(the_uuid) == 36, "Is session_id a uuid?"
     assert separator == ":", "Expected a : here"
-    assert the_signature == hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
+    assert the_signature == hmac.hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
 
 def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
-    signature = hmac_creation(the_uuid)
+    signature = hmac.hmac_creation(the_uuid)
     uuid_signed = the_uuid + ":" + signature
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
@@ -153,7 +153,7 @@ class UserSession(object):
         return len(self.user_collections)
 
     def add_collection(self, collection_name, traits):
-        """Add collection into ElasticSearch"""
+        """Add collection into Redis"""
 
         collection_dict = {'id': unicode(uuid.uuid4()),
                            'name': collection_name,
@@ -255,6 +255,15 @@ class UserSession(object):
         collection_body = json.dumps(updated_collections)
 
         save_collections(self.redis_user_id, collection_body)
+
+    def import_traits_to_user(self, anon_id):
+        collections = get_user_collections(anon_id)
+        for collection in collections:
+            collection_exists = self.get_collection_by_name(collection['name'])
+            if collection_exists:
+                continue
+            else:
+                self.add_collection(collection['name'], collection['members'])
 
     def delete_session(self):
         # And more importantly delete the redis record

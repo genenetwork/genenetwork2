@@ -73,11 +73,7 @@
                         </li>
                         <li class="">
                             <a href="/collections/list">Collections
-                                {% if g.user_session.logged_in %}
                                 <span class="badge badge-info">{{ g.user_session.num_collections }}</span>
-                                {% else %}
-                                <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
-                                {% endif %}
                             </a>
                         </li>
                         <li class="">
