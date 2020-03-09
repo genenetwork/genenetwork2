@@ -85,6 +85,10 @@ def connect_db():
         g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
         logger.debug(g.db)
 
+@app.before_request
+def before_request():
+    g.user_session = user_session.UserSession()
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
