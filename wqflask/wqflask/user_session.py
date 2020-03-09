@@ -75,7 +75,7 @@ class UserSession(object):
                 response = make_response(redirect(url_for('login')))
                 #response.set_cookie(self.cookie_name, '', expires=0)
                 flash("Due to inactivity your session has expired. If you'd like please login again.")
-                return response
+                #return response
                 #return
             else:
                 self.record = dict(login_time = time.time(),
