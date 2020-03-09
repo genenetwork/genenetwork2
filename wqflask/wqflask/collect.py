@@ -226,3 +226,15 @@ def view_collection():
         return render_template("collections/view.html",
                            **collection_info
                            )
+
+@app.route("/collections/change_name", methods=('POST',))
+def change_collection_name():
+    params = request.form
+
+    collection_id = params['collection_id']
+    new_name = params['new_name']
+
+    g.user_session.change_collection_name(collection_id, new_name)
+
+    return new_name
+

@@ -169,11 +169,14 @@ class UserSession(object):
         return collection_dict['id']
 
     def change_collection_name(self, collection_id, new_name):
+        updated_collections = []
         for collection in self.user_collections:
+            updated_collection = collection
             if collection['id'] == collection_id:
-                collection['name'] = new_name
-                break
+                updated_collection['name'] = new_name
+            updated_collections.append(collection)
 
+        self.update_collections(updated_collections)
         return new_name
 
     def delete_collection(self, collection_id):

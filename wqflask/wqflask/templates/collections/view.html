@@ -9,8 +9,11 @@
 <!-- Start of body -->
 
     <div class="container" style="min-width: 1250px;">
-        <h1><input type="text" id="change_collection_name" style="display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"></h1>
-        <h1>{{ uc.name }} <!--<button class="btn btn-default" style="margin-bottom: 5px;" id="change_collection_name">Change Collection Name</button>--></h1>
+        <h1>
+            <span id="collection_name">{{ uc.name }}</span>
+            <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
+            <button class="btn btn-default" style="display: inline;" id="change_collection_name">Change Collection Name</button>
+        </h1>
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
         <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
@@ -158,7 +161,6 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
@@ -224,8 +226,28 @@
                 url = $(this).data("url")
                 return submit_special(url)
             });
+
+            $("#change_collection_name").on("click", function() {
+                if ($('input[name=new_collection_name]').css('display') == 'none') {
+                    $('input[name=new_collection_name]').css('display', 'inline');
+                    $('#collection_name').css('display', 'none');
+                } else {
+                    new_name = $('input[name=new_collection_name]').val()
+                    $.ajax({
+                        type: "POST",
+                        url: "/collections/change_name",
+                        data: {
+                            collection_id: $('input[name=uc_id]').val(),
+                            new_name: new_name
+                        }
+                    });
+                    $('input[name=new_collection_name]').css('display', 'none');
+                    $('input[name=collection_name]').val(new_name);
+                    $('#collection_name').text(new_name)
+                    $('#collection_name').css('display', 'inline');
+                }
+            });
         });
-        
     </script>
 
 
