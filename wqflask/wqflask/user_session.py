@@ -41,8 +41,8 @@ def create_signed_cookie():
 class UserSession(object):
     """Logged in user handling"""
 
-    user_cookie_name = 'session_id_v1'
-    anon_cookie_name = 'anon_user_v2'
+    user_cookie_name = 'session_id_v2'
+    anon_cookie_name = 'anon_user_v1'
 
     def __init__(self):
         user_cookie = request.cookies.get(self.user_cookie_name)
@@ -68,7 +68,6 @@ class UserSession(object):
         #ZS: Need to test this by setting the time-out to be really short or something
         if not self.record or self.record == []:
             if user_cookie:
-                logger.debug("NOT RECORD YES USER COOKIE")
                 self.logged_in = False
 
                 ########### Grrr...this won't work because of the way flask handles cookies
@@ -79,7 +78,6 @@ class UserSession(object):
                 #return response
                 #return
             else:
-                logger.debug("NOT RECORD NO USER COOKIE")
                 self.record = dict(login_time = time.time(),
                                     user_type = "anon",
                                     user_id = str(uuid.uuid4()))
@@ -87,7 +85,6 @@ class UserSession(object):
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
         else:
-            logger.debug("YES SELF.RECORD")
             if user_cookie:
                 self.logged_in = True
 
@@ -130,8 +127,6 @@ class UserSession(object):
             user_id = get_user_id("github_id", user_github_id)
         else: #ZS: Anonymous user
             return None
-
-        logger.debug("REDIS USER ID:", user_id)
 
         return user_id
 
