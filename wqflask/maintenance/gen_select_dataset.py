@@ -80,7 +80,8 @@ def parse_db_uri():
 
 def get_species():
     """Build species list"""
-    Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    #Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    Cursor.execute("select Name, MenuName from Species order by OrderId")
     species = list(Cursor.fetchall())
     return species
 
