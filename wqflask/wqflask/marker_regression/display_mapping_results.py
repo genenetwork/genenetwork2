@@ -1654,10 +1654,6 @@ class DisplayMappingResults(object):
 
         INTERCROSS = (self.genotype.type=="intercross")
 
-        LRSHeightThresh = drawAreaHeight
-        AdditiveHeightThresh = drawAreaHeight/2
-        DominanceHeightThresh = drawAreaHeight/2
-
         #draw the LRS scale
         #We first determine whether or not we are using a sliding scale.
         #If so, we need to compute the maximum LRS value to determine where the max y-value should be, and call this LRS_LOD_Max.
@@ -1694,7 +1690,9 @@ class DisplayMappingResults(object):
                         pass
 
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
+                if self.significant > LRS_LOD_Max:
+                    LRS_LOD_Max = self.significant * 1.1
+                #LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
             else:
                 LRS_LOD_Max = 1.15*LRS_LOD_Max
 
@@ -1715,6 +1713,12 @@ class DisplayMappingResults(object):
         LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
 
         yZero = yTopOffset + plotHeight
+        #LRSHeightThresh = drawAreaHeight
+        #AdditiveHeightThresh = drawAreaHeight/2
+        #DominanceHeightThresh = drawAreaHeight/2
+        LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
+        AdditiveHeightThresh = LRSHeightThresh/2
+        DominanceHeightThresh = LRSHeightThresh/2
 
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
@@ -1728,7 +1732,7 @@ class DisplayMappingResults(object):
         LRSAxisList = Plot.frange(LRSScale, LRS_LOD_Max, LRSScale)
         #make sure the user's value appears on the y-axis
         #update by NL 6-21-2011: round the LOD value to 100 when LRS_LOD_Max is equal to 460
-        LRSAxisList.append(round(LRS_LOD_Max))
+        LRSAxisList.append(ceil(LRS_LOD_Max))
 
         #ZS: Convert to int if all axis values are whole numbers
         all_int = True
@@ -1751,7 +1755,9 @@ class DisplayMappingResults(object):
         for item in LRSAxisList:
             if LRS_LOD_Max == 0.0:
                 LRS_LOD_Max = 0.000001
-            yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+            yTopOffset + 30*(zoom - 1)
+            #yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+            yLRS = yZero - (item/LRSAxisList[-1]) * LRSHeightThresh
             canvas.drawLine(xLeftOffset, yLRS, xLeftOffset - 4, yLRS, color=self.LRS_COLOR, width=1*zoom)
             if all_int:
                 scaleStr = "%d" % item
@@ -1761,8 +1767,10 @@ class DisplayMappingResults(object):
             canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
 
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-            significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
-            suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRS_LOD_Max
+            # significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
+            # suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRS_LOD_Max
+            significantY = yZero - self.significant*LRSHeightThresh/LRSAxisList[-1]
+            suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSAxisList[-1]
             startPosX = xLeftOffset
 
             #"Significant" and "Suggestive" Drawing Routine
@@ -1878,25 +1886,37 @@ class DisplayMappingResults(object):
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                 # for any lrs is over than 460(LRS max in this system), it will be reset to 460
+
+                yLRS = yZero - (item/LRSAxisList[-1]) * (yZero - yTopOffset + 30*(zoom - 1))
+                #yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+
+
                 if 'lrs_value' in qtlresult:
                     if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
+                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
-                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
+                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                     else:
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
+                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
+                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
                 else:
                     if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
-                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
+                        #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                     else:
                         if self.LRS_LOD == "LRS":
-                            Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
+                            Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
+                            #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
+                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
+                            #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
                     if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
