@@ -26,7 +26,7 @@
             <input type="hidden" name="form_url" value="" />
             <input type="hidden" name="trait_list" id="trait_list" value= "
             {% for this_trait in trait_obs %}
-                {{ this_trait.name }}:{{ this_trait.dataset.name }},
+                {{ this_trait.name }}:{{ this_trait.dataset.name }}:{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }},
             {% endfor %}" >
 
 
@@ -163,6 +163,7 @@
 {% block js %}
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
