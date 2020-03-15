@@ -1017,10 +1017,12 @@ get_bar_range = function(sample_vals, sample_errors = null){
 root.chart_range = get_bar_range(get_sample_vals(sample_lists[0]), get_sample_errors(sample_lists[0])[0])
 val_range = root.chart_range[1] - root.chart_range[0]
 
-if (val_range < 5){
-  tick_digits = '.1f'
+if (val_range < 0.05){
+  tick_digits = '.3f'
 } else if (val_range < 0.5) {
   tick_digits = '.2f'
+} else if (val_range < 5){
+  tick_digits = '.1f'
 } else {
   tick_digits = 'f'
 }
@@ -1045,7 +1047,7 @@ if (js_data.num_values < 256) {
         },
     },
     yaxis: {
-        title: js_data.unit_type,
+        title: "<b>" + js_data.unit_type + "</b>",
         range: root.chart_range,
         titlefont: {
           size: 16
