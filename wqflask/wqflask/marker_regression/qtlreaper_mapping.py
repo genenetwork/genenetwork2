@@ -97,7 +97,10 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                 except:
                     marker['chr'] = line.split("\t")[2]
                 marker['cM'] = float(line.split("\t")[3])
-                marker['Mb'] = float(line.split("\t")[4])
+                if float(line.split("\t")[4]) > 1000:
+                    marker['Mb'] = float(line.split("\t")[4])/1000000
+                else:
+                    marker['Mb'] = float(line.split("\t")[4])
                 if float(line.split("\t")[7]) != 1:
                     marker['p_value'] = float(line.split("\t")[7])
                 marker['lrs_value'] = float(line.split("\t")[5])
