@@ -43,10 +43,10 @@ def process_traits(unprocessed_traits):
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:
-        data, _separator, hmac = trait.rpartition(':')
+        data, _separator, the_hmac = trait.rpartition(':')
         data = data.strip()
         if g.user_session.logged_in:
-          assert hmac == hmac.data_hmac(data), "Data tampering?"
+          assert the_hmac == hmac.hmac_creation(data), "Data tampering?"
         traits.add(str(data))
 
     return traits
