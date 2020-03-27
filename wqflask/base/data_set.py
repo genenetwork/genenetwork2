@@ -307,9 +307,11 @@ class DatasetGroup(object):
 
         mapping_id = g.db.execute("select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
         if mapping_id == "1":
-            mapping_names = ["QTLReaper", "R/qtl"]
+            mapping_names = ["GEMMA", "QTLReaper", "R/qtl"]
         elif mapping_id == "2":
-            mapping_names = ["GEMMA"]
+            mapping_names = []
+        elif mapping_id == "3":
+            mapping_names = ["R/qtl"]
         elif mapping_id == "4":
             mapping_names = ["GEMMA", "PLINK"]
         else:
@@ -392,7 +394,10 @@ class DatasetGroup(object):
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
-            full_filename = str(locate(self.genofile, 'genotype'))
+            if "RData" in self.genofile: #ZS: This is a temporary fix; I need to change the way the JSON files that point to multiple genotype files are structured to point to other file types like RData
+                full_filename = str(locate(self.genofile.split(".")[0] + ".geno", 'genotype'))
+            else:
+                full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
 

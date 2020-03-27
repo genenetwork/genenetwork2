@@ -81,7 +81,6 @@ class RunMapping(object):
                         self.vals.append(value)
         else:
             self.samples = []
-
             for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
                 if (len(genofile_samplelist) == 0) or (sample in genofile_samplelist):
                     in_trait_data = False
@@ -186,7 +185,7 @@ class RunMapping(object):
             self.showGenes = "ON"
             self.viewLegend = "ON"
 
-        self.dataset.group.get_markers()
+        #self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.first_run = True
             self.output_files = None

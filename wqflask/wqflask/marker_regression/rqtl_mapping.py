@@ -9,8 +9,6 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control, control_marker, manhattan_plot, pair_scan):
-    geno_to_rqtl_function(dataset)
-
     ## Get pointers to some common R functions
     r_library     = ro.r["library"]                 # Map the library function
     r_c           = ro.r["c"]                       # Map the c function
@@ -21,16 +19,24 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
     print(r_library("qtl"))                         # Load R/qtl
 
     ## Get pointers to some R/qtl functions
-    scanone         = ro.r["scanone"]               # Map the scanone function
-    scantwo         = ro.r["scantwo"]               # Map the scantwo function
-    calc_genoprob   = ro.r["calc.genoprob"]         # Map the calc.genoprob function
-    GENOtoCSVR      = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
+    scanone                    = ro.r["scanone"]               # Map the scanone function
+    scantwo                    = ro.r["scantwo"]               # Map the scantwo function
+    calc_genoprob              = ro.r["calc.genoprob"]         # Map the calc.genoprob function
 
     crossname = dataset.group.name
-    genofilelocation  = locate(crossname + ".geno", "genotype")
-    crossfilelocation = TMPDIR + crossname + ".cross"
+    try:
+        generate_cross_from_rdata(dataset)
+        read_cross_from_rdata      = ro.r["generate_cross_from_rdata"] # Map the local read_cross_from_rdata function
+        genofilelocation  = locate(crossname + ".RData", "genotype/rdata")
+        cross_object = read_cross_from_rdata(genofilelocation)  # Map the local GENOtoCSVR function
+    except:
+        generate_cross_from_geno(dataset)
+        GENOtoCSVR                 = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
+        crossfilelocation = TMPDIR + crossname + ".cross"
+        genofilelocation  = locate(crossname + ".geno", "genotype")
 
-    cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)                            # TODO: Add the SEX if that is available
+        GENOtoCSVR      = ro.r["GENOtoCSVR"]                                # Map the local GENOtoCSVR function
+        cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
 
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
@@ -71,7 +77,18 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
         else:
             return process_rqtl_results(result_data_frame)
 
-def geno_to_rqtl_function(dataset):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
+def generate_cross_from_rdata(dataset):
+    rdata_location  = locate(dataset.group.name + ".RData", "genotype/rdata")
+    ro.r("""
+       generate_cross_from_rdata <- function(filename = '%s') {
+           load(file=filename)
+           cross = cunique
+           return(cross)
+       }
+    """ % (rdata_location))
+
+def generate_cross_from_geno(dataset):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
+
     ro.r("""
        trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
 
@@ -170,6 +187,7 @@ def process_rqtl_results(result):        # TODO: how to make this a one liner an
         marker = {}
         marker['name'] = result.rownames[i]
         marker['chr'] = output[i][0]
+        marker['cM'] = output[i][1]
         marker['Mb'] = output[i][1]
         marker['lod_score'] = output[i][2]
         qtl_results.append(marker)
