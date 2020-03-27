@@ -247,10 +247,28 @@ class DisplayMappingResults(object):
 
         self.strainlist = start_vars['samples']
 
+        self.traitList = []
+        thisTrait = start_vars['this_trait']
+        self.traitList.append(thisTrait)
+
+        ################################################################
+        # Calculations QTL goes here
+        ################################################################
+        self.multipleInterval = len(self.traitList) > 1
+        self.qtlresults = start_vars['qtl_results']
+
+        if self.multipleInterval:
+            self.colorCollection = Plot.colorSpectrum(len(self.qtlresults))
+        else:
+            self.colorCollection = [self.LRS_COLOR]
+
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
             self.genotype = self.dataset.group.read_genotype_file(use_reaper=True)
         else:
             self.genotype = self.dataset.group.read_genotype_file()
+
+        if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
+            self.genotype = self.genotype.read_rdata_output(self.qtlresults)
 
         #Darwing Options
         try:
@@ -346,10 +364,6 @@ class DisplayMappingResults(object):
         else:
             self.GraphInterval = self.cMGraphInterval #cM
 
-        self.traitList = []
-        thisTrait = start_vars['this_trait']
-        self.traitList.append(thisTrait)
-
 ## BEGIN HaplotypeAnalyst
 ## count the amount of individuals to be plotted, and increase self.graphHeight
         if self.haplotypeAnalystChecked and self.selectedChr > -1:
@@ -371,16 +385,7 @@ class DisplayMappingResults(object):
             self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS+10) * self.EACH_GENE_HEIGHT
 ## END HaplotypeAnalyst
 
-        ################################################################
-        # Calculations QTL goes here
-        ################################################################
-        self.multipleInterval = len(self.traitList) > 1
-        self.qtlresults = start_vars['qtl_results']
 
-        if self.multipleInterval:
-            self.colorCollection = Plot.colorSpectrum(len(self.qtlresults))
-        else:
-            self.colorCollection = [self.LRS_COLOR]
 
 
         #########################
@@ -1713,12 +1718,12 @@ class DisplayMappingResults(object):
         LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
 
         yZero = yTopOffset + plotHeight
-        #LRSHeightThresh = drawAreaHeight
-        #AdditiveHeightThresh = drawAreaHeight/2
-        #DominanceHeightThresh = drawAreaHeight/2
-        LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
-        AdditiveHeightThresh = LRSHeightThresh/2
-        DominanceHeightThresh = LRSHeightThresh/2
+        LRSHeightThresh = drawAreaHeight
+        AdditiveHeightThresh = drawAreaHeight/2
+        DominanceHeightThresh = drawAreaHeight/2
+        # LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
+        # AdditiveHeightThresh = LRSHeightThresh/2
+        # DominanceHeightThresh = LRSHeightThresh/2
 
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
@@ -1756,8 +1761,8 @@ class DisplayMappingResults(object):
             if LRS_LOD_Max == 0.0:
                 LRS_LOD_Max = 0.000001
             yTopOffset + 30*(zoom - 1)
-            #yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
-            yLRS = yZero - (item/LRSAxisList[-1]) * LRSHeightThresh
+            yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+            #yLRS = yZero - (item/LRSAxisList[-1]) * LRSHeightThresh
             canvas.drawLine(xLeftOffset, yLRS, xLeftOffset - 4, yLRS, color=self.LRS_COLOR, width=1*zoom)
             if all_int:
                 scaleStr = "%d" % item
@@ -1767,10 +1772,10 @@ class DisplayMappingResults(object):
             canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
 
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-            # significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
-            # suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRS_LOD_Max
-            significantY = yZero - self.significant*LRSHeightThresh/LRSAxisList[-1]
-            suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSAxisList[-1]
+            significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
+            suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRS_LOD_Max
+            # significantY = yZero - self.significant*LRSHeightThresh/LRSAxisList[-1]
+            # suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSAxisList[-1]
             startPosX = xLeftOffset
 
             #"Significant" and "Suggestive" Drawing Routine
@@ -1887,36 +1892,35 @@ class DisplayMappingResults(object):
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                 # for any lrs is over than 460(LRS max in this system), it will be reset to 460
 
-                yLRS = yZero - (item/LRSAxisList[-1]) * (yZero - yTopOffset + 30*(zoom - 1))
-                #yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+                yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
 
 
                 if 'lrs_value' in qtlresult:
                     if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
-                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
-                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
-                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
+                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                     else:
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
-                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
-                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
+                            Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
-                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
+                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
+                            Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
                 else:
                     if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
-                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
-                        #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
+                        #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
+                        Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                     else:
                         if self.LRS_LOD == "LRS":
-                            Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
-                            #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
+                            #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
+                            Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
                         else:
-                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
-                            #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
+                            #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
+                            Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
                     if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
