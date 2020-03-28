@@ -309,7 +309,7 @@ class DatasetGroup(object):
         if mapping_id == "1":
             mapping_names = ["GEMMA", "QTLReaper", "R/qtl"]
         elif mapping_id == "2":
-            mapping_names = []
+            mapping_names = ["GEMMA"]
         elif mapping_id == "3":
             mapping_names = ["R/qtl"]
         elif mapping_id == "4":
