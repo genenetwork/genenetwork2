@@ -356,7 +356,11 @@ class DisplayMappingResults(object):
 
         self.ChrLengthCMList = []
         for i, _chr in enumerate(self.genotype):
-            self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
+            if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
+                self.ChrLengthCMList.append(_chr[-1].cM)
+            else:
+                self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
+
         self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)
 
         if self.plotScale == 'physic':
@@ -1564,7 +1568,10 @@ class DisplayMappingResults(object):
             if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
                 for i, _chr in enumerate(self.genotype):
                     thisChr = []
-                    Locus0CM = _chr[0].cM
+                    if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
+                        Locus0CM = 0
+                    else:
+                        Locus0CM = _chr[0].cM
                     nLoci = len(_chr)
                     if  nLoci <= 8:
                         for _locus in _chr:
@@ -1586,7 +1593,10 @@ class DisplayMappingResults(object):
                 for i, _chr in enumerate(self.genotype):
                     if _chr.name == self.ChrList[self.selectedChr][0]:
                         thisChr = []
-                        Locus0CM = _chr[0].cM
+                        if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
+                            Locus0CM = 0
+                        else:
+                            Locus0CM = _chr[0].cM
                         for _locus in _chr:
                             if _locus.name != ' - ':
                                 if _locus.cM != preLpos:
