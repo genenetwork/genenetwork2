@@ -112,12 +112,6 @@
 
         <div>
           <br />
-          <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select</button>
-          <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
-          <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-          <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-          <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-          <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
             <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
             <input type="hidden" name="search_string" id="search_string" value="{{ original_search_string }}">
@@ -128,10 +122,18 @@
             <input type="hidden" name="accession_id" id="accession_id" value="{{ dataset.accession_id }}">
             {% endif %}
             <input type="hidden" name="export_data" id="export_data" value="">
-            <button class="btn btn-default" id="export_traits">Download</button>
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select</button>
+            <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
           </form>
           <br />
           <br />
+          <div style="margin-bottom: 5px;">
+            <b>Show/Hide Columns:</b>
+          </div>
           <div id="table_container">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
