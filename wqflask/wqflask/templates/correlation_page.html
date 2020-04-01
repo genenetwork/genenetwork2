@@ -73,13 +73,18 @@
         </div>
         <br />
         <div>
-            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-            <button id="redraw" class="btn btn-default">Reset Columns</button>
-            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+            <form id="export_form" method="POST" action="/export_traits_csv">
+                <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+                <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+                <input type="hidden" name="database_name" id="database_name" value="None">
+                <input type="hidden" name="export_data" id="export_data" value="">
+                <input type="hidden" name="file_name" id="file_name" value="{{ this_trait.name }}_{{ dataset.name }}_correlation.csv">
+                <button class="btn btn-default" id="export_traits">Download CSV</button>
+                <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search Table For ...">
+                <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+                <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+                <button id="redraw" class="btn btn-default">Reset Columns</button>
+            </form>
             <br />
             <br />
             <button id="more_options" class="btn btn-primary">More Options...</button>
@@ -116,7 +121,7 @@
                     <tr>
                         <th></th>
                     {% for header in header_fields %}
-                        <th>{{header}}</th>
+                        <th {% if header != "" %}data-export="{{ header }}"{% endif %}>{{header}}</th>
                     {% endfor %}
                     </tr>
                 </thead>
@@ -125,8 +130,8 @@
                 {% for trait in correlation_results %}
                     <tr>
                         <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
-                        <td>
+                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
+                        <td data-export="{{ trait.name }}">
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
                                     dataset = trait.dataset.name
@@ -135,47 +140,47 @@
                             </a>
                         </td>
                       {% if target_dataset.type == 'ProbeSet' %}
-                        <td>{{ trait.symbol }}</td>
-                        <td>{{ trait.description_display }}</TD>
-                        <td style="white-space: nowrap;">{{ trait.location_repr }}</td>
-                        <td align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right">{{ trait.num_overlap }}</td>
-                        <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td data-export="{{ trait.symbol }}">{{ trait.symbol }}</td>
+                        <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</TD>
+                        <td data-export="{{ trait.location_repr }}" style="white-space: nowrap;">{{ trait.location_repr }}</td>
+                        <td data-export="{{ '%0.3f' % trait.mean|float }}" align="right">{{ '%0.3f' % trait.mean|float }}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }} align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                         {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
-                        <td align="right">--</td>
+                        <td data-export="--" align="right">--</td>
                         {% else %}
-                        <td align="right">{{'%0.3f'|format(trait.lit_corr)}}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.lit_corr) }}" align="right">{{ '%0.3f'|format(trait.lit_corr) }}</td>
                         {% endif %}
                         {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
-                        <td align="right">--</td>
-                        <td align="right">--</td>
+                        <td data-export="--" align="right">--</td>
+                        <td data-export="--" align="right">--</td>
                         {% else %}
-                        <td align="right">{{'%0.3f'|format(trait.tissue_corr)}}</td>
-                        <td align="right">{{'%0.3e'|format(trait.tissue_pvalue)}}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.tissue_corr) }}" align="right">{{ '%0.3f'|format(trait.tissue_corr) }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.tissue_pvalue) }}" align="right">{{ '%0.3e'|format(trait.tissue_pvalue) }}</td>
                         {% endif %}
-                        <td align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right">{{ trait.LRS_location_repr }}</td>
-                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
+                        <td data-export={% if trait.LRS_score_repr != "N/A" %}"{{ '%0.1f' % trait.LRS_score_repr|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
+                        <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
+                        <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Publish" %}
-                        <td>{{ trait.description_display }}</td>
-                        <td>{{ trait.authors }}</td>
-                        <td>
+                        <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</td>
+                        <td data-export="{{ trait.authors }}">{{ trait.authors }}</td>
+                        <td data-export="{{ trait.pubmed_text }}">
                             <a href="{{ trait.pubmed_link }}">
                                 {{ trait.pubmed_text }}
                             </a>
                         </td>
-                        <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right">{{ trait.num_overlap }}</td>
-                        <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
-                        <td align="right">{{ trait.LRS_score_repr }}</td>
-                        <td align="right">{{ trait.LRS_location_repr }}</td>
-                        <td align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
+                        <td data-export="{{ trait.LRS_score_repr }}" align="right">{{ trait.LRS_score_repr }}</td>
+                        <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
+                        <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Geno" %}
-                        <td align="right">{{ trait.location_repr }}</TD>
-                        <td align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right">{{ trait.num_overlap }}</td>
-                        <td align="right">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td data-export="{{ trait.location_repr }}" align="right">{{ trait.location_repr }}</TD>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                       {% endif %}
                     </tr>
                 {% endfor %}

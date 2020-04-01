@@ -215,7 +215,6 @@ $(function() {
       }
     });
     table_dict['rows'] = rows;
-    console.log("TABLEDICT:", table_dict);
 
     json_table_dict = JSON.stringify(table_dict);
     $('input[name=export_data]').val(json_table_dict);

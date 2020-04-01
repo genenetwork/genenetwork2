@@ -70,29 +70,25 @@
                     BNW
                 </button>
 
-                <button id="delete" class="btn btn-danger submit_special" style="margin-left: 15px;" data-url="/collections/delete" title="Delete this collection" >
-                    Delete Collection
-                </button>
-
           </form>
         </div>
 
         <div>
             <br />
-            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete Rows</button>
-            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy to Other Collection</button>
-            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-            <br />
-            <br />
             <form id="export_form" method="POST" action="/export_traits_csv">
-              <input type="hidden" name="database_name" id="database_name" value="None">
-              <input type="hidden" name="export_data" id="export_data" value="">
-              <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn" id="add" disabled="disabled"><i class="icon-plus-sign"></i> Copy</button>
+            <input type="hidden" name="database_name" id="database_name" value="None">
+            <input type="hidden" name="export_data" id="export_data" value="">
+            <input type="hidden" name="file_name" id="file_name" value="collection_table">
+            <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+            <button class="btn btn-danger" id="remove" disabled="disabled"><i class="icon-minus-sign"></i> Delete Rows</button>
+            <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
             </form>
+            <br />
             <br />
             <div>
                 <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">

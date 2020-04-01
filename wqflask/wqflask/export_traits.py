@@ -12,12 +12,17 @@ from pprint import pformat as pf
 def export_search_results_csv(targs):
 
     table_data = json.loads(targs['export_data'])
-    table_headers = targs['headers'].split(",")
+    table_headers = table_data['headers']
     table_rows = table_data['rows']
     
     buff = StringIO.StringIO()
     writer = csv.writer(buff)
     
+    if 'file_name' in targs:
+        file_name = targs['file_name']
+    else:
+        file_name = "table_export.csv"
+
     metadata = []
 
     if 'database_name' in targs:
@@ -39,15 +44,15 @@ def export_search_results_csv(targs):
     for metadata_row in metadata:
         writer.writerow(metadata_row)
 
-    writer.writerow([""])
+    writer.writerow([])
 
     writer.writerow(table_headers)
     for trait_info in table_rows:
         writer.writerow(trait_info)
 
-    writer.writerow([""])
+    writer.writerow([])
     writer.writerow(["Funding for The GeneNetwork: NIAAA (U01AA13499, U24AA13513), NIDA, NIMH, and NIAAA (P20-DA21131), NCI MMHCC (U01CA105417), and NCRR (U01NR 105417)"])
     csv_data = buff.getvalue()
     buff.close()
 
-    return csv_data
+    return csv_data, file_name

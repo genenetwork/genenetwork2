@@ -377,11 +377,11 @@ def export_traits_csv():
     logger.info("In export_traits_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    csv_data = export_traits.export_search_results_csv(request.form)
+    csv_data, file_name = export_traits.export_search_results_csv(request.form)
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=trait_list.csv"})
+                    headers={"Content-Disposition":"attachment;filename=" + file_name})
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
