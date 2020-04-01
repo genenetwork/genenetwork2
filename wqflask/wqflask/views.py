@@ -381,7 +381,7 @@ def export_traits_csv():
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=" + file_name})
+                    headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
