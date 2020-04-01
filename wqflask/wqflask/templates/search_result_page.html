@@ -122,6 +122,7 @@
             <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
             <input type="hidden" name="search_string" id="search_string" value="{{ original_search_string }}">
             <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
+            <input type="hidden" name="file_name" id="file_name" value="search_results">
             <input type="hidden" name="filter_term" id="filter_term" value="None">
             {% if dataset.accession_id is defined %}
             <input type="hidden" name="accession_id" id="accession_id" value="{{ dataset.accession_id }}">

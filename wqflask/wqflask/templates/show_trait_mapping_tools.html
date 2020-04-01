@@ -6,7 +6,7 @@
             <ul class="nav nav-pills">
                 {% for mapping_method in dataset.group.mapping_names %}
                 {% if mapping_method == "GEMMA" %}
-                <li class="gemma_tab mapping_tab {% if dataset.group.mapping_id == '1' %}active{% endif %}">
+                <li class="gemma_tab mapping_tab {% if dataset.group.mapping_id == '1' or dataset.group.mapping_id == '2' %}active{% endif %}">
                     <a href="#gemma" data-toggle="tab">GEMMA</a>
                 </li>
                 {% elif mapping_method == "R/qtl" %}
@@ -27,7 +27,7 @@
             <div class="tab-content">
                 {% for mapping_method in dataset.group.mapping_names %}
                 {% if mapping_method == "GEMMA" %}
-                <div class="tab-pane {% if dataset.group.mapping_id == '1' %}active{% endif %}" id="gemma">
+                <div class="tab-pane {% if dataset.group.mapping_id == '1' or dataset.group.mapping_id == '2' %}active{% endif %}" id="gemma">
                     <div style="padding-top: 20px;" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
                             <label for="chr_select" style="text-align: right;" class="col-xs-3 control-label">Chromosome</label>
