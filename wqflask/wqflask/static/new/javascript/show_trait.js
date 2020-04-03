@@ -107,6 +107,13 @@ $("#remove_covariates").click(function () {
     $("input[name=covariates]").val("")
     $(".selected_covariates").val("")
 });
+$(".select_covariates").click(function () {
+  open_covariate_selection();
+});
+$(".remove_covariates").click(function () {
+  $("input[name=covariates]").val("")
+  $(".selected_covariates").val("")
+});
 d3.select("#clear_compare_trait").on("click", (function(_this) {
   return function() {
     return $('.scatter-matrix-container').remove();

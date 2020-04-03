@@ -45,10 +45,12 @@ class genotype(object):
         chr_ob = None
         for marker in qtl_results:
             locus = Locus(self)
-            if str(marker['chr']) != this_chr:
+            if (str(marker['chr']) != this_chr) and this_chr != "X": #ZS: This is really awkward but works as a temporary fix
                 if this_chr != "":
                     self.chromosomes.append(chr_ob)
                 this_chr = str(marker['chr'])
+                if this_chr == "20":
+                    this_chr = "X"
                 chr_ob = Chr(this_chr, self)
             if 'chr' in marker:
                 locus.chr = str(marker['chr'])

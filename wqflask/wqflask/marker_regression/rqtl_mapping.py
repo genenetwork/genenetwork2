@@ -1,14 +1,17 @@
 import rpy2.robjects as ro
+import rpy2.robjects.numpy2ri as np2r
 import numpy as np
 
 from base.webqtlConfig import TMPDIR
+from base.trait import GeneralTrait
+from base.data_set import create_dataset
 from utility import webqtlUtil
 from utility.tools import locate, TEMPDIR
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control, control_marker, manhattan_plot, pair_scan):
+def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control, control_marker, manhattan_plot, pair_scan, samples, cofactors):
     ## Get pointers to some common R functions
     r_library     = ro.r["library"]                 # Map the library function
     r_c           = ro.r["c"]                       # Map the c function
@@ -43,14 +46,22 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
     else:
         cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
 
-    cross_object = add_phenotype(cross_object, sanitize_rqtl_phenotype(vals))                 # Add the phenotype
+    cross_object = add_phenotype(cross_object, sanitize_rqtl_phenotype(vals), "the_pheno")                 # Add the phenotype
 
     # Scan for QTLs
-    covar = create_covariates(control_marker, cross_object)                                   # Create the additive covariate matrix
+    marker_covars = create_marker_covariates(control_marker, cross_object)  # Create the additive covariate markers
+
+    if cofactors != "":
+        cross_object, trait_covars = add_cofactors(cross_object, dataset, cofactors, samples)                            # Create the covariates from selected traits
+        ro.r('all_covars <- cbind(marker_covars, trait_covars)')
+    else:
+        ro.r('all_covars <- marker_covars')
+
+    covars = ro.r['all_covars']
 
     if pair_scan:
         if do_control == "true":
-            logger.info("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method, n_cluster = 16)
+            logger.info("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covars, model=model, method=method, n_cluster = 16)
         else:
             logger.info("No covariates"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", model=model, method=method, n_cluster = 16)
 
@@ -61,14 +72,14 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
 
         return process_pair_scan_results(result_data_frame)
     else:
-        if do_control == "true":
-            logger.info("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covar, model=model, method=method)
+        if do_control == "true" or cofactors != "":
+            logger.info("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covars, model=model, method=method)
         else:
             logger.info("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method=method)
 
         if num_perm > 0 and permCheck == "ON":                                                                   # Do permutation (if requested by user)
-            if do_control == "true":
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covar, n_perm = num_perm, model=model, method=method)
+            if do_control == "true" or cofactors != "":
+                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covars, n_perm = num_perm, model=model, method=method)
             else:
                 perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, model=model, method=method)
 
@@ -118,23 +129,6 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
       }
     """ % (dataset.group.name + ".geno"))
 
-def add_phenotype(cross, pheno_as_string):
-    ro.globalenv["the_cross"] = cross
-    ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), the_pheno = '+ pheno_as_string +')')
-    return ro.r["the_cross"]
-
-def create_covariates(control_marker, cross):
-    ro.globalenv["the_cross"] = cross
-    ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
-    userinputS = control_marker.replace(" ", "").split(",")               # TODO: sanitize user input, Never Ever trust a user
-    covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
-    ro.r('covnames <- c(' + covariate_names + ')')
-    ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
-    ro.r('covnames <- covnames[covInGeno]')
-    ro.r("cat('covnames (purged): ', covnames,'\n')")
-    ro.r('covariates <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
-    return ro.r["covariates"]
-
 def sanitize_rqtl_phenotype(vals):
     pheno_as_string = "c("
     for i, val in enumerate(vals):
@@ -150,6 +144,78 @@ def sanitize_rqtl_phenotype(vals):
                 pheno_as_string += str(val)
     pheno_as_string += ")"
     return pheno_as_string
+
+def add_phenotype(cross, pheno_as_string, col_name):
+    ro.globalenv["the_cross"] = cross
+    ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), ' + col_name + ' = '+ pheno_as_string +')')
+    return ro.r["the_cross"]
+
+def pull_covar(cross, covar_name_string):
+    ro.globalenv["the_cross"] = cross
+    ro.r('trait_covars <- pull.pheno(the_cross, ' + covar_name_string + ')')
+
+    return ro.r["trait_covars"]
+
+def add_cofactors(cross, this_dataset, covariates, samples):
+    ro.numpy2ri.activate()
+
+    covariate_list = covariates.split(",")
+    covar_name_string = "c("
+    for i, covariate in enumerate(covariate_list):
+        this_covar_data = []
+        covar_as_string = "c("
+        trait_name = covariate.split(":")[0]
+        dataset_ob = create_dataset(covariate.split(":")[1])
+        trait_ob = GeneralTrait(dataset=dataset_ob,
+                                name=trait_name,
+                                cellid=None)
+
+        this_dataset.group.get_samplelist()
+        trait_samples = this_dataset.group.samplelist
+        trait_sample_data = trait_ob.data
+        for index, sample in enumerate(trait_samples):
+            if sample in samples:
+                if sample in trait_sample_data:
+                    sample_value = trait_sample_data[sample].value
+                    this_covar_data.append(sample_value)
+                else:
+                    this_covar_data.append("NA")
+
+        for j, item in enumerate(this_covar_data):
+            if j < (len(this_covar_data) - 1):
+                covar_as_string += str(item) + ","
+            else:
+                covar_as_string += str(item)
+
+        covar_as_string += ")"
+
+        col_name = "covar_" + str(i)
+
+        if i < (len(covariate_list) - 1):
+            covar_name_string += '"' + col_name + '", '
+        else:
+            covar_name_string += '"' + col_name + '"'
+
+        cross = add_phenotype(cross, covar_as_string, col_name)
+
+    covar_name_string += ")"
+
+    covars = pull_covar(cross, covar_name_string)
+
+    return cross, covars
+
+def create_marker_covariates(control_marker, cross):
+    ro.globalenv["the_cross"] = cross
+    ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
+    userinputS = control_marker.replace(" ", "").split(",")               # TODO: sanitize user input, Never Ever trust a user
+    covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
+    ro.r('covnames <- c(' + covariate_names + ')')
+    ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
+    ro.r('covnames <- covnames[covInGeno]')
+    ro.r("cat('covnames (purged): ', covnames,'\n')")
+    ro.r('marker_covars <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
+
+    return ro.r["marker_covars"]
 
 def process_pair_scan_results(result):
     pair_scan_results = []

@@ -334,6 +334,10 @@ class DisplayMappingResults(object):
         ################################################################
         self.ChrList = [("All", -1)]
         for i, indChr in enumerate(self.genotype):
+            if self.dataset.group.species == "mouse" and indChr.name == "20":
+                self.ChrList.append(("X", i))
+            elif self.dataset.group.species == "rat" and indChr.name == "21":
+                self.ChrList.append(("X", i))
             self.ChrList.append((indChr.name, i))
 
         self.ChrLengthMbList = g.db.execute("""
@@ -356,10 +360,7 @@ class DisplayMappingResults(object):
 
         self.ChrLengthCMList = []
         for i, _chr in enumerate(self.genotype):
-            if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
-                self.ChrLengthCMList.append(_chr[-1].cM)
-            else:
-                self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
+            self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
 
         self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)
 
@@ -1568,10 +1569,7 @@ class DisplayMappingResults(object):
             if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
                 for i, _chr in enumerate(self.genotype):
                     thisChr = []
-                    if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
-                        Locus0CM = 0
-                    else:
-                        Locus0CM = _chr[0].cM
+                    Locus0CM = _chr[0].cM
                     nLoci = len(_chr)
                     if  nLoci <= 8:
                         for _locus in _chr:
@@ -1593,10 +1591,7 @@ class DisplayMappingResults(object):
                 for i, _chr in enumerate(self.genotype):
                     if _chr.name == self.ChrList[self.selectedChr][0]:
                         thisChr = []
-                        if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
-                            Locus0CM = 0
-                        else:
-                            Locus0CM = _chr[0].cM
+                        Locus0CM = _chr[0].cM
                         for _locus in _chr:
                             if _locus.name != ' - ':
                                 if _locus.cM != preLpos:
@@ -1892,12 +1887,21 @@ class DisplayMappingResults(object):
                     oldStartPosX = newStartPosX
 
             #ZS: This is beause the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
-            if self.plotScale == "physic":
-                this_chr = str(self.ChrList[self.selectedChr][0])
-            else:
+            this_chr = str(self.ChrList[self.selectedChr][0])
+            if self.plotScale != "physic":
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
+
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
-                Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                if self.plotScale != "physic" and self.genotype.filler == True:
+                    if self.selectedChr != -1:
+                        start_cm = self.genotype[self.selectedChr - 1][0].cM
+                        Xc = startPosX + (qtlresult['Mb'] - start_cm)*plotXScale
+                    else:
+                        start_cm = self.genotype[previous_chr_as_int][0].cM
+                        Xc = startPosX + ((qtlresult['Mb']-start_cm-startMb)*plotXScale)*(((qtlresult['Mb']-start_cm-startMb)*plotXScale)/((qtlresult['Mb']-start_cm-startMb+self.GraphInterval)*plotXScale))
+                else:
+                    Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                 # for any lrs is over than 460(LRS max in this system), it will be reset to 460

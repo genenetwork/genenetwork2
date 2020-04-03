@@ -325,7 +325,23 @@
                                </label>
                             </div>
                         </div>
-
+                        <div class="mapping_method_fields form-group">
+                            <div class="col-xs-3" style="text-align: right;">
+                            <label class="control-label">Covariates</label>
+                            <font size="2">Select covariate(s) from a collection</font>
+                            </div>
+                            <div style="margin-left:20px;" class="col-xs-7">
+                              {% if g.user_session.num_collections < 1 %}
+                              No collections available. Please add traits to a collection to use them as covariates.
+                              {% else %}
+                              <div style="margin-bottom: 10px;">
+                                <button type="button" class="btn btn-default select_covariates" style="width: 80px; padding-right: 10px;">Select</button>
+                                <button type="button" class="btn btn-default remove_covariates" style="width: 80px;">Remove</button>
+                              </div>
+                              <textarea rows="3" cols="50" readonly placeholder="No covariates selected" style="overflow-y: scroll; resize: none; width: 200px;" class="selected_covariates"></textarea>
+                              {% endif %}
+                            </div>
+                        </div>
                         <div class="mapping_method_fields form-group">
                             <label class="col-xs-3 control-label"></label>
                             <div style="margin-left:20px;" class="col-xs-6">
