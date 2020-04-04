@@ -610,9 +610,9 @@ block_by_index = function() {
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     if ($('#block_group').val() === "primary") {
-      _results.push($('#Primary_' + index.toString()).find('.trait_value_input').val("x"));
+      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
     } else if ($('#block_group').val() === "other") {
-      _results.push($('#Other_' + index.toString()).find('.trait_value_input').val("x"));
+      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
     } else {
       _results.push(void 0);
     }
@@ -620,6 +620,7 @@ block_by_index = function() {
   return _results;
 };
 $('#block_by_index').click(block_by_index);
+
 hide_no_value = function() {
   return $('.value_se').each((function(_this) {
     return function(_index, element) {
