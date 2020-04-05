@@ -955,19 +955,21 @@ if (Object.keys(js_data.sample_group_types).length > 1) {
 root.modebar_options = {
   modeBarButtonsToAdd:[{
     name: 'Export as SVG',
-    icon: Plotly.Icons.camera,
+    icon: Plotly.Icons.disk,
     click: function(gd) {
       Plotly.downloadImage(gd, {format: 'svg'})
     }
   },
   {
     name: 'Export as JPEG',
-    icon: Plotly.Icons.disk,
+    icon: Plotly.Icons.camera,
     click: function(gd) {
       Plotly.downloadImage(gd, {format: 'jpeg'})
     }
   }],
-  modeBarButtonsToRemove:['toImage', 'sendDataToCloud', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines'],
+  showEditInChartStudio: true,
+  plotlyServerURL: "https://chart-studio.plotly.com",
+  modeBarButtonsToRemove:['toImage', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines', 'resetScale2d'],
   displaylogo: false
   //modeBarButtons:['toImage2', 'zoom2d', 'pan2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
 }
