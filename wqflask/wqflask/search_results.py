@@ -143,6 +143,9 @@ views.py).
                     trait_dict['pubmed_id'] = this_trait.pubmed_id
                     trait_dict['pubmed_link'] = this_trait.pubmed_link
                 trait_dict['pubmed_text'] = this_trait.pubmed_text
+                trait_dict['mean'] = "N/A"
+                if this_trait.mean != "" and this_trait.mean != None:
+                    trait_dict['mean'] = '%.3f' % this_trait.mean
                 trait_dict['lrs_score'] = this_trait.LRS_score_repr
                 trait_dict['lrs_location'] = this_trait.LRS_location_repr
                 trait_dict['additive'] = "N/A"

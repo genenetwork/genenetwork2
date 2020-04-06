@@ -139,7 +139,8 @@ class GSearch(object):
                 Publication.`PubMed_ID`,
                 PublishXRef.`LRS`,
                 PublishXRef.`additive`,
-                InbredSet.`InbredSetCode`
+                InbredSet.`InbredSetCode`,
+                PublishXRef.`mean`
                 FROM Species,InbredSet,PublishFreeze,PublishXRef,Phenotype,Publication
                 WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
                 AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
@@ -183,6 +184,10 @@ class GSearch(object):
                         this_trait['description'] = line[5].decode('utf-8', 'replace')
                     else:
                         this_trait['description'] = "N/A"
+                    if line[13] != None and line[13] != "":
+                        this_trait['mean'] = line[13]
+                    else:
+                        this_trait['mean'] = "N/A"
                     this_trait['authors'] = line[7]
                     this_trait['year'] = line[8]
                     if this_trait['year'].isdigit():
