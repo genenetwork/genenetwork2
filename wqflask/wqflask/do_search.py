@@ -218,6 +218,7 @@ class PhenotypeSearch(DoSearch):
     header_fields = ['Index',
                      'Record',
                      'Description',
+                     'Mean',
                      'Authors',
                      'Year',
                      'Max LRS',

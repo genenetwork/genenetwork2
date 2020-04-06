@@ -354,7 +354,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 SELECT
                         PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
                         Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
+                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
                         Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
                         Publication.Authors, Publication.Title, Publication.Abstract,
                         Publication.Journal, Publication.Volume, Publication.Pages,
@@ -503,8 +503,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             #LRS and its location
             trait.LRS_score_repr = "N/A"
             trait.LRS_location_repr = "N/A"
-            trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.mean = trait.additive = ""
+            trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.additive = ""
             if dataset.type == 'ProbeSet' and not trait.cellid:
+                trait.mean = ""
                 query = """
                         SELECT
                                 ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
