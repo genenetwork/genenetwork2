@@ -73,10 +73,12 @@ Stat_Table_Rows.push(
   }, {
     vn: "skewness",
     pretty: "Skewness",
+    url: "https://en.wikipedia.org/wiki/Skewness",
     digits: 3
   }, {
     vn: "kurtosis",
-    pretty: "Kurtosis",
+    pretty: "Excess Kurtosis",
+    url: "https://en.wikipedia.org/wiki/Kurtosis",
     digits: 3
   }
 );
@@ -389,7 +391,7 @@ make_table = function() {
     }
     row_line = "<tr>";
     if (row.url != null) {
-      row_line += "<td id=\"" + row.vn + "\" align=\"right\"><a href=\"" + row.url + "\" style=\"color: #000000;\">" + row.pretty + "</a></td>";
+      row_line += "<td id=\"" + row.vn + "\" align=\"right\"><a href=\"" + row.url + "\" style=\"color: #0000EE;\">" + row.pretty + "</a></td>";
     } else {
       row_line += "<td id=\"" + row.vn + "\" align=\"right\">" + row.pretty + "</td>";
     }
@@ -839,7 +841,7 @@ get_sample_table_data = function(table_name) {
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
         attribute_info = _ref[key];
-        row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_")).text());
+        row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_").replace("/", "\\/")).text());
       }
       return samples.push(row_data);
     };
