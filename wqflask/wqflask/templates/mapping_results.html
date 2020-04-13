@@ -207,7 +207,7 @@
             <div id="perm_histogram" class="barchart"></div>
             <!--<img src="/generated/{{ perm_filename }}.gif">-->
             <br><br>
-            Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:export_perm_data();" target="_blank" >Download Permutation Results</a>
+            Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:;" id="download_perm" target="_blank" >Download Permutation Results</a>
             <br>
             {% endif %}
         </div>
@@ -229,7 +229,7 @@
               <tr>
                 <th></th>
                 <th>Row</th>
-                <th>Locus</th>
+                <th>Marker</th>
                 <th>{{ LRS_LOD }}</th>
                 <th>Chr</th>
                 {% if plotScale != "physic" %}
@@ -426,6 +426,7 @@
             $('input[name=selected_chr]').val(this_chr)
             $('input[name=chr_mb_list]').val(chr_mb_list)
 
+            $('#marker_regression_form').attr('action', '/run_mapping');
             return $('#marker_regression_form').submit();
         };
 
@@ -435,24 +436,26 @@
             $('input[name=endMb]').val(end_mb)
             //$('input[name=mb_range]').val(start_mb + "," + end_mb)
 
+            $('#marker_regression_form').attr('action', '/run_mapping');
             return $('#marker_regression_form').submit();
         };
 
         remap = function() { 
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
+            $('#marker_regression_form').attr('action', '/run_mapping');
             return $('#marker_regression_form').submit(); 
         };
 
         {% if mapping_method != "gemma" and mapping_method != "plink" %}
-        export_perm_data = function() {
-            var num_perm, perm_data;
+        $('#download_perm').click(function(){
+          var num_perm, perm_data;
             num_perm = js_data.num_perm
             perm_data = js_data.perm_results
             json_perm_data = JSON.stringify(perm_data);
             $('input[name=perm_results]').val(json_perm_data);
             $('#marker_regression_form').attr('action', '/export_perm_data');
             return $('#marker_regression_form').submit();
-        }
+        });
 
         modebar_options = {
           modeBarButtonsToAdd:[{
