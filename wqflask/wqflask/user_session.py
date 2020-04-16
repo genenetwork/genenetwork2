@@ -199,7 +199,8 @@ class UserSession(object):
         this_collection = self.get_collection_by_id(collection_id)
 
         updated_collection = this_collection
-        updated_traits = this_collection['members'] + traits_to_add
+        current_members_minus_new = [member for member in this_collection['members'] if member not in traits_to_add]
+        updated_traits = traits_to_add + current_members_minus_new
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
