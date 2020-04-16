@@ -156,7 +156,10 @@ class Locus(object):
                 self.cM = float(marker_row[geno_ob.cm_column])
             except:
                 self.cM = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else 0
-            self.Mb = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else None
+            try:
+                self.Mb = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else None
+            except:
+                self.Mb = self.cM
 
             geno_table = {
                 geno_ob.mat: -1,

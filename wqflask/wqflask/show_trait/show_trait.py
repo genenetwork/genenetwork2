@@ -159,6 +159,8 @@ class ShowTrait(object):
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
+        categorical_var_list = get_categorical_variables(self.this_trait, self.sample_groups[0]) #ZS: Only using first samplelist, since I think mapping only uses those samples
+
         #ZS: Get list of chromosomes to select for mapping
         self.chr_list = [["All", -1]]
         for i, this_chr in enumerate(self.dataset.species.chromosomes.chromosomes):
@@ -226,6 +228,7 @@ class ShowTrait(object):
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
+        hddn['categorical_vars'] = ""
         hddn['manhattan_plot'] = ""
         hddn['control_marker'] = ""
         if not self.temp_trait:
@@ -250,6 +253,7 @@ class ShowTrait(object):
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
                        attribute_names = self.sample_groups[0].attributes,
+                       categorical_vars = ",".join(categorical_var_list),
                        num_values = self.num_values,
                        qnorm_values = self.qnorm_vals,
                        zscore_values = self.z_scores,
@@ -570,10 +574,25 @@ def get_ncbi_summary(this_trait):
         #ZS: Need to switch this try/except to something that checks the output later
         try:
             response = requests.get("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=%s&retmode=json" % this_trait.geneid)
-            logger.debug("NCBI:", json.loads(response.content)['result'][this_trait.geneid])
             summary = json.loads(response.content)['result'][this_trait.geneid]['summary']
             return summary
         except:
             return None
     else:
         return None
+
+def get_categorical_variables(this_trait, sample_list):
+    categorical_var_list = []
+
+    if len(sample_list.attributes) > 0:
+        for attribute in sample_list.attributes:
+            attribute_vals = []
+            for sample_name in this_trait.data.keys():
+                attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
+
+            num_distinct = len(set(attribute_vals))
+
+            if num_distinct < 10:
+                categorical_var_list.append(sample_list.attributes[attribute].name)
+
+    return categorical_var_list

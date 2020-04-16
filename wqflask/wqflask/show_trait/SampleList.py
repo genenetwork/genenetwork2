@@ -24,8 +24,8 @@ class SampleList(object):
                  dataset,
                  sample_names,
                  this_trait,
-                 sample_group_type,
-                 header):
+                 sample_group_type = "primary",
+                 header = "Samples"):
 
         self.dataset = dataset
         self.this_trait = this_trait

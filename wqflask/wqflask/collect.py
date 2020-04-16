@@ -75,7 +75,7 @@ def collections_add():
 
     collections = g.user_session.user_collections
     if len(collections) < 1:
-        collection_name = "Default Collection"
+        collection_name = "Your Default Collection"
         uc_id = g.user_session.add_collection(collection_name, set())
         collections = g.user_session.user_collections
 
@@ -113,7 +113,7 @@ def collections_new():
                     collection_name = collection["name"]
                     default_collection_exists = True
             if not default_collection_exists:
-                return create_new("Default Collection")
+                return create_new("Your Default Collection")
         else:
             collection_id = params['existing_collection'].split(":")[0]
             collection_name = params['existing_collection'].split(":")[1]

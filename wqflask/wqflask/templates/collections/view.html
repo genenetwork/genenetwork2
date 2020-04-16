@@ -88,8 +88,9 @@
             <button class="btn btn-danger" id="remove" disabled="disabled" type="button"><i class="icon-minus-sign"></i> Delete Rows</button>
             <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
             </form>
-            <br />
-            <br />
+            <div style="margin-top: 10px; margin-bottom: 5px;">
+                <b>Show/Hide Columns:</b>
+            </div>
             <div>
                 <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                     <thead>
@@ -127,6 +128,8 @@
                             </TD>
                             {% if this_trait.symbol %}
                             <TD data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</TD>
+                            {% elif this_trait.abbreviation %}
+                            <TD data-export="{{ this_trait.abbreviation }}">{{ this_trait.abbreviation }}</TD>
                             {% else %}
                             <TD data-export="N/A">N/A</TD>
                             {% endif %}
@@ -139,9 +142,17 @@
                             {% endif %}
                             <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
                             <TD data-export="{{ this_trait.mean }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
+                            {% if this_trait.LRS_score_repr|float > 0 %}
                             <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
+                            {% else %}
+                            <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">N/A</TD>
+                            {% endif %}
                             <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
+                            {% if this_trait.additive|float > 0 %}
                             <TD data-export="{{ this_trait.additive }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
+                            {% else %}
+                            <TD data-export="{{ this_trait.additive }}" align="right">N/A</TD>
+                            {% endif %}
                         </TR>
                     {% endfor %}
                     </tbody>

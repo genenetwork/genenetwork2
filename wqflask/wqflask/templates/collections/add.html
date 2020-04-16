@@ -11,22 +11,9 @@
             {% else %}
             <input type="hidden" name="hash" value="{{ hash }}" />
             {% endif %}
-            <fieldset>
-              <legend>1. Create a new collection</legend>
-              <div style="margin-left: 20px;">
-                <!--<label>Collection name:</label>-->
-                <input type="text" name="new_collection" placeholder=" Name of new collection..."
-                    data-trigger="change" data-minlength="5" data-maxlength="50" style="width: 100%">
-                <button type="submit" name="create_new" class="btn btn-primary" style="margin-top: 20px;">Create collection</button>
-                {% if uc is not defined %}
-                <span class="help-block" style="color:red;">This collection will be saved to your computer for a year (or until you clear your cache).</span>
-                {% endif %}
-              </div>
-            </fieldset>
             {% if collections|length > 0 %}
-            <hr />
             <fieldset>
-              <legend>2. Add to an existing collection</legend>
+              <legend>1. Add to an existing collection</legend>
               <div style="margin-left: 20px;">  
                 <!--<label>Existing collection name:</label>-->
                 <select name="existing_collection" class="form-control">
@@ -44,6 +31,19 @@
               </div>
             </fieldset>
             {% endif %}
+            <hr />
+            <fieldset>
+              <legend>{% if collections|length > 0 %}2. {% else %}{% endif %}Create a new collection</legend>
+              <div style="margin-left: 20px;">
+                <!--<label>Collection name:</label>-->
+                <input type="text" name="new_collection" placeholder=" Name of new collection..."
+                    data-trigger="change" data-minlength="5" data-maxlength="50" style="width: 100%">
+                <button type="submit" name="create_new" class="btn btn-primary" style="margin-top: 20px;">Create collection</button>
+                {% if uc is not defined %}
+                <span class="help-block">This collection will be saved to your computer for a year (or until you clear your cache).</span>
+                {% endif %}
+              </div>
+            </fieldset>
         </form>
     </div>
 </div>

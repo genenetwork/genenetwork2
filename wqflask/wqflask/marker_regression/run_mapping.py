@@ -38,6 +38,7 @@ from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
+from wqflask.show_trait.SampleList import SampleList
 
 from utility.tools import locate, locate_ignore_error, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
@@ -74,15 +75,41 @@ class RunMapping(object):
         self.vals = []
         if 'samples' in start_vars:
             self.samples = start_vars['samples'].split(",")
-            for sample in self.samples:
-                if (len(genofile_samplelist) == 0) or (sample in genofile_samplelist):
+            if (len(genofile_samplelist) != 0):
+                for sample in genofile_samplelist:
+                    if sample in self.samples:
+                        value = start_vars.get('value:' + sample)
+                        if value:
+                            self.vals.append(value)
+                    else:
+                        self.vals.append("x")
+            else:
+                for sample in self.samples:
                     value = start_vars.get('value:' + sample)
                     if value:
                         self.vals.append(value)
         else:
             self.samples = []
-            for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
-                if (len(genofile_samplelist) == 0) or (sample in genofile_samplelist):
+            if (len(genofile_samplelist) != 0):
+                for sample in genofile_samplelist:
+                    if sample in self.dataset.group.samplelist:
+                        in_trait_data = False
+                        for item in self.this_trait.data:
+                            if self.this_trait.data[item].name == sample:
+                                value = start_vars['value:' + self.this_trait.data[item].name]
+                                self.samples.append(self.this_trait.data[item].name)
+                                self.vals.append(value)
+                                in_trait_data = True
+                                break
+                        if not in_trait_data:
+                            value = start_vars.get('value:' + sample)
+                            if value:
+                                self.samples.append(sample)
+                                self.vals.append(value)
+                    else:
+                        self.vals.append("x")
+            else:
+                for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
                     in_trait_data = False
                     for item in self.this_trait.data:
                         if self.this_trait.data[item].name == sample:
@@ -204,8 +231,17 @@ class RunMapping(object):
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
+            perm_strata = []
+            if "perm_strata" in start_vars and "categorical_vars" in start_vars:
+                self.categorical_vars = start_vars["categorical_vars"].split(",")
+                if len(self.categorical_vars) and start_vars["perm_strata"] == "True":
+                    primary_samples = SampleList(dataset = self.dataset,
+                                                 sample_names = self.samples,
+                                                 this_trait = self.this_trait)
+
+                    perm_strata = get_perm_strata(self.this_trait, primary_samples, self.categorical_vars, self.samples)
             self.score_type = "LOD"
-            self.mapping_scale = "morgan"
+            #self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             if 'mapmethod_rqtl_geno' in start_vars:
@@ -216,9 +252,9 @@ class RunMapping(object):
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.samples, self.covariates)
+                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
             else:
-                results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.samples, self.covariates)
+                results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:
@@ -429,8 +465,8 @@ class RunMapping(object):
                       chr_lengths = chr_lengths,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
-                      browser_files = browser_files,
                       significant = significant_for_browser,
+                      browser_files = browser_files,
                       selected_chr = this_chr
                   )
               else:
@@ -617,9 +653,14 @@ def get_chr_lengths(mapping_scale, dataset, qtl_results):
         this_chr = 1
         highest_pos = 0
         for i, result in enumerate(qtl_results):
-            if int(result['chr']) > this_chr or i == (len(qtl_results) - 1):
+            chr_as_num = 0
+            try:
+                chr_as_num = int(result['chr'])
+            except:
+                chr_as_num = 20
+            if chr_as_num > this_chr or i == (len(qtl_results) - 1):
                 chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
-                this_chr = int(result['chr'])
+                this_chr = chr_as_num
                 highest_pos = 0
             else:
                 if float(result['Mb']) > highest_pos:
@@ -636,3 +677,24 @@ def get_genofile_samplelist(dataset):
             genofile_samplelist = genofile['sample_list']
 
     return genofile_samplelist
+
+def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
+    perm_strata_strings = []
+    for sample in used_samples:
+        if sample in sample_list.sample_attribute_values.keys():
+            combined_string = ""
+            for var in categorical_vars:
+                if var in sample_list.sample_attribute_values[sample].keys():
+                    combined_string += str(sample_list.sample_attribute_values[sample][var])
+                else:
+                    combined_string += "NA"
+        else:
+            combined_string = "NA"
+
+        perm_strata_strings.append(combined_string)
+
+    d = dict([(y,x+1) for x,y in enumerate(sorted(set(perm_strata_strings)))])
+    list_to_numbers = [d[x] for x in perm_strata_strings]
+    perm_strata = list_to_numbers
+
+    return perm_strata
