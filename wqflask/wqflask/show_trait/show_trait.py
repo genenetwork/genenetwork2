@@ -159,7 +159,9 @@ class ShowTrait(object):
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
-        categorical_var_list = get_categorical_variables(self.this_trait, self.sample_groups[0]) #ZS: Only using first samplelist, since I think mapping only uses those samples
+        categorical_var_list = []
+        if not self.temp_trait:
+            categorical_var_list = get_categorical_variables(self.this_trait, self.sample_groups[0]) #ZS: Only using first samplelist, since I think mapping only uses those samples
 
         #ZS: Get list of chromosomes to select for mapping
         self.chr_list = [["All", -1]]
