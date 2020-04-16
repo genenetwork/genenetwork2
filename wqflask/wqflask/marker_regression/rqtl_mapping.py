@@ -11,7 +11,7 @@ from utility.tools import locate, TEMPDIR
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control, control_marker, manhattan_plot, pair_scan, samples, cofactors):
+def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
     ## Get pointers to some common R functions
     r_library     = ro.r["library"]                 # Map the library function
     r_c           = ro.r["c"]                       # Map the c function
@@ -27,26 +27,26 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
     calc_genoprob              = ro.r["calc.genoprob"]         # Map the calc.genoprob function
 
     crossname = dataset.group.name
-    try:
-        generate_cross_from_rdata(dataset)
-        read_cross_from_rdata      = ro.r["generate_cross_from_rdata"] # Map the local read_cross_from_rdata function
-        genofilelocation  = locate(crossname + ".RData", "genotype/rdata")
-        cross_object = read_cross_from_rdata(genofilelocation)  # Map the local GENOtoCSVR function
-    except:
-        generate_cross_from_geno(dataset)
-        GENOtoCSVR                 = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
-        crossfilelocation = TMPDIR + crossname + ".cross"
-        genofilelocation  = locate(crossname + ".geno", "genotype")
-
-        GENOtoCSVR      = ro.r["GENOtoCSVR"]                                # Map the local GENOtoCSVR function
-        cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
+    #try:
+    #    generate_cross_from_rdata(dataset)
+    #    read_cross_from_rdata      = ro.r["generate_cross_from_rdata"] # Map the local read_cross_from_rdata function
+    #    genofilelocation  = locate(crossname + ".RData", "genotype/rdata")
+    #    cross_object = read_cross_from_rdata(genofilelocation)  # Map the local GENOtoCSVR function
+    #except:
+    generate_cross_from_geno(dataset)
+    GENOtoCSVR                 = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
+    crossfilelocation = TMPDIR + crossname + ".cross"
+    genofilelocation  = locate(dataset.group.genofile, "genotype")
+    cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
 
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
     else:
         cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
 
-    cross_object = add_phenotype(cross_object, sanitize_rqtl_phenotype(vals), "the_pheno")                 # Add the phenotype
+    pheno_string = sanitize_rqtl_phenotype(vals)
+
+    cross_object = add_phenotype(cross_object, pheno_string, "the_pheno")                 # Add the phenotype
 
     # Scan for QTLs
     marker_covars = create_marker_covariates(control_marker, cross_object)  # Create the additive covariate markers
@@ -78,15 +78,22 @@ def run_rqtl_geno(vals, dataset, method, model, permCheck, num_perm, do_control,
             logger.info("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method=method)
 
         if num_perm > 0 and permCheck == "ON":                                                                   # Do permutation (if requested by user)
-            if do_control == "true" or cofactors != "":
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covars, n_perm = num_perm, model=model, method=method)
+            if len(perm_strata_list) > 0: #ZS: The strata list would only be populated if "Stratified" was checked on before mapping
+                cross_object, strata_ob = add_perm_strata(cross_object, perm_strata_list)
+                if do_control == "true" or cofactors != "":
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covars, n_perm = int(num_perm), perm_strata = strata_ob, model=model, method=method)
+                else:
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, perm_strata = strata_ob, model=model, method=method)
             else:
-                perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, model=model, method=method)
+                if do_control == "true" or cofactors != "":
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", addcovar = covars, n_perm = int(num_perm), model=model, method=method)
+                else:
+                    perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, model=model, method=method)
 
             perm_output, suggestive, significant = process_rqtl_perm_results(num_perm, perm_data_frame)          # Functions that sets the thresholds for the webinterface
-            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame)
+            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame, dataset.group.species)
         else:
-            return process_rqtl_results(result_data_frame)
+            return process_rqtl_results(result_data_frame, dataset.group.species)
 
 def generate_cross_from_rdata(dataset):
     rdata_location  = locate(dataset.group.name + ".RData", "genotype/rdata")
@@ -112,8 +119,12 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
          header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
          toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
 
-         genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes
          type <- getGenoCode(header, 'type')
+         if(type == '4-way'){
+            genocodes <- c('1','2','3','4')
+         } else {
+            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes
+         }
          genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
          cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
          if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
@@ -127,7 +138,21 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
          if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
          return(cross)
       }
-    """ % (dataset.group.name + ".geno"))
+    """ % (dataset.group.genofile))
+
+def add_perm_strata(cross, perm_strata):
+    col_string = 'c("the_strata")'
+    perm_strata_string = "c("
+    for item in perm_strata:
+        perm_strata_string += str(item) + ","
+
+    perm_strata_string = perm_strata_string[:-1] + ")"
+
+    cross = add_phenotype(cross, perm_strata_string, "the_strata")
+
+    strata_ob = pull_var("perm_strata", cross, col_string)
+
+    return cross, strata_ob
 
 def sanitize_rqtl_phenotype(vals):
     pheno_as_string = "c("
@@ -143,6 +168,7 @@ def sanitize_rqtl_phenotype(vals):
             else:
                 pheno_as_string += str(val)
     pheno_as_string += ")"
+
     return pheno_as_string
 
 def add_phenotype(cross, pheno_as_string, col_name):
@@ -150,11 +176,11 @@ def add_phenotype(cross, pheno_as_string, col_name):
     ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), ' + col_name + ' = '+ pheno_as_string +')')
     return ro.r["the_cross"]
 
-def pull_covar(cross, covar_name_string):
+def pull_var(var_name, cross, var_string):
     ro.globalenv["the_cross"] = cross
-    ro.r('trait_covars <- pull.pheno(the_cross, ' + covar_name_string + ')')
+    ro.r(var_name +' <- pull.pheno(the_cross, ' + var_string + ')')
 
-    return ro.r["trait_covars"]
+    return ro.r[var_name]
 
 def add_cofactors(cross, this_dataset, covariates, samples):
     ro.numpy2ri.activate()
@@ -190,19 +216,18 @@ def add_cofactors(cross, this_dataset, covariates, samples):
         covar_as_string += ")"
 
         col_name = "covar_" + str(i)
+        cross = add_phenotype(cross, covar_as_string, col_name)
 
         if i < (len(covariate_list) - 1):
             covar_name_string += '"' + col_name + '", '
         else:
             covar_name_string += '"' + col_name + '"'
 
-        cross = add_phenotype(cross, covar_as_string, col_name)
-
     covar_name_string += ")"
 
-    covars = pull_covar(cross, covar_name_string)
+    covars_ob = pull_var("trait_covars", cross, covar_name_string)
 
-    return cross, covars
+    return cross, covars_ob
 
 def create_marker_covariates(control_marker, cross):
     ro.globalenv["the_cross"] = cross
@@ -245,14 +270,17 @@ def process_rqtl_perm_results(num_perm, results):
 
     return perm_output, suggestive, significant
 
-def process_rqtl_results(result):        # TODO: how to make this a one liner and not copy the stuff in a loop
+def process_rqtl_results(result, species_name):        # TODO: how to make this a one liner and not copy the stuff in a loop
     qtl_results = []
     output = [tuple([result[j][i] for j in range(result.ncol)]) for i in range(result.nrow)]
 
     for i, line in enumerate(result.iter_row()):
         marker = {}
         marker['name'] = result.rownames[i]
-        marker['chr'] = output[i][0]
+        if species_name == "mouse" and output[i][0] == 20: #ZS: This is awkward, but I'm not sure how to change the 20s to Xs in the RData file
+            marker['chr'] = "X"
+        else:
+            marker['chr'] = output[i][0]
         marker['cM'] = output[i][1]
         marker['Mb'] = output[i][1]
         marker['lod_score'] = output[i][2]

@@ -15,6 +15,7 @@ import xlsxwriter
 import StringIO  # Todo: Use cStringIO?
 
 import gc
+import numpy as np
 
 import cPickle as pickle
 import uuid
@@ -392,9 +393,9 @@ def export_perm_data():
 
     buff = StringIO.StringIO()
     writer = csv.writer(buff)
-    writer.writerow(["Suggestive LRS (p=0.63) = " + str(perm_data[int(num_perm*0.37-1)])])
-    writer.writerow(["Significant LRS (p=0.05) = " + str(perm_data[int(num_perm*0.95-1)])])
-    writer.writerow(["Highly Significant LRS (p=0.01) = " + str(perm_data[int(num_perm*0.99-1)])])
+    writer.writerow(["Suggestive LRS (p=0.63) = " + str(np.percentile(np.array(perm_data), 67))])
+    writer.writerow(["Significant LRS (p=0.05) = " + str(np.percentile(np.array(perm_data), 95))])
+    writer.writerow(["Highly Significant LRS (p=0.01) = " + str(np.percentile(np.array(perm_data), 99))])
     writer.writerow("")
     writer.writerow([str(num_perm) + " Permutations"])
     writer.writerow("")
@@ -595,7 +596,7 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
     initial_start_vars = request.form
-    logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
+    #logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
     logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
@@ -620,6 +621,9 @@ def mapping_results_page():
         'significant',
         'num_perm',
         'permCheck',
+        'perm_strata',
+        'strat_var',
+        'categorical_vars',
         'perm_output',
         'num_bootstrap',
         'bootCheck',
@@ -654,11 +658,11 @@ def mapping_results_page():
     for key, value in initial_start_vars.iteritems():
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
-    logger.debug("Mapping called with start_vars:", start_vars)
+    #logger.debug("Mapping called with start_vars:", start_vars)
 
     version = "v3"
     key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    logger.info("key is:", pf(key))
+    #logger.info("key is:", pf(key))
     with Bench("Loading cache"):
         result = None # Just for testing
         #result = Redis.get(key)

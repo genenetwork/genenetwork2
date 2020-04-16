@@ -267,8 +267,8 @@ class DisplayMappingResults(object):
         else:
             self.genotype = self.dataset.group.read_genotype_file()
 
-        if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
-            self.genotype = self.genotype.read_rdata_output(self.qtlresults)
+        #if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
+        #    self.genotype = self.genotype.read_rdata_output(self.qtlresults)
 
         #Darwing Options
         try:
@@ -935,10 +935,14 @@ class DisplayMappingResults(object):
                 string3 += 'no cofactors'
         elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
             string3 = 'Using R/qtl mapping method with '
-            if self.controlLocus and self.doControl != "false":
+            if self.covariates != "":
+                string3 += 'the cofactors below:'
+                cofactor_names = ", ".join([covar.split(":")[0] for covar in self.covariates.split(",")])
+                string4 = cofactor_names
+            elif self.controlLocus and self.doControl != "false":
                 string3 += '%s as control' % self.controlLocus
             else:
-                string3 += 'no control for other QTLs'
+                string3 += 'no cofactors'
         else:
             string3 = 'Using Haldane mapping function with '
             if self.controlLocus and self.doControl != "false":
