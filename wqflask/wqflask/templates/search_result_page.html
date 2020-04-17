@@ -27,6 +27,8 @@
                     with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "mean" %}
                     with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    {% elif word.key|lower == "range" %}
+                    with <u>RANGE</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "lrs" or word.key|lower == "lod" or word.key|lower == "translrs" or word.key|lower == "cislrs" or word.key|lower == "translod" or word.key|lower == "cislod" %}
                     {% if word.search_term|length == 1 %}
                     with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
