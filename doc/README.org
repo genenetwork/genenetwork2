@@ -12,8 +12,6 @@
    - [[#load-the-small-database-in-mysql][Load the small database in MySQL]]
  - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#working-with-the-gn2-source-code][Working with the GN2 source code]]
- - [[#running-elasticsearch][Running ElasticSearch]]
-   - [[#systemd][SystemD]]
  - [[#read-more][Read more]]
  - [[#trouble-shooting][Trouble shooting]]
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
@@ -205,34 +203,6 @@ http://biogems.info/contrib/genenetwork/gn2.svg
 
 See [[development.org]].
 
-* Running ElasticSearch
-
-In order to start up elasticsearch:
-Penguin - change user to "elasticsearch" and use the following command: "env JAVA_HOME=/opt/jdk-9.0.4 /opt/elasticsearch-6.2.1/bin/elasticsearch"
-
-
-** SystemD
-
-New server - as root run "systemctl restart elasticsearch"
-
-#+BEGIN_SRC
-tux01:/etc/systemd/system# cat elasticsearch.service
-[Unit]
-Description=Run Elasticsearch
-
-[Service]
-ExecStart=/opt/elasticsearch-6.2.1/bin/elasticsearch
-Environment=JAVA_HOME=/opt/jdk-9.0.4
-Environment="ES_JAVA_OPTS=-Xms1g -Xmx8g"
-Environment="PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/opt/jdk-9.0.4/bin"
-LimitNOFILE=65536
-StandardOutput=syslog
-StandardError=syslog
-User=elasticsearch
-
-[Install]
-WantedBy=multi-user.target
-#+END_SRC
 
 * Read more
 
