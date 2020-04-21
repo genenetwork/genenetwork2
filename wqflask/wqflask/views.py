@@ -299,6 +299,12 @@ def links():
     #return render_template("docs.html", **doc.__dict__)
     return render_template("links.html")
 
+@app.route("/tutorials")
+def tutorials():
+    #doc = docs.Docs("links", request.args)
+    #return render_template("docs.html", **doc.__dict__)
+    return render_template("tutorials.html")
+
 @app.route("/environments")
 def environments():
     doc = docs.Docs("environments", request.args)
