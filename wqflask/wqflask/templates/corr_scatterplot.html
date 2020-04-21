@@ -25,7 +25,7 @@
 
   <table>
     <tr>
-      <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="800" style="width: 44px; height: 22px;"> px</td>
+      <td style="vertical-align: middle;">Width <input class="chartupdatewh" id="width" type="text" value="800" style="width: 44px; height: 22px;"> px </td>
       <td style="vertical-align: middle;">Height <input class="chartupdatewh" id="height" type="text" value="700" style="width: 44px; height: 22px;"> px</td>
     </tr>
   </table>
@@ -126,13 +126,13 @@
     </li>
   </ul>
 
-  <div class="tab-content">
+  <div class="tab-content" style="min-width: 800px;">
 
     <div class="tab-pane active" id="tp1">
       <br>
       <div id="scatterplot2"></div>
       <br>
-      <div class="row" style="width: 70%; overflow: hidden;">
+      <div class="row" style="min-width: 700px; overflow: hidden;">
       <div style="float: left;">
       <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
         <thead>
@@ -145,7 +145,7 @@
           </tr>
           <tr>
             <td>Slope</td>
-            <td>{{'%0.3f' % jsdata.slope}}</td>
+            <td>{{ jsdata.slope_string }}</td>
           </tr>
           <tr>
             <td>Intercept</td>
@@ -163,13 +163,13 @@
             <td style="text-align: left;" colspan="2">
               Regression Line
               <br>
-              y = {{'%0.3f' % jsdata.slope}} * x + {{'%0.3f' % jsdata.intercept}}
+              y = {{ jsdata.slope_string }} * x {% if jsdata.intercept < 0 %}- {{'%0.3f' % (jsdata.intercept * -1)}}{% else %}+ {{'%0.3f' % jsdata.intercept}}{% endif %}
             </td>
           </tr>
         </tbody>
       </table>
       </div>
-      <div style="padding-left: 40px; overflow: hidden;">
+      <div style="margin-left: 50px; min-width: 300px; float: left;">
         {% if trait_1.dataset.type == "ProbeSet" %}
         <div>
           X axis:
@@ -191,6 +191,16 @@
         <div>
           <a href="{{trait_1.pubmed_link}}">PubMed: {{trait_1.pubmed_text}}</a>
             {{trait_1.description_display}}
+        </div>
+        {% elif trait_1.dataset.type == "Geno" %}
+        <div>
+          X axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_1.name, dataset = trait_1.dataset.name)}}">
+            {{trait_1.dataset.group.species + " " + trait_1.dataset.group.name + " " + trait_1.dataset.name + ": " + trait_1.name|string}}
+          </a>
+        </div>
+        <div>
+          Location: {{trait_1.location_repr}} Mb
         </div>
         {% endif %}
 
@@ -218,6 +228,16 @@
           <a href="{{trait_2.pubmed_link}}">PubMed: {{trait_2.pubmed_text}}</a>
             {{trait_2.description_display}}
         </div>
+        {% elif trait_2.dataset.type == "Geno" %}
+        <div>
+          Y axis:
+          <a href="{{url_for('show_trait_page', trait_id = trait_2.name, dataset = trait_2.dataset.name)}}">
+            {{trait_2.dataset.group.species + " " + trait_2.dataset.group.name + " " + trait_2.dataset.name + ": " + trait_2.name|string}}
+          </a>
+        </div>
+        <div>
+          Location: {{trait_2.location_repr}} Mb
+        </div>
         {% endif %}
       </div>
       </div>
@@ -227,7 +247,7 @@
       <br>
       <div id="srscatterplot2"></div>
       <br>
-      <div class="row" style="width: 70%;">
+      <div class="row" style="min-width: 700px; overflow: hidden;">
       <div style="float: left;">
         <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
           <thead>
@@ -240,7 +260,7 @@
             </tr>
             <tr>
               <td>Slope</td>
-              <td>{{'%0.3f' % jsdata.srslope}}</td>
+              <td>{{ jsdata.srslope_string }}</td>
             </tr>
             <tr>
               <td>Intercept</td>
@@ -254,10 +274,17 @@
               <td>P value</td>
               <td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td>
             </tr>
+            <tr>
+              <td style="text-align: left;" colspan="2">
+                Regression Line
+                <br>
+                y = {{ jsdata.srslope_string }} * x {% if jsdata.srintercept < 0 %}- {{'%0.3f' % (jsdata.srintercept * -1)}}{% else %}+ {{'%0.3f' % jsdata.srintercept}}{% endif %}
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
-      <div style="padding-left: 40px; overflow: hidden;">
+      <div style="margin-left: 50px; min-width: 300px; float: left;">
         {% if trait_1.dataset.type == "ProbeSet" %}
         <div>
           X axis:

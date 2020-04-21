@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import string
 import resource
 import codecs
+import requests
 
 import redis
 Redis = redis.StrictRedis()
@@ -12,6 +13,7 @@ from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
 from db import webqtlDatabaseFunction
 from utility import webqtlUtil
+from utility import hmac
 
 from wqflask import app
 
@@ -23,8 +25,6 @@ from flask import Flask, g, request, url_for
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
-
-from wqflask import user_manager
 
 class GeneralTrait(object):
     """
@@ -60,6 +60,7 @@ class GeneralTrait(object):
         self.num_overlap = None
         self.strand_probe = None
         self.symbol = None
+        self.display_name = self.name
 
         self.LRS_score_repr = "N/A"
         self.LRS_location_repr = "N/A"
@@ -120,11 +121,36 @@ class GeneralTrait(object):
     @property
     def alias_fmt(self):
         '''Return a text formatted alias'''
+
+        alias = 'Not available'
         if self.alias:
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
-        else:
-            alias = 'Not available'
+
+        return alias
+
+    @property
+    def wikidata_alias_fmt(self):
+        '''Return a text formatted alias'''
+
+        alias = 'Not available'
+        if self.symbol:
+            human_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.upper())
+            mouse_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.capitalize())
+            other_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.lower())
+
+            if human_response and mouse_response and other_response:
+                alias_list = json.loads(human_response.content) + json.loads(mouse_response.content) + json.loads(other_response.content)
+
+                filtered_aliases = []
+                seen = set()
+                for item in alias_list:
+                    if item in seen:
+                        continue
+                    else:
+                        filtered_aliases.append(item)
+                        seen.add(item)
+                alias = "; ".join(filtered_aliases)
 
         return alias
 
@@ -277,7 +303,7 @@ def jsonable_table_row(trait, dataset_name, index):
             additive = "N/A"
         else:
             additive = "%.3f" % round(float(trait.additive), 2)
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                 index,
                 '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                 trait.symbol,
@@ -293,7 +319,7 @@ def jsonable_table_row(trait, dataset_name, index):
         else:
             additive = "%.2f" % round(float(trait.additive), 2)
         if trait.pubmed_id:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                     index,
                     '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                     trait.description_display,
@@ -303,7 +329,7 @@ def jsonable_table_row(trait, dataset_name, index):
                     trait.LRS_location_repr,
                     additive]
         else:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                     index,
                     '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                     trait.description_display,
@@ -313,7 +339,7 @@ def jsonable_table_row(trait, dataset_name, index):
                     trait.LRS_location_repr,
                     additive]
     elif dataset.type == "Geno":
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + user_manager.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
+        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                 index,
                 '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
                 trait.location_repr]
@@ -326,21 +352,22 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     if dataset.type == 'Publish':
         query = """
                 SELECT
-                        PublishXRef.Id, Publication.PubMed_ID,
+                        PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
                         Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
+                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
                         Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
                         Publication.Authors, Publication.Title, Publication.Abstract,
                         Publication.Journal, Publication.Volume, Publication.Pages,
                         Publication.Month, Publication.Year, PublishXRef.Sequence,
                         Phenotype.Units, PublishXRef.comments
                 FROM
-                        PublishXRef, Publication, Phenotype, PublishFreeze
+                        PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
                 WHERE
                         PublishXRef.Id = %s AND
                         Phenotype.Id = PublishXRef.PhenotypeId AND
                         Publication.Id = PublishXRef.PublicationId AND
                         PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                        PublishXRef.InbredSetId = InbredSet.Id AND
                         PublishFreeze.Id = %s
                 """ % (trait.name, dataset.id)
 
@@ -390,17 +417,25 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         trait_info = g.db.execute(query,
                                   (string.join(dataset.display_fields,','),
                                                dataset.type, trait.name)).fetchone()
+
     if trait_info:
         trait.haveinfo = True
 
         #XZ: assign SQL query result to trait attributes.
         for i, field in enumerate(dataset.display_fields):
             holder = trait_info[i]
+            # if isinstance(trait_info[i], basestring):
+            #     logger.debug("HOLDER:", holder)
+            #     logger.debug("HOLDER2:", holder.decode(encoding='latin1'))
+            #     holder = unicode(trait_info[i], "utf-8", "ignore")
             if isinstance(trait_info[i], basestring):
-                holder = unicode(trait_info[i], "utf-8", "ignore")
+                holder = holder.encode('latin1')
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
+            if trait.group_code:
+                trait.display_name = trait.group_code + "_" + str(trait.name)
+
             trait.confidential = 0
             if trait.pre_publication_description and not trait.pubmed_id:
                 trait.confidential = 1
@@ -426,6 +461,10 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                     trait.description_display = description.strip()
                 else:
                     trait.description_display = ""
+
+            trait.abbreviation = unicode(str(trait.abbreviation).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.description_display = unicode(str(trait.description_display).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.authors = unicode(str(trait.authors).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
 
             if not trait.year.isdigit():
                 trait.pubmed_text = "N/A"
@@ -464,7 +503,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             #LRS and its location
             trait.LRS_score_repr = "N/A"
             trait.LRS_location_repr = "N/A"
+            trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.additive = ""
             if dataset.type == 'ProbeSet' and not trait.cellid:
+                trait.mean = ""
                 query = """
                         SELECT
                                 ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
@@ -495,9 +536,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                     else:
                         trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
-                else:
-                    trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.mean = trait.additive = ""
-
 
             if dataset.type == 'Publish':
                 query = """

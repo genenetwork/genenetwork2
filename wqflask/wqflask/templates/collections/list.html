@@ -2,7 +2,6 @@
 {% block title %}Your Collections{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
@@ -14,19 +13,7 @@
         {% else %}
         <h1>Your Collections</h1>
         {% endif %}
-        <h2>You have {{ '{}'.format(numify(collections|count, "collection", "collections")) }}.</h1>
 
-        <hr style="height: 1px; background-color: #A9A9A9;">
-
-        <!--
-        <div class="page-header">
-            {% if g.user_session.logged_in %}
-            <h1>Collections owned by {{ g.user_session.user_name }}</h1>
-            {% else %}
-            <h1>Your Collections</h1>
-            {% endif %}
-        </div>
-        -->
         <div>
             <form id="collections_form" action="/delete" method="post">
               <input type="hidden" name="uc_id" id="uc_id" value="" />
@@ -35,10 +22,13 @@
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
             <button class="btn btn-danger" id="remove_collections" data-url="/collections/delete">Remove Collections</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
         </div>
         <br>
-        <div id="collections_list" style="width:50%;">
-        <table class="table-hover table-striped cell-border" id='trait_table'>
+        <div id="collections_list" style="width:50%; margin-top: 20px; margin-bottom: 20px;">
+        {% if collections|length > 0 %}
+        <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
             <thead>
                 <tr>
                     <th></th>
@@ -53,29 +43,19 @@
             <tbody>
             {% for uc in collections %}
                 <tr class="collection_line">
-                    {% if g.user_session.logged_in %}
                     <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
-                    {% else %}
-                    <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.name }}"></td>
-                    {% endif %}
                     <td align="right">{{ loop.index }}
-                    {% if g.user_session.logged_in %}
                     <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
-                    {% else %}
-                    <td><a class="collection_name" href="{{ url_for('view_collection', collection_id=uc.id) }}">{{ uc.name }}</a></td>
-                    {% endif %}
-                    {% if g.user_session.logged_in %}
                     <td>{{ uc.created_timestamp }}</td>
                     <td>{{ uc.changed_timestamp }}</td>
-                    {% else %}
-                    <td>{{ timeago(uc.created_timestamp.isoformat() + "Z") }}</td>
-                    <td>{{ timeago(uc.changed_timestamp.isoformat() + "Z") }}</td>
-                    {% endif %}
                     <td align="right">{{ uc.num_members }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        You have no collections yet.
+        {% endif %}
         </div>
     </div>
 
@@ -87,13 +67,9 @@
     <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
     <script>
             $('#trait_table').dataTable( {
                 "drawCallback": function( settings ) {
@@ -103,6 +79,7 @@
                          }
                      });
                 },
+                "buttons": [ 'copy', 'csv', 'excel' ],
                 "columns": [
                     { "type": "natural", "width": "3%" },
                     { "type": "natural", "width": "8%" },
@@ -116,12 +93,11 @@
                     "orderable": false
                 } ],
                 "order": [[1, "asc" ]],
-                "sDom": "RZtr",
+                "sDom": "BZtr",
                 "iDisplayLength": -1,
-                "autoWidth": true,
+                "autoWidth": false,
                 "bDeferRender": true,
                 "bSortClasses": false,
-                "scrollY": "600px",
                 "scrollCollapse": true,
                 "paging": false,
                 "orderClasses": true

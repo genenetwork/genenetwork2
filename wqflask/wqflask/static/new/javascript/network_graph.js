@@ -144,7 +144,7 @@ window.onload=function() {
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
         
     });
     $('#pos_slide').change(function() {
@@ -157,7 +157,7 @@ window.onload=function() {
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
         
     });
     
@@ -168,7 +168,7 @@ window.onload=function() {
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
     });
     
     $('select[name=focus_select]').change(function() {
@@ -180,7 +180,7 @@ window.onload=function() {
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
     });
     
     $('select[name=layout_select]').change(function() {
@@ -188,7 +188,7 @@ window.onload=function() {
         cy.layout({ name: layout_type,
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
     });
     
     $('select[name=font_size]').change(function() {
@@ -219,7 +219,7 @@ window.onload=function() {
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
     });
 
     $('select[name=edge_width]').change(function() {
@@ -243,7 +243,7 @@ window.onload=function() {
         cy.layout({ name: $('select[name=layout_select]').val(),
                     fit: true, // whether to fit the viewport to the graph
                     padding: 25 // the padding on fit              
-                  });
+                  }).run();
     });
 
     $("a#image_link").click(function(e) {
@@ -251,9 +251,6 @@ window.onload=function() {
 
       $(this).attr('href', pngData);
       $(this).attr('download', 'network_graph.png');
-      
-      console.log("TESTING:", image_link)
-      
     });
 
     

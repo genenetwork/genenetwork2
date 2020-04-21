@@ -54,7 +54,7 @@ class SendToBNW(object):
                     trait_vals.append(this_sample_data[sample].value)
 
             values_list.append(trait_vals)
-            self.form_value += "_" + this_trait.name + ","
+            self.form_value += "_" + str(this_trait.name) + ","
 
         values_list = zip(*values_list)
         self.form_value = self.form_value[:-1]

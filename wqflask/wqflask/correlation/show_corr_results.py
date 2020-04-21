@@ -34,6 +34,11 @@ import json
 
 import scipy
 import numpy
+import rpy2.robjects as ro                    # R Objects
+import rpy2.rinterface as ri
+
+from rpy2.robjects.packages import importr
+utils = importr("utils")
 
 from pprint import pformat as pf
 
@@ -44,14 +49,13 @@ from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
-from utility import webqtlUtil, helper_functions, corr_result_helpers
+from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
 from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 import utility.webqtlUtil
 from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
-from wqflask import user_manager
 
 from MySQLdb import escape_string as escape
 
@@ -117,6 +121,8 @@ class CorrelationResults(object):
                 self.location_chr = get_string(start_vars,'loc_chr')
                 self.min_location_mb = get_int(start_vars,'min_loc_mb')
                 self.max_location_mb = get_int(start_vars,'max_loc_mb')
+            else:
+                self.location_chr = self.min_location_mb = self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -145,6 +151,15 @@ class CorrelationResults(object):
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
             self.target_dataset.get_trait_data(self.sample_data.keys())
+
+            self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
+
+            if self.target_dataset.type == "ProbeSet":
+                self.filter_cols = [7, 6]
+            elif self.target_dataset.type == "Publish":
+                self.filter_cols = [6, 0]
+            else:
+                self.filter_cols = [4, 0]
 
             self.correlation_results = []
 
@@ -179,8 +194,9 @@ class CorrelationResults(object):
                 #ZS: Convert min/max chromosome to an int for the location range option
                 range_chr_as_int = None
                 for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                    if chr_info.name == self.location_chr:
-                        range_chr_as_int = order_id
+                    if 'loc_chr' in start_vars:
+                        if chr_info.name == self.location_chr:
+                            range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
@@ -246,6 +262,8 @@ class CorrelationResults(object):
             self.formatted_corr_type += "(Pearson's r)"
         elif self.corr_method == "spearman":
             self.formatted_corr_type += "(Spearman's rho)"
+        elif self.corr_method == "bicor":
+            self.formatted_corr_type += "(Biweight r)"
 
     def do_tissue_correlation_for_trait_list(self, tissue_dataset_id=1):
         """Given a list of correlation results (self.correlation_results), gets the tissue correlation value for each"""
@@ -434,7 +452,9 @@ class CorrelationResults(object):
         self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
 
         #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
-        if self.corr_method == 'pearson':
+        if self.corr_method == 'bicor':
+            sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
+        elif self.corr_method == 'pearson':
             sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
         else:
             sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
@@ -457,12 +477,28 @@ class CorrelationResults(object):
                     if not value.strip().lower() == 'x':
                         self.sample_data[str(sample)] = float(value)
 
+def do_bicor(this_trait_vals, target_trait_vals):
+    r_library = ro.r["library"]             # Map the library function
+    r_options = ro.r["options"]             # Map the options function
+
+    r_library("WGCNA")
+    r_bicor = ro.r["bicorAndPvalue"]        # Map the bicorAndPvalue function
+
+    r_options(stringsAsFactors = False)
+
+    this_vals = ro.Vector(this_trait_vals)
+    target_vals = ro.Vector(target_trait_vals)
+
+    the_r, the_p, _fisher_transform, _the_t, _n_obs = [numpy.asarray(x) for x in r_bicor(x = this_vals, y = target_vals)]
+
+    return the_r, the_p
+
 def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
     results_list = []
     for i, trait in enumerate(corr_results):
         results_dict = {}
         if not for_api:
-            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + user_manager.data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
+            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + hmac.hmac_creation('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
             results_dict['index'] = i + 1
             results_dict['trait_id'] = "<a href='/show_trait?trait_id="+str(trait.name)+"&dataset="+str(dataset.name)+"'>"+str(trait.name)+"</a>"
         else:
@@ -534,3 +570,81 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_list.append(results_dict)
 
     return json.dumps(results_list)
+
+def get_header_fields(data_type, corr_method):
+    if data_type == "ProbeSet":
+        if corr_method == "spearman":
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample rho',
+                                'N',
+                                'Sample p(rho)',
+                                'Lit rho',
+                                'Tissue rho',
+                                'Tissue p(rho)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+        else:
+            header_fields = ['Index',
+                                'Record',
+                                'Symbol',
+                                'Description',
+                                'Location',
+                                'Mean',
+                                'Sample r',
+                                'N',
+                                'Sample p(r)',
+                                'Lit r',
+                                'Tissue r',
+                                'Tissue p(r)',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+    elif data_type == "Publish":
+        if corr_method == "spearman":
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample rho',
+                            'N',
+                            'Sample p(rho)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
+        else:
+            header_fields = ['Index',
+                            'Record',
+                            'Description',
+                            'Authors',
+                            'Year',
+                            'Sample r',
+                            'N',
+                            'Sample p(r)',
+                            'Max LRS',
+                            'Max LRS Location',
+                            'Additive Effect']
+
+    else:
+        if corr_method == "spearman":
+            header_fields = ['Index',
+                                'ID',
+                                'Location',
+                                'Sample rho',
+                                'N',
+                                'Sample p(rho)']
+        else:
+            header_fields = ['Index',
+                                'ID',
+                                'Location',
+                                'Sample r',
+                                'N',
+                                'Sample p(r)']
+
+    return header_fields

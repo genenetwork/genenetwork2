@@ -7,6 +7,7 @@ from pprint import pformat as pf
 
 import string
 import math
+from decimal import Decimal
 import random
 import sys
 import datetime
@@ -37,6 +38,7 @@ from utility import Plot, Bunch
 from utility import temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
+from wqflask.show_trait.SampleList import SampleList
 
 from utility.tools import locate, locate_ignore_error, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
@@ -48,51 +50,85 @@ logger = utility.logger.getLogger(__name__ )
 class RunMapping(object):
 
     def __init__(self, start_vars, temp_uuid):
-
         helper_functions.get_species_dataset_trait(self, start_vars)
 
         self.temp_uuid = temp_uuid #needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
 
+        #ZS: Needed to zoom in or remap temp traits like PCA traits
+        if "temp_trait" in start_vars and start_vars['temp_trait'] != "False":
+            self.temp_trait = "True"
+            self.group = self.dataset.group.name
+
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
 
+        #ZS: Sometimes a group may have a genofile that only includes a subset of samples
+        genofile_samplelist = []
+        if 'genofile' in start_vars:
+          if start_vars['genofile'] != "":
+            self.genofile_string = start_vars['genofile']
+            self.dataset.group.genofile = self.genofile_string.split(":")[0]
+            genofile_samplelist = get_genofile_samplelist(self.dataset)
+
         all_samples_ordered = self.dataset.group.all_samples_ordered()
-        primary_sample_names = list(all_samples_ordered)
 
         self.vals = []
         if 'samples' in start_vars:
             self.samples = start_vars['samples'].split(",")
-            for sample in self.samples:
-                value = start_vars.get('value:' + sample)
-                if value:
-                    self.vals.append(value)
-        else:
-            self.samples = []
-
-            for sample in self.dataset.group.samplelist:
-                # sample is actually the name of an individual
-                in_trait_data = False
-                for item in self.this_trait.data:
-                    if self.this_trait.data[item].name == sample:
-                        value = start_vars['value:' + self.this_trait.data[item].name]
-                        self.samples.append(self.this_trait.data[item].name)
-                        self.vals.append(value)
-                        in_trait_data = True
-                        break
-                if not in_trait_data:
+            if (len(genofile_samplelist) != 0):
+                for sample in genofile_samplelist:
+                    if sample in self.samples:
+                        value = start_vars.get('value:' + sample)
+                        if value:
+                            self.vals.append(value)
+                    else:
+                        self.vals.append("x")
+            else:
+                for sample in self.samples:
                     value = start_vars.get('value:' + sample)
                     if value:
-                        self.samples.append(sample)
                         self.vals.append(value)
+        else:
+            self.samples = []
+            if (len(genofile_samplelist) != 0):
+                for sample in genofile_samplelist:
+                    if sample in self.dataset.group.samplelist:
+                        in_trait_data = False
+                        for item in self.this_trait.data:
+                            if self.this_trait.data[item].name == sample:
+                                value = start_vars['value:' + self.this_trait.data[item].name]
+                                self.samples.append(self.this_trait.data[item].name)
+                                self.vals.append(value)
+                                in_trait_data = True
+                                break
+                        if not in_trait_data:
+                            value = start_vars.get('value:' + sample)
+                            if value:
+                                self.samples.append(sample)
+                                self.vals.append(value)
+                    else:
+                        self.vals.append("x")
+            else:
+                for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
+                    in_trait_data = False
+                    for item in self.this_trait.data:
+                        if self.this_trait.data[item].name == sample:
+                            value = start_vars['value:' + self.this_trait.data[item].name]
+                            self.samples.append(self.this_trait.data[item].name)
+                            self.vals.append(value)
+                            in_trait_data = True
+                            break
+                    if not in_trait_data:
+                        value = start_vars.get('value:' + sample)
+                        if value:
+                            self.samples.append(sample)
+                            self.vals.append(value)
+
+        self.num_vals = start_vars['num_vals']
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
-        if "geno_db_exists" in start_vars:
-            self.geno_db_exists = start_vars['geno_db_exists']
-        else:
-          try:
-            self.geno_db_exists = "True"
-          except:
-            self.geno_db_exists = "False"
+
+        self.geno_db_exists = geno_db_exists(self.dataset)
 
         self.mapping_method = start_vars['method']
         if "results_path" in start_vars:
@@ -176,31 +212,36 @@ class RunMapping(object):
             self.showGenes = "ON"
             self.viewLegend = "ON"
 
-        if 'genofile' in start_vars:
-          if start_vars['genofile'] != "":
-            self.genofile_string = start_vars['genofile']
-            self.dataset.group.genofile = self.genofile_string.split(":")[0]
-        self.dataset.group.get_markers()
+        #self.dataset.group.get_markers()
         if self.mapping_method == "gemma":
             self.first_run = True
-            self.gwa_filename = None
+            self.output_files = None
+            if 'output_files' in start_vars:
+                self.output_files = start_vars['output_files']
             if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
                 self.first_run = False
-                if 'gwa_filename' in start_vars:
-                    self.gwa_filename = start_vars['gwa_filename']
             self.score_type = "-log(p)"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 if self.use_loco == "True":
-                    marker_obs, self.gwa_filename = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.gwa_filename)
+                    marker_obs, self.output_files = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
                 else:
-                    marker_obs = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run)
+                    marker_obs, self.output_files = gemma_mapping.run_gemma(self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
+            perm_strata = []
+            if "perm_strata" in start_vars and "categorical_vars" in start_vars:
+                self.categorical_vars = start_vars["categorical_vars"].split(",")
+                if len(self.categorical_vars) and start_vars["perm_strata"] == "True":
+                    primary_samples = SampleList(dataset = self.dataset,
+                                                 sample_names = self.samples,
+                                                 this_trait = self.this_trait)
+
+                    perm_strata = get_perm_strata(self.this_trait, primary_samples, self.categorical_vars, self.samples)
             self.score_type = "LOD"
-            self.mapping_scale = "morgan"
+            #self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             if 'mapmethod_rqtl_geno' in start_vars:
@@ -211,9 +252,9 @@ class RunMapping(object):
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
+                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
             else:
-                results = rqtl_mapping.run_rqtl_geno(self.vals, self.dataset, self.method, self.model, self.permCheck, self.num_perm, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan)
+                results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:
@@ -239,20 +280,45 @@ class RunMapping(object):
                     self.bootCheck = False
                     self.num_bootstrap = 0
 
+            self.reaper_version = start_vars['reaper_version']
+
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             logger.info("Running qtlreaper")
-            results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.gen_reaper_results(self.this_trait,
-                                                                                                                                                        self.dataset,
-                                                                                                                                                        self.samples,
-                                                                                                                                                        self.vals,
-                                                                                                                                                        self.json_data,
-                                                                                                                                                        self.num_perm,
-                                                                                                                                                        self.bootCheck,
-                                                                                                                                                        self.num_bootstrap,
-                                                                                                                                                        self.do_control,
-                                                                                                                                                        self.control_marker,
-                                                                                                                                                        self.manhattan_plot)
+
+            if self.reaper_version == "new":
+                self.first_run = True
+                self.output_files = None
+                if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
+                    self.first_run = False
+                    if 'output_files' in start_vars:
+                        self.output_files = start_vars['output_files'].split(",")
+
+                results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
+                                                                                                                                    self.dataset,
+                                                                                                                                    self.samples,
+                                                                                                                                    self.vals,
+                                                                                                                                    self.json_data,
+                                                                                                                                    self.num_perm,
+                                                                                                                                    self.bootCheck,
+                                                                                                                                    self.num_bootstrap,
+                                                                                                                                    self.do_control,
+                                                                                                                                    self.control_marker,
+                                                                                                                                    self.manhattan_plot,
+                                                                                                                                    self.first_run,
+                                                                                                                                    self.output_files)
+            else:
+                results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_original_reaper(self.this_trait,
+                                                                                                                                                             self.dataset,
+                                                                                                                                                             self.samples,
+                                                                                                                                                             self.vals,
+                                                                                                                                                             self.json_data,
+                                                                                                                                                             self.num_perm,
+                                                                                                                                                             self.bootCheck,
+                                                                                                                                                             self.num_bootstrap,
+                                                                                                                                                             self.do_control,
+                                                                                                                                                             self.control_marker,
+                                                                                                                                                             self.manhattan_plot)
         elif self.mapping_method == "plink":
             self.score_type = "-log(p)"
             self.manhattan_plot = True
@@ -295,8 +361,44 @@ class RunMapping(object):
 
           else:
               self.qtl_results = []
+              self.results_for_browser = []
+              self.annotations_for_browser = []
               highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
               for marker in results:
+                  browser_marker = dict(
+                      chr = str(marker['chr']),
+                      rs  = marker['name'],
+                      ps  = marker['Mb']*1000000,
+                      url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
+                  )
+
+                  if self.geno_db_exists == "True":
+                      annot_marker = dict(
+                          name = str(marker['name']),
+                          chr = str(marker['chr']),
+                          rs  = marker['name'],
+                          pos  = marker['Mb']*1000000,
+                          url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
+                      )
+                  else:
+                      annot_marker = dict(
+                          name = str(marker['name']),
+                          chr = str(marker['chr']),
+                          rs  = marker['name'],
+                          pos  = marker['Mb']*1000000
+                      )
+                  #if 'p_value' in marker:
+                  #    logger.debug("P EXISTS:", marker['p_value'])
+                  #else:
+                  if 'lrs_value' in marker and marker['lrs_value'] > 0:
+                      browser_marker['p_wald'] = 10**-(marker['lrs_value']/4.61)
+                  elif 'lod_score' in marker and marker['lod_score'] > 0:
+                      browser_marker['p_wald'] = 10**-(marker['lod_score'])
+                  else:
+                      browser_marker['p_wald'] = 0
+
+                  self.results_for_browser.append(browser_marker)
+                  self.annotations_for_browser.append(annot_marker)
                   if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                       if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                           highest_chr = marker['chr']
@@ -309,55 +411,70 @@ class RunMapping(object):
               with Bench("Trimming Markers for Figure"):
                   if len(self.qtl_results) > 30000:
                       self.qtl_results = trim_markers_for_figure(self.qtl_results)
+                      self.results_for_browser = trim_markers_for_figure(self.results_for_browser)
+                      filtered_annotations = []
+                      for marker in self.results_for_browser:
+                          for annot_marker in self.annotations_for_browser:
+                              if annot_marker['rs'] == marker['rs']:
+                                  filtered_annotations.append(annot_marker)
+                                  break
+                      self.annotations_for_browser = filtered_annotations
+                      browser_files = write_input_for_browser(self.dataset, self.results_for_browser, self.annotations_for_browser)
+                  else:
+                      browser_files = write_input_for_browser(self.dataset, self.results_for_browser, self.annotations_for_browser)
 
               with Bench("Trimming Markers for Table"):
                   self.trimmed_markers = trim_markers_for_table(results)
 
+              chr_lengths = get_chr_lengths(self.mapping_scale, self.dataset, self.qtl_results)
+
+              #ZS: For zooming into genome browser, need to pass chromosome name instead of number
+              if self.dataset.group.species == "mouse":
+                  if self.selected_chr == 20:
+                      this_chr = "X"
+                  else:
+                      this_chr = str(self.selected_chr)
+              elif self.dataset.group.species == "rat":
+                  if self.selected_chr == 21:
+                      this_chr = "X"
+                  else:
+                      this_chr = str(self.selected_chr)
+              else:
+                  if self.selected_chr == 22:
+                      this_chr = "X"
+                  elif self.selected_chr == 23:
+                      this_chr = "Y"
+                  else:
+                      this_chr = str(self.selected_chr)
+
               if self.mapping_method != "gemma":
-                  self.json_data['chr'] = []
-                  self.json_data['pos'] = []
-                  self.json_data['lod.hk'] = []
-                  self.json_data['markernames'] = []
-
-                  self.json_data['suggestive'] = self.suggestive
-                  self.json_data['significant'] = self.significant
-
-                  #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
-                  for index, qtl in enumerate(self.qtl_results):
-                      #if index<40:
-                      #    logger.debug("lod score is:", qtl['lod_score'])
-                      if qtl['chr'] == highest_chr and highest_chr != "X" and highest_chr != "X/Y":
-                          #logger.debug("changing to X")
-                          self.json_data['chr'].append("X")
-                      else:
-                          self.json_data['chr'].append(str(qtl['chr']))
-                      self.json_data['pos'].append(qtl['Mb'])
-                      if 'lrs_value' in qtl.keys():
-                          self.json_data['lod.hk'].append(str(qtl['lrs_value']))
-                      else:
-                          self.json_data['lod.hk'].append(str(qtl['lod_score']))
-                      self.json_data['markernames'].append(qtl['name'])
-
-                  #Get chromosome lengths for drawing the interval map plot
-                  chromosome_mb_lengths = {}
-                  self.json_data['chrnames'] = []
-                  for key in self.species.chromosomes.chromosomes.keys():
-                      self.json_data['chrnames'].append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
-                      chromosome_mb_lengths[key] = self.species.chromosomes.chromosomes[key].mb_length
+                  if self.score_type == "LRS":
+                      significant_for_browser = self.significant / 4.61
+                  else:
+                      significant_for_browser = self.significant
 
                   self.js_data = dict(
-                      result_score_type = self.score_type,
-                      json_data = self.json_data,
-                      this_trait = self.this_trait.name,
-                      data_set = self.dataset.name,
-                      maf = self.maf,
-                      manhattan_plot = self.manhattan_plot,
-                      mapping_scale = self.mapping_scale,
-                      chromosomes = chromosome_mb_lengths,
-                      qtl_results = self.qtl_results,
+                      #result_score_type = self.score_type,
+                      #this_trait = self.this_trait.name,
+                      #data_set = self.dataset.name,
+                      #maf = self.maf,
+                      #manhattan_plot = self.manhattan_plot,
+                      #mapping_scale = self.mapping_scale,
+                      #chromosomes = chromosome_mb_lengths,
+                      #qtl_results = self.qtl_results,
+                      chr_lengths = chr_lengths,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
+                      significant = significant_for_browser,
+                      browser_files = browser_files,
+                      selected_chr = this_chr
                   )
+              else:
+                self.js_data = dict(
+                    chr_lengths = chr_lengths,
+                    browser_files = browser_files,
+                    selected_chr = this_chr
+                )
 
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!
@@ -397,6 +514,7 @@ class RunMapping(object):
 
 def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type):
     with open(results_path, "w+") as output_file:
+        output_file.write("Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
         output_file.write("Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
         output_file.write("Data Set: " + dataset.fullname + "\n")
         if dataset.type == "ProbeSet":
@@ -404,6 +522,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
         output_file.write("\n")
         output_file.write("Name,Chr,")
+        if score_type.lower() == "-log(p)":
+            score_type = "'-log(p)"
         if mapping_scale == "physic":
             output_file.write("Mb," + score_type)
         else:
@@ -427,7 +547,9 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
                 output_file.write("\n")
 
 def trim_markers_for_figure(markers):
-    if 'lod_score' in markers[0].keys():
+    if 'p_wald' in markers[0].keys():
+        score_type = 'p_wald'
+    elif 'lod_score' in markers[0].keys():
         score_type = 'lod_score'
     else:
         score_type = 'lrs_value'
@@ -437,7 +559,22 @@ def trim_markers_for_figure(markers):
     med_counter = 0
     high_counter = 0
     for marker in markers:
-        if score_type == 'lod_score':
+        if score_type == 'p_wald':
+            if marker[score_type] > 0.1:
+                if low_counter % 20 == 0:
+                    filtered_markers.append(marker)
+                low_counter += 1
+            elif 0.1 >= marker[score_type] > 0.01:
+                if med_counter % 10 == 0:
+                    filtered_markers.append(marker)
+                med_counter += 1
+            elif 0.01 >= marker[score_type] > 0.001:
+                if high_counter % 2 == 0:
+                    filtered_markers.append(marker)
+                high_counter += 1
+            else:
+                filtered_markers.append(marker)
+        elif score_type == 'lod_score':
             if marker[score_type] < 1:
                 if low_counter % 20 == 0:
                     filtered_markers.append(marker)
@@ -453,15 +590,15 @@ def trim_markers_for_figure(markers):
             else:
                 filtered_markers.append(marker)
         else:
-            if marker[score_type] < 4.16:
+            if marker[score_type] < 4.61:
                 if low_counter % 20 == 0:
                     filtered_markers.append(marker)
                 low_counter += 1
-            elif 4.16 <= marker[score_type] < (2*4.16):
+            elif 4.61 <= marker[score_type] < (2*4.61):
                 if med_counter % 10 == 0:
                     filtered_markers.append(marker)
                 med_counter += 1
-            elif (2*4.16) <= marker[score_type] <= (3*4.16):
+            elif (2*4.61) <= marker[score_type] <= (3*4.61):
                 if high_counter % 2 == 0:
                     filtered_markers.append(marker)
                 high_counter += 1
@@ -481,3 +618,83 @@ def trim_markers_for_table(markers):
         return trimmed_sorted_markers
     else:
         return sorted_markers
+
+def write_input_for_browser(this_dataset, gwas_results, annotations):
+    file_base = this_dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+    gwas_filename = file_base + "_GWAS"
+    annot_filename = file_base + "_ANNOT"
+    gwas_path = "{}/gn2/".format(TEMPDIR) + gwas_filename
+    annot_path = "{}/gn2/".format(TEMPDIR) + annot_filename
+
+    with open(gwas_path + ".json", "w") as gwas_file, open(annot_path + ".json", "w") as annot_file:
+        gwas_file.write(json.dumps(gwas_results))
+        annot_file.write(json.dumps(annotations))
+
+    return [gwas_filename, annot_filename]
+
+def geno_db_exists(this_dataset):
+    geno_db_name = this_dataset.group.name + "Geno"
+    try:
+        geno_db = data_set.create_dataset(dataset_name=geno_db_name, get_samplelist=False)
+        return "True"
+    except:
+        return "False"
+
+def get_chr_lengths(mapping_scale, dataset, qtl_results):
+    chr_lengths = []
+    if mapping_scale == "physic":
+        for i, the_chr in enumerate(dataset.species.chromosomes.chromosomes):
+            this_chr = {
+                "chr": dataset.species.chromosomes.chromosomes[the_chr].name,
+                "size": str(dataset.species.chromosomes.chromosomes[the_chr].length)
+            }
+            chr_lengths.append(this_chr)
+    else:
+        this_chr = 1
+        highest_pos = 0
+        for i, result in enumerate(qtl_results):
+            chr_as_num = 0
+            try:
+                chr_as_num = int(result['chr'])
+            except:
+                chr_as_num = 20
+            if chr_as_num > this_chr or i == (len(qtl_results) - 1):
+                chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
+                this_chr = chr_as_num
+                highest_pos = 0
+            else:
+                if float(result['Mb']) > highest_pos:
+                    highest_pos = float(result['Mb'])
+
+    return chr_lengths
+
+def get_genofile_samplelist(dataset):
+    genofile_samplelist = []
+
+    genofile_json = dataset.group.get_genofiles()
+    for genofile in genofile_json:
+        if genofile['location'] == dataset.group.genofile and 'sample_list' in genofile:
+            genofile_samplelist = genofile['sample_list']
+
+    return genofile_samplelist
+
+def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
+    perm_strata_strings = []
+    for sample in used_samples:
+        if sample in sample_list.sample_attribute_values.keys():
+            combined_string = ""
+            for var in categorical_vars:
+                if var in sample_list.sample_attribute_values[sample].keys():
+                    combined_string += str(sample_list.sample_attribute_values[sample][var])
+                else:
+                    combined_string += "NA"
+        else:
+            combined_string = "NA"
+
+        perm_strata_strings.append(combined_string)
+
+    d = dict([(y,x+1) for x,y in enumerate(sorted(set(perm_strata_strings)))])
+    list_to_numbers = [d[x] for x in perm_strata_strings]
+    perm_strata = list_to_numbers
+
+    return perm_strata

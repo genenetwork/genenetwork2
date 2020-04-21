@@ -6,7 +6,6 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/nvd3/nv.d3.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
@@ -16,9 +15,9 @@
 {% block content %} <!-- Start of body -->
 
     <div class="container">
-        <h2>Trait Data and Analysis for <b>{{ this_trait.name }}</b></h2>
+        <h2>Trait Data and Analysis for <b>{{ this_trait.display_name }}</b></h2>
         {% if this_trait.dataset.type != 'Publish' %}
-        <h3>{{ this_trait.description_fmt }}</h3>
+        <h3>{{ this_trait.description_fmt[0]|upper }}{{ this_trait.description_fmt[1:] }}</h3>
         {% endif %}
     </div>
 
@@ -39,7 +38,7 @@
         <input type="hidden" name="covariates" value="">
         <input type="hidden" name="transform" value="">
 
-        <div class="container">
+        <div class="container" style="min-width: 1450px;">
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true">
@@ -130,8 +129,7 @@
         $('.collapse').collapse()
     </script>
 
-    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script type="text/javascript" src="/static/new/packages/nvd3/nv.d3.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
     <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
@@ -227,7 +225,7 @@
                 {% endif %}
                 {% endif %}
 
-                $('#samples_primary').DataTable( {
+                var primary_table = $('#samples_primary').DataTable( {
                   'initComplete': function(settings, json) {
                     $('.edit_sample_value').change(function() {
                       edit_data_change();
@@ -262,6 +260,7 @@
                     {% if sample_groups[0].attributes|length > 0 %}
                     {% for attribute in sample_groups[0].attributes|sort() %}
                     $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[0].attributes[attribute].name }}")
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).attr("style", "text-align: {{ sample_groups[0].attributes[attribute].alignment }}; padding-top: 2px; padding-bottom: 0px;")
                     {% endfor %}
                     {% endif %}
                   },
@@ -270,6 +269,7 @@
                     {
                       'data': null,
                       'orderDataType': "dom-checkbox",
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
                       }
@@ -277,6 +277,7 @@
                     {
                       'title': "ID",
                       'type': "natural",
+                      'searchable' : false,
                       'data': "this_id"
                     },
                     {
@@ -288,7 +289,7 @@
                       }
                     },
                     {
-                      'title': "Value",
+                      'title': "<div style='text-align: right;'>Value</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -296,7 +297,7 @@
                         if (data.value == null) {
                           return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id)] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id)] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% if sample_groups[0].se_exists() %},
@@ -304,12 +305,13 @@
                       'bSortable': false,
                       'type': "natural",
                       'data': null,
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '±'
                       }
                     },
                     {
-                      'title': "SE",
+                      'title': "<div style='text-align: right;'>SE</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -322,12 +324,12 @@
                       }
                     }{% endif %}{% if has_num_cases %},
                     {
-                      'title': "N",
+                      'title': "<div style='text-align: right;'>N</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        if (data.num_cases == null) {
+                        if (data.num_cases == null || data.num_cases == undefined) {
                           return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
                         } else {
                           return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
@@ -335,11 +337,15 @@
                       }
                     }{% endif %}{% if sample_groups[0].attributes|length > 0 %}{% for attribute in sample_groups[0].attributes|sort() %},
                     {
-                      'title': "{{ sample_groups[0].attributes[attribute].name }}",
+                      'title': "<div style='text-align: {{ sample_groups[0].attributes[attribute].alignment }}'>{{ sample_groups[0].attributes[attribute].name }}</div>",
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}']
+                        if (data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}'] != null && data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}'] != undefined){
+                          return data.extra_attributes['{{ sample_groups[0].attributes[attribute].name }}']
+                        } else {
+                          return ""
+                        }
                       }
                     }{% endfor %}{% endif %}
                   ],
@@ -358,8 +364,18 @@
                   }
                 } );
 
+                primary_table.on( 'order.dt search.dt draw.dt', function () {
+                  primary_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                    cell.innerHTML = i+1;
+                  } );
+                } ).draw();
+
+                $('#primary_searchbox').on( 'keyup', function () {
+                  primary_table.search($(this).val()).draw();
+                } );
+
                 {% if sample_groups|length != 1 %}
-                $('#samples_other').DataTable( {
+                var other_table = $('#samples_other').DataTable( {
                   'initComplete': function(settings, json) {
                     $('.edit_sample_value').change(function() {
                       edit_data_change();
@@ -394,6 +410,7 @@
                     {% if sample_groups[1].attributes|length > 0 %}
                     {% for attribute in sample_groups[1].attributes|sort() %}
                     $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[1].attributes[attribute].name }}")
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).attr("style", "text-align: {{ sample_groups[1].attributes[attribute].alignment }}; padding-top: 2px; padding-bottom: 0px;")
                     {% endfor %}
                     {% endif %}
                   },
@@ -402,6 +419,7 @@
                     {
                       'data': null,
                       'orderDataType': "dom-checkbox",
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
                       }
@@ -409,7 +427,8 @@
                     {
                       'title': "ID",
                       'type': "natural",
-                      'data': "this_id"
+                      'data': "this_id",
+                      'searchable' : false
                     },
                     {
                       'title': "Sample",
@@ -420,7 +439,7 @@
                       }
                     },
                     {
-                      'title': "Value",
+                      'title': "<div style='text-align: right;'>Value</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -436,12 +455,13 @@
                       'bSortable': false,
                       'type': "natural",
                       'data': null,
+                      'searchable' : false,
                       'render': function(data, type, row, meta) {
                         return '±'
                       }
                     },
                     {
-                      'title': "SE",
+                      'title': "<div style='text-align: right;'>SE</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -454,7 +474,7 @@
                       }
                     }{% endif %}{% if has_num_cases %},
                     {
-                      'title': "N",
+                      'title': "<div style='text-align: right;'>N</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
@@ -467,11 +487,15 @@
                       }
                     }{% endif %}{% if sample_groups[1].attributes|length > 0 %}{% for attribute in sample_groups[1].attributes|sort() %},
                     {
-                      'title': "{{ sample_groups[1].attributes[attribute].name }}",
+                      'title': "<div style='text-align: {{ sample_groups[1].attributes[attribute].alignment }}'>{{ sample_groups[1].attributes[attribute].name }}</div>",
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}']
+                        if (data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}'] != null && data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}'] != undefined){
+                          return data.extra_attributes['{{ sample_groups[1].attributes[attribute].name }}']
+                        } else {
+                          return ""
+                        }
                       }
                     }{% endfor %}{% endif %}
                   ],
@@ -488,6 +512,10 @@
                     'loadingRecords': '&nbsp;',
                     'processing': 'Loading...'
                   }
+                } );
+
+                $('#other_searchbox').on( 'keyup', function () {
+                  other_table.search($(this).val()).draw();
                 } );
                 {% endif %}
 

@@ -153,75 +153,77 @@
 
   //ZS: This is a list of inputs to be passed to the loading page, since not all inputs on the trait page are relevant to mapping
   var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
-                            'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
+                            'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
-                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species']
+                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples']
 
-  $("#rqtl_geno_compute").on("click", (function(_this) {
+  $(".rqtl_tab, #rqtl_geno_compute").on("click", (function(_this) {
     return function() {
-      var form_data, url;
-      url = "/loading";
-      $('input[name=method]').val("rqtl_geno");
-      $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
-      $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
-      $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
-      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
-      $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
-      $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
-      $('input[name=tool_used]').val("Mapping");
-      $('input[name=form_url]').val("/run_mapping");
-      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
-      if ($('input[name=pair_scan]:checked').val() == "true") {
-        run_pair_scan = confirm(runtime_warning_text)
-        if (run_pair_scan == true) {
-          submit_special(url);
-        }
-        else {
-          return false
-        }
-      }
-      else {
+      if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
+        var form_data, url;
+        url = "/loading";
+        $('input[name=method]').val("rqtl_geno");
+        $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
+        $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
+        $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
+        $('input[name=categorical_vars]').val(js_data.categorical_vars)
+        $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
+        $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
+        $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
+        $('input[name=tool_used]').val("Mapping");
+        $('input[name=form_url]').val("/run_mapping");
+        $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
         return submit_special(url);
+      } else {
+        return true
+      }
+    };
+  })(this));
+  
+  $(".gemma_tab, #gemma_compute").on("click", (function(_this) {
+    return function() {
+      if ($(this).hasClass('active') || $(this).attr('id') == "gemma_compute"){
+        var form_data, url;
+        console.log("RUNNING GEMMA");
+        url = "/loading";
+        $('input[name=method]').val("gemma");
+        $('input[name=selected_chr]').val($('#chr_gemma').val());
+        $('input[name=num_perm]').val(0);
+        $('input[name=genofile]').val($('#genofile_gemma').val());
+        $('input[name=maf]').val($('input[name=maf_gemma]').val());
+        $('input[name=tool_used]').val("Mapping");
+        $('input[name=form_url]').val("/run_mapping");
+        $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
+        return submit_special(url);
+      } else {
+        return true
       }
     };
   })(this));
 
-  $("#gemma_compute").on("click", (function(_this) {
+  $(".reaper_tab, #interval_mapping_compute").on("click", (function(_this) {
     return function() {
-      var form_data, url;
-      console.log("RUNNING GEMMA");
-      url = "/loading";
-      $('input[name=method]').val("gemma");
-      $('input[name=selected_chr]').val($('#chr_gemma').val());
-      $('input[name=num_perm]').val(0);
-      $('input[name=genofile]').val($('#genofile_gemma').val());
-      $('input[name=maf]').val($('input[name=maf_gemma]').val());
-      $('input[name=tool_used]').val("Mapping");
-      $('input[name=form_url]').val("/run_mapping");
-      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
-      return submit_special(url);
-    };
-  })(this));
-
-  $("#interval_mapping_compute").on("click", (function(_this) {
-    return function() {
-      var form_data, url;
-      console.log("In interval mapping");
-      url = "/loading";
-      $('input[name=method]').val("reaper");
-      $('input[name=selected_chr]').val($('#chr_reaper').val());
-      $('input[name=genofile]').val($('#genofile_reaper').val());
-      $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
-      $('input[name=control_marker]').val($('input[name=control_reaper]').val());
-      $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
-      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
-      $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
-      $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
-      $('input[name=tool_used]').val("Mapping");
-      $('input[name=form_url]').val("/run_mapping");
-      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
-      return submit_special(url);
+      if ($(this).hasClass('active') || $(this).attr('id') == "interval_mapping_compute"){
+        var form_data, url;
+        console.log("In interval mapping");
+        url = "/loading";
+        $('input[name=method]').val("reaper");
+        $('input[name=selected_chr]').val($('#chr_reaper').val());
+        $('input[name=genofile]').val($('#genofile_reaper').val());
+        $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
+        $('input[name=control_marker]').val($('input[name=control_reaper]').val());
+        $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
+        $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
+        $('input[name=mapping_display_all]').val($('input[name=display_all_reaper]'));
+        $('input[name=suggestive]').val($('input[name=suggestive_reaper]'));
+        $('input[name=tool_used]').val("Mapping");
+        $('input[name=form_url]').val("/run_mapping");
+        $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
+        return submit_special(url);
+      } else {
+        return true
+      }
     };
   })(this));
 

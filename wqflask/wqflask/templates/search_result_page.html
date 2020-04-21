@@ -8,13 +8,16 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <div style="padding-left: 10px;">
+    <div style="padding-left: 10px; {% if dataset.type == 'Publish' %}min-width: 1000px;{% else %}min-width: 1200px;{% endif %}">
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
         <!-- Need to customize text more for other types of searches -->
-        <p>We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
+        <p><b>Search Results:</b> We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
            to find all records
+                {% if go_term is not none %}
+                with <u>Gene Ontology ID</u> <strong>GO:{{ go_term }}</strong>.
+                {% else %}
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}
                     with <u>GeneRIF</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
@@ -24,15 +27,15 @@
                     with <u>GeneWiki</u> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.key|lower == "mean" %}
                     with <u>MEAN</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
-                    {% elif word.key|lower == "lrs" or word.key|lower == "translrs" or word.key|lower == "cislrs" %}
+                    {% elif word.key|lower == "lrs" or word.key|lower == "lod" or word.key|lower == "translrs" or word.key|lower == "cislrs" or word.key|lower == "translod" or word.key|lower == "cislod" %}
                     {% if word.search_term|length == 1 %}
                     with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 2 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 3 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 5 %}
-                    with <u>LRS</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
+                    with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
                     {% elif word.key|lower == "position" %}
                     with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
@@ -40,9 +43,13 @@
                     {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match:<br>{% endif %}<b>"{{ word.search_term[0] }}"</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
                     {% endif %}
                 {% endfor %}
+                {% endif %}
                 <br>
                 {{ results|count }} records are shown below.
         </p>
+        {% if go_term is not none %}
+        <p><b>The associated genes include:</b><br><br>{% for word in search_terms %}{{ word.search_term[0] }}{% endfor %}</p>
+        {% endif %}
 
         <!--<p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>-->
 
@@ -61,43 +68,39 @@
 
 
                 <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
-                    Correlation Matrix
+                    Correlations
                 </button>
-
 
                 <button id="network_graph" class="btn btn-primary submit_special" data-url="/network_graph" title="Network Graph" >
-                    Network Graph
+                    Networks
                 </button>
 
+                <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
+                  WebGestalt
+                </button>
+
+                <button id="send_to_geneweaver" class="btn btn-primary submit_special" data-url="/geneweaver_page" title="GeneWeaver" >
+                  GeneWeaver
+                </button>
+
+                <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
+                  BNW
+               </button>
 
                 <button id="wgcna_setup" class="btn btn-primary submit_special" data-url="/wgcna_setup" title="WGCNA Analysis" >
-                    WGCNA Analysis
+                    WGCNA
                 </button>
-
 
                 <button id="ctl_setup" class="btn btn-primary submit_special" data-url="/ctl_setup" title="CTL Analysis" >
-                    CTL Analysis
+                    CTL Maps
                 </button>
 
-
                 <button id="heatmap" class="btn btn-primary submit_special" data-url="/heatmap" title="Heatmap" >
-                    Heatmap
+                    MultiMap
                 </button>
 
                 <button id="comp_bar_chart" class="btn btn-primary submit_special" data-url="/comparison_bar_chart" title="Comparison Bar Chart" >
                     Comparison Bar Chart
-                </button>
-
-                <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
-                    WebGestalt
-                </button>
-
-                <button id="send_to_geneweaver" class="btn btn-primary submit_special" data-url="/geneweaver_page" title="GeneWeaver" >
-                    GeneWeaver
-                </button>
-
-                <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
-                    BNW
                 </button>
 
           </form>
@@ -105,19 +108,28 @@
 
         <div>
           <br />
-          <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select</button>
-          <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
-          <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-          <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-          <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-          <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
           <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
+            <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
+            <input type="hidden" name="search_string" id="search_string" value="{{ original_search_string }}">
             <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
+            <input type="hidden" name="file_name" id="file_name" value="search_results">
+            <input type="hidden" name="filter_term" id="filter_term" value="None">
+            {% if dataset.accession_id is defined %}
+            <input type="hidden" name="accession_id" id="accession_id" value="{{ dataset.accession_id }}">
+            {% endif %}
             <input type="hidden" name="export_data" id="export_data" value="">
-            <button class="btn btn-default" id="export_traits">Download</button>
+            <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select</button>
+            <button class="btn btn-default" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+            <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
           </form>
           <br />
           <br />
+          <div style="margin-bottom: 5px;">
+            <b>Show/Hide Columns:</b>
+          </div>
           <div id="table_container">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
@@ -205,7 +217,7 @@
             $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
+                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
                              $(':checkbox', this).trigger('click');
                          }
                      });
@@ -236,11 +248,13 @@
                     $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                     $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    $('td', row).slice(6,9).attr("align", "right");
+                    $('td', row).eq(4).attr('align', 'right');
+                    $('td', row).slice(6,10).attr("align", "right");
                     $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
                     $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
                     $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
                     $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                    $('td', row).eq(9).attr('data-export', $('td', row).eq(8).text());
                     {% elif dataset.type == 'Geno' %}
                     $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
                     {% endif %}
@@ -249,6 +263,7 @@
                 'columns': [
                     {
                       'data': null,
+                      'width': "30px",
                       'orderDataType': "dom-checkbox",
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
@@ -258,15 +273,17 @@
                     {
                       'title': "Index",
                       'type': "natural",
+                      'width': "30px",
                       'data': "index"
                     },
                     {
                       'title': "Record",
                       'type': "natural",
                       'data': null,
+                      'width': "60px",
                       'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
-                        return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
+                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
                       }
                     }{% if dataset.type == 'ProbeSet' %},
                     {
@@ -277,7 +294,6 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "300px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         try {
@@ -290,12 +306,13 @@
                     {
                       'title': "Location",
                       'type': "natural",
-                      'width': "140px",
+                      'width': "120px",
                       'data': "location"
                     },
                     {
                       'title': "Mean",
                       'type': "natural",
+                      'width': "40px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
@@ -308,7 +325,7 @@
                     {
                       'title': "Max LRS Location",
                       'type': "natural",
-                      'width': "140px",
+                      'width': "120px",
                       'data': "lrs_location"
                     },
                     {
@@ -320,7 +337,7 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "25%",
+                      'width': "800px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
@@ -331,16 +348,28 @@
                       }
                     },
                     {
+                      'title': "Mean",
+                      'type': "natural",
+                      'width': "110px",
+                      'data': "mean",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
                       'title': "Authors",
                       'type': "natural",
-                      'width': "25%",
+                      'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         author_list = data.authors.split(",")
                         if (author_list.length >= 6) {
-                          return author_list.slice(0, 6).join(",") + ", et al."
+                          author_string = author_list.slice(0, 6).join(",") + ", et al."
                         } else{
-                          return data.authors
+                          author_string = data.authors
+                        }
+                        try {
+                          return decodeURIComponent(escape(author_string))
+                        } catch(err){
+                          return author_string
                         }
                       }
                     },
@@ -367,7 +396,7 @@
                     {
                       'title': "Max LRS Location",
                       'type': "natural",
-                      'width': "160px",
+                      'width': "200px",
                       'data': "lrs_location"
                     },
                     {
@@ -398,8 +427,7 @@
                         postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
-                'sDom': "Btir",
-                'autoWidth': false,
+                'sDom': "Bitir",
                 'deferRender': true,
                 'paging': false,
                 'orderClasses': true,

@@ -31,6 +31,7 @@ import piddle as pid
 import sys,os
 import cPickle
 import httplib
+import json
 
 from flask import Flask, g
 
@@ -146,7 +147,7 @@ class DisplayMappingResults(object):
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
-        self.n_samples = len(start_vars['vals'])
+        self.n_samples = start_vars['num_vals']
         self.species = start_vars['species']
         self.genofile_string = ""
         if 'genofile_string' in start_vars:
@@ -158,6 +159,10 @@ class DisplayMappingResults(object):
         if 'first_run' in start_vars:
             self.first_run = start_vars['first_run']
 
+        if 'temp_trait' in start_vars and start_vars['temp_trait'] != "False":
+            self.temp_trait = "True"
+            self.group = start_vars['group']
+
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
@@ -168,12 +173,12 @@ class DisplayMappingResults(object):
             self.mapmodel_rqtl_geno = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
 
-        if self.mapping_method != "gemma" and self.mapping_method != "plink":
-            self.js_data = start_vars['js_data']
+        #if self.mapping_method != "gemma" and self.mapping_method != "plink":
+        self.js_data = start_vars['js_data']
         self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
 
         if self.dataset.group.species == "rat":
-            self._ucscDb = "rn3"
+            self._ucscDb = "rn6"
         elif self.dataset.group.species == "mouse":
             self._ucscDb = "mm9"
         else:
@@ -228,19 +233,42 @@ class DisplayMappingResults(object):
             self.covariates = start_vars['covariates']
         if 'maf' in start_vars.keys():
             self.maf = start_vars['maf']
+        if 'output_files' in start_vars.keys():
+            self.output_files = start_vars['output_files']
         if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
-            if self.use_loco == "True":
-                self.gwa_filename = start_vars['gwa_filename']
+
+        if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
+            self.reaper_version = start_vars['reaper_version']
+            if 'output_files' in start_vars:
+                self.output_files = ",".join(start_vars['output_files'])
 
         self.selectedChr = int(start_vars['selected_chr'])
 
         self.strainlist = start_vars['samples']
 
+        self.traitList = []
+        thisTrait = start_vars['this_trait']
+        self.traitList.append(thisTrait)
+
+        ################################################################
+        # Calculations QTL goes here
+        ################################################################
+        self.multipleInterval = len(self.traitList) > 1
+        self.qtlresults = start_vars['qtl_results']
+
+        if self.multipleInterval:
+            self.colorCollection = Plot.colorSpectrum(len(self.qtlresults))
+        else:
+            self.colorCollection = [self.LRS_COLOR]
+
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
             self.genotype = self.dataset.group.read_genotype_file(use_reaper=True)
         else:
             self.genotype = self.dataset.group.read_genotype_file()
+
+        #if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
+        #    self.genotype = self.genotype.read_rdata_output(self.qtlresults)
 
         #Darwing Options
         try:
@@ -306,6 +334,10 @@ class DisplayMappingResults(object):
         ################################################################
         self.ChrList = [("All", -1)]
         for i, indChr in enumerate(self.genotype):
+            if self.dataset.group.species == "mouse" and indChr.name == "20":
+                self.ChrList.append(("X", i))
+            elif self.dataset.group.species == "rat" and indChr.name == "21":
+                self.ChrList.append(("X", i))
             self.ChrList.append((indChr.name, i))
 
         self.ChrLengthMbList = g.db.execute("""
@@ -329,16 +361,13 @@ class DisplayMappingResults(object):
         self.ChrLengthCMList = []
         for i, _chr in enumerate(self.genotype):
             self.ChrLengthCMList.append(_chr[-1].cM - _chr[0].cM)
+
         self.ChrLengthCMSum = reduce(lambda x, y:x+y, self.ChrLengthCMList, 0.0)
 
         if self.plotScale == 'physic':
             self.GraphInterval = self.MbGraphInterval #Mb
         else:
             self.GraphInterval = self.cMGraphInterval #cM
-
-        self.traitList = []
-        thisTrait = start_vars['this_trait']
-        self.traitList.append(thisTrait)
 
 ## BEGIN HaplotypeAnalyst
 ## count the amount of individuals to be plotted, and increase self.graphHeight
@@ -361,16 +390,7 @@ class DisplayMappingResults(object):
             self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS+10) * self.EACH_GENE_HEIGHT
 ## END HaplotypeAnalyst
 
-        ################################################################
-        # Calculations QTL goes here
-        ################################################################
-        self.multipleInterval = len(self.traitList) > 1
-        self.qtlresults = start_vars['qtl_results']
 
-        if self.multipleInterval:
-            self.colorCollection = Plot.colorSpectrum(len(self.qtlresults))
-        else:
-            self.colorCollection = [self.LRS_COLOR]
 
 
         #########################
@@ -379,7 +399,7 @@ class DisplayMappingResults(object):
         RISet = self.dataset.group.name
         if RISet in ('AXB', 'BXA', 'AXBXA'):
             self.diffCol = ['B6J', 'A/J']
-        elif RISet in ('BXD', 'BXD300', 'B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2'):
+        elif RISet in ('BXD', 'BXD300', 'B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2', 'BXD-Harvested'):
             self.diffCol = ['B6J', 'D2J']
         elif RISet in ('CXB'):
             self.diffCol = ['CBY', 'B6J']
@@ -915,10 +935,14 @@ class DisplayMappingResults(object):
                 string3 += 'no cofactors'
         elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
             string3 = 'Using R/qtl mapping method with '
-            if self.controlLocus and self.doControl != "false":
+            if self.covariates != "":
+                string3 += 'the cofactors below:'
+                cofactor_names = ", ".join([covar.split(":")[0] for covar in self.covariates.split(",")])
+                string4 = cofactor_names
+            elif self.controlLocus and self.doControl != "false":
                 string3 += '%s as control' % self.controlLocus
             else:
-                string3 += 'no control for other QTLs'
+                string3 += 'no cofactors'
         else:
             string3 = 'Using Haldane mapping function with '
             if self.controlLocus and self.doControl != "false":
@@ -1331,7 +1355,7 @@ class DisplayMappingResults(object):
 
         for i, _chr in enumerate(self.genotype):
             if _chr.name == self.ChrList[self.selectedChr][0]:
-                for j, _geno in enumerate(_chr[1]):
+                for j, _geno in enumerate(_chr[1].genotype):
 
                     plotbxd=0
                     for item in smd:
@@ -1414,9 +1438,9 @@ class DisplayMappingResults(object):
                 if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
                     PHENOGEN_COORDS = "%d, %d, %d, %d" % (xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT))
                     if self.dataset.group.species == "mouse":
-                        PHENOGEN_HREF = "https://phenogen.ucdenver.edu/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                        PHENOGEN_HREF = "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     else:
-                        PHENOGEN_HREF = "https://phenogen.ucdenver.edu/PhenoGen/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
+                        PHENOGEN_HREF = "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
                     gifmap.areas.append(HT.Area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
                     canvas.drawRect(xBrowse1, phenogenPaddingTop, xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT), edgeColor=self.CLICKABLE_PHENOGEN_REGION_COLOR, fillColor=self.CLICKABLE_PHENOGEN_REGION_COLOR)
@@ -1644,10 +1668,6 @@ class DisplayMappingResults(object):
 
         INTERCROSS = (self.genotype.type=="intercross")
 
-        LRSHeightThresh = drawAreaHeight
-        AdditiveHeightThresh = drawAreaHeight/2
-        DominanceHeightThresh = drawAreaHeight/2
-
         #draw the LRS scale
         #We first determine whether or not we are using a sliding scale.
         #If so, we need to compute the maximum LRS value to determine where the max y-value should be, and call this LRS_LOD_Max.
@@ -1684,7 +1704,9 @@ class DisplayMappingResults(object):
                         pass
 
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
+                if self.significant > LRS_LOD_Max:
+                    LRS_LOD_Max = self.significant * 1.1
+                #LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
             else:
                 LRS_LOD_Max = 1.15*LRS_LOD_Max
 
@@ -1692,6 +1714,25 @@ class DisplayMappingResults(object):
             LRS_LOD_Max = min(LRS_LOD_Max, webqtlConfig.MAXLRS)
         else:
             LRS_LOD_Max = self.lrsMax
+
+        #ZS: Needed to pass to genome browser
+        js_data = json.loads(self.js_data)
+        if self.LRS_LOD == "LRS":
+            js_data['max_score'] = LRS_LOD_Max/4.61
+        else:
+            js_data['max_score'] = LRS_LOD_Max
+        self.js_data = json.dumps(js_data)
+
+        LRSScaleFont=pid.Font(ttf="verdana", size=16*zoom, bold=0)
+        LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
+
+        yZero = yTopOffset + plotHeight
+        LRSHeightThresh = drawAreaHeight
+        AdditiveHeightThresh = drawAreaHeight/2
+        DominanceHeightThresh = drawAreaHeight/2
+        # LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
+        # AdditiveHeightThresh = LRSHeightThresh/2
+        # DominanceHeightThresh = LRSHeightThresh/2
 
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
@@ -1705,28 +1746,45 @@ class DisplayMappingResults(object):
         LRSAxisList = Plot.frange(LRSScale, LRS_LOD_Max, LRSScale)
         #make sure the user's value appears on the y-axis
         #update by NL 6-21-2011: round the LOD value to 100 when LRS_LOD_Max is equal to 460
-        LRSAxisList.append(round(LRS_LOD_Max))
+        LRSAxisList.append(ceil(LRS_LOD_Max))
+
+        #ZS: Convert to int if all axis values are whole numbers
+        all_int = True
+        for item in LRSAxisList:
+            if item.is_integer():
+                continue
+            else:
+                all_int = False
+                break
+
+        if all_int:
+            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 30
+        else:
+            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 20
 
         #draw the "LRS" or "LOD" string to the left of the axis
-        LRSScaleFont=pid.Font(ttf="verdana", size=16*zoom, bold=0)
-        LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
-        yZero = yTopOffset + plotHeight
-
-        canvas.drawString(self.LRS_LOD, xLeftOffset - canvas.stringWidth("999.99", font=LRSScaleFont) - 15*(zoom-1), \
+        canvas.drawString(self.LRS_LOD, xLeftOffset - max_lrs_width - 15*(zoom-1), \
                                           yZero - 150 - 300*(zoom - 1), font=LRSLODFont, color=pid.black, angle=90)
 
         for item in LRSAxisList:
             if LRS_LOD_Max == 0.0:
                 LRS_LOD_Max = 0.000001
+            yTopOffset + 30*(zoom - 1)
             yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+            #yLRS = yZero - (item/LRSAxisList[-1]) * LRSHeightThresh
             canvas.drawLine(xLeftOffset, yLRS, xLeftOffset - 4, yLRS, color=self.LRS_COLOR, width=1*zoom)
-            scaleStr = "%2.1f" % item
+            if all_int:
+                scaleStr = "%d" % item
+            else:
+                scaleStr = "%2.1f" % item
             #Draw the LRS/LOD Y axis label
             canvas.drawString(scaleStr, xLeftOffset-4-canvas.stringWidth(scaleStr, font=LRSScaleFont)-5, yLRS+3, font=LRSScaleFont, color=self.LRS_COLOR)
 
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
             significantY = yZero - self.significant*LRSHeightThresh/LRS_LOD_Max
             suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRS_LOD_Max
+            # significantY = yZero - self.significant*LRSHeightThresh/LRSAxisList[-1]
+            # suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSAxisList[-1]
             startPosX = xLeftOffset
 
             #"Significant" and "Suggestive" Drawing Routine
@@ -1790,7 +1848,6 @@ class DisplayMappingResults(object):
             m = 0
             thisLRSColor = self.colorCollection[0]
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
-
                 if self.manhattan_plot != True:
                     canvas.drawPolygon(LRSCoordXY,edgeColor=thisLRSColor,closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth))
 
@@ -1834,44 +1891,65 @@ class DisplayMappingResults(object):
                     oldStartPosX = newStartPosX
 
             #ZS: This is beause the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
-            if self.plotScale == "physic":
-                this_chr = str(self.ChrList[self.selectedChr][0])
-            else:
+            this_chr = str(self.ChrList[self.selectedChr][0])
+            if self.plotScale != "physic":
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
+
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
-                Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+                if self.plotScale != "physic" and self.genotype.filler == True:
+                    if self.selectedChr != -1:
+                        start_cm = self.genotype[self.selectedChr - 1][0].cM
+                        Xc = startPosX + (qtlresult['Mb'] - start_cm)*plotXScale
+                    else:
+                        start_cm = self.genotype[previous_chr_as_int][0].cM
+                        Xc = startPosX + ((qtlresult['Mb']-start_cm-startMb)*plotXScale)*(((qtlresult['Mb']-start_cm-startMb)*plotXScale)/((qtlresult['Mb']-start_cm-startMb+self.GraphInterval)*plotXScale))
+                else:
+                    Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
+
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
                 # for any lrs is over than 460(LRS max in this system), it will be reset to 460
+
+                yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
+
+
                 if 'lrs_value' in qtlresult:
                     if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                         else:
+                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
                     else:
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
+                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                         else:
+                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRS_LOD_Max
                 else:
                     if qtlresult['lod_score'] > 100 or qtlresult['lod_score']=='inf':
+                        #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
                         Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRS_LOD_Max
                     else:
                         if self.LRS_LOD == "LRS":
+                            #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRS_LOD_Max
                         else:
+                            #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
                     if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
-                        point_color = pid.grey
+                        point_color = pid.red
                     else:
-                        point_color = pid.black
+                        point_color = pid.blue
 
                     final_x_pos = Xc-canvas.stringWidth("5",font=symbolFont)/2+1
                     if final_x_pos > (xLeftOffset + plotWidth):
-                        break
+                        continue
+                        #break ZS: This is temporary until issue with sorting for GEMMA is fixed
                     elif final_x_pos < xLeftOffset:
                         continue
                     else:
@@ -2052,16 +2130,16 @@ class DisplayMappingResults(object):
         #########################################
         #      Permutation Graph
         #########################################
-        myCanvas = pid.PILCanvas(size=(400,300))
+        myCanvas = pid.PILCanvas(size=(500,300))
         if 'lod_score' in self.qtlresults[0] and self.LRS_LOD == "LRS":
-            perm_output = [value*4.16 for value in self.perm_output]
+            perm_output = [value*4.61 for value in self.perm_output]
         elif 'lod_score' not in self.qtlresults[0] and self.LRS_LOD == "LOD":
-            perm_output = [value/4.16 for value in self.perm_output]
+            perm_output = [value/4.61 for value in self.perm_output]
         else:
             perm_output = self.perm_output
 
-        Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         filename= webqtlUtil.genRandStr("Reg_")
+        Plot.plotBar(myCanvas, perm_output, XLabel=self.LRS_LOD, YLabel='Frequency', title=' Histogram of Permutation Test')
         myCanvas.save(GENERATED_IMAGE_DIR+filename, format='gif')
 
         return filename

@@ -26,6 +26,7 @@ import collections
 import codecs
 
 import json
+import requests
 import gzip
 import cPickle as pickle
 import itertools
@@ -46,6 +47,8 @@ from utility import chunks
 from utility import gen_geno_ob
 from utility.tools import locate, locate_ignore_error, flat_files
 
+from wqflask.api import gen_menu
+
 from maintenance import get_group_samplelists
 
 from MySQLdb import escape_string as escape
@@ -61,7 +64,7 @@ logger = getLogger(__name__ )
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
+def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
         logger.debug("dataset_type", dataset_type)
@@ -75,7 +78,7 @@ def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, gro
 
 class Dataset_Types(object):
 
-    def __init__(self):
+    def __init__(self, rebuild=False):
         """Create a dictionary of samples where the value is set to Geno,
 Publish or ProbeSet. E.g.
 
@@ -91,8 +94,10 @@ Publish or ProbeSet. E.g.
 
         """
         self.datasets = {}
-        if USE_GN_SERVER:
-            data = menu_main()
+        if rebuild: #ZS: May make this the only option
+            data = json.loads(requests.get("http://gn2.genenetwork.org/api/v_pre1/gen_dropdown").content)
+            logger.debug("THE DATA:", data)
+            #data = gen_menu.gen_dropdown_json()
         else:
             file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
             with open(file_name, 'r') as fh:
@@ -190,7 +195,7 @@ class Markers(object):
                 markers.append(marker)
 
         for marker in markers:
-            if (marker['chr'] != "X") and (marker['chr'] != "Y"):
+            if (marker['chr'] != "X") and (marker['chr'] != "Y") and (marker['chr'] != "M"):
                 marker['chr'] = int(marker['chr'])
             marker['Mb'] = float(marker['Mb'])
 
@@ -302,9 +307,11 @@ class DatasetGroup(object):
 
         mapping_id = g.db.execute("select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
         if mapping_id == "1":
-            mapping_names = ["QTLReaper", "R/qtl"]
+            mapping_names = ["GEMMA", "QTLReaper", "R/qtl"]
         elif mapping_id == "2":
             mapping_names = ["GEMMA"]
+        elif mapping_id == "3":
+            mapping_names = ["R/qtl"]
         elif mapping_id == "4":
             mapping_names = ["GEMMA", "PLINK"]
         else:
@@ -342,9 +349,18 @@ class DatasetGroup(object):
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
+    def get_genofiles(self):
+        jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
+        try:
+            f = open(jsonfile)
+        except:
+            return None
+        jsondata = json.load(f)
+        return jsondata['genofile']
+
     def get_samplelist(self):
         result = None
-        key = "samplelist:v2:" + self.name
+        key = "samplelist:v3:" + self.name
         if USE_REDIS:
             result = Redis.get(key)
 
@@ -378,7 +394,10 @@ class DatasetGroup(object):
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
-            full_filename = str(locate(self.genofile, 'genotype'))
+            if "RData" in self.genofile: #ZS: This is a temporary fix; I need to change the way the JSON files that point to multiple genotype files are structured to point to other file types like RData
+                full_filename = str(locate(self.genofile.split(".")[0] + ".geno", 'genotype'))
+            else:
+                full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
 
@@ -416,7 +435,8 @@ def datasets(group_name, this_group = None):
           WHERE PublishFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
             and PublishFreeze.public > %s
-            and PublishFreeze.confidentiality < 1)
+            and PublishFreeze.confidentiality < 1
+          ORDER BY PublishFreeze.Id ASC)
          UNION
          (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
           FROM GenoFreeze, InbredSet
@@ -440,12 +460,21 @@ def datasets(group_name, this_group = None):
 
     sorted_results = sorted(the_results, key=lambda kv: kv[0])
 
+    pheno_inserted = False #ZS: This is kind of awkward, but need to ensure Phenotypes show up before Genotypes in dropdown
+    geno_inserted = False
     for dataset_item in sorted_results:
         tissue_name = dataset_item[0]
         dataset = dataset_item[1]
         dataset_short = dataset_item[2]
         if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
-            dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
+            if tissue_name == '#PublishFreeze' and (dataset_short == group_name + 'Publish'):
+                dataset_menu.insert(0, dict(tissue=None, datasets=[(dataset, dataset_short)]))
+                pheno_inserted = True
+            elif pheno_inserted and tissue_name == '#GenoFreeze':
+                dataset_menu.insert(1, dict(tissue=None, datasets=[(dataset, dataset_short)]))
+                geno_inserted = True
+            else:
+                dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
         else:
             tissue_already_exists = False
             for i, tissue_dict in enumerate(dataset_menu):
@@ -681,6 +710,7 @@ class PhenotypeDataSet(DataSet):
                             'Phenotype.Pre_publication_description',
                             'Phenotype.Pre_publication_abbreviation',
                             'Phenotype.Post_publication_abbreviation',
+                            'PublishXRef.mean',
                             'Phenotype.Lab_code',
                             'Publication.PubMed_ID',
                             'Publication.Abstract',
@@ -689,13 +719,14 @@ class PhenotypeDataSet(DataSet):
                             'PublishXRef.Id']
 
         # Figure out what display_fields is
-        self.display_fields = ['name',
+        self.display_fields = ['name', 'group_code',
                                'pubmed_id',
                                'pre_publication_description',
                                'post_publication_description',
                                'original_description',
                                'pre_publication_abbreviation',
                                'post_publication_abbreviation',
+                               'mean',
                                'lab_code',
                                'submitter', 'owner',
                                'authorized_users',
@@ -910,6 +941,7 @@ class MrnaAssayDataSet(DataSet):
                                'blatseq', 'targetseq',
                                'chipid', 'comments',
                                'strand_probe', 'strand_gene',
+                               'proteinid', 'uniprotid',
                                'probe_set_target_region',
                                'probe_set_specificity',
                                'probe_set_blat_score',

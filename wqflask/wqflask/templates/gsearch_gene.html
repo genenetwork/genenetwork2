@@ -9,8 +9,10 @@
 
     <div class="container" style="width: 2000px;">
 
-        <h3>GN searched 754 datasets and 39765944 traits across 10 species, and found {{ trait_count }} results that match your query.
-        You can filter these results by adding key words in the fields below and you can also sort results on most columns.</h3>
+        <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 754 datasets and 39,765,944 traits across 10 species<br/>
+            and found <b>{{ trait_count }}</b> results that match your query.<br/>
+            You can filter these results by adding key words in the fields below<br/>
+            and you can also sort results on most columns.</h3>
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -21,13 +23,13 @@
             <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
             <input type="text" id="searchbox" class="form-control" style="width: 180px; display: inline;" placeholder="Search This Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 120px; display: inline;" placeholder="Select Top ...">
-            <br />
-            <br />
-            <form id="export_form" method="POST" action="/export_traits_csv">
+            <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
+              <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
               <input type="hidden" name="database_name" id="database_name" value="None">
               <input type="hidden" name="export_data" id="export_data" value="">
-              <button class="btn btn-default" id="export_traits">Download CSV</button>
+              <button class="btn btn-default" id="export_traits">Download</button>
             </form>
+            <br />
             <br />
             <div style="width: 100%;">
               <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
@@ -79,8 +81,43 @@
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
             $('#trait_table').DataTable( {
+                'drawCallback': function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 'createdRow': function ( row, data, index ) {
                     $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
                     $('td', row).eq(1).attr("align", "right");
@@ -105,6 +142,19 @@
                         $('td', row).eq(8).text($('td', row).eq(8).text() + '...')
                     }
                     $('td', row).slice(10,14).attr("align", "right");
+                    $('td', row).eq(1).attr('data-export', $('td', row).eq(1).text());
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                    $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
+                    $('td', row).eq(11).attr('data-export', $('td', row).eq(11).text());
+                    $('td', row).eq(12).attr('data-export', $('td', row).eq(12).text());
+                    $('td', row).eq(13).attr('data-export', $('td', row).eq(13).text());
                 },
                 'data': the_rows,
                 'columns': [
@@ -126,7 +176,7 @@
                       'data': null,
                       'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
-                        return '<a href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
+                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
                       }
                     },
                     { 
@@ -168,7 +218,8 @@
                     },
                     { 
                       'title': "Location",
-                      'type': "natural", 
+                      'type': "natural",
+                      'width': "100px",
                       'data': "location_repr"
                     },
                     {
@@ -178,19 +229,21 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     { 
-                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Max<br>LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural", 
                       'data': "LRS_score_repr",
                       'orderSequence': [ "desc", "asc"]
                     },
                     { 
-                      'title': "Max LRS Location",
-                      'type': "natural", 
+                      'title': "Max LRS<br>Location",
+                      'type': "natural",
+                      'width': "100px",
                       'data': "max_lrs_text"
                     },
                     { 
-                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural", 
+                      'title': "Additive<br>Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'type': "natural",
+                      'width': "50px",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }

@@ -42,23 +42,27 @@ $('#trait_table').dataTable( {
 } );
 
 $('#collection_table').dataTable( {
-    "createdRow": function ( row, data, index ) {
-        if ($('td', row).eq(1).text().length > 40) {
-            $('td', row).eq(1).text($('td', row).eq(1).text().substring(0, 40));
-            $('td', row).eq(1).text($('td', row).eq(1).text() + '...')
-        }
-        if ($('td', row).eq(3).text().length > 50) {
-            $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
-            $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
-        }
-    },
-    "order": [[0, "asc" ]],
-    "sDom": "ZRtr",
-    "iDisplayLength": -1,
-    "autoWidth": true,
-    "bSortClasses": false,
-    "paging": false,
-    "orderClasses": true
+  "createdRow": function ( row, data, index ) {
+      if ($('td', row).eq(2).text().length > 40) {
+          $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
+          $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
+      }
+      if ($('td', row).eq(4).text().length > 50) {
+          $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+          $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+      }
+  },
+  "columnDefs": [ {
+      "targets": 0,
+      "orderable": false
+  } ],
+  "order": [[1, "asc" ]],
+  "sDom": "ZRtr",
+  "iDisplayLength": -1,
+  "autoWidth": true,
+  "bSortClasses": false,
+  "paging": false,
+  "orderClasses": true
 } );
 
 collection_click = function() {
@@ -178,7 +182,7 @@ trait_row_click = function() {
   var dataset, this_trait_url, trait;
   console.log("Clicking on:", $(this));
   trait = $(this).find('.trait').text();
-  dataset = $(this).find('.dataset').text();
+  dataset = $(this).find('.dataset').data("dataset");
   this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
   $.ajax({
     dataType: "json",
@@ -336,7 +340,6 @@ get_this_trait_vals = function(samples) {
       this_trait_vals.push(null);
     }
   }
-  console.log("this_trait_vals:", this_trait_vals);
   this_vals_json = '[' + this_trait_vals.toString() + ']';
   return this_trait_vals;
 };
@@ -364,36 +367,28 @@ color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
 process_traits = function(trait_data, textStatus, jqXHR) {
   var the_html, trait, _i, _len;
   console.log('in process_traits with trait_data:', trait_data);
-  the_html = "<button id='back_to_collections' class='btn btn-default'>";
+  the_html = "<button id='back_to_collections' class='btn btn-inverse btn-small'>";
   the_html += "<i class='icon-white icon-arrow-left'></i> Back </button>";
-  if ($('.corr_compute').length){
-    the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
-  }
-  if ($('#scatterplot2').length){
-    the_html += "    Please click the row of the trait you wish to select as a cofactor.";
-  }
-  the_html += "<table id='collection_table' class='table table-hover'>";
-  if ($('.corr_compute').length){
-    the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th><th>Mean</th></tr></thead>";
-  } else {
-    the_html += "<thead><tr><th>Record</th><th>Data Set</th><th>Description</th></tr></thead>";
-  }
+  the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
+  the_html += "<table id='collection_table' style='padding-top: 10px;' class='table table-hover'>";
+  the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th></tr></thead>";
   the_html += "<tbody>";
   for (_i = 0, _len = trait_data.length; _i < _len; _i++) {
     trait = trait_data[_i];
     the_html += "<tr class='trait_line'>";
-    if ($('.corr_compute').length){
-      the_html += "<td class='select_trait'><input type='checkbox' name='selectCheck' class='checkbox edit_sample_checkbox'></td>";
+    the_html += "<td class='select_trait'><input type='checkbox' name='selectCheck' class='checkbox edit_sample_checkbox'></td>";
+    if ("abbreviation" in trait) {
+        the_html += "<td class='trait' data-display_name='" + trait.name + " - " + trait.abbreviation + "'>" + trait.name + "</td>";
+    } else if ("symbol" in trait) {
+      the_html += "<td class='trait' data-display_name='" + trait.name + " - " + trait.symbol + "'>" + trait.name + "</td>";
+    } else {
+      the_html += "<td class='trait' data-display_name='" + trait.name + "'>" + trait.name + "</td>";
     }
-    the_html += "<td class='trait'>" + trait.name + "</td>";
-    the_html += "<td class='dataset'>" + trait.dataset + "</td>";
-    the_html += "<td>" + trait.description + "</td>";
+    the_html += "<td class='dataset' data-dataset='" + trait.dataset + "'>" + trait.dataset_name + "</td>";
+    the_html += "<td class='description'>" + trait.description + "</td>";
   }
   the_html += "</tbody>";
   the_html += "</table>";
-  the_html += "<div id=\"collection_list_html\" style=\"display: none;\">"
-  the_html += collection_list
-  the_html += "</div>"
   the_html += "<script type='text/javascript' src='/static/new/javascript/get_traits_from_collection.js'></script>"
   $("#collections_holder").html(the_html);
   return $('#collections_holder').colorbox.resize();

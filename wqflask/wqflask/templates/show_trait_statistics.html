@@ -21,11 +21,9 @@
                 <li>
                     <a href="#violin_plot_tab" class="violin_plot_tab" data-toggle="tab">Violin Plot</a>
                 </li>
-                {% if g.user_session.logged_in %}
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
-                {% endif %}
             </ul>
 
             <div class="tab-content">
@@ -70,7 +68,7 @@
                             </select>
                         </div>
                         {% endif %}
-                        <div id="update_bar_chart" class="btn-group">
+                        <div id="update_bar_chart" class="btn-group" style="margin-bottom: 5px;">
                             <button type="button" class="btn btn-default sort_by_name" value="name">
                             <i class="icon-resize-horizontal"></i> Sort By Name
                             </button>
@@ -78,13 +76,11 @@
                             <i class="icon-signal"></i> Sort By Value
                             </button>
                         </div>
-                        {% if g.user_session.logged_in %}
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" id="color_by_trait">
                                 <i class="icon-tint"></i> Color by Trait
                             </button>
                         </div>
-                        {% endif %}
                         <div id="bar_chart_container">
                             <div id="bar_chart"></div>
                         </div>
@@ -126,7 +122,6 @@
                         <div id="violin_plot"></div>
                     </div>
                 </div>
-                {% if g.user_session.logged_in %}
                 <div class="tab-pane" id="scatterplot_matrix">
                     
                     <div style="margin-bottom:40px;" class="btn-group">
@@ -141,7 +136,6 @@
                         <div id="comparison_scatterplot" class="qtlcharts"></div>
                     </div>
                 </div>
-                {% endif %}
             </div>
         </div>
     <!--</div>-->

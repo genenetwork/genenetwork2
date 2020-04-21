@@ -24,8 +24,8 @@ class SampleList(object):
                  dataset,
                  sample_names,
                  this_trait,
-                 sample_group_type,
-                 header):
+                 sample_group_type = "primary",
+                 header = "Samples"):
 
         self.dataset = dataset
         self.this_trait = this_trait
@@ -55,7 +55,7 @@ class SampleList(object):
                 try:
                     sample = self.this_trait.data[sample_name]
                 except KeyError:
-                    logger.debug("No sample %s, let's create it now" % sample_name)
+                    #logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
@@ -68,7 +68,7 @@ class SampleList(object):
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
+                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
 
@@ -106,11 +106,23 @@ class SampleList(object):
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            logger.debug("radish: %s - %s" % (key, name))
+            #logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
+
+            all_numbers = True
+            for value in self.attributes[key].distinct_values:
+                try:
+                    val_as_float = float(value)
+                except:
+                    all_numbers = False
+
+            if all_numbers:
+                self.attributes[key].alignment = "right"
+            else:
+                self.attributes[key].alignment = "left"
 
     def get_extra_attribute_values(self):
         if self.attributes:
@@ -183,7 +195,7 @@ def get_transform_vals(dataset, trait):
         for sample in samples:
             sample_dict[sample['name']] = sample['qnorm']
 
-        logger.info("SAMPLE DICT:", sample_dict)
+        #logger.info("SAMPLE DICT:", sample_dict)
         return sample_dict
     else:
         return None

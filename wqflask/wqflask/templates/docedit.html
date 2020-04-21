@@ -5,17 +5,26 @@
 {% block content %}
 <div class="container">
     <h3>Edit: {{title}}</h3>
-    <form action="/update_text" method="post">
+    <form id="update_text" action="/update_text" method="post">
         <input type="hidden" name="entry_type" value="{{ entry }}">
         <input type="hidden" name="title" value="{{ title }}">
+        {% if editable is defined %}
+        <input type="hidden" name="edit" value="{{ editable }}">
+        {% endif %}
+        <button class="submit_changes" style="margin-bottom: 20px;">Submit Changes</button>
         <textarea name="ckcontent" id="ckcontent">
 			{{content|safe}}
         </textarea>
+        <button class="submit_changes" style="margin-top: 20px;">Submit Changes</button>
         <script src="/static/packages/ckeditor/ckeditor.js"></script>
         <script type="text/javascript">
             CKEDITOR.replace('ckcontent',	{
                 height: '650px',
             });
+
+            $('.submit_changes').click(function() {
+                $('#update_text').submit();
+            })
         </script>
     </form>
 </div>

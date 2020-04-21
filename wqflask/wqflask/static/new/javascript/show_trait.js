@@ -30,11 +30,11 @@ Stat_Table_Rows = [
   }, {
     vn: "min",
     pretty: "Minimum",
-    digits: 2
+    digits: 3
   }, {
     vn: "max",
     pretty: "Maximum",
-    digits: 2
+    digits: 3
   }
 ]
 
@@ -67,16 +67,18 @@ Stat_Table_Rows.push(
     digits: 3
   }, {
     vn: "interquartile",
-    pretty: "<font color='blue'>Interquartile Range</font>",
+    pretty: "<font color='black'>Interquartile Range</font>",
     url: "http://www.genenetwork.org/glossary.html#Interquartile",
     digits: 3
   }, {
     vn: "skewness",
     pretty: "Skewness",
+    url: "https://en.wikipedia.org/wiki/Skewness",
     digits: 3
   }, {
     vn: "kurtosis",
-    pretty: "Kurtosis",
+    pretty: "Excess Kurtosis",
+    url: "https://en.wikipedia.org/wiki/Kurtosis",
     digits: 3
   }
 );
@@ -106,6 +108,13 @@ d3.select("#select_covariates").on("click", (function(_this) {
 $("#remove_covariates").click(function () {
     $("input[name=covariates]").val("")
     $(".selected_covariates").val("")
+});
+$(".select_covariates").click(function () {
+  open_covariate_selection();
+});
+$(".remove_covariates").click(function () {
+  $("input[name=covariates]").val("")
+  $(".selected_covariates").val("")
 });
 d3.select("#clear_compare_trait").on("click", (function(_this) {
   return function() {
@@ -221,6 +230,11 @@ update_histogram = function() {
     trait_vals.push(x.value);
   }
   root.histogram_data[0]['x'] = trait_vals
+
+  if ($('input[name="transform"]').val() != ""){
+    root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  }
+
   Plotly.newPlot('histogram', root.histogram_data, root.histogram_layout, root.modebar_options);
   update_histogram_width()
 };
@@ -261,6 +275,14 @@ update_bar_chart = function() {
     }
   }
 
+  new_chart_range = get_bar_range(trait_vals, trait_vars)
+
+  root.bar_layout['yaxis']['range'] = new_chart_range
+
+  if ($('input[name="transform"]').val() != ""){
+    root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  }
+
   root.bar_data[0]['y'] = trait_vals
   root.bar_data[0]['error_y'] = {
     type: 'data',
@@ -297,6 +319,11 @@ update_box_plot = function() {
     }
     root.box_data[0]['y'] = trait_vals
   }
+
+  if ($('input[name="transform"]').val() != ""){
+    root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  }
+
   Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
 }
 
@@ -323,6 +350,11 @@ update_violin_plot = function() {
     }
     root.violin_data[0]['y'] = trait_vals
   }
+
+  if ($('input[name="transform"]').val() != ""){
+    root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  }
+
   Plotly.newPlot('violin_plot', root.violin_data, root.violin_layout, root.modebar_options)
 }
 
@@ -334,9 +366,9 @@ update_prob_plot = function() {
 make_table = function() {
   var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
   if (js_data.trait_symbol != null) {
-    header = "<thead><tr><th style=\"text-align: center;\" colspan=\"100%\">Trait: " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+    header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
   } else {
-    header = "<thead><tr><th style=\"text-align: center;\" colspan=\"100%\">Trait: " + js_data.trait_id + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
+    header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + ": " + js_data.short_description + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
   }
   _ref = js_data.sample_group_types;
   for (key in _ref) {
@@ -359,7 +391,7 @@ make_table = function() {
     }
     row_line = "<tr>";
     if (row.url != null) {
-      row_line += "<td id=\"" + row.vn + "\" align=\"right\"><a href=\"" + row.url + "\" style=\"color: #000000;\">" + row.pretty + "</a></td>";
+      row_line += "<td id=\"" + row.vn + "\" align=\"right\"><a href=\"" + row.url + "\" style=\"color: #0000EE;\">" + row.pretty + "</a></td>";
     } else {
       row_line += "<td id=\"" + row.vn + "\" align=\"right\">" + row.pretty + "</td>";
     }
@@ -546,6 +578,20 @@ block_by_index = function() {
   _ref = index_string.split(",");
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     index_set = _ref[_i];
+    /*
+    if (index_set.indexOf('<') !== -1) {
+      try {
+        start_index = parseInt(index_set.split("<")[0]);
+        end_index = parseInt(index_set.split("<")[1]);
+        for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
+          index_list.push(index);
+        }
+      } catch (_error) {
+        error = _error;
+        alert("Syntax error");
+      }
+    }
+    */
     if (index_set.indexOf('-') !== -1) {
       try {
         start_index = parseInt(index_set.split("-")[0]);
@@ -566,9 +612,9 @@ block_by_index = function() {
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     if ($('#block_group').val() === "primary") {
-      _results.push($('#Primary_' + index.toString()).find('.trait_value_input').val("x"));
+      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
     } else if ($('#block_group').val() === "other") {
-      _results.push($('#Other_' + index.toString()).find('.trait_value_input').val("x"));
+      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
     } else {
       _results.push(void 0);
     }
@@ -576,6 +622,7 @@ block_by_index = function() {
   return _results;
 };
 $('#block_by_index').click(block_by_index);
+
 hide_no_value = function() {
   return $('.value_se').each((function(_this) {
     return function(_index, element) {
@@ -609,19 +656,40 @@ $('.reset').click(function() {
   edit_data_change();
 });
 
-log_normalize_data = function() {
+log2_normalize_data = function(zero_to_one_vals_exist) {
   return $('.trait_value_input').each((function(_this) {
     return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
+      current_value = $(element).data("value")
       if(isNaN(current_value)) {
         return current_value
       } else {
+        if (zero_to_one_vals_exist){
+          current_value = parseFloat(current_value) + 1;
+        }
         $(element).val(Math.log2(current_value).toFixed(3));
         return Math.log2(current_value).toFixed(3)
       }
     };
   })(this));
 };
+
+log10_normalize_data = function(zero_to_one_vals_exist) {
+  return $('.trait_value_input').each((function(_this) {
+    return function(_index, element) {
+      current_value = $(element).data("value")
+      if(isNaN(current_value)) {
+        return current_value
+      } else {
+        if (zero_to_one_vals_exist){
+          current_value = parseFloat(current_value) + 1;
+        }
+        $(element).val(Math.log10(current_value).toFixed(3));
+        return Math.log10(current_value).toFixed(3)
+      }
+    };
+  })(this));
+};
+
 
 sqrt_normalize_data = function() {
   return $('.edit_sample_value').each((function(_this) {
@@ -680,12 +748,36 @@ zscore_data = function() {
   })(this));
 };
 
+check_for_zero_to_one_vals = function() {
+  zero_to_one_vals_exist = false
+  $('.trait_value_input').each(function() {
+    current_value = $(this).data("value")
+    if(isNaN(current_value)) {
+      return;
+    } else {
+      current_value = parseFloat(current_value)
+      if (0 < current_value && current_value < 1){
+        zero_to_one_vals_exist = true
+        return false;
+      }
+    }
+  });
+  return zero_to_one_vals_exist
+}
+
 normalize_data = function() {
-  if ($('#norm_method option:selected').val() == 'log2'){
-    if ($('input[name="transform"]').val() != "log2") {
-      log_normalize_data()
+  if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
+    zero_to_one_vals_exist = check_for_zero_to_one_vals();
+    if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
+      log2_normalize_data(zero_to_one_vals_exist)
       $('input[name="transform"]').val("log2")
       $('span[name="transform_text"]').text(" - log2 transformed")
+    } else {
+      if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
+        log10_normalize_data(zero_to_one_vals_exist)
+        $('input[name="transform"]').val("log10")
+        $('span[name="transform_text"]').text(" - log10 transformed")
+      }
     }
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
@@ -749,7 +841,7 @@ get_sample_table_data = function(table_name) {
       for (key in _ref) {
         if (!__hasProp.call(_ref, key)) continue;
         attribute_info = _ref[key];
-        row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_")).text());
+        row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_").replace("/", "\\/")).text());
       }
       return samples.push(row_data);
     };
@@ -773,6 +865,11 @@ export_sample_table_data = function() {
 };
 
 $('.export_format').change(function() {
+  if (this.value  == "csv"){
+    $('#export_code').css("display", "block")
+  } else{
+    $('#export_code').css("display", "none")
+  }
   $('input[name=export_format]').val( this.value );
   $('.export_format').val( this.value );
 });
@@ -839,7 +936,7 @@ get_bar_bottom_margin = function(sample_list){
   }
 
   if (max_length > 6){
-    bottom_margin += 9*(max_length - 6)
+    bottom_margin += 11*(max_length - 6)
   }
 
   return bottom_margin;
@@ -864,8 +961,17 @@ root.modebar_options = {
     click: function(gd) {
       Plotly.downloadImage(gd, {format: 'svg'})
     }
+  },
+  {
+    name: 'Export as JPEG',
+    icon: Plotly.Icons.camera,
+    click: function(gd) {
+      Plotly.downloadImage(gd, {format: 'jpeg'})
+    }
   }],
-  modeBarButtonsToRemove:['toImage', 'sendDataToCloud', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines'],
+  showEditInChartStudio: true,
+  plotlyServerURL: "https://chart-studio.plotly.com",
+  modeBarButtonsToRemove:['toImage', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines', 'resetScale2d'],
   displaylogo: false
   //modeBarButtons:['toImage2', 'zoom2d', 'pan2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
 }
@@ -886,16 +992,16 @@ var bar_trace = {
 
 root.bar_data = [bar_trace]
 
-get_bar_range = function(sample_list){
+get_bar_range = function(sample_vals, sample_errors = null){
   positive_error_vals = []
   negative_error_vals = []
-  for (i = 0;i < get_sample_vals(sample_list).length; i++){
-    if (get_sample_errors(sample_list)[0][i] != undefined) {
-        positive_error_vals.push(get_sample_vals(sample_list)[i] + get_sample_errors(sample_list)[0][i])
-        negative_error_vals.push(get_sample_vals(sample_list)[i] - get_sample_errors(sample_list)[0][i])
+  for (i = 0;i < sample_vals.length; i++){
+    if (sample_errors[i] != undefined) {
+        positive_error_vals.push(sample_vals[i] + sample_errors[i])
+        negative_error_vals.push(sample_vals[i] - sample_errors[i])
     } else {
-        positive_error_vals.push(get_sample_vals(sample_list)[i])
-        negative_error_vals.push(get_sample_vals(sample_list)[i])
+        positive_error_vals.push(sample_vals[i])
+        negative_error_vals.push(sample_vals[i])
     }
   }
 
@@ -920,13 +1026,15 @@ get_bar_range = function(sample_list){
   return [range_bottom, range_top]
 }
 
-root.chart_range = get_bar_range(sample_lists[0])
+root.chart_range = get_bar_range(get_sample_vals(sample_lists[0]), get_sample_errors(sample_lists[0])[0])
 val_range = root.chart_range[1] - root.chart_range[0]
 
-if (val_range < 4){
-  tick_digits = '.1f'
-} else if (val_range < 0.4) {
+if (val_range < 0.05){
+  tick_digits = '.3f'
+} else if (val_range < 0.5) {
   tick_digits = '.2f'
+} else if (val_range < 5){
+  tick_digits = '.1f'
 } else {
   tick_digits = 'f'
 }
@@ -938,8 +1046,9 @@ if (js_data.num_values < 256) {
   bottom_margin = get_bar_bottom_margin(sample_lists[0])
 
   root.bar_layout = {
-    title: js_data.trait_id,
+    title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
     xaxis: {
+        type: 'category',
         titlefont: {
           size: 16
         },
@@ -947,10 +1056,10 @@ if (js_data.num_values < 256) {
         ticklen: 4,
         tickfont: {
           size: 16
-        }
+        },
     },
     yaxis: {
-        title: js_data.unit_type,
+        title: "<b>" + js_data.unit_type + "</b>",
         range: root.chart_range,
         titlefont: {
           size: 16
@@ -960,7 +1069,8 @@ if (js_data.num_values < 256) {
         tickfont: {
           size: 16
         },
-        tickformat: tick_digits
+        tickformat: tick_digits,
+        fixedrange: true
     },
     width: bar_chart_width,
     height: 600,
@@ -990,12 +1100,13 @@ var hist_trace = {
 root.histogram_data = [hist_trace];
 root.histogram_layout = {
   bargap: 0.05,
-  title: js_data.trait_id,
+  title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
   xaxis: {
            autorange: true,
-           title: "Value",
+           title: js_data.unit_type,
            titlefont: {
-             size: 16
+             family: "arial",
+             size: 20
            },
            ticklen: 4,
            tickfont: {
@@ -1004,23 +1115,26 @@ root.histogram_layout = {
          },
   yaxis: {
            autorange: true,
-           title: "Count",
+           title: "<b>Count</b>",
            titlefont: {
-             size: 16
+             family: "arial",
+             size: 20
            },
            showline: true,
            ticklen: 4,
            tickfont: {
              size: 16
-           }
+           },
+           automargin: true,
+           fixedrange: true
          },
   width: 500,
   height: 600,
   margin: {
-      l: 50,
+      l: 70,
       r: 30,
       t: 100,
-      b: 60
+      b: 50
   }
 };
 
@@ -1036,25 +1150,34 @@ $('.histogram_samples_group').change(function() {
 });
 
 root.box_layout = {
-    title: js_data.trait_id,
     xaxis: {
         showline: true,
+        titlefont: {
+          family: "arial",
+          size: 20
+        },
         tickfont: {
           size: 16
         },
     },
     yaxis: {
-        title: js_data.unit_type,
+        title: "<b>" + js_data.unit_type +"</b>",
         autorange: true,
         showline: true,
+        titlefont: {
+          family: "arial",
+          size: 20
+        },
         ticklen: 4,
         tickfont: {
           size: 16
         },
-        tickformat: tick_digits
+        tickformat: tick_digits,
+        zeroline: false,
+        automargin: true
     },
     margin: {
-        l: 50,
+        l: 90,
         r: 30,
         t: 30,
         b: 80
@@ -1122,7 +1245,7 @@ if (full_sample_lists.length > 1) {
       {
         type: 'box',
         y: get_sample_vals(full_sample_lists[0]),
-        name: sample_group_list[0],
+        name: "<b>Trait " + js_data.trait_id + "</b>",
         boxpoints: 'Outliers',
         jitter: 0.5,
         whiskerwidth: 0.2,
@@ -1150,28 +1273,36 @@ $('.box_plot_tab').click(function() {
 // Violin Plot
 
 root.violin_layout = {
-  title: js_data.trait_id,
   xaxis: {
       showline: true,
+      titlefont: {
+        family: "arial",
+        size: 20
+      },
       tickfont: {
         size: 16
       }
   },
   yaxis: {
-      title: js_data.unit_type,
+      title: "<b>"+js_data.unit_type+"</b>",
       autorange: true,
       showline: true,
+      titlefont: {
+        family: "arial",
+        size: 20
+      },
       ticklen: 4,
       tickfont: {
         size: 16
       },
       tickformat: tick_digits,
-      zeroline: false
+      zeroline: false,
+      automargin: true
   },
   margin: {
-        l: 50,
+        l: 90,
         r: 30,
-        t: 80,
+        t: 30,
         b: 80
   }
 };
@@ -1239,14 +1370,11 @@ if (full_sample_lists.length > 1) {
         box: {
           visible: true
         },
-        line: {
-          color: 'green',
-        },
         meanline: {
           visible: true
         },
-        name: sample_group_list[0],
-        x0: sample_group_list[0]
+        name: "<b>Trait " + js_data.trait_id + "</b>",
+        x0: "<b>Trait " + js_data.trait_id + "</b>"
       }
     ]
 }

@@ -1,10 +1,12 @@
 from __future__ import print_function, division
 
 import sys
+import json
 
 from flask import g
 
 from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
+from utility.benchmark import Bench
 
 import MySQLdb
 
@@ -21,18 +23,23 @@ def gen_dropdown_json():
     types = get_types(groups)
     datasets = get_datasets(types)
 
-    species.append(('All Species', 'All Species'))
-    groups['All Species'] = [('All Groups', 'All Groups')]
-    types['All Species'] = {}
-    types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
-    datasets['All Species'] = {}
-    datasets['All Species']['All Groups'] = {}
-    datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
+    #species.append(('All Species', 'All Species'))
+    #groups['All Species'] = [('All Groups', 'All Groups')]
+    #types['All Species'] = {}
+    #types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
+    #datasets['All Species'] = {}
+    #datasets['All Species']['All Groups'] = {}
+    #datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
 
     data = dict(species=species,
                 groups=groups,
                 types=types,
                 datasets=datasets)
+
+    output_file = """./wqflask/static/new/javascript/dataset_menu_structure.json"""
+
+    with open(output_file, 'w') as fh:
+        json.dump(data, fh, indent=3, sort_keys=True)
 
     return data
 
@@ -54,18 +61,26 @@ def get_groups(species):
     groups = {}
     for species_name, _species_full_name in species:
         groups[species_name] = []
-        results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName
-                                  FROM InbredSet, Species, ProbeFreeze, GenoFreeze, PublishFreeze
-                                  WHERE Species.Name = '{}' AND
-                                        InbredSet.SpeciesId = Species.Id AND
-                                        (PublishFreeze.InbredSetId = InbredSet.Id OR
-                                         GenoFreeze.InbredSetId = InbredSet.Id OR
-                                         ProbeFreeze.InbredSetId = InbredSet.Id)
-                                  GROUP by InbredSet.Name
-                                  ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
+        # results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName
+        #                         FROM InbredSet, Species, ProbeFreeze, GenoFreeze, PublishFreeze
+        #                         WHERE Species.Name = '{}' AND
+        #                                 InbredSet.SpeciesId = Species.Id AND
+        #                                 (PublishFreeze.InbredSetId = InbredSet.Id OR
+        #                                 GenoFreeze.InbredSetId = InbredSet.Id OR
+        #                                 ProbeFreeze.InbredSetId = InbredSet.Id)
+        #                         GROUP by InbredSet.Name
+        #                         ORDER BY InbredSet.FullName""".format(species_name)).fetchall()
+
+        results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName, IFNULL(InbredSet.Family, 'None')
+                                FROM InbredSet, Species
+                                WHERE Species.Name = '{}' AND
+                                        InbredSet.SpeciesId = Species.Id
+                                GROUP by InbredSet.Name
+                                ORDER BY IFNULL(InbredSet.FamilyOrder, InbredSet.FullName) ASC, IFNULL(InbredSet.Family, InbredSet.FullName) ASC, InbredSet.FullName ASC, InbredSet.MenuOrderId ASC""".format(species_name)).fetchall()
 
         for result in results:
-            groups[species_name].append([str(result[0]), str(result[1])])
+            family_name = "Family:" + str(result[2])
+            groups[species_name].append([str(result[0]), str(result[1]), family_name])
 
     return groups
 
@@ -75,7 +90,7 @@ def get_types(groups):
 
     for species, group_dict in groups.iteritems():
         types[species] = {}
-        for group_name, _group_full_name in group_dict:
+        for group_name, _group_full_name, _family_name in group_dict:
             if phenotypes_exist(group_name):
                 types[species][group_name] = [("Phenotypes", "Phenotypes")]
             if genotypes_exist(group_name):
@@ -187,9 +202,15 @@ def build_datasets(species, group, type_name):
                     dataset_text = str(result[2])
                 datasets.append([dataset_id, dataset_value, dataset_text])
         else:
+            result = g.db.execute("""SELECT PublishFreeze.Name, PublishFreeze.FullName
+                                      FROM PublishFreeze, InbredSet
+                                      WHERE InbredSet.Name = '{}' AND
+                                          PublishFreeze.InbredSetId = InbredSet.Id
+                                      ORDER BY PublishFreeze.CreateTime ASC""".format(group)).fetchone()
+
             dataset_id = "None"
-            dataset_value = "%sPublish" % group
-            dataset_text = "%s Phenotypes" % group
+            dataset_value = str(result[0])
+            dataset_text = str(result[1])
             datasets.append([dataset_id, dataset_value, dataset_text])
 
     elif type_name == "Genotypes":

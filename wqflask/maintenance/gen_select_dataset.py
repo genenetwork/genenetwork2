@@ -80,7 +80,8 @@ def parse_db_uri():
 
 def get_species():
     """Build species list"""
-    Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    #Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    Cursor.execute("select Name, MenuName from Species order by OrderId")
     species = list(Cursor.fetchall())
     return species
 
@@ -284,13 +285,13 @@ def main():
     types = get_types(groups)
     datasets = get_datasets(types)
 
-    species.append(('All Species', 'All Species'))
-    groups['All Species'] = [('All Groups', 'All Groups')]
-    types['All Species'] = {}
-    types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
-    datasets['All Species'] = {}
-    datasets['All Species']['All Groups'] = {}
-    datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
+    #species.append(('All Species', 'All Species'))
+    #groups['All Species'] = [('All Groups', 'All Groups')]
+    #types['All Species'] = {}
+    #types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
+    #datasets['All Species'] = {}
+    #datasets['All Species']['All Groups'] = {}
+    #datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
 
     data = dict(species=species,
                 groups=groups,
