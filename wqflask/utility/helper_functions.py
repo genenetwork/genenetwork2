@@ -4,7 +4,7 @@ from base.trait import GeneralTrait
 from base import data_set
 from base.species import TheSpecies
 
-from wqflask import user_manager
+from utility import hmac
 
 from flask import Flask, g
 
@@ -14,7 +14,13 @@ logger = logging.getLogger(__name__ )
 
 def get_species_dataset_trait(self, start_vars):
     #assert type(read_genotype) == type(bool()), "Expecting boolean value for read_genotype"
-    self.dataset = data_set.create_dataset(start_vars['dataset'])
+    if "temp_trait" in start_vars.keys():
+      if start_vars['temp_trait'] == "True":
+        self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
+      else:
+        self.dataset = data_set.create_dataset(start_vars['dataset'])
+    else:
+      self.dataset = data_set.create_dataset(start_vars['dataset'])
     logger.debug("After creating dataset")
     self.species = TheSpecies(dataset=self.dataset)
     logger.debug("After creating species")
@@ -35,11 +41,14 @@ def get_trait_db_obs(self, trait_db_list):
 
     self.trait_list = []
     for trait in trait_db_list:
-        data, _separator, hmac = trait.rpartition(':')
+        data, _separator, hmac_string = trait.rpartition(':')
         data = data.strip()
-        assert hmac==user_manager.actual_hmac_creation(data), "Data tampering?"
+        assert hmac_string==hmac.hmac_creation(data), "Data tampering?"
         trait_name, dataset_name = data.split(":")
-        dataset_ob = data_set.create_dataset(dataset_name)
+        if dataset_name == "Temp":
+            dataset_ob = data_set.create_dataset(dataset_name=dataset_name, dataset_type="Temp", group_name=trait_name.split("_")[2])
+        else:
+            dataset_ob = data_set.create_dataset(dataset_name)
         trait_ob = GeneralTrait(dataset=dataset_ob,
                                name=trait_name,
                                cellid=None)

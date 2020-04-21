@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__ )
 
 OVERRIDES = {}
 
+def app_set(command_id, value):
+    """Set application wide value"""
+    app.config.setdefault(command_id,value)
+    return value
+
 def get_setting(command_id,guess=None):
     """Resolve a setting from the environment or the global settings in
     app.config, with valid_path is a function checking whether the
@@ -40,15 +45,16 @@ def get_setting(command_id,guess=None):
     def value(command):
         if command:
             # sys.stderr.write("Found "+command+"\n")
+            app_set(command_id,command)
             return command
         else:
             return None
 
     # ---- Check whether environment exists
-    logger.debug("Looking for "+command_id+"\n")
+    # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
-        command = OVERRIDES.get(command_id)
+        command = OVERRIDES.get(command_id) # currently not in use
         if command is None:
             # ---- Check whether setting exists in app
             command = value(app.config.get(command_id))
@@ -57,7 +63,7 @@ def get_setting(command_id,guess=None):
                 if command is None or command == "":
                     # print command
                     raise Exception(command_id+' setting unknown or faulty (update default_settings.py?).')
-    logger.debug("Set "+command_id+"="+str(command))
+    # print("Set "+command_id+"="+str(command))
     return command
 
 def get_setting_bool(id):
@@ -89,14 +95,29 @@ def valid_path(dir):
         return dir
     return None
 
-def pylmm_command(guess=None):
-    return valid_bin(get_setting("PYLMM_COMMAND",guess))
+def js_path(module=None):
+    """
+    Find the JS module in the two paths
+    """
+    try_gn   = get_setting("JS_GN_PATH")+"/"+module
+    if valid_path(try_gn):
+        return try_gn
+    try_guix = get_setting("JS_GUIX_PATH")+"/"+module
+    if valid_path(try_guix):
+        return try_guix
+    raise "No JS path found for "+module+" (if not in Guix check JS_GN_PATH)"
+
+def reaper_command(guess=None):
+    return get_setting("REAPER_COMMAND",guess)
 
 def gemma_command(guess=None):
-    return valid_bin(get_setting("GEMMA_COMMAND",guess))
+    return assert_bin(get_setting("GEMMA_COMMAND",guess))
+
+def gemma_wrapper_command(guess=None):
+    return assert_bin(get_setting("GEMMA_WRAPPER_COMMAND",guess))
 
 def plink_command(guess=None):
-    return valid_bin(get_setting("PLINK_COMMAND",guess))
+    return assert_bin(get_setting("PLINK_COMMAND",guess))
 
 def flat_file_exists(subdir):
     base = get_setting("GENENETWORK_FILES")
@@ -107,6 +128,11 @@ def flat_files(subdir=None):
     if subdir:
         return assert_dir(base+"/"+subdir)
     return assert_dir(base)
+
+def assert_bin(fn):
+    if not valid_bin(fn):
+        raise Exception("ERROR: can not find binary "+fn)
+    return fn
 
 def assert_dir(dir):
     if not valid_path(dir):
@@ -121,8 +147,13 @@ def assert_writable_dir(dir):
         fh.close()
         os.remove(fn)
     except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir )
+        raise Exception('Unable to write test.txt to directory ' + dir)
     return dir
+
+def assert_file(fn):
+    if not valid_file(fn):
+        raise Exception('Unable to find file '+fn)
+    return fn
 
 def mk_dir(dir):
     if not valid_path(dir):
@@ -147,6 +178,9 @@ def locate(name, subdir=None):
             raise Exception("Can not locate "+lookfor)
     if subdir: sys.stderr.write(subdir)
     raise Exception("Can not locate "+name+" in "+base)
+
+def locate_phewas(name, subdir=None):
+    return locate(name,'/phewas/'+subdir)
 
 def locate_ignore_error(name, subdir=None):
     """
@@ -186,7 +220,7 @@ def show_settings():
 
     logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    print "runserver.py: ****** Webserver configuration ******"
+    print "runserver.py: ****** Webserver configuration - k,v pairs from app.config ******"
     keylist = app.config.keys()
     keylist.sort()
     for k in keylist:
@@ -201,38 +235,69 @@ GN_VERSION         = get_setting('GN_VERSION')
 HOME               = get_setting('HOME')
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
 GN_SERVER_URL      = get_setting('GN_SERVER_URL')
+SERVER_PORT        = get_setting_int('SERVER_PORT')
 SQL_URI            = get_setting('SQL_URI')
 LOG_LEVEL          = get_setting('LOG_LEVEL')
 LOG_LEVEL_DEBUG    = get_setting_int('LOG_LEVEL_DEBUG')
 LOG_SQL            = get_setting_bool('LOG_SQL')
-LOG_SQLALCHEMY     = get_setting_bool('LOG_SQLALCHEMY')
+LOG_SQL_ALCHEMY    = get_setting_bool('LOG_SQL_ALCHEMY')
 LOG_BENCH          = get_setting_bool('LOG_BENCH')
 LOG_FORMAT         = "%(message)s"    # not yet in use
 USE_REDIS          = get_setting_bool('USE_REDIS')
 USE_GN_SERVER      = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES  = get_setting('GENENETWORK_FILES')
-TEMP_TRAITS        = get_setting('TEMP_TRAITS')
+JS_GUIX_PATH       = get_setting('JS_GUIX_PATH')
+assert_dir(JS_GUIX_PATH)
+JS_GN_PATH         = get_setting('JS_GN_PATH')
+# assert_dir(JS_GN_PATH)
 
-PYLMM_COMMAND      = pylmm_command()
-GEMMA_COMMAND      = gemma_command()
-GEMMA_RESULTS_PATH = get_setting('GEMMA_RESULTS_PATH')
-PLINK_COMMAND      = plink_command()
+GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
+if GITHUB_CLIENT_ID != 'UNKNOWN' and GITHUB_CLIENT_SECRET:
+    GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id=" + \
+                      GITHUB_CLIENT_ID+"&client_secret="+GITHUB_CLIENT_SECRET
+    GITHUB_API_URL = get_setting('GITHUB_API_URL')
+
+ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
+ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
+ORCID_AUTH_URL = None
+if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
+    ORCID_AUTH_URL = "https://orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
+                      ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
+    ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
+
+ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
+ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
+import utility.elasticsearch_tools as es
+es.test_elasticsearch_connection()
+
+SMTP_CONNECT = get_setting('SMTP_CONNECT')
+SMTP_USERNAME = get_setting('SMTP_USERNAME')
+SMTP_PASSWORD = get_setting('SMTP_PASSWORD')
+
+REAPER_COMMAND     = app_set("REAPER_COMMAND",reaper_command())
+GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
+assert(GEMMA_COMMAND is not None)
+PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
+GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
+assert_dir(TEMPDIR)
 
-from six import string_types
+# ---- Handle specific JS modules
+JS_GUIX_PATH = get_setting("JS_GUIX_PATH")
+assert_dir(JS_GUIX_PATH)
+assert_dir(JS_GUIX_PATH+'/cytoscape-panzoom')
 
-if os.environ.get('WQFLASK_OVERRIDES'):
-    jsonfn = get_setting('WQFLASK_OVERRIDES')
-    logger.error("WQFLASK_OVERRIDES: %s" % jsonfn)
-    with open(jsonfn) as data_file:
-        overrides = json.load(data_file)
-        for k in overrides:
-            cmd = overrides[k]
-            if isinstance(cmd, string_types):
-                OVERRIDES[k] = eval(cmd)
-            else:
-                OVERRIDES[k] = cmd
-            logger.debug(OVERRIDES)
+CSS_PATH = "UNKNOWN"
+# assert_dir(JS_PATH)
 
-assert_dir(get_setting("TWITTER_POST_FETCHER_JS_PATH"))
+JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("javascript-twitter-post-fetcher"))
+assert_dir(JS_TWITTER_POST_FETCHER_PATH)
+assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
+
+JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH",js_path("cytoscape"))
+assert_dir(JS_CYTOSCAPE_PATH)
+assert_file(JS_CYTOSCAPE_PATH+'/cytoscape.min.js')
+
+# assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")

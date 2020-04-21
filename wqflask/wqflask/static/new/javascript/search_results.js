@@ -40,6 +40,11 @@ $(function() {
   };
 
   $('#searchbox').keyup(function(){
+      if ($(this).val() != ""){
+        $('#filter_term').val($(this).val());
+      } else {
+        $('#filter_term').val("None");
+      }
       $('#trait_table').DataTable().search($(this).val()).draw();
   });
 
@@ -93,12 +98,24 @@ $(function() {
     traits = $("#trait_table input:checked").map(function() {
       return $(this).val();
     }).get();
-    console.log("checked length is:", traits.length);
-    console.log("checked is:", traits);
-    return $.colorbox({
-      href: "/collections/add?traits=" + traits
+
+    var traits_hash = md5(traits.toString());
+
+    $.ajax({
+          type: "POST",
+          url: "/collections/store_trait_list",
+          data: {
+            hash: traits_hash,
+            traits: traits.toString()
+          }
     });
+
+    return $.colorbox({
+      href: "/collections/add?hash=" + traits_hash
+    });
+
   };
+
   removed_traits = function() {
     console.log('in removed_traits with checked_traits:', checked_traits);
     return checked_traits.closest("tr").fadeOut();
@@ -154,11 +171,15 @@ $(function() {
     }
   };
 
+  submit_bnw = function() {
+    trait_data = get_traits_from_table("trait_table", "submit_bnw")
+  }
+
   export_traits = function() {
-    trait_data = get_traits_from_table("trait_table")
+    trait_data = get_traits_from_table("trait_table", "export_csv")
   };
 
-  get_traits_from_table = function(table_name) {
+  get_traits_from_table = function(table_name, destination) {
     trait_table = $('#'+table_name);
     table_dict = {};
 
@@ -194,20 +215,89 @@ $(function() {
       }
     });
     table_dict['rows'] = rows;
-    console.log("TABLEDICT:", table_dict);
 
     json_table_dict = JSON.stringify(table_dict);
     $('input[name=export_data]').val(json_table_dict);
 
-    $('#export_form').attr('action', '/export_traits_csv');
+    if (destination == "export_csv"){
+        $('#export_form').attr('action', '/export_traits_csv');
+    } else{
+        $('#export_form').attr('action', '/submit_bnw');
+    }
     $('#export_form').submit();
   };
+
+  $("#corr_matrix").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      $("input[name=tool_used]").val("Correlation Matrix")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
+  });
+  $("#network_graph").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+         return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      $("input[name=tool_used]").val("Network Graph")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
+  });
+  $("#wgcna_setup").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      $("input[name=tool_used]").val("WGCNA Setup")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
+  });
+  $("#ctl_setup").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      $("input[name=tool_used]").val("CTL Setup")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
+  });
+  $("#heatmap").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      $("input[name=tool_used]").val("Heatmap")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
+  });
+  $("#comp_bar_chart").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      $("input[name=tool_used]").val("Comparison Bar Chart")
+      $("input[name=form_url]").val($(this).data("url"))
+      return submit_special("/loading")
+  });
+
+  $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {
+      traits = $("#trait_table input:checked").map(function() {
+          return $(this).val();
+      }).get();
+      $("#trait_list").val(traits)
+      url = $(this).data("url")
+      return submit_special(url)
+  });
+
 
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
   $("#add").click(add);
   $("#remove").click(remove);
+  $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
 });

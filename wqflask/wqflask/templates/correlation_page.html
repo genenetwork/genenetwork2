@@ -1,154 +1,182 @@
 {% extends "base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/TableTools/media/css/TableTools.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
 {% endblock %}
 {% block content %}
-    
-    {{ header("Correlation", 'Trait: {} Dataset: {}'.format(this_trait.name, dataset.name)) }}
-
-    <div class="container">
+    <div class="container" style="min-width: 1250px;">
         <div class="page-header">
             <h1>Correlation Table</h1>
+            <h2>Trait: {{ this_trait.name }}
+
+            <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
 
-        <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ dataset.group.accession_id }}">{{ dataset.fullname }}</a>
-        dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ target_dataset.group.accession_id }}">{{ target_dataset.fullname }}</a>
+        <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
+        dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id != 'None' %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
         dataset. The top {{ return_number }} correlations ranked by the {{ formatted_corr_type }} are displayed.
         You can resort this list by clicking the headers. Select the Record ID to open the trait data
         and analysis page.
         </p>    
 
-        <br />
-        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-        <button id="redraw" class="btn btn-default">Reset Columns</button>
-        <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-        <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-        <br />
-        <br />
+        <div>
+          <form id="correlation_form" target="_blank" action="/corr_matrix" method="post">
+            <input type="hidden" name="tool_used" value="" />
+            <input type="hidden" name="form_url" value="" />
+            <input type="hidden" name="trait_list" id="trait_list" value= "
+            {% for this_trait in trait_list %}
+                {{ this_trait.name }}:{{ this_trait.dataset }},
+            {% endfor %}" >
 
-        <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1200px{% else %}800px{% endif %}; background-color: #eeeeee; border: 1px solid black;">
-            <table width="1600px" id="trait_table" class="table table-hover table-striped">
+            <button id="corr_matrix" class="btn btn-primary submit_special" data-url="/corr_matrix" title="Correlation Matrix" >
+                Correlations
+            </button>
+
+            <button id="network_graph" class="btn btn-primary submit_special" data-url="/network_graph" title="Network Graph" >
+                Networks
+            </button>
+
+            <button id="send_to_webgestalt" class="btn btn-primary submit_special" data-url="/webgestalt_page" title="WebGestalt" >
+              WebGestalt
+            </button>
+
+            <button id="send_to_geneweaver" class="btn btn-primary submit_special" data-url="/geneweaver_page" title="GeneWeaver" >
+              GeneWeaver
+            </button>
+
+            <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
+              BNW
+           </button>
+
+            <button id="wgcna_setup" class="btn btn-primary submit_special" data-url="/wgcna_setup" title="WGCNA Analysis" >
+                WGCNA
+            </button>
+
+            <button id="ctl_setup" class="btn btn-primary submit_special" data-url="/ctl_setup" title="CTL Analysis" >
+                CTL Maps
+            </button>
+
+            <button id="heatmap" class="btn btn-primary submit_special" data-url="/heatmap" title="Heatmap" >
+                MultiMap
+            </button>
+
+            <button id="comp_bar_chart" class="btn btn-primary submit_special" data-url="/comparison_bar_chart" title="Comparison Bar Chart" >
+                Comparison Bar Chart
+            </button>
+
+          </form>
+        </div>
+        <br />
+        <div>
+            <form id="export_form" method="POST" action="/export_traits_csv">
+                <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+                <button class="btn btn-default" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+                <input type="hidden" name="database_name" id="database_name" value="None">
+                <input type="hidden" name="export_data" id="export_data" value="">
+                <input type="hidden" name="file_name" id="file_name" value="{{ this_trait.name }}_{{ dataset.name }}_correlation">
+                <button class="btn btn-default" id="export_traits">Download CSV</button>
+                <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search Table For ...">
+                <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+                <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+                <button id="redraw" class="btn btn-default" type="button">Reset Columns</button>
+            </form>
+            <br />
+            <br />
+            <button id="more_options" class="btn btn-primary">More Options...</button>
+            <br />
+            <br />
+            <div id="filter_options" style="display: none;">
+            <span style="border: 1px dashed #999999; padding: 8px; background-color: #ddf; font-size: 12px;">
+                <button id="select_traits" class="btn btn-primary" style="font-size: 12px; padding: 2px 3px;">Select Traits</button> with r >
+                <input type="text" name="r_greater_select" value="-1.0" size="6" maxlength="10">
+                <select id="r_and_or" size="1">
+                    <option value="and" selected>AND</option>
+                    <option value="or">OR</option>
+                </select>
+                r <
+                <input type="text" name="r_less_select" value="1.0" size="6" maxlength="10">, with mean >
+                <input type="text" name="mean_greater_select" value="0" size="6" maxlength="10">
+                <select id="mean_and_or" size="1">
+                    <option value="and" selected>AND</option>
+                    <option value="or">OR</option>
+                </select>
+                mean <
+                <input type="text" name="mean_less_select" value="100" size="6" maxlength="10">
+            </span>
+            <br />
+            <br />
+            </div>
+        </div>
+        <div style="margin-bottom: 5px;">
+            <b>Show/Hide Columns:</b>
+        </div>
+        <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
+            <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
                 <thead>
                     <tr>
-                        <th style="width: 30px; background-color: #eeeeee;"></th>
-                    {% for header in target_dataset.header_fields %}
-                        {% if header == 'Year' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
-                        {% elif header == 'Max LRS' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Max&nbsp;&nbsp;<br>LRS<a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                        {% elif header == 'Max LRS Location' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
-                        {% elif header == 'Location' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
-                        {% elif header == 'Mean' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
-                        {% elif header == 'Additive Effect' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Add&nbsp;&nbsp;<br>Effect<a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="color:#f00"> ?</sup></a></th>
-                        {% elif header == 'Index' %}
-                        <th style="text-align: right; background-color: #eeeeee; padding-left: 0px; margin-left: 0px;">{{header}}</th>
-                        {% elif header == 'N' %}
-                        <th style="text-align: right; background-color: #eeeeee;">{{header}}</th>
-                        {% else %}
-                        <th style="background-color: #eeeeee;">{{header}}</th>
-                        {% endif %}
+                        <th></th>
+                    {% for header in header_fields %}
+                        <th {% if header != "" %}data-export="{{ header }}"{% endif %}>{{header}}</th>
                     {% endfor %}
-                    {% if target_dataset.type == "ProbeSet" %}
-                        {% if corr_method == 'pearson' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">&nbsp;&nbsp;N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(r)</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Lit r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Tissue r</th>
-                        {% else %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample rho</th>
-                        <th style="text-align: right; background-color: #eeeeee;">N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(rho)</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Lit r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Tissue rho</th>
-                        {% endif %}
-                    {% elif target_dataset.type == "Publish" %}
-                        {% if corr_method == 'pearson' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">&nbsp;&nbsp;N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(r)</th>
-                        {% else %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample rho</th>
-                        <th style="text-align: right; background-color: #eeeeee;">&nbsp;&nbsp;N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(rho)</th>
-                        {% endif %}
-                    {% elif target_dataset.type == "Geno" %}
-                        {% if corr_method == 'pearson' %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample r</th>
-                        <th style="text-align: right; background-color: #eeeeee;">N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(r)</th>
-                        {% else %}
-                        <th style="text-align: right; background-color: #eeeeee;">Sample rho</th>
-                        <th style="text-align: right; background-color: #eeeeee;">N</th>
-                        <th style="text-align: right; background-color: #eeeeee;">Sample p(rho)</th>
-                        {% endif %}
-                    {% endif %}
                     </tr>
                 </thead>
 
                 <tbody>
                 {% for trait in correlation_results %}
                     <tr>
-                        <td>&nbsp;<INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="transform: scale(1.5);" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td align="right">{{ loop.index }}</td>
-                        <td>
+                        <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
+                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
+                        <td data-export="{{ trait.name }}">
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
-                                    dataset = dataset.name
+                                    dataset = trait.dataset.name
                                     )}}">
                                 {{ trait.name }}
                             </a>
                         </td>
                       {% if target_dataset.type == 'ProbeSet' %}
-                        <td>{{ trait.symbol }}</td>
-                        <td>{{ trait.description_display }}</TD>
-                        <td align="right"style="white-space: nowrap;">{{ trait.location_repr }}</td>
-                        <td align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td align="right" style="padding-right: 15px;">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.LRS_location_repr }}</td>
-                        <td align="right" style="padding-right: 15px;">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right" style="padding-right: 15px;"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.num_overlap }}</td>
-                        <td align="right" style="padding-right: 15px;">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td data-export="{{ trait.symbol }}">{{ trait.symbol }}</td>
+                        <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</TD>
+                        <td data-export="{{ trait.location_repr }}" style="white-space: nowrap;">{{ trait.location_repr }}</td>
+                        <td data-export="{{ '%0.3f' % trait.mean|float }}" align="right">{{ '%0.3f' % trait.mean|float }}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }} align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                         {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
-                        <td align="right" style="padding-right: 15px;">--</td>
+                        <td data-export="--" align="right">--</td>
                         {% else %}
-                        <td align="right" style="padding-right: 15px;">{{'%0.3f'|format(trait.lit_corr)}}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.lit_corr) }}" align="right">{{ '%0.3f'|format(trait.lit_corr) }}</td>
                         {% endif %}
                         {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
-                        <td align="right" style="padding-right: 15px;">--</td>
+                        <td data-export="--" align="right">--</td>
+                        <td data-export="--" align="right">--</td>
                         {% else %}
-                        <td align="right" style="padding-right: 15px;">{{'%0.3f'|format(trait.tissue_corr)}}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.tissue_corr) }}" align="right">{{ '%0.3f'|format(trait.tissue_corr) }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.tissue_pvalue) }}" align="right">{{ '%0.3e'|format(trait.tissue_pvalue) }}</td>
                         {% endif %}
+                        <td data-export={% if trait.LRS_score_repr != "N/A" %}"{{ '%0.1f' % trait.LRS_score_repr|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
+                        <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
+                        <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Publish" %}
-                        <td>{{ trait.description_display }}</td>
-                        <td>{{ trait.authors }}</td>
-                        <td>
+                        <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</td>
+                        <td data-export="{{ trait.authors }}">{{ trait.authors }}</td>
+                        <td data-export="{{ trait.pubmed_text }}">
                             <a href="{{ trait.pubmed_link }}">
                                 {{ trait.pubmed_text }}
                             </a>
                         </td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.LRS_score_repr }}</td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.LRS_location_repr }}</td>
-                        <td align="right" style="padding-right: 15px;">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
-                        <td align="right" style="padding-right: 15px;"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.num_overlap }}</td>
-                        <td align="right" style="padding-right: 15px;">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
+                        <td data-export="{{ trait.LRS_score_repr }}" align="right">{{ trait.LRS_score_repr }}</td>
+                        <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
+                        <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Geno" %}
-                        <td align="right" style="padding-right: 15px;">{{ trait.location_repr }}</TD>
-                        <td align="right" style="padding-right: 15px;"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{'%0.3f'|format(trait.sample_r)}}</a></td>
-                        <td align="right" style="padding-right: 15px;">{{ trait.num_overlap }}</td>
-                        <td align="right" style="padding-right: 15px;">{{'%0.3e'|format(trait.sample_p)}}</td>
+                        <td data-export="{{ trait.location_repr }}" align="right">{{ trait.location_repr }}</TD>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
+                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                       {% endif %}
                     </tr>
                 {% endfor %}
@@ -158,187 +186,259 @@
     </div>
 {% endblock %}
 
-{% block js %}  
+{% block js %}
+    <script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.html5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/buttons.bootstrap.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/buttons.colVis.min.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+
     <script type="text/javascript" charset="utf-8">
-        function getValue(x) {
-            if (x.indexOf('input') >= 0) {
-                if ($(x).val() == 'x') {
-                    return 0;
-                }
-                else {
-                   return parseFloat($(x).val());
-                }
-            }
-            else if (isNaN(x)) {
-                return x;
-            }
-            return parseFloat(x);
+        var table_json = {{ json_results | safe }}
+    </script>
+
+    <script type="text/javascript" charset="utf-8">
+
+        $.fn.dataTable.ext.order['dom-innertext'] = function (settings, col) {
+          return this.api().column(col, { order: 'index' }).nodes().map(function (td, i) {
+            return Math.abs(parseFloat($('a', td).text()));
+          });
         }
-            
-        jQuery.fn.dataTableExt.oSort['numeric-html-asc']  = function(a,b) {
-            a = Math.abs(parseFloat($(a).text()));
-            b = Math.abs(parseFloat($(b).text()));
+
+        $.fn.dataTableExt.oSort['numeric-html-asc']  = function(a,b) {
+            a = Math.abs(parseFloat(a));
+            b = Math.abs(parseFloat(b));
             return ((a < b) ? -1 : ((a > b) ?  1 : 0));
         };
 
-        jQuery.fn.dataTableExt.oSort['numeric-html-desc']  = function(a,b) {
-            a = Math.abs(parseFloat($(a).text()));
-            b = Math.abs(parseFloat($(b).text()));
+        $.fn.dataTableExt.oSort['numeric-html-desc']  = function(a,b) {
+            a = Math.abs(parseFloat(a));
+            b = Math.abs(parseFloat(b));
             return ((a < b) ? 1 : ((a > b) ?  -1 : 0));
         };
 
-        jQuery.fn.dataTableExt.oSort['cust-txt-asc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b); 
-            
-            if (x == 'N/A' || x == '') {
-                return 1;
-            }
-            else if (y == 'N/A' || y == '') {
-                return -1;
-            }
-            else {
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-            }
-        };
-            
-        jQuery.fn.dataTableExt.oSort['cust-txt-desc'] = function (a, b) {
-            var x = getValue(a);
-            var y = getValue(b);
-            return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-        };
-
-
-        jQuery.fn.dataTableExt.oSort['scientific-asc'] = function ( a, b ) {
+        $.fn.dataTableExt.oSort['scientific-asc'] = function ( a, b ) {
                 var x = parseFloat(a);
                 var y = parseFloat(b);
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         };
 
-        jQuery.fn.dataTableExt.oSort['scientific-desc'] = function ( a, b ) {
+        $.fn.dataTableExt.oSort['scientific-desc'] = function ( a, b ) {
                 var x = parseFloat(a);
                 var y = parseFloat(b);
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
- 
 
+        //$.fn.dataTableExt.afnFiltering.push(
+
+        $.fn.dataTable.ext.search.push( function( settings, data, dataIndex ) {
+                var r_column = {{ filter_cols[0] }};
+                var r_greater = parseFloat($('input[name=r_greater_select]').val())
+                var r_less = parseFloat($('input[name=r_less_select]').val());
+                var r_and_or = $('#r_and_or').val();
+
+                var mean_column = {{ filter_cols[1] }};
+                var mean_greater = parseFloat($('input[name=mean_greater_select]').val());
+                var mean_less = parseFloat($('input[name=mean_less_select]').val());
+                var mean_and_or = $('#mean_and_or').val();
+
+                if (r_and_or == "and" && mean_and_or == "and"){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] > mean_greater && data[mean_column] < mean_less){% else %} true{% endif %} ){
+                        return true
+                    }
+                    else {
+                        return false
+                    }
+                } else if (r_and_or == "and" && mean_and_or == "or"){
+                    if ( (data[r_column] >= r_greater && data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater || data[mean_column] <= mean_less){% else %} true{% endif %} ){
+                        return true
+                    } else {
+                        return false
+                    }
+                } else if (r_and_or == "or" && mean_and_or == "and") {
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater && data[mean_column] <= mean_less){% else %} true{% endif %} ){
+                        return true
+                    } else {
+                        return false
+                    }
+                } else {
+                    if ( (data[r_column] >= r_greater || data[r_column] <= r_less) && {% if filter_cols[1] != 0 %}(data[mean_column] >= mean_greater || data[mean_column] <= mean_less){% else %} true{% endif %} ){
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                return true
+        });
 
         $(document).ready( function () {
-            
+
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
                     $(':checkbox', this).trigger('click');
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
 
             {% if target_dataset.type == "ProbeSet" %}
-            $('#trait_table').dataTable( {
-                "paging": false,
-                "buttons": [
+            table_conf = {
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural", "width": "15%" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
+                    { "type": "natural" },
+                    { "type": "scientific" },
+                    { "type": "numeric-html", 'orderSequence': [ "desc", "asc"] },
+                    { "type": "numeric-html", 'orderSequence': [ "desc", "asc"] },
+                    { "type": "scientific" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 40) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                },
+                "order": [[9, "asc" ]],
+                "sDom": "Btir",
+                "iDisplayLength": -1,
+                "autoWidth": false,
+                "deferRender": true,
+                "bSortClasses": false,
+                "paging": false,
+                "orderClasses": true
+            }
+
+            {% elif target_dataset.type == "Publish" %}
+            table_conf =  {
+                "paging": false,
+                buttons: [
+                    {
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ 
                     { "targets": 0, "orderable": false }
                 ],  
                 "columns": [
-                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural", "width": "20%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "12%" },
+                    { "orderDataType": "dom-innertext" },
+                    { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
                     { "type": "natural" },
                     { "type": "scientific" },
                     { "type": "natural" },
+                    { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "order": [[12, "asc" ]],
-                "sDom": "Btir",
-                "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false
-            } );
-
-            var table = $('#trait_table').DataTable();
-            new $.fn.dataTable.FixedHeader( table );
-
-            {% elif target_dataset.type == "Publish" %}
-            $('#trait_table').dataTable( {
-                "paging": false,
-                "buttons": [
-                    {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                       }
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    if ($('td', row).eq(3).text().length > 50) {
+                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
+                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
                     }
-                ],
-                "columnDefs": [ 
-                    { "targets": 0, "orderable": false }
-                ],  
-                "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "10%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "numeric-html" },
-                    { "type": "natural" },
-                    { "type": "scientific" }
-                ],
-                "order": [[11, "asc" ]],
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    if ($('td', row).eq(4).text().length > 40) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
+                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                    }
+                },
+                "order": [[8, "asc" ]],
                 "sDom": "Btir",
                 "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false
-            } );
+                "bDeferRender": true
+            }
             {% elif target_dataset.type == "Geno" %}
-            $('#trait_table').dataTable( {
+            table_conf = {
                 "paging": false,
-                "buttons": [
+                buttons: [
                     {
-                       extend: 'csvHtml5',
-                       text: 'Download CSV',
-                       title: 'correlation_results',
-                       fieldBoundary: '"',
-                       exportOptions: {
-                           columns: [1, 2, 3, 4, 5, 6]
-                       }
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
                 "columnDefs": [ 
@@ -349,7 +449,7 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
-                    { "type": "numeric-html" },
+                    { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
                     { "type": "natural" },
                     { "type": "scientific" }
                 ],
@@ -359,11 +459,31 @@
                 "bDeferRender": true,
                 "scrollY": "800px",
                 "scrollCollapse": false
-            } );
+            }
             {% endif %}
+
+            var the_table = $('#trait_table').DataTable(table_conf);
+
             console.timeEnd("Creating table");
 
+            submit_special = function(url) {
+                $("#correlation_form").attr("action", url);
+                return $("#correlation_form").submit();
+            };
 
+            $("#delete").on("click", function() {
+                url = $(this).data("url")
+                return submit_special(url)
+            });
+
+            $("#more_options").click(function() {
+                $("div#filter_options").toggle();
+            });
+
+            $("#select_traits").click(function() {
+                console.log("redrawing")
+                the_table.draw();
+            });
         });
     </script>
 {% endblock %}

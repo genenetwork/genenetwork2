@@ -5,28 +5,31 @@
                     <a href="#stats_tab" data-toggle="tab">Basic Statistics</a>
                 </li>
                 <li>
-                    <a href="#histogram_tab" data-toggle="tab">Histogram</a>
+                    <a href="#histogram_tab" class="histogram_tab" data-toggle="tab">Histogram</a>
+                </li>
+                {% if num_values < 256 %}
+                <li>
+                    <a href="#bar_chart_tab" class="bar_chart_tab" data-toggle="tab">Bar Chart</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="#probability_plot" class="prob_plot_tab" data-toggle="tab">Probability Plot</a>
                 </li>
                 <li>
-                    <a href="#bar_chart_tab" data-toggle="tab">Bar Chart</a>
+                    <a href="#box_plot_tab" class="box_plot_tab" data-toggle="tab">Box Plot</a>
                 </li>
                 <li>
-                    <a href="#probability_plot" data-toggle="tab">Probability Plot</a>
+                    <a href="#violin_plot_tab" class="violin_plot_tab" data-toggle="tab">Violin Plot</a>
                 </li>
-                {% if g.user_session.user_ob %}
                 <li>
                     <a href="#scatterplot_matrix" data-toggle="tab">Scatterplot Matrix</a>
                 </li>
-                {% endif %}
-                <!--<li>
-                    <a href="#box_plot_tab" data-toggle="tab">Box Plot</a>
-                </li>-->
             </ul>
 
             <div class="tab-content">
                 <div class="tab-pane active" id="stats_tab">
                     <div style="padding: 20px;" class="form-horizontal">
-                            <table id="stats_table" style="width: 450px; float: left;" class="table table-hover table-striped table-bordered"></table>
+                            <table id="stats_table" style="width: {{ stats_table_width }}px; float: left;" class="table table-hover table-striped table-bordered"></table>
                     </div>
                 </div>   
                 <div class="tab-pane" id="histogram_tab">
@@ -43,7 +46,8 @@
                             <div id="histogram" class="barchart"></div>
                         </div>
                     </div>
-                </div>   
+                </div>
+                {% if num_values < 256 %}
                 <div class="tab-pane" id="bar_chart_tab">
                     <div style="padding: 20px" class="form-horizontal">
                         {% if sample_groups|length != 1 %}
@@ -64,7 +68,7 @@
                             </select>
                         </div>
                         {% endif %}
-                        <div id="update_bar_chart" class="btn-group">
+                        <div id="update_bar_chart" class="btn-group" style="margin-bottom: 5px;">
                             <button type="button" class="btn btn-default sort_by_name" value="name">
                             <i class="icon-resize-horizontal"></i> Sort By Name
                             </button>
@@ -72,39 +76,32 @@
                             <i class="icon-signal"></i> Sort By Value
                             </button>
                         </div>
-                        {% if g.user_session.user_ob %}
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" id="color_by_trait">
                                 <i class="icon-tint"></i> Color by Trait
                             </button>
                         </div>
-                        {% endif %}
+                        <div id="bar_chart_container">
+                            <div id="bar_chart"></div>
+                        </div>
                     </div>
-                        <div class="row" style="position:relative">
-                          <div id="bar_chart_legend" style="margin-left: 150px; margin-top:20px; position: absolute;">
-                            <span id="legend-left"></span>
-                            <span id="legend-colors"></span>
-                            <span id="legend-right"></span>
-                          </div>
-                        </div>
-                        <div style="margin-left: 20px; margin-right: 20px;" class="row" id="bar_chart_container">
-                            <svg></svg>
-                        </div>
                 </div>
+                {% endif %}
                 <div class="tab-pane" id="probability_plot">
                     <div style="padding: 20px" class="form-horizontal">
                         {% if sample_groups|length != 1 %}
+                        Select Group:
                         <select class="prob_plot_samples_group">
                             {% for group, pretty_group in sample_group_types.items() %}
                                 <option value="{{ group }}">{{ pretty_group }}</option>
                             {% endfor %}
                         </select>
-                        <br><br>
+                        <br>
+                        <br>
                         {% endif %}
 
                         <div id="prob_plot_container">
-                            <div id="prob_plot_title"></div>
-                            <svg></svg>
+                            <div id="prob_plot_div"></div>
                         </div>
                         <div id="shapiro_wilk_text"></div>
                         <div>
@@ -115,20 +112,16 @@
                     </div>
 
                 </div>
-<!--                <div class="tab-pane" id="box_plot_tab">
-                    {% if sample_groups|length > 1 %}
-                    <select class="box_plot_samples_group">
-                        {% for group, pretty_group in sample_group_types.items() %}
-                            <option value="{{ group }}">{{ pretty_group }}</option>
-                        {% endfor %}
-                    </select>
-                    <br><br>
-                    {% endif %}
+                <div class="tab-pane" id="box_plot_tab">
                     <div id="box_plot_container">
                         <div id="box_plot"></div>
                     </div>
-                </div>-->
-                {% if g.user_session.user_ob %}
+                </div>
+                <div class="tab-pane" id="violin_plot_tab">
+                    <div id="violin_plot_container">
+                        <div id="violin_plot"></div>
+                    </div>
+                </div>
                 <div class="tab-pane" id="scatterplot_matrix">
                     
                     <div style="margin-bottom:40px;" class="btn-group">
@@ -143,7 +136,6 @@
                         <div id="comparison_scatterplot" class="qtlcharts"></div>
                     </div>
                 </div>
-                {% endif %}
             </div>
         </div>
     <!--</div>-->

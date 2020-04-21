@@ -4,14 +4,16 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock %} GeneNetwork</title>
+    <title>{% block title %}{% endblock %}</title>
     <meta name="description" content="">
     <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/non-responsive.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/docs.css" />
     <link rel="stylesheet" type="text/css" href="/static/packages/colorbox/example4/colorbox.css"  />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />
+    <!--<link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />-->
     <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css"  />
 
     {% block css %}
@@ -19,78 +21,98 @@
 
 </head>
 
-<body style="width: 100% !important;">
+<body style="width: 100%">
     <!-- Navbar ================================================== -->
 
-    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation">
-
-            <div class="container-fluid" style="width: 1500px !important;">
+    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%; min-width: 770px; white-space: nowrap;">
+    <!--<div class="navbar navbar-default" style="width: 100%; white-space: nowrap;">-->
+            <div class="container-fluid" style="width: 100%;">
                 <!-- Brand and toggle get grouped for better mobile display -->
+                <!---
                 <div class="navbar-header">
-                <a class="navbar-brand" href="/">GeneNetwork</a>
+                  <a class="navbar-brand" href="/">GeneNetwork</a>
                 </div>
+                -->
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div>
                     <ul class="nav navbar-nav">
-                        <li class="">
-                            <a href="/intro">Intro</a>
+                        <li class="" style="margin-right: 20px;">
+                            <a href="/" style="font-weight: bold;">GeneNetwork</a>
                         </li>
                         <li class="">
-                            <a href="/">Search</a>
+                            <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Intro <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/intro">Intro</a></li>
+                                <li><a href="/submit_trait">Submit Trait</a></li>
+                                <li><a href="http://genenetwork.org/webqtl/main.py?FormID=batSubmit">Batch Submission</a></li>
+                            </ul>
+                        </li>
+                        <li class="">
+                            <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="/references">References</a></li>
+                              <li><a href="http://gn1.genenetwork.org/glossary.html">Glossary of Term</a></li>
+                              <li><a href="http://gn1.genenetwork.org/faq.html">FAQ</a></li>
+                              <li><a href="/policies">Policies</a></li>
+                              <li><a href="/links">Links</a></li>
+                              <li><a href="/environments">Environments</a></li>
+                              <li><a href="/news">GN1 News</a></li>
+                              <li><a href="/tutorials">Tutorials/Primers</a></li>
+                            </ul>
+                        </li>
+                        <li class="">
+                                <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></a>
+                                <ul class="dropdown-menu">
+                                  <li><a href="/snp_browser">Variant Browser</a></li>
+                                  <li><a href="http://bnw.genenetwork.org/BNW/sourcecodes/home.php">Bayesian Network Webserver</a></li>
+                                  <li><a href="https://systems-genetics.org/">Systems Genetics PheWAS</a></li>
+                                  <li><a href="http://ucscbrowser.genenetwork.org/">Genome Browser</a></li>
+                                  <li><a href="http://power.genenetwork.org">BXD Power Calculator</a></li>
+                                  <li><a href="httP://datafiles.genenetwork.org">Interplanetary File System</a></li>
+                                </ul>
                         </li>
                         <li class="">
                             <a href="/collections/list">Collections
-                                {% if g.user_session.user_ob %}
-                                <span class="badge badge-info">{{ g.user_session.user_ob.display_num_collections() }}</span>
-                                {% else %}
-                                <span class="badge badge-info">{{ g.cookie_session.display_num_collections() }}</span>
-                                {% endif %}
+                                <span class="badge badge-info">{{ g.user_session.num_collections }}</span>
                             </a>
                         </li>
                         <li class="">
-                            <a href="/help">Help</a>
-                        </li>
-                        <li class="">
-                            <a href="/news">News</a>
-                        </li>
-                        <li class="">
-                            <a href="/references">References</a>
-                        </li>
-                        <li class="">
-                            <a href="/policies">Policies</a>
-                        </li>
-                        <li class="">
-                            <a href="/links">Links</a>
-                        </li>
-						<li class="">
-                            <a href="/environments">Environments</a>
+                            <a href="/repositories" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Source Code <span class="caret"></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
+                              <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
+                              <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
+                              <li><a href="https://github.com/genenetwork/genenetwork2/blob/testing/doc/API_readme.md">REST API Documentation</a></li>
+                            </ul>
                         </li>
                         <li class="">
                             {% if g.user_session.logged_in %}
-                            <a id="login_out" title="Signed in as {{ g.user_session.user_ob.name_and_org }}." href="/n/logout">Sign out</a>
+                            <a id="login_out" title="Signed in as {{ g.user_session.user_name }}" href="/n/logout">Sign out</a>
                             {% else %}
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        <!--
                         <li style="margin-left: 20px;">
-                            <a href="http://www.genenetwork.org" style="font-weight: bold;" >Use GeneNetwork 1</a>
+                            <a href="http://gn2-staging.genenetwork.org" style="font-weight: bold;" >Use Staging Branch</a>
                         </li>
+                        -->
                     </ul>
                 </div>
             </div>
     </div>
 
-    <div class="container-fluid" style="position: relative; background-color: #d5d5d5; height: 95px;">
+    <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative; background-color: #d5d5d5; height: 84px;">
 
         <form method="get" action="/gsearch">
-            <div class="row" style="position: absolute; bottom: 0; top: 30px;">
-                <select class="form-control col-xs-2" style="width: 170px; margin-top: 15px; margin-left: 10px;" name="type">
+            <div class="row" style="width: 100%; position: absolute; bottom: 0; top: 30px;">
+                <select style="width: 160px; margin-top: 15px; margin-left: 20px;" name="type">
                     <option value="gene">Genes / Molecules</option>
                     <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                 </select>
-                <input class="btn btn-primary form-control col-xs-2" style="width: 100px; margin-top: 15px; margin-left: 10px;" type="submit" value="Search All">
-                <input class="form-control col-xs-6" style="width: 600px; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
+                <input class="btn btn-primary" style="width: 100px; margin-left: 10px;" type="submit" value="Search All">
+                <input style="width: 50%; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
             </div>
         </form>
     </div>
@@ -99,54 +121,75 @@
     {% endblock %}
 
     <footer class="footer">
-      <div class="container">
-        <p>GeneNetwork is a framework for web based genetics
-          launched in 1994 as
-        <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">
-            The Portable Dictionary of the Mouse Genome</a> (previously <a href="https://www.ncbi.nlm.nih.gov/pubmed/15043217">WebQTL</a>).
-        </p>
-        <p>
-          Operated by
-            <a href="mailto:rwilliams@uthsc.edu">Rob Williams</a>,
-            <a href="mailto:lyan6@uthsc.edu">Lei Yan</a>,
-            <a href="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</a>,
-            <a href="mailto:acenteno@uthsc.edu">Arthur Centeno</a> and
-            <a href="http://thebird.nl/">Pjotr Prins</a>.
-        </p>
-        <p>Published in
-          <a href="http://joss.theoj.org/papers/10.21105/joss.00025"><img src="https://camo.githubusercontent.com/846b750f582ae8f1d0b4f7e8fee78bed705c88ba/687474703a2f2f6a6f73732e7468656f6a2e6f72672f7061706572732f31302e32313130352f6a6f73732e30303032352f7374617475732e737667" alt="JOSS" data-canonical-src="http://joss.theoj.org/papers/10.21105/joss.00025/status.svg" style="max-width:100%;"></a>
-        </p>
-          <br />
-        <p>GeneNetwork is supported by:</p>
-        <UL>
-            <LI>
-                <a  href="http://citg.uthsc.edu">
-                    The UT Center for Integrative and Translational Genomics
-                </A>
-            </li>
-            <LI><a  href="http://www.iniastress.org">NIAAA</A>
-                Integrative Neuroscience Initiative on Alcoholism
-                (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425)
-            </li>
-            <LI>
-                <a
-                   href="https://www.drugabuse.gov/">NIDA</A>, <a class="smallsize"  href="http://www.nimh.nih.gov/">NIMH</A>
-                   , and <a class="smallsize"  href="http://www.niaaa.nih.gov/">
-                   NIAAA</A> (P20-DA 21131)
-            </li>
-            <LI>NCI <a  href="http://emice.nci.nih.gov/">MMHCC</A> (U01CA105417) and
-                <a  href="https://en.wikipedia.org/wiki/National_Center_for_Research_Resources">NCRR</a>
-                <a  href="https://en.wikipedia.org/wiki/Biomedical_Informatics_Research_Network">BIRN</a>
-                (U24 RR021760)
-            </li>
-        </UL>
-        <!--</p>-->
-        <p>
-          Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</a> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
-        {% if version: %}
-        <p><small>GeneNetwork v{{ version }}</small></p>
-        {% endif %}
+      <div class="row" style="margin: 10px; width: 100%; min-width: 1200px;">
+        <div class="col-xs-6">
+            <p>	Web services initiated January, 1994 as
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed?term=8043953">
+                The Portable Dictionary of the Mouse Genome
+            </a>; June 15, 2001 as <a href="https://www.ncbi.nlm.nih.gov/pubmed/15043217">WebQTL</a>; and Jan 5, 2005 as GeneNetwork.
+            </p>
+            <p>
+            This site is currently operated by 
+                <a href="mailto:rwilliams@uthsc.edu">Rob Williams</a>,
+                <a href="http://thebird.nl/">Pjotr Prins</a>,
+                <a href="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</a>,
+                <a href="mailto:acenteno@uthsc.edu">Arthur Centeno</a>,
+                and <a href="mailto:cfische7@uthsc.edu">Christian Fischer</a>.
+            </p>
+            <p>Design and code by Pjotr Prins, Zach Sloan, Arthur Centeno, Christan Fischer, Danny Arends, Sam Ockman, Lei Yan, Xiaodong Zhou, Christian Fernandez, 
+            Ning Liu, Rudi Alberts, Elissa Chesler, Sujoy Roy, Evan G. Williams, Alexander G. Williams, Kenneth Manly, Jintao Wang, and Robert W. Williams, 
+            <a href="http://genenetwork.org/credit.html">colleagues</a>.</p>
+            <br />
+            <p>GeneNetwork support from:</p>
+            <ul>
+                <li>
+                    <a href="http://citg.uthsc.edu">
+                        The UT Center for Integrative and Translational Genomics
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.nigms.nih.gov/">NIGMS</a>
+                    Systems Genetics and Precision Medicine Project (R01 GM123489, 2017-2021)
+                </li>
+                <li>
+                    <a href="https://www.drugabuse.gov/">NIDA</a>
+                    NIDA Core Center of Excellence in Transcriptomics, Systems Genetics, and the Addictome (P30 DA044223, 2017-2022)
+                </li>
+                <li>
+                    <a href="http://www.nia.nih.gov/">NIA</a>
+                    Translational Systems Genetics of Mitochondria, Metabolism, and Aging (R01AG043930, 2013-2018)
+                </li>
+                <li>
+                    <a href="http://www.iniastress.org/">NIAAA</a>
+                    Integrative Neuroscience Initiative on Alcoholism (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425, 2006-2017)
+                </li>
+                <li>
+                    <a href="http://www.drugabuse.gov/">NIDA</a>, <a href="http://www.nimh.nih.gov/">NIMH</a>, and <a href="http://www.niaaa.nih.gov/">NIAAA</a>
+                    (P20-DA 21131, 2001-2012)
+                </li>
+                <li>
+                    NCI <a href="http://emice.nci.nih.gov/">MMHCC</a> (U01CA105417), NCRR, <a href="http://www.birncommunity.org/">BIRN</a>, (U24 RR021760)
+                </li>
+            </UL>
+            <!--</p>-->
+            <p>Published in
+                    <a href="http://joss.theoj.org/papers/10.21105/joss.00025"><img src="https://camo.githubusercontent.com/846b750f582ae8f1d0b4f7e8fee78bed705c88ba/687474703a2f2f6a6f73732e7468656f6a2e6f72672f7061706572732f31302e32313130352f6a6f73732e30303032352f7374617475732e737667" alt="JOSS" data-canonical-src="http://joss.theoj.org/papers/10.21105/joss.00025/status.svg" style="max-width:100%;"></a>
+            </p>
+            <p>
+            Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</a> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
+            {% if version: %}
+            <p><small>GeneNetwork {{ version }}</small></p>
+            {% endif %}
 
+        </div>
+        <div class="col-xs-2">
+            <a href="http://www.python.org/" target="_blank">
+                <img src="/static/new/images/PythonLogo.png" alt="Python Powered" border="0">
+            </a>
+            <a href="http://www.neuinfo.org" target="_blank">
+                <img src="/static/new/images/Nif.png" alt="Registered with Nif" border="0">
+            </a>
+        </div>
       </div>
     </footer>
 
@@ -180,7 +223,7 @@
     </script>
     <script src="/static/new/js_external/jquery.cookie.js"></script>
     <script type="text/javascript" src="/static/new/js_external/json2.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
 
     <script language="javascript" type="text/javascript" src="/static/packages/colorbox/jquery.colorbox.js"></script>
     <!--<script type="text/javascript" src="/static/new/javascript/login.js"></script>-->

@@ -33,7 +33,7 @@ from pprint import pformat as pf
 from inspect import stack
 import datetime
 
-from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL, LOG_FORMAT
+from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL
 
 class GNLogger:
     """A logger class with some additional functionality, such as
@@ -72,7 +72,7 @@ LOG_LEVEL_DEBUG (NYI).
     def warning(self,*args):
         """Call logging.warning for multiple args"""
         self.collect(self.logger.warning,*args)
-        self.logger.warning(self.collect(*args))
+        # self.logger.warning(self.collect(*args))
 
     def error(self,*args):
         """Call logging.error for multiple args"""

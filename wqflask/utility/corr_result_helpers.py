@@ -15,7 +15,7 @@ def normalize_values(a_values, b_values):
     a_new = []
     b_new = []
     for counter in range(min_length):
-        if a_values[counter] and b_values[counter]:
+        if (a_values[counter] or a_values[counter] == 0) and (b_values[counter] or b_values[counter] == 0):
             a_new.append(a_values[counter])
             b_new.append(b_values[counter])
 

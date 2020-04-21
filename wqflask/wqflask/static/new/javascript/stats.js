@@ -69,11 +69,23 @@ Stats = (function() {
   };
 
   Stats.prototype.range = function() {
-    return this.max() - this.min();
+    if (js_data.dataset_type == "ProbeSet"){
+      if (js_data.data_scale == "linear_positive"){
+        return Math.log2(this.max()) - Math.log2(this.min());
+      } else {
+        return this.max() - this.min()
+      }
+    } else {
+      return this.max() - this.min()
+    }
   };
 
   Stats.prototype.range_fold = function() {
-    return Math.pow(2, this.range());
+    if (js_data.dataset_type == "ProbeSet"){
+      return Math.pow(2, this.range());
+    } else {
+      return this.range()
+    }
   };
 
   Stats.prototype.interquartile = function() {
@@ -81,26 +93,86 @@ Stats = (function() {
     length = this.the_values.length;
     console.log("in interquartile the_values are:", this.the_values);
     console.log("length is:", length);
-    q1 = this.the_values[Math.floor(length * .25)];
-    q3 = this.the_values[Math.floor(length * .75)];
+    if (js_data.dataset_type == "ProbeSet" && js_data.data_scale == "linear_positive") {
+      q1 = Math.log2(this.the_values[Math.floor(length * .25)]);
+      q3 = Math.log2(this.the_values[Math.floor(length * .75)]);
+    } else {
+      q1 = this.the_values[Math.floor(length * .25)];
+      q3 = this.the_values[Math.floor(length * .75)];
+    }
     iq = q3 - q1;
-    return Math.pow(2, iq);
+    if (js_data.dataset_type == "ProbeSet") {
+        return Math.pow(2, iq);
+    } else {
+        return iq;
+    }
+  };
+
+  Stats.prototype.skewness = function() {
+    var len = this.the_values.length,
+        delta = 0,
+        delta_n = 0,
+        term1 = 0,
+        N = 0,
+        mean = 0,
+        M2 = 0,
+        M3 = 0,
+        g;
+
+    for ( var i = 0; i < len; i++ ) {
+      N += 1;
+
+      delta = this.the_values[ i ] - mean;
+      delta_n = delta / N;
+
+      term1 = delta * delta_n * (N-1);
+
+      M3 += term1*delta_n*(N-2) - 3*delta_n*M2;
+      M2 += term1;
+      mean += delta_n;
+    }
+    // Calculate the population skewness:
+    g = Math.sqrt( N )*M3 / Math.pow( M2, 3/2 );
+
+    // Return the corrected sample skewness:
+    return Math.sqrt( N*(N-1))*g / (N-2);
+  };
+
+  Stats.prototype.kurtosis = function() {
+    var len = this.the_values.length,
+        delta = 0,
+        delta_n = 0,
+        delta_n2 = 0,
+        term1 = 0,
+        N = 0,
+        mean = 0,
+        M2 = 0,
+        M3 = 0,
+        M4 = 0,
+        g;
+
+    for ( var i = 0; i < len; i++ ) {
+      N += 1;
+
+      delta = this.the_values[ i ] - mean;
+      delta_n = delta / N;
+      delta_n2 = delta_n * delta_n;
+
+      term1 = delta * delta_n * (N-1);
+
+      M4 += term1*delta_n2*(N*N - 3*N + 3) + 6*delta_n2*M2 - 4*delta_n*M3;
+      M3 += term1*delta_n*(N-2) - 3*delta_n*M2;
+      M2 += term1;
+      mean += delta_n;
+    }
+    // Calculate the population excess kurtosis:
+    g = N*M4 / (M2*M2) - 3;
+    //Return the corrected sample excess kurtosis:
+    return (N-1) / ( (N-2)*(N-3) ) * ( (N+1)*g + 6 );
   };
 
   return Stats;
 
 })();
-
-bxd_only = new Stats([3, 5, 7, 8]);
-
-console.log("[xred] bxd_only mean:", bxd_only.mean());
-
-console.log("[xgreen] bxd_only median:", bxd_only.median());
-
-console.log("[xpurple] bxd_only std_dev:", bxd_only.std_dev());
-
-console.log("[xmagenta] bxd_only std_error:", bxd_only.std_error());
-
-console.log("[xyellow] bxd_only min:", bxd_only.min());
 
 window.Stats = Stats;

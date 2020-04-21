@@ -33,19 +33,17 @@ def parse(pstring):
     """
     pstring = re.split(r"""(?:(\w+\s*=\s*[\('"\[][^)'"]*[\)\]'"])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
                        (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
+                       (".*?") | ('.*?') | # terms in quotes, i.e. "brain weight"
                        ([\w\*]+))  # shh, brain, etc """, pstring,
                                                     flags=re.VERBOSE)
+
     pstring = [item.strip() for item in pstring if item and item.strip()]
-    print(pstring)
+    logger.debug("pstring:", pstring)
 
     items = []
 
     separators = [re.escape(x) for x in ("<=", ">=", ":", "=", "<", ">")]
     separators = '(%s)' % ("|".join(separators))
-
-    logger.debug("separators:", separators)
-
-
 
     for item in pstring:
         splat = re.split(separators, item)
@@ -70,6 +68,8 @@ def parse(pstring):
                         separator=separator,
                         search_term=value)
         else:
+            if (item[0] == "\"" and item[-1] == "\"") or (item[0] == "'" and item[-1] == "'"):
+                item = item[1:-1]
             term = dict(key=None,
                         separator=None,
                         search_term=[item])

@@ -3,7 +3,6 @@ from __future__ import absolute_import, print_function, division
 import sys
 # sys.path.append(".") Never in a running webserver
 
-import gc
 import string
 import cPickle
 import os
@@ -11,27 +10,25 @@ import datetime
 import time
 import pp
 import math
+import random
 import collections
 import resource
 
 import scipy
 import numpy as np
-from scipy import linalg
 
 from pprint import pformat as pf
 
-from htmlgen import HTMLgen2 as HT
 import reaper
 
 from base.trait import GeneralTrait
 from base import data_set
 from base import species
-# from wqflask.my_pylmm.pyLMM import lmm
-# from wqflask.my_pylmm.pyLMM import input
+from base import webqtlConfig
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
-from utility.tools import PYLMM_COMMAND
+from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 
 from MySQLdb import escape_string as escape
 
@@ -45,12 +42,13 @@ Redis = Redis()
 
 from flask import Flask, g
 
+from utility.logger import getLogger
+logger = getLogger(__name__ )
+
 class Heatmap(object):
 
     def __init__(self, start_vars, temp_uuid):
-
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.temp_uuid = temp_uuid
@@ -82,21 +80,16 @@ class Heatmap(object):
             this_trait = trait_db[0]
             this_sample_data = this_trait.data
 
-            #self.sample_data[this_trait.name] = []
             this_trait_vals = []
             for sample in self.all_sample_list:
                 if sample in this_sample_data:
                     this_trait_vals.append(this_sample_data[sample].value)
-                    #self.sample_data[this_trait.name].append(this_sample_data[sample].value)
                 else:
                     this_trait_vals.append('')
-                    #self.sample_data[this_trait.name].append('')
             self.sample_data.append(this_trait_vals)
 
         self.gen_reaper_results()
-        #self.gen_pylmm_results()
 
-        #chrnames = []
         lodnames = []
         chr_pos = []
         pos = []
@@ -105,10 +98,8 @@ class Heatmap(object):
         for trait in self.trait_results.keys():
             lodnames.append(trait)
 
+        self.dataset.group.get_markers()
         for marker in self.dataset.group.markers.markers:
-            #if marker['chr'] not in chrnames:
-            #    chr_ob = [marker['chr'], "filler"]
-            #    chrnames.append(chr_ob)
             chr_pos.append(marker['chr'])
             pos.append(marker['Mb'])
             markernames.append(marker['name'])
@@ -126,191 +117,94 @@ class Heatmap(object):
             json_data = self.json_data
         )
 
-        print("self.js_data:", self.js_data)
-
-
     def gen_reaper_results(self):
         self.trait_results = {}
         for trait_db in self.trait_list:
             self.dataset.group.get_markers()
             this_trait = trait_db[0]
-            #this_db = trait_db[1]
-            genotype = self.dataset.group.read_genotype_file()
+
+            genotype = self.dataset.group.read_genotype_file(use_reaper=False)
             samples, values, variances, sample_aliases = this_trait.export_informative()
+
+            if self.dataset.group.genofile != None:
+                genofile_name = self.dataset.group.genofile[:-5]
+            else:
+                genofile_name = self.dataset.group.name
 
             trimmed_samples = []
             trimmed_values = []
             for i in range(0, len(samples)):
                 if samples[i] in self.dataset.group.samplelist:
-                    trimmed_samples.append(samples[i])
+                    trimmed_samples.append(str(samples[i]))
                     trimmed_values.append(values[i])
 
-            self.lrs_array = genotype.permutation(strains = trimmed_samples,
-                                                       trait = trimmed_values,
-                                                       nperm= self.num_permutations)
+            trait_filename = str(this_trait.name) + "_" + str(self.dataset.name) + "_pheno"
+            gen_pheno_txt_file(trimmed_samples, trimmed_values, trait_filename)
 
-            #self.suggestive = self.lrs_array[int(self.num_permutations*0.37-1)]
-            #self.significant = self.lrs_array[int(self.num_permutations*0.95-1)]
+            output_filename = self.dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
-            reaper_results = genotype.regression(strains = trimmed_samples,
-                                                 trait = trimmed_values)
+            reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt -n 1000 -o {4}{5}.txt'.format(flat_files('genotype'),
+                                                                                                                    genofile_name,
+                                                                                                                    TEMPDIR,
+                                                                                                                    trait_filename,
+                                                                                                                    webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                                    output_filename)
 
+            os.system(reaper_command)                                                                                                        
 
-            lrs_values = [float(qtl.lrs) for qtl in reaper_results]
-            print("lrs_values:", lrs_values)
-            #self.dataset.group.markers.add_pvalues(p_values)
+            reaper_results = parse_reaper_output(output_filename)
+
+            lrs_values = [float(qtl['lrs_value']) for qtl in reaper_results]
 
             self.trait_results[this_trait.name] = []
             for qtl in reaper_results:
-                if qtl.additive > 0:
-                    self.trait_results[this_trait.name].append(-float(qtl.lrs))
+                if qtl['additive'] > 0:
+                    self.trait_results[this_trait.name].append(-float(qtl['lrs_value']))
                 else:
-                    self.trait_results[this_trait.name].append(float(qtl.lrs))
-            #for lrs in lrs_values:
-            #    if
-            #    self.trait_results[this_trait.name].append(lrs)
+                    self.trait_results[this_trait.name].append(float(qtl['lrs_value']))
 
+def gen_pheno_txt_file(samples, vals, filename):
+    """Generates phenotype file for GEMMA"""
 
-            #this_db_samples = self.dataset.group.samplelist
-            #this_sample_data = this_trait.data
-            ##print("this_sample_data", this_sample_data)
-            #this_trait_vals = []
-            #for index, sample in enumerate(this_db_samples):
-            #    if sample in this_sample_data:
-            #        sample_value = this_sample_data[sample].value
-            #        this_trait_vals.append(sample_value)
-            #    else:
-            #        this_trait_vals.append("x")
+    with open("{0}/gn2/{1}.txt".format(TEMPDIR, filename), "w") as outfile:
+        outfile.write("Trait\t")
 
-            #pheno_vector = np.array([val == "x" and np.nan or float(val) for val in this_trait_vals])
+        filtered_sample_list = []
+        filtered_vals_list = []
+        for i, sample in enumerate(samples):
+            if vals[i] != "x":
+                filtered_sample_list.append(sample)
+                filtered_vals_list.append(str(vals[i]))
 
-            #key = "pylmm:input:" + str(self.temp_uuid)
-            #print("key is:", pf(key))
+        samples_string = "\t".join(filtered_sample_list)
+        outfile.write(samples_string + "\n")
+        outfile.write("T1\t")
+        values_string = "\t".join(filtered_vals_list)
+        outfile.write(values_string)
 
-            #genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
+def parse_reaper_output(gwa_filename):
+    included_markers = []
+    p_values = []
+    marker_obs = []
 
-            #no_val_samples = self.identify_empty_samples(this_trait_vals)
-            #trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-
-            #genotype_matrix = np.array(trimmed_genotype_data).T
-
-            #print("genotype_matrix:", str(genotype_matrix.tolist()))
-            #print("pheno_vector:", str(pheno_vector.tolist()))
-
-            #params = dict(pheno_vector = pheno_vector.tolist(),
-            #            genotype_matrix = genotype_matrix.tolist(),
-            #            restricted_max_likelihood = True,
-            #            refit = False,
-            #            temp_uuid = str(self.temp_uuid),
-            #
-            #            # meta data
-            #            timestamp = datetime.datetime.now().isoformat(),
-            #            )
-            #
-            #json_params = json.dumps(params)
-            ##print("json_params:", json_params)
-            #Redis.set(key, json_params)
-            #Redis.expire(key, 60*60)
-            #print("before printing command")
-            #
-            #command = 'python lmm.py --key {} --species {}'.format(key,
-            #                                                                                                        "other")
-            #print("command is:", command)
-            #print("after printing command")
-            #
-            #os.system(command)
-            #
-            #json_results = Redis.blpop("pylmm:results:" + str(self.temp_uuid), 45*60)
-
-    def gen_pylmm_results(self):
-        # This function is NOT used. If it is, we should use a shared function with marker_regression.py
-        self.trait_results = {}
-        for trait_db in self.trait_list:
-            this_trait = trait_db[0]
-            #this_db = trait_db[1]
-            self.dataset.group.get_markers()
-
-            this_db_samples = self.dataset.group.samplelist
-            this_sample_data = this_trait.data
-            #print("this_sample_data", this_sample_data)
-            this_trait_vals = []
-            for index, sample in enumerate(this_db_samples):
-                if sample in this_sample_data:
-                    sample_value = this_sample_data[sample].value
-                    this_trait_vals.append(sample_value)
-                else:
-                    this_trait_vals.append("x")
-
-            pheno_vector = np.array([val == "x" and np.nan or float(val) for val in this_trait_vals])
-
-            key = "pylmm:input:" + str(self.temp_uuid)
-            #print("key is:", pf(key))
-
-            genotype_data = [marker['genotypes'] for marker in self.dataset.group.markers.markers]
-
-            no_val_samples = self.identify_empty_samples(this_trait_vals)
-            trimmed_genotype_data = self.trim_genotypes(genotype_data, no_val_samples)
-
-            genotype_matrix = np.array(trimmed_genotype_data).T
-
-            #print("genotype_matrix:", str(genotype_matrix.tolist()))
-            #print("pheno_vector:", str(pheno_vector.tolist()))
-
-            params = dict(pheno_vector = pheno_vector.tolist(),
-                        genotype_matrix = genotype_matrix.tolist(),
-                        restricted_max_likelihood = True,
-                        refit = False,
-                        temp_uuid = str(self.temp_uuid),
-
-                        # meta data
-                        timestamp = datetime.datetime.now().isoformat(),
-                        )
-
-            json_params = json.dumps(params)
-            #print("json_params:", json_params)
-            Redis.set(key, json_params)
-            Redis.expire(key, 60*60)
-            print("before printing command")
-
-            command = PYLMM_COMMAND+' --key {} --species {}'.format(key,
-                                                                                                                    "other")
-            print("command is:", command)
-            print("after printing command")
-
-            os.system(command)
-
-            json_results = Redis.blpop("pylmm:results:" + str(self.temp_uuid), 45*60)
-            results = json.loads(json_results[1])
-            p_values = [float(result) for result in results['p_values']]
-            #print("p_values:", p_values)
-            self.dataset.group.markers.add_pvalues(p_values)
-
-            self.trait_results[this_trait.name] = []
-            for marker in self.dataset.group.markers.markers:
-                self.trait_results[this_trait.name].append(marker['lod_score'])
-
-
-    def identify_empty_samples(self, values):
-        no_val_samples = []
-        for sample_count, val in enumerate(values):
-            if val == "x":
-                no_val_samples.append(sample_count)
-        return no_val_samples
-
-    def trim_genotypes(self, genotype_data, no_value_samples):
-        trimmed_genotype_data = []
-        for marker in genotype_data:
-            new_genotypes = []
-            for item_count, genotype in enumerate(marker):
-                if item_count in no_value_samples:
-                    continue
+    with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, gwa_filename)) as output_file:
+        for line in output_file:
+            if line.startswith("ID\t"):
+                continue
+            else:
+                marker = {}
+                marker['name'] = line.split("\t")[1]
                 try:
-                    genotype = float(genotype)
-                except ValueError:
-                    genotype = np.nan
-                    pass
-                new_genotypes.append(genotype)
-            trimmed_genotype_data.append(new_genotypes)
-        return trimmed_genotype_data
+                    marker['chr'] = int(line.split("\t")[2])
+                except:
+                    marker['chr'] = line.split("\t")[2]
+                marker['cM'] = float(line.split("\t")[3])
+                marker['Mb'] = float(line.split("\t")[4])
+                if float(line.split("\t")[7]) != 1:
+                    marker['p_value'] = float(line.split("\t")[7])
+                marker['lrs_value'] = float(line.split("\t")[5])
+                marker['lod_score'] = marker['lrs_value'] / 4.61
+                marker['additive'] = float(line.split("\t")[6])
+                marker_obs.append(marker)
 
-
+    return marker_obs

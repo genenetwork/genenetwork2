@@ -11,7 +11,7 @@ logger = getLogger(__name__ )
 class Bench(object):
     entries = collections.OrderedDict()
 
-    def __init__(self, name=None, write_output=True):
+    def __init__(self, name=None, write_output=LOG_BENCH):
         self.name = name
         self.write_output = write_output
 

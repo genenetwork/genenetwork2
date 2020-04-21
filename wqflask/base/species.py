@@ -14,23 +14,13 @@ from utility.logger import getLogger
 logger = getLogger(__name__ )
 
 class TheSpecies(object):
-    def __init__(self, dataset):
-        self.dataset = dataset
-        #print("self.dataset is:", pf(self.dataset.__dict__))
-        self.chromosomes = Chromosomes(self.dataset)
-        self.genome_mb_length = self.chromosomes.get_genome_mb_length()
-
-    #@property
-    #def chromosomes(self):
-    #    chromosomes = [("All", -1)]
-    #
-    #    for counter, genotype in enumerate(self.dataset.group.genotype):
-    #        if len(genotype) > 1:
-    #            chromosomes.append((genotype.name, counter))
-    #
-    #    print("chromosomes is: ", pf(chromosomes))
-    #
-    #    return chromosomes
+    def __init__(self, dataset=None, species_name=None):
+        if species_name != None:
+            self.name = species_name
+            self.chromosomes = Chromosomes(species=self.name)
+        else:
+            self.dataset = dataset
+            self.chromosomes = Chromosomes(dataset=self.dataset)
 
 class IndChromosome(object):
     def __init__(self, name, length):
@@ -42,17 +32,22 @@ class IndChromosome(object):
         """Chromosome length in megabases"""
         return self.length / 1000000
 
-    def set_cm_length(self, genofile_chr):
-        self.cm_length = genofile_chr[-1].cM - genofile_chr[0].cM
-
-
 class Chromosomes(object):
-    def __init__(self, dataset):
-        self.dataset = dataset
+    def __init__(self, dataset=None, species=None):
         self.chromosomes = collections.OrderedDict()
+        if species != None:
+            query = """
+                Select
+                        Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, Species
+                where
+                        Chr_Length.SpeciesId = Species.SpeciesId AND
+                        Species.Name = '%s'
+                Order by OrderId
+                """ % species.capitalize()
+        else:
+            self.dataset = dataset
 
-
-        query = """
+            query = """
                 Select
                         Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
                 where
@@ -65,63 +60,3 @@ class Chromosomes(object):
 
         for item in results:
             self.chromosomes[item.OrderId] = IndChromosome(item.Name, item.Length)
-
-        self.set_mb_graph_interval()
-        #self.get_cm_length_list()
-
-
-    def set_mb_graph_interval(self):
-        """Empirical megabase interval"""
-
-        if self.chromosomes:
-            self.mb_graph_interval = self.get_genome_mb_length()/(len(self.chromosomes)*12)
-        else:
-            self.mb_graph_interval = 1
-
-        #if self.chromosomes:
-        #assert self.chromosomes, "Have to add some code back in apparently to set it to 1"
-        #self.mb_graph_interval = self.get_genome_mb_length()/(len(self.chromosomes)*12)
-        #else:
-            #self.mb_graph_interval = 1
-
-
-    def get_genome_mb_length(self):
-        """Gets the sum of each chromosome's length in megabases"""
-
-        return sum([ind_chromosome.mb_length for ind_chromosome in self.chromosomes.values()])
-
-
-    def get_genome_cm_length(self):
-        """Gets the sum of each chromosome's length in centimorgans"""
-
-        return sum([ind_chromosome.cm_length for ind_chromosome in self.chromosomes.values()])
-
-    def get_cm_length_list(self):
-        """Chromosome length in centimorgans
-
-        Calculates the length in centimorgans by subtracting the centimorgan position
-        of the last marker in a chromosome by the position of the first marker
-
-        """
-
-        self.dataset.group.read_genotype_file()
-
-        self.cm_length_list = []
-
-        for chromosome in self.dataset.group.genotype:
-            self.cm_length_list.append(chromosome[-1].cM - chromosome[0].cM)
-
-        print("self.cm_length_list:", pf(self.cm_length_list))
-
-        assert len(self.cm_length_list) == len(self.chromosomes), "Uh-oh lengths should be equal!"
-        for counter, chromosome in enumerate(self.chromosomes.values()):
-            chromosome.cm_length = self.cm_length_list[counter]
-            #self.chromosomes[counter].cm_length = item
-
-        for key, value in self.chromosomes.items():
-            print("bread - %s: %s" % (key, pf(vars(value))))
-
-
-# Testing
-#if __name__ == '__main__':
-#    foo = dict(bar=dict(length))

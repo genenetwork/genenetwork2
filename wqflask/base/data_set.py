@@ -26,10 +26,10 @@ import collections
 import codecs
 
 import json
+import requests
 import gzip
 import cPickle as pickle
 import itertools
-from operator import itemgetter
 
 from redis import Redis
 Redis = Redis()
@@ -44,7 +44,10 @@ from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility.benchmark import Bench
 from utility import chunks
+from utility import gen_geno_ob
 from utility.tools import locate, locate_ignore_error, flat_files
+
+from wqflask.api import gen_menu
 
 from maintenance import get_group_samplelists
 
@@ -61,18 +64,21 @@ logger = getLogger(__name__ )
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, dataset_type = None, get_samplelist = True):
+def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
         logger.debug("dataset_type", dataset_type)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
-    return dataset_class(dataset_name, get_samplelist)
+    if dataset_type == "Temp":
+        return dataset_class(dataset_name, get_samplelist, group_name)
+    else:
+        return dataset_class(dataset_name, get_samplelist)
 
 class Dataset_Types(object):
 
-    def __init__(self):
+    def __init__(self, rebuild=False):
         """Create a dictionary of samples where the value is set to Geno,
 Publish or ProbeSet. E.g.
 
@@ -88,8 +94,10 @@ Publish or ProbeSet. E.g.
 
         """
         self.datasets = {}
-        if USE_GN_SERVER:
-            data = menu_main()
+        if rebuild: #ZS: May make this the only option
+            data = json.loads(requests.get("http://gn2.genenetwork.org/api/v_pre1/gen_dropdown").content)
+            logger.debug("THE DATA:", data)
+            #data = gen_menu.gen_dropdown_json()
         else:
             file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
             with open(file_name, 'r') as fh:
@@ -107,8 +115,9 @@ Publish or ProbeSet. E.g.
                         else:
                             new_type = "ProbeSet"
                         self.datasets[short_dataset_name] = new_type
+
         # Set LOG_LEVEL_DEBUG=5 to see the following:
-        logger.debugf(5,"datasets",self.datasets)
+        logger.debugf(5, "datasets",self.datasets)
 
     def __call__(self, name):
         return self.datasets[name]
@@ -166,20 +175,31 @@ def mescape(*items):
 class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
     def __init__(self, name):
-        json_data_fh = open(locate(name + '.json','genotype/json'))
-        try:
-            markers = json.load(json_data_fh)
-        except:
-            markers = []
+        json_data_fh = open(locate(name + ".json",'genotype/json'))
+
+        markers = []
+        with open("%s/%s_snps.txt" % (flat_files('genotype/bimbam'), name), 'r') as bimbam_fh:
+            if len(bimbam_fh.readline().split(", ")) > 2:
+                delimiter = ", "
+            elif len(bimbam_fh.readline().split(",")) > 2:
+                delimiter = ","
+            elif len(bimbam_fh.readline().split("\t")) > 2:
+                delimiter = "\t"
+            else:
+                delimiter = " "
+            for line in bimbam_fh:
+                marker = {}
+                marker['name'] = line.split(delimiter)[0].rstrip()
+                marker['Mb'] = float(line.split(delimiter)[1].rstrip())/1000000
+                marker['chr'] = line.split(delimiter)[2].rstrip()
+                markers.append(marker)
 
         for marker in markers:
-            if (marker['chr'] != "X") and (marker['chr'] != "Y"):
+            if (marker['chr'] != "X") and (marker['chr'] != "Y") and (marker['chr'] != "M"):
                 marker['chr'] = int(marker['chr'])
             marker['Mb'] = float(marker['Mb'])
 
         self.markers = markers
-        #logger.debug("self.markers:", self.markers)
-
 
     def add_pvalues(self, p_values):
         logger.debug("length of self.markers:", len(self.markers))
@@ -261,10 +281,12 @@ class DatasetGroup(object):
     has multiple datasets associated with it.
 
     """
-    def __init__(self, dataset):
+    def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
-        #logger.debug("DATASET NAME2:", dataset.name)
-        self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
+        if name == None:
+            self.name, self.id, self.genetic_type = fetchone(dataset.query_for_group)
+        else:
+            self.name, self.id, self.genetic_type = fetchone("SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType FROM InbredSet where Name='%s'" % name)
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -272,7 +294,6 @@ class DatasetGroup(object):
         self.parlist = None
         self.get_f1_parent_strains()
 
-        self.accession_id = self.get_accession_id()
         self.mapping_id, self.mapping_names = self.get_mapping_methods()
 
         self.species = webqtlDatabaseFunction.retrieve_species(self.name)
@@ -282,55 +303,39 @@ class DatasetGroup(object):
         self._datasets = None
         self.genofile = None
 
-    def get_accession_id(self):
-        results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
-                    InbredSet.Name = %s and
-                    PublishFreeze.InbredSetId = InbredSet.Id and
-                    InfoFiles.InfoPageName = PublishFreeze.Name and
-                    PublishFreeze.public > 0 and
-                    PublishFreeze.confidentiality < 1 order by
-                    PublishFreeze.CreateTime desc""", (self.name)).fetchone()
-
-        if results != None:
-            return str(results[0])
-        else:
-            return "None"
-
     def get_mapping_methods(self):
 
         mapping_id = g.db.execute("select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
         if mapping_id == "1":
-            mapping_names = ["QTLReaper", "PYLMM", "R/qtl"]
+            mapping_names = ["GEMMA", "QTLReaper", "R/qtl"]
         elif mapping_id == "2":
             mapping_names = ["GEMMA"]
+        elif mapping_id == "3":
+            mapping_names = ["R/qtl"]
         elif mapping_id == "4":
-            mapping_names = ["PLINK"]
+            mapping_names = ["GEMMA", "PLINK"]
         else:
             mapping_names = []
 
         return mapping_id, mapping_names
 
-    def get_specified_markers(self, markers = []):
-        self.markers = HumanMarkers(self.name, markers)
-
     def get_markers(self):
-        logger.debug("self.species is:", self.species)
-
         def check_plink_gemma():
             if flat_file_exists("mapping"):
                 MAPPING_PATH = flat_files("mapping")+"/"
-                if (os.path.isfile(MAPPING_PATH+self.name+".bed") and
-                    (os.path.isfile(MAPPING_PATH+self.name+".map") or
-                     os.path.isfile(MAPPING_PATH+self.name+".bim"))):
+                if os.path.isfile(MAPPING_PATH+self.name+".bed"):
                     return True
             return False
 
         if check_plink_gemma():
             marker_class = HumanMarkers
         else:
-            marker_class = Markers            
+            marker_class = Markers
 
-        self.markers = marker_class(self.name)
+        if self.genofile:
+            self.markers = marker_class(self.genofile[:-5])
+        else:
+            self.markers = marker_class(self.name)
 
     def get_f1_parent_strains(self):
         try:
@@ -344,30 +349,32 @@ class DatasetGroup(object):
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
+    def get_genofiles(self):
+        jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
+        try:
+            f = open(jsonfile)
+        except:
+            return None
+        jsondata = json.load(f)
+        return jsondata['genofile']
+
     def get_samplelist(self):
         result = None
-        key = "samplelist:v2:" + self.name
+        key = "samplelist:v3:" + self.name
         if USE_REDIS:
             result = Redis.get(key)
 
         if result is not None:
-            #logger.debug("Sample List Cache hit!!!")
-            #logger.debug("Before unjsonifying {}: {}".format(type(result), result))
             self.samplelist = json.loads(result)
-            #logger.debug("  type: ", type(self.samplelist))
-            #logger.debug("  self.samplelist: ", self.samplelist)
         else:
             logger.debug("Cache not hit")
 
             genotype_fn = locate_ignore_error(self.name+".geno",'genotype')
-            mapping_fn = locate_ignore_error(self.name+".fam",'mapping')
-            if mapping_fn:
-                self.samplelist = get_group_samplelists.get_samplelist("plink", mapping_fn)
-            elif genotype_fn:
+            if genotype_fn:
                 self.samplelist = get_group_samplelists.get_samplelist("geno", genotype_fn)
             else:
                 self.samplelist = None
-            logger.debug("Sample list: ",self.samplelist)
+
             if USE_REDIS:
                 Redis.set(key, json.dumps(self.samplelist))
                 Redis.expire(key, 60*5)
@@ -378,19 +385,27 @@ class DatasetGroup(object):
         [result.extend(l) for l in lists if l]
         return result
 
-    def read_genotype_file(self):
+    def read_genotype_file(self, use_reaper=False):
         '''Read genotype from .geno file instead of database'''
         #genotype_1 is Dataset Object without parents and f1
         #genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
-        genotype_1 = reaper.Dataset()
+        #genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
-            full_filename = str(locate(self.genofile, 'genotype'))
+            if "RData" in self.genofile: #ZS: This is a temporary fix; I need to change the way the JSON files that point to multiple genotype files are structured to point to other file types like RData
+                full_filename = str(locate(self.genofile.split(".")[0] + ".geno", 'genotype'))
+            else:
+                full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
-        genotype_1.read(full_filename)
+
+        if use_reaper:
+            genotype_1 = reaper.Dataset()
+            genotype_1.read(full_filename)
+        else:
+            genotype_1 = gen_geno_ob.genotype(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(Mat=self.parlist[0], Pat=self.parlist[1])       #, F1=_f1)
@@ -419,13 +434,16 @@ def datasets(group_name, this_group = None):
           FROM PublishFreeze,InbredSet
           WHERE PublishFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
-            and PublishFreeze.public > %s)
+            and PublishFreeze.public > %s
+            and PublishFreeze.confidentiality < 1
+          ORDER BY PublishFreeze.Id ASC)
          UNION
          (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
           FROM GenoFreeze, InbredSet
           WHERE GenoFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
-            and GenoFreeze.public > %s)
+            and GenoFreeze.public > %s
+            and GenoFreeze.confidentiality < 1)
          UNION
          (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
           FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
@@ -434,27 +452,34 @@ def datasets(group_name, this_group = None):
             and ProbeFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name like %s
             and ProbeSetFreeze.public > %s
-          ORDER BY Tissue.Name, ProbeSetFreeze.CreateTime desc, ProbeSetFreeze.AvgId)
+            and ProbeSetFreeze.confidentiality < 1
+          ORDER BY Tissue.Name, ProbeSetFreeze.OrderList DESC)
         ''' % (group_name, webqtlConfig.PUBLICTHRESH,
               group_name, webqtlConfig.PUBLICTHRESH,
               "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))
 
-    #for tissue_name, dataset in itertools.groupby(the_results, itemgetter(0)):
-    for dataset_item in the_results:
+    sorted_results = sorted(the_results, key=lambda kv: kv[0])
+
+    pheno_inserted = False #ZS: This is kind of awkward, but need to ensure Phenotypes show up before Genotypes in dropdown
+    geno_inserted = False
+    for dataset_item in sorted_results:
         tissue_name = dataset_item[0]
         dataset = dataset_item[1]
         dataset_short = dataset_item[2]
         if tissue_name in ['#PublishFreeze', '#GenoFreeze']:
-            dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
+            if tissue_name == '#PublishFreeze' and (dataset_short == group_name + 'Publish'):
+                dataset_menu.insert(0, dict(tissue=None, datasets=[(dataset, dataset_short)]))
+                pheno_inserted = True
+            elif pheno_inserted and tissue_name == '#GenoFreeze':
+                dataset_menu.insert(1, dict(tissue=None, datasets=[(dataset, dataset_short)]))
+                geno_inserted = True
+            else:
+                dataset_menu.append(dict(tissue=None, datasets=[(dataset, dataset_short)]))
         else:
-            dataset_sub_menu = [item[1:] for item in dataset]
-
             tissue_already_exists = False
-            tissue_position = None
             for i, tissue_dict in enumerate(dataset_menu):
                 if tissue_dict['tissue'] == tissue_name:
                     tissue_already_exists = True
-                    tissue_position = i
                     break
 
             if tissue_already_exists:
@@ -481,7 +506,7 @@ class DataSet(object):
 
     """
 
-    def __init__(self, name, get_samplelist = True):
+    def __init__(self, name, get_samplelist = True, group_name = None):
 
         assert name, "Need a name"
         self.name = name
@@ -493,11 +518,13 @@ class DataSet(object):
 
         self.setup()
 
-        self.check_confidentiality()
-
-        self.retrieve_other_names()
-
-        self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+        if self.type == "Temp": #Need to supply group name as input if temp trait
+            self.group = DatasetGroup(self, name=group_name)   # sets self.group and self.group_id and gets genotype
+        else:
+            self.check_confidentiality()
+            self.retrieve_other_names()
+            self.group = DatasetGroup(self)   # sets self.group and self.group_id and gets genotype
+            self.accession_id = self.get_accession_id()
         if get_samplelist == True:
              self.group.get_samplelist()
         self.species = species.TheSpecies(self)
@@ -511,6 +538,31 @@ class DataSet(object):
     @property
     def riset():
         Weve_Renamed_This_As_Group
+
+    def get_accession_id(self):
+        if self.type == "Publish":
+            results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+                        InbredSet.Name = %s and
+                        PublishFreeze.InbredSetId = InbredSet.Id and
+                        InfoFiles.InfoPageName = PublishFreeze.Name and
+                        PublishFreeze.public > 0 and
+                        PublishFreeze.confidentiality < 1 order by
+                        PublishFreeze.CreateTime desc""", (self.group.name)).fetchone()
+        elif self.type == "Geno":
+            results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
+                        InbredSet.Name = %s and
+                        GenoFreeze.InbredSetId = InbredSet.Id and
+                        InfoFiles.InfoPageName = GenoFreeze.ShortName and
+                        GenoFreeze.public > 0 and
+                        GenoFreeze.confidentiality < 1 order by
+                        GenoFreeze.CreateTime desc""", (self.group.name)).fetchone()
+        else:
+            results = None
+
+        if results != None:
+            return str(results[0])
+        else:
+            return "None"
 
     def retrieve_other_names(self):
         """This method fetches the the dataset names in search_result.
@@ -658,6 +710,7 @@ class PhenotypeDataSet(DataSet):
                             'Phenotype.Pre_publication_description',
                             'Phenotype.Pre_publication_abbreviation',
                             'Phenotype.Post_publication_abbreviation',
+                            'PublishXRef.mean',
                             'Phenotype.Lab_code',
                             'Publication.PubMed_ID',
                             'Publication.Abstract',
@@ -666,13 +719,14 @@ class PhenotypeDataSet(DataSet):
                             'PublishXRef.Id']
 
         # Figure out what display_fields is
-        self.display_fields = ['name',
+        self.display_fields = ['name', 'group_code',
                                'pubmed_id',
                                'pre_publication_description',
                                'post_publication_description',
                                'original_description',
                                'pre_publication_abbreviation',
                                'post_publication_abbreviation',
+                               'mean',
                                'lab_code',
                                'submitter', 'owner',
                                'authorized_users',
@@ -708,20 +762,6 @@ class PhenotypeDataSet(DataSet):
         # (Urgently?) Need to write this
         pass
 
-    def get_trait_list(self):
-        query = """
-            select PublishXRef.Id
-            from PublishXRef, PublishFreeze
-            where PublishFreeze.InbredSetId=PublishXRef.InbredSetId
-            and PublishFreeze.Id = {}
-            """.format(escape(str(self.id)))
-        logger.sql(query)
-        results = g.db.execute(query).fetchall()
-        trait_data = {}
-        for trait in results:
-            trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
-        return trait_data
-
     def get_trait_info(self, trait_list, species = ''):
         for this_trait in trait_list:
 
@@ -735,7 +775,7 @@ class PhenotypeDataSet(DataSet):
             #of the post-publication description
             if this_trait.confidential:
                 this_trait.description_display = ""
-                continue   # for now
+                continue   # for now, because no authorization features
 
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
                         privilege=self.privilege,
@@ -759,9 +799,7 @@ class PhenotypeDataSet(DataSet):
 
             #LRS and its location
             this_trait.LRS_score_repr = "N/A"
-            this_trait.LRS_score_value = 0
             this_trait.LRS_location_repr = "N/A"
-            this_trait.LRS_location_value = 1000000
 
             if this_trait.lrs:
                 query = """
@@ -778,17 +816,7 @@ class PhenotypeDataSet(DataSet):
                         LRS_Chr = result[0]
                         LRS_Mb = result[1]
 
-                        #XZ: LRS_location_value is used for sorting
-                        try:
-                            LRS_location_value = int(LRS_Chr)*1000 + float(LRS_Mb)
-                        except:
-                            if LRS_Chr.upper() == 'X':
-                                LRS_location_value = 20*1000 + float(LRS_Mb)
-                            else:
-                                LRS_location_value = ord(str(LRS_chr).upper()[0])*1000 + float(LRS_Mb)
-
                         this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
-                        this_trait.LRS_score_value = LRS_score_value = this_trait.lrs
                         this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (LRS_Chr, float(LRS_Mb))
 
     def retrieve_sample_data(self, trait):
@@ -850,45 +878,18 @@ class GenotypeDataSet(DataSet):
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
 
-    def get_trait_list(self):
-        query = """
-            select Geno.Name
-            from Geno, GenoXRef
-            where GenoXRef.GenoId = Geno.Id
-            and GenoFreezeId = {}
-            """.format(escape(str(self.id)))
-        logger.sql(query)
-        results = g.db.execute(query).fetchall()
-        trait_data = {}
-        for trait in results:
-            trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
-        return trait_data
-
     def get_trait_info(self, trait_list, species=None):
         for this_trait in trait_list:
             if not this_trait.haveinfo:
                 this_trait.retrieveInfo()
 
-            #XZ: trait_location_value is used for sorting
-            trait_location_repr = 'N/A'
-            trait_location_value = 1000000
-
             if this_trait.chr and this_trait.mb:
-                try:
-                    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
-                except:
-                    if this_trait.chr.upper() == 'X':
-                        trait_location_value = 20*1000 + this_trait.mb
-                    else:
-                        trait_location_value = ord(str(this_trait.chr).upper()[0])*1000 + this_trait.mb
-
                 this_trait.location_repr = 'Chr%s: %.6f' % (this_trait.chr, float(this_trait.mb) )
-                this_trait.location_value = trait_location_value
 
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Sample.Name2
+                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Strain.Name2
                     FROM
                             (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
                     left join GenoSE on
@@ -940,6 +941,7 @@ class MrnaAssayDataSet(DataSet):
                                'blatseq', 'targetseq',
                                'chipid', 'comments',
                                'strand_probe', 'strand_gene',
+                               'proteinid', 'uniprotid',
                                'probe_set_target_region',
                                'probe_set_specificity',
                                'probe_set_blat_score',
@@ -978,20 +980,6 @@ class MrnaAssayDataSet(DataSet):
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
 
-    def get_trait_list_1(self):
-        query = """
-            select ProbeSet.Name
-            from ProbeSet, ProbeSetXRef
-            where ProbeSetXRef.ProbeSetId = ProbeSet.Id
-            and ProbeSetFreezeId = {}
-            """.format(escape(str(self.id)))
-        logger.sql(query)
-        results = g.db.execute(query).fetchall()
-        trait_data = {}
-        for trait in results:
-            trait_data[trait[0]] = self.retrieve_sample_data(trait[0])
-        return trait_data
-
     def get_trait_info(self, trait_list=None, species=''):
 
         #  Note: setting trait_list to [] is probably not a great idea.
@@ -1023,27 +1011,8 @@ class MrnaAssayDataSet(DataSet):
             # Save it for the jinja2 template
             this_trait.description_display = description_display
 
-            #XZ: trait_location_value is used for sorting
-            trait_location_repr = 'N/A'
-            trait_location_value = 1000000
-
             if this_trait.chr and this_trait.mb:
-                #Checks if the chromosome number can be cast to an int (i.e. isn't "X" or "Y")
-                #This is so we can convert the location to a number used for sorting
-                trait_location_value = self.convert_location_to_value(this_trait.chr, this_trait.mb)
-                #try:
-                #    trait_location_value = int(this_trait.chr)*1000 + this_trait.mb
-                #except ValueError:
-                #    if this_trait.chr.upper() == 'X':
-                #        trait_location_value = 20*1000 + this_trait.mb
-                #    else:
-                #        trait_location_value = (ord(str(this_trait.chr).upper()[0])*1000 +
-                #                               this_trait.mb)
-
-                #ZS: Put this in function currently called "convert_location_to_value"
-                this_trait.location_repr = 'Chr%s: %.6f' % (this_trait.chr,
-                                                                float(this_trait.mb))
-                this_trait.location_value = trait_location_value
+                this_trait.location_repr = 'Chr%s: %.6f' % (this_trait.chr, float(this_trait.mb))
 
             #Get mean expression value
             query = (
@@ -1065,9 +1034,7 @@ class MrnaAssayDataSet(DataSet):
 
             #LRS and its location
             this_trait.LRS_score_repr = 'N/A'
-            this_trait.LRS_score_value = 0
             this_trait.LRS_location_repr = 'N/A'
-            this_trait.LRS_location_value = 1000000
 
             #Max LRS and its Locus location
             if this_trait.lrs and this_trait.locus:
@@ -1082,40 +1049,10 @@ class MrnaAssayDataSet(DataSet):
 
                 if result:
                     lrs_chr, lrs_mb = result
-                    #XZ: LRS_location_value is used for sorting
-                    lrs_location_value = self.convert_location_to_value(lrs_chr, lrs_mb)
                     this_trait.LRS_score_repr = '%3.1f' % this_trait.lrs
-                    this_trait.LRS_score_value = this_trait.lrs
                     this_trait.LRS_location_repr = 'Chr%s: %.6f' % (lrs_chr, float(lrs_mb))
 
-
-    def convert_location_to_value(self, chromosome, mb):
-        try:
-            location_value = int(chromosome)*1000 + float(mb)
-        except ValueError:
-            if chromosome.upper() == 'X':
-                location_value = 20*1000 + float(mb)
-            else:
-                location_value = (ord(str(chromosome).upper()[0])*1000 +
-                                  float(mb))
-
-        return location_value
-
-    def get_sequence(self):
-        query = """
-                    SELECT
-                            ProbeSet.BlatSeq
-                    FROM
-                            ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                    WHERE
-                            ProbeSet.Id=ProbeSetXRef.ProbeSetId and
-                            ProbeSetFreeze.Id = ProbeSetXRef.ProbSetFreezeId and
-                            ProbeSet.Name = %s
-                            ProbeSetFreeze.Name = %s
-                """ % (escape(self.name), escape(self.dataset.name))
-        logger.sql(query)
-        results = g.db.execute(query).fetchone()
-        return results[0]
+        return trait_list
 
     def retrieve_sample_data(self, trait):
         query = """
@@ -1139,7 +1076,6 @@ class MrnaAssayDataSet(DataSet):
         #logger.debug("RETRIEVED RESULTS HERE:", results)
         return results
 
-
     def retrieve_genes(self, column_name):
         query = """
                     select ProbeSet.Name, ProbeSet.%s
@@ -1155,6 +1091,8 @@ class MrnaAssayDataSet(DataSet):
 
 class TempDataSet(DataSet):
     '''Temporary user-generated data set'''
+
+    DS_NAME_MAP['Temp'] = 'TempDataSet'
 
     def setup(self):
         self.search_fields = ['name',
@@ -1190,19 +1128,6 @@ class TempDataSet(DataSet):
         desc = g.db.fetchone()[0]
         desc = self.handle_pca(desc)
         return desc
-
-    def get_group(self):
-        query = """
-                    SELECT
-                            InbredSet.Name, InbredSet.Id
-                    FROM
-                            InbredSet, Temp
-                    WHERE
-                            Temp.InbredSetId = InbredSet.Id AND
-                            Temp.Name = "%s"
-            """ % self.name
-        logger.sql(query)
-        self.group, self.group_id = g.db.execute(query).fetchone()
 
     def retrieve_sample_data(self, trait):
         query = """
