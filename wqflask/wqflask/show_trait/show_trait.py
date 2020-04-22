@@ -364,8 +364,8 @@ class ShowTrait(object):
                 if self.dataset:
                     dataset_menu_selected = self.dataset.name
 
-                return_results_menu = (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000)
-                return_results_menu_selected = 500
+            return_results_menu = (100, 200, 500, 1000, 2000, 5000, 10000, 15000, 20000)
+            return_results_menu_selected = 500
 
             self.corr_tools = dict(dataset_menu = dataset_menu,
                                           dataset_menu_selected = dataset_menu_selected,

@@ -9,6 +9,7 @@ import simplejson as json
 import redis # used for collections
 Redis = redis.StrictRedis()
 
+
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
@@ -69,19 +70,23 @@ class UserSession(object):
         if not self.record or self.record == []:
             if user_cookie:
                 self.logged_in = False
+                self.record = dict(login_time = time.time(),
+                                    user_type = "anon",
+                                    user_id = str(uuid.uuid4()))
+                Redis.hmset(self.redis_key, self.record)
+                Redis.expire(self.redis_key, THIRTY_DAYS)
+                response = make_response(redirect(url_for('login')))
+                response.set_cookie(self.user_cookie_name, '', expires=0)
 
                 ########### Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
-                response = make_response(redirect(url_for('login')))
-                #response.set_cookie(self.cookie_name, '', expires=0)
                 flash("Due to inactivity your session has expired. If you'd like please login again.")
-                #return response
+                return response
                 #return
             else:
                 self.record = dict(login_time = time.time(),
                                     user_type = "anon",
                                     user_id = str(uuid.uuid4()))
-
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
         else:
