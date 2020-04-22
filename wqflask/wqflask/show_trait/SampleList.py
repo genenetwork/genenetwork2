@@ -14,8 +14,6 @@ import simplejson as json
 
 import itertools
 
-from utility.elasticsearch_tools import get_elasticsearch_connection
-
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
@@ -158,47 +156,47 @@ class SampleList(object):
 
         return any(sample.variance for sample in self.sample_list)
 
-def get_transform_vals(dataset, trait):
-    es = get_elasticsearch_connection(for_user=False)
+# def get_transform_vals(dataset, trait):
+#     es = get_elasticsearch_connection(for_user=False)
 
-    logger.info("DATASET NAME:", dataset.name)
+#     logger.info("DATASET NAME:", dataset.name)
 
-    query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
+#     query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
 
-    es_body = {
-          "query": {
-            "bool": {
-              "must": [
-                {
-                  "match": {
-                    "name": "%s" % (trait.name)
-                  }
-                },
-                {
-                  "match": {
-                    "dataset": "%s" % (dataset.name)
-                  }
-                }
-              ]
-            }
-          }
-    }
+#     es_body = {
+#           "query": {
+#             "bool": {
+#               "must": [
+#                 {
+#                   "match": {
+#                     "name": "%s" % (trait.name)
+#                   }
+#                 },
+#                 {
+#                   "match": {
+#                     "dataset": "%s" % (dataset.name)
+#                   }
+#                 }
+#               ]
+#             }
+#           }
+#     }
 
-    response = es.search( index = "traits", doc_type = "trait", body = es_body )
-    logger.info("THE RESPONSE:", response)
-    results = response['hits']['hits']
+#     response = es.search( index = "traits", doc_type = "trait", body = es_body )
+#     logger.info("THE RESPONSE:", response)
+#     results = response['hits']['hits']
 
-    if len(results) > 0:
-        samples = results[0]['_source']['samples']
+#     if len(results) > 0:
+#         samples = results[0]['_source']['samples']
 
-        sample_dict = {}
-        for sample in samples:
-            sample_dict[sample['name']] = sample['qnorm']
+#         sample_dict = {}
+#         for sample in samples:
+#             sample_dict[sample['name']] = sample['qnorm']
 
-        #logger.info("SAMPLE DICT:", sample_dict)
-        return sample_dict
-    else:
-        return None
+#         #logger.info("SAMPLE DICT:", sample_dict)
+#         return sample_dict
+#     else:
+#         return None
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""

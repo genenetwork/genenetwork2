@@ -33,7 +33,7 @@ def app_config():
         if page.status_code != 200:
             raise Exception("API server not found!")
 
-    import utility.elasticsearch_tools as es
-    es.test_elasticsearch_connection()
+    # import utility.elasticsearch_tools as es
+    # es.test_elasticsearch_connection()
 
     print("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" % (BLUE,str(port),ENDC,get_setting("WEBSERVER_URL")))

@@ -108,7 +108,7 @@ def collections_new():
         if 'existing_collection' not in params:
             collections = g.user_session.user_collections
             for collection in collections:
-                if collection["name"] == "Default Collection":
+                if collection["name"] == "Your Default Collection":
                     collection_id = collection["id"]
                     collection_name = collection["name"]
                     default_collection_exists = True

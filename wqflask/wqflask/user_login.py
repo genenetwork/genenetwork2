@@ -6,7 +6,6 @@ import datetime
 import time
 import logging
 import uuid
-import hashlib
 import hmac
 import base64
 import requests
@@ -42,17 +41,23 @@ def basic_info():
                 ip_address = request.remote_addr,
                 user_agent = request.headers.get('User-Agent'))
 
-def encode_password(pass_gen_fields):
+def encode_password(pass_gen_fields, unencrypted_password):
+    logger.debug("THE TYPE:", type(pass_gen_fields))
+    logger.debug("pass_gen_fields:", pass_gen_fields)
+    logger.debug("hashfunc:", pass_gen_fields['hashfunc'])
     hashfunc = getattr(hashlib, pass_gen_fields['hashfunc'])
 
     salt = base64.b64decode(pass_gen_fields['salt'])
-    password = pbkdf2.pbkdf2_hex(str(pass_gen_fields['unencrypted_password']), 
+    encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password), 
                                  pass_gen_fields['salt'], 
                                  pass_gen_fields['iterations'], 
                                  pass_gen_fields['keylength'], 
                                  hashfunc)
 
-    return password
+    pass_gen_fields.pop("unencrypted_password", None)
+    pass_gen_fields["password"] = encrypted_password
+
+    return pass_gen_fields
 
 def set_password(password):
     pass_gen_fields = {
@@ -67,18 +72,9 @@ def set_password(password):
 
     assert len(password) >= 6, "Password shouldn't be shorter than 6 characters"
 
-    encoded_password = encode_password(pass_gen_fields)
+    encoded_password = encode_password(pass_gen_fields, pass_gen_fields['unencrypted_password'])
 
     return encoded_password
-
-def encrypt_password(unencrypted_password, pwfields):
-        hashfunc = getattr(hashlib, pwfields['hashfunc'])
-        salt = base64.b64decode(pwfields['salt'])
-        iterations = pwfields['iterations']
-        keylength = pwfields['keylength']
-        encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password),
-                                               salt, iterations, keylength, hashfunc)
-        return encrypted_password
 
 def get_signed_session_id(user):
     session_id = str(uuid.uuid4())
@@ -186,9 +182,12 @@ def login():
             password_match = False
             if user_details:
                 submitted_password = params['password']
-                pwfields = json.loads(user_details['password'])
-                encrypted_pass = encrypt_password(submitted_password, pwfields)
-                password_match = pbkdf2.safe_str_cmp(encrypted_pass, pwfields['password'])
+                pwfields = user_details['password']
+                if type(pwfields) is str:
+                    pwfields = json.loads(pwfields)
+                encrypted_pass_fields = encode_password(pwfields, submitted_password)
+                password_match = pbkdf2.safe_str_cmp(encrypted_pass_fields['password'], pwfields['password'])
+
             else: # Invalid e-mail
                 flash("Invalid e-mail address. Please try again.", "alert-danger")
                 response = make_response(redirect(url_for('login')))
@@ -226,7 +225,7 @@ def github_oauth2():
         "client_secret": GITHUB_CLIENT_SECRET,
         "code": code
     }
-    logger.debug("LOGIN DATA:", data)
+
     result = requests.post("https://github.com/login/oauth/access_token", json=data)
     result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
 
@@ -437,19 +436,18 @@ def register_user(params):
         if params.get('password_confirm') != password:
             errors.append("Passwords don't match.")
 
-        if errors:
-            return errors
-
         user_details['password'] = set_password(password)
         user_details['user_id'] = str(uuid.uuid4())
         user_details['confirmed'] = 1
 
-        user_details['registration_info'] = json.dumps(basic_info(), sort_keys=True)
+        user_details['registration_info'] = basic_info()
         save_user(user_details, user_details['user_id'])
+
+        return errors
 
 @app.route("/n/register", methods=('GET', 'POST'))
 def register():
-    errors = None
+    errors = []
 
     params = request.form if request.form else request.args
     params = params.to_dict(flat=True)
