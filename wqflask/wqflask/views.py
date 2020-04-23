@@ -583,18 +583,23 @@ def loading_page():
             if key in wanted or key.startswith(('value:')):
                 start_vars[key] = value
 
-        if 'primary_samples' in start_vars:
-            samples = start_vars['primary_samples'].split(",")
-            for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
-                    num_vals += 1
+        if 'num_vals' in start_vars:
+            num_vals = int(start_vars['num_vals'])
+        else:
+            if 'primary_samples' in start_vars:
+                samples = start_vars['primary_samples'].split(",")
+                for sample in samples:
+                    value = start_vars.get('value:' + sample)
+                    if value != "x":
+                        num_vals += 1
 
         start_vars['num_vals'] = num_vals
+        start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
         start_vars_container['start_vars'] = start_vars
     else:
         start_vars_container['start_vars'] = initial_start_vars
+
     rendered_template = render_template("loading.html", **start_vars_container)
 
     return rendered_template
@@ -658,7 +663,8 @@ def mapping_results_page():
         'mapmodel_rqtl_geno',
         'temp_trait',
         'reaper_version',
-        'num_vals'
+        'num_vals',
+        'transform'
     )
     start_vars = {}
     for key, value in initial_start_vars.iteritems():

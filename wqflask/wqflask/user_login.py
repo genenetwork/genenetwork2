@@ -42,9 +42,6 @@ def basic_info():
                 user_agent = request.headers.get('User-Agent'))
 
 def encode_password(pass_gen_fields, unencrypted_password):
-    logger.debug("THE TYPE:", type(pass_gen_fields))
-    logger.debug("pass_gen_fields:", pass_gen_fields)
-    logger.debug("hashfunc:", pass_gen_fields['hashfunc'])
     hashfunc = getattr(hashlib, pass_gen_fields['hashfunc'])
 
     salt = base64.b64decode(pass_gen_fields['salt'])

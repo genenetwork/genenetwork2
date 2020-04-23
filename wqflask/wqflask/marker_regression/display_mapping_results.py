@@ -166,6 +166,7 @@ class DisplayMappingResults(object):
         #Needing for form submission when doing single chr mapping or remapping after changing options
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
+        self.transform = start_vars['transform']
         self.mapping_method = start_vars['mapping_method']
         self.mapping_results_path = start_vars['mapping_results_path']
         if self.mapping_method == "rqtl_geno":
@@ -233,6 +234,8 @@ class DisplayMappingResults(object):
             self.covariates = start_vars['covariates']
         if 'maf' in start_vars.keys():
             self.maf = start_vars['maf']
+        else:
+            self.maf = ""
         if 'output_files' in start_vars.keys():
             self.output_files = start_vars['output_files']
         if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":

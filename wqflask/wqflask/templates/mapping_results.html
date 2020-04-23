@@ -36,7 +36,7 @@
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
         <input type="hidden" name="num_vals" value="{{ n_samples }}">
-        <input type="hidden" name="maf">
+        <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
@@ -45,10 +45,14 @@
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
-        <input type="hidden" name="covariates" values="{{ covariates }}">
+        <input type="hidden" name="covariates" value="{{ covariates }}">
         <input type="hidden" name="mapmethod_rqtl_geno" value="{{ mapmethod_rqtl_geno }}">
         <input type="hidden" name="mapmodel_rqtl_geno" value="{{ mapmodel_rqtl_geno }}">
         <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
+        <input type="hidden" name="transform" value="{{ transform }}">
+        <input type="hidden" name="tool_used" value="Mapping">
+        <input type="hidden" name="wanted_inputs" value="">
+        <input type="hidden" name="form_url" value="/run_mapping">
         
         <div class="container">
           <div class="col-xs-5">
@@ -422,11 +426,19 @@
 
         });
 
+        var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
+                            'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
+                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
+                            'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
+                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'num_vals']
+
+        $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
+
         chrView = function(this_chr, chr_mb_list) {
             $('input[name=selected_chr]').val(this_chr)
             $('input[name=chr_mb_list]').val(chr_mb_list)
 
-            $('#marker_regression_form').attr('action', '/run_mapping');
+            $('#marker_regression_form').attr('action', '/loading');
             return $('#marker_regression_form').submit();
         };
 
@@ -436,13 +448,13 @@
             $('input[name=endMb]').val(end_mb)
             //$('input[name=mb_range]').val(start_mb + "," + end_mb)
 
-            $('#marker_regression_form').attr('action', '/run_mapping');
+            $('#marker_regression_form').attr('action', '/loading');
             return $('#marker_regression_form').submit();
         };
 
         remap = function() { 
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
-            $('#marker_regression_form').attr('action', '/run_mapping');
+            $('#marker_regression_form').attr('action', '/loading');
             return $('#marker_regression_form').submit(); 
         };
 
