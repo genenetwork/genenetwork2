@@ -3,9 +3,6 @@
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
  - [[#install][Install]]
-   - [[#tarball][Tarball]]
-   - [[#docker][Docker]]
-   - [[#with-source][With source]]
  - [[#running-gn2][Running GN2]]
  - [[#run-mariadb-server][Run MariaDB server]]
    - [[#install-mariadb-with-gnu-guix][Install MariaDB with GNU GUIx]]
@@ -20,6 +17,8 @@
    - [[#rpy2-error-show-now-found][Rpy2 error 'show' now found]]
    - [[#mysql-cant-connect-server-through-socket-error][Mysql can't connect server through socket ERROR]]
  - [[#irc-session][IRC session]]
+ - [[#notes][NOTES]]
+   - [[#deploying-gn2-official][Deploying GN2 official]]
 
 * Introduction
 
@@ -38,44 +37,10 @@ an example of the [[#gn2-dependency-graph][GN2 Dependency Graph]].
 
 * Install
 
-The quickest way to install GN2 is by using a binary installation
-(tarball or Docker image).  These installations are bundled by GNU
-Guix and include all dependencies. You can install GeneNetwork on most
-Linux distributions, including Debian, Ubuntu, Fedora and CentOS,
-provided you have administrator privileges (root). The alternative is
-a Docker installation.
-
-** Tarball
-
-Download the ~800Mb tarball from
-[[http://files.genenetwork.org/software/binary_tarball/]]. Validate the checksum and
-unpack to root, for example
-
-: tar xvzf genenetwork2-2.10rc3-1538ffd-tarball-pack.tar.gz
-: mv /gnu /
-: mv /opt/genenetwork2 /opt/
-
-Now you shoud be able to start the server with
-
-: /opt/genenetwork2/bin/genenetwork2
-
-When the server stops with a MySQL error [[#run-mysql-server][Run MySQL server]]
-and set SQL_URI to point at it. For example:
-
-: export SQL_URI=mysql://gn2:mysql_password@127.0.0.1/db_webqtl_s
-
-See also [[#mysql-cant-connect-server-through-socket-error][Mysql can't connect server through socket ERROR]].
-
-** Docker
-
-Docker images are also available through
-[[http://files.genenetwork.org/software/]]. Validate the checksum and run
-with [[https://docs.docker.com/engine/reference/commandline/load/][Docker load]].
-
-** With source
-
-For more elaborate installation instructions on deploying GeneNetwork from
-source see [[#source-deployment][Source deployment]].
+Make sure to install GNU Guix using the binary download instructions
+on the main website. Follow the instructions on
+[[GUIX-Reproducible-from-source.org]] to download pre-built binaries. Note
+the download amounts to several GBs of data.
 
 * Running GN2
 
@@ -95,10 +60,10 @@ developing GN2.
 * Run MariaDB server
 ** Install MariaDB with GNU GUIx
 
-/Note we are moving to MariaDB/
+/Note: we moved to MariaDB/
 
 These are the steps you can take to install a fresh installation of
-mysql (which comes as part of the GNU Guix genenetwork2 install).
+mariadb (which comes as part of the GNU Guix genenetwork2 install).
 
 As root configure and run
 
@@ -202,7 +167,6 @@ http://biogems.info/contrib/genenetwork/gn2.svg
 * Working with the GN2 source code
 
 See [[development.org]].
-
 
 * Read more
 
@@ -687,3 +651,31 @@ The following derivations would be built:
 <pjotrp> I am building it on guix.genenetwork.org right now  [10:09]
 <user01> nice  [10:10]
 #+end_src
+
+* NOTES
+
+** Deploying GN2 official
+
+Let's see how fast we can deploy a second copy of GN2.
+
+- [-] Base install
+  + [X] First install a Debian server with GNU Guix on board
+  + [X] Get Guix build going
+    - [X] Build the correct version of Guix
+    - [X] Check out the correct gn-stable version of guix-bioinformatics http://git.genenetwork.org/pjotrp/guix-bioinformatics
+    - [X] guix package -i genenetwork2 -p /usr/local/guix-profiles/gn2-stable
+  + [X] Create a gn2 user and home with space
+  + [X] Install redis (currently debian)
+    - [X] add to systemd
+    - [X] update redis.cnf
+    - [X] update database
+  + [X] Install mariadb (currently debian mariadb-server)
+    - [X] add to systemd
+    - [X] system stop mysql
+    - [X] update mysql.cnf
+    - [X] update database (see gn-services/services/mariadb.md)
+    - [X] check tables
+  + [ ] run gn2 (rust-qtlreaper not working)
+  + [X] update nginx
+  + [ ] install genenetwork3
+    - [ ] add to systemd
