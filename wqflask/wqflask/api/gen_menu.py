@@ -47,7 +47,6 @@ def get_species():
     """Build species list"""
     results = g.db.execute("""SELECT Name, MenuName
                               FROM Species
-                              WHERE Species.Name != 'macaque monkey'
                               ORDER BY OrderId""").fetchall()
 
     species = []
