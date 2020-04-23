@@ -150,6 +150,10 @@ class RunMapping(object):
         self.suggestive = ""
         self.significant = ""
         self.pair_scan = False # Initializing this since it is checked in views to determine which template to use
+        if 'transform' in start_vars:
+            self.transform = start_vars['transform']
+        else:
+            self.transform = ""
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
         self.num_perm = 0
@@ -241,7 +245,6 @@ class RunMapping(object):
 
                     perm_strata = get_perm_strata(self.this_trait, primary_samples, self.categorical_vars, self.samples)
             self.score_type = "LOD"
-            #self.mapping_scale = "morgan"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             if 'mapmethod_rqtl_geno' in start_vars:
@@ -252,9 +255,9 @@ class RunMapping(object):
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+                self.perm_output, self.suggestive, self.significant, results, self.mapping_scale = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
             else:
-                results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+                results, self.mapping_scale = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:

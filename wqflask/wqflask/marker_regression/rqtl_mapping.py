@@ -36,7 +36,10 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
     generate_cross_from_geno(dataset)
     GENOtoCSVR                 = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
     crossfilelocation = TMPDIR + crossname + ".cross"
-    genofilelocation  = locate(dataset.group.genofile, "genotype")
+    if dataset.group.genofile:
+        genofilelocation  = locate(dataset.group.genofile, "genotype")
+    else:
+        genofilelocation = locate(dataset.group.name + ".geno", "genotype")
     cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
 
     if manhattan_plot:
@@ -91,9 +94,11 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, model=model, method=method)
 
             perm_output, suggestive, significant = process_rqtl_perm_results(num_perm, perm_data_frame)          # Functions that sets the thresholds for the webinterface
-            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame, dataset.group.species)
+            the_scale = check_mapping_scale(genofilelocation)
+            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame, dataset.group.species), the_scale
         else:
-            return process_rqtl_results(result_data_frame, dataset.group.species)
+            the_scale = check_mapping_scale(genofilelocation)
+            return process_rqtl_results(result_data_frame, dataset.group.species), the_scale
 
 def generate_cross_from_rdata(dataset):
     rdata_location  = locate(dataset.group.name + ".RData", "genotype/rdata")
@@ -287,3 +292,19 @@ def process_rqtl_results(result, species_name):        # TODO: how to make this 
         qtl_results.append(marker)
 
     return qtl_results
+
+def check_mapping_scale(genofile_location):
+    scale = "physic"
+    with open(genofile_location, "r") as geno_fh:
+        for line in geno_fh:
+            if line[0] == "@" or line[0] == "#":
+
+                if "@scale" in line:
+                    scale = line.split(":")[1].strip()
+                    break
+                else:
+                    continue
+            else:
+                break
+
+    return scale
