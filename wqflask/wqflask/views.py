@@ -305,6 +305,12 @@ def tutorials():
     #return render_template("docs.html", **doc.__dict__)
     return render_template("tutorials.html")
 
+@app.route("/credits")
+def credits():
+    #doc = docs.Docs("links", request.args)
+    #return render_template("docs.html", **doc.__dict__)
+    return render_template("credits.html")
+
 @app.route("/environments")
 def environments():
     doc = docs.Docs("environments", request.args)
