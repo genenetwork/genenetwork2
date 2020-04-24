@@ -234,6 +234,8 @@ def show_settings():
 GN_VERSION         = get_setting('GN_VERSION')
 HOME               = get_setting('HOME')
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
+GN2_BASE_URL       = get_setting('GN2_BASE_URL')
+GN2_BRANCH_URL     = get_setting('GN2_BRANCH_URL')
 GN_SERVER_URL      = get_setting('GN_SERVER_URL')
 SERVER_PORT        = get_setting_int('SERVER_PORT')
 SQL_URI            = get_setting('SQL_URI')

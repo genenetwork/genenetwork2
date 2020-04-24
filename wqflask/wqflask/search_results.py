@@ -28,6 +28,7 @@ from flask import render_template, Flask, g
 
 from utility import formatting
 from utility import hmac
+from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
 
 from utility.logger import getLogger
@@ -295,7 +296,7 @@ def get_aliases(symbol_list, species):
     symbols_string = ",".join(updated_symbols)
 
     filtered_aliases = []
-    response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases2/" + symbols_string)
+    response = requests.get(GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
     if response:
         alias_lists = json.loads(response.content)
         seen = set()

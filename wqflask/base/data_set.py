@@ -56,7 +56,7 @@ from pprint import pformat as pf
 from db.gn_server import menu_main
 from db.call import fetchall,fetchone,fetch1
 
-from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists
+from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
@@ -94,7 +94,7 @@ Publish or ProbeSet. E.g.
         """
         self.datasets = {}
         if rebuild: #ZS: May make this the only option
-            data = json.loads(requests.get("http://gn2.genenetwork.org/api/v_pre1/gen_dropdown").content)
+            data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown").content)
             #data = gen_menu.gen_dropdown_json()
         else:
             file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"

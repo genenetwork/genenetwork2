@@ -14,6 +14,7 @@ from base.data_set import create_dataset
 from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility import hmac
+from utility.tools import GN2_BASE_URL
 
 from wqflask import app
 
@@ -135,9 +136,9 @@ class GeneralTrait(object):
 
         alias = 'Not available'
         if self.symbol:
-            human_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.upper())
-            mouse_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.capitalize())
-            other_response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + self.symbol.lower())
+            human_response = requests.get(GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.upper())
+            mouse_response = requests.get(GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.capitalize())
+            other_response = requests.get(GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.lower())
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(mouse_response.content) + json.loads(other_response.content)

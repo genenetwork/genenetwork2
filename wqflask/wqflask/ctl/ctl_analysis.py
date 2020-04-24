@@ -20,7 +20,7 @@ from base import data_set
 from base import trait as TRAIT
 
 from utility import helper_functions
-from utility.tools import locate
+from utility.tools import locate, GN2_BRANCH_URL
 
 from rpy2.robjects.packages import importr
 
@@ -55,6 +55,8 @@ class CTL(object):
         self.nodes_list = []
         self.edges_list = []
         logger.info("Obtained pointers to CTL functions")
+
+        self.gn2_url = GN2_BRANCH_URL
 
     def addNode(self, gt):
         node_dict = { 'data' : {'id' : str(gt.name) + ":" + str(gt.dataset.name),
