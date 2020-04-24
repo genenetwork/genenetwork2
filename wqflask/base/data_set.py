@@ -67,7 +67,6 @@ DS_NAME_MAP = {}
 def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
-        logger.debug("dataset_type", dataset_type)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
@@ -96,7 +95,6 @@ Publish or ProbeSet. E.g.
         self.datasets = {}
         if rebuild: #ZS: May make this the only option
             data = json.loads(requests.get("http://gn2.genenetwork.org/api/v_pre1/gen_dropdown").content)
-            logger.debug("THE DATA:", data)
             #data = gen_menu.gen_dropdown_json()
         else:
             file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
@@ -120,7 +118,65 @@ Publish or ProbeSet. E.g.
         logger.debugf(5, "datasets",self.datasets)
 
     def __call__(self, name):
-        return self.datasets[name]
+        if name not in self.datasets:
+            mrna_expr_query = """
+                            SELECT
+                                ProbeSetFreeze.Id
+                            FROM
+                                ProbeSetFreeze
+                            WHERE
+                                ProbeSetFreeze.Name = "{0}"
+                            """.format(name)
+
+            results = g.db.execute(geno_query).fetchall()
+            if len(results):
+                self.datasets[name] = "ProbeSet"
+                return self.datasets[name]
+
+            group_name = name.replace("Publish", "")
+
+            pheno_query = """SELECT InfoFiles.GN_AccesionId
+                             FROM InfoFiles, PublishFreeze, InbredSet
+                             WHERE InbredSet.Name = '{0}' AND
+                                   PublishFreeze.InbredSetId = InbredSet.Id AND
+                                   InfoFiles.InfoPageName = PublishFreeze.Name""".format(group_name)
+
+            results = g.db.execute(pheno_query).fetchall()
+            if len(results):
+                self.datasets[name] = "Publish"
+                return self.datasets[name]
+
+            #ZS: For when there isn't an InfoFiles ID; not sure if this and the preceding query are both necessary
+            other_pheno_query = """SELECT PublishFreeze.Name
+                                   FROM PublishFreeze, InbredSet
+                                   WHERE InbredSet.Name = '{}' AND
+                                         PublishFreeze.InbredSetId = InbredSet.Id""".format(group_name)
+
+            results = g.db.execute(other_pheno_query).fetchall()
+            if len(results):
+                self.datasets[name] = "Publish"
+                return self.datasets[name]
+
+            geno_query =    """
+                                SELECT
+                                    GenoFreezeId
+                                FROM
+                                    GenoFreeze
+                                WHERE
+                                    GenoFreeze.Name = "{0}"
+                                {1}
+                            """.format(name)
+
+            results = g.db.execute(geno_query).fetchall()
+            if len(results):
+                self.datasets[name] = "Geno"
+                return self.datasets[name]
+
+            #ZS: It shouldn't ever reach this
+            return None
+
+        else:
+            return self.datasets[name]
 
 # Do the intensive work at startup one time only
 Dataset_Getter = Dataset_Types()
