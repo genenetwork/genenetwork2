@@ -74,7 +74,6 @@ redo_dropdown = function(dropdown, items) {
     this_opt_group = null
     for (_i = 0, _len = group_family_list.length; _i < _len; _i++) {
       item = group_family_list[_i];
-      console.log("THE ITEM:", item)
       if (item[2] != "None" && current_family == ""){
         current_family = item[2]
         this_opt_group = $("<optgroup label=\"" + item[2] + "\">")

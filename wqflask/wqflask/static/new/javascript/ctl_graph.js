@@ -82,18 +82,12 @@ window.onload=function() {
     function create_qtips(cy){
         cy.nodes().qtip({
                             content: function(){
-                                gn_link = '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().sid + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
+                                gn_link = '<b>'+'<a href="' + gn2_url + '/show_trait?trait_id=' + this.data().sid + '&dataset=' + this.data().dataset + '" >'+this.data().id +'</a>'+'</b><br>'
                                 ncbi_link = '<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=' + this.data().geneid + '" >NCBI<a>'+'<br>' 
                                 omim_link = '<a href="http://www.ncbi.nlm.nih.gov/omim/' + this.data().omim + '" >OMIM<a>'+'<br>' 
                                 qtip_content = gn_link + ncbi_link + omim_link
                                 return qtip_content
-                                //return '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.data().id + '&dataset=' + this.data().dataset + '" >'+this.data().id +'<a>'+'</b>' 
                             },
-                            // content: {
-                                // title: '<b>'+'<a href="http://gn2.genenetwork.org/show_trait?trait_id=' + this.target() + '&dataset=' + this.dataset() + '" >'+this.target() +'<a>'+'</b>',
-                                // text: this.target,
-                                // button: true
-                            // },
                             position: {
                                 my: 'top center',
                                 at: 'bottom center'

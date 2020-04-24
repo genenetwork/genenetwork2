@@ -13,6 +13,7 @@ import sys
 # sys.path.append("..") Never in a running webserver
 
 from db import webqtlDatabaseFunction
+from utility.tools import GN2_BASE_URL
 
 import logging
 from utility.logger import getLogger
@@ -919,7 +920,7 @@ def get_aliases(symbol, species):
         return []
 
     filtered_aliases = []
-    response = requests.get("http://gn2.genenetwork.org/gn3/gene/aliases/" + symbol_string)
+    response = requests.get(GN2_BASE_URL + "/gn3/gene/aliases/" + symbol_string)
     if response:
         alias_list = json.loads(response.content)
 

@@ -47,6 +47,7 @@ from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers
+from utility.tools import GN2_BRANCH_URL
 from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
@@ -195,6 +196,7 @@ class NetworkGraph(object):
             self.nodes_list.append(node_dict)
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
+        self.gn2_url = GN2_BRANCH_URL
 
         groups = []
         for sample in self.all_sample_list:
