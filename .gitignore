@@ -4,6 +4,8 @@
 *.bak
 *.cross
 *~
+*.swo
+*.swp
 genotype_files/genotype/HSNIH_copy.geno
 web/new_genotypes/HSNIH.json
 wqflask/secure_server.py
