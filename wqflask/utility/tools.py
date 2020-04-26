@@ -233,6 +233,7 @@ def show_settings():
 # Cached values
 GN_VERSION         = get_setting('GN_VERSION')
 HOME               = get_setting('HOME')
+SERVER_PORT        = get_setting('SERVER_PORT')
 WEBSERVER_MODE     = get_setting('WEBSERVER_MODE')
 GN2_BASE_URL       = get_setting('GN2_BASE_URL')
 GN2_BRANCH_URL     = get_setting('GN2_BRANCH_URL')

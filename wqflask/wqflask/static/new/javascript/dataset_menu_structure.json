@@ -5172,6 +5172,23 @@
                   "HSNIH-Rat-PL-RSeq-0818", 
                   "HSNIH-Palmer Prelimbic Cortex RNA-Seq (Aug18) rlog"
                ]
+            ],
+            "Prefrontal Cortex mRNA": [
+               [
+                  "864",
+                  "HSNIH-Rat-VoLo-RSeq-0818",
+                  "HSNIH-Palmer Orbitofrontal Cortex RNA-Seq (Aug18) rlog"
+               ],
+               [
+                  "863",
+                  "HSNIH-Rat-PL-RSeq-0818",
+                  "HSNIH-Palmer Prelimbic Cortex RNA-Seq (Aug18) rlog"
+               ],
+               [
+                  "861",
+                  "HSNIH-Rat-IL-RSeq-0818",
+                  "HSNIH-Palmer Infralimbic Cortex RNA-Seq (Aug18) rlog"
+               ]
             ]
          }, 
          "HSNIH-RGSMC": {

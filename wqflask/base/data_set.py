@@ -64,7 +64,7 @@ logger = getLogger(__name__ )
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_samplelist = True, group_name = None):
+def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
 
@@ -77,7 +77,7 @@ def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_sampleli
 
 class Dataset_Types(object):
 
-    def __init__(self, rebuild=False):
+    def __init__(self):
         """Create a dictionary of samples where the value is set to Geno,
 Publish or ProbeSet. E.g.
 
@@ -93,13 +93,9 @@ Publish or ProbeSet. E.g.
 
         """
         self.datasets = {}
-        if rebuild: #ZS: May make this the only option
-            data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown").content)
-            #data = gen_menu.gen_dropdown_json()
-        else:
-            file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
-            with open(file_name, 'r') as fh:
-                data = json.load(fh)
+        data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown").content)
+        #data = gen_menu.gen_dropdown_json()
+
 
         for species in data['datasets']:
             for group in data['datasets'][species]:
