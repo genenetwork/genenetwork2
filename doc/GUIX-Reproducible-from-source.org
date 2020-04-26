@@ -33,7 +33,6 @@ GNU Guix has to be installed as root. I tested this recipe on a fresh
 install of Debian 8.3.0 (in KVM) though it should work on any modern
 Linux distribution (including CentOS).
 
-
 Note that GN2 consists of an approx. 5 GB installation including
 database. If you use a virtual machine we recommend to use at least
 double.
