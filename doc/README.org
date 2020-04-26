@@ -3,17 +3,12 @@
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
  - [[#install][Install]]
-   - [[#tarball][Tarball]]
-   - [[#docker][Docker]]
-   - [[#with-source][With source]]
  - [[#running-gn2][Running GN2]]
- - [[#run-mysql-server][Run MySQL server]]
-   - [[#install-mysql-with-gnu-guix][Install MySQL with GNU GUIx]]
+ - [[#run-mariadb-server][Run MariaDB server]]
+   - [[#install-mariadb-with-gnu-guix][Install MariaDB with GNU GUIx]]
    - [[#load-the-small-database-in-mysql][Load the small database in MySQL]]
  - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#working-with-the-gn2-source-code][Working with the GN2 source code]]
- - [[#running-elasticsearch][Running ElasticSearch]]
-   - [[#systemd][SystemD]]
  - [[#read-more][Read more]]
  - [[#trouble-shooting][Trouble shooting]]
    - [[#importerror-no-module-named-jinja2][ImportError: No module named jinja2]]
@@ -22,6 +17,8 @@
    - [[#rpy2-error-show-now-found][Rpy2 error 'show' now found]]
    - [[#mysql-cant-connect-server-through-socket-error][Mysql can't connect server through socket ERROR]]
  - [[#irc-session][IRC session]]
+ - [[#notes][NOTES]]
+   - [[#deploying-gn2-official][Deploying GN2 official]]
 
 * Introduction
 
@@ -40,44 +37,10 @@ an example of the [[#gn2-dependency-graph][GN2 Dependency Graph]].
 
 * Install
 
-The quickest way to install GN2 is by using a binary installation
-(tarball or Docker image).  These installations are bundled by GNU
-Guix and include all dependencies. You can install GeneNetwork on most
-Linux distributions, including Debian, Ubuntu, Fedora and CentOS,
-provided you have administrator privileges (root). The alternative is
-a Docker installation.
-
-** Tarball
-
-Download the ~800Mb tarball from
-[[http://files.genenetwork.org/software/binary_tarball/]]. Validate the checksum and
-unpack to root, for example
-
-: tar xvzf genenetwork2-2.10rc3-1538ffd-tarball-pack.tar.gz
-: mv /gnu /
-: mv /opt/genenetwork2 /opt/
-
-Now you shoud be able to start the server with
-
-: /opt/genenetwork2/bin/genenetwork2
-
-When the server stops with a MySQL error [[#run-mysql-server][Run MySQL server]]
-and set SQL_URI to point at it. For example:
-
-: export SQL_URI=mysql://gn2:mysql_password@127.0.0.1/db_webqtl_s
-
-See also [[#mysql-cant-connect-server-through-socket-error][Mysql can't connect server through socket ERROR]].
-
-** Docker
-
-Docker images are also available through
-[[http://files.genenetwork.org/software/]]. Validate the checksum and run
-with [[https://docs.docker.com/engine/reference/commandline/load/][Docker load]].
-
-** With source
-
-For more elaborate installation instructions on deploying GeneNetwork from
-source see [[#source-deployment][Source deployment]].
+Make sure to install GNU Guix using the binary download instructions
+on the main website. Follow the instructions on
+[[GUIX-Reproducible-from-source.org]] to download pre-built binaries. Note
+the download amounts to several GBs of data.
 
 * Running GN2
 
@@ -94,39 +57,48 @@ or you can set environment variables to override individual parameters, e.g.
 the debug and logging switches can be particularly useful when
 developing GN2.
 
-* Run MySQL server
-** Install MySQL with GNU GUIx
+* Run MariaDB server
+** Install MariaDB with GNU GUIx
+
+/Note: we moved to MariaDB/
 
 These are the steps you can take to install a fresh installation of
-mysql (which comes as part of the GNU Guix genenetwork2 install).
+mariadb (which comes as part of the GNU Guix genenetwork2 install).
 
 As root configure and run
 
 #+BEGIN_SRC bash
-adduser mysql && addgroup mysql
-mysqld --datadir=/var/mysql --initialize-insecure
-mkdir -p /var/run/mysqld
-chown mysql.mysql ~/mysql /var/run/mysqld
-mysqld -u mysql --datadir=/var/mysql --explicit_defaults_for_timestamp -P 12048"
+adduser mariadb && addgroup mariadb
+mysqld --datadir=/home/mariadb/database --initialize-insecure
+mkdir -p /var/run/mariadbd
+chown mariadb.mariadb /var/run/mariadbd
+mysqld -u mariadb --datadir=/home/mariadb/database/mariadb --explicit_defaults_for_timestamp -P 12048"
 #+END_SRC
 
 If you want to run as root you may have to set
 
 : /etc/my.cnf
-: [mysqld]
+: [mariadbd]
 : user=root
+
+You also need to set
+
+: ft_min_word_len = 3
+
+To make sure word text searches (shh) work and rebuild the tables if
+required.
 
 To check error output in a file on start-up run with something like
 
-: mysqld -u mysql --console  --explicit_defaults_for_timestamp  --datadir=/gnu/mysql --log-error=~/test.log
+: mariadbd -u mariadb --console  --explicit_defaults_for_timestamp  --datadir=/gnu/mariadb --log-error=~/test.log
 
-Other tips are that Guix installs mysqld in your profile, so this may work
+Other tips are that Guix installs mariadbd in your profile, so this may work
 
-: /home/user/.guix-profile/bin/mysqld -u mysql --explicit_defaults_for_timestamp  --datadir=/gnu/mysql
+: /home/user/.guix-profile/bin/mariadbd -u mariadb --explicit_defaults_for_timestamp  --datadir=/gnu/mariadb
 
 When you get errors like:
 
-: qlalchemy.exc.IntegrityError: (_mysql_exceptions.IntegrityError) (1215, 'Cannot add foreign key constraint')
+: qlalchemy.exc.IntegrityError: (_mariadb_exceptions.IntegrityError) (1215, 'Cannot add foreign key constraint')
 
 you may need to set
 
@@ -195,35 +167,6 @@ http://biogems.info/contrib/genenetwork/gn2.svg
 * Working with the GN2 source code
 
 See [[development.org]].
-
-* Running ElasticSearch
-
-In order to start up elasticsearch:
-Penguin - change user to "elasticsearch" and use the following command: "env JAVA_HOME=/opt/jdk-9.0.4 /opt/elasticsearch-6.2.1/bin/elasticsearch"
-
-
-** SystemD
-
-New server - as root run "systemctl restart elasticsearch"
-
-#+BEGIN_SRC
-tux01:/etc/systemd/system# cat elasticsearch.service
-[Unit]
-Description=Run Elasticsearch
-
-[Service]
-ExecStart=/opt/elasticsearch-6.2.1/bin/elasticsearch
-Environment=JAVA_HOME=/opt/jdk-9.0.4
-Environment="ES_JAVA_OPTS=-Xms1g -Xmx8g"
-Environment="PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/opt/jdk-9.0.4/bin"
-LimitNOFILE=65536
-StandardOutput=syslog
-StandardError=syslog
-User=elasticsearch
-
-[Install]
-WantedBy=multi-user.target
-#+END_SRC
 
 * Read more
 
@@ -708,3 +651,31 @@ The following derivations would be built:
 <pjotrp> I am building it on guix.genenetwork.org right now  [10:09]
 <user01> nice  [10:10]
 #+end_src
+
+* NOTES
+
+** Deploying GN2 official
+
+Let's see how fast we can deploy a second copy of GN2.
+
+- [-] Base install
+  + [X] First install a Debian server with GNU Guix on board
+  + [X] Get Guix build going
+    - [X] Build the correct version of Guix
+    - [X] Check out the correct gn-stable version of guix-bioinformatics http://git.genenetwork.org/pjotrp/guix-bioinformatics
+    - [X] guix package -i genenetwork2 -p /usr/local/guix-profiles/gn2-stable
+  + [X] Create a gn2 user and home with space
+  + [X] Install redis (currently debian)
+    - [X] add to systemd
+    - [X] update redis.cnf
+    - [X] update database
+  + [X] Install mariadb (currently debian mariadb-server)
+    - [X] add to systemd
+    - [X] system stop mysql
+    - [X] update mysql.cnf
+    - [X] update database (see gn-services/services/mariadb.md)
+    - [X] check tables
+  + [ ] run gn2 (rust-qtlreaper not working)
+  + [X] update nginx
+  + [ ] install genenetwork3
+    - [ ] add to systemd
