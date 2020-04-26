@@ -14,8 +14,6 @@ import simplejson as json
 
 import itertools
 
-from utility.elasticsearch_tools import get_elasticsearch_connection
-
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
@@ -24,8 +22,8 @@ class SampleList(object):
                  dataset,
                  sample_names,
                  this_trait,
-                 sample_group_type,
-                 header):
+                 sample_group_type = "primary",
+                 header = "Samples"):
 
         self.dataset = dataset
         self.this_trait = this_trait
@@ -39,14 +37,14 @@ class SampleList(object):
 
         #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
-        if self.this_trait and self.dataset and self.dataset.type == 'ProbeSet':
+        if self.this_trait and self.dataset:
             self.get_extra_attribute_values()
 
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
             if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
-                if counter <= len(self.this_trait) and self.this_trait[counter-1] != 'X':
+                if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
                 else:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
@@ -55,39 +53,26 @@ class SampleList(object):
                 try:
                     sample = self.this_trait.data[sample_name]
                 except KeyError:
-                    logger.debug("No sample %s, let's create it now" % sample_name)
+                    #logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
-            #sampleNameAdd = ''
-            #if fd.RISet == 'AXBXA' and sampleName in ('AXB18/19/20','AXB13/14','BXA8/17'):
-            #    sampleNameAdd = HT.Href(url='/mouseCross.html#AXB/BXA', text=HT.Sup('#'), Class='fs12', target="_blank")
             sample.extra_info = {}
             if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
-            # logger.debug("  type of sample:", type(sample))
-
-            if sample_group_type == 'primary':
-                sample.this_id = "Primary_" + str(counter)
-            else:
-                sample.this_id = "Other_" + str(counter)
+            sample.this_id = str(counter)
 
             #### For extra attribute columns; currently only used by several datasets - Zach
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
+                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
 
-        logger.debug("self.attributes is", pf(self.attributes))
+        #logger.debug("attribute vals are", pf(self.sample_attribute_values))
 
         self.do_outliers()
-        #do_outliers(the_samples)
-        logger.debug("*the_samples are [%i]: %s" % (len(self.sample_list), pf(self.sample_list)))
-        #for sample in self.sample_list:
-        #     logger.debug("apple:", type(sample), sample)
-        #return the_samples
 
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))
@@ -110,33 +95,46 @@ class SampleList(object):
 
         # Get attribute names and distinct values for each attribute
         results = g.db.execute('''
-                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttributeXRef.Value
-                        FROM CaseAttribute, CaseAttributeXRef
-                        WHERE CaseAttributeXRef.CaseAttributeId = CaseAttribute.Id
-                        AND CaseAttributeXRef.ProbeSetFreezeId = %s
-                        ORDER BY CaseAttribute.Name''', (str(self.dataset.id),))
+                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttributeXRefNew.Value
+                        FROM CaseAttribute, CaseAttributeXRefNew
+                        WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
+                        AND CaseAttributeXRefNew.InbredSetId = %s
+                        ORDER BY CaseAttribute.Name''', (str(self.dataset.group.id),))
 
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            logger.debug("radish: %s - %s" % (key, name))
+            #logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
             self.attributes[key].distinct_values.sort(key=natural_sort_key)
 
+            all_numbers = True
+            for value in self.attributes[key].distinct_values:
+                try:
+                    val_as_float = float(value)
+                except:
+                    all_numbers = False
+
+            if all_numbers:
+                self.attributes[key].alignment = "right"
+            else:
+                self.attributes[key].alignment = "left"
+
     def get_extra_attribute_values(self):
         if self.attributes:
-            results = g.db.execute('''
-                        SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRef.Value
-                        FROM Strain, StrainXRef, InbredSet, CaseAttributeXRef
+            query = '''
+                        SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRefNew.Value
+                        FROM Strain, StrainXRef, InbredSet, CaseAttributeXRefNew
                         WHERE StrainXRef.StrainId = Strain.Id
                         AND InbredSet.Id = StrainXRef.InbredSetId
-                        AND CaseAttributeXRef.StrainId = Strain.Id
-                        AND InbredSet.Name = %s
-                        AND CaseAttributeXRef.ProbeSetFreezeId = %s
-                        ORDER BY SampleName''',
-                       (self.dataset.group.name, self.this_trait.dataset.id))
+                        AND CaseAttributeXRefNew.StrainId = Strain.Id
+                        AND InbredSet.Id = CaseAttributeXRefNew.InbredSetId
+                        AND CaseAttributeXRefNew.InbredSetId = %s
+                        ORDER BY SampleName''' % self.dataset.group.id
+
+            results = g.db.execute(query)
 
             for sample_name, items in itertools.groupby(results.fetchall(), lambda row: row.SampleName):
                 attribute_values = {}
@@ -158,47 +156,47 @@ class SampleList(object):
 
         return any(sample.variance for sample in self.sample_list)
 
-def get_transform_vals(dataset, trait):
-    es = get_elasticsearch_connection(for_user=False)
+# def get_transform_vals(dataset, trait):
+#     es = get_elasticsearch_connection(for_user=False)
 
-    logger.info("DATASET NAME:", dataset.name)
+#     logger.info("DATASET NAME:", dataset.name)
 
-    query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
+#     query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
 
-    es_body = {
-          "query": {
-            "bool": {
-              "must": [
-                {
-                  "match": {
-                    "name": "%s" % (trait.name)
-                  }
-                },
-                {
-                  "match": {
-                    "dataset": "%s" % (dataset.name)
-                  }
-                }
-              ]
-            }
-          }
-    }
+#     es_body = {
+#           "query": {
+#             "bool": {
+#               "must": [
+#                 {
+#                   "match": {
+#                     "name": "%s" % (trait.name)
+#                   }
+#                 },
+#                 {
+#                   "match": {
+#                     "dataset": "%s" % (dataset.name)
+#                   }
+#                 }
+#               ]
+#             }
+#           }
+#     }
 
-    response = es.search( index = "traits", doc_type = "trait", body = es_body )
-    logger.info("THE RESPONSE:", response)
-    results = response['hits']['hits']
+#     response = es.search( index = "traits", doc_type = "trait", body = es_body )
+#     logger.info("THE RESPONSE:", response)
+#     results = response['hits']['hits']
 
-    if len(results) > 0:
-        samples = results[0]['_source']['samples']
+#     if len(results) > 0:
+#         samples = results[0]['_source']['samples']
 
-        sample_dict = {}
-        for sample in samples:
-            sample_dict[sample['name']] = sample['qnorm']
+#         sample_dict = {}
+#         for sample in samples:
+#             sample_dict[sample['name']] = sample['qnorm']
 
-        logger.info("SAMPLE DICT:", sample_dict)
-        return sample_dict
-    else:
-        return None
+#         #logger.info("SAMPLE DICT:", sample_dict)
+#         return sample_dict
+#     else:
+#         return None
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""

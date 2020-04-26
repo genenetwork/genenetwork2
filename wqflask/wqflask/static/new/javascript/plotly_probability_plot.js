@@ -161,26 +161,56 @@
         intercept_line['samples_all'] = [[first_x, last_x], [first_value, last_value]]
     }
 
+    val_range = Math.max(...y_values['samples_all']) - Math.min(...y_values['samples_all'])
+    if (val_range < 4){
+      tick_digits = '.1f'
+    } else if (val_range < 0.4) {
+      tick_digits = '.2f'
+    } else {
+      tick_digits = 'f'
+    }
+
     var layout = {
+        title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
         margin: {
-            l: 50,
+            l: 100,
             r: 30,
-            t: 30,
-            b: 80
+            t: 80,
+            b: 60
         },
         xaxis: {
+            title: "<b>Normal Theoretical Quantiles</b>",
             range: [first_x, last_x],
             zeroline: false,
             visible: true,
             linecolor: 'black',
             linewidth: 1,
+            titlefont: {
+              family: "arial",
+              size: 20
+            },
+            ticklen: 4,
+            tickfont: {
+              size: 16
+            }
         },
         yaxis: {
             zeroline: false,
             visible: true,
             linecolor: 'black',
             linewidth: 1,
-        }
+            titlefont: {
+              family: "arial",
+              size: 20
+            },
+            ticklen: 4,
+            tickfont: {
+              size: 16
+            },
+            tickformat: tick_digits,
+            automargin: true
+        },
+        hovermode: "closest"
     }
 
     var primary_trace = {
@@ -188,8 +218,12 @@
         y: y_values['samples_primary'],
         mode: 'markers',
         type: 'scatter',
-        name: js_data.sample_group_types['samples_primary'],
-        text: point_names['samples_primary']
+        name: 'Samples',
+        text: point_names['samples_primary'],
+        marker: {
+          color: 'blue',
+          width: 6
+        }
     }
     if ("samples_other" in js_data.sample_group_types) {
         var other_trace = {
@@ -198,7 +232,11 @@
             mode: 'markers',
             type: 'scatter',
             name: js_data.sample_group_types['samples_other'],
-            text: point_names['samples_other']
+            text: point_names['samples_other'],
+            marker: {
+              color: 'blue',
+              width: 6
+            }
         }
     }
 
@@ -208,7 +246,11 @@
             y: intercept_line['samples_primary'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
+            line: {
+              color: 'black',
+              width: 1
+            }
         }
     } else if (sample_group == "samples_other"){
         var other_intercept_trace = {
@@ -216,7 +258,11 @@
             y: intercept_line['samples_other'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
+            line: {
+              color: 'black',
+              width: 1
+            }
         }
     } else {
         var all_intercept_trace = {
@@ -224,20 +270,24 @@
             y: intercept_line['samples_all'][1],
             mode: 'lines',
             type: 'scatter',
-            name: 'Intercept',
+            name: 'Normal Function',
+            line: {
+              color: 'black',
+              width: 1
+            }
         }
     }
 
     if (sample_group == "samples_primary"){
-        var data = [primary_trace, primary_intercept_trace]
+        var data = [primary_intercept_trace, primary_trace]
     } else if (sample_group == "samples_other"){
-        var data = [other_trace, other_intercept_trace]
+        var data = [other_intercept_trace, other_trace]
     } else {
-        var data = [primary_trace, other_trace, all_intercept_trace]
+        var data = [all_intercept_trace, primary_trace, other_trace]
     }
 
     console.log("TRACE:", data)
-    Plotly.newPlot('prob_plot_div', data, layout)
+    Plotly.newPlot('prob_plot_div', data, layout, root.modebar_options)
   };
 
   root.redraw_prob_plot_impl = redraw_prob_plot;

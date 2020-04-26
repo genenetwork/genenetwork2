@@ -24,6 +24,8 @@ import simplejson as json
 
 from pprint import pformat as pf
 
+#from utility.tools import flat_files
+
 class EmptyConfigurations(Exception): pass
 
         
@@ -183,8 +185,8 @@ class ConvertGenoFile(object):
 
 
 if __name__=="__main__":
-    Old_Geno_Directory = """/home/zas1024/genotype_files/genotype/"""
-    New_Geno_Directory = """/home/zas1024/genotype_files/genotype/json/"""
+    Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
+    New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/json"""
     #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
     #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")

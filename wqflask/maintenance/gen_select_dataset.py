@@ -80,7 +80,8 @@ def parse_db_uri():
 
 def get_species():
     """Build species list"""
-    Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    #Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    Cursor.execute("select Name, MenuName from Species order by OrderId")
     species = list(Cursor.fetchall())
     return species
 
@@ -120,10 +121,20 @@ def get_types(groups):
                 else:
                     types[species][group_name] = [("Genotypes", "Genotypes")]
             if group_name in types[species]:
-                types[species][group_name] += build_types(species, group_name)
-            else:
-                types[species][group_name] = build_types(species, group_name)
-
+                types_list = build_types(species, group_name)
+                if len(types_list) > 0:
+                    types[species][group_name] += types_list
+                else:
+                    if not phenotypes_exist(group_name) and not genotypes_exist(group_name):
+                        types[species].pop(group_name, None)
+                        groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
+            else: #ZS: This whole else statement might be unnecessary, need to check
+                types_list = build_types(species, group_name)
+                if len(types_list) > 0:
+                    types[species][group_name] = types_list
+                else:
+                    types[species].pop(group_name, None)
+                    groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
     return types
 
 
@@ -187,7 +198,6 @@ def get_datasets(types):
     for species, group_dict in types.iteritems():
         datasets[species] = {}
         for group, type_list in group_dict.iteritems():
-            #print("type_list: ", type_list)
             datasets[species][group] = {}
             for type_name in type_list:
                 these_datasets = build_datasets(species, group, type_name[0])
@@ -200,26 +210,31 @@ def get_datasets(types):
 def build_datasets(species, group, type_name):
     """Gets dataset names from database"""
     dataset_text = dataset_value = None
+    datasets = []
     if type_name == "Phenotypes":
-        print("GROUP:", group)
-        Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
+        Cursor.execute("""select InfoFiles.GN_AccesionId, PublishFreeze.Name, PublishFreeze.FullName from InfoFiles, PublishFreeze, InbredSet where
                     InbredSet.Name = '%s' and
                     PublishFreeze.InbredSetId = InbredSet.Id and
-                    InfoFiles.InfoPageName = PublishFreeze.Name and
-                    PublishFreeze.public > 0 and
-                    PublishFreeze.confidentiality < 1 order by
-                    PublishFreeze.CreateTime desc""" % group)
+                    InfoFiles.InfoPageName = PublishFreeze.Name order by
+                    PublishFreeze.CreateTime asc""" % group)
 
-        results = Cursor.fetchone()
-        if results != None:
-            dataset_id = str(results[0])
+        results = Cursor.fetchall()
+        if len(results) > 0:
+            for result in results:
+                print(result)
+                dataset_id = str(result[0])
+                dataset_value = str(result[1])
+                if group == 'MDP':
+                    dataset_text = "Mouse Phenome Database"
+                else:
+                    #dataset_text = "%s Phenotypes" % group
+                    dataset_text = str(result[2])
+                datasets.append((dataset_id, dataset_value, dataset_text))
         else:
             dataset_id = "None"
-        dataset_value = "%sPublish" % group
-        if group == 'MDP':
-            dataset_text = "Mouse Phenome Database"
-        else:
-            dataset_text = "%s Published Phenotypes" % group
+            dataset_value = "%sPublish" % group
+            dataset_text = "%s Phenotypes" % group
+            datasets.append((dataset_id, dataset_value, dataset_text))
 
     elif type_name == "Genotypes":
         Cursor.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
@@ -237,10 +252,9 @@ def build_datasets(species, group, type_name):
             dataset_id = "None"
         dataset_value = "%sGeno" % group
         dataset_text = "%s Genotypes" % group
+        datasets.append((dataset_id, dataset_value, dataset_text))
 
-    if dataset_value:
-        return [(dataset_id, dataset_value, dataset_text)]
-    else:
+    else: # for mRNA expression/ProbeSet
         Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = '%s' and Species.Id = InbredSet.SpeciesId and
@@ -248,7 +262,7 @@ def build_datasets(species, group, type_name):
                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '%s' and
                     ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id and
                     ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0 order by
-                    ProbeSetFreeze.OrderList asc""" % (species, group, type_name))
+                    ProbeSetFreeze.CreateTime desc""" % (species, group, type_name))
 
         dataset_results = Cursor.fetchall()
         datasets = []
@@ -258,7 +272,7 @@ def build_datasets(species, group, type_name):
                 this_dataset_info.append(str(info))
             datasets.append(this_dataset_info)
 
-        return datasets
+    return datasets
 
 
 def main():
@@ -271,13 +285,13 @@ def main():
     types = get_types(groups)
     datasets = get_datasets(types)
 
-    species.append(('All Species', 'All Species'))
-    groups['All Species'] = [('All Groups', 'All Groups')]
-    types['All Species'] = {}
-    types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
-    datasets['All Species'] = {}
-    datasets['All Species']['All Groups'] = {}
-    datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
+    #species.append(('All Species', 'All Species'))
+    #groups['All Species'] = [('All Groups', 'All Groups')]
+    #types['All Species'] = {}
+    #types['All Species']['All Groups'] = [('Phenotypes', 'Phenotypes')]
+    #datasets['All Species'] = {}
+    #datasets['All Species']['All Groups'] = {}
+    #datasets['All Species']['All Groups']['Phenotypes'] = [('All Phenotypes','All Phenotypes')]
 
     data = dict(species=species,
                 groups=groups,

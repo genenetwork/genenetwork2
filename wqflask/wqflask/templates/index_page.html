@@ -143,6 +143,9 @@
                         highly expressed genes (15 to 16 log2 units) AND with peak <a href="http://www.genenetwork.org/glossary.html#L">LRS</a>
                         linkage between 23 and 46.</li>
 
+                        <li><b>RANGE=(1.5 2.5)</b> in the <b>Any</b> field finds traits with values with a specified fold-range (minimum = 1). 
+                        Useful for finding "housekeeping genes" <b>(1.0 1.2)</b> or highly variable molecular assays <b>(10 100)</b>.</li>
+
                         <li><b>RIF=mitochondrial</b> searches RNA databases for <a href="https://en.wikipedia.org/wiki/GeneRIF">
                         GeneRIF</a> links.</li>
 
@@ -216,9 +219,9 @@
                     <h3>GN1 Mirror and development sites</h3>
 
                     <ul>
-                        <li><a href="http://www.genenetwork.org/">Main GN1 site at UTHSC</a> (main site)</li>
+                        <li><a href="http://gn1.genenetwork.org/">Main GN1 site at UTHSC</a> (main site)</li>
                         <li><a href="http://genenetwork.helmholtz-hzi.de/">Germany at the HZI</a></li>
-                        <li><a href="http://gn2.genenetwork.org/">Memphis at the U of M</a></li>
+                        <li><a href="http://genenetwork.org/">Memphis at the U of M</a></li>
                     </ul>
                 </section>
 
@@ -276,11 +279,12 @@
         function pressed(e) {
             // Has the enter key been pressed?
             if ( (window.event ? event.keyCode : e.which) == 13) {
+                e.preventDefault();
                 // If enter key has been pressed and the search fields are non-empty
-								// manually submit the <form>
-								if( event.target.value.trim() != "" ) {
-									document.forms[1].submit();
-								}
+                // manually submit the <form>
+                if( event.target.value.trim() != "" ) {
+                    document.forms[1].submit();
+                }
             }
         }
     </script>

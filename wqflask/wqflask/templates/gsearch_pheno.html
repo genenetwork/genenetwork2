@@ -2,13 +2,17 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
 
     <div class="container">
 
-        <p>You searched for {{ terms }}.</p>
+        <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 51 datasets and 13763 traits across 10 species<br/>
+            and found <b>{{ trait_count }}</b> results that match your query.<br/>
+            You can filter these results by adding key words in the fields below<br/>
+            and you can also sort results on most columns.</h3>
         <p>To study a record, click on its ID below.<br />Check records below and click Add button to add to selection.</p>
 
         <div>
@@ -19,60 +23,19 @@
             <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-            <br />
-            <br />
-            <form id="export_form" method="POST" action="/export_traits_csv">
+            <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
+              <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
               <input type="hidden" name="database_name" id="database_name" value="None">
               <input type="hidden" name="export_data" id="export_data" value="">
               <button class="btn btn-default" id="export_traits">Download CSV</button>
             </form>
             <br />
-            <div>
-              <table id="trait_table" class="display dataTable nowrap" style="float: left;">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th data-export="Index">Index</th>
-                        <th data-export="Species">Species</th>
-                        <th data-export="Group">Group</th>
-                        <th data-export="Record">Record</th>
-                        <th data-export="Description">Description</th>
-                        <th data-export="Authors">Authors</th>
-                        <th data-export="Year">Year</th>
-                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                    </tr>
-                </thead>
+            <br />
+            <div style="width: 100%;">
+              <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
-                 {% for this_trait in trait_list %}
-                    <tr id="trait:{{ this_trait.name }}:{{ this_trait.dataset }}">
-                        <td align="center" style="padding-right: 0px; padding-left: 5px;"><input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset)) }}"></td>
-                        <td align="right" data-export="{{ loop.index }}">{{ loop.index }}</td>
-                        <td data-export="{{ this_trait.species }}">{{ this_trait.species }}</td>
-                        <td data-export="{{ this_trait.group }}">{{ this_trait.group }}</td>
-                        <td data-export="{{ this_trait.name }}"><a href="{{ url_for('show_trait_page', trait_id = this_trait.name, dataset = this_trait.dataset)}}">{{ this_trait.name }}</a></td>
-                        <td data-export="{{ this_trait.description }}">{{ this_trait.description }}</td>
-                        <td data-export="{{ this_trait.authors }}">{{ this_trait.authors }}</td>
-                        <td data-export="{{ this_trait.pubmed_text }}" data-order="{{ this_trait.pubmed_text }}"><a href="{{ this_trait.pubmed_link }}">{{ this_trait.pubmed_text }}</a></td>
-                        <td data-export="{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}" align="right">{% if this_trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % this_trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td data-export="{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}" align="right">{% if this_trait.additive != "" %}{{ this_trait.additive }}{% else %}N/A{% endif %}</td>
-                    </tr>
-                {% endfor %}
+                 <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th></th>
-                        <th>Index</th>
-                        <th>Species</th>
-                        <th>Group</th>
-                        <th>Record</th>
-                        <th>Description</th>
-                        <th>Authors</th>
-                        <th>Year</th>
-                        <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                        <th data-export="Additive Effect">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><img style="width: 15px; height: 15px;" src="/static/new/images/question_mark.jpg"></a></th>
-                    </tr>
-                </tfoot>
             </table>
             </div>
         </div>
@@ -83,14 +46,18 @@
 {% endblock %}
 
 {% block js %}
+    <script language="javascript" type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-    
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colReorder.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.colResize.js"></script>
-	
+
+    <script type='text/javascript'>
+      var the_rows = {{ trait_list|safe }};
+    </script>
+
     <script type="text/javascript" charset="utf-8">
         $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
         {
@@ -99,62 +66,223 @@
             } );
         };
 
+        $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
+        {
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $(td).text();
+            } );
+        }
+
         $(document).ready( function () {
-            
+
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
                     $(':checkbox', this).trigger('click');
                 }
             });
 
+            function change_buttons() {
+                buttons = ["#add", "#remove"];
+                num_checked = $('.trait_checkbox:checked').length;
+                if (num_checked === 0) {
+                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+                        button = buttons[_i];
+                        $(button).prop("disabled", true);
+                    }
+                } else {
+                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+                        button = buttons[_j];
+                        $(button).prop("disabled", false);
+                    }
+                }
+                         //});
+                if ($(this).is(":checked")) {
+                    if (!$(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').addClass('selected')
+                    }
+                }
+                else {
+                    if ($(this).closest('tr').hasClass('selected')) {
+                        $(this).closest('tr').removeClass('selected')
+                    }
+                }
+            }
+
             console.time("Creating table");
             $('#trait_table').DataTable( {
+                'drawCallback': function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+                    $('td', row).eq(1).attr("align", "right");
                     $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
-                    if ($('td', row).eq(5).text().length > 50) {
-                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 50));
+                    if ($('td', row).eq(5).text().length > 150) {
+                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 150));
                         $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
                     }
                     $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
-                    if ($('td', row).eq(6).text().length > 50) {
-                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 50));
+                    if ($('td', row).eq(6).text().length > 150) {
+                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 150));
                         $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
                     }
+                    $('td', row).slice(8,11).attr("align", "right");
+                    $('td', row).eq(1).attr('data-export', $('td', row).eq(1).text());
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                    $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
                 },
-                "paging": false,
-                "columns": [
-                    { "orderDataType": "dom-checkbox" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "30%"},
-                    { "type": "natural", "width": "25%"},
-                    { "type": "natural" },
-                    { "type": "natural", "width": "8%"},
-                    { "type": "natural" }
-                ],
-                "columnDefs": [
+                'data': the_rows,
+                'columns': [
                     {
-                        "targets": 0,
-                        "orderable": false,
-                        "orderDataType": "dom-checkbox"
+                      'data': null,
+                      'orderDataType': "dom-checkbox",
+                      'render': function(data, type, row, meta) {
+                        return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
+                      }
+                    },
+                    {
+                      'title': "Index",
+                      'type': "natural",
+                      'data': "index"
+                    },
+                    {
+                      'title': "Species",
+                      'type': "natural",
+                      'data': "species"
+                    },
+                    {
+                      'title': "Group",
+                      'type': "natural",
+                      'width': "10%",
+                      'data': "group"
+                    },
+                    {
+                      'title': "Record",
+                      'type': "natural",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+                      }
+                    },
+                    {
+                      'title': "Description",
+                      'type': "natural",
+                      'width': "25%",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+			                  try {
+                            return decodeURIComponent(escape(data.description))
+			                  } catch(err) {
+			                      return data.description
+                        }
+                      }
+                    },
+                    {
+                      'title': "Mean",
+                      'type': "natural",
+                      'width': "10%",
+                      'data': "mean"
+                    },
+                    {
+                      'title': "Authors",
+                      'type': "natural",
+                      'width': "25%",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        author_list = data.authors.split(",")
+                        if (author_list.length >= 6) {
+                          author_string = author_list.slice(0, 6).join(",") + ", et al."
+                        } else{
+                          author_string = data.authors
+                        }
+
+			                  try {
+                            return decodeURIComponent(escape(author_string))
+			                  } catch(err) {
+			                      return author_string
+                        }
+
+                      }
+                    },
+                    {
+                      'title': "Year",
+                      'type': "natural",
+                      'data': null,
+                      'orderDataType': "dom-inner-text",
+                      'render': function(data, type, row, meta) {
+                        if (data.pubmed_id != "N/A"){
+                          return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
+                        } else {
+                          return data.pubmed_text
+                        }
+                      },
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'type': "natural",
+                      'data': "LRS_score_repr",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Max LRS Location",
+                      'type': "natural",
+                      'width': "10%",
+                      'data': "max_lrs_text"
+                    },
+                    {
+                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'type': "natural",
+                      'data': "additive",
+                      'orderSequence': [ "desc", "asc"]
                     }
                 ],
-                "order": [[1, "asc" ]],
-                "sDom": "tir",
-                "autoWidth": false,
-                "deferRender": true,
-                "bSortClasses": false,
-                "scrollY": "600px",
-                "scrollCollapse": true,
-                "scroller": true,
-                "scrollX": true,
-                "paging": false,
-                "orderClasses": true
+                'order': [[1, "asc" ]],
+                'sDom': "tir",
+                'autoWidth': false,
+                'deferRender': true,
+                'paging': false,
+                'orderClasses': true,
+                'processing': true,
+                'language': {
+                  'loadingRecords': '&nbsp;',
+                  'processing': 'Loading...'
+                }
             } );
+
+            $('#trait_table').append(
+              '<tfoot>' +
+                '<tr>' +
+                  '<th></th>' +
+                  '<th>Index</th>' +
+                  '<th>Species</th> ' +
+                  '<th>Group</th>' +
+                  '<th>Record</th>' +
+                  '<th>Description</th>' +
+                  '<th>Authors</th>' +
+                  '<th>Year</th>' +
+                  '<th>Max LRS</th>' +
+                  '<th>Max LRS Location</th>' +
+                  '<th>Additive Effect</th>' +
+                '</tr>' +
+              '</tfoot>'
+            );
+
             console.timeEnd("Creating table");
         });
         
     </script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 {% endblock %}

@@ -69,11 +69,23 @@ Stats = (function() {
   };
 
   Stats.prototype.range = function() {
-    return this.max() - this.min();
+    if (js_data.dataset_type == "ProbeSet"){
+      if (js_data.data_scale == "linear_positive"){
+        return Math.log2(this.max()) - Math.log2(this.min());
+      } else {
+        return this.max() - this.min()
+      }
+    } else {
+      return this.max() - this.min()
+    }
   };
 
   Stats.prototype.range_fold = function() {
-    return Math.pow(2, this.range());
+    if (js_data.dataset_type == "ProbeSet"){
+      return Math.pow(2, this.range());
+    } else {
+      return this.range()
+    }
   };
 
   Stats.prototype.interquartile = function() {
@@ -81,10 +93,19 @@ Stats = (function() {
     length = this.the_values.length;
     console.log("in interquartile the_values are:", this.the_values);
     console.log("length is:", length);
-    q1 = this.the_values[Math.floor(length * .25)];
-    q3 = this.the_values[Math.floor(length * .75)];
+    if (js_data.dataset_type == "ProbeSet" && js_data.data_scale == "linear_positive") {
+      q1 = Math.log2(this.the_values[Math.floor(length * .25)]);
+      q3 = Math.log2(this.the_values[Math.floor(length * .75)]);
+    } else {
+      q1 = this.the_values[Math.floor(length * .25)];
+      q3 = this.the_values[Math.floor(length * .75)];
+    }
     iq = q3 - q1;
-    return Math.pow(2, iq);
+    if (js_data.dataset_type == "ProbeSet") {
+        return Math.pow(2, iq);
+    } else {
+        return iq;
+    }
   };
 
   Stats.prototype.skewness = function() {
@@ -153,17 +174,5 @@ Stats = (function() {
   return Stats;
 
 })();
-
-bxd_only = new Stats([3, 5, 7, 8]);
-
-console.log("[xred] bxd_only mean:", bxd_only.mean());
-
-console.log("[xgreen] bxd_only median:", bxd_only.median());
-
-console.log("[xpurple] bxd_only std_dev:", bxd_only.std_dev());
-
-console.log("[xmagenta] bxd_only std_error:", bxd_only.std_error());
-
-console.log("[xyellow] bxd_only min:", bxd_only.min());
 
 window.Stats = Stats;

@@ -27,7 +27,7 @@ def get_samplelist_from_geno(genofilename):
             continue
         break
 
-    headers = line.split()
+    headers = line.split("\t")
 
     if headers[3] == "Mb":
         samplelist = headers[4:]

@@ -70,9 +70,11 @@
                 <select name="corr_sample_method" class="form-control">
                     <option value="pearson">Pearson</option>
                     <option value="spearman">Spearman Rank</option>
+                    <option value="bicor">Biweight Midcorrelation</option>
                 </select>
             </div>
         </div>
+        {% if dataset.type != "Publish" %}
         <div class="form-group">
             <label class="col-xs-2 control-label">Min Expr</label>
             <div class="col-xs-3 controls">
@@ -89,6 +91,7 @@
                 <br>
             </div>
         </div>
+        {% endif %}
         <div class="form-group">
             <label class="col-xs-2 control-label">Range</label>
             <div class="col-xs-5 controls">

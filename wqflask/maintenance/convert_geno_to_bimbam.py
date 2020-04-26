@@ -140,6 +140,8 @@ class ConvertGenoFile(object):
                 key, _separater, value = row.partition(':')
                 key = key.strip()
                 value = value.strip()
+                if key == "@filler":
+                    raise EmptyConfigurations
                 if key in self.haplotype_notation:
                     self.configurations[value] = self.haplotype_notation[key]
                 continue
@@ -154,6 +156,8 @@ class ConvertGenoFile(object):
             if not input_file.endswith(('geno', '.geno.gz')):
                 continue
             group_name = ".".join(input_file.split('.')[:-1])
+            if group_name == "HSNIH-Palmer":
+                continue
             geno_output_file = os.path.join(new_directory, group_name + "_geno.txt")
             pheno_output_file = os.path.join(new_directory, group_name + "_pheno.txt")
             snp_output_file = os.path.join(new_directory, group_name + "_snps.txt")
@@ -176,8 +180,8 @@ class ConvertGenoFile(object):
                 break
 
 if __name__=="__main__":
-    Old_Geno_Directory = """/home/zas1024/genotype_files/genotype/"""
-    New_Geno_Directory = """/home/zas1024/genotype_files/genotype/bimbam/"""
+    Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
+    New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/bimbam"""
     #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
     #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")

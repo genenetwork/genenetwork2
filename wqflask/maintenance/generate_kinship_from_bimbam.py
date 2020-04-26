@@ -32,6 +32,8 @@ class GenerateKinshipMatrices(object):
             if not input_file.endswith(('geno', '.geno.gz')):
                 continue
             group_name = ".".join(input_file.split('.')[:-1])
+            if group_name == "HSNIH-Palmer":
+                continue
             geno_input_file = os.path.join(bimbam_dir, group_name + "_geno.txt")
             pheno_input_file = os.path.join(bimbam_dir, group_name + "_pheno.txt")
             convertob = GenerateKinshipMatrices(group_name, geno_input_file, pheno_input_file)
@@ -52,8 +54,8 @@ class GenerateKinshipMatrices(object):
     
     
 if __name__=="__main__":
-    Geno_Directory = """/home/zas1024/genotype_files/genotype/"""
-    Bimbam_Directory = """/home/zas1024/genotype_files/genotype/bimbam/"""
+    Geno_Directory = """/export/local/home/zas1024/genotype_files/genotype/"""
+    Bimbam_Directory = """/export/local/home/zas1024/genotype_files/genotype/bimbam/"""
     GenerateKinshipMatrices.process_all(Geno_Directory, Bimbam_Directory)
     
     #./gemma -g /home/zas1024/genotype_files/genotype/bimbam/BXD_geno.txt -p /home/zas1024/genotype_files/genotype/bimbam/BXD_pheno.txt -gk 1 -o BXD

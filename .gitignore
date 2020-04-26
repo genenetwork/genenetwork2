@@ -1,1 +1,16 @@
 *.pyc
+*.orig
+*.bak
+*.cross
+*~
+*.swo
+*.swp
+genotype_files/genotype/HSNIH_copy.geno
+web/new_genotypes/HSNIH.json
+wqflask/secure_server.py
+build/
+dist/
+*.egg-info/
+EGG-INFO/
+wqflask/output/*
+wqflask/wqflask/static/output/*

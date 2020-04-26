@@ -26,14 +26,13 @@ import sys
 import string
 import cPickle
 import os
+import datetime
 import time
 import pp
 import math
 import collections
 import resource
 
-import numarray
-import numarray.linear_algebra as la
 import numpy as np
 import scipy
 
@@ -42,8 +41,10 @@ import rpy2.robjects as robjects
 
 from pprint import pformat as pf
 
-from htmlgen import HTMLgen2 as HT
 import reaper
+
+import redis
+Redis = redis.StrictRedis()
 
 from utility.THCell import THCell
 from utility.TDCell import TDCell
@@ -59,8 +60,10 @@ from MySQLdb import escape_string as escape
 
 from pprint import pformat as pf
 
-from flask import Flask, g
+from flask import Flask, g, url_for
 
+import utility.logger
+logger = utility.logger.getLogger(__name__ )
 
 class CorrelationMatrix(object):
 
@@ -72,6 +75,7 @@ class CorrelationMatrix(object):
         self.all_sample_list = []
         self.traits = []
         self.insufficient_shared_samples = False
+        self.do_PCA = True
         this_group = self.trait_list[0][1].group.name #ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         for trait_db in self.trait_list:
             if trait_db[1].group.name != this_group:
@@ -104,26 +108,19 @@ class CorrelationMatrix(object):
                 self.sample_data.append(this_trait_vals)
 
             if len(this_trait_vals) < len(self.trait_list): #Shouldn't do PCA if there are more traits than observations/samples
-                return False
+                self.do_PCA = False
 
             self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
 
             self.corr_results = []
             self.pca_corr_results = []
-            self.trait_data_array = []
+            self.shared_samples_list = self.all_sample_list
             for trait_db in self.trait_list:
                 this_trait = trait_db[0]
                 this_db = trait_db[1]
 
                 this_db_samples = this_db.group.all_samples_ordered()
                 this_sample_data = this_trait.data
-
-                this_trait_vals = []
-                for index, sample in enumerate(this_db_samples):
-                    if (sample in this_sample_data):
-                        sample_value = this_sample_data[sample].value
-                        this_trait_vals.append(sample_value)
-                self.trait_data_array.append(this_trait_vals)
 
                 corr_result_row = []
                 pca_corr_result_row = []
@@ -142,6 +139,9 @@ class CorrelationMatrix(object):
                             target_sample_value = target_sample_data[sample].value
                             this_trait_vals.append(sample_value)
                             target_vals.append(target_sample_value)
+                        else:
+                            if sample in self.shared_samples_list:
+                                self.shared_samples_list.remove(sample)
 
                     this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(this_trait_vals, target_vals)
 
@@ -165,7 +165,21 @@ class CorrelationMatrix(object):
                 self.corr_results.append(corr_result_row)
                 self.pca_corr_results.append(pca_corr_result_row)
 
-            corr_result_eigen = la.eigenvectors(numarray.array(self.pca_corr_results))
+            self.trait_data_array = []
+            for trait_db in self.trait_list:
+                this_trait = trait_db[0]
+                this_db = trait_db[1]
+                this_db_samples = this_db.group.all_samples_ordered()
+                this_sample_data = this_trait.data
+
+                this_trait_vals = []
+                for index, sample in enumerate(this_db_samples):
+                    if (sample in this_sample_data) and (sample in self.shared_samples_list):
+                        sample_value = this_sample_data[sample].value
+                        this_trait_vals.append(sample_value)
+                self.trait_data_array.append(this_trait_vals)
+
+            corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
             corr_eigen_value, corr_eigen_vectors = sortEigenVectors(corr_result_eigen)
 
             groups = []
@@ -173,9 +187,13 @@ class CorrelationMatrix(object):
                 groups.append(1)
 
             try:
-                self.pca_works = "True"
-                pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
-                self.loadings_array = self.process_loadings()
+                if self.do_PCA == True:
+                    self.pca_works = "True"
+                    self.pca_trait_ids = []
+                    pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+                    self.loadings_array = self.process_loadings()
+                else:
+                    self.pca_works = "False"
             except:
                 self.pca_works = "False"
 
@@ -201,9 +219,6 @@ class CorrelationMatrix(object):
                                    cellid=None)
             self.trait_list.append((trait_ob, dataset_ob))
 
-        #print("trait_list:", self.trait_list)
-
-
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
         base = importr('base')
         stats = importr('stats')
@@ -218,15 +233,33 @@ class CorrelationMatrix(object):
         self.scale = pca.rx('scale')
 
         trait_array = zScore(self.trait_data_array)
-        trait_array = np.array(trait_array)
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
 
         pca_traits = []
         for i, vector in enumerate(trait_array_vectors):
-            if corr_eigen_value[i-1] < 100.0/len(self.trait_list):
-                pca_traits.append(vector*-1.0)
+            #ZS: Check if below check is necessary
+            #if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
+            pca_traits.append((vector*-1.0).tolist())
 
-        print("pca_traits:", pca_traits)
+        this_group_name = self.trait_list[0][1].group.name
+        temp_dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = this_group_name)
+        temp_dataset.group.get_samplelist()
+        for i, pca_trait in enumerate(pca_traits):
+            trait_id = "PCA" + str(i+1) + "_" + temp_dataset.group.species + "_" + this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
+            this_vals_string = ""
+            position = 0
+            for sample in temp_dataset.group.all_samples_ordered():
+                if sample in self.shared_samples_list:
+                    this_vals_string += str(pca_trait[position])
+                    this_vals_string += " "
+                    position += 1
+                else:
+                    this_vals_string += "x "
+            this_vals_string = this_vals_string[:-1]
+
+            Redis.set(trait_id, this_vals_string)
+            self.pca_trait_ids.append(trait_id)
+
         return pca
 
     def process_loadings(self):
@@ -267,7 +300,7 @@ def zScore(trait_data_array):
 def sortEigenVectors(vector):
     try:
         eigenValues = vector[0].tolist()
-        eigenVectors = vector[1].tolist()
+        eigenVectors = vector[1].T.tolist()
         combines = []
         i = 0
         for item in eigenValues:
@@ -281,6 +314,6 @@ def sortEigenVectors(vector):
             B.append(item[1])
         sum = reduce(lambda x,y: x+y, A, 0.0)
         A = map(lambda x:x*100.0/sum, A) 
-        return [A,B]
+        return [A, B]
     except:
         return []

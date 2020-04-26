@@ -31,11 +31,9 @@ GN_SERVER_URL = "http://localhost:8880/" # REST API server
 
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
-
-# ---- Elastic search
-
-ELASTICSEARCH_HOST = "localhost"
-ELASTICSEARCH_PORT = 9200
+GN_SERVER_URL = "http://localhost:8880/" # REST API server
+GN2_BASE_URL = "http://genenetwork.org/"
+GN2_BRANCH_URL = GN2_BASE_URL
 
 # ---- Flask configuration (see website)
 TRAP_BAD_REQUEST_ERRORS = True
@@ -51,13 +49,13 @@ SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a
 
 GITHUB_CLIENT_ID = "UNKNOWN"
 GITHUB_CLIENT_SECRET = "UNKNOWN"
-GITHUB_AUTH_URL = "UNKNOWN"
-GITHUB_API_URL = "UNKNOWN"
+GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
+GITHUB_API_URL = "https://api.github.com/user"
 
 ORCID_CLIENT_ID = "UNKNOWN"
 ORCID_CLIENT_SECRET = "UNKNOWN"
-ORCID_AUTH_URL = "UNKNOWN"
-ORCID_TOKEN_URL = "UNKNOWN"
+ORCID_AUTH_URL = "https://orcid.org/oauth/authorize"
+ORCID_TOKEN_URL = "https://orcid.org/oauth/token"
 
 ELASTICSEARCH_HOST = "localhost"
 ELASTICSEARCH_PORT = '9200'
@@ -97,7 +95,7 @@ GENENETWORK_FILES   = HOME+"/genotype_files"  # base dir for all static data fil
 JS_GN_PATH = os.environ['HOME']+"/genenetwork/javascript"
 
 # ---- GN2 Executables (overwrite for testing only)
-# PYLMM_COMMAND = str.strip(os.popen("which pylmm_redis").read())
 # PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 # GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
+REAPER_COMMAND = os.environ['GN2_PROFILE'] + "/bin/qtlreaper"
 # GEMMA_WRAPPER_COMMAND = str.strip(os.popen("which gemma-wrapper").read())

@@ -1,0 +1,54 @@
+.form_group {
+    margin-bottom 5px;
+}
+
+table.dataTable thead th {
+  vertical-align: bottom;
+}
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  background-repeat: no-repeat;
+  background-position: bottom right;
+}
+
+table.dataTable thead th{
+  border-right: 1px solid white;
+  color: white;
+  background-color: royalblue;
+}
+
+table.dataTable tbody td {
+  padding: 4px 20px 2px 10px;
+}
+
+td.A_allele_color {
+  background-color: #C33232
+}
+td.C_allele_color {
+  background-color: #1569C7
+}
+td.T_allele_color {
+  background-color: #CFCF32
+}
+td.G_allele_color {
+  background-color: #32C332
+}
+td.t_allele_color {
+  background-color: #FF6
+}
+td.c_allele_color {
+  background-color: #5CB3FF
+}
+td.a_allele_color {
+  background-color: #F66
+}
+td.g_allele_color {
+  background-color: #CF9
+}
+td.default_allele_color {
+  background-color: #FFFFFF
+}
