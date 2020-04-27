@@ -185,7 +185,7 @@ def delete_collection():
         if len(uc_id.split(":")) > 1:
             flash("We've deleted the selected collections.", "alert-info")
         else:
-            flash("We've deleted the collection: {}.".format(uc_id), "alert-info")
+            flash("We've deleted the selected collection.", "alert-info")
     else:
         flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
 
