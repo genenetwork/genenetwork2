@@ -9,6 +9,7 @@
 
 from wqflask import app
 
+
 import logging
 import utility.logger
 logger = utility.logger.getLogger(__name__ )

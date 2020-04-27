@@ -25,6 +25,10 @@ import os
 import sys
 
 GN_VERSION = open("../etc/VERSION","r").read()
+GN_SERVER_URL = "http://localhost:8880/" # REST API server
+
+# ---- MySQL
+
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
 GN_SERVER_URL = "http://localhost:8880/" # REST API server
@@ -51,13 +55,13 @@ SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a
 
 GITHUB_CLIENT_ID = "UNKNOWN"
 GITHUB_CLIENT_SECRET = "UNKNOWN"
-GITHUB_AUTH_URL = "UNKNOWN"
-GITHUB_API_URL = "UNKNOWN"
+GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
+GITHUB_API_URL = "https://api.github.com/user"
 
 ORCID_CLIENT_ID = "UNKNOWN"
 ORCID_CLIENT_SECRET = "UNKNOWN"
-ORCID_AUTH_URL = "UNKNOWN"
-ORCID_TOKEN_URL = "UNKNOWN"
+ORCID_AUTH_URL = "https://orcid.org/oauth/authorize"
+ORCID_TOKEN_URL = "https://orcid.org/oauth/token"
 
 ELASTICSEARCH_HOST = "localhost"
 ELASTICSEARCH_PORT = '9200'

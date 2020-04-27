@@ -64,7 +64,7 @@ logger = getLogger(__name__ )
 # Each subclass will add to this
 DS_NAME_MAP = {}
 
-def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_samplelist = True, group_name = None):
+def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
 
@@ -77,7 +77,7 @@ def create_dataset(dataset_name, rebuild=True, dataset_type = None, get_sampleli
 
 class Dataset_Types(object):
 
-    def __init__(self, rebuild=False):
+    def __init__(self):
         """Create a dictionary of samples where the value is set to Geno,
 Publish or ProbeSet. E.g.
 
@@ -93,26 +93,29 @@ Publish or ProbeSet. E.g.
 
         """
         self.datasets = {}
-        if rebuild: #ZS: May make this the only option
-            data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown").content)
-            #data = gen_menu.gen_dropdown_json()
-        else:
-            file_name = "wqflask/static/new/javascript/dataset_menu_structure.json"
-            with open(file_name, 'r') as fh:
-                data = json.load(fh)
 
-        for species in data['datasets']:
-            for group in data['datasets'][species]:
-                for dataset_type in data['datasets'][species][group]:
-                    for dataset in data['datasets'][species][group][dataset_type]:
-                        short_dataset_name = dataset[1]
-                        if dataset_type == "Phenotypes":
-                            new_type = "Publish"
-                        elif dataset_type == "Genotypes":
-                            new_type = "Geno"
-                        else:
-                            new_type = "ProbeSet"
-                        self.datasets[short_dataset_name] = new_type
+        data = Redis.get("dataset_structure")
+        if data:
+            self.datasets = json.loads(data)
+        else: #ZS: I don't think this should ever run unless Redis is emptied
+            try:
+                data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown", timeout = 5).content)
+                for species in data['datasets']:
+                    for group in data['datasets'][species]:
+                        for dataset_type in data['datasets'][species][group]:
+                            for dataset in data['datasets'][species][group][dataset_type]:
+                                short_dataset_name = dataset[1]
+                                if dataset_type == "Phenotypes":
+                                    new_type = "Publish"
+                                elif dataset_type == "Genotypes":
+                                    new_type = "Geno"
+                                else:
+                                    new_type = "ProbeSet"
+                                self.datasets[short_dataset_name] = new_type
+            except:
+                pass
+
+            Redis.set("dataset_structure", json.dumps(self.datasets))
 
         # Set LOG_LEVEL_DEBUG=5 to see the following:
         logger.debugf(5, "datasets",self.datasets)
@@ -131,6 +134,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(geno_query).fetchall()
             if len(results):
                 self.datasets[name] = "ProbeSet"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             group_name = name.replace("Publish", "")
@@ -144,6 +148,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(pheno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Publish"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             #ZS: For when there isn't an InfoFiles ID; not sure if this and the preceding query are both necessary
@@ -155,6 +160,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(other_pheno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Publish"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             geno_query =    """
@@ -170,11 +176,11 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(geno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Geno"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             #ZS: It shouldn't ever reach this
             return None
-
         else:
             return self.datasets[name]
 
