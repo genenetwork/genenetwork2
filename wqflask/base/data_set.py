@@ -98,19 +98,22 @@ Publish or ProbeSet. E.g.
         if data:
             self.datasets = json.loads(data)
         else: #ZS: I don't think this should ever run unless Redis is emptied
-            data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown").content)
-            for species in data['datasets']:
-                for group in data['datasets'][species]:
-                    for dataset_type in data['datasets'][species][group]:
-                        for dataset in data['datasets'][species][group][dataset_type]:
-                            short_dataset_name = dataset[1]
-                            if dataset_type == "Phenotypes":
-                                new_type = "Publish"
-                            elif dataset_type == "Genotypes":
-                                new_type = "Geno"
-                            else:
-                                new_type = "ProbeSet"
-                            self.datasets[short_dataset_name] = new_type
+            try:
+                data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown", timeout = 5).content)
+                for species in data['datasets']:
+                    for group in data['datasets'][species]:
+                        for dataset_type in data['datasets'][species][group]:
+                            for dataset in data['datasets'][species][group][dataset_type]:
+                                short_dataset_name = dataset[1]
+                                if dataset_type == "Phenotypes":
+                                    new_type = "Publish"
+                                elif dataset_type == "Genotypes":
+                                    new_type = "Geno"
+                                else:
+                                    new_type = "ProbeSet"
+                                self.datasets[short_dataset_name] = new_type
+            except:
+                pass
 
             Redis.set("dataset_structure", json.dumps(self.datasets))
 
