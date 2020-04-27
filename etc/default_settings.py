@@ -40,7 +40,13 @@ SECURITY_RECOVERABLE = True
 SECURITY_EMAIL_SENDER = "no-reply@genenetwork.org"
 SECURITY_POST_LOGIN_VIEW = "/thank_you"
 
-SERVER_PORT = 5003          # running on localhost
+# ---- SERVER_PORT needs an override before firing up the server
+SERVER_PORT = os.environ['SERVER_PORT']
+if isinstance(SERVER_PORT, str):
+    SERVER_PORT = int(SERVER_PORT)        # don't do this for other settings!
+else:
+    SERVER_PORT = 5003
+
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
 GITHUB_CLIENT_ID = "UNKNOWN"
