@@ -28,6 +28,8 @@ GN_VERSION = open("../etc/VERSION","r").read()
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
 GN_SERVER_URL = "http://localhost:8880/" # REST API server
+GN2_BASE_URL = "http://genenetwork.org/" # to pick up REST API
+GN2_BRANCH_URL = GN2_BASE_URL
 
 # ---- Flask configuration (see website)
 TRAP_BAD_REQUEST_ERRORS = True
