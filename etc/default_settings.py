@@ -32,7 +32,7 @@ GN_SERVER_URL = "http://localhost:8880/" # REST API server
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
 GN_SERVER_URL = "http://localhost:8880/" # REST API server
-GN2_BASE_URL = "http://genenetwork.org/"
+GN2_BASE_URL = "http://genenetwork.org/" # to pick up REST API
 GN2_BRANCH_URL = GN2_BASE_URL
 
 # ---- Flask configuration (see website)
@@ -44,7 +44,13 @@ SECURITY_RECOVERABLE = True
 SECURITY_EMAIL_SENDER = "no-reply@genenetwork.org"
 SECURITY_POST_LOGIN_VIEW = "/thank_you"
 
-SERVER_PORT = 5003          # running on localhost
+# ---- SERVER_PORT needs an override before firing up the server
+SERVER_PORT = os.environ['SERVER_PORT']
+if isinstance(SERVER_PORT, str):
+    SERVER_PORT = int(SERVER_PORT)        # don't do this for other settings!
+else:
+    SERVER_PORT = 5003
+
 SECRET_HMAC_CODE = '\x08\xdf\xfa\x93N\x80\xd9\\H@\\\x9f`\x98d^\xb4a;\xc6OM\x946a\xbc\xfc\x80:*\xebc'
 
 GITHUB_CLIENT_ID = "UNKNOWN"

@@ -57,6 +57,12 @@ or you can set environment variables to override individual parameters, e.g.
 the debug and logging switches can be particularly useful when
 developing GN2.
 
+* Running Redis
+
+Install redis. Make sure you add the setting:
+
+: appendonly yes
+
 * Run MariaDB server
 ** Install MariaDB with GNU GUIx
 

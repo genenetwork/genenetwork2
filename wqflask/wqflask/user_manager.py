@@ -350,8 +350,9 @@ class UserSession(object):
         Redis.delete(self.cookie_name)
         logger.debug("At end of delete_session")
 
-#@app.before_request
-def before_request():
+@app.before_request
+def get_cookie():
+    logger.info("@app.before_request get cookie")
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
 

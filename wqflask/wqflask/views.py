@@ -80,6 +80,7 @@ logger = utility.logger.getLogger(__name__ )
 
 @app.before_request
 def connect_db():
+    logger.info("@app.before_request connect_db")
     db = getattr(g, '_database', None)
     if db is None:
         logger.debug("Get new database connector")
