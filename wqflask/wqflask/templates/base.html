@@ -72,6 +72,7 @@
                                   <li><a href="httP://datafiles.genenetwork.org">Interplanetary File System</a></li>
                                 </ul>
                         </li>
+                        {% if g.user_session %}
                         <li class="">
                             <a href="/collections/list">Collections
                                 <span class="badge badge-info">{{ g.user_session.num_collections }}</span>
@@ -93,6 +94,7 @@
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        {% endif %}
                         <!--
                         <li style="margin-left: 20px;">
                             <a href="http://gn2-staging.genenetwork.org" style="font-weight: bold;" >Use Staging Branch</a>

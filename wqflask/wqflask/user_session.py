@@ -25,6 +25,19 @@ logger = getLogger(__name__)
 THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
+@app.before_request
+def get_user_session():
+    logger.info("@app.before_request get_session")
+    g.user_session = UserSession()
+
+@app.after_request
+def set_user_session(response):
+    if hasattr(g, 'user_session'):
+        if not request.cookies.get(g.user_session.cookie_name):
+            response.set_cookie(g.user_session.cookie_name, g.user_session.cookie)
+    return response
+
+
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
     assert len(the_uuid) == 36, "Is session_id a uuid?"
@@ -280,12 +293,4 @@ class UserSession(object):
         Redis.delete(self.redis_key)
         self.logged_in = False
 
-@app.before_request
-def before_request():
-    g.user_session = UserSession()
 
-@app.after_request
-def set_cookie(response):
-    if not request.cookies.get(g.user_session.cookie_name):
-        response.set_cookie(g.user_session.cookie_name, g.user_session.cookie)
-    return response
