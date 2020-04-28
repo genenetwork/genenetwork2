@@ -1930,6 +1930,7 @@
             ]
          }, 
          "HCP": {
+<<<<<<< HEAD
             "Phenotypes": [
                [
                   "None", 
@@ -2116,20 +2117,42 @@
             ]
          }, 
          "TIGEM-Retina-RNA-Seq": {
+=======
+>>>>>>> penguin2
             "Phenotypes": [
                [
                   "None", 
-                  "TIGEM-Retina-RNA-SeqPublish", 
-                  "TIGEM-Retina-RNA-Seq Phenotypes"
-               ]
-            ], 
-            "Retina mRNA": [
-               [
-                  "802", 
-                  "TIGEM_hg38_ret_rna-seq_0916", 
-                  "TIGEM Human Retina RNA-Seq (Sep16) RPKM log2"
+                  "HCPPublish", 
+                  "HCP Private Phenotypes"
                ]
             ]
+         }, 
+         "HLC": {
+            "Liver mRNA": [
+               [
+                  "320", 
+                  "HLC_0311", 
+                  "GSE9588 Human Liver Normal (Mar11) Both Sexes"
+               ], 
+               [
+                  "384", 
+                  "HLCF_0311", 
+                  "GSE9588 Human Liver Normal (Mar11) Females"
+               ], 
+               [
+                  "383", 
+                  "HLCM_0311", 
+                  "GSE9588 Human Liver Normal (Mar11) Males"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "635", 
+                  "HLCPublish", 
+                  "HLC Published Phenotypes"
+               ]
+            ]
+<<<<<<< HEAD
          }
       }, 
       "macaque monkey": {
@@ -2167,6 +2190,173 @@
                   "252", 
                   "INIA_MacFas_Pf_RMA_0110", 
                   "INIA Macaca fasicularis Prefrontal Cortex (Jan10) RMA"
+=======
+         }, 
+         "HLT": {
+            "Lung mRNA": [
+               [
+                  "455", 
+                  "GSE23546HLT0613", 
+                  "Super Series GSE23546 Whole-Genome GXD Non-Tumorous Human Lung Tissues Affy HuRSTA array (Jun11) RMA"
+               ], 
+               [
+                  "454", 
+                  "GRNG-GSE23545HLT0613", 
+                  "GRNG/GSE23545 Whole-Genome GXD Non-Tumorous Human Lung Tissues Affy HuRSTA array (Jun11) RMA"
+               ]
+            ]
+         }, 
+         "HSB": {
+            "Amygdala mRNA": [
+               [
+                  "330", 
+                  "KIN_YSM_AMY_0711", 
+                  "GN330 Human Amygdala Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Cerebellar Cortex mRNA": [
+               [
+                  "331", 
+                  "KIN_YSM_CBC_0711", 
+                  "Human Cerebellar Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Dorsolateral Prefrontal Cortex mRNA": [
+               [
+                  "333", 
+                  "KIN_YSM_DFC_0711", 
+                  "Human Dorsolateral Prefrontal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Hippocampus mRNA": [
+               [
+                  "337", 
+                  "KIN_YSM_HIP_0711", 
+                  "Human Hippocampus Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Inferior Temporal Cortex mRNA": [
+               [
+                  "339", 
+                  "KIN_YSM_ITC_0711", 
+                  "Human Inferior Temporal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Medial Prefrontal Cortex mRNA": [
+               [
+                  "343", 
+                  "KIN_YSM_MFC_0711", 
+                  "Human Medial Prefrontal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Mediodorsal Nucleus of Thalamus mRNA": [
+               [
+                  "342", 
+                  "KIN_YSM_MD_0711", 
+                  "Human Mediodorsal Nucleus of Thalamus Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Orbital Prefrontal Cortex mRNA": [
+               [
+                  "347", 
+                  "KIN_YSM_OFC_0711", 
+                  "Human Orbital Prefrontal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "None", 
+                  "HSBPublish", 
+                  "HSB Published Phenotypes"
+               ]
+            ], 
+            "Posterior Inferior Parietal Cortex mRNA": [
+               [
+                  "338", 
+                  "KIN_YSM_IPC_0711", 
+                  "Human Posterior Inferior Parietal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Posterior Superior Temporal Cortex mRNA": [
+               [
+                  "350", 
+                  "KIN_YSM_STC_0711", 
+                  "Human Posterior Superior Temporal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Primary Auditory (A1) Cortex mRNA": [
+               [
+                  "329", 
+                  "KIN_YSM_A1C_0711", 
+                  "Human Primary Auditory (A1) Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Primary Motor (M1) Cortex mRNA": [
+               [
+                  "341", 
+                  "KIN_YSM_M1C_0711", 
+                  "Human Primary Motor (M1) Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Primary Somatosensory (S1) Cortex mRNA": [
+               [
+                  "349", 
+                  "KIN_YSM_S1C_0711", 
+                  "Human Primary Somatosensory (S1) Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Primary Visual Cortex mRNA": [
+               [
+                  "354", 
+                  "KIN_YSM_V1C_0711", 
+                  "Human Primary Visual Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Striatum mRNA": [
+               [
+                  "351", 
+                  "KIN_YSM_STR_0711", 
+                  "Human Striatum Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ], 
+            "Ventrolateral Prefrontal Cortex mRNA": [
+               [
+                  "356", 
+                  "KIN_YSM_VFC_0711", 
+                  "Human Ventrolateral Prefrontal Cortex Affy Hu-Exon 1.0 ST (Jul11) Quantile"
+               ]
+            ]
+         }, 
+         "Islets-Gerling": {
+            "Islets mRNA": [
+               [
+                  "824", 
+                  "UTHSC_HuIslets_Mar17", 
+                  "UTHSC Human Islets Affy Human Gene 2.0 ST (Mar17) RMA"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "None", 
+                  "Islets-GerlingPublish", 
+                  "Islets-Gerling Phenotypes"
+               ]
+            ]
+         }, 
+         "TIGEM-Retina-RNA-Seq": {
+            "Phenotypes": [
+               [
+                  "None", 
+                  "TIGEM-Retina-RNA-SeqPublish", 
+                  "TIGEM-Retina-RNA-Seq Phenotypes"
+               ]
+            ], 
+            "Retina mRNA": [
+               [
+                  "802", 
+                  "TIGEM_hg38_ret_rna-seq_0916", 
+                  "TIGEM Human Retina RNA-Seq (Sep16) RPKM log2"
+>>>>>>> penguin2
                ]
             ]
          }
@@ -3516,6 +3706,11 @@
                   "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ], 
                [
+                  "849", 
+                  "EPFLMouseLiverCDEx0413", 
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ], 
+               [
                   "848", 
                   "EPFLMouseLiverHFCEx0413", 
                   "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
@@ -3524,11 +3719,6 @@
                   "432", 
                   "EPFLMouseLiverCDRMA0413", 
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
-               ], 
-               [
-                  "849", 
-                  "EPFLMouseLiverCDEx0413", 
-                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ], 
                [
                   "433", 
@@ -3871,6 +4061,7 @@
                   "135", 
                   "VCUSal_1206_R", 
                   "VCU BXD PFC Sal M430 2.0 (Dec06) RMA"
+<<<<<<< HEAD
                ], 
                [
                   "136", 
@@ -3913,6 +4104,50 @@
                   "VCU BXD PFC CIE EtOH M430 2.0 (Jan11) RMA"
                ], 
                [
+=======
+               ], 
+               [
+                  "136", 
+                  "VCUEtOH_1206_R", 
+                  "VCU BXD PFC EtOH M430 2.0 (Dec06) RMA"
+               ], 
+               [
+                  "137", 
+                  "VCUSal_1006_R", 
+                  "VCU BXD PFC Et vs Sal M430 2.0 (Dec06) Sscore"
+               ], 
+               [
+                  "788", 
+                  "VCU_BXD_PFC_CIE_Air_0416", 
+                  "VCU BXD PFC CIE Air Masked ComBat M430 2.0 (Apr16) RMA"
+               ], 
+               [
+                  "789", 
+                  "VCU_BXD_PFC_CIE_AirZ_0416", 
+                  "VCU BXD PFC CIE Air Masked ComBat M430 2.0 (Apr16) RMA Z-score"
+               ], 
+               [
+                  "790", 
+                  "VCU_BXD_PFC_CIE_Et_0416", 
+                  "VCU BXD PFC CIE EtOH Masked ComBat M430 2.0 (Apr16) RMA"
+               ], 
+               [
+                  "791", 
+                  "VCU_BXD_PFC_CIE_EtZ_0416", 
+                  "VCU BXD PFC CIE EtOH Masked ComBat M430 2.0 (Apr16) RMA Z-score"
+               ], 
+               [
+                  "299", 
+                  "VCU_PF_AvE_0111_Ss", 
+                  "VCU BXD PFC EtOH vs CIE Air M430 2.0 (Jan11) Sscore*"
+               ], 
+               [
+                  "300", 
+                  "VCU_PF_Et_0111_R", 
+                  "VCU BXD PFC CIE EtOH M430 2.0 (Jan11) RMA"
+               ], 
+               [
+>>>>>>> penguin2
                   "301", 
                   "VCU_PF_Air_0111_R", 
                   "VCU BXD PFC CIE Air M430 2.0 (Jan11) RMA"
@@ -4854,6 +5089,11 @@
             ], 
             "Hippocampus mRNA": [
                [
+                  "214", 
+                  "Illum_LXS_Hipp_NOE_1008", 
+                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
+               ], 
+               [
                   "211", 
                   "Illum_LXS_Hipp_RSS_1008", 
                   "Hippocampus Illumina RSS (Oct08) RankInv beta"
@@ -4872,11 +5112,6 @@
                   "212", 
                   "Illum_LXS_Hipp_RSE_1008", 
                   "Hippocampus Illumina RSE (Oct08) RankInv beta"
-               ], 
-               [
-                  "214", 
-                  "Illum_LXS_Hipp_NOE_1008", 
-                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
                ], 
                [
                   "143", 
@@ -5451,6 +5686,7 @@
             "TIGEM-Retina-RNA-Seq", 
             "Retina: Normal Adult Gene Expression, RNA-Seq (TIGEM)", 
             "Family:None"
+<<<<<<< HEAD
          ]
       ], 
       "macaque monkey": [
@@ -5458,6 +5694,8 @@
             "Macaca-fasicularis", 
             "Macaca fasicularis (Cynomolgus monkey)", 
             "Family:None"
+=======
+>>>>>>> penguin2
          ]
       ], 
       "mouse": [
@@ -5495,6 +5733,7 @@
             "LXS", 
             "ILSXISS (LXS) Family", 
             "Family:Reference Populations"
+<<<<<<< HEAD
          ], 
          [
             "MDP", 
@@ -5662,6 +5901,175 @@
             "Family:Non-genetic Cohort"
          ], 
          [
+=======
+         ], 
+         [
+            "MDP", 
+            "Mouse Diversity Panel", 
+            "Family:Reference Populations"
+         ], 
+         [
+            "B6D2RI", 
+            "BXD Aged Hippocampus", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "BXD-Bone", 
+            "BXD Bone Individual Data", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "DOD-BXD-GWI", 
+            "BXD DOD Gulf War Illness", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "BXD-Harvested", 
+            "BXD NIA Longevity Study", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "UTHSC-Cannabinoid", 
+            "BXD UTHSC Cannabinoid Pilot", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "B6BTBRF2", 
+            "B6BTBRF2", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BHHBF2", 
+            "B6C3HF2 UCLA Metabolism", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BHF2", 
+            "B6C3HF2(APOE-) UCLA Metabolism", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "Linsenbardt-Boehm", 
+            "B6D2 EtOH Selected Advanced Intercross", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "B6D2F2", 
+            "B6D2F2 OHSU Brain", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BDF2-2005", 
+            "B6D2F2 OHSU Striatum", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "B6D2F2-PSU", 
+            "B6D2F2 PSU Muscle", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BDF2-1999", 
+            "B6D2F2 UCLA Liver", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "CTB6F2", 
+            "CastB6/B6Cast F2 UCLA", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "CFW", 
+            "CFW Outbred GWAS", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "HET3-ITP", 
+            "HET3 ITP Longevity", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "HS", 
+            "Heterogeneous Stock", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "HS-CC", 
+            "Heterogeneous Stock Collaborative Cross", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G34_39-43-GBS", 
+            "LGSM AI G34 G39-43 Palmer (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G34-A", 
+            "LGSM AI G34 Palmer (Array)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G34-GBS", 
+            "LGSM AI G34 Palmer (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AIG34_50-56-GBS", 
+            "LGSM AI G34/50-56 Lionikas (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G39-43-GBS", 
+            "LGSM AI G39-43 Palmer (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI", 
+            "LGSM AI Palmer", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "SOTNOT-OHSU", 
+            "SOTNOT-OHSU", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "B6-Lens", 
+            "B6 Lens", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "CIE-INIA", 
+            "Chronic Intermittent Ethanol Phase 1", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "CIE-RMA", 
+            "Chronic Intermittent Ethanol Phase 2", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "CMS", 
+            "Chronic Mild Stress", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "D2GM", 
+            "D2 Glaucoma Model", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "JAX-D2-Mono-RNA-Seq", 
+            "D2 Glaucoma Monocyte JAX", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "EMSR", 
+            "Ethanol-Medicated Stress Reduction", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+>>>>>>> penguin2
             "B6D2", 
             "Glaucoma and Aged Retina UTHSC", 
             "Family:Non-genetic Cohort"
@@ -6674,6 +7082,7 @@
             ]
          ]
       }, 
+<<<<<<< HEAD
       "macaque monkey": {
          "Macaca-fasicularis": [
             [
@@ -6698,6 +7107,8 @@
             ]
          ]
       }, 
+=======
+>>>>>>> penguin2
       "mouse": {
          "AKXD": [
             [
