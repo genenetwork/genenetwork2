@@ -277,6 +277,18 @@
             ]
          }, 
          "CANDLE": {
+            "Methylation": [
+               [
+                  "423", 
+                  "CANDLE_Meth27_0313", 
+                  "CANDLE Newborn Cord ILM HumanMethylation27 (Mar13)*"
+               ], 
+               [
+                  "422", 
+                  "CANDLE_Meth_0313", 
+                  "CANDLE Newborn Cord ILM HumanMethylation27 (Mar13) Z-Score*"
+               ]
+            ], 
             "Newborn Cord Blood mRNA": [
                [
                   "324", 
@@ -307,7 +319,7 @@
             ]
          }, 
          "GTEx": {
-            "Adipose tissue, subcutaneous mRNA": [
+            "Adipose Tissue, Subcutaneous mRNA": [
                [
                   "580", 
                   "GTEx_log2_Subcu_0314", 
@@ -319,7 +331,7 @@
                   "GTEx Human Subcutaneous (Apr14) RPKM"
                ]
             ], 
-            "Adipose tissue, visceral mRNA": [
+            "Adipose Tissue, Visceral mRNA": [
                [
                   "587", 
                   "GTEx_log2_Visce_0314", 
@@ -873,14 +885,14 @@
             ]
          }, 
          "GTEx_v5": {
-            "Adipose tissue, subcutaneous mRNA": [
+            "Adipose Tissue, Subcutaneous mRNA": [
                [
                   "718", 
                   "GTEXv5_AdipSub_0915", 
                   "GTEXv5 Human Adipose Subcutaneous RefSeq (Sep15) RPKM log2"
                ]
             ], 
-            "Adipose tissue, visceral mRNA": [
+            "Adipose Tissue, Visceral mRNA": [
                [
                   "719", 
                   "GTEXv5_AdiVis_0915", 
@@ -1252,6 +1264,603 @@
                ]
             ]
          }, 
+         "GTEx_v8": {
+            "Adipose Tissue, Subcutaneous mRNA": [
+               [
+                  "950", 
+                  "GTEXv8_AdipSub_tpm_0220", 
+                  "GTEXv8 Human Adipose Subcutaneous RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "901", 
+                  "GTEXv8_AdipSub_0220", 
+                  "GTEXv8 Human Adipose Subcutaneous RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Adipose Tissue, Visceral mRNA": [
+               [
+                  "951", 
+                  "GTEXv8_AdiVis_tpm_0220", 
+                  "GTEXv8 Human Adipose Visceral Omentum RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "902", 
+                  "GTEXv8_AdiVis_0220", 
+                  "GTEXv8 Human Adipose Visceral Omentum RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Adrenal Gland mRNA": [
+               [
+                  "952", 
+                  "GTEXv8_AdrGla_tpm_0220", 
+                  "GTEXv8 Human Adrenal Gland RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "903", 
+                  "GTEXv8_AdrGla_0220", 
+                  "GTEXv8 Human Adrenal Gland RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Amygdala mRNA": [
+               [
+                  "956", 
+                  "GTEXv8_Amy_tpm_0220", 
+                  "GTEXv8 Human Brain Amygdala RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "907", 
+                  "GTEXv8_Amy_0220", 
+                  "GTEXv8 Human Brain Amygdala RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Anterior Cingulate Cortex mRNA": [
+               [
+                  "957", 
+                  "GTEXv8_AntCtx_tpm_0220", 
+                  "GTEXv8 Human Brain Anterior cingulate cortex BA24 RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "908", 
+                  "GTEXv8_AntCtx_0220", 
+                  "GTEXv8 Human Brain Anterior cingulate cortex BA24 RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Aorta mRNA": [
+               [
+                  "953", 
+                  "GTEXv8_ArtAor_tpm_0220", 
+                  "GTEXv8 Human Artery Aorta RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "904", 
+                  "GTEXv8_ArtAor_0220", 
+                  "GTEXv8 Human Artery Aorta RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Breast - Mammary Tissue mRNA": [
+               [
+                  "969", 
+                  "GTEXv8_BrMa_tpm_0220", 
+                  "GTEXv8 Human Breast Mammary Tissue RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "920", 
+                  "GTEXv8_BrMa_0220", 
+                  "GTEXv8 Human Breast Mammary Tissue RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Caudate mRNA": [
+               [
+                  "958", 
+                  "GTEXv8_BrCa_tpm_0220", 
+                  "GTEXv8 Human Brain Caudate basal ganglia RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "909", 
+                  "GTEXv8_BrCa_0220", 
+                  "GTEXv8 Human Brain Caudate basal ganglia RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Cells - EBV-Transformed Lymphocytes mRNA": [
+               [
+                  "970", 
+                  "GTEXv8_EBV_tpm_0220", 
+                  "GTEXv8 Human Cells-EBV-transformed lymphocytes RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "921", 
+                  "GTEXv8_EBV_0220", 
+                  "GTEXv8 Human Cells-EBV-transformed lymphocytes RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Cells - Transformed Fibroblasts mRNA": [
+               [
+                  "971", 
+                  "GTEXv8_CTF_tpm_0220", 
+                  "GTEXv8 Human Cells-Transformed fibroblasts RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "922", 
+                  "GTEXv8_CTF_0220", 
+                  "GTEXv8 Human Cells-Transformed fibroblasts RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Cerebellar Cortex mRNA": [
+               [
+                  "961", 
+                  "GTEXv8_BrCtx_tpm_0220", 
+                  "GTEXv8 Human Brain Cortex RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "912", 
+                  "GTEXv8_BrCtx_0220", 
+                  "GTEXv8 Human Brain Cortex RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Cerebellar Hemisphere mRNA": [
+               [
+                  "959", 
+                  "GTEXv8_CerH_tpm_0220", 
+                  "GTEXv8 Human Brain Cerebellar Hemisphere RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "910", 
+                  "GTEXv8_CerH_0220", 
+                  "GTEXv8 Human Brain Cerebellar Hemisphere RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Cerebellum mRNA": [
+               [
+                  "960", 
+                  "GTEXv8_BrCe_tpm_0220", 
+                  "GTEXv8 Human Brain Cerebellum RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "911", 
+                  "GTEXv8_BrCe_0220", 
+                  "GTEXv8 Human Brain Cerebellum RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Colon - Sigmoid mRNA": [
+               [
+                  "972", 
+                  "GTEXv8_ColSig_tpm_0220", 
+                  "GTEXv8 Human Colon-Sigmoid RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "923", 
+                  "GTEXv8_ColSig_0220", 
+                  "GTEXv8 Human Colon-Sigmoid RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Colon - Transverse mRNA": [
+               [
+                  "973", 
+                  "GTEXv8_ColTra_tpm_0220", 
+                  "GTEXv8 Human Colon-Transverse RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "924", 
+                  "GTEXv8_ColTra_0220", 
+                  "GTEXv8 Human Colon-Transverse RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Coronary mRNA": [
+               [
+                  "954", 
+                  "GTEXv8_ArtCor_tpm_0220", 
+                  "GTEXv8 Human Artery Coronary RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "905", 
+                  "GTEXv8_ArtCor_0220", 
+                  "GTEXv8 Human Artery Coronary RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Esophagus - Gastroesophageal mRNA": [
+               [
+                  "974", 
+                  "GTEXv8_GastJun_tpm_0220", 
+                  "GTEXv8 Human Esophagus - Gastroesophageal Junction RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "925", 
+                  "GTEXv8_GastJun_0220", 
+                  "GTEXv8 Human Esophagus - Gastroesophageal Junction RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Esophagus - Mucosa mRNA": [
+               [
+                  "975", 
+                  "GTEXv8_EsoMu_tpm_0220", 
+                  "GTEXv8 Human Esophagus-Mucosa RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "926", 
+                  "GTEXv8_EsoMu_0220", 
+                  "GTEXv8 Human Esophagus-Mucosa RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Esophagus - Muscularis mRNA": [
+               [
+                  "976", 
+                  "GTEXv8_EsoMus_tpm_0220", 
+                  "GTEXv8 Human Esophagus-Muscularis RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "927", 
+                  "GTEXv8_EsoMus_0220", 
+                  "GTEXv8 Human Esophagus-Muscularis RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Frontal Cortex mRNA": [
+               [
+                  "962", 
+                  "GTEXv8_BrFr_tpm_0220", 
+                  "GTEXv8 Human Brain Frontal Cortex BA9 RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "913", 
+                  "GTEXv8_BrFr_0220", 
+                  "GTEXv8 Human Brain Frontal Cortex BA9 RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Heart - Atrial Appendage mRNA": [
+               [
+                  "977", 
+                  "GTEXv8_HAA_tpm_0220", 
+                  "GTEXv8 Human Heart-Atrial Appendage RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "928", 
+                  "GTEXv8_HAA_0220", 
+                  "GTEXv8 Human Heart-Atrial Appendage RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Heart - Left Ventricle mRNA": [
+               [
+                  "978", 
+                  "GTEXv8_LV_tpm_0220", 
+                  "GTEXv8 Human Heart-Left Ventricle RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "929", 
+                  "GTEXv8_LV_0220", 
+                  "GTEXv8 Human Heart-Left Ventricle RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Hippocampus mRNA": [
+               [
+                  "963", 
+                  "GTEXv8_Hip_tpm_0220", 
+                  "GTEXv8 Human Brain Hippocampus RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "914", 
+                  "GTEXv8_Hip_0220", 
+                  "GTEXv8 Human Brain Hippocampus RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Hypothalamus mRNA": [
+               [
+                  "964", 
+                  "GTEXv8_Hiptha_tpm_0220", 
+                  "GTEXv8 Human Brain Hypothalamus RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "915", 
+                  "GTEXv8_Hiptha_0220", 
+                  "GTEXv8 Human Brain Hypothalamus RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Kidney mRNA": [
+               [
+                  "979", 
+                  "GTEXv8_Kidn_tpm_0220", 
+                  "GTEXv8 Human Kidney-Cortex RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "930", 
+                  "GTEXv8_Kidn_0220", 
+                  "GTEXv8 Human Kidney-Cortex RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Liver mRNA": [
+               [
+                  "980", 
+                  "GTEXv8_Liv_tpm_0220", 
+                  "GTEXv8 Human Liver RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "931", 
+                  "GTEXv8_Liv_0220", 
+                  "GTEXv8 Human Liver RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Lung mRNA": [
+               [
+                  "981", 
+                  "GTEXv8_Lung_tpm_0220", 
+                  "GTEXv8 Human Lung RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "932", 
+                  "GTEXv8_Lung_0220", 
+                  "GTEXv8 Human Lung RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Muscle mRNA": [
+               [
+                  "982", 
+                  "GTEXv8_MuSk_tpm_0220", 
+                  "GTEXv8 Human Muscle-Skeletal RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "933", 
+                  "GTEXv8_MuSk_0220", 
+                  "GTEXv8 Human Muscle-Skeletal RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Nerve - Tibial mRNA": [
+               [
+                  "983", 
+                  "GTEXv8_Tib_tpm_0220", 
+                  "GTEXv8 Human Nerve-Tibial RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "934", 
+                  "GTEXv8_Tib_0220", 
+                  "GTEXv8 Human Nerve-Tibial RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Nucleus Accumbens mRNA": [
+               [
+                  "965", 
+                  "GTEXv8_NuAcc_tpm_0220", 
+                  "GTEXv8 Human Brain Nucleus accumbens basal ganglia RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "916", 
+                  "GTEXv8_NuAcc_0220", 
+                  "GTEXv8 Human Brain Nucleus accumbens basal ganglia RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Ovary mRNA": [
+               [
+                  "984", 
+                  "GTEXv8_Ov_tpm_0220", 
+                  "GTEXv8 Human Ovary RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "935", 
+                  "GTEXv8_Ov_0220", 
+                  "GTEXv8 Human Ovary RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Pancreas mRNA": [
+               [
+                  "985", 
+                  "GTEXv8_Panc_tpm_0220", 
+                  "GTEXv8 Human Pancreas RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "936", 
+                  "GTEXv8_Panc_0220", 
+                  "GTEXv8 Human Pancreas RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "None", 
+                  "GTEx_v8Publish", 
+                  "GTEx_v8 Phenotypes"
+               ]
+            ], 
+            "Pituitary Gland mRNA": [
+               [
+                  "986", 
+                  "GTEXv8_Pit_tpm_0220", 
+                  "GTEXv8 Human Pituitary RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "937", 
+                  "GTEXv8_Pit_0220", 
+                  "GTEXv8 Human Pituitary RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Prostate mRNA": [
+               [
+                  "987", 
+                  "GTEXv8_Prost_tpm_0220", 
+                  "GTEXv8 Human Prostate RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "938", 
+                  "GTEXv8_Prost_0220", 
+                  "GTEXv8 Human Prostate RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Putamen mRNA": [
+               [
+                  "966", 
+                  "GTEXv8_PutB_tpm_0220", 
+                  "GTEXv8 Human Brain Putamen basal ganglia RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "917", 
+                  "GTEXv8_PutB_0220", 
+                  "GTEXv8 Human Brain Putamen basal ganglia RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Salivary Gland mRNA": [
+               [
+                  "988", 
+                  "GTEXv8_SalGl_tpm_0220", 
+                  "GTEXv8 Human Salivary Gland Minor RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "939", 
+                  "GTEXv8_SalGl_0220", 
+                  "GTEXv8 Human Salivary Gland Minor RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Skin - Not Sun Exposed (Suprapubic) mRNA": [
+               [
+                  "989", 
+                  "GTEXv8_SkN_tpm_0220", 
+                  "GTEXv8 Human Skin-Not Sun Exposed-Suprapubic RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "940", 
+                  "GTEXv8_SkN_0220", 
+                  "GTEXv8 Human Skin-Not Sun Exposed-Suprapubic RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Skin - Sun Exposed (Lower leg) mRNA": [
+               [
+                  "990", 
+                  "GTEXv8_SkS_tpm_0220", 
+                  "GTEXv8 Human Skin-Sun Exposed-Lower leg RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "941", 
+                  "GTEXv8_SkS_0220", 
+                  "GTEXv8 Human Skin-Sun Exposed-Lower leg RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Small Intestine - Terminal Ileum mRNA": [
+               [
+                  "997", 
+                  "GTEXv8_SInt_tpm_0220", 
+                  "GTEXv8 Human Small Intestine - Terminal Ileum RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "948", 
+                  "GTEXv8_SInt_0220", 
+                  "GTEXv8 Human Small Intestine - Terminal Ileum RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Spinal Cord mRNA": [
+               [
+                  "967", 
+                  "GTEXv8_SpCo_tpm_0220", 
+                  "GTEXv8 Human Brain Spinal cord cervical c-1 RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "918", 
+                  "GTEXv8_SpCo_0220", 
+                  "GTEXv8 Human Brain Spinal cord cervical c-1 RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Spleen mRNA": [
+               [
+                  "991", 
+                  "GTEXv8_Sple_tpm_0220", 
+                  "GTEXv8 Human Spleen RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "942", 
+                  "GTEXv8_Sple_0220", 
+                  "GTEXv8 Human Spleen RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Stomach mRNA": [
+               [
+                  "992", 
+                  "GTEXv8_Sto_tpm_0220", 
+                  "GTEXv8 Human Stomach RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "943", 
+                  "GTEXv8_Sto_0220", 
+                  "GTEXv8 Human Stomach RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Substantia Nigra mRNA": [
+               [
+                  "968", 
+                  "GTEXv8_SubN_tpm_0220", 
+                  "GTEXv8 Human Brain Substantia nigra RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "919", 
+                  "GTEXv8_SubN_0220", 
+                  "GTEXv8 Human Brain Substantia nigra RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Testis mRNA": [
+               [
+                  "993", 
+                  "GTEXv8_Test_tpm_0220", 
+                  "GTEXv8 Human Testis RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "944", 
+                  "GTEXv8_Test_0220", 
+                  "GTEXv8 Human Testis RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Thyroid mRNA": [
+               [
+                  "994", 
+                  "GTEXv8_Thy_tpm_0220", 
+                  "GTEXv8 Human Thyroid RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "945", 
+                  "GTEXv8_Thy_0220", 
+                  "GTEXv8 Human Thyroid RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Tibial mRNA": [
+               [
+                  "955", 
+                  "GTEXv8_ArtTib_tpm_0220", 
+                  "GTEXv8 Human Artery Tibial RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "906", 
+                  "GTEXv8_ArtTib_0220", 
+                  "GTEXv8 Human Artery Tibial RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Uterus mRNA": [
+               [
+                  "995", 
+                  "GTEXv8_Ut_tpm_0220", 
+                  "GTEXv8 Human Uterus RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "946", 
+                  "GTEXv8_Ut_0220", 
+                  "GTEXv8 Human Uterus RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Vagina mRNA": [
+               [
+                  "996", 
+                  "GTEXv8_Vag_tpm_0220", 
+                  "GTEXv8 Human Vagina RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "947", 
+                  "GTEXv8_Vag_0220", 
+                  "GTEXv8 Human Vagina RNA-Seq (Feb20) log2"
+               ]
+            ], 
+            "Whole Blood mRNA": [
+               [
+                  "998", 
+                  "GTEXv8_Wbl_tpm_0220", 
+                  "GTEXv8 Human Whole Blood RNA-Seq (Feb20) TPM log2"
+               ], 
+               [
+                  "949", 
+                  "GTEXv8_Wbl_0220", 
+                  "GTEXv8 Human Whole Blood RNA-Seq (Feb20) log2"
+               ]
+            ]
+         }, 
          "HB": {
             "Cerebellum mRNA": [
                [
@@ -1491,6 +2100,13 @@
             ]
          }, 
          "Islets-Gerling": {
+            "Islets mRNA": [
+               [
+                  "824", 
+                  "UTHSC_HuIslets_Mar17", 
+                  "UTHSC Human Islets Affy Human Gene 2.0 ST (Mar17) RMA"
+               ]
+            ], 
             "Phenotypes": [
                [
                   "None", 
@@ -1517,94 +2133,6 @@
          }
       }, 
       "mouse": {
-         "AIL": {
-            "Genotypes": [
-               [
-                  "None", 
-                  "AILGeno", 
-                  "AIL Genotypes"
-               ]
-            ], 
-            "Hippocampus mRNA": [
-               [
-                  "874", 
-                  "UCSD_AIL_HIP_RNA-Seq_log2_0418", 
-                  "UCSD AIL Hippocampus (Apr18) RNA-Seq Log2"
-               ], 
-               [
-                  "844", 
-                  "UCSD_AIL_HIP_RNA-Seq_0418", 
-                  "UCSD AIL Hippocampus (Apr18) RNA-Seq"
-               ]
-            ], 
-            "Phenotypes": [
-               [
-                  "653", 
-                  "AILPublish", 
-                  "AIL Phenotypes"
-               ]
-            ], 
-            "Prefrontal Cortex mRNA": [
-               [
-                  "876", 
-                  "UCSD_AIL_PFC_RNA-Seq_log2_0418", 
-                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq Log2"
-               ], 
-               [
-                  "846", 
-                  "UCSD_AIL_PFC_RNA-Seq_0418", 
-                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq"
-               ]
-            ], 
-            "Striatum mRNA": [
-               [
-                  "875", 
-                  "UCSD_AIL_STR_RNA-Seq_log2_0418", 
-                  "UCSD AIL Striatum (Apr18) RNA-Seq Log2"
-               ], 
-               [
-                  "845", 
-                  "UCSD_AIL_STR_RNA-Seq_0418", 
-                  "UCSD AIL Striatum (Apr18) RNA-Seq"
-               ]
-            ]
-         }, 
-         "AIL-LGSM-F34-A": {
-            "Phenotypes": [
-               [
-                  "655", 
-                  "AIL-LGSM-F34-APublish", 
-                  "AIL F34-A Phenotypes"
-               ]
-            ]
-         }, 
-         "AIL-LGSM-F34-F39-43-GBS": {
-            "Phenotypes": [
-               [
-                  "654", 
-                  "AIL-LGSM-F34-F39-43-GBSPublish", 
-                  "AIL F34-F39-43-GBS Phenotypes"
-               ]
-            ]
-         }, 
-         "AIL-LGSM-F34-GBS": {
-            "Phenotypes": [
-               [
-                  "656", 
-                  "AIL-LGSM-F34-GBSPublish", 
-                  "AIL F34-GBS Phenotypes"
-               ]
-            ]
-         }, 
-         "AIL-LGSM-F39-43-GBS": {
-            "Phenotypes": [
-               [
-                  "657", 
-                  "AIL-LGSM-F39-43-GBSPublish", 
-                  "AIL F39-43-GBS Phenotypes"
-               ]
-            ]
-         }, 
          "AKXD": {
             "Genotypes": [
                [
@@ -1685,6 +2213,22 @@
                ]
             ]
          }, 
+         "B6-Lens": {
+            "Ocular Lens mRNA": [
+               [
+                  "999", 
+                  "MouseB6Lens_rma_0220", 
+                  "Mouse Ocular Lens Developmental Timecourse (Feb20) RMA"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "None", 
+                  "B6-LensPublish", 
+                  "B6-Lens Phenotypes"
+               ]
+            ]
+         }, 
          "B6BTBRF2": {
             "Genotypes": [
                [
@@ -1719,6 +2263,25 @@
                   "None", 
                   "B6D2Publish", 
                   "UTHSC-Glaucoma-Aged-Retina Phenotypes"
+               ]
+            ], 
+            "Retina mRNA": [
+               [
+                  "803", 
+                  "UTHSC_mm9_B6D2_Ret_0916", 
+                  "UTHSC B6D2 Retina Affy MoGene 1.0ST (Sep16) Gene Level RMA"
+               ], 
+               [
+                  "804", 
+                  "UTHSC_mm9_B6D2_RetEx_0916", 
+                  "UTHSC B6D2 Retina Affy MoGene 1.0ST (Sep16) Exon Level RMA"
+               ]
+            ], 
+            "Retina microRNA": [
+               [
+                  "806", 
+                  "UTHSC_mm10_B6D2_Ret_miRNA_1116", 
+                  "UTHSC B6D2 Retina Affy miRNA-4.0 (Nov16) RMA"
                ]
             ]
          }, 
@@ -1769,6 +2332,28 @@
                   "617", 
                   "B6D2F2-PSUGeno", 
                   "B6D2F2-PSU Genotypes"
+               ]
+            ], 
+            "Muscle mRNA": [
+               [
+                  "134", 
+                  "PSU-B6D2F2_0812", 
+                  "PSU B6D2F2 Muscle Affy Mouse Genome 430 2.0 (Aug12) RMA"
+               ], 
+               [
+                  "404", 
+                  "PSU-B6D2F2_F0812", 
+                  "PSU B6D2F2 Muscle Affy Mouse Genome 430 2.0 (Aug12) RMA Females"
+               ], 
+               [
+                  "405", 
+                  "PSU-B6D2F2_M0812", 
+                  "PSU B6D2F2 Muscle Affy Mouse Genome 430 2.0 (Aug12) RMA Males"
+               ], 
+               [
+                  "406", 
+                  "PSU-B6D2F2_M2000812", 
+                  "PSU B6D2F2 Muscle Affy Mouse Genome 430 2.0 (Aug12) RMA Males Aged 200*"
                ]
             ], 
             "Phenotypes": [
@@ -1904,6 +2489,23 @@
                   "167", 
                   "UCLA_BHF2_LIVER_0605", 
                   "UCLA BHF2 Liver (June05) mlratio"
+               ]
+            ], 
+            "Muscle mRNA": [
+               [
+                  "203", 
+                  "UCLA_BHF2_MUSCLE_FEMALE", 
+                  "UCLA BHF2 Muscle Female mlratio*"
+               ], 
+               [
+                  "202", 
+                  "UCLA_BHF2_MUSCLE_MALE", 
+                  "UCLA BHF2 Muscle Male mlratio*"
+               ], 
+               [
+                  "168", 
+                  "UCLA_BHF2_MUSCLE_0605", 
+                  "UCLA BHF2 Muscle (June05) mlratio*"
                ]
             ], 
             "Phenotypes": [
@@ -2090,6 +2692,26 @@
                   "414", 
                   "UCLA_BXD-on_Femur_0113_RSN", 
                   "UCLA GSE27483 BXD Only Bone Femur ILM Mouse WG-6 v1.1 (Jan13) RSN"
+               ], 
+               [
+                  "464", 
+                  "UTHSCWGU88BFMG1013", 
+                  "UTHSC WGU88 Male Bone Femur AFFY Mouse Gene ST 2.0 Gene Level (Oct13) RMA"
+               ], 
+               [
+                  "465", 
+                  "UTHSCWGU88BFMEx1013", 
+                  "UTHSC WGU88 Male Bone Femur AFFY Mouse Gene ST 2.0 Exon Level (Oct13) RMA"
+               ], 
+               [
+                  "466", 
+                  "UTHSCWGU88BFFG1013", 
+                  "UTHSC WGU88 Female Bone Femur AFFY Mouse Gene ST 2.0 Gene Level (Oct13) RMA"
+               ], 
+               [
+                  "467", 
+                  "UTHSCWGU88BFFEx1013", 
+                  "UTHSC WGU88 Female Bone Femur AFFY Mouse Gene ST 2.0 Exon Level (Oct13) RMA"
                ]
             ], 
             "Brain mRNA": [
@@ -2221,6 +2843,76 @@
                   "9", 
                   "CB_M_1003_M", 
                   "SJUT Cerebellum mRNA M430 (Oct03) MAS5"
+               ], 
+               [
+                  "436", 
+                  "CMMTUBCBXDCerILM0513", 
+                  "UBC/CMMT BXD Cerebellum All Ages Combined ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "441", 
+                  "CMMTUBCBXDG12CerILM0513", 
+                  "UBC/CMMT BXD E12 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "442", 
+                  "CMMTUBCBXDG15CerILM0513", 
+                  "UBC/CMMT BXD E15 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "443", 
+                  "CMMTUBCBXDG18CerILM0513", 
+                  "UBC/CMMT BXD E18 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "437", 
+                  "CMMTUBCBXDP00CerILM0513", 
+                  "UBC/CMMT BXD P0 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "438", 
+                  "CMMTUBCBXDP03CerILM0513", 
+                  "UBC/CMMT BXD P3 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "439", 
+                  "CMMTUBCBXDP06CerILM0513", 
+                  "UBC/CMMT BXD P6 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "440", 
+                  "CMMTUBCBXDP09CerILM0513", 
+                  "UBC/CMMT BXD P9 Cerebellum ILM Mouse WG-6 v2.0 (May13) RankInv"
+               ], 
+               [
+                  "415", 
+                  "GenEx_BXD_CerebEt_RMA_0213", 
+                  "GenEx BXD EtOH Cerebellum Affy M430 2.0 (Feb13) RMA Both Sexes"
+               ], 
+               [
+                  "416", 
+                  "GenEx_BXD_CerebEt_RMA_F_0213", 
+                  "GenEx BXD EtOH Cerebellum Affy M430 2.0 (Feb13) RMA Females"
+               ], 
+               [
+                  "417", 
+                  "GenEx_BXD_CerebEt_RMA_M_0213", 
+                  "GenEx BXD EtOH Cerebellum Affy M430 2.0 (Feb13) RMA Males"
+               ], 
+               [
+                  "418", 
+                  "GenEx_BXD_CerebSal_RMA_0213", 
+                  "GenEx BXD Sal Cerebellum Affy M430 2.0 (Feb13) RMA Both Sexes"
+               ], 
+               [
+                  "419", 
+                  "GenEx_BXD_CerebSal_RMA_F_0213", 
+                  "GenEx BXD Sal Cerebellum Affy M430 2.0 (Feb13) RMA Females"
+               ], 
+               [
+                  "420", 
+                  "GenEx_BXD_CerebSal_RMA_M_0213", 
+                  "GenEx BXD Sal Cerebellum Affy M430 2.0 (Feb13) RMA Males"
                ]
             ], 
             "Eye mRNA": [
@@ -2297,6 +2989,21 @@
                   "597", 
                   "UTHSC_GutExL_0414", 
                   "UTHSC Mouse BXD Gastrointestinal Affy MoGene 1.0 ST Exon Level (Apr14) RMA"
+               ], 
+               [
+                  "839", 
+                  "EPFL-LISP_BXD_Col-CD+HFD0917", 
+                  "EPFL/LISP BXD CD+HFD Gastrointestinal Affy Clariom S GeneLevel Main (Sep17) RMA"
+               ], 
+               [
+                  "841", 
+                  "EPFL-LISP_BXD_Col-HFD0917", 
+                  "EPFL/LISP BXD HFD Gastrointestinal Affy Clariom S GeneLevel Main (Sep17) RMA"
+               ], 
+               [
+                  "840", 
+                  "EPFL-LISP_BXD_Col-CD0917", 
+                  "EPFL/LISP BXD CD Gastrointestinal Affy Clariom S GeneLevel Main (Sep17) RMA"
                ]
             ], 
             "Genotypes": [
@@ -2502,6 +3209,23 @@
                   "711", 
                   "UTHSC_BXD_AgeHipp0515", 
                   "UTHSC BXD Aged Hippocampus Affy MoGene1.0 ST (May15) RMA Gene Level"
+               ], 
+               [
+                  "393", 
+                  "UTHSC_BXD_HArev3_0912", 
+                  "UTHSC BXD Aged Hippocampus rev3 Affy Mouse Gene 1.0 ST (Sep12) RMA"
+               ], 
+               [
+                  "392", 
+                  "UTHSC_BXD_H_0912", 
+                  "UTHSC BXD Aged Hippocampus Affy Mouse Gene 1.0 ST (Sep12) RMA Exon Level"
+               ]
+            ], 
+            "Hippocampus microRNA": [
+               [
+                  "491", 
+                  "UTHSC_BXD_Hip_miRNASeq0214", 
+                  "UTHSC BXD Hippocampus Ion Torrent microRNA (Feb14) RPKM*"
                ]
             ], 
             "Hypothalamus mRNA": [
@@ -2578,6 +3302,30 @@
                   "Mouse Kidney M430v2 (Jul06) PDNN"
                ]
             ], 
+            "Leucocytes mRNA": [
+               [
+                  "218", 
+                  "Illum_BXD_PBL_1108", 
+                  "UWA Illumina PBL (Nov08) RSN*"
+               ]
+            ], 
+            "Liver DNAm": [
+               [
+                  "891", 
+                  "UTHSC-BXD-LivDNAm-1119", 
+                  "UTHSC BXD Liver CD-HFD DNAm (Nov19) Sesame"
+               ], 
+               [
+                  "892", 
+                  "UTHSC-BXD-LivHFDNAm-1119", 
+                  "UTHSC BXD Liver HFD DNAm (Nov19) Sesame"
+               ], 
+               [
+                  "893", 
+                  "UTHSC-BXD-LivCDNAm-1119", 
+                  "UTHSC BXD Liver CD DNAm (Nov19) Sesame"
+               ]
+            ], 
             "Liver Metabolome": [
                [
                   "835", 
@@ -2616,6 +3364,21 @@
                ]
             ], 
             "Liver Proteome": [
+               [
+                  "887", 
+                  "EPFL-ETHZ-BXD-LivProtAvg-CD-HF-1119", 
+                  "EPFL/ETHZ BXD Liver Proteome CD+HFD (Nov19)"
+               ], 
+               [
+                  "888", 
+                  "EPFL-ETHZ-BXD-LivProtAvg-CD-1119", 
+                  "EPFL/ETHZ BXD Liver Proteome CD (Nov19)"
+               ], 
+               [
+                  "889", 
+                  "EPFL-ETHZ-BXD-LivProtAvg-HFD-1119", 
+                  "EPFL/ETHZ BXD Liver Proteome HFD (Nov19)"
+               ], 
                [
                   "540", 
                   "EPFLETHZBXDprotCD0514", 
@@ -2684,6 +3447,21 @@
                   "NIA Aging BXD CD Liver RNA-Seq (Aug18) Log2"
                ], 
                [
+                  "851", 
+                  "NIA-AgBXD-Liv_CDHFD-0818", 
+                  "NIA Aging BXD CD+HFD Liver Affy Clariom S Gene Level (Aug18) RMA"
+               ], 
+               [
+                  "852", 
+                  "NIA-AgBXD-Liv_HFD-0818", 
+                  "NIA Aging BXD HFD Liver Affy Clariom S Gene Level (Aug18) RMA"
+               ], 
+               [
+                  "853", 
+                  "NIA-AgBXD-Liv_CD-0818", 
+                  "NIA Aging BXD CD Liver Affy Clariom S Gene Level (Aug18) RMA"
+               ], 
+               [
                   "818", 
                   "UCLA_BXD_Liv_Jan16", 
                   "UCLA BXD Liver Affy M430 2.0 (Jan16) RMA"
@@ -2699,6 +3477,11 @@
                   "EPFL/LISP BXD HFD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
                ], 
                [
+                  "849", 
+                  "EPFLMouseLiverCDEx0413", 
+                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
+               ], 
+               [
                   "848", 
                   "EPFLMouseLiverHFCEx0413", 
                   "EPFL/LISP BXD HFC Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
@@ -2707,11 +3490,6 @@
                   "432", 
                   "EPFLMouseLiverCDRMA0413", 
                   "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA"
-               ], 
-               [
-                  "849", 
-                  "EPFLMouseLiverCDEx0413", 
-                  "EPFL/LISP BXD CD Liver Affy Mouse Gene 1.0 ST (Apr13) RMA Exon Level"
                ], 
                [
                   "433", 
@@ -2799,6 +3577,26 @@
                   "161", 
                   "HZI_0408_M", 
                   "HZI Lung M430v2 (Apr08) MAS5"
+               ], 
+               [
+                  "807", 
+                  "HZI_LungBXD_RNA-Seq_1116", 
+                  "HZI Lung Flu Infected BXD (Nov16) RNA-Seq*"
+               ], 
+               [
+                  "598", 
+                  "HZI_PR8M-F_1014", 
+                  "HZI PR8M-Infected Lungs Females RNAseq (Oct14) RPKM Log2*"
+               ], 
+               [
+                  "387", 
+                  "HZI_PR8M_Q_0612", 
+                  "HZI PR8M-Infected Lungs Agilent4x44 (Apr12) Quantile Females"
+               ], 
+               [
+                  "424", 
+                  "HZI_LTCF_0313", 
+                  "HZI Lung Time Course Flu PR8M (Mar13) Schughart*"
                ]
             ], 
             "Midbrain mRNA": [
@@ -2806,6 +3604,23 @@
                   "381", 
                   "VUBXDMouseMidBrainQ0512", 
                   "VU BXD Midbrain Agilent SurePrint G3 Mouse GE (May12) Quantile"
+               ]
+            ], 
+            "Muscle Metabolome": [
+               [
+                  "476", 
+                  "EPFL-LISP_MusPMetCDHFD1213", 
+                  "EPFL/LISP BXD Muscle Polar Metabolites CD+HFD (Jun14)"
+               ], 
+               [
+                  "477", 
+                  "EPFL-LISP_MusPMetHFD1213", 
+                  "EPFL/LISP BXD Muscle Polar Metabolites HFD (Jun14)"
+               ], 
+               [
+                  "478", 
+                  "EPFL-LISP_MusPMetCD1213", 
+                  "EPFL/LISP BXD Muscle Polar Metabolites CD (Jun14)"
                ]
             ], 
             "Muscle mRNA": [
@@ -2877,11 +3692,68 @@
                   "BIDMC/UTHSC Dev Neocortex P3 ILMv6.2 (Nov10) RankInv"
                ]
             ], 
+            "Neutrophils mRNA": [
+               [
+                  "595", 
+                  "UTHSC-Neut-1014", 
+                  "UTHSC Elicited Peritoneal Neutrophils Affy MoGene 2.0 ST (Oct14) RMA"
+               ], 
+               [
+                  "596", 
+                  "UTHSC-Neut_EL-1014", 
+                  "UTHSC Elicited Peritoneal Neutrophils Affy MoGene 2.0 ST (Oct14) RMA Exon Level"
+               ]
+            ], 
             "Nucleus Accumbens mRNA": [
                [
                   "156", 
                   "VCUSalo_1007_R", 
                   "VCU BXD NAc Sal M430 2.0 (Oct07) RMA"
+               ], 
+               [
+                  "792", 
+                  "VCU_BXD_Nac_CIE_Air_0416", 
+                  "VCU BXD NAc CIE Air Masked ComBat M430 2.0 (Apr16) RMA"
+               ], 
+               [
+                  "793", 
+                  "VCU_BXD_Nac_CIE_AirZ_0416", 
+                  "VCU BXD NAc CIE Air Masked ComBat M430 2.0 (Apr16) RMA Z-score"
+               ], 
+               [
+                  "794", 
+                  "VCU_BXD_Nac_CIE_Et_0416", 
+                  "VCU BXD NAc CIE EtOH Masked ComBat M430 2.0 (Apr16) RMA"
+               ], 
+               [
+                  "795", 
+                  "VCU_BXD_Nac_CIE_EtZ_0416", 
+                  "VCU BXD NAc CIE EtOH Masked ComBat M430 2.0 (Apr16) RMA Z-score"
+               ], 
+               [
+                  "155", 
+                  "VCUEtOH_1007_R", 
+                  "VCU BXD NAc EtOH M430 2.0 (Oct07) RMA"
+               ], 
+               [
+                  "154", 
+                  "VCUSal_1007_R", 
+                  "VCU BXD NAc EtOH vs Sal M430 2.0 (Oct07) Sscore*"
+               ], 
+               [
+                  "409", 
+                  "VCU_NAc_Air_0113_R", 
+                  "VCU BXD NAc CIE Air M430 2.0 (Jan13) RMA"
+               ], 
+               [
+                  "408", 
+                  "VCU_NAc_Et_0113_R", 
+                  "VCU BXD NAc CIE EtOH M430 2.0 (Jan13) RMA"
+               ], 
+               [
+                  "407", 
+                  "VCU_NAc_AvE_0113_Ss", 
+                  "VCU BXD NAc EtOH vs CIE Air M430 2.0 (Jan13) Sscore*"
                ]
             ], 
             "Phenotypes": [
@@ -2918,7 +3790,44 @@
                   "INIA Pituitary Affy MoGene 1.0ST (Jun12) RMA Exon Level"
                ]
             ], 
+            "Popliteal Lymph Node mRNA": [
+               [
+                  "390", 
+                  "STJ_PLN_0912", 
+                  "St Jude BXD Popliteal Lymph Node Affy HT MG-430 PM (Sep12) RMA"
+               ]
+            ], 
             "Prefrontal Cortex mRNA": [
+               [
+                  "898", 
+                  "DOD-BXD-PFC-CD-RNA-Seq-ComB-1019", 
+                  "DOD BXD PFC GWI CD RNA-Seq ComB (Dec19) TPM Log2"
+               ], 
+               [
+                  "899", 
+                  "DOD-BXD-PFC-CTL-RNA-Seq-ComB-1019", 
+                  "DOD BXD PFC GWI CTL RNA-Seq ComB (Dec19) TPM Log2"
+               ], 
+               [
+                  "900", 
+                  "DOD-BXD-PFC-DFP-RNA-Seq-ComB-1019", 
+                  "DOD BXD PFC GWI DFP RNA-Seq ComB (Dec19) TPM Log2"
+               ], 
+               [
+                  "883", 
+                  "DOD-BXD-PFC-CD-RNA-Seq-1019", 
+                  "DOD BXD PFC GWI CD RNA-Seq (Oct19) TPM Log2"
+               ], 
+               [
+                  "884", 
+                  "DOD-BXD-PFC-CTL-RNA-Seq-1019", 
+                  "DOD BXD PFC GWI CTL RNA-Seq (Oct19) TPM Log2"
+               ], 
+               [
+                  "885", 
+                  "DOD-BXD-PFC-DFP-RNA-Seq-1019", 
+                  "DOD BXD PFC GWI DFP RNA-Seq (Oct19) TPM Log2"
+               ], 
                [
                   "135", 
                   "VCUSal_1206_R", 
@@ -2933,6 +3842,41 @@
                   "137", 
                   "VCUSal_1006_R", 
                   "VCU BXD PFC Et vs Sal M430 2.0 (Dec06) Sscore"
+               ], 
+               [
+                  "788", 
+                  "VCU_BXD_PFC_CIE_Air_0416", 
+                  "VCU BXD PFC CIE Air Masked ComBat M430 2.0 (Apr16) RMA"
+               ], 
+               [
+                  "789", 
+                  "VCU_BXD_PFC_CIE_AirZ_0416", 
+                  "VCU BXD PFC CIE Air Masked ComBat M430 2.0 (Apr16) RMA Z-score"
+               ], 
+               [
+                  "790", 
+                  "VCU_BXD_PFC_CIE_Et_0416", 
+                  "VCU BXD PFC CIE EtOH Masked ComBat M430 2.0 (Apr16) RMA"
+               ], 
+               [
+                  "791", 
+                  "VCU_BXD_PFC_CIE_EtZ_0416", 
+                  "VCU BXD PFC CIE EtOH Masked ComBat M430 2.0 (Apr16) RMA Z-score"
+               ], 
+               [
+                  "299", 
+                  "VCU_PF_AvE_0111_Ss", 
+                  "VCU BXD PFC EtOH vs CIE Air M430 2.0 (Jan11) Sscore*"
+               ], 
+               [
+                  "300", 
+                  "VCU_PF_Et_0111_R", 
+                  "VCU BXD PFC CIE EtOH M430 2.0 (Jan11) RMA"
+               ], 
+               [
+                  "301", 
+                  "VCU_PF_Air_0111_R", 
+                  "VCU BXD PFC CIE Air M430 2.0 (Jan11) RMA"
                ]
             ], 
             "Retina mRNA": [
@@ -2972,9 +3916,24 @@
                   "DoD Retina After Blast Affy MoGene 2.0 ST (Mar16) RMA Exon Level"
                ], 
                [
+                  "796", 
+                  "DoDRetBlastvsNormalEx_0416", 
+                  "DoD Retina Blast vs Normal Retina Affy MoGene 2.0 ST (Apr16) RMA Exon Level"
+               ], 
+               [
                   "385", 
                   "ONCRetILM6_0412", 
                   "ONC HEI Retina (April 2012) RankInv"
+               ], 
+               [
+                  "386", 
+                  "B6D2ONCILM_0412", 
+                  "B6D2 ONC Retina (April 2012) RankInv"
+               ], 
+               [
+                  "372", 
+                  "G2HEIONCRetILM6_0911", 
+                  "G2 HEI ONC Retina Illumina V6.2 (Sep11) RankInv"
                ], 
                [
                   "371", 
@@ -3027,6 +3986,11 @@
                   "227", 
                   "IoP_SPL_RMA_0509", 
                   "IoP Affy MOE 430v2 Spleen (May09) RMA"
+               ], 
+               [
+                  "216", 
+                  "Illum_BXD_Spl_1108", 
+                  "UWA Illumina Spleen (Nov08) RSN*"
                ]
             ], 
             "Striatum mRNA": [
@@ -3105,6 +4069,13 @@
                   "HZI Treg M430v2 (Feb11) RMA"
                ]
             ], 
+            "Thymus mRNA": [
+               [
+                  "217", 
+                  "Illum_BXD_Thy_1108", 
+                  "UWA Illumina Thymus (Nov08) RSN*"
+               ]
+            ], 
             "Ventral Tegmental Area mRNA": [
                [
                   "228", 
@@ -3140,11 +4111,25 @@
                   "BXD-Harvested Genotypes"
                ]
             ], 
-            "Hippocampus mRNA": [
+            "Hippocampus Proteome": [
                [
                   "873", 
                   "JAX-BXD-Hip-Pro-0219", 
                   "JAX BXD Hippocampal Proteome (Feb19)"
+               ]
+            ], 
+            "Liver DNAm": [
+               [
+                  "890", 
+                  "INIA-BXD-LivDNAm-1119", 
+                  "INIA BXD Liver DNAm CD-HFD (Nov19) Sesame"
+               ]
+            ], 
+            "Liver Proteome": [
+               [
+                  "886", 
+                  "EPFL-ETHZ-BXD-LivProtCD-HF-1119", 
+                  "EPFL/ETHZ BXD Liver Proteome CD-HFD (Nov19)"
                ]
             ], 
             "Liver mRNA": [
@@ -3154,14 +4139,24 @@
                   "UTHSC BXD Harvested Liver RNA-Seq (Oct19) TPM Log2"
                ], 
                [
+                  "850", 
+                  "UTHSC-BXD-Liv-0818", 
+                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Aug18) RMA"
+               ], 
+               [
                   "843", 
                   "UTHSC-BXD-Harv_Liv-0118", 
                   "UTHSC BXD Harvested Liver RNA-Seq (Aug18) Log2"
+               ], 
+               [
+                  "842", 
+                  "UTHSC-BXD-Liv-0917", 
+                  "UTHSC BXD Liver Affy Clariom S GeneLevel Main (Sep17) RMA"
                ]
             ], 
             "Phenotypes": [
                [
-                  "None", 
+                  "660", 
                   "BXD-HarvestedPublish", 
                   "BXD-NIA-Longevity Phenotypes"
                ]
@@ -3263,6 +4258,29 @@
                ]
             ]
          }, 
+         "CC": {
+            "Genotypes": [
+               [
+                  "663", 
+                  "CCGeno", 
+                  "CC Genotypes"
+               ]
+            ], 
+            "Midbrain mRNA": [
+               [
+                  "894", 
+                  "LSRU-CC-ST-1219", 
+                  "LSRU CC Male Midbrain RNA-Seq (Dec19) TPM Log2"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "662", 
+                  "CCPublish", 
+                  "CC Phenotypes"
+               ]
+            ]
+         }, 
          "CFW": {
             "Hippocampus mRNA": [
                [
@@ -3360,9 +4378,35 @@
                   "CIE-RMAPublish", 
                   "CIE-RMA Phenotypes"
                ]
+            ], 
+            "Prefrontal Cortex mRNA": [
+               [
+                  "832", 
+                  "INIA_UTHSC_PFC_AffyMTA1_May17", 
+                  "INIA-UTHSC Prefrontal Cortex CIE Affy MTA 1.0 GeneLevel (Apr17) RMA"
+               ]
+            ], 
+            "Striatum mRNA": [
+               [
+                  "833", 
+                  "INIA_UTHSC_Str_AffyMTA1_May17", 
+                  "INIA-UTHSC Striatum CIE Affy MTA 1.0 GeneLevel (Apr17) RMA"
+               ]
             ]
          }, 
          "CMS": {
+            "Hippocampus mRNA": [
+               [
+                  "771", 
+                  "CMS_Hipp1115", 
+                  "Hippocampus Mouse Transcriptome Assay 1.0 Gene Level Main (Nov15) RMA"
+               ], 
+               [
+                  "800", 
+                  "CMS_Hipp_ZScr_1115", 
+                  "Hippocampus Mouse Transcriptome Assay 1.0 Gene Level Z-Score (Nov15) RMA"
+               ]
+            ], 
             "Phenotypes": [
                [
                   "None", 
@@ -3520,6 +4564,92 @@
                ]
             ]
          }, 
+         "DOD-BXD-GWI": {
+            "Genotypes": [
+               [
+                  "None", 
+                  "DOD-BXD-GWIGeno", 
+                  "DOD-BXD-GWI Genotypes"
+               ]
+            ], 
+            "Prefrontal Cortex mRNA": [
+               [
+                  "895", 
+                  "DOD-BXD-Ind-PFC-CD-RNA-Seq-ComB-1019", 
+                  "DOD BXD INDV PFC GWI CD RNA-Seq ComB (Dec19) TPM Log2"
+               ], 
+               [
+                  "896", 
+                  "DOD-BXD-Ind-PFC-CTL-RNA-Seq-ComB-1019", 
+                  "DOD BXD INDV PFC GWI CTL RNA-Seq ComB (Dec19) TPM Log2"
+               ], 
+               [
+                  "897", 
+                  "DOD-BXD-Ind-PFC-DFP-RNA-Seq-ComB-1019", 
+                  "DOD BXD INDV PFC GWI DFP RNA-Seq ComB (Dec19) TPM Log2"
+               ], 
+               [
+                  "880", 
+                  "DOD-BXD-Ind-PFC-CD-RNA-Seq-1019", 
+                  "DOD BXD INDV PFC GWI CD RNA-Seq (Oct19) TPM Log2"
+               ], 
+               [
+                  "881", 
+                  "DOD-BXD-Ind-PFC-CTL-RNA-Seq-1019", 
+                  "DOD BXD INDV PFC GWI CTL RNA-Seq (Oct19) TPM Log2"
+               ], 
+               [
+                  "882", 
+                  "DOD-BXD-Ind-PFC-DFP-RNA-Seq-1019", 
+                  "DOD BXD INDV PFC GWI DFP RNA-Seq (Oct19) TPM Log2"
+               ]
+            ]
+         }, 
+         "EMSR": {
+            "Hippocampus mRNA": [
+               [
+                  "825", 
+                  "UTHSC_EMSR_All_AffyMTA1_Mar17", 
+                  "UTHSC Hippocampus All Treatments Affy MTA 1.0 Gene Level (Mar17) RMA"
+               ], 
+               [
+                  "826", 
+                  "UTHSC_EMSR_Sal_AffyMTA1_Mar17", 
+                  "UTHSC Hippocampus Saline Affy MTA 1.0 Gene Level (Mar17) RMA"
+               ], 
+               [
+                  "827", 
+                  "UTHSC_EMSR_Et_AffyMTA1_Mar17", 
+                  "UTHSC Hippocampus Ethanol Affy MTA 1.0 Gene Level (Mar17) RMA"
+               ], 
+               [
+                  "828", 
+                  "UTHSC_EMSR_St_AffyMTA1_Mar17", 
+                  "UTHSC Hippocampus Stress Affy MTA 1.0 Gene Level (Mar17) RMA"
+               ], 
+               [
+                  "829", 
+                  "UTHSC_EMSR_EtSt_AffyMTA1_Mar17", 
+                  "UTHSC Hippocampus Ethanol-Stress Affy MTA 1.0 Gene Level (Mar17) RMA"
+               ]
+            ]
+         }, 
+         "HET3-ITP": {
+            "Genotypes": [
+               [
+                  "None", 
+                  "HET3-ITPGeno", 
+                  "HET3-ITP Genotypes"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "661", 
+                  "HET3-ITPPublish", 
+                  "HET3 ITP Longevity Phenotypes"
+               ]
+            ]
+         }, 
          "HS": {
             "Hippocampus mRNA": [
                [
@@ -3559,16 +4689,123 @@
                ]
             ]
          }, 
-         "LGSM-AIG34_50-56-GBS": {
+         "JAX-D2-Mono-RNA-Seq": {
+            "Retina mRNA": [
+               [
+                  "878", 
+                  "JAX-D2-Mono1vPBMC-Ret-RNA-Seq-0619", 
+                  "JAX DBA/2J Monocyte 1 vs PBMC RNA-Seq (Jun19)"
+               ], 
+               [
+                  "879", 
+                  "JAX-D2-Mono2vPBMC-Ret-RNA-Seq-0619", 
+                  "JAX DBA/2J Monocyte 2 vs PBMC RNA-Seq (Jun19)"
+               ]
+            ]
+         }, 
+         "LGSM-AI": {
+            "Hippocampus mRNA": [
+               [
+                  "874", 
+                  "UCSD_AIL_HIP_RNA-Seq_log2_0418", 
+                  "UCSD AIL Hippocampus (Apr18) RNA-Seq Log2"
+               ], 
+               [
+                  "844", 
+                  "UCSD_AIL_HIP_RNA-Seq_0418", 
+                  "UCSD AIL Hippocampus (Apr18) RNA-Seq"
+               ]
+            ], 
             "Phenotypes": [
                [
                   "None", 
+                  "LGSM-AIPublish", 
+                  "LGSM AI Phenotypes"
+               ]
+            ], 
+            "Prefrontal Cortex mRNA": [
+               [
+                  "876", 
+                  "UCSD_AIL_PFC_RNA-Seq_log2_0418", 
+                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq Log2"
+               ], 
+               [
+                  "846", 
+                  "UCSD_AIL_PFC_RNA-Seq_0418", 
+                  "UCSD AIL Prefrontal Cortex (Apr18) RNA-Seq"
+               ]
+            ], 
+            "Striatum mRNA": [
+               [
+                  "875", 
+                  "UCSD_AIL_STR_RNA-Seq_log2_0418", 
+                  "UCSD AIL Striatum (Apr18) RNA-Seq Log2"
+               ], 
+               [
+                  "845", 
+                  "UCSD_AIL_STR_RNA-Seq_0418", 
+                  "UCSD AIL Striatum (Apr18) RNA-Seq"
+               ]
+            ]
+         }, 
+         "LGSM-AI-G34-A": {
+            "Phenotypes": [
+               [
+                  "655", 
+                  "LGSM-AI-G34-APublish", 
+                  "LGSM AI G34 Phenotypes"
+               ]
+            ]
+         }, 
+         "LGSM-AI-G34-GBS": {
+            "Phenotypes": [
+               [
+                  "656", 
+                  "LGSM-AI-G34-GBSPublish", 
+                  "LGSM AI G34 GBS Phenotypes"
+               ]
+            ]
+         }, 
+         "LGSM-AI-G34_39-43-GBS": {
+            "Phenotypes": [
+               [
+                  "657", 
+                  "LGSM-AI-G34_39-43-GBSPublish", 
+                  "LGSM AI G34 G39-43 GBS Phenotypes"
+               ]
+            ]
+         }, 
+         "LGSM-AI-G39-43-GBS": {
+            "Phenotypes": [
+               [
+                  "654", 
+                  "LGSM-AI-G39-43-GBSPublish", 
+                  "LGSM AI G39-43 GBS Phenotypes"
+               ]
+            ]
+         }, 
+         "LGSM-AIG34_50-56-GBS": {
+            "Phenotypes": [
+               [
+                  "659", 
                   "LGSM-AIG34_50-56-GBSPublish", 
-                  "LGSM AIG34/50-56 GBS Phenotypes"
+                  "LGSM AI G34/50-56 GBS Phenotypes"
                ]
             ]
          }, 
          "LXS": {
+            "Brain mRNA": [
+               [
+                  "783", 
+                  "UCAMC_LXSBrEtOH_RNA-Seq_0216", 
+                  "UCAMC LXS Whole Brain Ethanol RNA Sequence (Feb16) FPKM*"
+               ], 
+               [
+                  "784", 
+                  "UCAMC_LXSBrSal_RNA-Seq_0216", 
+                  "UCAMC LXS Whole Brain Saline RNA Sequence (Feb16) FPKM*"
+               ]
+            ], 
             "Genotypes": [
                [
                   "601", 
@@ -3577,6 +4814,11 @@
                ]
             ], 
             "Hippocampus mRNA": [
+               [
+                  "214", 
+                  "Illum_LXS_Hipp_NOE_1008", 
+                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
+               ], 
                [
                   "211", 
                   "Illum_LXS_Hipp_RSS_1008", 
@@ -3596,11 +4838,6 @@
                   "212", 
                   "Illum_LXS_Hipp_RSE_1008", 
                   "Hippocampus Illumina RSE (Oct08) RankInv beta"
-               ], 
-               [
-                  "214", 
-                  "Illum_LXS_Hipp_NOE_1008", 
-                  "Hippocampus Illumina NOE (Oct08) RankInv beta"
                ], 
                [
                   "143", 
@@ -3650,6 +4887,16 @@
                   "130", 
                   "VCUSal_0806_R", 
                   "VCU LXS PFC Sal M430A 2.0 (Aug06) RMA"
+               ], 
+               [
+                  "132", 
+                  "VCUEt_vs_Sal_0806_R", 
+                  "VCU LXS PFC Et vs Sal M430A 2.0 (Aug06) Sscore*"
+               ], 
+               [
+                  "131", 
+                  "VCUEtOH_0806_R", 
+                  "VCU LXS PFC EtOH M430A 2.0 (Aug06) RMA"
                ]
             ]
          }, 
@@ -3701,6 +4948,11 @@
                   "273", 
                   "UMUTAffyExon_0209_RMA_MDP", 
                   "UMUTAffy Hippocampus Exon (Feb09) RMA MDP"
+               ], 
+               [
+                  "594", 
+                  "UFL-MDP-Hipp0814", 
+                  "UFL MDP Hippocampus Antidepressant Affy Mouse 430 2.0 (Aug14) RMA"
                ]
             ], 
             "Liver mRNA": [
@@ -3795,6 +5047,36 @@
                   "SOTNOT-OHSU Genotypes"
                ]
             ]
+         }, 
+         "Scripps-2013": {
+            "Anterior Cingulate Cortex mRNA": [
+               [
+                  "450", 
+                  "ScrBXDACC4G0513", 
+                  "Scripps BXD ACC 4 Groups Affy Mouse Gene 1.0 ST (May13) RMA Gene Level"
+               ], 
+               [
+                  "451", 
+                  "ScrBXDACC4GEx0513", 
+                  "Scripps BXD ACC 4 Groups Affy Mouse Gene 1.0 ST (May13) RMA Exon Level"
+               ]
+            ]
+         }, 
+         "UTHSC-Cannabinoid": {
+            "Genotypes": [
+               [
+                  "None", 
+                  "UTHSC-CannabinoidGeno", 
+                  "UTHSC-Cannabinoid Genotypes"
+               ]
+            ], 
+            "Phenotypes": [
+               [
+                  "None", 
+                  "UTHSC-CannabinoidPublish", 
+                  "UTHSC Cannabinoid Pilot Phenotypes"
+               ]
+            ]
          }
       }, 
       "poplar": {
@@ -3809,22 +5091,6 @@
          }
       }, 
       "rat": {
-         "HRDP": {
-            "Genotypes": [
-               [
-                  "None", 
-                  "HRDPGeno", 
-                  "HRDP Genotypes"
-               ]
-            ], 
-            "Phenotypes": [
-               [
-                  "None", 
-                  "HRDPPublish", 
-                  "HRDP Phenotypes"
-               ]
-            ]
-         }, 
          "HSNIH-Palmer": {
             "Infralimbic Cortex mRNA": [
                [
@@ -4011,295 +5277,404 @@
       "arabidopsis": [
          [
             "BayXSha", 
-            "BayXSha"
+            "BayXSha", 
+            "Family:None"
          ], 
          [
             "ColXBur", 
-            "ColXBur"
+            "ColXBur", 
+            "Family:None"
          ], 
          [
             "ColXCvi", 
-            "ColXCvi"
+            "ColXCvi", 
+            "Family:None"
          ]
       ], 
       "barley": [
          [
             "QSM", 
-            "QSM"
+            "QSM", 
+            "Family:None"
          ], 
          [
             "SXM", 
-            "SXM"
+            "SXM", 
+            "Family:None"
          ]
       ], 
       "drosophila": [
          [
             "DGRP", 
-            "Drosophila Genetic Reference Panel"
+            "Drosophila Genetic Reference Panel", 
+            "Family:None"
          ], 
          [
             "Oregon-R_x_2b3", 
-            "Oregon-R x 2b3"
+            "Oregon-R x 2b3", 
+            "Family:None"
          ]
       ], 
       "human": [
          [
             "HB", 
-            "Brain, Aging: AD, HD, Normal Gene Expression (Harvard/Merck)"
+            "Brain, Aging: AD, HD, Normal Gene Expression (Harvard/Merck)", 
+            "Family:None"
          ], 
          [
             "AD-cases-controls", 
-            "Brain, Aging: AD, Normal Gene Expression (Liang)"
+            "Brain, Aging: AD, Normal Gene Expression (Liang)", 
+            "Family:None"
          ], 
          [
             "AD-cases-controls-Myers", 
-            "Brain, Aging: AD, Normal Gene Expression with Genotypes (Myers)"
+            "Brain, Aging: AD, Normal Gene Expression with Genotypes (Myers)", 
+            "Family:None"
          ], 
          [
             "Aging-Brain-UCI", 
-            "Brain, Aging: Normal Gene Expression (UCI/Cotman)"
+            "Brain, Aging: Normal Gene Expression (UCI/Cotman)", 
+            "Family:None"
          ], 
          [
             "HCP", 
-            "Brain, Cognition, Human Connectome Project"
+            "Brain, Cognition, Human Connectome Project", 
+            "Family:None"
          ], 
          [
             "HSB", 
-            "Brain, Development: Normal Gene Expression (Yale/Sestan)"
+            "Brain, Development: Normal Gene Expression (Yale/Sestan)", 
+            "Family:None"
          ], 
          [
             "Brain-Normal-NIH-Gibbs", 
-            "Brain: Normal Gene Expression (NIH/Gibbs)"
+            "Brain: Normal Gene Expression (NIH/Gibbs)", 
+            "Family:None"
          ], 
          [
             "CANDLE", 
-            "Child Development: CANDLE Cohort with Genotypes (TUCI/UTHSC)"
+            "Child Development: CANDLE Cohort with Genotypes (TUCI/UTHSC)", 
+            "Family:None"
          ], 
          [
             "GTEx", 
-            "GTEx v3 All Tissues, RNA-Seq with Genotypes"
+            "GTEx v3 All Tissues, RNA-Seq with Genotypes", 
+            "Family:None"
          ], 
          [
             "GTEx_v5", 
-            "GTEx v5 All Tissues, RNA-Seq with Genotypes"
+            "GTEx v5 All Tissues, RNA-Seq with Genotypes", 
+            "Family:None"
+         ], 
+         [
+            "GTEx_v8", 
+            "GTEx v8 All Tissues, RNA-Seq without Genotypes", 
+            "Family:None"
          ], 
          [
             "HLC", 
-            "Liver: Normal Gene Expression with Genotypes (Merck)"
+            "Liver: Normal Gene Expression with Genotypes (Merck)", 
+            "Family:None"
          ], 
          [
             "HLT", 
-            "Lung: Normal Gene Expression (Merck)"
+            "Lung: Normal Gene Expression (Merck)", 
+            "Family:None"
          ], 
          [
             "CEPH-2004", 
-            "Lymphoblastoid Cells: Gene Expression (CEPH, Williams)"
+            "Lymphoblastoid Cells: Gene Expression (CEPH, Williams)", 
+            "Family:None"
          ], 
          [
             "Islets-Gerling", 
-            "Pancreatic: Islets (UTHSC/Gerling)"
+            "Pancreatic: Islets (UTHSC/Gerling)", 
+            "Family:None"
          ], 
          [
             "TIGEM-Retina-RNA-Seq", 
-            "Retina: Normal Adult Gene Expression, RNA-Seq (TIGEM)"
+            "Retina: Normal Adult Gene Expression, RNA-Seq (TIGEM)", 
+            "Family:None"
          ]
       ], 
       "mouse": [
          [
-            "AIL", 
-            "AIL Advanced Intercross Line"
-         ], 
-         [
-            "AIL-LGSM-F34-A", 
-            "AIL LGSM F34 (Array)"
-         ], 
-         [
-            "AIL-LGSM-F34-GBS", 
-            "AIL LGSM F34 (GBS)"
-         ], 
-         [
-            "AIL-LGSM-F34-F39-43-GBS", 
-            "AIL LGSM F34 and F39-43 (GBS)"
-         ], 
-         [
-            "AIL-LGSM-F39-43-GBS", 
-            "AIL LGSM F39-43 (GBS)"
-         ], 
-         [
             "AKXD", 
-            "AKXD RI Family"
+            "AKXD Family", 
+            "Family:Reference Populations"
          ], 
          [
             "AXBXA", 
-            "AXB/BXA RI Family"
-         ], 
-         [
-            "B6BTBRF2", 
-            "B6BTBRF2"
-         ], 
-         [
-            "Linsenbardt-Boehm", 
-            "B6D2 EtOH Selected Advanced Intercross"
-         ], 
-         [
-            "B6D2F2", 
-            "B6D2F2"
-         ], 
-         [
-            "B6D2F2-PSU", 
-            "B6D2F2 PSU"
-         ], 
-         [
-            "BDF2-1999", 
-            "BDF2 UCLA"
-         ], 
-         [
-            "BDF2-2005", 
-            "BDF2-2005"
-         ], 
-         [
-            "BHHBF2", 
-            "BH/HB F2 UCLA"
-         ], 
-         [
-            "BHF2", 
-            "BHF2 (Apoe Null) UCLA"
-         ], 
-         [
-            "B6D2RI", 
-            "BXD Aged"
-         ], 
-         [
-            "BXD-Bone", 
-            "BXD Bone Individual Data"
-         ], 
-         [
-            "BXD-Harvested", 
-            "BXD NIA Longevity Study"
+            "AXB/BXA Family", 
+            "Family:Reference Populations"
          ], 
          [
             "BXD", 
-            "BXD RI Family"
-         ], 
-         [
-            "BXD300", 
-            "BXD300"
+            "BXD Family", 
+            "Family:Reference Populations"
          ], 
          [
             "BXH", 
-            "BXH RI Family"
+            "BXH Family", 
+            "Family:Reference Populations"
          ], 
          [
-            "CTB6F2", 
-            "CastB6/B6Cast F2 UCLA"
-         ], 
-         [
-            "CFW", 
-            "CFW Outbred GWAS"
-         ], 
-         [
-            "CIE-INIA", 
-            "Chronic Intermittent Ethanol Phase 1"
-         ], 
-         [
-            "CIE-RMA", 
-            "Chronic Intermittent Ethanol Phase 2"
-         ], 
-         [
-            "CMS", 
-            "Chronic Mild Stress"
+            "CC", 
+            "CC Family", 
+            "Family:Reference Populations"
          ], 
          [
             "CXB", 
-            "CXB RI Family (strain means)"
-         ], 
-         [
-            "D2GM", 
-            "D2 Glaucoma Model"
-         ], 
-         [
-            "B6D2", 
-            "Glaucoma and Aged Retina, UTHSC"
-         ], 
-         [
-            "HS", 
-            "Heterogeneous Stock"
-         ], 
-         [
-            "HS-CC", 
-            "Heterogeneous Stock Collaborative Cross"
+            "CXB Family", 
+            "Family:Reference Populations"
          ], 
          [
             "LXS", 
-            "ILSXISS (LXS) RI Family (strain means)"
-         ], 
-         [
-            "LGSM-AIG34_50-56-GBS", 
-            "LGSM AI G34/50-56 Lionikas (GBS)"
+            "ILSXISS (LXS) Family", 
+            "Family:Reference Populations"
          ], 
          [
             "MDP", 
-            "Mouse Diversity Panel (strain means)"
+            "Mouse Diversity Panel", 
+            "Family:Reference Populations"
          ], 
          [
-            "NZBXFVB-N2", 
-            "NZB/FVB N2 NCI"
+            "B6D2RI", 
+            "BXD Aged Hippocampus", 
+            "Family:BXD Individual Data"
          ], 
          [
-            "C57BL-6JxC57BL-6NJF2", 
-            "Reduced Complexity Cross (B6JxB6N F2)"
+            "BXD-Bone", 
+            "BXD Bone Individual Data", 
+            "Family:BXD Individual Data"
          ], 
          [
-            "Retina-RGC-Rheaume", 
-            "Retina RGC Rheaume"
+            "DOD-BXD-GWI", 
+            "BXD DOD Gulf War Illness", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "BXD-Harvested", 
+            "BXD NIA Longevity Study", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "UTHSC-Cannabinoid", 
+            "BXD UTHSC Cannabinoid Pilot", 
+            "Family:BXD Individual Data"
+         ], 
+         [
+            "B6BTBRF2", 
+            "B6BTBRF2", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BHHBF2", 
+            "B6C3HF2 UCLA Metabolism", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BHF2", 
+            "B6C3HF2(APOE-) UCLA Metabolism", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "Linsenbardt-Boehm", 
+            "B6D2 EtOH Selected Advanced Intercross", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "B6D2F2", 
+            "B6D2F2 OHSU Brain", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BDF2-2005", 
+            "B6D2F2 OHSU Striatum", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "B6D2F2-PSU", 
+            "B6D2F2 PSU Muscle", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "BDF2-1999", 
+            "B6D2F2 UCLA Liver", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "CTB6F2", 
+            "CastB6/B6Cast F2 UCLA", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "CFW", 
+            "CFW Outbred GWAS", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "HET3-ITP", 
+            "HET3 ITP Longevity", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "HS", 
+            "Heterogeneous Stock", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "HS-CC", 
+            "Heterogeneous Stock Collaborative Cross", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G34_39-43-GBS", 
+            "LGSM AI G34 G39-43 Palmer (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G34-A", 
+            "LGSM AI G34 Palmer (Array)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G34-GBS", 
+            "LGSM AI G34 Palmer (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AIG34_50-56-GBS", 
+            "LGSM AI G34/50-56 Lionikas (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI-G39-43-GBS", 
+            "LGSM AI G39-43 Palmer (GBS)", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "LGSM-AI", 
+            "LGSM AI Palmer", 
+            "Family:Crosses, AIL, HS"
          ], 
          [
             "SOTNOT-OHSU", 
-            "SOTNOT-OHSU"
+            "SOTNOT-OHSU", 
+            "Family:Crosses, AIL, HS"
+         ], 
+         [
+            "B6-Lens", 
+            "B6 Lens", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "CIE-INIA", 
+            "Chronic Intermittent Ethanol Phase 1", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "CIE-RMA", 
+            "Chronic Intermittent Ethanol Phase 2", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "CMS", 
+            "Chronic Mild Stress", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "D2GM", 
+            "D2 Glaucoma Model", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "JAX-D2-Mono-RNA-Seq", 
+            "D2 Glaucoma Monocyte JAX", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "EMSR", 
+            "Ethanol-Medicated Stress Reduction", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "B6D2", 
+            "Glaucoma and Aged Retina UTHSC", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "NZBXFVB-N2", 
+            "NZB/FVB N2 NCI", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "C57BL-6JxC57BL-6NJF2", 
+            "Reduced Complexity Cross (B6JxB6N F2)", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "Retina-RGC-Rheaume", 
+            "Retina RGC Rheaume", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "Scripps-2013", 
+            "Scripps C57BL/6J", 
+            "Family:Non-genetic Cohort"
+         ], 
+         [
+            "BXD300", 
+            "BXD300", 
+            "Family:None"
          ]
       ], 
       "poplar": [
          [
             "Poplar", 
-            "Poplar"
+            "Poplar", 
+            "Family:None"
          ]
       ], 
       "rat": [
          [
             "HXBBXH", 
-            "HXB/BXH"
-         ], 
-         [
-            "HRDP", 
-            "Hybrid Rat Diversity Panel"
+            "Hybrid Rat Diversity Panel (Includes HXB/BXH)", 
+            "Family:None"
          ], 
          [
             "HSNIH-Palmer", 
-            "NIH Heterogeneous Stock (Palmer)"
+            "NIH Heterogeneous Stock (Palmer)", 
+            "Family:None"
          ], 
          [
             "HSNIH-RGSMC", 
-            "NIH Heterogeneous Stock (RGSMC 2013)"
+            "NIH Heterogeneous Stock (RGSMC 2013)", 
+            "Family:None"
          ], 
          [
             "SRxSHRSPF2", 
-            "UIOWA SRxSHRSP F2"
+            "UIOWA SRxSHRSP F2", 
+            "Family:None"
          ]
       ], 
       "soybean": [
          [
             "J12XJ58F11", 
-            "J12XJ58F11"
+            "J12XJ58F11", 
+            "Family:None"
          ], 
          [
             "J12XJ58F2", 
-            "J12XJ58F2"
+            "J12XJ58F2", 
+            "Family:None"
          ]
       ], 
       "tomato": [
          [
             "LXP", 
-            "LXP"
+            "LXP", 
+            "Family:None"
          ]
       ]
    }, 
@@ -4481,6 +5856,10 @@
                "Phenotypes"
             ], 
             [
+               "Methylation", 
+               "Methylation"
+            ], 
+            [
                "Newborn Cord Blood mRNA", 
                "Newborn Cord Blood mRNA"
             ]
@@ -4493,12 +5872,12 @@
          ], 
          "GTEx": [
             [
-               "Adipose tissue, subcutaneous mRNA", 
-               "Adipose tissue, subcutaneous mRNA"
+               "Adipose Tissue, Subcutaneous mRNA", 
+               "Adipose Tissue, Subcutaneous mRNA"
             ], 
             [
-               "Adipose tissue, visceral mRNA", 
-               "Adipose tissue, visceral mRNA"
+               "Adipose Tissue, Visceral mRNA", 
+               "Adipose Tissue, Visceral mRNA"
             ], 
             [
                "Adrenal Gland mRNA", 
@@ -4687,12 +6066,12 @@
                "Phenotypes"
             ], 
             [
-               "Adipose tissue, subcutaneous mRNA", 
-               "Adipose tissue, subcutaneous mRNA"
+               "Adipose Tissue, Subcutaneous mRNA", 
+               "Adipose Tissue, Subcutaneous mRNA"
             ], 
             [
-               "Adipose tissue, visceral mRNA", 
-               "Adipose tissue, visceral mRNA"
+               "Adipose Tissue, Visceral mRNA", 
+               "Adipose Tissue, Visceral mRNA"
             ], 
             [
                "Adrenal Gland mRNA", 
@@ -4777,6 +6156,208 @@
             [
                "Fallopian Tube mRNA", 
                "Fallopian Tube mRNA"
+            ], 
+            [
+               "Frontal Cortex mRNA", 
+               "Frontal Cortex mRNA"
+            ], 
+            [
+               "Heart - Atrial Appendage mRNA", 
+               "Heart - Atrial Appendage mRNA"
+            ], 
+            [
+               "Heart - Left Ventricle mRNA", 
+               "Heart - Left Ventricle mRNA"
+            ], 
+            [
+               "Hippocampus mRNA", 
+               "Hippocampus mRNA"
+            ], 
+            [
+               "Hypothalamus mRNA", 
+               "Hypothalamus mRNA"
+            ], 
+            [
+               "Kidney mRNA", 
+               "Kidney mRNA"
+            ], 
+            [
+               "Liver mRNA", 
+               "Liver mRNA"
+            ], 
+            [
+               "Lung mRNA", 
+               "Lung mRNA"
+            ], 
+            [
+               "Muscle mRNA", 
+               "Muscle mRNA"
+            ], 
+            [
+               "Nerve - Tibial mRNA", 
+               "Nerve - Tibial mRNA"
+            ], 
+            [
+               "Nucleus Accumbens mRNA", 
+               "Nucleus Accumbens mRNA"
+            ], 
+            [
+               "Ovary mRNA", 
+               "Ovary mRNA"
+            ], 
+            [
+               "Pancreas mRNA", 
+               "Pancreas mRNA"
+            ], 
+            [
+               "Pituitary Gland mRNA", 
+               "Pituitary Gland mRNA"
+            ], 
+            [
+               "Prostate mRNA", 
+               "Prostate mRNA"
+            ], 
+            [
+               "Putamen mRNA", 
+               "Putamen mRNA"
+            ], 
+            [
+               "Salivary Gland mRNA", 
+               "Salivary Gland mRNA"
+            ], 
+            [
+               "Skin - Not Sun Exposed (Suprapubic) mRNA", 
+               "Skin - Not Sun Exposed (Suprapubic) mRNA"
+            ], 
+            [
+               "Skin - Sun Exposed (Lower leg) mRNA", 
+               "Skin - Sun Exposed (Lower leg) mRNA"
+            ], 
+            [
+               "Small Intestine - Terminal Ileum mRNA", 
+               "Small Intestine - Terminal Ileum mRNA"
+            ], 
+            [
+               "Spinal Cord mRNA", 
+               "Spinal Cord mRNA"
+            ], 
+            [
+               "Spleen mRNA", 
+               "Spleen mRNA"
+            ], 
+            [
+               "Stomach mRNA", 
+               "Stomach mRNA"
+            ], 
+            [
+               "Substantia Nigra mRNA", 
+               "Substantia Nigra mRNA"
+            ], 
+            [
+               "Testis mRNA", 
+               "Testis mRNA"
+            ], 
+            [
+               "Thyroid mRNA", 
+               "Thyroid mRNA"
+            ], 
+            [
+               "Tibial mRNA", 
+               "Tibial mRNA"
+            ], 
+            [
+               "Uterus mRNA", 
+               "Uterus mRNA"
+            ], 
+            [
+               "Vagina mRNA", 
+               "Vagina mRNA"
+            ], 
+            [
+               "Whole Blood mRNA", 
+               "Whole Blood mRNA"
+            ]
+         ], 
+         "GTEx_v8": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ], 
+            [
+               "Adipose Tissue, Subcutaneous mRNA", 
+               "Adipose Tissue, Subcutaneous mRNA"
+            ], 
+            [
+               "Adipose Tissue, Visceral mRNA", 
+               "Adipose Tissue, Visceral mRNA"
+            ], 
+            [
+               "Adrenal Gland mRNA", 
+               "Adrenal Gland mRNA"
+            ], 
+            [
+               "Amygdala mRNA", 
+               "Amygdala mRNA"
+            ], 
+            [
+               "Anterior Cingulate Cortex mRNA", 
+               "Anterior Cingulate Cortex mRNA"
+            ], 
+            [
+               "Aorta mRNA", 
+               "Aorta mRNA"
+            ], 
+            [
+               "Breast - Mammary Tissue mRNA", 
+               "Breast - Mammary Tissue mRNA"
+            ], 
+            [
+               "Caudate mRNA", 
+               "Caudate mRNA"
+            ], 
+            [
+               "Cells - EBV-Transformed Lymphocytes mRNA", 
+               "Cells - EBV-Transformed Lymphocytes mRNA"
+            ], 
+            [
+               "Cells - Transformed Fibroblasts mRNA", 
+               "Cells - Transformed Fibroblasts mRNA"
+            ], 
+            [
+               "Cerebellar Cortex mRNA", 
+               "Cerebellar Cortex mRNA"
+            ], 
+            [
+               "Cerebellar Hemisphere mRNA", 
+               "Cerebellar Hemisphere mRNA"
+            ], 
+            [
+               "Cerebellum mRNA", 
+               "Cerebellum mRNA"
+            ], 
+            [
+               "Colon - Sigmoid mRNA", 
+               "Colon - Sigmoid mRNA"
+            ], 
+            [
+               "Colon - Transverse mRNA", 
+               "Colon - Transverse mRNA"
+            ], 
+            [
+               "Coronary mRNA", 
+               "Coronary mRNA"
+            ], 
+            [
+               "Esophagus - Gastroesophageal mRNA", 
+               "Esophagus - Gastroesophageal mRNA"
+            ], 
+            [
+               "Esophagus - Mucosa mRNA", 
+               "Esophagus - Mucosa mRNA"
+            ], 
+            [
+               "Esophagus - Muscularis mRNA", 
+               "Esophagus - Muscularis mRNA"
             ], 
             [
                "Frontal Cortex mRNA", 
@@ -5009,6 +6590,10 @@
             [
                "Phenotypes", 
                "Phenotypes"
+            ], 
+            [
+               "Islets mRNA", 
+               "Islets mRNA"
             ]
          ], 
          "TIGEM-Retina-RNA-Seq": [
@@ -5023,52 +6608,6 @@
          ]
       }, 
       "mouse": {
-         "AIL": [
-            [
-               "Phenotypes", 
-               "Phenotypes"
-            ], 
-            [
-               "Genotypes", 
-               "Genotypes"
-            ], 
-            [
-               "Hippocampus mRNA", 
-               "Hippocampus mRNA"
-            ], 
-            [
-               "Prefrontal Cortex mRNA", 
-               "Prefrontal Cortex mRNA"
-            ], 
-            [
-               "Striatum mRNA", 
-               "Striatum mRNA"
-            ]
-         ], 
-         "AIL-LGSM-F34-A": [
-            [
-               "Phenotypes", 
-               "Phenotypes"
-            ]
-         ], 
-         "AIL-LGSM-F34-F39-43-GBS": [
-            [
-               "Phenotypes", 
-               "Phenotypes"
-            ]
-         ], 
-         "AIL-LGSM-F34-GBS": [
-            [
-               "Phenotypes", 
-               "Phenotypes"
-            ]
-         ], 
-         "AIL-LGSM-F39-43-GBS": [
-            [
-               "Phenotypes", 
-               "Phenotypes"
-            ]
-         ], 
          "AKXD": [
             [
                "Genotypes", 
@@ -5105,6 +6644,16 @@
                "Liver mRNA"
             ]
          ], 
+         "B6-Lens": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ], 
+            [
+               "Ocular Lens mRNA", 
+               "Ocular Lens mRNA"
+            ]
+         ], 
          "B6BTBRF2": [
             [
                "Phenotypes", 
@@ -5123,6 +6672,14 @@
             [
                "Phenotypes", 
                "Phenotypes"
+            ], 
+            [
+               "Retina microRNA", 
+               "Retina microRNA"
+            ], 
+            [
+               "Retina mRNA", 
+               "Retina mRNA"
             ]
          ], 
          "B6D2F2": [
@@ -5143,6 +6700,10 @@
             [
                "Genotypes", 
                "Genotypes"
+            ], 
+            [
+               "Muscle mRNA", 
+               "Muscle mRNA"
             ]
          ], 
          "B6D2RI": [
@@ -5195,6 +6756,10 @@
             [
                "Liver mRNA", 
                "Liver mRNA"
+            ], 
+            [
+               "Muscle mRNA", 
+               "Muscle mRNA"
             ]
          ], 
          "BHHBF2": [
@@ -5285,6 +6850,10 @@
                "Hippocampal Precursor Cells mRNA"
             ], 
             [
+               "Hippocampus microRNA", 
+               "Hippocampus microRNA"
+            ], 
+            [
                "Hippocampus mRNA", 
                "Hippocampus mRNA"
             ], 
@@ -5295,6 +6864,14 @@
             [
                "Kidney mRNA", 
                "Kidney mRNA"
+            ], 
+            [
+               "Leucocytes mRNA", 
+               "Leucocytes mRNA"
+            ], 
+            [
+               "Liver DNAm", 
+               "Liver DNAm"
             ], 
             [
                "Liver Metabolome", 
@@ -5317,6 +6894,10 @@
                "Midbrain mRNA"
             ], 
             [
+               "Muscle Metabolome", 
+               "Muscle Metabolome"
+            ], 
+            [
                "Muscle mRNA", 
                "Muscle mRNA"
             ], 
@@ -5325,12 +6906,20 @@
                "Neocortex mRNA"
             ], 
             [
+               "Neutrophils mRNA", 
+               "Neutrophils mRNA"
+            ], 
+            [
                "Nucleus Accumbens mRNA", 
                "Nucleus Accumbens mRNA"
             ], 
             [
                "Pituitary Gland mRNA", 
                "Pituitary Gland mRNA"
+            ], 
+            [
+               "Popliteal Lymph Node mRNA", 
+               "Popliteal Lymph Node mRNA"
             ], 
             [
                "Prefrontal Cortex mRNA", 
@@ -5357,6 +6946,10 @@
                "T Cell (regulatory) mRNA"
             ], 
             [
+               "Thymus mRNA", 
+               "Thymus mRNA"
+            ], 
+            [
                "Ventral Tegmental Area mRNA", 
                "Ventral Tegmental Area mRNA"
             ]
@@ -5377,12 +6970,20 @@
                "Genotypes"
             ], 
             [
-               "Hippocampus mRNA", 
-               "Hippocampus mRNA"
+               "Hippocampus Proteome", 
+               "Hippocampus Proteome"
+            ], 
+            [
+               "Liver DNAm", 
+               "Liver DNAm"
             ], 
             [
                "Liver mRNA", 
                "Liver mRNA"
+            ], 
+            [
+               "Liver Proteome", 
+               "Liver Proteome"
             ]
          ], 
          "BXD300": [
@@ -5431,6 +7032,20 @@
                "Genotypes"
             ]
          ], 
+         "CC": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ], 
+            [
+               "Genotypes", 
+               "Genotypes"
+            ], 
+            [
+               "Midbrain mRNA", 
+               "Midbrain mRNA"
+            ]
+         ], 
          "CFW": [
             [
                "Phenotypes", 
@@ -5471,12 +7086,24 @@
             [
                "Midbrain mRNA", 
                "Midbrain mRNA"
+            ], 
+            [
+               "Prefrontal Cortex mRNA", 
+               "Prefrontal Cortex mRNA"
+            ], 
+            [
+               "Striatum mRNA", 
+               "Striatum mRNA"
             ]
          ], 
          "CMS": [
             [
                "Phenotypes", 
                "Phenotypes"
+            ], 
+            [
+               "Hippocampus mRNA", 
+               "Hippocampus mRNA"
             ]
          ], 
          "CTB6F2": [
@@ -5541,6 +7168,32 @@
                "Retina mRNA"
             ]
          ], 
+         "DOD-BXD-GWI": [
+            [
+               "Genotypes", 
+               "Genotypes"
+            ], 
+            [
+               "Prefrontal Cortex mRNA", 
+               "Prefrontal Cortex mRNA"
+            ]
+         ], 
+         "EMSR": [
+            [
+               "Hippocampus mRNA", 
+               "Hippocampus mRNA"
+            ]
+         ], 
+         "HET3-ITP": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ], 
+            [
+               "Genotypes", 
+               "Genotypes"
+            ]
+         ], 
          "HS": [
             [
                "Phenotypes", 
@@ -5565,6 +7218,54 @@
                "Striatum mRNA"
             ]
          ], 
+         "JAX-D2-Mono-RNA-Seq": [
+            [
+               "Retina mRNA", 
+               "Retina mRNA"
+            ]
+         ], 
+         "LGSM-AI": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ], 
+            [
+               "Hippocampus mRNA", 
+               "Hippocampus mRNA"
+            ], 
+            [
+               "Prefrontal Cortex mRNA", 
+               "Prefrontal Cortex mRNA"
+            ], 
+            [
+               "Striatum mRNA", 
+               "Striatum mRNA"
+            ]
+         ], 
+         "LGSM-AI-G34-A": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ]
+         ], 
+         "LGSM-AI-G34-GBS": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ]
+         ], 
+         "LGSM-AI-G34_39-43-GBS": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ]
+         ], 
+         "LGSM-AI-G39-43-GBS": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ]
+         ], 
          "LGSM-AIG34_50-56-GBS": [
             [
                "Phenotypes", 
@@ -5579,6 +7280,10 @@
             [
                "Genotypes", 
                "Genotypes"
+            ], 
+            [
+               "Brain mRNA", 
+               "Brain mRNA"
             ], 
             [
                "Hippocampus mRNA", 
@@ -5654,6 +7359,22 @@
                "Genotypes", 
                "Genotypes"
             ]
+         ], 
+         "Scripps-2013": [
+            [
+               "Anterior Cingulate Cortex mRNA", 
+               "Anterior Cingulate Cortex mRNA"
+            ]
+         ], 
+         "UTHSC-Cannabinoid": [
+            [
+               "Phenotypes", 
+               "Phenotypes"
+            ], 
+            [
+               "Genotypes", 
+               "Genotypes"
+            ]
          ]
       }, 
       "poplar": {
@@ -5665,16 +7386,6 @@
          ]
       }, 
       "rat": {
-         "HRDP": [
-            [
-               "Phenotypes", 
-               "Phenotypes"
-            ], 
-            [
-               "Genotypes", 
-               "Genotypes"
-            ]
-         ], 
          "HSNIH-Palmer": [
             [
                "Phenotypes", 
