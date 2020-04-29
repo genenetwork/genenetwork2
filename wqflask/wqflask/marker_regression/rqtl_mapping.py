@@ -140,11 +140,16 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
          write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
          require(qtl)
          if(type == '4-way'){
+           cat('Loading in as 4-WAY\n')
            cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
          }else{
+           cat('Loading in as normal\n')
            cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                       # Load the created cross file using R/qtl read.cross
          }
-         if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
+         if(type == 'riset'){
+           cat('Converting to RISELF\n')
+           cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
+         }
          return(cross)
       }
     """ % (dataset.group.genofile))
