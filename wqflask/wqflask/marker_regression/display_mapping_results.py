@@ -265,13 +265,11 @@ class DisplayMappingResults(object):
         else:
             self.colorCollection = [self.LRS_COLOR]
 
+        self.dataset.group.genofile = self.genofile_string.split(":")[0]
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
             self.genotype = self.dataset.group.read_genotype_file(use_reaper=True)
         else:
             self.genotype = self.dataset.group.read_genotype_file()
-
-        #if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
-        #    self.genotype = self.genotype.read_rdata_output(self.qtlresults)
 
         #Darwing Options
         try:
@@ -1761,9 +1759,9 @@ class DisplayMappingResults(object):
                 break
 
         if all_int:
-            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 30
+            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 40
         else:
-            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 20
+            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 30
 
         #draw the "LRS" or "LOD" string to the left of the axis
         canvas.drawString(self.LRS_LOD, xLeftOffset - max_lrs_width - 15*(zoom-1), \
@@ -1899,13 +1897,16 @@ class DisplayMappingResults(object):
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
 
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
-                if self.plotScale != "physic" and self.genotype.filler == True:
-                    if self.selectedChr != -1:
-                        start_cm = self.genotype[self.selectedChr - 1][0].cM
-                        Xc = startPosX + (qtlresult['Mb'] - start_cm)*plotXScale
-                    else:
-                        start_cm = self.genotype[previous_chr_as_int][0].cM
-                        Xc = startPosX + ((qtlresult['Mb']-start_cm-startMb)*plotXScale)*(((qtlresult['Mb']-start_cm-startMb)*plotXScale)/((qtlresult['Mb']-start_cm-startMb+self.GraphInterval)*plotXScale))
+                if self.plotScale != "physic" and self.mapping_method == "reaper" and not self.manhattan_plot:
+                    Xc = startPosX + (qtlresult['cM']-startMb)*plotXScale
+                    if hasattr(self.genotype, "filler"):
+                        if self.genotype.filler:
+                            if self.selectedChr != -1:
+                                start_cm = self.genotype[self.selectedChr - 1][0].cM
+                                Xc = startPosX + (qtlresult['Mb'] - start_cm)*plotXScale
+                            else:
+                                start_cm = self.genotype[previous_chr_as_int][0].cM
+                                Xc = startPosX + ((qtlresult['Mb']-start_cm-startMb)*plotXScale)*(((qtlresult['Mb']-start_cm-startMb)*plotXScale)/((qtlresult['Mb']-start_cm-startMb+self.GraphInterval)*plotXScale))
                 else:
                     Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
 

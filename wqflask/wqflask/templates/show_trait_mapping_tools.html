@@ -121,6 +121,16 @@
                         </div>
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
+                            <label for="scale_select" style="text-align: right;" class="col-xs-3 control-label">Map Scale</label>
+                            <div style="margin-left:20px;" class="col-xs-2 controls">
+                                <select id="scale_reaper" class="form-control" style="width: 80px;">
+                                    {% for item in scales_in_geno[genofiles[0]['location']] %}
+                                    <option value="{{ item[0] }}">{{ item[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
                             <label style="text-align: right;" for="genofiles" class="col-xs-3 control-label">Genotypes</label>
                             <div style="margin-left:20px;" class="col-xs-4 controls">
                                 <select id="genofile_reaper" class="form-control">
@@ -225,7 +235,17 @@
                                 </select>
                             </div>
                         </div>
-                        {% if genofiles and genofiles|length>0 %}
+                        {% if genofiles and genofiles|length > 0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="scale_select" style="text-align: right;" class="col-xs-3 control-label">Map Scale</label>
+                            <div style="margin-left:20px;" class="col-xs-2 controls">
+                                <select id="scale_rqtl_geno" class="form-control" style="width: 80px;">
+                                    {% for item in scales_in_geno[genofiles[0]['location']] %}
+                                    <option value="{{ item[0] }}">{{ item[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         <div class="mapping_method_fields form-group">
                             <label style="text-align:right;" for="genofiles" class="col-xs-3 control-label">Genotypes</label>
                             <div style="margin-left:20px;" class="col-xs-4 controls">

@@ -22,6 +22,7 @@ from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility.tools import locate_ignore_error
 from base.trait import GeneralTrait
 from base import data_set
 from db import webqtlDatabaseFunction
@@ -170,6 +171,17 @@ class ShowTrait(object):
 
         self.genofiles = self.dataset.group.get_genofiles()
 
+        if "QTLReaper" or "R/qtl" in dataset.group.mapping_names: #ZS: No need to grab scales from .geno file unless it's using a mapping method that reads .geno files
+            if self.genofiles:
+                self.scales_in_geno = get_genotype_scales(self.genofiles)
+            else:
+                self.scales_in_geno = get_genotype_scales(self.dataset.group + ".geno")
+
+            if len(self.scales_in_geno) < 2:
+                hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0]
+        else:
+            self.scales_in_geno = {}
+
         self.has_num_cases = has_num_cases(self.this_trait)
 
         self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, self.has_num_cases)
@@ -239,6 +251,7 @@ class ShowTrait(object):
                 #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         hddn['do_control'] = False
         hddn['maf'] = 0.05
+        hddn['mapping_scale'] = "physic"
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
@@ -251,6 +264,7 @@ class ShowTrait(object):
                        short_description = short_description,
                        unit_type = trait_units,
                        dataset_type = self.dataset.type,
+                       scales_in_geno = self.scales_in_geno,
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
@@ -598,3 +612,76 @@ def get_categorical_variables(this_trait, sample_list):
                 categorical_var_list.append(sample_list.attributes[attribute].name)
 
     return categorical_var_list
+
+def get_genotype_scales(genofiles):
+    geno_scales = {}
+    if type(genofiles) is list:
+        for the_file in genofiles:
+            file_location = the_file['location']
+            geno_scales[file_location] = get_scales_from_genofile(file_location)
+    else:
+        geno_scales[genofiles] = get_scales_from_genofile(genofiles)
+
+    return geno_scales
+
+def get_scales_from_genofile(file_location):
+    geno_path = locate_ignore_error(file_location, 'genotype')
+
+    if not geno_path: #ZS: This is just to allow the code to run when
+        return [["physic", "Mb"]]
+    cm_and_mb_cols_exist = True
+    cm_column = None
+    mb_column = None
+    with open(geno_path, "r") as geno_fh:
+        for i, line in enumerate(geno_fh):
+            if line[0] == "#" or line[0] == "@":
+                if "@scale" in line: #ZS: If the scale is made explicit in the metadata, use that
+                    scale = line.split(":")[1].strip()
+                    if scale == "morgan":
+                        return [["morgan", "cM"]]
+                    else:
+                        return [["physic", "Mb"]]
+                else:
+                    continue
+            if line[:3] == "Chr":
+                first_marker_line = i + 1
+                if line.split("\t")[2].strip() == "cM":
+                    cm_column = 2
+                elif line.split("\t")[3].strip() == "cM":
+                    cm_column = 3
+                if line.split("\t")[2].strip() == "Mb":
+                    mb_column = 2
+                elif line.split("\t")[3].strip() == "Mb":
+                    mb_column = 3
+                break
+
+        #ZS: This attempts to check whether the cM and Mb columns are 'real', since some .geno files have one column be a copy of the other column, or have one column that is all 0s
+        cm_all_zero = True
+        mb_all_zero = True
+        cm_mb_all_equal = True
+        for i, line in enumerate(geno_fh):
+            if first_marker_line <= i < first_marker_line + 10: #ZS: I'm assuming there won't be more than 10 markers where the position is listed as 0
+                if cm_column:
+                    cm_val = line.split("\t")[cm_column].strip()
+                    if cm_val != "0":
+                        cm_all_zero = False
+                if mb_column:
+                    mb_val = line.split("\t")[mb_column].strip()
+                    if mb_val != "0":
+                        mb_all_zero = False
+                if cm_column and mb_column:
+                    if cm_val != mb_val:
+                        cm_mb_all_equal = False
+            else:
+                if i > first_marker_line + 10:
+                    break
+
+    #ZS: This assumes that both won't be all zero, since if that's the case mapping shouldn't be an option to begin with
+    if mb_all_zero:
+        return [["morgan", "cM"]]
+    elif cm_mb_all_equal:
+        return [["physic", "Mb"]]
+    elif cm_and_mb_cols_exist:
+        return [["physic", "Mb"], ["morgan", "cM"]]
+    else:
+        return [["physic", "Mb"]]

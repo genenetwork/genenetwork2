@@ -165,6 +165,7 @@
         url = "/loading";
         $('input[name=method]').val("rqtl_geno");
         $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
+        $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
         $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
         $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
         $('input[name=categorical_vars]').val(js_data.categorical_vars)
@@ -210,6 +211,7 @@
         url = "/loading";
         $('input[name=method]').val("reaper");
         $('input[name=selected_chr]').val($('#chr_reaper').val());
+        $('input[name=mapping_scale]').val($('#scale_reaper').val());
         $('input[name=genofile]').val($('#genofile_reaper').val());
         $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
         $('input[name=control_marker]').val($('input[name=control_reaper]').val());
@@ -287,6 +289,23 @@
 
   $("#display_all_lrs").change(function() {
     return toggle_enable_disable("#suggestive_lrs");
+  });
+
+  $('#genofile_rqtl_geno').change(function() {
+    geno_location = $(this).children("option:selected").val().split(":")[0]
+    $('#scale_rqtl_geno').empty()
+    the_scales = js_data.scales_in_geno[geno_location]
+    for (var i = 0; i < the_scales.length; i++){
+      $('#scale_rqtl_geno').append($("<option></option>").attr("value", the_scales[i][0]).text(the_scales[i][1]));
+    }
+  });
+  $('#genofile_reaper').change(function() {
+    geno_location = $(this).children("option:selected").val().split(":")[0]
+    $('#scale_reaper').empty()
+    the_scales = js_data.scales_in_geno[geno_location]
+    for (var i = 0; i < the_scales.length; i++){
+      $('#scale_reaper').append($("<option></option>").attr("value", the_scales[i][0]).text(the_scales[i][1]));
+    }
   });
 
 }).call(this);
