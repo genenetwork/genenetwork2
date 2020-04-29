@@ -128,7 +128,7 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
          if(type == '4-way'){
             genocodes <- c('1','2','3','4')
          } else {
-            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes
+            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))             # Get the genotype codes
          }
          genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
          cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
@@ -139,7 +139,11 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
                           cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
          write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
          require(qtl)
-         cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross
+         if(type == '4-way'){
+           cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
+         }else{
+           cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                       # Load the created cross file using R/qtl read.cross
+         }
          if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
          return(cross)
       }
