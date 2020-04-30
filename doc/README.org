@@ -658,24 +658,24 @@ The following derivations would be built:
 
 Let's see how fast we can deploy a second copy of GN2.
 
-- [-] Base install
-  + [X] First install a Debian server with GNU Guix on board
-  + [X] Get Guix build going
-    - [X] Build the correct version of Guix
-    - [X] Check out the correct gn-stable version of guix-bioinformatics http://git.genenetwork.org/pjotrp/guix-bioinformatics
-    - [X] guix package -i genenetwork2 -p /usr/local/guix-profiles/gn2-stable
-  + [X] Create a gn2 user and home with space
-  + [X] Install redis (currently debian)
-    - [X] add to systemd
-    - [X] update redis.cnf
-    - [X] update database
-  + [X] Install mariadb (currently debian mariadb-server)
-    - [X] add to systemd
-    - [X] system stop mysql
-    - [X] update mysql.cnf
-    - [X] update database (see gn-services/services/mariadb.md)
-    - [X] check tables
+- [ ] Base install
+  + [ ] First install a Debian server with GNU Guix on board
+  + [ ] Get Guix build going
+    - [ ] Build the correct version of Guix
+    - [ ] Check out the correct gn-stable version of guix-bioinformatics http://git.genenetwork.org/pjotrp/guix-bioinformatics
+    - [ ] guix package -i genenetwork2 -p /usr/local/guix-profiles/gn2-stable
+  + [ ] Create a gn2 user and home with space
+  + [ ] Install redis (currently debian)
+    - [ ] add to systemd
+    - [ ] update redis.cnf
+    - [ ] update database
+  + [ ] Install mariadb (currently debian mariadb-server)
+    - [ ] add to systemd
+    - [ ] system stop mysql
+    - [ ] update mysql.cnf
+    - [ ] update database (see gn-services/services/mariadb.md)
+    - [ ] check tables
   + [ ] run gn2 (rust-qtlreaper not working)
-  + [X] update nginx
+  + [ ] update nginx
   + [ ] install genenetwork3
     - [ ] add to systemd
