@@ -351,7 +351,8 @@ class UserSession(object):
         logger.debug("At end of delete_session")
 
 @app.before_request
-def before_request():
+def get_cookie():
+    logger.info("@app.before_request get cookie")
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
 

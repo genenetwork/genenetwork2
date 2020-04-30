@@ -6,6 +6,7 @@ process_json = function(data) {
     return apply_default();
   }
 };
+
 $.ajax('/api/v_pre1/gen_dropdown', {
   dataType: 'json',
   success: process_json
