@@ -124,7 +124,7 @@ class RunMapping(object):
                             self.samples.append(sample)
                             self.vals.append(value)
 
-        self.num_vals = start_vars['num_vals']
+        self.num_vals = len(self.vals)
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
 
