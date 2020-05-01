@@ -126,7 +126,7 @@
                 {% for trait in correlation_results %}
                     <tr>
                         <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
+                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: right;">{{ loop.index }}</td>
                         <td data-export="{{ trait.name }}">
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
@@ -159,6 +159,11 @@
                         <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
                         <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Publish" %}
+                        {% if trait.abbreviation %}
+                        <TD title="{{ trait.abbreviation }}" data-export="{{ trait.abbreviation }}">{% if trait.abbreviation|length > 20 %}{{ trait.abbreviation[:20] }}...{% else %}{{ trait.abbreviation }}{% endif %}</TD>
+                        {% else %}
+                        <TD data-export="{{ trait.abbreviation }}">N/A</TD>
+                        {% endif %}
                         <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</td>
                         <td data-export="{{ trait.authors }}">{{ trait.authors }}</td>
                         <td data-export="{{ trait.pubmed_text }}">
@@ -395,6 +400,7 @@
                     { "targets": 0, "orderable": false }
                 ],  
                 "columns": [
+                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },

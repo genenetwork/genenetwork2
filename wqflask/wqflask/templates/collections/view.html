@@ -8,7 +8,7 @@
 {% block content %}
 <!-- Start of body -->
 
-    <div class="container" style="min-width: 1250px;">
+    <div class="container" style="min-width: 2050px;">
         <h1>
             <span id="collection_name">{{ uc.name }}</span>
             <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
@@ -122,9 +122,9 @@
                                 </a>
                             </TD>
                             {% if this_trait.symbol %}
-                            <TD data-export="{{ this_trait.symbol }}">{{ this_trait.symbol }}</TD>
+                            <TD title="{{ this_trait.symbol }}" data-export="{{ this_trait.symbol }}">{% if this_trait.symbol|length > 20 %}{{ this_trait.symbol[:20] }}...{% else %}{{ this_trait.symbol }}{% endif %}</TD>
                             {% elif this_trait.abbreviation %}
-                            <TD data-export="{{ this_trait.abbreviation }}">{{ this_trait.abbreviation }}</TD>
+                            <TD title="{{ this_trait.abbreviation }}" data-export="{{ this_trait.abbreviation }}">{% if this_trait.abbreviation|length > 20 %}{{ this_trait.abbreviation[:20] }}...{% else %}{{ this_trait.abbreviation }}{% endif %}</TD>
                             {% else %}
                             <TD data-export="N/A">N/A</TD>
                             {% endif %}
@@ -190,7 +190,7 @@
                     { "type": "natural", "width": 50 },
                     { "type": "natural" },
                     { "type": "natural", "width": 120 },
-                    { "type": "natural", "width": 120 },
+                    { "type": "natural" },
                     { "type": "natural"  },
                     { "type": "natural", "width": 130 },
                     { "type": "natural", "width": 35 },
