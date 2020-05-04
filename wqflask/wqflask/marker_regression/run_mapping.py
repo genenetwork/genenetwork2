@@ -257,9 +257,13 @@ class RunMapping(object):
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                self.perm_output, self.suggestive, self.significant, results= rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.mapping_scale, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+                self.perm_output, self.suggestive, self.significant, results= rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
             else:
-                results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.mapping_scale, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+                results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+            # if self.permCheck and self.num_perm > 0:
+            #     self.perm_output, self.suggestive, self.significant, results= rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.mapping_scale, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+            # else:
+            #     results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.mapping_scale, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:

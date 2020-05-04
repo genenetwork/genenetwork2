@@ -175,10 +175,7 @@ class ShowTrait(object):
             if self.genofiles:
                 self.scales_in_geno = get_genotype_scales(self.genofiles)
             else:
-                self.scales_in_geno = get_genotype_scales(self.dataset.group + ".geno")
-
-            if len(self.scales_in_geno) < 2:
-                hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0]
+                self.scales_in_geno = get_genotype_scales(self.dataset.group.name + ".geno")
         else:
             self.scales_in_geno = {}
 
@@ -255,6 +252,8 @@ class ShowTrait(object):
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
+        if len(self.scales_in_geno) < 2:
+            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0]
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn

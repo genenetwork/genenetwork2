@@ -11,7 +11,7 @@ from utility.tools import locate, TEMPDIR
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
+def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
     ## Get pointers to some common R functions
     r_library     = ro.r["library"]                 # Map the library function
     r_c           = ro.r["c"]                       # Map the c function
@@ -33,13 +33,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     #    genofilelocation  = locate(crossname + ".RData", "genotype/rdata")
     #    cross_object = read_cross_from_rdata(genofilelocation)  # Map the local GENOtoCSVR function
     #except:
-
-    if mapping_scale == "morgan":
-        scale_units = "cM"
-    else:
-        scale_units = "Mb"
-
-    generate_cross_from_geno(dataset, scale_units)
+    generate_cross_from_geno(dataset)
     GENOtoCSVR                 = ro.r["GENOtoCSVR"]            # Map the local GENOtoCSVR function
     crossfilelocation = TMPDIR + crossname + ".cross"
     if dataset.group.genofile:
@@ -48,12 +42,15 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         genofilelocation = locate(dataset.group.name + ".geno", "genotype")
     cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
 
+    the_version = ro.r["packageVersion('qtl')"]
+    logger.debug("THE R VERSION:", the_version)
+
+    ro.r('save.image(file = "/home/zas1024/gn2-zach/tmp/HET3_cofactor_test2.RData")')
+
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
     else:
         cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
-
-    logger.debug("VAL LEN:", len(vals))
 
     pheno_string = sanitize_rqtl_phenotype(vals)
 
@@ -102,9 +99,11 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
                     perm_data_frame = scanone(cross_object, pheno_col = "the_pheno", n_perm = num_perm, model=model, method=method)
 
             perm_output, suggestive, significant = process_rqtl_perm_results(num_perm, perm_data_frame)          # Functions that sets the thresholds for the webinterface
-            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame, dataset.group.species)
+            the_scale = check_mapping_scale(genofilelocation)
+            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame, dataset.group.species), the_scale
         else:
-            return process_rqtl_results(result_data_frame, dataset.group.species)
+            the_scale = check_mapping_scale(genofilelocation)
+            return process_rqtl_results(result_data_frame, dataset.group.species), the_scale
 
 def generate_cross_from_rdata(dataset):
     rdata_location  = locate(dataset.group.name + ".RData", "genotype/rdata")
@@ -116,51 +115,38 @@ def generate_cross_from_rdata(dataset):
        }
     """ % (rdata_location))
 
-def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
+def generate_cross_from_geno(dataset):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
 
     ro.r("""
        trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
-
        getGenoCode <- function(header, name = 'unk'){
          mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
          return(trim(strsplit(header[mat],':')[[1]][2]))
        }
-
        GENOtoCSVR <- function(genotypes = '%s', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
          header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
          toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
-
          type <- getGenoCode(header, 'type')
          if(type == '4-way'){
             genocodes <- c('1','2','3','4')
-            genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#', crosstype="4way")
          } else {
-            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))             # Get the genotype codes
-            genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
+            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes
          }
+         genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
          cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
          if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
          if(is.null(sex)) sex <- rep('m', (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
          outCSVR <- rbind(c('Pheno', '', '', phenotype),                                                                   # Phenotype
                           c('sex', '', '', sex),                                                                           # Sex phenotype for the mice
-                          cbind(genodata[,c('Locus','Chr', '%s')], genodata[, 5:ncol(genodata)]))                    # Genotypes
+                          cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
          write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
          require(qtl)
-         if(type == '4-way'){
-           cat('Loading in as 4-WAY\n')
-           cross = read.cross(file=out, 'csvr', genotypes=genocodes)
-           #cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
-         }else{
-           cat('Loading in as normal\n')
-           cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                       # Load the created cross file using R/qtl read.cross
-         }
-         if(type == 'riset'){
-           cat('Converting to RISELF\n')
-           cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
-         }
+         cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
+         #cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross
+         if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
          return(cross)
       }
-    """ % (dataset.group.genofile, scale_units))
+    """ % (dataset.group.genofile))
 
 def add_perm_strata(cross, perm_strata):
     col_string = 'c("the_strata")'
@@ -309,3 +295,19 @@ def process_rqtl_results(result, species_name):        # TODO: how to make this 
         qtl_results.append(marker)
 
     return qtl_results
+
+def check_mapping_scale(genofile_location):
+    scale = "physic"
+    with open(genofile_location, "r") as geno_fh:
+        for line in geno_fh:
+            if line[0] == "@" or line[0] == "#":
+
+                if "@scale" in line:
+                    scale = line.split(":")[1].strip()
+                    break
+                else:
+                    continue
+            else:
+                break
+
+    return scale
