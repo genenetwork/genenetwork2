@@ -45,7 +45,7 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
     else:
-        cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
+        cross_object = calc_genoprob(cross_object, step=5, stepwidth="max")
 
     pheno_string = sanitize_rqtl_phenotype(vals)
 
@@ -59,9 +59,15 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
         ro.r('all_covars <- marker_covars')
+        
+    # Force all covaraites to be numeric (which is wrong for ITP year, season, etc... But required for R/qtl)
+    ro.r('covarnames <- colnames(all_covars)')
+    ro.r('all_covars <- apply(all_covars, 2, as.numeric)')
+    ro.r('colnames(all_covars) <- covarnames')
 
     covars = ro.r['all_covars']
-
+    #DEBUG to save the session object to file
+    #ro.r('save.image(file = "/home/dannya/gn2-danny/all.RData")')
     if pair_scan:
         if do_control == "true":
             logger.info("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covars, model=model, method=method, n_cluster = 16)
@@ -187,7 +193,8 @@ def sanitize_rqtl_phenotype(vals):
 
 def add_phenotype(cross, pheno_as_string, col_name):
     ro.globalenv["the_cross"] = cross
-    ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), ' + col_name + ' = '+ pheno_as_string +')')
+    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
+    ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = as.numeric('+ pheno_as_string +'))')
     return ro.r["the_cross"]
 
 def pull_var(var_name, cross, var_string):
