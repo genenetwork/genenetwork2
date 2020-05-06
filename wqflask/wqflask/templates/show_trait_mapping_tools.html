@@ -399,7 +399,7 @@
              <dt style="padding-top: 20px;">GEMMA</dt>
              <dd>Maps traits with correction for kinship among samples using a linear mixed model method, and also allows users to fit multiple covariates such as sex, age, treatment, and genetic markers (<a href="https://www.ncbi.nlm.nih.gov/pubmed/24531419">PMID: 2453419</a>, and <a href="https://github.com/genetics-statistics/GEMMA"> GitHub code</a>). GEMMA incorporates the Leave One Chromosome Out (LOCO) method to ensure that the correction for kinship does not remove useful genetic variance near each marker. Markers can be filtered to include only those with minor allele frequencies (MAF) above a threshold. The default MAF is 0.05.</dd>
              {% elif mapping_method == "R/qtl" %}
-             <dt style="margin-top: 20px;">R/qtl</dt>
+             <dt style="margin-top: 20px;">R/qtl (version 1.44.9</dt>
              <dd>The original R/qtl mapping package that supports classic experimental crosses including 4-parent F2 intercrosses (e.g., NIA ITP UM-HET3). R/qtl is ideal for populations that do not have complex kinship or admixture (<a href="https://www.ncbi.nlm.nih.gov/pubmed/12724300">PMID: 12724300</a>). Both R/qtl as implemented here, and R/qtl2 (<a href="https://www.ncbi.nlm.nih.gov/pubmed/30591514">PMID: 30591514</a>) are available as <a href="https://kbroman.org/pages/software.html">R suites</a>.</dd>
              {% elif mapping_method == "QTLReaper" %}
              <dt style="margin-top: 20px;">Haley-Knott Regression</dt>

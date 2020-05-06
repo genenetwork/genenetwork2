@@ -42,11 +42,6 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
         genofilelocation = locate(dataset.group.name + ".geno", "genotype")
     cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
 
-    the_version = ro.r["packageVersion('qtl')"]
-    logger.debug("THE R VERSION:", the_version)
-
-    ro.r('save.image(file = "/home/zas1024/gn2-zach/tmp/HET3_cofactor_test2.RData")')
-
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
     else:
@@ -141,8 +136,7 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
                           cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
          write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
          require(qtl)
-         cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
-         #cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross
+         cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross
          if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
          return(cross)
       }
