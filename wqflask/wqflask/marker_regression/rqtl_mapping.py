@@ -12,6 +12,7 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
+    logger.info("Start run_rqtl_geno");
     ## Get pointers to some common R functions
     r_library     = ro.r["library"]                 # Map the library function
     r_c           = ro.r["c"]                       # Map the c function
@@ -20,6 +21,8 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
     dev_off       = ro.r["dev.off"]                 # Map the device off function
 
     print(r_library("qtl"))                         # Load R/qtl
+
+    logger.info("QTL library loaded");
 
     ## Get pointers to some R/qtl functions
     scanone                    = ro.r["scanone"]               # Map the scanone function
@@ -40,28 +43,35 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
         genofilelocation  = locate(dataset.group.genofile, "genotype")
     else:
         genofilelocation = locate(dataset.group.name + ".geno", "genotype")
+    logger.info("Going to create a cross from geno");
     cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)      # TODO: Add the SEX if that is available
-
+    logger.info("before calc_genoprob");
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
     else:
-        cross_object = calc_genoprob(cross_object, step=1, stepwidth="max")
-
+        cross_object = calc_genoprob(cross_object, step=5, stepwidth="max")
+    logger.info("after calc_genoprob");
     pheno_string = sanitize_rqtl_phenotype(vals)
-
+    logger.info("phenostring done");
+    names_string = sanitize_rqtl_names(samples)
+    logger.info("sanitized pheno and names");
     cross_object = add_phenotype(cross_object, pheno_string, "the_pheno")                 # Add the phenotype
-
+    cross_object = add_names(cross_object, names_string, "the_names")                 # Add the phenotype
+    logger.info("Added pheno and names");
     # Scan for QTLs
     marker_covars = create_marker_covariates(control_marker, cross_object)  # Create the additive covariate markers
-
+    logger.info("Marker covars done");
     if cofactors != "":
         cross_object, trait_covars = add_cofactors(cross_object, dataset, cofactors, samples)                            # Create the covariates from selected traits
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
         ro.r('all_covars <- marker_covars')
-
+    #logger.info("Saving");
+    #ro.r('save.image(file = "/home/dannya/gn2-danny/cross.RData")')
+    #logger.info("Saving Done");
     covars = ro.r['all_covars']
-
+    #DEBUG to save the session object to file
+    #ro.r('save.image(file = "/home/dannya/gn2-danny/all.RData")')
     if pair_scan:
         if do_control == "true":
             logger.info("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covars, model=model, method=method, n_cluster = 16)
@@ -128,7 +138,7 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
          if(type == '4-way'){
             genocodes <- c('1','2','3','4')
          } else {
-            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))                # Get the genotype codes
+            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))             # Get the genotype codes
          }
          genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
          cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
@@ -139,8 +149,17 @@ def generate_cross_from_geno(dataset):        # TODO: Need to figure out why som
                           cbind(genodata[,c('Locus','Chr', 'cM')], genodata[, 5:ncol(genodata)]))                          # Genotypes
          write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
          require(qtl)
-         cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                         # Load the created cross file using R/qtl read.cross
-         if(type == 'riset') cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
+         if(type == '4-way'){
+           cat('Loading in as 4-WAY\n')
+           cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
+         }else{
+           cat('Loading in as normal\n')
+           cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                       # Load the created cross file using R/qtl read.cross
+         }
+         if(type == 'riset'){
+           cat('Converting to RISELF\n')
+           cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
+         }
          return(cross)
       }
     """ % (dataset.group.genofile))
@@ -176,9 +195,33 @@ def sanitize_rqtl_phenotype(vals):
 
     return pheno_as_string
 
+def sanitize_rqtl_names(vals):
+    pheno_as_string = "c("
+    for i, val in enumerate(vals):
+        if val == "x":
+            if i < (len(vals) - 1):
+                pheno_as_string +=  "NA,"
+            else:
+                pheno_as_string += "NA"
+        else:
+            if i < (len(vals) - 1):
+                pheno_as_string += "'" + str(val) + "',"
+            else:
+                pheno_as_string += "'" + str(val) + "'"
+    pheno_as_string += ")"
+
+    return pheno_as_string
+
 def add_phenotype(cross, pheno_as_string, col_name):
     ro.globalenv["the_cross"] = cross
-    ro.r('the_cross$pheno <- cbind(pull.pheno(the_cross), ' + col_name + ' = '+ pheno_as_string +')')
+    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
+    ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = as.numeric('+ pheno_as_string +'))')
+    return ro.r["the_cross"]
+
+def add_names(cross, names_as_string, col_name):
+    ro.globalenv["the_cross"] = cross
+    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
+    ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = '+ names_as_string +')')
     return ro.r["the_cross"]
 
 def pull_var(var_name, cross, var_string):
@@ -204,8 +247,8 @@ def add_cofactors(cross, this_dataset, covariates, samples):
         this_dataset.group.get_samplelist()
         trait_samples = this_dataset.group.samplelist
         trait_sample_data = trait_ob.data
-        for index, sample in enumerate(trait_samples):
-            if sample in samples:
+        for index, sample in enumerate(samples):
+            if sample in trait_samples:
                 if sample in trait_sample_data:
                     sample_value = trait_sample_data[sample].value
                     this_covar_data.append(sample_value)
