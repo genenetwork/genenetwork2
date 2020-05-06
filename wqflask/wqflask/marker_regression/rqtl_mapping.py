@@ -66,9 +66,9 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
         ro.r('all_covars <- marker_covars')
-    logger.info("Saving");
-    ro.r('save.image(file = "/home/dannya/gn2-danny/cross.RData")')
-    logger.info("Saving Done");
+    #logger.info("Saving");
+    #ro.r('save.image(file = "/home/dannya/gn2-danny/cross.RData")')
+    #logger.info("Saving Done");
     covars = ro.r['all_covars']
     #DEBUG to save the session object to file
     #ro.r('save.image(file = "/home/dannya/gn2-danny/all.RData")')
