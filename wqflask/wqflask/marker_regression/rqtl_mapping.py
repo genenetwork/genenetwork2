@@ -62,6 +62,7 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
     marker_covars = create_marker_covariates(control_marker, cross_object)  # Create the additive covariate markers
     logger.info("Marker covars done");
     if cofactors != "":
+        logger.info("Cofactors: " + cofactors);
         cross_object, trait_covars = add_cofactors(cross_object, dataset, cofactors, samples)                            # Create the covariates from selected traits
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
@@ -71,7 +72,6 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
     #logger.info("Saving Done");
     covars = ro.r['all_covars']
     #DEBUG to save the session object to file
-    #ro.r('save.image(file = "/home/dannya/gn2-danny/all.RData")')
     if pair_scan:
         if do_control == "true":
             logger.info("Using covariate"); result_data_frame = scantwo(cross_object, pheno = "the_pheno", addcovar = covars, model=model, method=method, n_cluster = 16)
@@ -274,7 +274,8 @@ def add_cofactors(cross, this_dataset, covariates, samples):
     covar_name_string += ")"
 
     covars_ob = pull_var("trait_covars", cross, covar_name_string)
-
+    # TODO: Pull in the types of the covars from MariaDB
+    # TODO: Iterate through the covar types and create a design matrix based on it
     return cross, covars_ob
 
 def create_marker_covariates(control_marker, cross):
@@ -287,7 +288,7 @@ def create_marker_covariates(control_marker, cross):
     ro.r('covnames <- covnames[covInGeno]')
     ro.r("cat('covnames (purged): ', covnames,'\n')")
     ro.r('marker_covars <- genotypes[,covnames]')                            # Get the covariate matrix by using the marker name as index to the genotype file
-
+    # TODO: Create a design matrix from the marker covars for the markers in case of an F2, 4way, etc
     return ro.r["marker_covars"]
 
 def process_pair_scan_results(result):
