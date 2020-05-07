@@ -6,39 +6,70 @@
 
     <div class="container">
         <div class="page-header">
-
+            <h1>Manage Groups</h1>
         </div>
-        <form>
-            <div class="control-group">
-                <b>Group Name: </b>
-                <div class="input-append">
-                    <input type="text" name="group_name">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
+        <form action="/manage/groups" method="POST">
+            <div class="container" style="margin-bottom: 30px;">
+                <div><h3>Admin Groups</h3></div>
+                <hr>
+                <table id="admin_groups" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Index</th>
+                            <th>Name</th>
+                            <th># Members</th>
+                            <th>Created</th>
+                            <th>Last Changed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in admin_groups %}
+                        <tr>
+                            <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ group.name }}</td>
+                            <td>{{ group.admins|length + group.users|length }}</td>
+                            <td>{{ group.created_timestamp }}</td>
+                            <td>{{ group.changed_timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-
-            <table id="dataset_list" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Read</th>
-                        <th>Type</th>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Full Name</th>
-                    </tr>
-                </thead>
-            {% for dataset in datasets %}
-                <tr>
-                    <td><input type="checkbox" name="read" value="{{ dataset.type }}:{{ dataset.name }}"></td>
-                    <td>{{ dataset.type }}</td>
-                    <td>{{ dataset.id }}</td>
-                    <td>{{ dataset.name }}</td>
-                    <td>{{ dataset.fullname }}</td>
-                </tr>
-            {% endfor %}
-            </table>
+            <hr>
+            <div class="container">
+                <div><h3>User Groups</h3></div>
+                <hr>
+                <table id="user_groups" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Index</th>
+                            <th>Name</th>
+                            <th># Members</th>
+                            <th>Created</th>
+                            <th>Last Changed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in user_groups %}
+                        <tr>
+                            <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ group.name }}</td>
+                            <td>{{ group.admins|length + group.users|length }}</td>
+                            <td>{{ group.created_timestamp }}</td>
+                            <td>{{ group.changed_timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </form>
     </div>
+
+
 
 <!-- End of body -->
 
@@ -47,33 +78,40 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/DT_bootstrap/DT_bootstrap.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
-            console.time("Creating table");
-            $('#dataset_list').dataTable( {
-                "sDom": "Tftipr",
-                "oTableTools": {
-                    "aButtons": [
-                        "copy",
-                        "print",
-                        {
-                            "sExtends":    "collection",
-                            "sButtonText": 'Save <span class="caret" />',
-                            "aButtons":    [ "csv", "xls", "pdf" ]
-                        }
-                    ],
-                    "sSwfPath": "/static/packages/TableTools/media/swf/copy_csv_xls_pdf.swf"
+            $('#admin_groups, #user_groups').dataTable( {
+                "drawCallback": function( settings ) {
+                     $('#admin_groups tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
                 },
-                "iDisplayLength": 50,
-                "bLengthChange": true,
+                "columns": [
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                "columnDefs": [ {
+                    "targets": 0,
+                    "orderable": false
+                } ],
+                "order": [[1, "asc" ]],
+                "sDom": "Ztr",
+                "iDisplayLength": -1,
+                "autoWidth": true,
                 "bDeferRender": true,
-                "bSortClasses": false
+                "bSortClasses": false,
+                "paging": false,
+                "orderClasses": true
             } );
-            console.timeEnd("Creating table");
         });
     </script>
 {% endblock %}

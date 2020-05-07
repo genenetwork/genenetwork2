@@ -131,7 +131,7 @@ Publish or ProbeSet. E.g.
                                 ProbeSetFreeze.Name = "{0}"
                             """.format(name)
 
-            results = g.db.execute(geno_query).fetchall()
+            results = g.db.execute(mrna_expr_query).fetchall()
             if len(results):
                 self.datasets[name] = "ProbeSet"
                 Redis.set("dataset_structure", json.dumps(self.datasets))
