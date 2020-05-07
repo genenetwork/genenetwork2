@@ -292,7 +292,7 @@ JS_GUIX_PATH = get_setting("JS_GUIX_PATH")
 assert_dir(JS_GUIX_PATH)
 assert_dir(JS_GUIX_PATH+'/cytoscape-panzoom')
 
-CSS_PATH = "UNKNOWN"
+CSS_PATH = JS_GUIX_PATH  # The CSS is bundled together with the JS
 # assert_dir(JS_PATH)
 
 JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("javascript-twitter-post-fetcher"))
