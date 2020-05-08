@@ -165,12 +165,11 @@ Publish or ProbeSet. E.g.
 
             geno_query =    """
                                 SELECT
-                                    GenoFreezeId
+                                    GenoFreeze.Id
                                 FROM
                                     GenoFreeze
                                 WHERE
                                     GenoFreeze.Name = "{0}"
-                                {1}
                             """.format(name)
 
             results = g.db.execute(geno_query).fetchall()

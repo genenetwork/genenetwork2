@@ -73,16 +73,16 @@ class ShowTrait(object):
 
         #ZS: Get verify/rna-seq link URLs
         try:
-            blatsequence = self.this_trait.blatseq
+            blatsequence = self.this_trait.sequence
             if not blatsequence:
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 query1 = """SELECT Probe.Sequence, Probe.Name
-                           FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                           WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                                 ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                 ProbeSetFreeze.Name = '%s' AND
-                                 ProbeSet.Name = '%s' AND
-                                 Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
+                            FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                            WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                                    ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                    ProbeSetFreeze.Name = '%s' AND
+                                    ProbeSet.Name = '%s' AND
+                                    Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
                 seqs = g.db.execute(query1).fetchall()
                 if not seqs:
                     raise ValueError
@@ -98,10 +98,10 @@ class ShowTrait(object):
             query2 = """SELECT Probe.Sequence, Probe.Name
                         FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
                         WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                              ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                              ProbeSetFreeze.Name = '%s' AND
-                              ProbeSet.Name = '%s' AND
-                              Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
+                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                ProbeSetFreeze.Name = '%s' AND
+                                ProbeSet.Name = '%s' AND
+                                Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
 
             seqs = g.db.execute(query2).fetchall()
             for seqt in seqs:
@@ -121,8 +121,8 @@ class ShowTrait(object):
                 self.UCSC_BLAT_URL = ""
                 self.UTHSC_BLAT_URL = ""
         except:
-            self.UCSC_BLAT_URL = ""
-            self.UTHSC_BLAT_URL = ""
+           self.UCSC_BLAT_URL = ""
+           self.UTHSC_BLAT_URL = ""
 
         if self.dataset.type == "ProbeSet":
             self.show_probes = "True"

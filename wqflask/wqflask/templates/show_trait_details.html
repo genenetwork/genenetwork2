@@ -212,7 +212,7 @@
         <a href="#redirect">
         <button type="button" id="add_to_collection" class="btn btn-primary" title="Add to collection">Add</button>
         </a>
-        {% if this_trait.dataset.type == 'ProbeSet' %}
+        {% if this_trait.dataset.type == 'ProbeSet' or this_trait.dataset.type == 'Geno' %}
         {% if this_trait.symbol != None %}
         <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
         <button type="button" class="btn btn-default" title="Find similar expression data">Find</button>
