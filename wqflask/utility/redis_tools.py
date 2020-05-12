@@ -108,7 +108,7 @@ def get_group_info(group_id):
 def create_group(admin_member_ids, user_member_ids = [], group_name = ""):
     group_id = str(uuid.uuid4())
     new_group = {
-        "id"    : group_id
+        "id"    : group_id,
         "admins": admin_member_ids,
         "users" : user_member_ids,
         "name"  : group_name,

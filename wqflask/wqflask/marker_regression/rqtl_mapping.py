@@ -156,6 +156,9 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
          if(type == '4-way'){
            cat('Loading in as 4-WAY\n')
            cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
+         }else if(type == 'f2'){
+           cat('Loading in as F2\n')
+           cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="f2")                                       # Load the created cross file using R/qtl read.cross
          }else{
            cat('Loading in as normal\n')
            cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                       # Load the created cross file using R/qtl read.cross
