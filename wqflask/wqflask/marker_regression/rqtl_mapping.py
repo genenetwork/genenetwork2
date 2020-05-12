@@ -1,16 +1,36 @@
 import rpy2.robjects as ro
 import rpy2.robjects.numpy2ri as np2r
 import numpy as np
+import json
 
 from base.webqtlConfig import TMPDIR
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
 from utility import webqtlUtil
 from utility.tools import locate, TEMPDIR
+from flask import g
 
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
+# Get a trait's type (numeric, categorical, etc) from the DB
+def get_trait_data_type(trait_db_string):
+    logger.info("get_trait_data_type");
+    the_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
+    logger.info("the_query done");
+    results_json = g.db.execute(the_query).fetchone()
+    logger.info("the_query executed");
+    results_ob = json.loads(results_json[0])
+    logger.info("json results loaded");
+    if trait_db_string in results_ob:
+        logger.info("found");
+        return results_ob[trait_db_string]
+    else:
+        logger.info("not found");
+        return "numeric"
+
+
+# Run qtl mapping using R/qtl
 def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
     logger.info("Start run_rqtl_geno");
     ## Get pointers to some common R functions
@@ -63,7 +83,7 @@ def run_rqtl_geno(vals, samples, dataset, method, model, permCheck, num_perm, pe
     logger.info("Marker covars done");
     if cofactors != "":
         logger.info("Cofactors: " + cofactors);
-        cross_object, trait_covars = add_cofactors(cross_object, dataset, cofactors, samples)                            # Create the covariates from selected traits
+        cross_object, trait_covars = add_cofactors(cross_object, dataset, cofactors, samples)  # Create the covariates from selected traits
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
         ro.r('all_covars <- marker_covars')
@@ -218,6 +238,34 @@ def add_phenotype(cross, pheno_as_string, col_name):
     ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = as.numeric('+ pheno_as_string +'))')
     return ro.r["the_cross"]
 
+def add_categorical_covar(cross, covar_as_string, i):
+    ro.globalenv["the_cross"] = cross
+    logger.info("cross set"); 
+    ro.r('covar <- as.factor(' + covar_as_string + ')')
+    logger.info("covar set"); 
+    ro.r('newcovar <- model.matrix(~covar-1)')
+    logger.info("model.matrix finished");
+    ro.r('cat("new covar columns", ncol(newcovar), "\n")')
+    nCol = ro.r('ncol(newcovar)')
+    logger.info("ncol covar done: " + str(nCol[0]));
+    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
+    logger.info("pheno pulled from cross");
+    nCol = int(nCol[0])
+    logger.info("nCol python int:" + str(nCol));
+    col_names = []
+    #logger.info("loop")
+    for x in range(1, (nCol+1)):
+      #logger.info("loop" + str(x));
+      col_name = "covar_" + str(i) + "_" + str(x)
+      #logger.info("col_name" + col_name);
+      ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = newcovar[,' + str(x) + '])')
+      col_names.append(col_name)
+      #logger.info("loop" + str(x) + "done"); 
+
+    logger.info("returning from add_categorical_covar");
+    return ro.r["the_cross"], col_names
+
+
 def add_names(cross, names_as_string, col_name):
     ro.globalenv["the_cross"] = cross
     ro.r('pheno <- data.frame(pull.pheno(the_cross))')
@@ -236,6 +284,7 @@ def add_cofactors(cross, this_dataset, covariates, samples):
     covariate_list = covariates.split(",")
     covar_name_string = "c("
     for i, covariate in enumerate(covariate_list):
+        logger.info("Covariate: " + covariate);
         this_covar_data = []
         covar_as_string = "c("
         trait_name = covariate.split(":")[0]
@@ -263,19 +312,33 @@ def add_cofactors(cross, this_dataset, covariates, samples):
 
         covar_as_string += ")"
 
-        col_name = "covar_" + str(i)
-        cross = add_phenotype(cross, covar_as_string, col_name)
+        datatype = get_trait_data_type(covariate)
+        logger.info("Covariate: " + covariate + " is of type: " + datatype);
+        if(datatype == "categorical"): # Cat variable
+          logger.info("call of add_categorical_covar");
+          cross, col_names = add_categorical_covar(cross, covar_as_string, i) # Expand and add it to the cross
+          logger.info("add_categorical_covar returned");
+          for z, col_name in enumerate(col_names): # Go through the additional covar names
+            if i < (len(covariate_list) - 1):
+              covar_name_string += '"' + col_name + '", '
+            else:
+              if(z < (len(col_names) -1)):
+                covar_name_string += '"' + col_name + '", '
+              else:
+                covar_name_string += '"' + col_name + '"'
 
-        if i < (len(covariate_list) - 1):
-            covar_name_string += '"' + col_name + '", '
+          logger.info("covar_name_string:" + covar_name_string); 
         else:
+          col_name = "covar_" + str(i)
+          cross = add_phenotype(cross, covar_as_string, col_name)
+          if i < (len(covariate_list) - 1):
+            covar_name_string += '"' + col_name + '", '
+          else:
             covar_name_string += '"' + col_name + '"'
 
     covar_name_string += ")"
-
+    logger.info("covar_name_string:" + covar_name_string); 
     covars_ob = pull_var("trait_covars", cross, covar_name_string)
-    # TODO: Pull in the types of the covars from MariaDB
-    # TODO: Iterate through the covar types and create a design matrix based on it
     return cross, covars_ob
 
 def create_marker_covariates(control_marker, cross):
