@@ -119,10 +119,10 @@ class UserSession(object):
     @property
     def user_id(self):
         """Shortcut to the user_id"""
-        if 'user_id' in self.record:
-            return self.record['user_id']
-        else:
-            return ''
+        if 'user_id' not in self.record:
+            self.record['user_id'] = str(uuid.uuid4())
+
+        return self.record['user_id']
 
     @property
     def redis_user_id(self):
@@ -161,7 +161,7 @@ class UserSession(object):
         """List of user's collections"""
 
         #ZS: Get user's collections if they exist
-        collections = get_user_collections(self.redis_user_id)
+        collections = get_user_collections(self.user_id)
         collections = [item for item in collections if item['name'] != "Your Default Collection"] + [item for item in collections if item['name'] == "Your Default Collection"] #ZS: Ensure Default Collection is last in list
         return collections
 
@@ -277,7 +277,7 @@ class UserSession(object):
     def update_collections(self, updated_collections):
         collection_body = json.dumps(updated_collections)
 
-        save_collections(self.redis_user_id, collection_body)
+        save_collections(self.user_id, collection_body)
 
     def import_traits_to_user(self, anon_id):
         collections = get_user_collections(anon_id)
