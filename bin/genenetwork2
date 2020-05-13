@@ -209,7 +209,7 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
     PID=$TMPDIR/gunicorn.$USER.pid
-    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID -k eventlet --workers 20 --keep-alive 6000 --max-requests 1000 --timeout 1200 wsgi"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID --workers 20 --keep-alive 6000 --max-requests 1000 --timeout 1200 wsgi"
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
