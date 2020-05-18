@@ -758,7 +758,7 @@ check_for_zero_to_one_vals = function() {
       return;
     } else {
       current_value = parseFloat(current_value)
-      if (0 < current_value && current_value < 1){
+      if (0 <= current_value && current_value < 1){
         zero_to_one_vals_exist = true
         return false;
       }
@@ -1033,12 +1033,16 @@ val_range = root.chart_range[1] - root.chart_range[0]
 
 if (val_range < 0.05){
   tick_digits = '.3f'
+  left_margin = 80
 } else if (val_range < 0.5) {
   tick_digits = '.2f'
+  left_margin = 70
 } else if (val_range < 5){
   tick_digits = '.1f'
+  left_margin = 60
 } else {
   tick_digits = 'f'
+  left_margin = 55
 }
 
 if (js_data.num_values < 256) {
@@ -1077,7 +1081,7 @@ if (js_data.num_values < 256) {
     width: bar_chart_width,
     height: 600,
     margin: {
-        l: 55,
+        l: left_margin,
         r: 30,
         t: 30,
         b: bottom_margin
