@@ -508,7 +508,10 @@ class DisplayMappingResults(object):
             yTopOffset = max(90, yTopOffset)
         else:
             if self.legendChecked:
-                yTopOffset = max(90, yTopOffset)
+                if self.covariates != "" and self.controlLocus and self.doControl != "false":
+                    yTopOffset = max(120, yTopOffset)
+                else:
+                    yTopOffset = max(100, yTopOffset)
             else:
                 pass
 
