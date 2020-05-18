@@ -131,11 +131,8 @@
   };
 
   outlier_text = "One or more outliers exist in this data set. Please review values before mapping. Including outliers when mapping may lead to misleading results.";
-
-  runtime_warning_text = "This function could take as long as 10-20 minutes to run, so please do not close your browser window until it finishes."
-
   showalert = function(message, alerttype) {
-    return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
+    return $('#outlier_alert_placeholder').append('<div id="mapping_alert" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
   };
 
   $('#suggestive').hide();
