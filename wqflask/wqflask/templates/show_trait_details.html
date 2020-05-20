@@ -141,6 +141,12 @@
                 GTEx Portal
             </a>
             &nbsp;&nbsp;
+            {% if phenogen_link %}
+            <a href="{{ phenogen_link }}" target="_blank">
+                PhenoGen
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
             {% if genebridge_link %}
             <a href="{{ genebridge_link }}" target="_blank">
                 GeneBridge

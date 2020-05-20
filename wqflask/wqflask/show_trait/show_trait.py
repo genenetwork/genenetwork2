@@ -294,7 +294,7 @@ class ShowTrait(object):
         if check_if_attr_exists(self.this_trait, 'uniprotid'):
             self.uniprot_link = webqtlConfig.UNIPROT_URL % self.this_trait.uniprotid
 
-        self.genotation_link = self.rgd_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
+        self.genotation_link = self.rgd_link = self.phenogen_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
         self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
         if self.this_trait.symbol:
             self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
@@ -332,6 +332,7 @@ class ShowTrait(object):
 
             if self.dataset.group.species == "rat":
                 self.rgd_link = webqtlConfig.RGD_URL % (self.this_trait.symbol, self.dataset.group.species.capitalize())
+                self.phenogen_link = webqtlConfig.PHENOGEN_URL % (self.this_trait.symbol)
                 self.genemania_link = webqtlConfig.GENEMANIA_URL % ("rattus-norvegicus", self.this_trait.symbol)
 
                 query = """SELECT kgID, chromosome, txStart, txEnd
@@ -603,8 +604,10 @@ def get_categorical_variables(this_trait, sample_list):
         for attribute in sample_list.attributes:
             attribute_vals = []
             for sample_name in this_trait.data.keys():
-                attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
-
+                if sample_list.attributes[attribute].name in this_trait.data[sample_name].extra_attributes:
+                    attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
+                else:
+                    attribute_vals.append("N/A")
             num_distinct = len(set(attribute_vals))
 
             if num_distinct < 10:
