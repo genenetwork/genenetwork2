@@ -8,7 +8,7 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <div style="padding-left: 10px;">
+    <div style="padding-left: 10px;>
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
@@ -59,7 +59,7 @@
 
         </div>
 
-        <div>
+        <div style="min-width: 950px;">
           <form id="trait_submission_form" target="_blank" action="/corr_matrix" method="post">
             <input type="hidden" name="tool_used" value="" />
             <input type="hidden" name="form_url" value="" />
@@ -111,29 +111,34 @@
         <div>
           <br />
           <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
-            <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
-            <input type="hidden" name="search_string" id="search_string" value="{{ original_search_string }}">
-            <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
-            <input type="hidden" name="file_name" id="file_name" value="search_results">
-            <input type="hidden" name="filter_term" id="filter_term" value="None">
-            {% if dataset.accession_id is defined %}
-            <input type="hidden" name="accession_id" id="accession_id" value="{{ dataset.accession_id }}">
-            {% endif %}
-            <input type="hidden" name="export_data" id="export_data" value="">
-            <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select</button>
-            <button class="btn btn-default" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-            <button class="btn btn-default" id="export_traits">Download CSV</button>
-            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
-            <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+            <div style="min-width: 950px;">
+              <input type="hidden" name="headers" id="headers" value="{% for field in header_fields %}{{ field }},{% endfor %}">
+              <input type="hidden" name="search_string" id="search_string" value="{{ original_search_string }}">
+              <input type="hidden" name="database_name" id="database_name" value="{{ dataset.fullname }}">
+              <input type="hidden" name="file_name" id="file_name" value="search_results">
+              <input type="hidden" name="filter_term" id="filter_term" value="None">
+              {% if dataset.accession_id is defined %}
+              <input type="hidden" name="accession_id" id="accession_id" value="{{ dataset.accession_id }}">
+              {% endif %}
+              <input type="hidden" name="export_data" id="export_data" value="">
+              <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select</button>
+              <button class="btn btn-default" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+              <button class="btn btn-default" id="export_traits">Download CSV</button>
+              <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
+              <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+              <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+            </div>
           </form>
           <br />
+          {% if dataset.type != 'Geno' %}
           <br />
           <div style="margin-bottom: 5px;">
             <b>Show/Hide Columns:</b>
           </div>
+          {% endif %}
+          <!--<div id="table_container" style="min-width: {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}2000{% else %}380{% endif %}px;">-->
           <div id="table_container">
-            <table class="table-hover table-striped cell-border" id='trait_table' style="max-width: {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}2000{% else %}380{% endif %}px; float: left;">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: {% if dataset.type == 'Geno' %}380px{% else %}100%{% endif %};">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -341,7 +346,6 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "800px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
@@ -420,6 +424,7 @@
                     }{% endif %}
                 ],
                 "order": [[1, "asc" ]],
+                {% if dataset.type != 'Geno' %}
                 buttons: [
                     {
                         extend: 'columnsToggle',
@@ -434,6 +439,9 @@
                     }
                 ],
                 'sDom': "Bitir",
+                {% else %}
+                'sDom': "itir",
+                {% endif %}
                 'deferRender': true,
                 'paging': false,
                 'orderClasses': true,
