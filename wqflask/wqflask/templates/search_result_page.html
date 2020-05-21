@@ -8,7 +8,7 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <div style="padding-left: 10px; {% if dataset.type == 'Publish' %}min-width: 1000px;{% else %}min-width: 1200px;{% endif %}">
+    <div style="padding-left: 10px;">
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
@@ -133,7 +133,7 @@
             <b>Show/Hide Columns:</b>
           </div>
           <div id="table_container">
-            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="max-width: {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}2000{% else %}380{% endif %}px; float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -265,7 +265,7 @@
                 'columns': [
                     {
                       'data': null,
-                      'width': "30px",
+                      'width': "25px",
                       'orderDataType': "dom-checkbox",
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
@@ -322,18 +322,20 @@
                       'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural",
                       'data': "lrs_score",
+                      'width': "80px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS Location",
                       'type': "natural",
-                      'width': "120px",
+                      'width': "150px",
                       'data': "lrs_location"
                     },
                     {
                       'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural",
                       'data': "additive",
+                      'width': "120px",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Publish' %},
                     {
@@ -380,6 +382,7 @@
                       'type': "natural",
                       'orderDataType': "dom-inner-text",
                       'data': null,
+                      'width': "80px",
                       'render': function(data, type, row, meta) {
                         if (data.pubmed_id != "N/A"){
                           return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -393,25 +396,26 @@
                       'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural",
                       'data': "lrs_score",
+                      'width': "80px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS Location",
                       'type': "natural",
-                      'width': "200px",
+                      'width': "150px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Additive<br>Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural",
-                      'width': "100px",
+                      'width': "120px",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Geno' %},
                     {
                       'title': "Location",
                       'type': "natural",
-                      'width': "160px",
+                      'width': "140px",
                       'data': "location"
                     }{% endif %}
                 ],
