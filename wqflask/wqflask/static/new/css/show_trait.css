@@ -3,7 +3,7 @@ tr .outlier {
 }
 
 table.dataTable tbody tr.selected {
-    background-color: #ffff00
+    background-color: #ffee99;
 }
 
 #bar_chart_container {
