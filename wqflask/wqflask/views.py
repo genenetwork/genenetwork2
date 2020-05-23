@@ -78,6 +78,44 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 
+def extract_path_and_fileloc(filename):
+    """Return the approprate js_path and relative file location given a string.
+
+    The default js path is:
+
+    JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
+
+    However, other js files also installed in:
+
+    $GN2_PROFILE/share/javascript
+
+    This helper method checks whether there's a relative path i.e. an ".." in
+    the filename path and returns the appropriate guix js_path and the relative
+    file location from the guix path .e.g.
+
+    "../../javascript/cycle.min.js" returns:
+    ($GN2_PROFILE/share/javascript, cycle.min.js)
+
+    "Datatables/js/jquery.js" returns:
+    ($GN2_PROFILE/share/genenetwork2/javascript, Datatables/js/jquery.js)
+
+    Args:
+        filename: the filename e.g. "javascript/Datatables/js/jquery.js
+
+    Returns:
+        (js_path, filename) where:
+            js_path: the appropriate GUIX_JS_PATH
+            relative_file_loc: the dir + filename after the GUIX_JS_PATH
+
+    """
+    file_path = JS_GUIX_PATH
+    relative_file_loc = filename
+    if '..' in filename:
+        file_path = file_path.split('genenetwork2')[0] + 'javascript'
+        relative_file_loc = filename.split('../javascript/')[-1]
+    return file_path, relative_file_loc
+
+
 @app.before_request
 def connect_db():
     logger.info("@app.before_request connect_db")
@@ -152,13 +190,16 @@ def tmp_page(img_path):
     return render_template("show_image.html",
                             img_base64 = bytesarray )
 
+# TODO: Remove duplicate methods
 @app.route("/js/<path:filename>")
 def js(filename):
-    return send_from_directory(JS_GUIX_PATH, filename)
+    js_path, file_loc = extract_path_and_fileloc(filename)
+    return send_from_directory(js_path, file_loc)
 
 @app.route("/css/<path:filename>")
 def css(filename):
-    return send_from_directory(CSS_PATH, filename)
+    js_path, file_loc = extract_path_and_fileloc(filename)
+    return send_from_directory(js_path, file_loc)
 
 @app.route("/twitter/<path:filename>")
 def twitter(filename):
