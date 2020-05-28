@@ -179,7 +179,7 @@ class GeneralTrait(object):
             fmt += (' on the minus strand ')
 
         return fmt
-        
+
 def retrieve_sample_data(trait, dataset, samplelist=None):
     if samplelist == None:
         samplelist = []
@@ -233,14 +233,14 @@ def get_sample_data():
         trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
     return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])
-    
+
 def jsonable(trait):
     """Return a dict suitable for using as json
 
     Actual turning into json doesn't happen here though"""
 
     dataset = create_dataset(dataset_name = trait.dataset.name, dataset_type = trait.dataset.type, group_name = trait.dataset.group.name)
-    
+
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
                     symbol=trait.symbol,
@@ -294,7 +294,7 @@ def jsonable_table_row(trait, dataset_name, index):
     Actual turning into json doesn't happen here though"""
 
     dataset = create_dataset(dataset_name)
-    
+
     if dataset.type == "ProbeSet":
         if trait.mean == "":
             mean = "N/A"
@@ -310,7 +310,7 @@ def jsonable_table_row(trait, dataset_name, index):
                 trait.symbol,
                 trait.description_display,
                 trait.location_repr,
-                mean, 
+                mean,
                 trait.LRS_score_repr,
                 trait.LRS_location_repr,
                 additive]
@@ -349,36 +349,43 @@ def jsonable_table_row(trait, dataset_name, index):
 
 def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     assert dataset, "Dataset doesn't exist"
-    
-    if dataset.type == 'Publish':
-        query = """
-                SELECT
-                        PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
-                        Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
-                        Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
-                        Publication.Authors, Publication.Title, Publication.Abstract,
-                        Publication.Journal, Publication.Volume, Publication.Pages,
-                        Publication.Month, Publication.Year, PublishXRef.Sequence,
-                        Phenotype.Units, PublishXRef.comments
-                FROM
-                        PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
-                WHERE
-                        PublishXRef.Id = %s AND
-                        Phenotype.Id = PublishXRef.PhenotypeId AND
-                        Publication.Id = PublishXRef.PublicationId AND
-                        PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                        PublishXRef.InbredSetId = InbredSet.Id AND
-                        PublishFreeze.Id = %s
-                """ % (trait.name, dataset.id)
 
-        logger.sql(query)
-        trait_info = g.db.execute(query).fetchone()
+    if dataset.type == 'Publish':
+        resource_id = get_resource_id_by_data("dataset-publish",
+                                              {'dataset': dataset.id,
+                                               'trait': trait.name})
+        # If the user isn't logged in,
+        if g.user_session.record["user_type"] == 'anon':
+
+            # we don't provide a user to the proxy, which means the proxy will
+            # use the default access level for the resource
+            request_fmt = 'http://localhost:8080/run-action/?resource={}&branch=data&action=view'
+            request_url = request_fmt.format(resource_id)
+
+            trait_info = json.loads(requests.get(request_url))
+
+            # otherwise, we do provide the user ID to the proxy, and it looks at the user's group membership and the resource's access masks
+            user_id = g.user_session.record["user_id"]
+
+
+            request_fmt = 'http://localhost:8080/run-action/?resource={}&user={}&branch=data&action=view'
+
+            request_url = request_fmt.format(resource_id, user_id)
+
+            # trait_info will either be an array containing the single result,
+            # or the string "no-access".
+
+            # thus, while the proxy on its own blocks access to the data, we'd
+            # want to branch on the value of trait_info to change the page to a
+            # 401 error or something -- but I don't know where or how to do
+            # that in GN
+            trait_info = json.loads(requests.get(request_url))
 
 
     #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
     #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
     elif dataset.type == 'ProbeSet':
+
         display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
         display_fields_string = 'ProbeSet.' + display_fields_string
         query = """
@@ -397,21 +404,24 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
     # to avoid the problem of same marker name from different species.
     elif dataset.type == 'Geno':
-        display_fields_string = string.join(dataset.display_fields,',Geno.')
-        display_fields_string = 'Geno.' + display_fields_string
-        query = """
-                SELECT %s
-                FROM Geno, GenoFreeze, GenoXRef
-                WHERE
-                        GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-                        GenoXRef.GenoId = Geno.Id AND
-                        GenoFreeze.Name = '%s' AND
-                        Geno.Name = '%s'
-                """ % (escape(display_fields_string),
-                       escape(dataset.name),
-                       escape(trait.name))
-        logger.sql(query)
-        trait_info = g.db.execute(query).fetchone()
+
+        resource_id = get_resource_id_by_data("dataset-geno",
+                                              {'dataset': dataset.name})
+
+        if g.user_session.record["user_type"] == 'anon':
+
+            request_fmt = 'http://localhost:8080/run-action/?resource={}&branch=data&action=view&trait={}'
+            request_url = request_fmt.format(resource_id, trait.name)
+            trait_info = json.loads(requests.get(request_url))
+        else:
+            user_id = g.user_session.record["user_id"]
+
+            request_fmt = 'http://localhost:8080/run-action/?resource={}&user={}&branch=data&action=view&trait={}'
+
+            request_url = request_fmt.format(resource_id, user_id, trait.name)
+
+            trait_info = json.loads(requests.get(request_url))
+
     else: #Temp type
         query = """SELECT %s FROM %s WHERE Name = %s"""
         logger.sql(query)
@@ -578,5 +588,5 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
         raise KeyError, `trait.name`+' information is not found in the database.'
-        
+
     return trait
