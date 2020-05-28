@@ -89,11 +89,10 @@ def extract_path_and_fileloc(filename):
 
     $GN2_PROFILE/share/javascript
 
-    This helper method checks whether there's a relative path i.e. an ".." in
-    the filename path and returns the appropriate guix js_path and the relative
-    file location from the guix path .e.g.
+    This helper method checks whether there filename use the alternative
+    filepath i.e. $GN2_PROFILE/share/javascript .e.g.
 
-    "../../javascript/cycle.min.js" returns:
+    "js_alt/cycle.min.js" returns:
     ($GN2_PROFILE/share/javascript, cycle.min.js)
 
     "Datatables/js/jquery.js" returns:
@@ -110,9 +109,9 @@ def extract_path_and_fileloc(filename):
     """
     file_path = JS_GUIX_PATH
     relative_file_loc = filename
-    if '..' in filename:
-        file_path = file_path.split('genenetwork2')[0] + 'javascript'
-        relative_file_loc = filename.split('../javascript/')[-1]
+    if 'js_alt' in filename:
+        file_path = os.path.join(os.environ['GN2_PROFILE'], 'share/javascript')
+        relative_file_loc = filename.split('js_alt/')[-1]
     return file_path, relative_file_loc
 
 
