@@ -28,6 +28,20 @@ def get_user_id(column_name, column_value):
 
     return None
 
+def get_resource_id_by_data(res_type, res_data):
+    resource_list = Redis.hgetall("resources")
+    for key in resource_list:
+        resource_ob = json.loads(resource_list[key])
+
+        logger.info(resource_ob["data"])
+        if resource_ob["type"] == res_type and resource_ob["data"] == res_data:
+            return key
+
+    return None
+
+def get_resource(resource_id):
+    return json.loads(Redis.hget("resources", resource_id))
+
 def get_user_by_unique_column(column_name, column_value):
     item_details = None
 
