@@ -31,6 +31,12 @@ genenetwork2
 env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 GENENETWORK_FILES=~/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
 ```
 
+or you could use the debug script for development purposes:
+
+```sh
+env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5012 ./scripts/run_debug.sh
+```
+
 For full examples (you may need to set a number of environment
 variables), including running scripts and a Python REPL, also see the
 startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
