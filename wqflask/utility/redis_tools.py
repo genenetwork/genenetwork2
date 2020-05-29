@@ -1,16 +1,24 @@
 from __future__ import print_function, division, absolute_import
 
+import uuid
 import simplejson as json
 
 import redis # used for collections
-Redis = redis.StrictRedis()
 
 import logging
 
 from flask import (render_template, flash)
 
+from utility import hmac
+
 from utility.logger import getLogger
 logger = getLogger(__name__)
+
+def get_redis_conn():
+    Redis = redis.StrictRedis(port=6380)
+    return Redis
+
+Redis = get_redis_conn()
 
 def is_redis_available():
     try:
@@ -70,14 +78,15 @@ def check_verification_code(code):
     email_address = None
     user_details = None
     email_address = Redis.hget("verification_codes", code)
-    return email_address
 
     if email_address:
         user_details = get_user_by_unique_column('email_address', email_address)
-        return user_details
+        if user_details:
+            return user_details
+        else:
+            return None
     else:
         return None
-        flash("Invalid code: Password reset code does not exist or might have expired!", "error")
 
 def get_user_groups(user_id):
     #ZS: Get the groups where a user is an admin or a member and return lists corresponding to those two sets of groups
@@ -168,3 +177,38 @@ def change_group_name(user_id, group_id, new_name):
         return group_info
     else:
         return None
+
+def get_resources():
+    resource_list = Redis.hgetall("resources")
+    return resource_list
+
+def get_resource_id(dataset_type, dataset_id, trait_id = None, all_resources = None):
+    if not all_resources:
+        all_resources = get_resources()
+
+    resource_list = [[key, json.loads(value)] for key, value in all_resources.items()]
+
+    if not trait_id:
+        matched_resources = [resource[0] for resource in resource_list if resource[1]['data']['dataset'] == dataset_id]
+    else:
+        matched_resources = [resource[0] for resource in resource_list if resource[1]['data']['dataset'] == dataset_id and resource[1]['data']['trait'] == trait_id]
+
+    if len(matched_resources):
+        return matched_resources[0]
+    else:
+        return False
+
+def get_resource_info(resource_id):
+    resource_info = Redis.hget("resources", resource_id)
+    return json.loads(resource_info)
+
+def add_resource(resource_info):
+
+    if 'trait' in resource_info['data']:
+        resource_id = hmac.data_hmac('{}:{}'.format(str(resource_info['data']['dataset']), str(resource_info['data']['trait'])))
+    else:
+        resource_id = hmac.data_hmac('{}'.format(str(resource_info['data']['dataset'])))
+
+    Redis.hset("resources", resource_id, json.dumps(resource_info))
+
+    return resource_info

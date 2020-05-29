@@ -5,9 +5,6 @@ import resource
 import codecs
 import requests
 
-import redis
-Redis = redis.StrictRedis()
-
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
@@ -15,6 +12,8 @@ from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility import hmac
 from utility.tools import GN2_BASE_URL
+from utility.redis_tools import get_redis_conn
+Redis = get_redis_conn()
 
 from wqflask import app
 
@@ -349,8 +348,13 @@ def jsonable_table_row(trait, dataset_name, index):
 
 def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     assert dataset, "Dataset doesn't exist"
-    
+
     if dataset.type == 'Publish':
+        resource_id = hmac.data_hmac("{}:{}".format(dataset.id, trait.name))
+
+        the_url = "http://localhost:8080/run_action/?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
+        trait_data = json.loads(requests.get("http://localhost:8080/run_action/?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)))
+
         query = """
                 SELECT
                         PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
