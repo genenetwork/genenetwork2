@@ -213,7 +213,7 @@
       <!--</div>-->
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}"></script>
     <script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}"></script>
     <script>
             //http://stackoverflow.com/questions/11521763/bootstrap-scrollspy-not-working
@@ -226,7 +226,7 @@
             })
     </script>
     <script src="/static/new/js_external/jquery.cookie.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='colorbox/jquery.colorbox-min.js') }}"></script>
     <!--<script type="text/javascript" src="/static/new/javascript/login.js"></script>-->
