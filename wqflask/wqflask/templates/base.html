@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/non-responsive.css" />
-    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/docs.css" />
+    <link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='bootstrap/css/docs.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/colorbox.css"  />
     <!--<link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />-->
     <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css"  />
@@ -214,7 +214,7 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}"></script>
     <script>
             //http://stackoverflow.com/questions/11521763/bootstrap-scrollspy-not-working
             var $window = $(window)
