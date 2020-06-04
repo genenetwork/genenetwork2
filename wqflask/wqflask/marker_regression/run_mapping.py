@@ -124,7 +124,7 @@ class RunMapping(object):
                             self.samples.append(sample)
                             self.vals.append(value)
 
-        self.num_vals = start_vars['num_vals']
+        self.num_vals = len(self.vals)
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
 
@@ -156,6 +156,8 @@ class RunMapping(object):
             self.transform = ""
         self.score_type = "LRS" #ZS: LRS or LOD
         self.mapping_scale = "physic"
+        if "mapping_scale" in start_vars:
+            self.mapping_scale = start_vars['mapping_scale']
         self.num_perm = 0
         self.perm_output = []
         self.bootstrap_results = []
@@ -255,9 +257,9 @@ class RunMapping(object):
             #if start_vars['pair_scan'] == "true":
             #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
-                self.perm_output, self.suggestive, self.significant, results, self.mapping_scale = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+                self.perm_output, self.suggestive, self.significant, results= rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.mapping_scale, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
             else:
-                results, self.mapping_scale = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
+                results = rqtl_mapping.run_rqtl_geno(self.vals, self.samples, self.dataset, self.mapping_scale, self.method, self.model, self.permCheck, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.pair_scan, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars: #ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:
@@ -429,7 +431,7 @@ class RunMapping(object):
               with Bench("Trimming Markers for Table"):
                   self.trimmed_markers = trim_markers_for_table(results)
 
-              chr_lengths = get_chr_lengths(self.mapping_scale, self.dataset, self.qtl_results)
+              chr_lengths = get_chr_lengths(self.mapping_scale, self.mapping_method, self.dataset, self.qtl_results)
 
               #ZS: For zooming into genome browser, need to pass chromosome name instead of number
               if self.dataset.group.species == "mouse":
@@ -643,7 +645,7 @@ def geno_db_exists(this_dataset):
     except:
         return "False"
 
-def get_chr_lengths(mapping_scale, dataset, qtl_results):
+def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
     chr_lengths = []
     if mapping_scale == "physic":
         for i, the_chr in enumerate(dataset.species.chromosomes.chromosomes):
@@ -666,8 +668,12 @@ def get_chr_lengths(mapping_scale, dataset, qtl_results):
                 this_chr = chr_as_num
                 highest_pos = 0
             else:
-                if float(result['Mb']) > highest_pos:
-                    highest_pos = float(result['Mb'])
+                if mapping_method == "reaper":
+                    if float(result['cM']) > highest_pos:
+                        highest_pos = float(result['cM'])
+                else:
+                    if float(result['Mb']) > highest_pos:
+                        highest_pos = float(result['Mb'])
 
     return chr_lengths
 

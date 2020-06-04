@@ -131,7 +131,7 @@ Publish or ProbeSet. E.g.
                                 ProbeSetFreeze.Name = "{0}"
                             """.format(name)
 
-            results = g.db.execute(geno_query).fetchall()
+            results = g.db.execute(mrna_expr_query).fetchall()
             if len(results):
                 self.datasets[name] = "ProbeSet"
                 Redis.set("dataset_structure", json.dumps(self.datasets))
@@ -165,12 +165,11 @@ Publish or ProbeSet. E.g.
 
             geno_query =    """
                                 SELECT
-                                    GenoFreezeId
+                                    GenoFreeze.Id
                                 FROM
                                     GenoFreeze
                                 WHERE
                                     GenoFreeze.Name = "{0}"
-                                {1}
                             """.format(name)
 
             results = g.db.execute(geno_query).fetchall()

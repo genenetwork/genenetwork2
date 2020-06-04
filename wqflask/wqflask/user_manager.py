@@ -356,7 +356,7 @@ def get_cookie():
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
 
-@app.after_request
+#@app.after_request
 def set_cookie(response):
     if not request.cookies.get(g.cookie_session.cookie_name):
         response.set_cookie(g.cookie_session.cookie_name, g.cookie_session.cookie)
@@ -538,7 +538,7 @@ def basic_info():
                 ip_address = request.remote_addr,
                 user_agent = request.headers.get('User-Agent'))
 
-@app.route("/manage/verify_email")
+#@app.route("/manage/verify_email")
 def verify_email():
     user = DecodeUser(VerificationEmail.key_prefix).user
     user.confirmed = json.dumps(basic_info(), sort_keys=True)
@@ -552,7 +552,7 @@ def verify_email():
     response.set_cookie(UserSession.cookie_name, session_id_signed)
     return response
 
-@app.route("/n/password_reset", methods=['GET'])
+#@app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
@@ -576,7 +576,7 @@ def password_reset():
     else:
         return redirect(url_for("login"))
 
-@app.route("/n/password_reset_step2", methods=('POST',))
+#@app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
     logger.debug("in password_reset request.url is:", request.url)
@@ -620,7 +620,7 @@ class DecodeUser(object):
         logger.debug("data is:", data)
         return model.User.query.get(data['id'])
 
-@app.route("/n/login", methods=('GET', 'POST'))
+#@app.route("/n/login", methods=('GET', 'POST'))
 def login():
     lu = LoginUser()
     login_type = request.args.get("type")
@@ -630,7 +630,7 @@ def login():
     else:
         return lu.standard_login()
 
-@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+#@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
 def github_oauth2():
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
     code = request.args.get("code")
@@ -661,7 +661,7 @@ def github_oauth2():
     url = "/n/login?type=github&uid="+user_details["user_id"]
     return redirect(url)
 
-@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+#@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
 def orcid_oauth2():
     from uuid import uuid4
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
@@ -841,7 +841,7 @@ class LoginUser(object):
         db_session.add(login_rec)
         db_session.commit()
 
-@app.route("/n/logout")
+#@app.route("/n/logout")
 def logout():
     logger.debug("Logging out...")
     UserSession().delete_session()
@@ -852,7 +852,7 @@ def logout():
     return response
 
 
-@app.route("/n/forgot_password", methods=['GET'])
+#@app.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
     print("ARGS: ", request.args)
@@ -860,7 +860,7 @@ def forgot_password():
     print("ERRORS: ", errors)
     return render_template("new_security/forgot_password.html", errors=errors)
 
-@app.route("/n/forgot_password_submit", methods=('POST',))
+#@app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
@@ -945,7 +945,7 @@ def is_redis_available():
 #    return LoginUser().actual_login(user, assumed_by=assumed_by)
 
 
-@app.route("/n/register", methods=('GET', 'POST'))
+#@app.route("/n/register", methods=('GET', 'POST'))
 def register():
     params = None
     errors = None

@@ -609,6 +609,7 @@ def get_header_fields(data_type, corr_method):
         if corr_method == "spearman":
             header_fields = ['Index',
                             'Record',
+                            'Abbreviation',
                             'Description',
                             'Authors',
                             'Year',
@@ -621,6 +622,7 @@ def get_header_fields(data_type, corr_method):
         else:
             header_fields = ['Index',
                             'Record',
+                            'Abbreviation',
                             'Description',
                             'Authors',
                             'Year',

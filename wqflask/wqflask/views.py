@@ -40,7 +40,7 @@ from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
 from wqflask.submit_bnw import get_bnw_input
-from base.data_set import DataSet    # Used by YAML in marker_regression
+from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
@@ -633,12 +633,21 @@ def loading_page():
         if 'num_vals' in start_vars:
             num_vals = int(start_vars['num_vals'])
         else:
-            if 'primary_samples' in start_vars:
-                samples = start_vars['primary_samples'].split(",")
-                for sample in samples:
-                    value = start_vars.get('value:' + sample)
-                    if value != "x":
-                        num_vals += 1
+            dataset = create_dataset(start_vars['dataset'])
+            genofile_samplelist = []
+            samples = start_vars['primary_samples'].split(",")
+            if 'genofile' in start_vars:
+                if start_vars['genofile'] != "":
+                    genofile_string = start_vars['genofile']
+                    dataset.group.genofile = genofile_string.split(":")[0]
+                    genofile_samples = run_mapping.get_genofile_samplelist(dataset)
+                    if len(genofile_samples) > 1:
+                        samples = genofile_samples
+
+            for sample in samples:
+                value = start_vars.get('value:' + sample)
+                if value != "x":
+                    num_vals += 1
 
         start_vars['num_vals'] = num_vals
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']

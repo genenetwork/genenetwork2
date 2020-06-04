@@ -82,6 +82,7 @@
                 <button id="redraw" class="btn btn-default" type="button">Reset Columns</button>
             </form>
             <br />
+            {% if target_dataset.type != "Publish" %}
             <br />
             <button id="more_options" class="btn btn-primary">More Options...</button>
             <br />
@@ -107,6 +108,7 @@
             <br />
             <br />
             </div>
+            {% endif %}
         </div>
         <div style="margin-bottom: 5px;">
             <b>Show/Hide Columns:</b>
@@ -126,7 +128,7 @@
                 {% for trait in correlation_results %}
                     <tr>
                         <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: center;">{{ loop.index }}</td>
+                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: right;">{{ loop.index }}</td>
                         <td data-export="{{ trait.name }}">
                             <a href="{{ url_for('show_trait_page',
                                     trait_id = trait.name,
@@ -159,7 +161,12 @@
                         <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
                         <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Publish" %}
-                        <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</td>
+                        {% if trait.abbreviation %}
+                        <TD title="{{ trait.abbreviation }}" data-export="{{ trait.abbreviation }}">{% if trait.abbreviation|length > 20 %}{{ trait.abbreviation[:20] }}...{% else %}{{ trait.abbreviation }}{% endif %}</TD>
+                        {% else %}
+                        <TD data-export="N/A">N/A</TD>
+                        {% endif %}
+                        <td data-export="{{ trait.description_display }}">{% if trait.description_display|length > 50 %}{{ trait.description_display[:50] }}...{% else %}{{ trait.description_display }}{% endif %}</td>
                         <td data-export="{{ trait.authors }}">{{ trait.authors }}</td>
                         <td data-export="{{ trait.pubmed_text }}">
                             <a href="{{ trait.pubmed_link }}">
@@ -234,8 +241,7 @@
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
 
-        //$.fn.dataTableExt.afnFiltering.push(
-
+        {% if target_dataset.type != "Publish" %}
         $.fn.dataTable.ext.search.push( function( settings, data, dataIndex ) {
                 var r_column = {{ filter_cols[0] }};
                 var r_greater = parseFloat($('input[name=r_greater_select]').val())
@@ -275,6 +281,7 @@
                 }
                 return true
         });
+        {% endif %}
 
         $(document).ready( function () {
 
@@ -298,7 +305,6 @@
                         $(button).prop("disabled", false);
                     }
                 }
-                         //});
                 if ($(this).is(":checked")) {
                     if (!$(this).closest('tr').hasClass('selected')) {
                         $(this).closest('tr').addClass('selected')
@@ -377,8 +383,15 @@
 
             {% elif target_dataset.type == "Publish" %}
             table_conf =  {
-                "paging": false,
-                buttons: [
+                "drawCallback": function( settings ) {
+                     $('#trait_table tr').click(function(event) {
+                         if (event.target.type !== 'checkbox') {
+                             $(':checkbox', this).trigger('click');
+                         }
+                     });
+                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
+                "buttons": [
                     {
                         extend: 'columnsToggle',
                         columns: function( idx, data, node ) {
@@ -395,6 +408,7 @@
                     { "targets": 0, "orderable": false }
                 ],  
                 "columns": [
+                    { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
                     { "type": "natural" },
@@ -420,10 +434,14 @@
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                 },
-                "order": [[8, "asc" ]],
+                "order": [[9, "asc" ]],
                 "sDom": "Btir",
+                "iDisplayLength": -1,
                 "autoWidth": false,
-                "bDeferRender": true
+                "deferRender": true,
+                "bSortClasses": false,
+                "paging": false,
+                "orderClasses": true,
             }
             {% elif target_dataset.type == "Geno" %}
             table_conf = {
@@ -462,7 +480,7 @@
             }
             {% endif %}
 
-            var the_table = $('#trait_table').DataTable(table_conf);
+            the_table = $('#trait_table').DataTable(table_conf);
 
             console.timeEnd("Creating table");
 

@@ -132,6 +132,8 @@ var modebar_options = {
       Plotly.downloadImage(gd, {format: 'jpeg'})
     }
   }],
+  showEditInChartStudio: true,
+  plotlyServerURL: "https://chart-studio.plotly.com",
   modeBarButtonsToRemove:['toImage', 'sendDataToCloud', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines'],
   displaylogo: false
 }

@@ -273,7 +273,11 @@
                 {% endif %}
                 <td align="right">{{marker.chr}}</td>
                 {% if plotScale != "physic" %}
+                {% if 'cM' in marker %}
+                <td align="right">{{ '%0.3f' | format(marker.cM|float) }}</td>
+                {% else %}
                 <td align="right">{{ '%0.3f' | format(marker.Mb|float) }}</td>
+                {% endif %}
                 {% else %}
                 <td align="right">{{ '%0.6f' | format(marker.Mb|float) }}</td>
                 {% endif %}

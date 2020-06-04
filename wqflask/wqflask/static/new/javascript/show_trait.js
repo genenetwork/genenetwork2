@@ -518,7 +518,7 @@ submit_special = function(url) {
   return $("#trait_data_form").submit();
 };
 
-var corr_input_list = ['corr_type', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
+var corr_input_list = ['corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
 $(".corr_compute").on("click", (function(_this) {
@@ -755,12 +755,12 @@ check_for_zero_to_one_vals = function() {
   $('.trait_value_input').each(function() {
     current_value = $(this).data("value")
     if(isNaN(current_value)) {
-      return;
+      return true;
     } else {
       current_value = parseFloat(current_value)
-      if (0 < current_value && current_value < 1){
+      if (0 <= current_value && current_value < 1){
         zero_to_one_vals_exist = true
-        return false;
+        return false
       }
     }
   });
@@ -769,7 +769,6 @@ check_for_zero_to_one_vals = function() {
 
 normalize_data = function() {
   if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
-    zero_to_one_vals_exist = check_for_zero_to_one_vals();
     if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
       log2_normalize_data(zero_to_one_vals_exist)
       $('input[name="transform"]').val("log2")
@@ -810,7 +809,28 @@ normalize_data = function() {
   }
 }
 
-$('#normalize').click(normalize_data);
+zero_to_one_vals_exist = false
+
+show_transform_warning = function() {
+  transform_type = $('#norm_method option:selected').val()
+  zero_to_one_vals_exist = check_for_zero_to_one_vals();
+  if (transform_type == "log2" || transform_type == "log10"){
+    if (zero_to_one_vals_exist){
+      $('#transform_alert').css("display", "block")
+    }
+  } else {
+    $('#transform_alert').css("display", "none")
+  }
+}
+
+$('#norm_method').change(function(){
+  show_transform_warning()
+});
+$('#normalize').hover(function(){
+  show_transform_warning()
+});
+
+$('#normalize').click(normalize_data)
 
 switch_qnorm_data = function() {
   return $('.trait_value_input').each((function(_this) {
@@ -1033,12 +1053,16 @@ val_range = root.chart_range[1] - root.chart_range[0]
 
 if (val_range < 0.05){
   tick_digits = '.3f'
+  left_margin = 80
 } else if (val_range < 0.5) {
   tick_digits = '.2f'
+  left_margin = 70
 } else if (val_range < 5){
   tick_digits = '.1f'
+  left_margin = 60
 } else {
   tick_digits = 'f'
+  left_margin = 55
 }
 
 if (js_data.num_values < 256) {
@@ -1077,7 +1101,7 @@ if (js_data.num_values < 256) {
     width: bar_chart_width,
     height: 600,
     margin: {
-        l: 55,
+        l: left_margin,
         r: 30,
         t: 30,
         b: bottom_margin
