@@ -1,0 +1,199 @@
+/* Override some styles defined in bootstrap*/
+
+@media print {
+    .table-bordered th,
+    .table-bordered td {
+        border: 1px solid #000!important;
+    }
+}
+
+body {
+    color: #000;
+}
+
+h3 code {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+a {
+    color: #3071a9;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3 {
+    margin-top: 10px;
+}
+
+h1,
+.h1 {
+    font-size: 30px;
+}
+
+h2,
+.h2 {
+    font-size: 24px;
+}
+h3,
+.h3 {
+    font-size: 18px;
+}
+h4,
+.h4 {
+    font-size: 14px;
+}
+h5,
+.h5 {
+    font-size: 12px;
+}
+h6,
+.h6 {
+    font-size: 10px;
+}
+.page-header {
+    margin: 10px 0 10px;
+}
+.container {
+    margin-right: unset;
+    margin-left: unset;
+}
+
+.table {
+    width: unset;
+    max-width: unset;
+}
+
+.table > thead > tr > th {
+    vertical-align: middle;
+}
+
+.table-bordered {
+    border: 1px solid #000;
+}
+
+output {
+    color: #000;
+}
+
+@media (min-width: 768px) {
+    .form-horizontal .control-label {
+        padding-top: unset;
+        margin-bottom: unset;
+        text-align: unset;
+    }
+}
+
+.form-horizontal .control-label {
+    padding-top: 7px;
+    margin-bottom: 0;
+    text-align: right;
+}
+
+.btn-primary {
+    background-color: #369;
+}
+
+.nav > li {
+    margin-right: 10px;
+}
+
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+    background-color: #3071a9; /* Tab cell background color */
+}
+
+.navbar {
+    margin-bottom: unset;
+    min-height: 30px;
+}
+
+.navbar-brand {
+    height: 30px;
+    padding: 6px 15px;
+    font-size: 15px;
+    line-height: 18px;
+}
+
+.navbar-nav>li, .navbar-nav {
+    float: left !important;
+}
+
+.navbar-nav.navbar-right:last-child {
+    margin-right: -15px !important;
+}
+
+.navbar-right {
+    float: right!important;
+}
+
+.navbar-text {
+      float: left;
+      margin-right: 15px;
+      margin-left: 15px;
+    }
+
+
+.navbar-left {
+    float: left !important;
+}
+
+.navbar-right {
+      float: right !important;
+      margin-right: -15px;
+}
+
+.navbar-right ~ .navbar-right {
+      margin-right: 0;
+}
+
+.navbar-inverse {
+      background-color: #336699;
+}
+.navbar-inverse .navbar-brand {
+      color: #ffffff;
+}
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-brand:focus {
+ color: #ffffff;
+}
+.navbar-inverse .navbar-text {
+      color: #ffffff;
+
+}
+.navbar-inverse .navbar-nav > li > a {
+      color: #ffffff;
+}
+.navbar-inverse .navbar-nav > li > a:hover,
+.navbar-inverse .navbar-nav > li > a:focus {
+      color: #ffffff;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+    background-color: #3071a9;
+}
+
+
+a.list-group-item.active > .badge,
+.nav-pills > .active > a > .badge {
+    color: #3071a9;
+}
+
+.jumbotron {
+    margin-bottom: 10px;
+    padding: unset;
+}
+
+.alert {
+    padding: 10px;
+    margin-bottom: 5px;
+}
