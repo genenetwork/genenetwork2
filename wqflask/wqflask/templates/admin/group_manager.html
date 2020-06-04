@@ -2,17 +2,25 @@
 {% block title %}Group Manager{% endblock %}
 {% block content %}
 <!-- Start of body -->
-     {{ header("List of groups", "" )}}
-
     <div class="container">
         <div class="page-header">
             <h1>Manage Groups</h1>
+            <button type="button" id="remove_groups" class="btn btn-primary" data-url="/groups/remove">Remove Selected Groups</button>
         </div>
-        <form action="/manage/groups" method="POST">
+        <form id="groups_form" action="/groups/manage" method="POST">
+            <input type="hidden" name="selected_group_ids" value="">
             <div class="container" style="margin-bottom: 30px;">
+                {% if admin_groups|length == 0 and user_groups|length == 0 %}
+                <h4>You currently aren't a member or admin of any groups.</h4>
+                <br>
+                <button type="submit" name="add_new_group" class="btn btn-primary">Create a new group</button>
+                {% else %}
                 <div><h3>Admin Groups</h3></div>
                 <hr>
-                <table id="admin_groups" class="table table-hover">
+                {% if admin_groups|length == 0 %}
+                <h4>You currently aren't the administrator of any groups.</h4>
+                {% else %}
+                <table id="admin_groups" class="table table-hover" style="min-width: 800px; max-width: 1000px;">
                     <thead>
                         <tr>
                             <th></th>
@@ -26,7 +34,7 @@
                     <tbody>
                         {% for group in admin_groups %}
                         <tr>
-                            <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
+                            <td><input type="checkbox" name="group_id" value="{{ group.id }}"></td>
                             <td>{{ loop.index }}</td>
                             <td>{{ group.name }}</td>
                             <td>{{ group.admins|length + group.users|length }}</td>
@@ -36,12 +44,16 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {% endif %}
             </div>
             <hr>
             <div class="container">
                 <div><h3>User Groups</h3></div>
                 <hr>
-                <table id="user_groups" class="table table-hover">
+                {% if user_groups|length == 0 %}
+                <h4>You currently aren't a member of any groups.</h4>
+                {% else %}
+                <table id="user_groups" class="table table-hover" style="min-width: 800px; max-width: 1000px;">
                     <thead>
                         <tr>
                             <th></th>
@@ -65,11 +77,11 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {% endif %}
+                {% endif %}
             </div>
         </form>
     </div>
-
-
 
 <!-- End of body -->
 
@@ -79,7 +91,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/packages/TableTools/media/js/TableTools.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
     <script type="text/javascript" charset="utf-8">
@@ -113,6 +124,22 @@
                 "paging": false,
                 "orderClasses": true
             } );
+
+            submit_special = function(url) {
+                $("#groups_form").attr("action", url);
+                return $("#groups_form").submit();
+            };
+
+            $("#remove_groups").on("click", function() {
+                url = $(this).data("url")
+                groups = []
+                $("input[name=group_id]:checked").each(function() {
+                    groups.push($(this).val());
+                });
+                groups_string = groups.join(":")
+                $("input[name=selected_group_ids]").val(groups_string)
+                return submit_special(url)
+            });
         });
     </script>
 {% endblock %}

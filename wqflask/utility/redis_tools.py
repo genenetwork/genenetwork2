@@ -2,6 +2,7 @@ from __future__ import print_function, division, absolute_import
 
 import uuid
 import simplejson as json
+import datetime
 
 import redis # used for collections
 
@@ -96,15 +97,22 @@ def get_user_groups(user_id):
     for key in groups_list:
         group_ob = json.loads(groups_list[key])
         group_admins = set(group_ob['admins'])
-        group_users = set(group_ob['users'])
+        group_members = set(group_ob['members'])
         if user_id in group_admins:
             admin_group_ids.append(group_ob['id'])
-        elif user_id in group_users:
+        elif user_id in group_members:
             user_group_ids.append(group_ob['id'])
         else:
             continue
 
-    return admin_group_ids, user_group_ids
+    admin_groups = []
+    user_groups = []
+    for the_id in admin_group_ids:
+        admin_groups.append(get_group_info(the_id))
+    for the_id in user_group_ids:
+        user_groups.append(get_group_info(the_id))
+
+    return admin_groups, user_groups
 
 def get_group_info(group_id):
     group_json = Redis.hget("groups", group_id)
@@ -114,18 +122,18 @@ def get_group_info(group_id):
 
     return group_info
 
-def create_group(admin_member_ids, user_member_ids = [], group_name = ""):
+def create_group(admin_user_ids, member_user_ids = [], group_name = "Default Group Name"):
     group_id = str(uuid.uuid4())
     new_group = {
         "id"    : group_id,
-        "admins": admin_member_ids,
-        "users" : user_member_ids,
+        "admins": admin_user_ids,
+        "members" : member_user_ids,
         "name"  : group_name,
         "created_timestamp": datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
         "changed_timestamp": datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
     }
 
-    Redis.hset("groups", group_id, new_group)
+    Redis.hset("groups", group_id, json.dumps(new_group))
 
     return new_group
 
@@ -144,7 +152,7 @@ def add_users_to_group(user_id, group_id, user_emails = [], admins = False): #ZS
         if admins:
             group_users = set(group_info["admins"])
         else:
-            group_users = set(group_info["users"])
+            group_users = set(group_info["members"])
 
         for email in user_emails:
             user_id = get_user_id("email_address", email)
@@ -153,7 +161,7 @@ def add_users_to_group(user_id, group_id, user_emails = [], admins = False): #ZS
         if admins:
             group_info["admins"] = list(group_users)
         else:
-            group_info["users"] = list(group_users)
+            group_info["members"] = list(group_users)
 
         group_info["changed_timestamp"] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         Redis.hset("groups", group_id, json.dumps(group_info))
@@ -161,7 +169,7 @@ def add_users_to_group(user_id, group_id, user_emails = [], admins = False): #ZS
     else:
         return None
 
-def remove_users_from_group(user_id, users_to_remove_ids, group_id, user_type = "users"): #ZS: User type is because I assume admins can remove other admins
+def remove_users_from_group(user_id, users_to_remove_ids, group_id, user_type = "members"): #ZS: User type is because I assume admins can remove other admins
     group_info = get_group_info(group_id)
     if user_id in group_info["admins"]:
         group_users = set(group_info[user_type])
@@ -174,6 +182,7 @@ def change_group_name(user_id, group_id, new_name):
     group_info = get_group_info(group_id)
     if user_id in group_info["admins"]:
         group_info["name"] = new_name
+        Redis.hset("groups", group_id, json.dumps(group_info))
         return group_info
     else:
         return None
@@ -182,21 +191,20 @@ def get_resources():
     resource_list = Redis.hgetall("resources")
     return resource_list
 
-def get_resource_id(dataset_type, dataset_id, trait_id = None, all_resources = None):
-    if not all_resources:
-        all_resources = get_resources()
-
-    resource_list = [[key, json.loads(value)] for key, value in all_resources.items()]
-
-    if not trait_id:
-        matched_resources = [resource[0] for resource in resource_list if resource[1]['data']['dataset'] == dataset_id]
-    else:
-        matched_resources = [resource[0] for resource in resource_list if resource[1]['data']['dataset'] == dataset_id and resource[1]['data']['trait'] == trait_id]
-
-    if len(matched_resources):
-        return matched_resources[0]
+def get_resource_id(dataset, trait_id=None):
+    if dataset.type == "Publish":
+        if trait_id:
+            resource_id = hmac.hmac_creation("{}:{}:{}".format('dataset-publish', dataset.id, trait_id))
+        else:
+            return False
+    elif dataset.type == "ProbeSet":
+        resource_id = hmac.hmac_creation("{}:{}".format('dataset-probeset', dataset.id))
+    elif dataset.type == "Geno":
+        resource_id = hmac.hmac_creation("{}:{}".format('dataset-geno', dataset.id))
     else:
         return False
+
+    return resource_id
 
 def get_resource_info(resource_id):
     resource_info = Redis.hget("resources", resource_id)
@@ -205,9 +213,9 @@ def get_resource_info(resource_id):
 def add_resource(resource_info):
 
     if 'trait' in resource_info['data']:
-        resource_id = hmac.data_hmac('{}:{}'.format(str(resource_info['data']['dataset']), str(resource_info['data']['trait'])))
+        resource_id = hmac.hmac_creation('{}:{}:{}'.format(str(resource_info['type']), str(resource_info['data']['dataset']), str(resource_info['data']['trait'])))
     else:
-        resource_id = hmac.data_hmac('{}'.format(str(resource_info['data']['dataset'])))
+        resource_id = hmac.hmac_creation('{}:{}'.format(str(resource_info['type']), str(resource_info['data']['dataset'])))
 
     Redis.hset("resources", resource_id, json.dumps(resource_info))
 

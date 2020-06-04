@@ -23,16 +23,13 @@ import uuid
 import simplejson as json
 import yaml
 
-#Switching from Redis to StrictRedis; might cause some issues
-import redis
-Redis = redis.StrictRedis()
-
 import flask
 import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect
+from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for
+from wqflask import group_manager
 from wqflask import search_results
 from wqflask import export_traits
 from wqflask import gsearch
@@ -55,11 +52,13 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 from wqflask.snp_browser import snp_browser
-#from wqflask.trait_submission import submit_trait
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
 from utility.helper_functions import get_species_groups
+from utility.authentication_tools import check_resource_availability
+from utility.redis_tools import get_redis_conn
+Redis = get_redis_conn()
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
@@ -86,6 +85,24 @@ def connect_db():
         logger.debug("Get new database connector")
         g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
         logger.debug(g.db)
+
+@app.before_request
+def check_access_permissions():
+    logger.debug("@app.before_request check_access_permissions")
+    if "temp_trait" in request.args:
+        if request.args['temp_trait'] == "True":
+            pass
+    else:
+        if 'dataset' in request.args:
+            dataset = create_dataset(request.args['dataset'])
+            logger.debug("USER:", Redis.hget("users"))
+            if 'trait_id' in request.args:
+                available = check_resource_availability(dataset, request.args['trait_id'])
+            else:
+                available = check_resource_availability(dataset)
+
+            if not available:
+                return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -119,6 +136,10 @@ def handle_bad_request(e):
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32],animation)
     return resp
+
+@app.route("/authentication_needed")
+def no_access_page():
+    return render_template("new_security/not_authenticated.html")
 
 @app.route("/")
 def index_page():
@@ -401,25 +422,43 @@ def export_traits_csv():
 def export_perm_data():
     """CSV file consisting of the permutation data for the mapping results"""
     logger.info(request.url)
-    num_perm = float(request.form['num_perm'])
-    perm_data = json.loads(request.form['perm_results'])
+    perm_info = json.loads(request.form['perm_info'])
+
+    now = datetime.datetime.now()
+    time_str = now.strftime('%H:%M_%d%B%Y')
+
+    file_name = "Permutation_" + perm_info['num_perm'] + "_" + perm_info['trait_name'] + "_" + time_str
+
+    the_rows = [
+        ["#Permutation Test"],
+        ["#File_name: " + file_name],
+        ["#Metadata: From GeneNetwork.org"],
+        ["#Trait_ID: " + perm_info['trait_name']],
+        ["#Trait_description: " + perm_info['trait_description']],
+        ["#N_permutations: " + str(perm_info['num_perm'])],
+        ["#Cofactors: " + perm_info['cofactors']],
+        ["#N_cases: " + str(perm_info['n_samples'])],
+        ["#N_genotypes: " + str(perm_info['n_genotypes'])],
+        ["#Genotype_file: " + perm_info['genofile']],
+        ["#Units_linkage: " + perm_info['units_linkage']],
+        ["#Permutation_stratified_by: " + ", ".join([ str(cofactor) for cofactor in perm_info['strat_cofactors']])],
+        ["#RESULTS_1: Suggestive LRS(p=0.63) = " + str(np.percentile(np.array(perm_info['perm_data']), 67))],
+        ["#RESULTS_2: Significant LRS(p=0.05) = " + str(np.percentile(np.array(perm_info['perm_data']), 95))],
+        ["#RESULTS_3: Highly Significant LRS(p=0.01) = " + str(np.percentile(np.array(perm_info['perm_data']), 99))],
+        ["#Comment: Results sorted from low to high peak linkage"]
+    ]
 
     buff = StringIO.StringIO()
     writer = csv.writer(buff)
-    writer.writerow(["Suggestive LRS (p=0.63) = " + str(np.percentile(np.array(perm_data), 67))])
-    writer.writerow(["Significant LRS (p=0.05) = " + str(np.percentile(np.array(perm_data), 95))])
-    writer.writerow(["Highly Significant LRS (p=0.01) = " + str(np.percentile(np.array(perm_data), 99))])
-    writer.writerow("")
-    writer.writerow([str(num_perm) + " Permutations"])
-    writer.writerow("")
-    for item in perm_data:
+    writer.writerows(the_rows)
+    for item in perm_info['perm_data']:
         writer.writerow([item])
     csv_data = buff.getvalue()
     buff.close()
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=perm_data.csv"})
+                    headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():

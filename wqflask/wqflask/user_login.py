@@ -12,9 +12,6 @@ import requests
 
 import simplejson as json
 
-import redis # used for collections
-Redis = redis.StrictRedis()
-
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
@@ -23,7 +20,8 @@ from wqflask import pbkdf2
 from wqflask.user_session import UserSession
 
 from utility import hmac
-from utility.redis_tools import is_redis_available, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
+from utility.redis_tools import is_redis_available, get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
+Redis = get_redis_conn()
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -127,7 +125,7 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
         server.quit()
     logger.info("Successfully sent email to "+toaddr)
 
-def send_verification_email(user_details, template_name = "email/verification.txt", key_prefix = "verification_code", subject = "GeneNetwork email verification"):
+def send_verification_email(user_details, template_name = "email/user_verification.txt", key_prefix = "verification_code", subject = "GeneNetwork e-mail verification"):
     verification_code = str(uuid.uuid4())
     key = key_prefix + ":" + verification_code
 
@@ -140,6 +138,21 @@ def send_verification_email(user_details, template_name = "email/verification.tx
     body = render_template(template_name, verification_code = verification_code)
     send_email(recipient, subject, body)
     return {"recipient": recipient, "subject": subject, "body": body}
+
+@app.route("/manage/verify_email")
+def verify_email():
+    if 'code' in request.args:
+        user_details = check_verification_code(request.args['code'])
+        if user_details:
+            # As long as they have access to the email account
+            # We might as well log them in
+            session_id_signed = get_signed_session_id(user_details)
+            flash("Thank you for logging in {}.".format(user_details['full_name']), "alert-success")
+            response = make_response(redirect(url_for('index_page', import_collections = import_col, anon_id = anon_id)))
+            response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
+            return response
+        else:
+            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
 
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
@@ -204,7 +217,7 @@ def login():
                     response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
                     return response
                 else:
-                    email_ob = send_verification_email(user_details)
+                    email_ob = send_verification_email(user_details, template_name = "email/user_verification.txt")
                     return render_template("newsecurity/verification_still_needed.html", subject=email_ob['subject'])
             else: # Incorrect password
                 #ZS: It previously seemed to store that there was an incorrect log-in attempt here, but it did so in the MySQL DB so this might need to be reproduced with Redis
@@ -374,16 +387,13 @@ def password_reset():
     hmac = request.args.get('hm')
 
     if verification_code:
-        user_email = check_verification_code(verification_code)
-        if user_email:
-            user_details = get_user_by_unique_column('email_address', user_email)
-            if user_details:
-                return render_template(
-                    "new_security/password_reset.html", user_encode=user_details["email_address"])
-            else:
-                flash("Invalid code: User no longer exists!", "error")
+        user_details = check_verification_code(verification_code)
+        if user_details:
+            return render_template(
+                "new_security/password_reset.html", user_encode=user_details["email_address"])
         else:
             flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+            return redirect(url_for("login"))
     else:
         return redirect(url_for("login"))
 
@@ -394,6 +404,7 @@ def password_reset_step2():
 
     errors = []
     user_email = request.form['user_encode']
+    user_id = get_user_id("email_address", user_email)
 
     password = request.form['password']
     encoded_password = set_password(password)
@@ -401,9 +412,7 @@ def password_reset_step2():
     set_user_attribute(user_id, "password", encoded_password)
 
     flash("Password changed successfully. You can now sign in.", "alert-info")
-    response = make_response(redirect(url_for('login')))
-
-    return response
+    return redirect(url_for('login'))
 
 def register_user(params):
         thank_you_mode = False

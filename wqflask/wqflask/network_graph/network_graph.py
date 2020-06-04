@@ -44,7 +44,7 @@ import reaper
 
 from utility.THCell import THCell
 from utility.TDCell import TDCell
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from utility.tools import GN2_BRANCH_URL
@@ -217,7 +217,7 @@ class NetworkGraph(object):
                 break
             trait_name, dataset_name = trait_db.split(":")
             dataset_ob = data_set.create_dataset(dataset_name)
-            trait_ob = GeneralTrait(dataset=dataset_ob,
+            trait_ob = create_trait(dataset=dataset_ob,
                                    name=trait_name,
                                    cellid=None)
             self.trait_list.append((trait_ob, dataset_ob))

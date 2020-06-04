@@ -47,7 +47,7 @@ import reaper
 from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
 from db import webqtlDatabaseFunction
@@ -97,7 +97,7 @@ class CorrelationResults(object):
             if start_vars['dataset'] == "Temp":
                 self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
                 self.trait_id = start_vars['trait_id']
-                self.this_trait = GeneralTrait(dataset=self.dataset,
+                self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
             else:
@@ -199,7 +199,9 @@ class CorrelationResults(object):
                             range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
-                trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+                trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+                if not trait_object:
+                    continue
 
                 if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                     #ZS: Convert trait chromosome to an int for the location range option

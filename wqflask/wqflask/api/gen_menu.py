@@ -126,9 +126,7 @@ def build_types(species, group):
                      InbredSet.Name = '{1}' AND
                      ProbeFreeze.TissueId = Tissue.Id AND
                      ProbeFreeze.InbredSetId = InbredSet.Id AND
-                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
-                     ProbeSetFreeze.public > 0 AND
-                     ProbeSetFreeze.confidentiality < 1
+                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
                ORDER BY Tissue.Name""".format(species, group)
 
     results = []
@@ -194,9 +192,7 @@ def build_datasets(species, group, type_name):
                                   FROM InfoFiles, GenoFreeze, InbredSet
                                   WHERE InbredSet.Name = '{}' AND
                                         GenoFreeze.InbredSetId = InbredSet.Id AND
-                                        InfoFiles.InfoPageName = GenoFreeze.ShortName AND
-                                        GenoFreeze.public > 0 AND
-                                        GenoFreeze.confidentiality < 1
+                                        InfoFiles.InfoPageName = GenoFreeze.ShortName
                                   ORDER BY GenoFreeze.CreateTime DESC""".format(group)).fetchone()
 
         if results != None:
@@ -214,8 +210,7 @@ def build_datasets(species, group, type_name):
                                         Species.Id = InbredSet.SpeciesId AND
                                         InbredSet.Name = '{1}' AND
                                         ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '{2}' AND
-                                        ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id AND
-                                        ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0
+                                        ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id
                                   ORDER BY ProbeSetFreeze.CreateTime DESC""".format(species, group, type_name)).fetchall()
 
         datasets = []

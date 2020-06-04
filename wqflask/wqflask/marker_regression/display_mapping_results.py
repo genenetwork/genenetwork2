@@ -246,6 +246,12 @@ class DisplayMappingResults(object):
             if 'output_files' in start_vars:
                 self.output_files = ",".join(start_vars['output_files'])
 
+        self.categorical_vars = ""
+        self.perm_strata = ""
+        if 'perm_strata' in start_vars.keys() and 'categorical_vars' in start_vars.keys():
+            self.categorical_vars = start_vars['categorical_vars']
+            self.perm_strata = start_vars['perm_strata']
+
         self.selectedChr = int(start_vars['selected_chr'])
 
         self.strainlist = start_vars['samples']

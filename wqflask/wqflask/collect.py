@@ -14,9 +14,6 @@ import urlparse
 
 import simplejson as json
 
-import redis
-Redis = redis.StrictRedis()
-
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, jsonify)
 
@@ -30,8 +27,10 @@ from wqflask import model
 
 from utility import Bunch, Struct, hmac
 from utility.formatting import numify
+from utility.redis_tools import get_redis_conn
+Redis = get_redis_conn()
 
-from base import trait
+from base.trait import create_trait, retrieve_trait_info, jsonable
 from base.data_set import create_dataset
 
 import logging
@@ -208,14 +207,14 @@ def view_collection():
         if dataset_name == "Temp":
             group = name.split("_")[2]
             dataset = create_dataset(dataset_name, dataset_type = "Temp", group_name = group)
-            trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
+            trait_ob = create_trait(name=name, dataset=dataset)
         else:
             dataset = create_dataset(dataset_name)
-            trait_ob = trait.GeneralTrait(name=name, dataset=dataset)
-            trait_ob = trait.retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
+            trait_ob = create_trait(name=name, dataset=dataset)
+            trait_ob = retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
         trait_obs.append(trait_ob)
 
-        json_version.append(trait.jsonable(trait_ob))
+        json_version.append(jsonable(trait_ob))
 
     collection_info = dict(trait_obs=trait_obs,
                            uc = uc)

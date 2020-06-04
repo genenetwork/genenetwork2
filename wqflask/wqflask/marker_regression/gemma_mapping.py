@@ -1,7 +1,7 @@
 import os, math, string, random, json
 
 from base import webqtlConfig
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base.data_set import create_dataset
 from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, WEBSERVER_MODE
 
@@ -129,7 +129,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
         this_covariate_data = []
         trait_name = covariate.split(":")[0]
         dataset_ob = create_dataset(covariate.split(":")[1])
-        trait_ob = GeneralTrait(dataset=dataset_ob,
+        trait_ob = create_trait(dataset=dataset_ob,
                                 name=trait_name,
                                 cellid=None)
 

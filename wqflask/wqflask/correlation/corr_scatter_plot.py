@@ -4,7 +4,7 @@ import math
 
 from flask import g
 
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from utility import corr_result_helpers
 from scipy import stats
@@ -20,9 +20,9 @@ class CorrScatterPlot(object):
         self.data_set_1 = data_set.create_dataset(params['dataset_1'])
         self.data_set_2 = data_set.create_dataset(params['dataset_2'])
         #self.data_set_3 = data_set.create_dataset(params['dataset_3'])
-        self.trait_1 = GeneralTrait(name=params['trait_1'], dataset=self.data_set_1)
-        self.trait_2 = GeneralTrait(name=params['trait_2'], dataset=self.data_set_2)
-        #self.trait_3 = GeneralTrait(name=params['trait_3'], dataset=self.data_set_3)
+        self.trait_1 = create_trait(name=params['trait_1'], dataset=self.data_set_1)
+        self.trait_2 = create_trait(name=params['trait_2'], dataset=self.data_set_2)
+        #self.trait_3 = create_trait(name=params['trait_3'], dataset=self.data_set_3)
 
         samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
 

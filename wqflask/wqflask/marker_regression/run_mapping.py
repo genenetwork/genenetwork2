@@ -161,7 +161,7 @@ class RunMapping(object):
         self.num_perm = 0
         self.perm_output = []
         self.bootstrap_results = []
-        self.covariates = start_vars['covariates'] if "covariates" in start_vars else None
+        self.covariates = start_vars['covariates'] if "covariates" in start_vars else ""
 
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
@@ -467,6 +467,7 @@ class RunMapping(object):
                       #mapping_scale = self.mapping_scale,
                       #chromosomes = chromosome_mb_lengths,
                       #qtl_results = self.qtl_results,
+                      categorical_vars = self.categorical_vars,
                       chr_lengths = chr_lengths,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,

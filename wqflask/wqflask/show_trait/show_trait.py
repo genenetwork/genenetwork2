@@ -10,9 +10,6 @@ import json as json
 
 from collections import OrderedDict
 
-import redis
-Redis = redis.StrictRedis()
-
 import numpy as np
 import scipy.stats as ss
 
@@ -21,11 +18,15 @@ from flask import Flask, g
 from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
-from utility import webqtlUtil, Plot, Bunch, helper_functions
-from utility.tools import locate_ignore_error
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from db import webqtlDatabaseFunction
+from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility.authentication_tools import check_owner
+from utility.tools import locate_ignore_error
+from utility.redis_tools import get_redis_conn, get_resource_id
+Redis = get_redis_conn()
+ONE_YEAR = 60 * 60 * 24 * 365
 
 from pprint import pformat as pf
 
@@ -55,9 +56,9 @@ class ShowTrait(object):
             self.temp_group = kw['group']
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
             # Put values in Redis so they can be looked up later if added to a collection
-            Redis.set(self.trait_id, kw['trait_paste'])
+            Redis.set(self.trait_id, kw['trait_paste'], ex=ONE_YEAR)
             self.trait_vals = kw['trait_paste'].split()
-            self.this_trait = GeneralTrait(dataset=self.dataset,
+            self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
         else:
@@ -66,10 +67,12 @@ class ShowTrait(object):
             self.temp_species = self.trait_id.split("_")[1]
             self.temp_group = self.trait_id.split("_")[2]
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
-            self.this_trait = GeneralTrait(dataset=self.dataset,
+            self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
             self.trait_vals = Redis.get(self.trait_id).split()
+
+        self.resource_id = check_owner(self.dataset, self.trait_id)
 
         #ZS: Get verify/rna-seq link URLs
         try:

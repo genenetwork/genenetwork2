@@ -6,10 +6,6 @@ import uuid
 
 import simplejson as json
 
-import redis # used for collections
-Redis = redis.StrictRedis()
-
-
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
@@ -17,7 +13,8 @@ from wqflask import app
 from utility import hmac
 
 #from utility.elasticsearch_tools import get_elasticsearch_connection
-from utility.redis_tools import get_user_id, get_user_by_unique_column, get_user_collections, save_collections
+from utility.redis_tools import get_redis_conn, get_user_id, get_user_collections, save_collections
+Redis = get_redis_conn()
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -29,6 +26,11 @@ THIRTY_DAYS = 60 * 60 * 24 * 30
 def get_user_session():
     logger.info("@app.before_request get_session")
     g.user_session = UserSession()
+    #ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
+    if not g.user_session:
+        response = make_response(redirect(url_for('login')))
+        response.set_cookie('session_id_v2', '', expires=0)
+        return response
 
 @app.after_request
 def set_user_session(response):
@@ -36,7 +38,6 @@ def set_user_session(response):
         if not request.cookies.get(g.user_session.cookie_name):
             response.set_cookie(g.user_session.cookie_name, g.user_session.cookie)
     return response
-
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
@@ -88,14 +89,11 @@ class UserSession(object):
                                     user_id = str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
-                response = make_response(redirect(url_for('login')))
-                response.set_cookie(self.user_cookie_name, '', expires=0)
 
                 ########### Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
                 flash("Due to inactivity your session has expired. If you'd like please login again.")
-                return response
-                #return
+                return None
             else:
                 self.record = dict(login_time = time.time(),
                                     user_type = "anon",
