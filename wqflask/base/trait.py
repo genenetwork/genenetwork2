@@ -1,9 +1,11 @@
 from __future__ import absolute_import, division, print_function
 
+import os
 import string
 import resource
 import codecs
 import requests
+import random
 
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
@@ -12,8 +14,8 @@ from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility import hmac
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
-from utility.redis_tools import get_redis_conn
+from utility.tools import GN2_BASE_URL, GN_VERSION
+from utility.redis_tools import get_redis_conn, get_resource_id, get_resource_info
 Redis = get_redis_conn()
 
 from wqflask import app
@@ -22,7 +24,7 @@ import simplejson as json
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
-from flask import Flask, g, request, url_for, redirect
+from flask import Flask, g, request, url_for, redirect, make_response, render_template
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -45,7 +47,10 @@ def create_trait(**kw):
                 permitted = check_resource_availability(dataset)
 
     if permitted:
-        return GeneralTrait(**kw)
+        the_trait = GeneralTrait(**kw)
+        if the_trait.dataset.type != "Temp":
+            the_trait = retrieve_trait_info(the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
+        return the_trait
     else:
         return None
 
@@ -99,9 +104,6 @@ class GeneralTrait(object):
 
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
-        if self.dataset.type != "Temp":
-            self = retrieve_trait_info(self, self.dataset, get_qtl_info=get_qtl_info)
-
         if get_sample_info != False:
             self = retrieve_sample_data(self, self.dataset)
 
@@ -373,17 +375,15 @@ def jsonable_table_row(trait, dataset_name, index):
     else:
         return dict()
 
+
 def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     assert dataset, "Dataset doesn't exist"
 
+    resource_id = get_resource_id(dataset, trait.name)
     if dataset.type == 'Publish':
-        resource_id = hmac.hmac_creation("{}:{}:{}".format('dataset-publish', dataset.id, trait.name))
         the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
-    elif dataset.type == 'ProbeSet':
-        resource_id = hmac.hmac_creation("{}:{}".format('dataset-probeset', dataset.id))
-        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
     else:
-        resource_id = hmac.hmac_creation("{}:{}".format('dataset-geno', dataset.id))
+
         the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
 
     try:
@@ -394,11 +394,77 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     except:
         resource_info = get_resource_info(resource_id)
         default_permissions = resource_info['default_mask']['data']
-        if 'view' not in default_persmissions:
+        if 'view' not in default_permissions:
             trait.view = False
             return trait
 
-    trait_info = json.loads(response)
+        if dataset.type == 'Publish':
+            query = """
+                    SELECT
+                            PublishXRef.Id, Publication.PubMed_ID,
+                            Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
+                            Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
+                            Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
+                            Publication.Authors, Publication.Title, Publication.Abstract,
+                            Publication.Journal, Publication.Volume, Publication.Pages,
+                            Publication.Month, Publication.Year, PublishXRef.Sequence,
+                            Phenotype.Units, PublishXRef.comments
+                    FROM
+                            PublishXRef, Publication, Phenotype, PublishFreeze
+                    WHERE
+                            PublishXRef.Id = %s AND
+                            Phenotype.Id = PublishXRef.PhenotypeId AND
+                            Publication.Id = PublishXRef.PublicationId AND
+                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                            PublishFreeze.Id = %s
+                    """ % (trait.name, dataset.id)
+
+            logger.sql(query)
+            trait_info = g.db.execute(query).fetchone()
+
+
+        #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
+        #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
+        elif dataset.type == 'ProbeSet':
+            display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
+            display_fields_string = 'ProbeSet.' + display_fields_string
+            query = """
+                    SELECT %s
+                    FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                    WHERE
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                            ProbeSetFreeze.Name = '%s' AND
+                            ProbeSet.Name = '%s'
+                    """ % (escape(display_fields_string),
+                        escape(dataset.name),
+                        escape(str(trait.name)))
+            logger.sql(query)
+            trait_info = g.db.execute(query).fetchone()
+        #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
+        # to avoid the problem of same marker name from different species.
+        elif dataset.type == 'Geno':
+            display_fields_string = string.join(dataset.display_fields,',Geno.')
+            display_fields_string = 'Geno.' + display_fields_string
+            query = """
+                    SELECT %s
+                    FROM Geno, GenoFreeze, GenoXRef
+                    WHERE
+                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                            GenoXRef.GenoId = Geno.Id AND
+                            GenoFreeze.Name = '%s' AND
+                            Geno.Name = '%s'
+                    """ % (escape(display_fields_string),
+                        escape(dataset.name),
+                        escape(trait.name))
+            logger.sql(query)
+            trait_info = g.db.execute(query).fetchone()
+        else: #Temp type
+            query = """SELECT %s FROM %s WHERE Name = %s"""
+            logger.sql(query)
+            trait_info = g.db.execute(query,
+                                    (string.join(dataset.display_fields,','),
+                                                dataset.type, trait.name)).fetchone()
 
     if trait_info:
         trait.haveinfo = True
