@@ -95,14 +95,17 @@ def get_user_groups(user_id):
     user_group_ids = []   #ZS: Group IDs where user is a regular user
     groups_list = Redis.hgetall("groups")
     for key in groups_list:
-        group_ob = json.loads(groups_list[key])
-        group_admins = set(group_ob['admins'])
-        group_members = set(group_ob['members'])
-        if user_id in group_admins:
-            admin_group_ids.append(group_ob['id'])
-        elif user_id in group_members:
-            user_group_ids.append(group_ob['id'])
-        else:
+        try:
+            group_ob = json.loads(groups_list[key])
+            group_admins = set(group_ob['admins'])
+            group_members = set(group_ob['members'])
+            if user_id in group_admins:
+                admin_group_ids.append(group_ob['id'])
+            elif user_id in group_members:
+                user_group_ids.append(group_ob['id'])
+            else:
+                continue
+        except:
             continue
 
     admin_groups = []
@@ -121,6 +124,24 @@ def get_group_info(group_id):
         group_info = json.loads(group_json)
 
     return group_info
+
+def get_group_by_unique_column(column_name, column_value):
+    """ Get group by column; not sure if there's a faster way to do this """
+
+    matched_groups = []
+
+    all_group_list = Redis.hgetall("groups")
+    for key in all_group_list:
+        group_info = json.loads(all_group_list[key])
+        if column_name == "admins" or column_name == "members": #ZS: Since these fields are lists, search in the list
+            if column_value in group_info[column_name]:
+                matched_groups.append(group_info)
+        else:
+            if group_info[column_name] == column_value:
+                matched_groups.append(group_info)
+
+    return matched_groups
+
 
 def create_group(admin_user_ids, member_user_ids = [], group_name = "Default Group Name"):
     group_id = str(uuid.uuid4())

@@ -1,15 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Group Manager{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
 {% block content %}
 <!-- Start of body -->
     <div class="container">
         <div class="page-header">
             <h1>Manage Groups</h1>
-            <button type="button" id="remove_groups" class="btn btn-primary" data-url="/groups/remove">Remove Selected Groups</button>
+            <div style="display: inline;">
+                <button type="button" id="create_group" class="btn btn-primary" data-url="/groups/create">Create Group</button>
+                <button type="button" id="remove_groups" class="btn btn-primary" data-url="/groups/remove">Remove Selected Groups</button>
+            </div>
         </div>
         <form id="groups_form" action="/groups/manage" method="POST">
             <input type="hidden" name="selected_group_ids" value="">
-            <div class="container" style="margin-bottom: 30px;">
+            <div style="min-width: 800px; max-width: 1000px;">
                 {% if admin_groups|length == 0 and user_groups|length == 0 %}
                 <h4>You currently aren't a member or admin of any groups.</h4>
                 <br>
@@ -20,7 +28,7 @@
                 {% if admin_groups|length == 0 %}
                 <h4>You currently aren't the administrator of any groups.</h4>
                 {% else %}
-                <table id="admin_groups" class="table table-hover" style="min-width: 800px; max-width: 1000px;">
+                <table id="admin_groups" class="table-hover table-striped cell-border" style="float: left;">
                     <thead>
                         <tr>
                             <th></th>
@@ -29,17 +37,19 @@
                             <th># Members</th>
                             <th>Created</th>
                             <th>Last Changed</th>
+                            <th>Group ID</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for group in admin_groups %}
                         <tr>
                             <td><input type="checkbox" name="group_id" value="{{ group.id }}"></td>
-                            <td>{{ loop.index }}</td>
+                            <td align="right">{{ loop.index }}</td>
                             <td>{{ group.name }}</td>
-                            <td>{{ group.admins|length + group.users|length }}</td>
+                            <td align="right">{{ group.admins|length + group.users|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
+                            <td>{{ group.id }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -47,13 +57,13 @@
                 {% endif %}
             </div>
             <hr>
-            <div class="container">
+            <div style="min-width: 800px; max-width: 1000px;">
                 <div><h3>User Groups</h3></div>
                 <hr>
                 {% if user_groups|length == 0 %}
                 <h4>You currently aren't a member of any groups.</h4>
                 {% else %}
-                <table id="user_groups" class="table table-hover" style="min-width: 800px; max-width: 1000px;">
+                <table id="user_groups" class="table-hover table-striped cell-border" style="float: left;">
                     <thead>
                         <tr>
                             <th></th>
@@ -88,47 +98,25 @@
 {% endblock %}
 
 {% block js %}
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
-            $('#admin_groups, #user_groups').dataTable( {
-                "drawCallback": function( settings ) {
-                     $('#admin_groups tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                },
-                "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" }
-                ],
-                "columnDefs": [ {
-                    "targets": 0,
-                    "orderable": false
-                } ],
-                "order": [[1, "asc" ]],
-                "sDom": "Ztr",
-                "iDisplayLength": -1,
-                "autoWidth": true,
-                "bDeferRender": true,
-                "bSortClasses": false,
-                "paging": false,
-                "orderClasses": true
-            } );
-
+            {% if admin_groups|length != 0 %}
+            $('#admin_groups').dataTable();
+            {% endif %}
+            {% if user_groups|length != 0 %}
+            $('#user_groups').dataTable();
+            {% endif %}
             submit_special = function(url) {
                 $("#groups_form").attr("action", url);
                 return $("#groups_form").submit();
             };
+
+            $("#create_group").on("click", function() {
+                url = $(this).data("url")
+                return submit_special(url)
+            });
 
             $("#remove_groups").on("click", function() {
                 url = $(this).data("url")

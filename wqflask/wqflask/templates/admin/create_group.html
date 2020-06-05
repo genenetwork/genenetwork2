@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Group Manager{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Create Group</h1>
+        </div>
+        <form action="/groups/create" method="POST">
+            <input type="hidden" name="admin_emails_to_add" value="">
+            <input type="hidden" name="member_emails_to_add" value="">
+            <fieldset>
+                <div class="form-horizontal" style="width: 900px; margin-bottom: 50px;">
+                    <div class="form-group" style="padding-left: 20px;">
+                        <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Group Name:</label>
+                        <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                            <div class="col-xs-12">
+                                <input name="group_name" type="text" style="width:100%;"></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-left: 20px;">
+                        <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">Add User Email:</label>
+                        <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                            <div class="col-xs-12">
+                                <input name="user_email" type="text" style="width:100%;"></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-left: 20px;">
+                        <label class="col-xs-3"></label>
+                        <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                            <div class="col-xs-6">
+                                <button type="button" id="add_to_admins" class="btn btn-default">Add to Admins</button>
+                            </div>
+                            <div class="col-xs-6">
+                                <button type="button" id="add_to_members" class="btn btn-default">Add to Members</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-left: 20px;">
+                        <label class="col-xs-3" style="font-size: 18px;">Members to be added:</label>
+                        <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                            <div class="col-xs-6">
+                                <textarea rows="8" cols="60" readonly placeholder="No users added" style="overflow-y: scroll; resize: none; width: 200px;" class="added_admins"></textarea>
+                            </div>
+                            <div class="col-xs-6">
+                                <textarea rows="8" cols="60" readonly placeholder="No users added" style="overflow-y: scroll; resize: none; width: 200px;" class="added_members"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-left: 20px;">
+                        <label class="col-xs-3"></label>
+                        <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                            <div class="col-xs-6">
+                                <button type="button" id="clear_admins" class="btn btn-default">Clear</button>
+                            </div>
+                            <div class="col-xs-6">
+                                <button type="button" id="clear_members" class="btn btn-default">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-left: 20px;">
+                        <label for="create_group" class="col-xs-3" style="float: left; font-size: 18px;"></label>
+                        <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                            <div class="col-xs-6">
+                                <button type="button" id="create_group" class="btn btn-primary">Create Group</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/group_manager.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+    </script>
+{% endblock %}

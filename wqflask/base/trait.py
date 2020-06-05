@@ -391,6 +391,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         if response.strip() == "no-access":
             trait.view = False
             return trait
+        else:
+            trait_info = json.loads(response)
     except:
         resource_info = get_resource_info(resource_id)
         default_permissions = resource_info['default_mask']['data']

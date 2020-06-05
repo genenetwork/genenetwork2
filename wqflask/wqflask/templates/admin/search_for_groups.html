@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Resource Manager{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Find Groups</h1>
+        </div>
+        <form id="find_groups" action="/resources/add_group" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <div style="min-width: 600px; max-width: 800px;">
+                <fieldset>
+                    <div class="form-horizontal" style="width: 900px;">
+                        <div style="margin-bottom: 30px;">
+                            <h2>Search by:</h2>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Group ID:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="group_id" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Group Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="group_name" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_name" class="col-xs-3" style="float: left; font-size: 18px;">User Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="user_name" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">User E-mail:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="user_email" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label class="col-xs-3" style="float: left; font-size: 18px;"></label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <button type="submit" id="find_groups" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/group_manager.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+    </script>
+{% endblock %}

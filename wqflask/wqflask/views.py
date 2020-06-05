@@ -30,6 +30,7 @@ import sqlalchemy
 from wqflask import app
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for
 from wqflask import group_manager
+from wqflask import resource_manager
 from wqflask import search_results
 from wqflask import export_traits
 from wqflask import gsearch
@@ -89,13 +90,13 @@ def connect_db():
 @app.before_request
 def check_access_permissions():
     logger.debug("@app.before_request check_access_permissions")
+    available = True
     if "temp_trait" in request.args:
         if request.args['temp_trait'] == "True":
             pass
     else:
         if 'dataset' in request.args:
             dataset = create_dataset(request.args['dataset'])
-            logger.debug("USER:", Redis.hget("users"))
             if 'trait_id' in request.args:
                 available = check_resource_availability(dataset, request.args['trait_id'])
             else:

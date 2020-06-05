@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Resource Manager{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Resource Manager</h1>
+        </div>
+        <form id="manage_resource" action="/resources/manage" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <div class="col-xs-6" style="min-width: 600px; max-width: 800px;">
+                <fieldset>
+                    <div class="form-horizontal" style="width: 900px; margin-bottom: 50px;">
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Resource Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                {{ resource_info.name }}
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">Open to Public:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <label class="radio-inline">
+                                    <input type="radio" name="default_mask" value="True" checked="">
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="default_mask" value="False">
+                                    No
+                            </label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label class="col-xs-3" style="float: left; font-size: 18px;"></label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <button id="save_changes" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-xs-6" style="min-width: 600px; max-width: 800px;">
+                <button id="add_group_to_resource" class="btn btn-primary" style="margin-bottom: 30px;" data-url="/resources/add_group">Add Group</button>
+                <br>
+                {% if group_masks|length > 0 %}
+                <h3>Current Group Permissions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Data</th>
+                            <th>Metadata</th>
+                            <th>Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in group_masks.iteritems() %}
+                        <tr>
+                            <td>{{ value.name }}</td>
+                            <td>{{ value.data }}</td>
+                            <td>{{ value.metadata }}</td>
+                            <td>{{ value.admin }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <h3>No groups are currently added to this resource.</h3>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/group_manager.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $('#add_group_to_resource').click(function(){
+            url = $(this).data("url");
+            $('#manage_resource').attr("action", url)
+            $('#manage_resource').submit()
+        })
+    </script>
+{% endblock %}
