@@ -129,13 +129,6 @@ def index_page():
         import_collections = params['import_collections']
         if import_collections == "true":
             g.user_session.import_traits_to_user(params['anon_id'])
-    #if USE_GN_SERVER:
-    #    # The menu is generated using GN_SERVER
-    #    return render_template("index_page.html", gn_server_url = GN_SERVER_URL, version=GN_VERSION)
-    #else:
-
-    # Old style static menu (OBSOLETE)
-    return render_template("index_page_orig.html", version=GN_VERSION)
 
 
 @app.route("/tmp/<img_path>")
