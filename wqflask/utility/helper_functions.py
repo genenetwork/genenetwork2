@@ -9,7 +9,6 @@ from utility import hmac
 from flask import Flask, g
 
 import logging
-import re
 
 logger = logging.getLogger(__name__ )
 
@@ -72,22 +71,3 @@ def get_species_groups():
         species_and_groups.append(this_species_groups)
 
     return species_and_groups
-
-def linkify(plain_text):
-    """
-    Returns any link within a plain text wrapped in html5 link tags
-
-        Parameters:
-            plain_text(string): A plain text that may contain a URL
-
-        Returns:
-            linkified_text: A string with any URL wrapped in the HTML5 link tag
-    """
-    links = re.compile(
-        r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    ).findall(plain_text)
-
-    linkified_text = plain_text
-    for link in links:
-        linkified_text = plain_text.replace(plain_text, '<a href="%s">%s</a>' % (link, link))
-    return linkified_text.decode('utf-8')

@@ -59,7 +59,7 @@ from wqflask.snp_browser import snp_browser
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
-from utility.helper_functions import get_species_groups, linkify
+from utility.helper_functions import get_species_groups
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
@@ -133,7 +133,6 @@ def index_page():
     tweets = []
     for tweet_id in tweet_ids:
         tweet = Redis.hgetall(tweet_id)
-        tweet['tweet'] = linkify(tweet['tweet'])
         tweets.append(tweet)
     return render_template("index_page_orig.html", version=GN_VERSION, tweets=tweets)
 
