@@ -129,6 +129,13 @@ def index_page():
         import_collections = params['import_collections']
         if import_collections == "true":
             g.user_session.import_traits_to_user(params['anon_id'])
+    tweet_ids = Redis.zrevrange("tweet-score:", 0, -1)
+    tweets = []
+    for tweet_id in tweet_ids:
+        tweet = Redis.hgetall(tweet_id)
+        tweet['tweet'] = linkify(tweet['tweet'])
+        tweets.append(tweet)
+    return render_template("index_page_orig.html", version=GN_VERSION, tweets=tweets)
 
 
 @app.route("/tmp/<img_path>")
