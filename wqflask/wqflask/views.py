@@ -163,7 +163,6 @@ def index_page():
     tweets = []
     for tweet_id in tweet_ids:
         tweet = Redis.hgetall(tweet_id)
-        tweet['tweet'] = linkify(tweet['tweet'])
         tweets.append(tweet)
     return render_template("index_page_orig.html", version=GN_VERSION, tweets=tweets)
 
