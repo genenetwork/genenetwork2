@@ -202,7 +202,23 @@
                 <section id="news-section">
                     <div class="page-header">
                         <h1>News</h1>
-                        <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
+                        <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;">
+                            {%if tweets %}
+                            <ul>
+                                {% for tweet in tweets %}
+                                <li>
+                                    <p class="tweet">
+                                        {{ tweet.tweet|urlize(40, target="_blank") }} by
+                                        {{ tweet.author }}
+                                    </p>
+                                    <p class="timePosted">
+                                        {{ tweet.timeposted }}
+                                    </p>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
                         <div align="right">
                           <a href="https://twitter.com/GeneNetwork2">more news items...</a>
                         </div>
