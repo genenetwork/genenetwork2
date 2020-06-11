@@ -59,7 +59,7 @@ from wqflask.snp_browser import snp_browser
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
-from utility.helper_functions import get_species_groups
+from utility.helper_functions import get_species_groups, linkify
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.benchmark import Bench
