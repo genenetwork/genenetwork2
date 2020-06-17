@@ -19,8 +19,8 @@ def manage_groups():
    if "add_new_group" in params:
       return redirect(url_for('add_group'))
    else:
-      admin_groups, user_groups = get_user_groups(g.user_session.user_id)
-      return render_template("admin/group_manager.html", admin_groups=admin_groups, user_groups=user_groups)
+      admin_groups, member_groups = get_user_groups(g.user_session.user_id)
+      return render_template("admin/group_manager.html", admin_groups=admin_groups, member_groups=member_groups)
 
 @app.route("/groups/view", methods=('GET', 'POST'))
 def view_group():

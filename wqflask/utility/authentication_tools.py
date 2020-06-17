@@ -7,6 +7,7 @@ from base import data_set
 
 from utility import hmac
 from utility.redis_tools import get_redis_conn, get_resource_info, get_resource_id
+Redis = get_redis_conn()
 
 from flask import Flask, g, redirect, url_for
 
@@ -14,8 +15,12 @@ import logging
 logger = logging.getLogger(__name__ )
 
 def check_resource_availability(dataset, trait_id=None):
-    resource_id = get_resource_id(dataset, trait_id)
 
+    #ZS: Check if super-user - we should probably come up with some way to integrate this into the proxy
+    if g.user_session.user_id in Redis.smembers("super_users"):
+        return "edit"
+
+    resource_id = get_resource_id(dataset, trait_id)
     response = None
     if resource_id:
         resource_info = get_resource_info(resource_id)
@@ -68,19 +73,16 @@ def check_owner(dataset=None, trait_id=None, resource_id=None):
     return False
 
 def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
-    if resource_id:
-        resource_info = get_resource_info(resource_id)
-        if g.user_session.user_id == resource_info['owner_id']:
-            return [resource_id, "owner"]
-        else:
-            return [resource_id, check_admin(resource_id)]
-    else:
+    if not resource_id:
         resource_id = get_resource_id(dataset, trait_id)
-        if resource_id:
-            resource_info = get_resource_info(resource_id)
-            if g.user_session.user_id == resource_info['owner_id']:
-                return [resource_id, "owner"]
-            else:
-                return [resource_id, check_admin(resource_id)]
+
+    if g.user_session.user_id in Redis.smembers("super_users"):
+        return [resource_id, "owner"]
+
+    resource_info = get_resource_info(resource_id)
+    if g.user_session.user_id == resource_info['owner_id']:
+        return [resource_id, "owner"]
+    else:
+        return [resource_id, check_admin(resource_id)]
 
     return [resource_id, "not-admin"]

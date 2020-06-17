@@ -30,6 +30,7 @@ def is_redis_available():
 
 def get_user_id(column_name, column_value):
     user_list = Redis.hgetall("users")
+    key_list = []
     for key in user_list:
         user_ob = json.loads(user_list[key])
         if column_name in user_ob and user_ob[column_name] == column_value:
@@ -62,6 +63,9 @@ def get_users_like_unique_column(column_name, column_value):
         if column_name != "user_id":
             for key in user_list:
                 user_ob = json.loads(user_list[key])
+                if "user_id" not in user_ob:
+                    set_user_attribute(key, "user_id", key)
+                    user_ob["user_id"] = key
                 if column_name in user_ob:
                     if column_value in user_ob[column_name]:
                         matched_users.append(user_ob)

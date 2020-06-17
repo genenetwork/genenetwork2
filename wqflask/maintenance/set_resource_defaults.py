@@ -27,8 +27,9 @@ sys.path.insert(0,'./')
 # NEW: import app to avoid a circular dependency on utility.tools
 from wqflask import app
 
+from utility import hmac
 from utility.tools import SQL_URI
-from utility.redis_tools import get_redis_conn, get_user_id, add_resource, get_resources
+from utility.redis_tools import get_redis_conn, get_user_id, add_resource, get_resources, get_resource_info
 Redis = get_redis_conn()
 
 import MySQLdb
@@ -117,7 +118,7 @@ def insert_geno_resources(default_owner_id):
         resource_ob = {}
         resource_ob['name'] = resource[1]
         if resource[1] == "HET3-ITPGeno":
-            resource_ob['owner_id'] = "73a3f093-ca13-4ae0-a179-9a446f709f6e"
+            resource_ob['owner_id'] = "c5ce8c56-78a6-474f-bcaf-7129d97f56ae"
         else:
             resource_ob['owner_id'] = default_owner_id
         resource_ob['data'] = { "dataset" : str(resource[0]) }
@@ -145,7 +146,8 @@ def main():
 
     Redis.delete("resources")
 
-    owner_id = get_user_id("email_address", "zachary.a.sloan@gmail.com")
+    owner_id = "c5ce8c56-78a6-474f-bcaf-7129d97f56ae"
+
     insert_resources(owner_id)
 
 if __name__ == '__main__':

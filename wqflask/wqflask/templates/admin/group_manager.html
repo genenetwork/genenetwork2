@@ -10,18 +10,20 @@
     <div class="container">
         <div class="page-header">
             <h1>Manage Groups</h1>
+            {% if admin_groups|length != 0 or member_groups|length != 0 %}
             <div style="display: inline;">
                 <button type="button" id="create_group" class="btn btn-primary" data-url="/groups/create">Create Group</button>
                 <button type="button" id="remove_groups" class="btn btn-primary" data-url="/groups/remove">Remove Selected Groups</button>
             </div>
+            {% endif %}
         </div>
         <form id="groups_form" action="/groups/manage" method="POST">
             <input type="hidden" name="selected_group_ids" value="">
             <div style="min-width: 800px; max-width: 1000px;">
-                {% if admin_groups|length == 0 and user_groups|length == 0 %}
+                {% if admin_groups|length == 0 and member_groups|length == 0 %}
                 <h4>You currently aren't a member or admin of any groups.</h4>
                 <br>
-                <button type="submit" name="add_new_group" class="btn btn-primary">Create a new group</button>
+                <button type="button" id="create_group" class="btn btn-primary" data-url="/groups/create">Create a new group</button>
                 {% else %}
                 <div style="margin-top: 20px;"><h2>Admin Groups</h2></div>
                 <hr>
@@ -60,10 +62,10 @@
             <div style="min-width: 800px; max-width: 1000px;">
                 <div><h2>User Groups</h2></div>
                 <hr>
-                {% if user_groups|length == 0 %}
+                {% if member_groups|length == 0 %}
                 <h4>You currently aren't a member of any groups.</h4>
                 {% else %}
-                <table id="user_groups" class="table-hover table-striped cell-border" style="float: left;">
+                <table id="member_groups" class="table-hover table-striped cell-border" style="float: left;">
                     <thead>
                         <tr>
                             <th></th>
@@ -75,7 +77,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for group in user_groups %}
+                        {% for group in member_groups %}
                         <tr>
                             <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
                             <td>{{ loop.index }}</td>
@@ -107,8 +109,8 @@
                 'sDom': 'tr'
             });
             {% endif %}
-            {% if user_groups|length != 0 %}
-            $('#user_groups').dataTable({
+            {% if member_groups|length != 0 %}
+            $('#member_groups').dataTable({
                 'sDom': 'tr'
             });
             {% endif %}
