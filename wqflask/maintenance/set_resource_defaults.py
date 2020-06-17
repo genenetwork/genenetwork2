@@ -54,24 +54,22 @@ def parse_db_uri():
 
 def insert_probeset_resources(default_owner_id):
     current_resources = Redis.hgetall("resources")
-    Cursor.execute("""  SELECT 
+    Cursor.execute("""  SELECT
                             ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.confidentiality, ProbeSetFreeze.public
-                        FROM 
+                        FROM
                             ProbeSetFreeze""")
 
     resource_results = Cursor.fetchall()
     for i, resource in enumerate(resource_results):
-        if i % 20 == 0:
-            print(i)
         resource_ob = {}
         resource_ob['name'] = resource[1]
         resource_ob['owner_id'] = default_owner_id
         resource_ob['data'] = { "dataset" : str(resource[0])}
         resource_ob['type'] = "dataset-probeset"
         if resource[2] < 1 and resource[3] > 0:
-            resource_ob['default_mask'] = { "data": ["no-access", "view"] }
+            resource_ob['default_mask'] = { "data": "view" }
         else:
-            resource_ob['default_mask'] = { "data": ["no-access"] }
+            resource_ob['default_mask'] = { "data": "no-access" }
         resource_ob['group_masks'] = {}
 
         add_resource(resource_ob)
@@ -109,18 +107,19 @@ def insert_publish_resources(default_owner_id):
 
 def insert_geno_resources(default_owner_id):
     current_resources = Redis.hgetall("resources")
-    Cursor.execute("""  SELECT 
+    Cursor.execute("""  SELECT
                             GenoFreeze.Id, GenoFreeze.ShortName, GenoFreeze.confidentiality
-                        FROM 
+                        FROM
                             GenoFreeze""")
 
     resource_results = Cursor.fetchall()
     for i, resource in enumerate(resource_results):
-        if i % 20 == 0:
-            print(i)
         resource_ob = {}
         resource_ob['name'] = resource[1]
-        resource_ob['owner_id'] = default_owner_id
+        if resource[1] == "HET3-ITPGeno":
+            resource_ob['owner_id'] = "73a3f093-ca13-4ae0-a179-9a446f709f6e"
+        else:
+            resource_ob['owner_id'] = default_owner_id
         resource_ob['data'] = { "dataset" : str(resource[0]) }
         resource_ob['type'] = "dataset-geno"
         if resource[2] < 1:

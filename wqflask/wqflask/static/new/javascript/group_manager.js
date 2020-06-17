@@ -17,7 +17,7 @@ $('#clear_members').click(function(){
 
 function add_emails(user_type){
     var email_address = $('input[name=user_email]').val();
-    var email_list_string = $('input[name=' + user_type + '_emails_to_add]').val()
+    var email_list_string = $('input[name=' + user_type + '_emails_to_add]').val().trim()
     console.log(email_list_string)
     if (email_list_string == ""){
         var email_set = new Set();

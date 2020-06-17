@@ -102,7 +102,7 @@ def check_access_permissions():
             else:
                 available = check_resource_availability(dataset)
 
-            if not available:
+            if available == "no-access":
                 return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext

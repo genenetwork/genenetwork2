@@ -46,9 +46,10 @@ def create_trait(**kw):
             else:
                 permitted = check_resource_availability(dataset)
 
-    if permitted:
+    if permitted != "no-access":
         the_trait = GeneralTrait(**kw)
         if the_trait.dataset.type != "Temp":
+
             the_trait = retrieve_trait_info(the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
         return the_trait
     else:
@@ -383,7 +384,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     if dataset.type == 'Publish':
         the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
     else:
-
         the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
 
     try:
@@ -423,7 +423,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
             logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
-
 
         #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
         #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.

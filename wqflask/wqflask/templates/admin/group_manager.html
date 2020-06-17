@@ -23,7 +23,7 @@
                 <br>
                 <button type="submit" name="add_new_group" class="btn btn-primary">Create a new group</button>
                 {% else %}
-                <div><h3>Admin Groups</h3></div>
+                <div style="margin-top: 20px;"><h2>Admin Groups</h2></div>
                 <hr>
                 {% if admin_groups|length == 0 %}
                 <h4>You currently aren't the administrator of any groups.</h4>
@@ -45,8 +45,8 @@
                         <tr>
                             <td><input type="checkbox" name="group_id" value="{{ group.id }}"></td>
                             <td align="right">{{ loop.index }}</td>
-                            <td>{{ group.name }}</td>
-                            <td align="right">{{ group.admins|length + group.users|length }}</td>
+                            <td><a href="/groups/view?id={{ group.id }}">{{ group.name }}</a></td>
+                            <td align="right">{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
                             <td>{{ group.id }}</td>
@@ -58,7 +58,7 @@
             </div>
             <hr>
             <div style="min-width: 800px; max-width: 1000px;">
-                <div><h3>User Groups</h3></div>
+                <div><h2>User Groups</h2></div>
                 <hr>
                 {% if user_groups|length == 0 %}
                 <h4>You currently aren't a member of any groups.</h4>
@@ -80,7 +80,7 @@
                             <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
                             <td>{{ loop.index }}</td>
                             <td>{{ group.name }}</td>
-                            <td>{{ group.admins|length + group.users|length }}</td>
+                            <td>{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
                         </tr>
@@ -103,10 +103,14 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             {% if admin_groups|length != 0 %}
-            $('#admin_groups').dataTable();
+            $('#admin_groups').dataTable({
+                'sDom': 'tr'
+            });
             {% endif %}
             {% if user_groups|length != 0 %}
-            $('#user_groups').dataTable();
+            $('#user_groups').dataTable({
+                'sDom': 'tr'
+            });
             {% endif %}
             submit_special = function(url) {
                 $("#groups_form").attr("action", url);

@@ -16,7 +16,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 def get_redis_conn():
-    Redis = redis.StrictRedis(port=6380)
+    Redis = redis.StrictRedis(port=6379)
     return Redis
 
 Redis = get_redis_conn()
@@ -50,6 +50,27 @@ def get_user_by_unique_column(column_name, column_value):
         item_details = json.loads(user_list[column_value])
 
     return item_details
+
+def get_users_like_unique_column(column_name, column_value):
+    """
+    Like previous function, but this only checks if the input is a subset of a field and can return multiple results
+    """
+    matched_users = []
+
+    if column_value != "":
+        user_list = Redis.hgetall("users")
+        if column_name != "user_id":
+            for key in user_list:
+                user_ob = json.loads(user_list[key])
+                if column_name in user_ob:
+                    if column_value in user_ob[column_name]:
+                        matched_users.append(user_ob)
+        else:
+            matched_users.append(json.loads(user_list[column_value]))
+
+    return matched_users
+
+# def search_users_by_unique_column(column_name, column_value):
 
 def set_user_attribute(user_id, column_name, column_value):
     user_info = json.loads(Redis.hget("users", user_id))
@@ -142,6 +163,28 @@ def get_group_by_unique_column(column_name, column_value):
 
     return matched_groups
 
+def get_groups_like_unique_column(column_name, column_value):
+    """
+    Like previous function, but this only checks if the input is a subset of a field and can return multiple results
+    """
+    matched_groups = []
+
+    if column_value != "":
+        group_list = Redis.hgetall("groups")
+        if column_name != "group_id":
+            for key in group_list:
+                group_info = json.loads(group_list[key])
+                if column_name == "admins" or column_name == "members": #ZS: Since these fields are lists, search in the list
+                    if column_value in group_info[column_name]:
+                        matched_groups.append(group_info)
+                else:
+                    if column_name in group_info:
+                        if column_value in group_info[column_name]:
+                            matched_groups.append(group_info)
+        else:
+            matched_groups.append(json.loads(group_list[column_value]))
+
+    return matched_groups
 
 def create_group(admin_user_ids, member_user_ids = [], group_name = "Default Group Name"):
     group_id = str(uuid.uuid4())
@@ -192,9 +235,13 @@ def add_users_to_group(user_id, group_id, user_emails = [], admins = False): #ZS
 
 def remove_users_from_group(user_id, users_to_remove_ids, group_id, user_type = "members"): #ZS: User type is because I assume admins can remove other admins
     group_info = get_group_info(group_id)
+
     if user_id in group_info["admins"]:
+        users_to_remove_set = set(users_to_remove_ids)
+        if user_type == "admins" and user_id in users_to_remove_set: #ZS: Make sure an admin can't remove themselves from a group, since I imagine we don't want groups to be able to become admin-less
+            users_to_remove_set.remove(user_id)
         group_users = set(group_info[user_type])
-        group_users -= set(users_to_remove_ids)
+        group_users -= users_to_remove_set
         group_info[user_type] = list(group_users)
         group_info["changed_timestamp"] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
         Redis.hset("groups", group_id, json.dumps(group_info))
@@ -232,7 +279,6 @@ def get_resource_info(resource_id):
     return json.loads(resource_info)
 
 def add_resource(resource_info):
-
     if 'trait' in resource_info['data']:
         resource_id = hmac.hmac_creation('{}:{}:{}'.format(str(resource_info['type']), str(resource_info['data']['dataset']), str(resource_info['data']['trait'])))
     else:
@@ -241,3 +287,18 @@ def add_resource(resource_info):
     Redis.hset("resources", resource_id, json.dumps(resource_info))
 
     return resource_info
+
+def add_access_mask(resource_id, group_id, access_mask):
+    the_resource = get_resource_info(resource_id)
+    the_resource['group_masks'][group_id] = access_mask
+
+    Redis.hset("resources", resource_id, json.dumps(the_resource))
+
+    return the_resource
+
+def change_resource_owner(resource_id, new_owner_id):
+    the_resource= get_resource_info(resource_id)
+    the_resource['owner_id'] = new_owner_id
+
+    Redis.delete("resource")
+    Redis.hset("resources", resource_id, json.dumps(the_resource))

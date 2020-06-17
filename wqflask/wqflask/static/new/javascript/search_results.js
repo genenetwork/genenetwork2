@@ -296,7 +296,6 @@ $(function() {
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
   $("#add").click(add);
-  $("#remove").click(remove);
   $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);

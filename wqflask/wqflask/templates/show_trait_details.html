@@ -248,8 +248,8 @@
         <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
         <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1">View in GN1</button>
         </a>
-        {% if resource_id %}
-        <a target="_blank" href="./resources/manage?resource_id={{ resource_id }}">
+        {% if admin_status[1] == "owner" or admin_status[1] == "edit-admins" or admin_status[1] == "edit-access" %}
+        <a target="_blank" href="./resources/manage?resource_id={{ admin_status[0] }}">
             <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource">Edit</button>
         </a>
         {% endif %}

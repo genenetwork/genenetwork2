@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Set Group Privileges{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <h1>Group Privileges</h1>
+        <br>
+        <form id="set_group_privileges">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <div style="min-width: 600px; max-width: 800px;">
+                <button type="submit" class="btn btn-primary" style="margin-bottom: 40px;">Add Group</button>
+                <hr>
+                <h2>Data and Metadata Privileges</h2>
+                <table id="data_privileges_table" class="table-hover table-striped cell-border" style="float: left;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>No-Access</th>
+                            <th>View</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Data:</td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="no-access" checked></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="view"></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="edit"></td>
+                        </tr>
+                        <tr>
+                            <td>Metadata:</td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="no-access" checked></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="view"></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="edit"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h2>Admin Privileges</h2>
+                <table id="admin_privileges_table" class="table-hover table-striped cell-border" style="float: left;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Not Admin</th>
+                            <th>Edit Access</th>
+                            <th>Edit Admins</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Admin:</td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="not-admin" checked></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="edit-access"></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="edit-admins"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script>
+        $('#data_privileges_table').dataTable();
+        $('#admin_privileges_table').dataTable();
+    </script>
+{% endblock %}

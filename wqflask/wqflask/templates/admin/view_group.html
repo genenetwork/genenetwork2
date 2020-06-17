@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}View and Edit Group{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <div class="page-header">
+            <h1>
+                <span id="group_name">{{ group_info.name }}</span>
+                <input type="text" name="new_group_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ group_info.name }}"> 
+                <button class="btn btn-default" style="display: inline;" id="change_group_name">Change Group Name</button>
+            </h1>
+            {% if user_is_admin == true %}
+            <div style="display: inline;">
+                <button type="button" id="remove_users" class="btn btn-danger" data-url="/groups/remove_users">Remove Selected Users from Group</button>
+            </div>
+            {% endif %}
+        </div>
+        <form id="group_form" action="/groups/view" method="POST">
+            <input type="hidden" name="group_id" value="{{ group_info.id }}">
+            <input type="hidden" name="selected_admin_ids" value="">
+            <input type="hidden" name="selected_member_ids" value="">
+            <div class="row">
+            <div id="groups_div" class="col-xs-6" style="margin-right: 30px; min-width: 600px; max-width: 800px;">
+                <div>
+                    <div style="margin-top: 20px;"><h2>Admins</h2></div>
+                    <hr>
+                    <table id="group_admins" class="table-hover table-striped cell-border" style="float: left;">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Index</th>
+                                <th>Name</th>
+                                <th>Email Address</th>
+                                <th>Organization</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admin in admins %}
+                            <tr>
+                                <td style="text-align: center; padding: 0px 10px 2px 10px;"><input type="checkbox" name="admin_id" value="{{ admin.user_id }}"></td>
+                                <td align="right">{{ loop.index }}</td>
+                                <td>{% if 'full_name' in admin %}{{ admin.full_name }}{% else %}N/A{% endif %}</td>
+                                <td>{% if 'email_address' in admin %}{{ admin.email_address }}{% else %}N/A{% endif %}</td>
+                                <td>{% if 'organization' in admin %}{{ admin.organization }}{% else %}N/A{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if user_is_admin == true %}
+                    <div style="margin-top: 20px;">
+                            <span>E-mail of user to add to admins (multiple e-mails can be added separated by commas):</span>
+                            <input type="text" size="60" name="admin_emails_to_add" placeholder="Enter E-mail(s)" value="">
+                    </div>
+                    <div style="margin-bottom: 30px; margin-top: 20px;">
+                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="/groups/add_admins">Add Admin(s)</button>
+                    </div>
+                    {% endif %}
+                </div>
+                <hr>
+                <div>
+                    {% if members|length > 0 %}
+                    <div><h2>Members</h2></div>
+                    <hr>
+                    <table id="group_members" class="table-hover table-striped cell-border" style="float: left;">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Index</th>
+                                <th>Name</th>
+                                <th>Email Address</th>
+                                <th>Organization</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr>
+                                <td style="text-align: center; padding: 0px 10px 2px 10px;"><input type="checkbox" name="member_id" value="{{ member.user_id }}"></td>
+                                <td align="right">{{ loop.index }}</td>
+                                <td>{% if 'full_name' in member %}{{ member.full_name }}{% else %}N/A{% endif %}</td>
+                                <td>{% if 'email_address' in member %}{{ member.email_address }}{% else %}N/A{% endif %}</td>
+                                <td>{% if 'organization' in member %}{{ member.organization }}{% else %}N/A{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if user_is_admin == true %}
+                    <div style="margin-top: 20px;">
+                            <span>E-mail of user to add to members (multiple e-mails can be added separated by commas):</span>
+                            <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
+                    </div>
+                    <div style="margin-bottom: 30px; margin-top: 20px;">
+                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="/groups/add_members">Add Member(s)</button>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    There are currently no members in this group.
+                    {% endif %}
+                </div>
+            </div>
+            <div id="resources_div" class="col-xs-6" style="border-left: 1px solid #eee; margin-right: 30px; min-width: 600px; max-width: 800px;">
+                <div style="margin-top: 20px;"><h2>Resources</h2></div>
+                <hr>
+                {% if resources|length > 0 %}
+                <table id="resources" class="table-hover table-striped cell-border" style="float: left;">
+                    <thead>
+                        <tr>
+                            <th>Index</th>
+                            <th>Name</th>
+                            <th>Data</th>
+                            <th>Metadata</th>
+                            <th>Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resource in resources %}
+                        <tr>
+                            <td align="right">{{ loop.index }}</td>
+                            <td>{% if 'name' in resource %}<a href="/resources/manage?resource_id={{ resource.id }}">{{ resource.name }}</a>{% else %}N/A{% endif %}</td>
+                            <td>{% if 'data' in resource %}{{ resource.data }}{% else %}N/A{% endif %}</td>
+                            <td>{% if 'metadata' in resource %}{{ resource.metadata }}{% else %}N/A{% endif %}</td>
+                            <td>{% if 'admin' in resource %}{{ resource.admin }}{% else %}N/A{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                There are currently no resources associated with this group.
+                {% endif %}
+            </div>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            $('#group_admins').dataTable({
+                'order': [[1, "asc" ]],
+                'columns': [
+                    { "type": "natural", "width": "25px"},
+                    { "type": "natural", "width": "30px" },
+                    { "type": "natural", "width": "150px" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                'sDom': 'tr'
+            });
+            {% if members|length > 0 %}
+            $('#group_members').dataTable({
+                'order': [[1, "asc" ]],
+                'columns': [
+                    { "type": "natural", "width": "25px"},
+                    { "type": "natural", "width": "30px" },
+                    { "type": "natural", "width": "150px" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                'sDom': 'tr'
+            });
+            {% endif %}
+            {% if resources|length > 0 %}
+            $('#resources').dataTable({
+                'order': [[0, "asc" ]],
+                'columns': [
+                    { "type": "natural", "width": "30px" },
+                    { "type": "natural", "width": "150px" },
+                    { "type": "natural" },
+                    { "type": "natural" },
+                    { "type": "natural" }
+                ],
+                'sDom': 'tr'
+            });
+            {% endif %}
+
+            $('#resources_div').css('height', $('#groups_div').css('height'))
+
+            submit_special = function(url) {
+                $("#group_form").attr("action", url);
+                return $("#group_form").submit();
+            };
+
+            $("#remove_users").on("click", function() {
+                url = $(this).data("url");
+                admins = [];
+                $("input[name=admin_id]:checked").each(function() {
+                    admins.push($(this).val());
+                });
+                admins_string = admins.join(":")
+                $("input[name=selected_admin_ids]").val(admins_string)
+
+                members = [];
+                $("input[name=member_id]:checked").each(function() {
+                    members.push($(this).val());
+                });
+                members_string = members.join(":")
+                $("input[name=selected_member_ids]").val(members_string)
+                return submit_special(url)
+            });
+
+            $("#add_admins, #add_members").on("click", function() {
+                url = $(this).data("url");
+                return submit_special(url)
+            });
+
+            $("#change_group_name").on("click", function() {
+                if ($('input[name=new_group_name]').css('display') == 'none') {
+                    $('input[name=new_group_name]').css('display', 'inline');
+                    $('#group_name').css('display', 'none');
+                } else {
+                    new_name = $('input[name=new_group_name]').val()
+                    $.ajax({
+                        type: "POST",
+                        url: "/groups/change_name",
+                        data: {
+                            group_id: $('input[name=group_id]').val(),
+                            new_name: new_name
+                        }
+                    });
+                    $('input[name=new_group_name]').css('display', 'none');
+                    $('input[name=group_name]').val(new_name);
+                    $('#group_name').text(new_name)
+                    $('#group_name').css('display', 'inline');
+                }
+            });
+        });
+    </script>
+{% endblock %}
