@@ -232,6 +232,11 @@
 
             $("#remove").on("click", function() {
                 url = $(this).data("url")
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+
                 return submit_special(url)
             });
 

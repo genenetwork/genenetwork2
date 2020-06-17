@@ -157,7 +157,7 @@ def remove_traits():
     params = request.form
 
     uc_id = params['uc_id']
-    traits_to_remove = params.getlist('traits[]')
+    traits_to_remove = params['trait_list']
     traits_to_remove = process_traits(traits_to_remove)
 
     members_now = g.user_session.remove_traits_from_collection(uc_id, traits_to_remove)
