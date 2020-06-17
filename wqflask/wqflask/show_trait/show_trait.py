@@ -22,7 +22,7 @@ from base.trait import create_trait
 from base import data_set
 from db import webqtlDatabaseFunction
 from utility import webqtlUtil, Plot, Bunch, helper_functions
-from utility.authentication_tools import check_owner
+from utility.authentication_tools import check_owner_or_admin
 from utility.tools import locate_ignore_error
 from utility.redis_tools import get_redis_conn, get_resource_id
 Redis = get_redis_conn()
@@ -72,11 +72,11 @@ class ShowTrait(object):
                                            cellid=None)
             self.trait_vals = Redis.get(self.trait_id).split()
 
-        self.resource_id = check_owner(self.dataset, self.trait_id)
+        self.admin_status = check_owner_or_admin(self.dataset, self.trait_id)
 
         #ZS: Get verify/rna-seq link URLs
         try:
-            blatsequence = self.this_trait.sequence
+            blatsequence = self.this_trait.blatseq
             if not blatsequence:
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 query1 = """SELECT Probe.Sequence, Probe.Name
@@ -256,7 +256,7 @@ class ShowTrait(object):
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
         if len(self.scales_in_geno) < 2:
-            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0]
+            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0][0]
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn

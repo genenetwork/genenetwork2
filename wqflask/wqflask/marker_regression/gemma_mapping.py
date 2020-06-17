@@ -136,9 +136,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
         #trait_samples = this_dataset.group.all_samples_ordered()
         this_dataset.group.get_samplelist()
         trait_samples = this_dataset.group.samplelist
-        logger.debug("SAMPLES:", trait_samples)
         trait_sample_data = trait_ob.data
-        logger.debug("SAMPLE DATA:", trait_sample_data)
         for index, sample in enumerate(trait_samples):
             if sample in samples:
                 if sample in trait_sample_data:
