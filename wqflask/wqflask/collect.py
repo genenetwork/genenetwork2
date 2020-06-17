@@ -159,13 +159,10 @@ def remove_traits():
     uc_id = params['uc_id']
     traits_to_remove = params.getlist('traits[]')
     traits_to_remove = process_traits(traits_to_remove)
-    logger.debug("\n\n  after processing, traits_to_remove:", traits_to_remove)
 
     members_now = g.user_session.remove_traits_from_collection(uc_id, traits_to_remove)
 
-    # We need to return something so we'll return this...maybe in the future
-    # we can use it to check the results
-    return str(len(members_now))
+    return redirect(url_for("view_collection", uc_id=uc_id))
 
 
 @app.route("/collections/delete", methods=('POST',))
