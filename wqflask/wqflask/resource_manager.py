@@ -18,7 +18,7 @@ def manage_resource():
     params = request.form if request.form else request.args
     if 'resource_id' in request.args:
         resource_id = request.args['resource_id']
-        admin_status = check_owner_or_admin(resource_id=resource_id)[1]
+        admin_status = check_owner_or_admin(resource_id=resource_id)
 
         resource_info = get_resource_info(resource_id)
         group_masks = resource_info['group_masks']
@@ -67,7 +67,7 @@ def search_for_groups():
 def change_owner():
     resource_id = request.form['resource_id']
     if 'new_owner' in request.form:
-        admin_status = check_owner_or_admin(resource_id=resource_id)[1]
+        admin_status = check_owner_or_admin(resource_id=resource_id)
         if admin_status == "owner":
             new_owner_id = request.form['new_owner']
             change_resource_owner(resource_id, new_owner_id)
@@ -100,7 +100,7 @@ def change_default_privileges():
 @app.route("/resources/add_group", methods=('POST',))
 def add_group_to_resource():
     resource_id = request.form['resource_id']
-    admin_status = check_owner_or_admin(resource_id=resource_id)[1]
+    admin_status = check_owner_or_admin(resource_id=resource_id)
     if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access":
         if 'selected_group' in request.form:
             group_id = request.form['selected_group']

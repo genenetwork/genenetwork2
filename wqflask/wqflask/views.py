@@ -96,13 +96,21 @@ def check_access_permissions():
             pass
     else:
         if 'dataset' in request.args:
-            dataset = create_dataset(request.args['dataset'])
-            if 'trait_id' in request.args:
-                available = check_resource_availability(dataset, request.args['trait_id'])
+            if request.args['dataset'] == "Temp":
+                permissions = check_resource_availability("Temp")
             else:
-                available = check_resource_availability(dataset)
+                dataset = create_dataset(request.args['dataset'])
 
-            if available == "no-access":
+                if dataset.type == "Temp":
+                    permissions = False
+                if 'trait_id' in request.args:
+                    permissions = check_resource_availability(dataset, request.args['trait_id'])
+                elif dataset.type != "Publish":
+                    permissions = check_resource_availability(dataset)
+                else:
+                    return None
+
+            if 'view' not in permissions['data']:
                 return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext

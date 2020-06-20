@@ -68,9 +68,13 @@ def insert_probeset_resources(default_owner_id):
         resource_ob['data'] = { "dataset" : str(resource[0])}
         resource_ob['type'] = "dataset-probeset"
         if resource[2] < 1 and resource[3] > 0:
-            resource_ob['default_mask'] = { "data": "view" }
+            resource_ob['default_mask'] = { "data": "view",
+                                            "metadata": "view",
+                                            "admin": "not-admin"}
         else:
-            resource_ob['default_mask'] = { "data": "no-access" }
+            resource_ob['default_mask'] = { "data": "no-access",
+                                            "metadata": "no-access",
+                                            "admin": "not-admin"}
         resource_ob['group_masks'] = {}
 
         add_resource(resource_ob)
@@ -98,7 +102,9 @@ def insert_publish_resources(default_owner_id):
             resource_ob['data'] = { "dataset" : str(resource[1]) ,
                                     "trait"   : str(resource[0])}
             resource_ob['type'] = "dataset-publish"
-            resource_ob['default_mask'] = { "data": "view" }
+            resource_ob['default_mask'] = { "data": "view",
+                                            "metadata": "view",
+                                            "admin": "not-admin"}
 
             resource_ob['group_masks'] = {}
 
@@ -124,9 +130,13 @@ def insert_geno_resources(default_owner_id):
         resource_ob['data'] = { "dataset" : str(resource[0]) }
         resource_ob['type'] = "dataset-geno"
         if resource[2] < 1:
-            resource_ob['default_mask'] = { "data": "view" }
+            resource_ob['default_mask'] = { "data": "view",
+                                            "metadata": "view",
+                                            "admin": "not-admin"}
         else:
-            resource_ob['default_mask'] = { "data": "no-access" }
+            resource_ob['default_mask'] = { "data": "no-access",
+                                            "metadata": "no-access",
+                                            "admin": "not-admin"}
         resource_ob['group_masks'] = {}
 
         add_resource(resource_ob)
