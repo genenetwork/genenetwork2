@@ -382,9 +382,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
     resource_id = get_resource_id(dataset, trait.name)
     if dataset.type == 'Publish':
-        the_url = "http://localhost:8081/run-action?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
+        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
     else:
-        the_url = "http://localhost:8081/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
+        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
 
     response = requests.get(the_url).content
     if response.strip() == "no-access":

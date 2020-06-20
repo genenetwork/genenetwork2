@@ -35,7 +35,7 @@ def check_resource_availability(dataset, trait_id=None):
     else:
         return response #ZS: Need to substitute in something that creates the resource in Redis later
 
-    the_url = "http://localhost:8081/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
+    the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
     try:
         response = json.loads(requests.get(the_url).content)
     except:
@@ -47,7 +47,7 @@ def check_resource_availability(dataset, trait_id=None):
         return False
 
 def check_admin(resource_id=None):
-    the_url = "http://localhost:8081/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
+    the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
     try:
         response = json.loads(requests.get(the_url).content)['admin']
     except:

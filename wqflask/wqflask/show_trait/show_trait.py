@@ -72,7 +72,8 @@ class ShowTrait(object):
                                            cellid=None)
             self.trait_vals = Redis.get(self.trait_id).split()
 
-        self.admin_status = check_owner_or_admin(self.dataset, self.trait_id)
+        self.resource_id = get_resource_id(self.dataset, self.trait_id)
+        self.admin_status = check_owner_or_admin(resource_id=self.resource_id)
 
         #ZS: Get verify/rna-seq link URLs
         try:
