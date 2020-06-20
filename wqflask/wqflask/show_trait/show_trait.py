@@ -49,18 +49,23 @@ class ShowTrait(object):
             self.temp_trait = False
             self.trait_id = kw['trait_id']
             helper_functions.get_species_dataset_trait(self, kw)
+            self.resource_id = get_resource_id(self.dataset, self.trait_id)
+            self.admin_status = check_owner_or_admin(resource_id=self.resource_id)
         elif 'group' in kw:
             self.temp_trait = True
             self.trait_id = "Temp_"+kw['species']+ "_" + kw['group'] + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
             self.temp_species = kw['species']
             self.temp_group = kw['group']
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+
             # Put values in Redis so they can be looked up later if added to a collection
             Redis.set(self.trait_id, kw['trait_paste'], ex=ONE_YEAR)
             self.trait_vals = kw['trait_paste'].split()
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+
+            self.admin_status = check_owner_or_admin(dataset=self.dataset, trait_id=self.trait_id)
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
@@ -70,10 +75,9 @@ class ShowTrait(object):
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
-            self.trait_vals = Redis.get(self.trait_id).split()
 
-        self.resource_id = get_resource_id(self.dataset, self.trait_id)
-        self.admin_status = check_owner_or_admin(resource_id=self.resource_id)
+            self.trait_vals = Redis.get(self.trait_id).split()
+            self.admin_status = check_owner_or_admin(dataset=self.dataset, trait_id=self.trait_id)
 
         #ZS: Get verify/rna-seq link URLs
         try:
