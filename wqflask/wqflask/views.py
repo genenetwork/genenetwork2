@@ -641,7 +641,10 @@ def loading_page():
         if 'num_vals' in start_vars:
             num_vals = int(start_vars['num_vals'])
         else:
-            dataset = create_dataset(start_vars['dataset'])
+            if 'group' in start_vars:
+                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
+            else:
+                dataset = create_dataset(start_vars['dataset'])
             genofile_samplelist = []
             samples = start_vars['primary_samples'].split(",")
             if 'genofile' in start_vars:
