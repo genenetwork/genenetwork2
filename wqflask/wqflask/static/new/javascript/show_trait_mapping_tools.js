@@ -5,7 +5,6 @@
   submit_special = function(url) {
     $("#trait_data_form").attr("action", url);
     $("#trait_data_form").submit();
-    return false;
   };
 
   update_time_remaining = function(percent_complete) {
