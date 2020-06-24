@@ -32,6 +32,8 @@ def check_resource_availability(dataset, trait_id=None):
 
     if resource_id:
         resource_info = get_resource_info(resource_id)
+        if not resource_info:
+            return webqtlConfig.DEFAULT_PRIVILEGES
     else:
         return response #ZS: Need to substitute in something that creates the resource in Redis later
 
@@ -85,9 +87,10 @@ def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
         return "owner"
 
     resource_info = get_resource_info(resource_id)
-    if g.user_session.user_id == resource_info['owner_id']:
-        return "owner"
-    else:
-        return check_admin(resource_id)
+    if resource_info:
+        if g.user_session.user_id == resource_info['owner_id']:
+            return "owner"
+        else:
+            return check_admin(resource_id)
 
     return "not-admin"

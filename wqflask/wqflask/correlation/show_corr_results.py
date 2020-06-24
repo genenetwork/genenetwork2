@@ -200,8 +200,6 @@ class CorrelationResults(object):
 
             for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
                 trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
-                if not trait_object:
-                    continue
 
                 if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                     #ZS: Convert trait chromosome to an int for the location range option
@@ -237,9 +235,8 @@ class CorrelationResults(object):
                         trait_object.tissue_pvalue = tissue_corr_data[trait][2]
                     elif self.corr_type == "lit":
                         trait_object.lit_corr = lit_corr_data[trait][1]
-                    self.correlation_results.append(trait_object)
 
-            self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
+                    self.correlation_results.append(trait_object)
 
             if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_lit_correlation_for_trait_list()
@@ -498,6 +495,8 @@ def do_bicor(this_trait_vals, target_trait_vals):
 def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
     results_list = []
     for i, trait in enumerate(corr_results):
+        if trait.view == False:
+            continue
         results_dict = {}
         if not for_api:
             results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + hmac.hmac_creation('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"

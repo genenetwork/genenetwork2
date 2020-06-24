@@ -386,13 +386,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     else:
         the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
 
-    response = requests.get(the_url).content
-    if response.strip() == "no-access":
-        trait.view = False
-        return trait
-    else:
-        trait_info = json.loads(response)
-
     try:
         response = requests.get(the_url).content
         if response.strip() == "no-access":
@@ -402,7 +395,10 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             trait_info = json.loads(response)
     except:
         resource_info = get_resource_info(resource_id)
-        default_permissions = resource_info['default_mask']['data']
+        if resource_info:
+            default_permissions = resource_info['default_mask']['data']
+        else:
+            default_permissions = webqtlConfig.DEFAULT_PRIVILEGES
         if 'view' not in default_permissions:
             trait.view = False
             return trait

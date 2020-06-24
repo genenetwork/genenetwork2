@@ -280,7 +280,10 @@ def get_resource_id(dataset, trait_id=None):
 
 def get_resource_info(resource_id):
     resource_info = Redis.hget("resources", resource_id)
-    return json.loads(resource_info)
+    if resource_info:
+        return json.loads(resource_info)
+    else:
+        return None
 
 def add_resource(resource_info):
     if 'trait' in resource_info['data']:
