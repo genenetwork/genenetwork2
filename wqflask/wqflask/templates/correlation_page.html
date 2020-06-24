@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
     <div class="container" style="min-width: 1250px;">
@@ -114,8 +115,8 @@
         <div style="margin-bottom: 5px;">
             <b>Show/Hide Columns:</b>
         </div>
-        <div style="width: {% if target_dataset.type == "ProbeSet" %}1600px{% elif target_dataset.type == "Publish" %}1400px{% else %}800px{% endif %};">
-            <table id="trait_table" class="display dataTable nowrap" style="font-size: 12px; float: left;">
+        <div style="width: 100%; min-width: {% if target_dataset.type == "ProbeSet" %}1700px{% elif target_dataset.type == "Publish" %}1600px{% else %}600px{% endif %};">
+            <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <thead>
                     <tr>
                         <th></th>
@@ -143,7 +144,7 @@
                         <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</TD>
                         <td data-export="{{ trait.location_repr }}" style="white-space: nowrap;">{{ trait.location_repr }}</td>
                         <td data-export="{{ '%0.3f' % trait.mean|float }}" align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }} align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
                         <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
                         <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                         {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
@@ -167,8 +168,8 @@
                         {% else %}
                         <TD data-export="N/A">N/A</TD>
                         {% endif %}
-                        <td data-export="{{ trait.description_display }}">{% if trait.description_display|length > 50 %}{{ trait.description_display[:50] }}...{% else %}{{ trait.description_display }}{% endif %}</td>
-                        <td data-export="{{ trait.authors }}">{{ trait.authors }}</td>
+                        <td data-export="{{ trait.description_display }}">{% if trait.description_display|length > 70 %}{{ trait.description_display[:70] }}...{% else %}{{ trait.description_display }}{% endif %}</td>
+                        <td data-export="{{ trait.authors }}">{% if trait.authors.split(',') > 6 %}{{ trait.authors.split(',')[:6]|join(', ') }}, et al.{% else %}{{ trait.authors }}{% endif %}</td>
                         <td data-export="{{ trait.pubmed_text }}">
                             <a href="{{ trait.pubmed_link }}">
                                 {{ trait.pubmed_text }}
@@ -211,7 +212,6 @@
     </script>
 
     <script type="text/javascript" charset="utf-8">
-
         $.fn.dataTable.ext.order['dom-innertext'] = function (settings, col) {
           return this.api().column(col, { order: 'index' }).nodes().map(function (td, i) {
             return Math.abs(parseFloat($('a', td).text()));
@@ -424,16 +424,8 @@
                     { "type": "natural" }
                 ],
                 "createdRow": function ( row, data, index ) {
-                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
-                    if ($('td', row).eq(3).text().length > 50) {
-                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 50));
-                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
-                    }
-                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 40) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
-                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-                    }
+                    $('td', row).eq(4).text(decodeURIComponent(escape($('td', row).eq(4).text())));
+                    $('td', row).eq(5).text(decodeURIComponent(escape($('td', row).eq(5).text())));
                 },
                 "order": [[9, "asc" ]],
                 "sDom": "Btir",
