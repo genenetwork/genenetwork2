@@ -68,12 +68,12 @@ def get_types(groups):
         types[species] = {}
         for group_name, _group_full_name, _family_name in group_dict:
             if phenotypes_exist(group_name):
-                types[species][group_name] = [("Phenotypes", "Phenotypes")]
+                types[species][group_name] = [("Phenotypes", "Traits and Cofactors", "Phenotypes")]
             if genotypes_exist(group_name):
                 if group_name in types[species]:
-                    types[species][group_name] += [("Genotypes", "Genotypes")]
+                    types[species][group_name] += [("Genotypes", "DNA Markers and SNPs", "Genotypes")]
                 else:
-                    types[species][group_name] = [("Genotypes", "Genotypes")]
+                    types[species][group_name] = [("Genotypes", "DNA Markers and SNPs", "Genotypes")]
             if group_name in types[species]:
                 types_list = build_types(species, group_name)
                 if len(types_list) > 0:
@@ -134,7 +134,7 @@ def build_types(species, group):
         if len(result):
             these_datasets = build_datasets(species, group, result[0])
             if len(these_datasets) > 0:
-                results.append([str(result[0]), str(result[0])])
+                results.append([str(result[0]), str(result[0]), "Molecular Trait Datasets"])
 
     return results
 
