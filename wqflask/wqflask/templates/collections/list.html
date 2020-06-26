@@ -42,6 +42,7 @@
 
             <tbody>
             {% for uc in collections %}
+                {% if uc.num_members > 0 %}
                 <tr class="collection_line">
                     <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                     <td align="right">{{ loop.index }}
@@ -50,6 +51,7 @@
                     <td>{{ uc.changed_timestamp }}</td>
                     <td align="right">{{ uc.num_members }}</td>
                 </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>

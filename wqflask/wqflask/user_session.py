@@ -167,7 +167,7 @@ class UserSession(object):
     def num_collections(self):
         """Number of user's collections"""
 
-        return len(self.user_collections)
+        return len([item for item in self.user_collections if item['num_members'] > 0])
 
     def add_collection(self, collection_name, traits):
         """Add collection into Redis"""
