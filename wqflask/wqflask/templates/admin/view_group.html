@@ -44,7 +44,7 @@
                             <tr>
                                 <td style="text-align: center; padding: 0px 10px 2px 10px;"><input type="checkbox" name="admin_id" value="{{ admin.user_id }}"></td>
                                 <td align="right">{{ loop.index }}</td>
-                                <td>{% if 'full_name' in admin %}{{ admin.full_name }}{% else %}N/A{% endif %}</td>
+                                <td>{% if 'full_name' in admin %}{{ admin.full_name }}{% elif 'name' in admin %}{{ admin.name }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'email_address' in admin %}{{ admin.email_address }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'organization' in admin %}{{ admin.organization }}{% else %}N/A{% endif %}</td>
                             </tr>
@@ -81,7 +81,7 @@
                             <tr>
                                 <td style="text-align: center; padding: 0px 10px 2px 10px;"><input type="checkbox" name="member_id" value="{{ member.user_id }}"></td>
                                 <td align="right">{{ loop.index }}</td>
-                                <td>{% if 'full_name' in member %}{{ member.full_name }}{% else %}N/A{% endif %}</td>
+                                <td>{% if 'full_name' in member %}{{ member.full_name }}{% elif 'name' in admin %}{{ admin.name }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'email_address' in member %}{{ member.email_address }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'organization' in member %}{{ member.organization }}{% else %}N/A{% endif %}</td>
                             </tr>
@@ -99,6 +99,15 @@
                     {% endif %}
                     {% else %}
                     There are currently no members in this group.
+                    {% if user_is_admin == true %}
+                    <div style="margin-top: 20px;">
+                            <span>E-mail of user to add to members (multiple e-mails can be added separated by commas):</span>
+                            <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
+                    </div>
+                    <div style="margin-bottom: 30px; margin-top: 20px;">
+                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="/groups/add_members">Add Member(s)</button>
+                    </div>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
