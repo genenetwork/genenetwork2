@@ -526,7 +526,6 @@ class SnpBrowser(object):
             the_rows.append(this_row)
 
         return the_rows
-                
 
     def include_record(self, domain, function, snp_source, conservation_score):
         """ Decide whether to add this record """
@@ -868,8 +867,6 @@ def get_gene_id_name_dict(species_id, gene_name_list):
     if len(results) > 0:
         for item in results:
             gene_id_name_dict[item[1]] = item[0]
-    else:
-        pass
 
     return gene_id_name_dict
 
@@ -883,7 +880,7 @@ def check_if_in_gene(species_id, chr, mb):
         query = """SELECT geneId,geneSymbol
                    FROM GeneList
                    WHERE chromosome = '{0}' AND
-                        (txStart < {1} AND txEnd > {1}); """.format(species_id, chr, mb)
+                        (txStart < {1} AND txEnd > {1}); """.format(chr, mb)
 
     result = g.db.execute(query).fetchone()
 
