@@ -195,7 +195,7 @@
           <th data-export="{{ header }}">{{ header }}</th>
           {% endfor %}
           {% for strain in header_fields[1] %}
-          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 15px;">{% for letter in strain %}<div style="transform: rotate(90deg);">{{ letter }}</div>{% endfor %}</th>
+          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 15px;">{{ strain }}</th>
           {% endfor %}
           {% else %}
           {% for header in header_fields %}
