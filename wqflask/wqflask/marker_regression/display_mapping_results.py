@@ -147,7 +147,7 @@ class DisplayMappingResults(object):
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
-        self.n_samples = start_vars['num_vals']
+        self.n_samples = start_vars['n_samples']
         self.species = start_vars['species']
         self.genofile_string = ""
         if 'genofile_string' in start_vars:

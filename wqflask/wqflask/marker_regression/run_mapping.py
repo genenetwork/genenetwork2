@@ -124,7 +124,10 @@ class RunMapping(object):
                             self.samples.append(sample)
                             self.vals.append(value)
 
-        self.num_vals = len(self.vals)
+        if 'n_samples' in start_vars:
+            self.n_samples = start_vars['n_samples']
+        else:
+            self.n_samples = len([val for val in self.vals if val != "x"])
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
 
