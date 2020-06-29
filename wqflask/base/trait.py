@@ -6,6 +6,7 @@ import resource
 import codecs
 import requests
 import random
+import urllib
 
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
@@ -144,6 +145,7 @@ class GeneralTrait(object):
                 formatted = self.post_publication_description
         else:
             formatted = "Not available"
+
         return formatted
 
     @property
@@ -474,9 +476,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         trait.haveinfo = True
 
         for i, field in enumerate(dataset.display_fields):
-            holder = trait_info[i]
-            #if isinstance(trait_info[i], basestring):
-            #    holder = holder.encode('latin1')
+            holder =  trait_info[i]
+            if isinstance(trait_info[i], basestring):
+                holder = holder.encode('latin1')
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
