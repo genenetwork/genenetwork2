@@ -9,7 +9,7 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 
-engine = create_engine(SQL_URI, encoding="latin1")
+engine = create_engine(SQL_URI+'?charset=latin1&use_unicode=0')
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
