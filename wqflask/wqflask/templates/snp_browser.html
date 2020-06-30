@@ -272,7 +272,8 @@
             return '<input type="checkbox" name="trait_check">'
           }
         }, {
-          'data': 'index'
+          'data': 'index',
+          'className': 'dt-body-right'
         }, {
           'data': null,
           'render': function(data, type, row, meta) {
@@ -283,9 +284,11 @@
             }
           }
         }, {
-          'data': 'chr'
+          'data': 'chr',
+          'className': 'dt-body-center'
         }, {
-          'data': 'mb_formatted'
+          'data': 'mb_formatted',
+          'className': 'dt-body-right'
         }, {
           'data': 'alleles'
         }, {% if empty_columns['snp_source'] == "true" %}{
@@ -298,7 +301,8 @@
             }
           }
         }, {% endif %} {% if empty_columns['conservation_score'] == "true" %}{
-          'data': 'conservation_score'
+          'data': 'conservation_score',
+          'className': 'dt-body-right'
         }, {% endif %} {% if empty_columns['gene_name'] == "true" %}{
           'data': null,
           'render': function(data, type, row, meta) {
@@ -383,21 +387,26 @@
             return '<input type="checkbox" name="trait_check">'
           }
         }, {
-          'data': 'index'
+          'data': 'index',
+          'className': 'dt-body-right'
         }, {
           'data': 'indel_name'
         }, {
           'data': 'indel_type'
         }, {
-          'data': 'indel_chr'
+          'data': 'indel_chr',
+          'className': 'dt-body-center'
         }, {
-          'data': 'indel_mb_s'
+          'data': 'indel_mb_s',
+          'className': 'dt-body-right'
         }, {
-          'data': 'indel_mb_e'
+          'data': 'indel_mb_e',
+          'className': 'dt-body-right'
         }, {
           'data': 'indel_strand'
         }, {
-          'data': 'indel_size'
+          'data': 'indel_size',
+          'className': 'dt-body-right'
         }, {
           'data': 'indel_sequence'
         }, {
