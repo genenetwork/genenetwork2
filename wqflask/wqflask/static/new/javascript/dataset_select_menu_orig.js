@@ -119,6 +119,9 @@ redo_dropdown = function(dropdown, items) {
         _results.push(dropdown.append(this_opt_group))
         this_opt_group = $("<optgroup label=\"" + current_family + "\">")
         this_opt_group.append($("<option />").val(item[0]).text(item[1]));
+        if (_i == type_family_list.length - 1){
+          _results.push(dropdown.append(this_opt_group))
+        }
       } else {
         _results.push(dropdown.append(this_opt_group))
         current_family = ""
