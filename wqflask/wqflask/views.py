@@ -630,7 +630,7 @@ def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
-    num_vals = 0 #ZS: So it can be displayed on loading page
+    n_samples = 0 #ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
@@ -638,8 +638,8 @@ def loading_page():
             if key in wanted or key.startswith(('value:')):
                 start_vars[key] = value
 
-        if 'num_vals' in start_vars:
-            num_vals = int(start_vars['num_vals'])
+        if 'n_samples' in start_vars:
+            n_samples = int(start_vars['n_samples'])
         else:
             if 'group' in start_vars:
                 dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
@@ -658,9 +658,9 @@ def loading_page():
             for sample in samples:
                 value = start_vars.get('value:' + sample)
                 if value != "x":
-                    num_vals += 1
+                    n_samples += 1
 
-        start_vars['num_vals'] = num_vals
+        start_vars['n_samples'] = n_samples
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
         start_vars_container['start_vars'] = start_vars
@@ -730,7 +730,7 @@ def mapping_results_page():
         'mapmodel_rqtl_geno',
         'temp_trait',
         'reaper_version',
-        'num_vals',
+        'n_samples',
         'transform'
     )
     start_vars = {}

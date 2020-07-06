@@ -35,7 +35,7 @@
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
-        <input type="hidden" name="num_vals" value="{{ n_samples }}">
+        <input type="hidden" name="n_samples" value="{{ n_samples }}">
         <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
@@ -435,7 +435,7 @@
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
-                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'num_vals']
+                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'n_samples']
 
         $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
 
