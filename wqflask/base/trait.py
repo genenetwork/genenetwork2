@@ -6,6 +6,7 @@ import resource
 import codecs
 import requests
 import random
+import urllib
 
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
@@ -463,6 +464,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             holder =  trait_info[i]
             # if isinstance(trait_info[i], basestring):
             #     holder = unicode(holder.strip(codecs.BOM_UTF8), 'utf-8', "ignore")
+
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
