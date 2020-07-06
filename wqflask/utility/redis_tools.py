@@ -285,13 +285,14 @@ def get_resource_info(resource_id):
     else:
         return None
 
-def add_resource(resource_info):
+def add_resource(resource_info, update=True):
     if 'trait' in resource_info['data']:
         resource_id = hmac.hmac_creation('{}:{}:{}'.format(str(resource_info['type']), str(resource_info['data']['dataset']), str(resource_info['data']['trait'])))
     else:
         resource_id = hmac.hmac_creation('{}:{}'.format(str(resource_info['type']), str(resource_info['data']['dataset'])))
 
-    Redis.hset("resources", resource_id, json.dumps(resource_info))
+    if not Redis.hexists("resources", resource_id):
+        Redis.hset("resources", resource_id, json.dumps(resource_info))
 
     return resource_info
 

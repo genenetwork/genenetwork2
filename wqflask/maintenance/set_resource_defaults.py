@@ -77,7 +77,7 @@ def insert_probeset_resources(default_owner_id):
                                             "admin": "not-admin"}
         resource_ob['group_masks'] = {}
 
-        add_resource(resource_ob)
+        add_resource(resource_ob, update=False)
 
 def insert_publish_resources(default_owner_id):
     current_resources = Redis.hgetall("resources")
@@ -108,7 +108,7 @@ def insert_publish_resources(default_owner_id):
 
             resource_ob['group_masks'] = {}
 
-            add_resource(resource_ob)
+            add_resource(resource_ob, update=False)
         else:
             continue
 
@@ -139,7 +139,7 @@ def insert_geno_resources(default_owner_id):
                                             "admin": "not-admin"}
         resource_ob['group_masks'] = {}
 
-        add_resource(resource_ob)
+        add_resource(resource_ob, update=False)
 
 def insert_resources(default_owner_id):
     current_resources = get_resources()
