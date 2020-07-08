@@ -403,7 +403,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             Publication.Month, Publication.Year, PublishXRef.Sequence,
                             Phenotype.Units, PublishXRef.comments
                     FROM
-                            PublishXRef, Publication, Phenotype, PublishFreeze
+                            PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
                     WHERE
                             PublishXRef.Id = %s AND
                             Phenotype.Id = PublishXRef.PhenotypeId AND

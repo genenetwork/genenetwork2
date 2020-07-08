@@ -42,8 +42,6 @@ utils = importr("utils")
 
 from pprint import pformat as pf
 
-import reaper
-
 from base import webqtlConfig
 from utility.THCell import THCell
 from utility.TDCell import TDCell
