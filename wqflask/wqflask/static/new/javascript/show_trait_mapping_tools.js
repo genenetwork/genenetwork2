@@ -3,9 +3,8 @@
   var block_outliers, composite_mapping_fields, do_ajax_post, get_progress, mapping_method_fields, open_mapping_results, outlier_text, showalert, submit_special, toggle_enable_disable, update_time_remaining;
 
   submit_special = function(url) {
-    console.log("In submit_special");
     $("#trait_data_form").attr("action", url);
-    return $("#trait_data_form").submit();
+    $("#trait_data_form").submit();
   };
 
   update_time_remaining = function(percent_complete) {
@@ -131,11 +130,8 @@
   };
 
   outlier_text = "One or more outliers exist in this data set. Please review values before mapping. Including outliers when mapping may lead to misleading results.";
-
-  runtime_warning_text = "This function could take as long as 10-20 minutes to run, so please do not close your browser window until it finishes."
-
   showalert = function(message, alerttype) {
-    return $('#alert_placeholder').append('<div id="alertdiv" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
+    return $('#outlier_alert_placeholder').append('<div id="mapping_alert" class="alert ' + alerttype + '"><a class="close" data-dismiss="alert">�</a><span>' + message + '</span></div>');
   };
 
   $('#suggestive').hide();
@@ -165,6 +161,7 @@
         url = "/loading";
         $('input[name=method]').val("rqtl_geno");
         $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
+        $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
         $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
         $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
         $('input[name=categorical_vars]').val(js_data.categorical_vars)
@@ -210,6 +207,7 @@
         url = "/loading";
         $('input[name=method]').val("reaper");
         $('input[name=selected_chr]').val($('#chr_reaper').val());
+        $('input[name=mapping_scale]').val($('#scale_reaper').val());
         $('input[name=genofile]').val($('#genofile_reaper').val());
         $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
         $('input[name=control_marker]').val($('input[name=control_reaper]').val());
@@ -287,6 +285,23 @@
 
   $("#display_all_lrs").change(function() {
     return toggle_enable_disable("#suggestive_lrs");
+  });
+
+  $('#genofile_rqtl_geno').change(function() {
+    geno_location = $(this).children("option:selected").val().split(":")[0]
+    $('#scale_rqtl_geno').empty()
+    the_scales = js_data.scales_in_geno[geno_location]
+    for (var i = 0; i < the_scales.length; i++){
+      $('#scale_rqtl_geno').append($("<option></option>").attr("value", the_scales[i][0]).text(the_scales[i][1]));
+    }
+  });
+  $('#genofile_reaper').change(function() {
+    geno_location = $(this).children("option:selected").val().split(":")[0]
+    $('#scale_reaper').empty()
+    the_scales = js_data.scales_in_geno[geno_location]
+    for (var i = 0; i < the_scales.length; i++){
+      $('#scale_reaper').append($("<option></option>").attr("value", the_scales[i][0]).text(the_scales[i][1]));
+    }
   });
 
 }).call(this);

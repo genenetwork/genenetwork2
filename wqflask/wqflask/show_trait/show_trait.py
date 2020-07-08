@@ -10,9 +10,6 @@ import json as json
 
 from collections import OrderedDict
 
-import redis
-Redis = redis.StrictRedis()
-
 import numpy as np
 import scipy.stats as ss
 
@@ -21,10 +18,15 @@ from flask import Flask, g
 from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
-from utility import webqtlUtil, Plot, Bunch, helper_functions
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from db import webqtlDatabaseFunction
+from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility.authentication_tools import check_owner_or_admin
+from utility.tools import locate_ignore_error
+from utility.redis_tools import get_redis_conn, get_resource_id
+Redis = get_redis_conn()
+ONE_YEAR = 60 * 60 * 24 * 365
 
 from pprint import pformat as pf
 
@@ -47,28 +49,35 @@ class ShowTrait(object):
             self.temp_trait = False
             self.trait_id = kw['trait_id']
             helper_functions.get_species_dataset_trait(self, kw)
+            self.resource_id = get_resource_id(self.dataset, self.trait_id)
+            self.admin_status = check_owner_or_admin(resource_id=self.resource_id)
         elif 'group' in kw:
             self.temp_trait = True
             self.trait_id = "Temp_"+kw['species']+ "_" + kw['group'] + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
             self.temp_species = kw['species']
             self.temp_group = kw['group']
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+
             # Put values in Redis so they can be looked up later if added to a collection
-            Redis.set(self.trait_id, kw['trait_paste'])
+            Redis.set(self.trait_id, kw['trait_paste'], ex=ONE_YEAR)
             self.trait_vals = kw['trait_paste'].split()
-            self.this_trait = GeneralTrait(dataset=self.dataset,
+            self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+
+            self.admin_status = check_owner_or_admin(dataset=self.dataset, trait_id=self.trait_id)
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
             self.temp_species = self.trait_id.split("_")[1]
             self.temp_group = self.trait_id.split("_")[2]
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
-            self.this_trait = GeneralTrait(dataset=self.dataset,
+            self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+
             self.trait_vals = Redis.get(self.trait_id).split()
+            self.admin_status = check_owner_or_admin(dataset=self.dataset, trait_id=self.trait_id)
 
         #ZS: Get verify/rna-seq link URLs
         try:
@@ -76,12 +85,12 @@ class ShowTrait(object):
             if not blatsequence:
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 query1 = """SELECT Probe.Sequence, Probe.Name
-                           FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                           WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                                 ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                 ProbeSetFreeze.Name = '%s' AND
-                                 ProbeSet.Name = '%s' AND
-                                 Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
+                            FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                            WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                                    ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                    ProbeSetFreeze.Name = '%s' AND
+                                    ProbeSet.Name = '%s' AND
+                                    Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
                 seqs = g.db.execute(query1).fetchall()
                 if not seqs:
                     raise ValueError
@@ -97,10 +106,10 @@ class ShowTrait(object):
             query2 = """SELECT Probe.Sequence, Probe.Name
                         FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
                         WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                              ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                              ProbeSetFreeze.Name = '%s' AND
-                              ProbeSet.Name = '%s' AND
-                              Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
+                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                                ProbeSetFreeze.Name = '%s' AND
+                                ProbeSet.Name = '%s' AND
+                                Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
 
             seqs = g.db.execute(query2).fetchall()
             for seqt in seqs:
@@ -120,8 +129,8 @@ class ShowTrait(object):
                 self.UCSC_BLAT_URL = ""
                 self.UTHSC_BLAT_URL = ""
         except:
-            self.UCSC_BLAT_URL = ""
-            self.UTHSC_BLAT_URL = ""
+           self.UCSC_BLAT_URL = ""
+           self.UTHSC_BLAT_URL = ""
 
         if self.dataset.type == "ProbeSet":
             self.show_probes = "True"
@@ -169,6 +178,14 @@ class ShowTrait(object):
             self.chr_list.append([self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
 
         self.genofiles = self.dataset.group.get_genofiles()
+
+        if "QTLReaper" or "R/qtl" in dataset.group.mapping_names: #ZS: No need to grab scales from .geno file unless it's using a mapping method that reads .geno files
+            if self.genofiles:
+                self.scales_in_geno = get_genotype_scales(self.genofiles)
+            else:
+                self.scales_in_geno = get_genotype_scales(self.dataset.group.name + ".geno")
+        else:
+            self.scales_in_geno = {}
 
         self.has_num_cases = has_num_cases(self.this_trait)
 
@@ -239,9 +256,12 @@ class ShowTrait(object):
                 #hddn['control_marker'] = self.nearest_marker1+","+self.nearest_marker2
         hddn['do_control'] = False
         hddn['maf'] = 0.05
+        hddn['mapping_scale'] = "physic"
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
+        if len(self.scales_in_geno) < 2:
+            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0][0]
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
@@ -251,6 +271,7 @@ class ShowTrait(object):
                        short_description = short_description,
                        unit_type = trait_units,
                        dataset_type = self.dataset.type,
+                       scales_in_geno = self.scales_in_geno,
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
@@ -281,7 +302,7 @@ class ShowTrait(object):
         if check_if_attr_exists(self.this_trait, 'uniprotid'):
             self.uniprot_link = webqtlConfig.UNIPROT_URL % self.this_trait.uniprotid
 
-        self.genotation_link = self.rgd_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
+        self.genotation_link = self.rgd_link = self.phenogen_link = self.gtex_link = self.genebridge_link = self.ucsc_blat_link = self.biogps_link = self.protein_atlas_link = None
         self.string_link = self.panther_link = self.aba_link = self.ebi_gwas_link = self.wiki_pi_link = self.genemania_link = self.ensembl_link = None
         if self.this_trait.symbol:
             self.genotation_link = webqtlConfig.GENOTATION_URL % self.this_trait.symbol
@@ -319,6 +340,7 @@ class ShowTrait(object):
 
             if self.dataset.group.species == "rat":
                 self.rgd_link = webqtlConfig.RGD_URL % (self.this_trait.symbol, self.dataset.group.species.capitalize())
+                self.phenogen_link = webqtlConfig.PHENOGEN_URL % (self.this_trait.symbol)
                 self.genemania_link = webqtlConfig.GENEMANIA_URL % ("rattus-norvegicus", self.this_trait.symbol)
 
                 query = """SELECT kgID, chromosome, txStart, txEnd
@@ -590,11 +612,86 @@ def get_categorical_variables(this_trait, sample_list):
         for attribute in sample_list.attributes:
             attribute_vals = []
             for sample_name in this_trait.data.keys():
-                attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
-
+                if sample_list.attributes[attribute].name in this_trait.data[sample_name].extra_attributes:
+                    attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
+                else:
+                    attribute_vals.append("N/A")
             num_distinct = len(set(attribute_vals))
 
             if num_distinct < 10:
                 categorical_var_list.append(sample_list.attributes[attribute].name)
 
     return categorical_var_list
+
+def get_genotype_scales(genofiles):
+    geno_scales = {}
+    if type(genofiles) is list:
+        for the_file in genofiles:
+            file_location = the_file['location']
+            geno_scales[file_location] = get_scales_from_genofile(file_location)
+    else:
+        geno_scales[genofiles] = get_scales_from_genofile(genofiles)
+
+    return geno_scales
+
+def get_scales_from_genofile(file_location):
+    geno_path = locate_ignore_error(file_location, 'genotype')
+
+    if not geno_path: #ZS: This is just to allow the code to run when
+        return [["physic", "Mb"]]
+    cm_and_mb_cols_exist = True
+    cm_column = None
+    mb_column = None
+    with open(geno_path, "r") as geno_fh:
+        for i, line in enumerate(geno_fh):
+            if line[0] == "#" or line[0] == "@":
+                if "@scale" in line: #ZS: If the scale is made explicit in the metadata, use that
+                    scale = line.split(":")[1].strip()
+                    if scale == "morgan":
+                        return [["morgan", "cM"]]
+                    else:
+                        return [["physic", "Mb"]]
+                else:
+                    continue
+            if line[:3] == "Chr":
+                first_marker_line = i + 1
+                if line.split("\t")[2].strip() == "cM":
+                    cm_column = 2
+                elif line.split("\t")[3].strip() == "cM":
+                    cm_column = 3
+                if line.split("\t")[2].strip() == "Mb":
+                    mb_column = 2
+                elif line.split("\t")[3].strip() == "Mb":
+                    mb_column = 3
+                break
+
+        #ZS: This attempts to check whether the cM and Mb columns are 'real', since some .geno files have one column be a copy of the other column, or have one column that is all 0s
+        cm_all_zero = True
+        mb_all_zero = True
+        cm_mb_all_equal = True
+        for i, line in enumerate(geno_fh):
+            if first_marker_line <= i < first_marker_line + 10: #ZS: I'm assuming there won't be more than 10 markers where the position is listed as 0
+                if cm_column:
+                    cm_val = line.split("\t")[cm_column].strip()
+                    if cm_val != "0":
+                        cm_all_zero = False
+                if mb_column:
+                    mb_val = line.split("\t")[mb_column].strip()
+                    if mb_val != "0":
+                        mb_all_zero = False
+                if cm_column and mb_column:
+                    if cm_val != mb_val:
+                        cm_mb_all_equal = False
+            else:
+                if i > first_marker_line + 10:
+                    break
+
+    #ZS: This assumes that both won't be all zero, since if that's the case mapping shouldn't be an option to begin with
+    if mb_all_zero:
+        return [["morgan", "cM"]]
+    elif cm_mb_all_equal:
+        return [["physic", "Mb"]]
+    elif cm_and_mb_cols_exist:
+        return [["physic", "Mb"], ["morgan", "cM"]]
+    else:
+        return [["physic", "Mb"]]

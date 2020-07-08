@@ -94,6 +94,11 @@
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        {% if g.user_session.logged_in %}
+                        <li class="">
+                            <a id="manage_groups" title="Manage Groups" href="/groups/manage">Manage Groups</a>
+                        </li>
+                        {% endif %}
                         {% endif %}
                         <!--
                         <li style="margin-left: 20px;">

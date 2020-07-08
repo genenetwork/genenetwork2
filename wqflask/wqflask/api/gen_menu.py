@@ -68,12 +68,12 @@ def get_types(groups):
         types[species] = {}
         for group_name, _group_full_name, _family_name in group_dict:
             if phenotypes_exist(group_name):
-                types[species][group_name] = [("Phenotypes", "Phenotypes")]
+                types[species][group_name] = [("Phenotypes", "Traits and Cofactors", "Phenotypes")]
             if genotypes_exist(group_name):
                 if group_name in types[species]:
-                    types[species][group_name] += [("Genotypes", "Genotypes")]
+                    types[species][group_name] += [("Genotypes", "DNA Markers and SNPs", "Genotypes")]
                 else:
-                    types[species][group_name] = [("Genotypes", "Genotypes")]
+                    types[species][group_name] = [("Genotypes", "DNA Markers and SNPs", "Genotypes")]
             if group_name in types[species]:
                 types_list = build_types(species, group_name)
                 if len(types_list) > 0:
@@ -126,9 +126,7 @@ def build_types(species, group):
                      InbredSet.Name = '{1}' AND
                      ProbeFreeze.TissueId = Tissue.Id AND
                      ProbeFreeze.InbredSetId = InbredSet.Id AND
-                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND
-                     ProbeSetFreeze.public > 0 AND
-                     ProbeSetFreeze.confidentiality < 1
+                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
                ORDER BY Tissue.Name""".format(species, group)
 
     results = []
@@ -136,7 +134,7 @@ def build_types(species, group):
         if len(result):
             these_datasets = build_datasets(species, group, result[0])
             if len(these_datasets) > 0:
-                results.append([str(result[0]), str(result[0])])
+                results.append([str(result[0]), str(result[0]), "Molecular Trait Datasets"])
 
     return results
 
@@ -194,9 +192,7 @@ def build_datasets(species, group, type_name):
                                   FROM InfoFiles, GenoFreeze, InbredSet
                                   WHERE InbredSet.Name = '{}' AND
                                         GenoFreeze.InbredSetId = InbredSet.Id AND
-                                        InfoFiles.InfoPageName = GenoFreeze.ShortName AND
-                                        GenoFreeze.public > 0 AND
-                                        GenoFreeze.confidentiality < 1
+                                        InfoFiles.InfoPageName = GenoFreeze.ShortName
                                   ORDER BY GenoFreeze.CreateTime DESC""".format(group)).fetchone()
 
         if results != None:
@@ -214,8 +210,7 @@ def build_datasets(species, group, type_name):
                                         Species.Id = InbredSet.SpeciesId AND
                                         InbredSet.Name = '{1}' AND
                                         ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '{2}' AND
-                                        ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id AND
-                                        ProbeSetFreeze.confidentiality < 1 and ProbeSetFreeze.public > 0
+                                        ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id
                                   ORDER BY ProbeSetFreeze.CreateTime DESC""".format(species, group, type_name)).fetchall()
 
         datasets = []

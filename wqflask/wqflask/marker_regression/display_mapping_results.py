@@ -147,7 +147,7 @@ class DisplayMappingResults(object):
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
-        self.n_samples = start_vars['num_vals']
+        self.n_samples = start_vars['n_samples']
         self.species = start_vars['species']
         self.genofile_string = ""
         if 'genofile_string' in start_vars:
@@ -246,6 +246,12 @@ class DisplayMappingResults(object):
             if 'output_files' in start_vars:
                 self.output_files = ",".join(start_vars['output_files'])
 
+        self.categorical_vars = ""
+        self.perm_strata = ""
+        if 'perm_strata' in start_vars.keys() and 'categorical_vars' in start_vars.keys():
+            self.categorical_vars = start_vars['categorical_vars']
+            self.perm_strata = start_vars['perm_strata']
+
         self.selectedChr = int(start_vars['selected_chr'])
 
         self.strainlist = start_vars['samples']
@@ -265,13 +271,11 @@ class DisplayMappingResults(object):
         else:
             self.colorCollection = [self.LRS_COLOR]
 
+        self.dataset.group.genofile = self.genofile_string.split(":")[0]
         if self.mapping_method == "reaper" and self.manhattan_plot != True:
             self.genotype = self.dataset.group.read_genotype_file(use_reaper=True)
         else:
             self.genotype = self.dataset.group.read_genotype_file()
-
-        #if self.mapping_method == "rqtl_geno" and self.genotype.filler == True:
-        #    self.genotype = self.genotype.read_rdata_output(self.qtlresults)
 
         #Darwing Options
         try:
@@ -510,7 +514,10 @@ class DisplayMappingResults(object):
             yTopOffset = max(90, yTopOffset)
         else:
             if self.legendChecked:
-                yTopOffset = max(90, yTopOffset)
+                if self.covariates != "" and self.controlLocus and self.doControl != "false":
+                    yTopOffset = max(120, yTopOffset)
+                else:
+                    yTopOffset = max(100, yTopOffset)
             else:
                 pass
 
@@ -1761,9 +1768,9 @@ class DisplayMappingResults(object):
                 break
 
         if all_int:
-            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 30
+            max_lrs_width = canvas.stringWidth("%d" % LRS_LOD_Max, font=LRSScaleFont) + 40
         else:
-            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 20
+            max_lrs_width = canvas.stringWidth("%2.1f" % LRS_LOD_Max, font=LRSScaleFont) + 30
 
         #draw the "LRS" or "LOD" string to the left of the axis
         canvas.drawString(self.LRS_LOD, xLeftOffset - max_lrs_width - 15*(zoom-1), \
@@ -1899,13 +1906,16 @@ class DisplayMappingResults(object):
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
 
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
-                if self.plotScale != "physic" and self.genotype.filler == True:
-                    if self.selectedChr != -1:
-                        start_cm = self.genotype[self.selectedChr - 1][0].cM
-                        Xc = startPosX + (qtlresult['Mb'] - start_cm)*plotXScale
-                    else:
-                        start_cm = self.genotype[previous_chr_as_int][0].cM
-                        Xc = startPosX + ((qtlresult['Mb']-start_cm-startMb)*plotXScale)*(((qtlresult['Mb']-start_cm-startMb)*plotXScale)/((qtlresult['Mb']-start_cm-startMb+self.GraphInterval)*plotXScale))
+                if self.plotScale != "physic" and self.mapping_method == "reaper" and not self.manhattan_plot:
+                    Xc = startPosX + (qtlresult['cM']-startMb)*plotXScale
+                    if hasattr(self.genotype, "filler"):
+                        if self.genotype.filler:
+                            if self.selectedChr != -1:
+                                start_cm = self.genotype[self.selectedChr - 1][0].cM
+                                Xc = startPosX + (qtlresult['Mb'] - start_cm)*plotXScale
+                            else:
+                                start_cm = self.genotype[previous_chr_as_int][0].cM
+                                Xc = startPosX + ((qtlresult['Mb']-start_cm-startMb)*plotXScale)*(((qtlresult['Mb']-start_cm-startMb)*plotXScale)/((qtlresult['Mb']-start_cm-startMb+self.GraphInterval)*plotXScale))
                 else:
                     Xc = startPosX + (qtlresult['Mb']-startMb)*plotXScale
 

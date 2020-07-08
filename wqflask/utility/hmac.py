@@ -3,6 +3,8 @@ from __future__ import print_function, division, absolute_import
 import hmac
 import hashlib
 
+from flask import url_for
+
 from wqflask import app
 
 def hmac_creation(stringy):

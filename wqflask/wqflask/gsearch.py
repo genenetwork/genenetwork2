@@ -4,7 +4,7 @@ import json
 
 from flask import Flask, g
 from base.data_set import create_dataset
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from db import webqtlDatabaseFunction
 
 from base import webqtlConfig
@@ -75,7 +75,10 @@ class GSearch(object):
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
                     this_trait['symbol'] = line[6]
-                    this_trait['description'] = line[7].decode('utf-8', 'replace')
+                    if line[7]:
+                        this_trait['description'] = line[7].decode('utf-8', 'replace')
+                    else:
+                        this_trait['description'] = "N/A"
                     this_trait['location_repr'] = 'N/A'
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (line[8], float(line[9]))
@@ -93,7 +96,9 @@ class GSearch(object):
                     #dataset = create_dataset(line[3], "ProbeSet", get_samplelist=False)
                     #trait_id = line[4]
                     #with Bench("Building trait object"):
-                    trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                    trait_ob = create_trait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                    if not trait_ob:
+                        continue
                     max_lrs_text = "N/A"
                     if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
                         max_lrs_text = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
@@ -207,13 +212,12 @@ class GSearch(object):
                     if line[11] != "" and line[11] != None:
                         this_trait['additive'] = '%.3f' % line[11]
 
-                    #dataset = create_dataset(line[2], "Publish")
-                    #trait_id = line[3]
-                    #this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     this_trait['max_lrs_text'] = "N/A"
+                    trait_ob = create_trait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                    if not trait_ob:
+                        continue
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
                       try:
-                        trait_ob = GeneralTrait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
                         if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
                             this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
                       except:

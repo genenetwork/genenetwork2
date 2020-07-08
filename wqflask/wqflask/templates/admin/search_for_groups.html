@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Resource Manager{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Find Groups</h1>
+        </div>
+        <form id="add_group" action="/resources/add_group" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <div style="min-width: 600px; max-width: 800px;">
+                <fieldset>
+                    <div class="form-horizontal" style="width: 900px;">
+                        <div style="margin-bottom: 30px;">
+                            <h2>Search by:</h2>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Group ID:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="group_id" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Group Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="group_name" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_name" class="col-xs-3" style="float: left; font-size: 18px;">User Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="user_name" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">User E-mail:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="user_email" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label class="col-xs-3" style="float: left; font-size: 18px;"></label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <button type="button" id="find_groups" class="btn btn-primary">Search</button>
+                                <button style="margin-left: 20px; display: none;" type="submit" id="submit_group" class="btn btn-success">Add Privileges for Selected Group</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr>
+                <div id="group_results">
+                </div>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/group_manager.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+
+        $('#find_groups').click(function() {
+            $.ajax({
+                method: "POST",
+                url: "/search_for_groups",
+                data: {
+                    group_id: $('input[name=group_id]').val(),
+                    group_name: $('input[name=group_name]').val(),
+                    user_name: $('input[name=user_name]').val(),
+                    user_email: $('input[name=user_email]').val()
+                },
+                success: populate_groups
+            });
+        })
+
+        populate_groups = function(json_group_list){
+            console.log(json_group_list)
+            var group_list = JSON.parse(json_group_list)
+
+            var the_html = ""
+            if (group_list.length > 0){
+                the_html += "<table id='groups_table' style='padding-top: 10px; width: 100%;' class='table-hover table-striped cell-border'>";
+                the_html += "<thead><tr><th></th><th>Index</th><th>Name</th><th># Admins</th><th># Members</th></tr></thead>";
+                the_html += "<tbody>";
+                for (_i = 0, _len = group_list.length; _i < _len; _i++) {
+                    this_group = group_list[_i]
+                    the_html += "<tr>";
+                    the_html += "<td align='center' class='select_group'><input type='radio' name='selected_group' value='" + this_group.id + "'></td>";
+                    the_html += "<td>" + (_i + 1).toString() + "</td>"
+                    if ("name" in this_group) {
+                        the_html += "<td>" + this_group.name + "</td>";
+                    } else {
+                        the_html += "<td>N/A</td>"
+                    }
+                    if ("admins" in this_group) {
+                        the_html += "<td>" + this_group.admins.length + "</td>";
+                    } else {
+                        the_html += "<td>0</td>"
+                    }
+                    if ("members" in this_group) {
+                        the_html += "<td>" + this_group.members.length + "</td>";
+                    } else {
+                        the_html += "<td>0</td>"
+                    }
+                    the_html += "</tr>"
+                }
+                the_html += "</tbody>";
+                the_html += "</table>";
+            } else {
+                the_html = "<span>No groups were found matching the entered criteria.</span>"
+            }
+
+            $('#group_results').html(the_html)
+            if (group_list.length > 0){
+                $('#groups_table').dataTable({
+                    'order': [[1, "asc" ]],
+                    'sDom': 'tr'
+                });
+                $('input[name=selected_group]:eq(0)').prop("checked", true)
+                $('#submit_group').css("display", "inline-block")
+            }
+        }
+    </script>
+{% endblock %}

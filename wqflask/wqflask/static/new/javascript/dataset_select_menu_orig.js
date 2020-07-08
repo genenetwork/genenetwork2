@@ -94,6 +94,40 @@ redo_dropdown = function(dropdown, items) {
         _results.push(dropdown.append($("<option />").val(item[0]).text(item[1])));
       }
     }
+  } else if (dropdown.attr('id') == "type"){
+    type_family_list = [];
+    for (_i = 0, _len = items.length; _i < _len; _i++) {
+      item = items[_i];
+      type_family_list.push([item[0], item[1], item[2]])
+    }
+
+    current_family = ""
+    this_opt_group = null
+    for (_i = 0, _len = type_family_list.length; _i < _len; _i++) {
+      item = type_family_list[_i];
+      if (item[2] != "None" && current_family == ""){
+        current_family = item[2]
+        this_opt_group = $("<optgroup label=\"" + item[2] + "\">")
+        this_opt_group.append($("<option />").val(item[0]).text(item[1]));
+      } else if (current_family != "" && item[2] == current_family){
+        this_opt_group.append($("<option />").val(item[0]).text(item[1]));
+        if (_i == type_family_list.length - 1){
+          _results.push(dropdown.append(this_opt_group))
+        }
+      } else if (current_family != "" && item[2] != current_family && item[2] != "None"){
+        current_family = item[2]
+        _results.push(dropdown.append(this_opt_group))
+        this_opt_group = $("<optgroup label=\"" + current_family + "\">")
+        this_opt_group.append($("<option />").val(item[0]).text(item[1]));
+        if (_i == type_family_list.length - 1){
+          _results.push(dropdown.append(this_opt_group))
+        }
+      } else {
+        _results.push(dropdown.append(this_opt_group))
+        current_family = ""
+        _results.push(dropdown.append($("<option />").val(item[0]).text(item[1])));
+      } 
+    }
   } else {
     for (_i = 0, _len = items.length; _i < _len; _i++) {
       item = items[_i];
@@ -104,6 +138,7 @@ redo_dropdown = function(dropdown, items) {
       }
     }
   }
+
   return _results;
 };
 $('#species').change((function(_this) {
