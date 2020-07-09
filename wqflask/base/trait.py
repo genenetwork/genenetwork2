@@ -50,7 +50,6 @@ def create_trait(**kw):
     if "view" in permissions['data']:
         the_trait = GeneralTrait(**kw)
         if the_trait.dataset.type != "Temp":
-
             the_trait = retrieve_trait_info(the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
         return the_trait
     else:
@@ -390,34 +389,21 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
     try:
         response = requests.get(the_url).content
-        if response.strip() == "no-access":
-            trait.view = False
-            return trait
-        else:
-            trait_info = json.loads(response)
-    except:
-        resource_info = get_resource_info(resource_id)
-        if resource_info:
-            default_permissions = resource_info['default_mask']['data']
-        else:
-            default_permissions = webqtlConfig.DEFAULT_PRIVILEGES
-        if 'view' not in default_permissions:
-            trait.view = False
-            return trait
-
+        trait_info = json.loads(response)
+    except: #ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
         if dataset.type == 'Publish':
             query = """
                     SELECT
-                            PublishXRef.Id, Publication.PubMed_ID,
+                            PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
                             Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                            Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation,
+                            Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
                             Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
                             Publication.Authors, Publication.Title, Publication.Abstract,
                             Publication.Journal, Publication.Volume, Publication.Pages,
                             Publication.Month, Publication.Year, PublishXRef.Sequence,
                             Phenotype.Units, PublishXRef.comments
                     FROM
-                            PublishXRef, Publication, Phenotype, PublishFreeze
+                            PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
                     WHERE
                             PublishXRef.Id = %s AND
                             Phenotype.Id = PublishXRef.PhenotypeId AND
@@ -474,11 +460,11 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
     if trait_info:
         trait.haveinfo = True
-
         for i, field in enumerate(dataset.display_fields):
             holder =  trait_info[i]
-            if isinstance(trait_info[i], basestring):
-                holder = unicode(holder.strip(codecs.BOM_UTF8), 'utf-8', "ignore")
+            # if isinstance(trait_info[i], basestring):
+            #     holder = unicode(holder.strip(codecs.BOM_UTF8), 'utf-8', "ignore")
+
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':

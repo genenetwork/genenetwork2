@@ -35,8 +35,6 @@ import resource
 
 from pprint import pformat as pf
 
-import reaper
-
 from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers

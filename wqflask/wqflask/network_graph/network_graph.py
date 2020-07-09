@@ -40,8 +40,6 @@ import rpy2.robjects as robjects
 
 from pprint import pformat as pf
 
-import reaper
-
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import create_trait
