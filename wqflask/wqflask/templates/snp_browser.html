@@ -107,6 +107,12 @@
               </div>
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-xs-4 col-form-label"></label>
+            <div class="col-xs-8" style="margin-top: 65px;">
+              <input class="btn btn-primary" type="button" name="export_csv" value="Export to CSV">
+            </div>
+          </div>
         </div>
         <div class="col-xs-4" style="width: 310px; padding-left: 20px;">
           <div class="form-group row" style="margin-bottom: 5px;">
@@ -192,14 +198,14 @@
           <th></th>
           {% if header_fields|length == 2 %}
           {% for header in header_fields[0] %}
-          <th data-export="{{ header }}">{{ header }}</th>
+          <th data-export="{{ header }}" name="{{ header }}">{{ header }}</th>
           {% endfor %}
           {% for strain in header_fields[1] %}
-          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 12px;">{% for letter in strain|reverse %}<div style="transform: rotate(270deg);">{{ letter }}</div>{% endfor %}</th>
+          <th data-export="{{ strain }}" name="{{ strain }}" style="align: center; text-align: center; line-height: 12px;">{% for letter in strain|reverse %}<div style="transform: rotate(270deg);">{{ letter }}</div>{% endfor %}</th>
           {% endfor %}
           {% else %}
           {% for header in header_fields %}
-          <th data-export="{{ header }}">{{ header }}</th>
+          <th data-export="{{ header }}" name="{{ header }}">{{ header }}</th>
           {% endfor %}
           {% endif %}
         </tr>
@@ -517,6 +523,37 @@
         strain_list.push($(this).val());
       });
       $("input[name=chosen_strains]").val(strain_list.join(","));
+    });
+
+    $("input[name=export_csv]").click(function() {
+      var csv = [];
+      var rows = document.querySelectorAll("table tr");
+
+      var headers = [];
+      var col_header = rows[0].querySelectorAll("th");
+      console.log(col_header.length);
+      for(var i = 1; i < col_header.length; i++) {
+        console.log(col_header[i].getAttribute("name"));
+        headers.push(col_header[i].getAttribute("name"));
+      }
+      csv.push(headers.join(","));
+
+      for (var i = 1; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td");
+
+        for (var j = 1; j < cols.length; j++)
+          row.push(cols[j].innerText);
+
+        csv.push(row.join(","));
+      }
+
+      var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+      var downloadLink = document.createElement("a");
+      downloadLink.download = "hello.csv";
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
     });
   </script>
 {% endblock %}
