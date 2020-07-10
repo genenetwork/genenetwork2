@@ -531,25 +531,27 @@
 
       var headers = [];
       var col_header = rows[0].querySelectorAll("th");
-      console.log(col_header.length);
       for(var i = 1; i < col_header.length; i++) {
-        console.log(col_header[i].getAttribute("name"));
         headers.push(col_header[i].getAttribute("name"));
       }
       csv.push(headers.join(","));
 
       for (var i = 1; i < rows.length; i++) {
         var row = [], cols = rows[i].querySelectorAll("td");
+        var checkBox = rows[i].querySelector("input");
+        console.log(checkBox);
 
-        for (var j = 1; j < cols.length; j++)
-          row.push(cols[j].innerText);
+        if(checkBox.checked == true) {
+          for (var j = 1; j < cols.length; j++)
+            row.push(cols[j].innerText);
 
-        csv.push(row.join(","));
+            csv.push(row.join(","));
+        }
       }
 
       var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
       var downloadLink = document.createElement("a");
-      downloadLink.download = "hello.csv";
+      downloadLink.download = "variant_data.csv";
       downloadLink.href = window.URL.createObjectURL(csvFile);
       downloadLink.style.display = "none";
       document.body.appendChild(downloadLink);
