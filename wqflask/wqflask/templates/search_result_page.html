@@ -377,11 +377,12 @@
                         } else{
                           author_string = data.authors
                         }
-                        try {
-                          return decodeURIComponent(escape(author_string))
-                        } catch(err){
-                          return author_string
-                        }
+                        return author_string
+                        // try {
+                        //   return decodeURIComponent(escape(author_string))
+                        // } catch(err){
+                        //   return author_string
+                        // }
                       }
                     },
                     {
@@ -441,12 +442,13 @@
                         postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
-                'sDom': "Bitir",
+                'sDom': "Bpitirp",
                 {% else %}
-                'sDom': "itir",
+                'sDom': "pitirp",
                 {% endif %}
+                'iDisplayLength': 500,
                 'deferRender': true,
-                'paging': false,
+                'paging': true,
                 'orderClasses': true,
                 'processing': true,
                 'language': {
