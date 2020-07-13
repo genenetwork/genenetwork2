@@ -395,10 +395,13 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             query = """
                     SELECT
                             PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
-                            Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                            Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
+                            CAST(Phenotype.Pre_publication_description AS BINARY),
+                            CAST(Phenotype.Post_publication_description AS BINARY),
+                            CAST(Phenotype.Original_description AS BINARY),
+                            CAST(Phenotype.Pre_publication_abbreviation AS BINARY),
+                            CAST(Phenotype.Post_publication_abbreviation AS BINARY), PublishXRef.mean,
                             Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
-                            Publication.Authors, Publication.Title, Publication.Abstract,
+                            CAST(Publication.Authors AS BINARY), Publication.Title, Publication.Abstract,
                             Publication.Journal, Publication.Volume, Publication.Pages,
                             Publication.Month, Publication.Year, PublishXRef.Sequence,
                             Phenotype.Units, PublishXRef.comments
@@ -462,8 +465,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         trait.haveinfo = True
         for i, field in enumerate(dataset.display_fields):
             holder =  trait_info[i]
-            if isinstance(trait_info[i], basestring):
-                holder = holder.encode('latin1')
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
