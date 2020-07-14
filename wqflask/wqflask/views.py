@@ -161,10 +161,16 @@ def index_page():
             g.user_session.import_traits_to_user(params['anon_id'])
     tweet_ids = Redis.zrevrange("tweet-score:", 0, 14)  # Show the top 15 tweets
     tweets = []
-    for tweet_id in tweet_ids:
-        tweet = Redis.hgetall(tweet_id)
-        tweets.append(tweet)
-    return render_template("index_page_orig.html", version=GN_VERSION, tweets=tweets)
+
+    commit_ids = Redis.zrevrange("commit-score:", 0, 14)
+    commits = []
+    for tweet_id, commit_id in zip(tweet_ids, commit_ids):
+        tweets.append(Redis.hgetall(tweet_id))
+        commits.append(Redis.hgetall(commit_id))
+    return render_template("index_page_orig.html",
+                           version=GN_VERSION,
+                           tweets=tweets,
+                           commits=commits)
 
 
 @app.route("/tmp/<img_path>")
