@@ -159,10 +159,10 @@ def index_page():
         import_collections = params['import_collections']
         if import_collections == "true":
             g.user_session.import_traits_to_user(params['anon_id'])
-    tweet_ids = Redis.zrevrange("tweet-score:", 0, 14)  # Show the top 15 tweets
+    tweet_ids = Redis.zrevrange("tweet-score:", 0, 2)
     tweets = []
 
-    commit_ids = Redis.zrevrange("commit-score:", 0, 14)
+    commit_ids = Redis.zrevrange("commit-score:", 0, 2)
     commits = []
     for tweet_id, commit_id in zip(tweet_ids, commit_ids):
         tweets.append(Redis.hgetall(tweet_id))
