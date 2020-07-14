@@ -228,11 +228,31 @@
                     <div class="page-header">
                         <h1>Github</h1>
                         <ul>
-                          <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
-                          <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
-                          <!--<li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>-->
-                          <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
+                            <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
+                            <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
+                            <!--<li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>-->
+                            <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
                         </ul>
+                        <div id="commits" style="height: 300px; overflow: scroll; overflow-x: hidden;">
+                            {%if commits %}
+                            <ul style="list-style-type:none;">
+                                {% for commit in commits %}
+                                <li style="border-top: solid 1px #d9dadc; padding: 10px;">
+                                    <p class="commit">
+                                        <a style="text-decoration: none; color: #488fe0;" href="{{ commit.url}}">
+                                            <small>
+                                            {{ commit.hash |truncate(8, False, "")}}:
+                                            </small>
+                                        </a> {{ commit.content }}
+                                    </p>
+                                    <small>{{ commit.author }}</small> <br/>
+                                    <small><i>{{ commit.timeposted }}</i></small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
                     </div>
                </section>
               <!--
