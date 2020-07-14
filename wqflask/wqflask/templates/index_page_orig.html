@@ -205,7 +205,7 @@
                         <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;">
                             {%if tweets %}
                             <ul>
-                                {% for tweet in tweets %}
+                                {% for tweet in tweets|sort(reverse=true, attribute="timeposted") %}
                                 <li>
                                     <p class="tweet">
                                         {{ tweet.tweet|urlize(40, target="_blank") }} by
@@ -236,7 +236,7 @@
                         <div id="commits" style="height: 300px; overflow: scroll; overflow-x: hidden;">
                             {%if commits %}
                             <ul style="list-style-type:none;">
-                                {% for commit in commits %}
+                                {% for commit in commits|sort(reverse=true, attribute="timeposted") %}
                                 <li style="border-top: solid 1px #d9dadc; padding: 10px;">
                                     <p class="commit">
                                         <a style="text-decoration: none; color: #488fe0;" href="{{ commit.url}}">
