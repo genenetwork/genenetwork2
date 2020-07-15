@@ -200,7 +200,7 @@
 {% endblock %}
 
 {% block js %}
-    <!--<script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>-->
+    <script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
@@ -427,10 +427,6 @@
                     { "type": "natural" },
                     { "type": "natural" }
                 ],
-                "createdRow": function ( row, data, index ) {
-                    $('td', row).eq(4).text(decodeURIComponent(escape($('td', row).eq(4).text())));
-                    $('td', row).eq(5).text(decodeURIComponent(escape($('td', row).eq(5).text())));
-                },
                 "order": [[9, "asc" ]],
                 "sDom": "Btir",
                 "iDisplayLength": -1,
