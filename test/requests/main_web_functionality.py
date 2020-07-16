@@ -20,8 +20,9 @@ def check_search_page(host):
         , search_terms_or=""
         , search_terms_and="MEAN=(15 16) LRS=(23 46)")
     result = requests.get(host+"/search", params=data)
-    found = result.text.find("/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P")
+    found = result.text.find("records are shown below")
     assert(found >= 0)
+    assert(result.status_code == 200)
     print("OK")
     check_traits_page(host, "/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P")
 
