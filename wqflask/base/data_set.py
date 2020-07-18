@@ -47,8 +47,6 @@ from utility import chunks
 from utility import gen_geno_ob
 from utility.tools import locate, locate_ignore_error, flat_files
 
-from wqflask.api import gen_menu
-
 from maintenance import get_group_samplelists
 
 from MySQLdb import escape_string as escape
@@ -63,6 +61,9 @@ logger = getLogger(__name__ )
 # Used by create_database to instantiate objects
 # Each subclass will add to this
 DS_NAME_MAP = {}
+
+def my_add(x, y):
+    return x + y
 
 def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
     if dataset_name == "Temp":
