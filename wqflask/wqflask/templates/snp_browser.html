@@ -188,10 +188,7 @@
     </div>
 
     <div style="margin-top: 20px;">
-    {% if filtered_results is defined %}
-    {% if filtered_results|length > limit_number %}
-    There are more than 10000 results. Consider limiting your search to a smaller range.
-    {% else %}
+    {% if table_rows is defined %}
     <table class="dataTable cell-border nowrap" id="results_table" style="float: left;">
       <thead>
         <tr>
@@ -214,7 +211,6 @@
       <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
       </tbody>
     </table>
-    {% endif %}
     {% endif %}     
     </div>
   </div>
@@ -229,10 +225,22 @@
 
   <script type='text/javascript'>
       var json_rows = {{ table_rows|safe }};
+      var json_rows_count = {{ rows_count|safe }};
       var empty_columns = {{ empty_columns|safe }};
   </script>
 
   <script language="javascript">
+
+    var getParams = function(url) {
+      var parser = document.createElement('a');
+      parser.href = url;
+      var params = parser.search.substring(1);
+      console.log(params);
+      if(params.length > 0) {
+        return ('?'+params);
+      }
+      return params;
+    };
 
     var substringMatcher = function(strs) {
       return function findMatches(q, cb) {
@@ -266,7 +274,7 @@
       source: substringMatcher(rat_genes)
     });
 
-    {% if filtered_results is defined %}
+    {% if table_rows is defined %}
     $("#results_table").DataTable( {
       'data': json_rows,
       {% if variant_type == "SNP" %}
@@ -423,6 +431,10 @@
       'order': [[1, "asc" ]],
       'sDom': "rtip",
       'iDisplayLength': 500,
+      'bServerSide': true,
+      'bProcessing': true,
+      'sAjaxSource': '/snp_browser_table'+getParams(window.location.href),
+      'deferLoading': json_rows_count,
       'processing': true,
       'language': {
         'loadingRecords': '&nbsp;',
@@ -524,6 +536,8 @@
       });
       $("input[name=chosen_strains]").val(strain_list.join(","));
     });
+
+    
 
     $("input[name=export_csv]").click(function() {
       var csv = [];

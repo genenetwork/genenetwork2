@@ -897,6 +897,7 @@ def corr_scatter_plot_page():
 def snp_browser_page():
     logger.info(request.url)
     template_vars = snp_browser.SnpBrowser(request.args)
+    logger.info(template_vars.__dict__.keys())
 
     return render_template("snp_browser.html", **template_vars.__dict__)
 
@@ -905,6 +906,15 @@ def db_info_page():
     template_vars = InfoPage(request.args)
 
     return render_template("info_page.html", **template_vars.__dict__)
+
+@app.route("/snp_browser_table", methods=('GET',))
+def snp_browser_table():
+    logger.info(request.url)
+    logger.info(request.args)
+    
+    current_page = snp_browser.SnpPage(request.args).get_page()
+
+    return flask.jsonify(current_page)
 
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():

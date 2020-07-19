@@ -4,7 +4,7 @@ import string
 from PIL import (Image)
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 from base import species
 from base import webqtlConfig
@@ -14,16 +14,16 @@ class SnpBrowser(object):
     def __init__(self, start_vars):
         self.strain_lists = get_browser_sample_lists()
         self.initialize_parameters(start_vars)
-        self.limit_number = 10000
 
         if self.first_run == "false":
             self.filtered_results = self.get_browser_results()
+            self.table_rows = self.get_table_rows()
+            self.rows_count = len(self.table_rows)
 
-            if len(self.filtered_results) <= self.limit_number:
-                self.table_rows = self.get_table_rows()
-            else:
-                self.empty_columns = None
-                self.table_rows = []
+            del self.filtered_results
+
+            if 'sEcho' not in start_vars:
+                self.table_rows = self.table_rows[:500]
 
             if self.limit_strains == "true":
                 self.header_fields, self.empty_field_count = get_header_list(variant_type = self.variant_type, strains = self.chosen_strains, empty_columns = self.empty_columns)
@@ -380,7 +380,7 @@ class SnpBrowser(object):
 
         the_rows = []
         for i, result in enumerate(self.filtered_results):
-            this_row = []
+            this_row = {}
             if self.variant_type == "SNP":
                 snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain, function, function_details, snp_source, conservation_score, snp_id = result[:14]
                 allele_value_list = result[14:]
@@ -520,8 +520,6 @@ class SnpBrowser(object):
                     "source_name": str(source_name)
                 }
                 #this_row = [indel_name, indel_chr, indel_mb_s, indel_mb_e, indel_strand, indel_type, indel_size, indel_sequence, source_name]
-            else:
-                this_row = {}
 
             the_rows.append(this_row)
 
@@ -642,6 +640,27 @@ class SnpBrowser(object):
 
         #for i in range(n_click):
         #    href = url_for('snp_browser', first_run="false", chosen_strains_mouse=self.chosen_strains_mouse, chosen_strains_rat=self.chosen_strains_rat, variant=self.variant_type, species=self.species_name, gene_name=self.gene_name, chr=self.chr, start_mb=self.start_mb, end_mb=self.end_mb, limit_strains=self.limit_strains, domain=self.domain, function=self.function, criteria=self.criteria, score=self.score, diff_alleles=self.diff_alleles)
+
+class SnpPage(object):
+
+    def __init__(self, start_vars):
+        self.snp_browser = SnpBrowser(start_vars)
+        # self.table_rows = self.filter_rows()
+        self.rows_count = self.snp_browser.rows_count
+        self.sEcho = start_vars['sEcho']
+
+    def filter_rows(self):
+        pass
+
+    def get_page(self):
+        output = {}
+        output['sEcho'] = str(self.sEcho)
+        output['iTotalRecords'] = str(self.rows_count)
+        output['iTotalDisplayRecords'] = str(100)
+        # logger.info(len(self.table_rows), type(self.table_rows), self.table_rows[0])
+        logger.info(self.snp_browser.rows_count, len(self.snp_browser.table_rows))
+        output['data'] = self.snp_browser.table_rows[:100]
+        return output
 
 def get_browser_sample_lists(species_id=1):
     strain_lists = {}
