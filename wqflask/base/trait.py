@@ -152,7 +152,7 @@ class GeneralTrait(object):
         '''Return a text formatted alias'''
 
         alias = 'Not available'
-        if self.alias:
+        if getattr(self, "alias", None):
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
 
@@ -412,6 +412,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             Phenotype.Id = PublishXRef.PhenotypeId AND
                             Publication.Id = PublishXRef.PublicationId AND
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                            PublishXRef.InbredSetId = InbredSet.Id AND
                             PublishFreeze.Id = %s
                     """ % (trait.name, dataset.id)
 
