@@ -5,7 +5,10 @@ import os
 import sys
 import json
 
-from wqflask import app
+try:
+    from wqflask import app
+except ImportError:
+    from wqflask.wqflask import app
 
 # Use the standard logger here to avoid a circular dependency
 import logging
