@@ -1,6 +1,6 @@
 import unittest
 
-from wqflask.base.GeneralObject import GeneralObject
+from base.GeneralObject import GeneralObject
 
 
 class TestGeneralObjectTests(unittest.TestCase):
