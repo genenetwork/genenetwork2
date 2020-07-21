@@ -44,9 +44,3 @@ def normalize_values_with_samples(a_samples, b_samples):
     assert num_overlap == len(b_new), "Lengths should be the same"
 
     return a_new, b_new, num_overlap
-
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
