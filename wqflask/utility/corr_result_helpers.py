@@ -33,14 +33,10 @@ def common_keys(a_samples, b_samples):
 
 def normalize_values_with_samples(a_samples, b_samples):
     common_samples = common_keys(a_samples, b_samples)
-
     a_new = {}
     b_new = {}
     for sample in common_samples:
         a_new[sample] = a_samples[sample]
         b_new[sample] = b_samples[sample]
-
-    num_overlap = len(a_new)
-    assert num_overlap == len(b_new), "Lengths should be the same"
 
     return a_new, b_new, num_overlap
