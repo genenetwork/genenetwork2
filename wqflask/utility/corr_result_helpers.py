@@ -39,4 +39,4 @@ def normalize_values_with_samples(a_samples, b_samples):
         a_new[sample] = a_samples[sample]
         b_new[sample] = b_samples[sample]
 
-    return a_new, b_new, num_overlap
+    return a_new, b_new, len(a_new)
