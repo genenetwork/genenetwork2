@@ -28,7 +28,8 @@ def numify(number, singular=None, plural=None):
     '12,334 hippopotami'
 
     """
-    num_repr = {1 : "one",
+    num_repr = {0 : "zero",
+                1 : "one",
                 2 : "two",
                 3 : "three",
                 4 : "four",
