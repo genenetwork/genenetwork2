@@ -49,8 +49,8 @@ import cPickle as pickle
 import itertools
 
 from redis import Redis
-Redis = Redis()
 
+r = Redis()
 
 logger = getLogger(__name__)
 
@@ -74,9 +74,9 @@ def create_dataset(dataset_name, dataset_type=None, get_samplelist=True, group_n
         return dataset_class(dataset_name, get_samplelist)
 
 
-class Dataset_Types(object):
+class DatasetType:
 
-    def __init__(self):
+    def __init__(self, redis_instance):
         """Create a dictionary of samples where the value is set to Geno,
 Publish or ProbeSet. E.g.
 
@@ -91,9 +91,9 @@ Publish or ProbeSet. E.g.
          'B139_K_1206_R': 'ProbeSet' ...
 
         """
+        self.redis_instance = redis_instance
         self.datasets = {}
-
-        data = Redis.get("dataset_structure")
+        data = redis_instance.get("dataset_structure")
         if data:
             self.datasets = json.loads(data)
         else:  # ZS: I don't think this should ever run unless Redis is emptied
@@ -115,7 +115,7 @@ Publish or ProbeSet. E.g.
             except:
                 pass
 
-            Redis.set("dataset_structure", json.dumps(self.datasets))
+            redis_instance.set("dataset_structure", json.dumps(self.datasets))
 
         # Set LOG_LEVEL_DEBUG=5 to see the following:
         logger.debugf(5, "datasets", self.datasets)
@@ -134,7 +134,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(mrna_expr_query).fetchall()
             if len(results):
                 self.datasets[name] = "ProbeSet"
-                Redis.set("dataset_structure", json.dumps(self.datasets))
+                redis_instance.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             group_name = name.replace("Publish", "")
@@ -148,7 +148,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(pheno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Publish"
-                Redis.set("dataset_structure", json.dumps(self.datasets))
+                redis_instance.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             # ZS: For when there isn't an InfoFiles ID; not sure if this and the preceding query are both necessary
@@ -160,7 +160,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(other_pheno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Publish"
-                Redis.set("dataset_structure", json.dumps(self.datasets))
+                redis_instance.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             geno_query = """
@@ -175,7 +175,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(geno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Geno"
-                Redis.set("dataset_structure", json.dumps(self.datasets))
+                self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             # ZS: It shouldn't ever reach this
@@ -185,13 +185,13 @@ Publish or ProbeSet. E.g.
 
 
 # Do the intensive work at startup one time only
-Dataset_Getter = Dataset_Types()
+Dataset_Getter = DatasetType(r)
 
 
 def create_datasets_list():
     if USE_REDIS:
         key = "all_datasets"
-        result = Redis.get(key)
+        result = r.get(key)
 
         if result:
             logger.debug("Redis cache hit")
@@ -215,8 +215,8 @@ def create_datasets_list():
                     datasets.append(dataset)
 
         if USE_REDIS:
-            Redis.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
-            Redis.expire(key, 60*60)
+            r.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
+            r.expire(key, 60*60)
 
     return datasets
 
@@ -431,7 +431,7 @@ class DatasetGroup(object):
         result = None
         key = "samplelist:v3:" + self.name
         if USE_REDIS:
-            result = Redis.get(key)
+            result = r.get(key)
 
         if result is not None:
             self.samplelist = json.loads(result)
@@ -446,8 +446,8 @@ class DatasetGroup(object):
                 self.samplelist = None
 
             if USE_REDIS:
-                Redis.set(key, json.dumps(self.samplelist))
-                Redis.expire(key, 60*5)
+                r.set(key, json.dumps(self.samplelist))
+                r.expire(key, 60*5)
 
     def all_samples_ordered(self):
         result = []
@@ -558,8 +558,8 @@ def datasets(group_name, this_group=None):
                                          datasets=[(dataset, dataset_short)]))
 
     if USE_REDIS:
-        Redis.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
-        Redis.expire(key, 60*5)
+        r.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
+        r.expire(key, 60*5)
 
     if this_group != None:
         this_group._datasets = dataset_menu
