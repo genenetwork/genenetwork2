@@ -11,24 +11,24 @@ import datetime  # for errors
 import time      # for errors
 import sys
 import csv
+import simplejson as json
+import yaml
 import xlsxwriter
 import StringIO  # Todo: Use cStringIO?
 
+from zipfile import ZipFile, ZIP_DEFLATED
+
 import gc
 import numpy as np
-
 import cPickle as pickle
 import uuid
-
-import simplejson as json
-import yaml
 
 import flask
 import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for
+from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
 from wqflask import group_manager
 from wqflask import resource_manager
 from wqflask import search_results
@@ -421,11 +421,21 @@ def export_traits_csv():
     logger.info("In export_traits_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    csv_data, file_name = export_traits.export_search_results_csv(request.form)
+    file_list = export_traits.export_search_results_csv(request.form)
 
-    return Response(csv_data,
-                    mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
+    if len(file_list) > 1:
+        memory_file = StringIO.StringIO()
+        with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
+            for the_file in file_list:
+                zf.writestr(the_file[0], the_file[1])
+
+        memory_file.seek(0)
+
+        return send_file(memory_file, attachment_filename=filename + ".zip", as_attachment=True)
+    else:
+        return Response(file_list[0][1],
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=" + file_list[0][0]})
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():

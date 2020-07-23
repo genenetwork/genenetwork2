@@ -161,23 +161,11 @@ $(function() {
     trait_table.find('tbody tr').each(function (i, tr) {
       if (trait_table.find('input[name="searchResult"]:checked').length > 0) {
         if ($(this).find('input[name="searchResult"]').is(':checked')){
-          this_row = [];
-          $(tr).find('td').each(function(j, td){
-            if ($(td).data('export')){
-              this_row.push($(td).data('export'));
-            }
-          });
-          rows.push(this_row);
+          rows.push($(this).find('input[name="searchResult"]:checked').val())
         }
       }
       else {
-        this_row = [];
-        $(tr).find('td').each(function(j, td){
-          if ($(td).data('export')){
-            this_row.push($(td).data('export'));
-          }
-        });
-        rows.push(this_row);
+        rows.push($(this).find('input[name="searchResult"]').val())
       }
     });
     table_dict['rows'] = rows;
