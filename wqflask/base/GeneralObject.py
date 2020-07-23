@@ -43,10 +43,7 @@ class GeneralObject:
         return getattr(self, key)
 
     def __getattr__(self, key):
-        if key in self.__dict__.keys():
-            return self.__dict__[key]
-        else:
-            return eval("self.__dict__.%s" % key)
+        return eval("self.__dict__.%s" % key)
 
     def __len__(self):
         return len(self.__dict__) - 1
