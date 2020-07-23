@@ -909,9 +909,7 @@ def db_info_page():
 
 @app.route("/snp_browser_table", methods=('GET',))
 def snp_browser_table():
-    logger.info(request.url)
-    logger.info(request.args)
-    
+    logger.info(request.url)    
     current_page = snp_browser.SnpPage(request.args).get_page()
 
     return flask.jsonify(current_page)

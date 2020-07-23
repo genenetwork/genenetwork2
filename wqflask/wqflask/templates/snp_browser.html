@@ -276,7 +276,6 @@
 
     {% if table_rows is defined %}
     $("#results_table").DataTable( {
-      'data': json_rows,
       {% if variant_type == "SNP" %}
       'columns': [
         {
@@ -432,10 +431,10 @@
       'sDom': "rtip",
       'iDisplayLength': 500,
       'bServerSide': true,
-      'bProcessing': true,
       'sAjaxSource': '/snp_browser_table'+getParams(window.location.href),
-      'deferLoading': json_rows_count,
-      'processing': true,
+      'infoCallback': function(settings, start, end, max, total, pre) {
+        return "Showing " + start + " to " + (start + this.api().data().length - 1) + " of " + total + " entries";
+      },
       'language': {
         'loadingRecords': '&nbsp;',
         'processing': 'Loading...'

@@ -23,12 +23,12 @@ class SnpBrowser(object):
             del self.filtered_results
 
             if 'sEcho' not in start_vars:
-                self.table_rows = self.table_rows[:500]
+                self.table_rows = []
 
             if self.limit_strains == "true":
-                self.header_fields, self.empty_field_count = get_header_list(variant_type = self.variant_type, strains = self.chosen_strains, empty_columns = self.empty_columns)
+                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type = self.variant_type, strains = self.chosen_strains, empty_columns = self.empty_columns)
             else:
-                self.header_fields, self.empty_field_count = get_header_list(variant_type = self.variant_type, strains = self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
+                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type = self.variant_type, strains = self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
 
     def initialize_parameters(self, start_vars):
         if 'first_run' in start_vars:
@@ -643,23 +643,75 @@ class SnpBrowser(object):
 
 class SnpPage(object):
 
-    def __init__(self, start_vars):
-        self.snp_browser = SnpBrowser(start_vars)
-        # self.table_rows = self.filter_rows()
-        self.rows_count = self.snp_browser.rows_count
-        self.sEcho = start_vars['sEcho']
+    def __init__(self, request):
+        self.request_values = request
+        self.sEcho = self.request_values['sEcho']
 
-    def filter_rows(self):
-        pass
+        self.snp_browser = SnpBrowser(request)
+        self.rows_count = self.snp_browser.rows_count
+        self.table_rows = self.snp_browser.table_rows
+        self.header_data_names = self.snp_browser.header_data_names
+
+        logger.info(self.table_rows[0])
+        
+        self.sort_rows()
+        self.paginate_rows()
+
+    def sort_rows(self):
+        '''
+        Sorts the rows taking in to account the column (or columns) that the
+        user has selected.
+        '''
+        def is_reverse(str_direction):
+            ''' Maps the 'desc' and 'asc' words to True or False. '''
+            return True if str_direction == 'desc' else False
+
+        if (self.request_values['iSortCol_0'] != "") and (int(self.request_values['iSortingCols']) > 0):
+            for i in range(0, int(self.request_values['iSortingCols'])):
+                column_number = int(self.request_values['iSortCol_' + str(i)])
+                column_name = self.header_data_names[column_number - 1]
+                sort_direction = self.request_values['sSortDir_' + str(i)]
+                self.table_rows = sorted(self.table_rows,
+                              key=lambda x: x[column_name],
+                              reverse=is_reverse(sort_direction))
+
+    def paginate_rows(self):
+        '''
+        Selects a subset of the filtered and sorted data based on if the table
+        has pagination, the current page and the size of each page.
+        '''
+        def requires_pagination():
+            ''' Check if the table is going to be paginated '''
+            if self.request_values['iDisplayStart'] != "":
+                if int(self.request_values['iDisplayLength']) != -1:
+                    return True
+            return False
+
+        if not requires_pagination():
+            return
+
+        start = int(self.request_values['iDisplayStart'])
+        length = int(self.request_values['iDisplayLength'])
+
+        # if search returns only one page
+        if len(self.table_rows) <= length:
+            # display only one page
+            self.table_rows = self.table_rows[start:]
+        else:
+            limit = -len(self.table_rows) + start + length
+            if limit < 0:
+                # display pagination
+                self.table_rows = self.table_rows[start:limit]
+            else:
+                # display last page of pagination
+                self.table_rows = self.table_rows[start:]
 
     def get_page(self):
         output = {}
         output['sEcho'] = str(self.sEcho)
-        output['iTotalRecords'] = str(self.rows_count)
-        output['iTotalDisplayRecords'] = str(100)
-        # logger.info(len(self.table_rows), type(self.table_rows), self.table_rows[0])
-        logger.info(self.snp_browser.rows_count, len(self.snp_browser.table_rows))
-        output['data'] = self.snp_browser.table_rows[:100]
+        output['iTotalRecords'] = str(float('Nan'))
+        output['iTotalDisplayRecords'] = str(self.rows_count)
+        output['data'] = self.table_rows
         return output
 
 def get_browser_sample_lists(species_id=1):
@@ -692,9 +744,13 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
     empty_field_count = 0 #ZS: This is an awkward way of letting the javascript know the index where the allele value columns start; there's probably a better way of doing this
 
     header_fields = []
+    header_data_names = []
     if variant_type == "SNP":
         header_fields.append(['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'Source', 'ConScore', 'Gene', 'Transcript', 'Exon', 'Domain 1', 'Domain 2', 'Function', 'Details'])
+        header_data_names = ['index', 'snp_name', 'chr', 'mb_formatted', 'alleles', 'snp_source', 'conservation_score', 'gene_name', 'transcript', 'exon', 'domain_1', 'domain_2', 'function', 'function_details']
+
         header_fields.append(strain_list)
+        header_data_names += strain_list
 
         if empty_columns != None:
             if empty_columns['snp_source'] == "false":
@@ -721,11 +777,15 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
             if empty_columns['function_details'] == "false":
                 empty_field_count += 1
                 header_fields[0].remove('Details')
+        
+        for col in empty_columns:
+            header_data_names.remove(col)
 
     elif variant_type == "InDel":
         header_fields = ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source']
+        header_data_names = ['index', 'indel_name', 'indel_type', 'indel_chr', 'indel_mb_s', 'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name']
 
-    return header_fields, empty_field_count
+    return header_fields, empty_field_count, header_data_names
 
 def get_effect_details_by_category(effect_name = None, effect_value = None):
     gene_list = []
