@@ -96,7 +96,11 @@
                         </li>
                         {% if g.user_session.logged_in %}
                         <li class="">
-                            <a id="manage_groups" title="Manage Groups" href="/groups/manage">Manage Groups</a>
+                            <a href="/edit_account_settings" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Account Settings<span class="caret"></a>
+                            <ul class="dropdown-menu">
+                                <li><a id="manage_user" title="User Options" href="/user/manage">User Options</a></li>
+                                <li><a id="manage_groups" title="Manage Groups" href="/groups/manage">Manage Groups</a></li>
+                            </ul>
                         </li>
                         {% endif %}
                         {% endif %}
