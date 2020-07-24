@@ -939,7 +939,7 @@ class GenotypeDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, GenoData.value, GenoSE.error, GenoData.Id, Strain.Name2
+                            Strain.Name, GenoData.value, GenoSE.error, "N/A", Strain.Name2
                     FROM
                             (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
                     left join GenoSE on
@@ -1107,11 +1107,14 @@ class MrnaAssayDataSet(DataSet):
     def retrieve_sample_data(self, trait):
         query = """
                     SELECT
-                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, ProbeSetData.Id, Strain.Name2
+                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, NStrain.count, Strain.Name2
                     FROM
                             (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
                     left join ProbeSetSE on
                             (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
+                    left join NStrain on
+                            (NStrain.DataId = ProbeSetData.Id AND
+                            NStrain.StrainId = ProbeSetData.StrainId)
                     WHERE
                             ProbeSet.Name = '%s' AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
                             ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
