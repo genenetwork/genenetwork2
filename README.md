@@ -19,7 +19,8 @@ developers).  See the [installation docs](doc/README.org).
 
 ## Run
 
-Once installed GN2 can be run online through a browser interface
+Once having installed GN2 it can be run through a browser
+interface
 
 ```sh
 genenetwork2
@@ -35,18 +36,12 @@ For full examples (you may need to set a number of environment
 variables), including running scripts and a Python REPL, also see the
 startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
 
-Also Mysql and Elasticsearch need to be running, see
+Also mariadb and redis need to be running, see
 [INSTALL](./doc/README.org).
 
 ## Testing
 
-We are building 'Mechanical Rob' automated testing using Python
-[requests](https://github.com/genenetwork/genenetwork2/tree/master/test/lib)
-which can be run with something like
-
-```sh
-env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py -a http://localhost:5003
-```
+We are building 'Mechanical Rob' automated testing using Python.
 
 The GN2_PROFILE is the Guix profile that contains all
 dependencies. The ./bin/genenetwork2 script sets up the environment
@@ -73,10 +68,10 @@ Contribute to GN2 source code by forking the
 [github repository](https://github.com/genenetwork/genenetwork2/) with
 git and sending us pull requests.
 
-For development GN2 has a
-[mailing list](http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev)
-and an active IRC channel #genenetwork on freenode.net with a
-[web interface](http://webchat.freenode.net/).
+For development GN2 has a [mailing
+list](http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev) and
+an active IRC channel #genenetwork on freenode.net with a [web
+interface](http://webchat.freenode.net/).
 
 ## License
 
