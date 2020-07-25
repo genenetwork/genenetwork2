@@ -41,29 +41,31 @@ $('#trait_table').dataTable( {
     "orderClasses": true
 } );
 
-$('#collection_table').dataTable( {
-  "createdRow": function ( row, data, index ) {
-      if ($('td', row).eq(2).text().length > 40) {
-          $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
-          $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
-      }
-      if ($('td', row).eq(4).text().length > 50) {
-          $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
-          $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-      }
-  },
-  "columnDefs": [ {
-      "targets": 0,
-      "orderable": false
-  } ],
-  "order": [[1, "asc" ]],
-  "sDom": "ZRtr",
-  "iDisplayLength": -1,
-  "autoWidth": true,
-  "bSortClasses": false,
-  "paging": false,
-  "orderClasses": true
-} );
+if ( ! $.fn.DataTable.isDataTable( '#collection_table' ) ) {
+  $('#collection_table').dataTable( {
+    "createdRow": function ( row, data, index ) {
+        if ($('td', row).eq(2).text().length > 40) {
+            $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
+            $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
+        }
+        if ($('td', row).eq(4).text().length > 50) {
+            $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+            $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+        }
+    },
+    "columnDefs": [ {
+        "targets": 0,
+        "orderable": false
+    } ],
+    "order": [[1, "asc" ]],
+    "sDom": "ZRtr",
+    "iDisplayLength": -1,
+    "autoWidth": true,
+    "bSortClasses": false,
+    "paging": false,
+    "orderClasses": true
+  } );
+}
 
 collection_click = function() {
   var this_collection_url;

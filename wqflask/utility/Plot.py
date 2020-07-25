@@ -35,8 +35,6 @@ import sys, os
 from numarray import linear_algebra as la
 from numarray import ones, array, dot, swapaxes
 
-import reaper
-
 import webqtlUtil
 import corestats
 from base import webqtlConfig

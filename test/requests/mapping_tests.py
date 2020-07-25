@@ -15,9 +15,9 @@ def check_R_qtl_tool_selection(host, data):
     print("")
     print("R/qtl mapping tool selection")
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    page = requests.post(host+"/marker_regression", data=data, headers=headers)
+    page = requests.post(host+"/loading", data=data, headers=headers)
     doc = fromstring(page.text)
-    form = doc.forms[1]
+    form = doc.forms[0]
     assert form.fields["dataset"] == "HC_M2_0606_P"
     assert form.fields["value:BXD1"] == "15.034"
 
@@ -25,9 +25,9 @@ def check_CIM_tool_selection(host, data):
     print("")
     print("CIM mapping tool selection (using reaper)")
     data["method"] = "reaper"
-    page = requests.post(host+"/marker_regression", data=data)
+    page = requests.post(host+"/loading", data=data)
     doc = fromstring(page.text)
-    form = doc.forms[1]
+    form = doc.forms[0]
     assert form.fields["dataset"] == "HC_M2_0606_P"
     assert form.fields["value:BXD1"] == "15.034"
 
@@ -37,6 +37,6 @@ def check_mapping(args_obj, parser):
 
     host = args_obj.host
     data = load_data_from_file()
-    check_pylmm_tool_selection(host, copy.deepcopy(data))
-    check_R_qtl_tool_selection(host, copy.deepcopy(data)) ## Why does this fail?
+    # check_pylmm_tool_selection(host, copy.deepcopy(data)) ## Not defined
+    check_R_qtl_tool_selection(host, copy.deepcopy(data))
     check_CIM_tool_selection(host, copy.deepcopy(data))

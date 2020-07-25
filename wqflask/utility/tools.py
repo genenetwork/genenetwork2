@@ -270,8 +270,8 @@ if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
                       ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
-# ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
-# ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
+ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
+ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
 # import utility.elasticsearch_tools as es
 # es.test_elasticsearch_connection()
 

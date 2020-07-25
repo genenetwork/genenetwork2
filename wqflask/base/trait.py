@@ -152,7 +152,7 @@ class GeneralTrait(object):
         '''Return a text formatted alias'''
 
         alias = 'Not available'
-        if self.alias:
+        if getattr(self, "alias", None):
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
 
@@ -395,20 +395,24 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             query = """
                     SELECT
                             PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
-                            Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                            Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
+                            CAST(Phenotype.Pre_publication_description AS BINARY),
+                            CAST(Phenotype.Post_publication_description AS BINARY),
+                            CAST(Phenotype.Original_description AS BINARY),
+                            CAST(Phenotype.Pre_publication_abbreviation AS BINARY),
+                            CAST(Phenotype.Post_publication_abbreviation AS BINARY), PublishXRef.mean,
                             Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
-                            Publication.Authors, Publication.Title, Publication.Abstract,
-                            Publication.Journal, Publication.Volume, Publication.Pages,
+                            CAST(Publication.Authors AS BINARY), CAST(Publication.Title AS BINARY), CAST(Publication.Abstract AS BINARY),
+                            CAST(Publication.Journal AS BINARY), Publication.Volume, Publication.Pages,
                             Publication.Month, Publication.Year, PublishXRef.Sequence,
                             Phenotype.Units, PublishXRef.comments
                     FROM
-                            PublishXRef, Publication, Phenotype, PublishFreeze
+                            PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
                     WHERE
                             PublishXRef.Id = %s AND
                             Phenotype.Id = PublishXRef.PhenotypeId AND
                             Publication.Id = PublishXRef.PublicationId AND
                             PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                            PublishXRef.InbredSetId = InbredSet.Id AND
                             PublishFreeze.Id = %s
                     """ % (trait.name, dataset.id)
 
@@ -462,9 +466,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         trait.haveinfo = True
         for i, field in enumerate(dataset.display_fields):
             holder =  trait_info[i]
-            # if isinstance(trait_info[i], basestring):
-            #     holder = unicode(holder.strip(codecs.BOM_UTF8), 'utf-8', "ignore")
-
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':

@@ -6,7 +6,7 @@ import requests
 from base import data_set, webqtlConfig
 
 from utility import hmac
-from utility.redis_tools import get_redis_conn, get_resource_info, get_resource_id
+from utility.redis_tools import get_redis_conn, get_resource_info, get_resource_id, add_resource
 Redis = get_redis_conn()
 
 from flask import Flask, g, redirect, url_for
@@ -16,13 +16,7 @@ logger = logging.getLogger(__name__ )
 
 def check_resource_availability(dataset, trait_id=None):
 
-    #ZS: Check if super-user - we should probably come up with some way to integrate this into the proxy
-    if g.user_session.user_id in Redis.smembers("super_users"):
-       return webqtlConfig.SUPER_PRIVILEGES
-
-    response = None
-
-    #At least for now assume temporary entered traits are accessible#At least for now assume temporary entered traits are accessible
+    #At least for now assume temporary entered traits are accessible
     if type(dataset) == str:
         return webqtlConfig.DEFAULT_PRIVILEGES
     if dataset.type == "Temp":
@@ -33,9 +27,13 @@ def check_resource_availability(dataset, trait_id=None):
     if resource_id:
         resource_info = get_resource_info(resource_id)
         if not resource_info:
-            return webqtlConfig.DEFAULT_PRIVILEGES
-    else:
-        return response #ZS: Need to substitute in something that creates the resource in Redis later
+            resource_info = add_new_resource(dataset, trait_id)
+
+    #ZS: Check if super-user - we should probably come up with some way to integrate this into the proxy
+    if g.user_session.user_id in Redis.smembers("super_users"):
+       return webqtlConfig.SUPER_PRIVILEGES
+
+    response = None
 
     the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
     try:
@@ -43,10 +41,43 @@ def check_resource_availability(dataset, trait_id=None):
     except:
         response = resource_info['default_mask']
 
-    if response:
-        return response
-    else: #ZS: No idea how this would happen, but just in case
-        return False
+    return response
+
+def add_new_resource(dataset, trait_id=None):
+    resource_ob = {
+        'owner_id'    : webqtlConfig.DEFAULT_OWNER_ID,
+        'default_mask': webqtlConfig.DEFAULT_PRIVILEGES,
+        'group_masks' : {}
+    }
+
+    if dataset.type == "Publish":
+        resource_ob['name'] = get_group_code(dataset) + "_" + str(trait_id)
+        resource_ob['data'] = {
+            'dataset': dataset.id,
+            'trait'  : trait_id
+        }
+        resource_ob['type'] = 'dataset-publish'
+    elif dataset.type == "Geno":
+        resource_ob['name'] = dataset.name
+        resource_ob['data'] = {
+            'dataset': dataset.id
+        }
+        resource_ob['type'] = 'dataset-geno'
+    else:
+        resource_ob['name'] = dataset.name
+        resource_ob['data'] = {
+            'dataset': dataset.id
+        }
+        resource_ob['type'] = 'dataset-probeset'
+
+    resource_info = add_resource(resource_ob, update=False)
+
+    return resource_info
+
+def get_group_code(dataset):
+    results = g.db.execute("SELECT InbredSetCode from InbredSet where Name='{}'".format(dataset.group.name)).fetchone()
+
+    return results[0]
 
 def check_admin(resource_id=None):
     the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
