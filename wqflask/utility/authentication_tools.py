@@ -45,7 +45,7 @@ def check_resource_availability(dataset, trait_id=None):
 
 def add_new_resource(dataset, trait_id=None):
     resource_ob = {
-        'owner_id'    : webqtlConfig.DEFAULT_OWNER_ID,
+        'owner_id'    : "none", # webqtlConfig.DEFAULT_OWNER_ID,
         'default_mask': webqtlConfig.DEFAULT_PRIVILEGES,
         'group_masks' : {}
     }
@@ -84,6 +84,7 @@ def check_admin(resource_id=None):
     try:
         response = json.loads(requests.get(the_url).content)['admin']
     except:
+        logger.debug(resource_info)
         response = resource_info['default_mask']['admin']
 
     if 'edit-admins' in response:
