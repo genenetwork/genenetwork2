@@ -234,7 +234,7 @@
         <button type="button" class="btn btn-default" title="Write or review comments about this gene">GeneWiki</button>
         </a>
         {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
-        <a href="./snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on">
+        <a href="/snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on">
         <button type="button" class="btn btn-default" title="View SNPs and Indels">SNPs</button>
         </a>
         {% endif %}
