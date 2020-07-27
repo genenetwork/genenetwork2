@@ -1,3 +1,5 @@
+"""Tests for wqflask/base/data_set.py"""
+
 import unittest
 import mock
 
@@ -5,8 +7,10 @@ from wqflask import app
 
 from base.data_set import DatasetType
 
-    
+
 class TestDataSetTypes(unittest.TestCase):
+    """Tests for the DataSetType class"""
+
     def setUp(self):
         self.app_context = app.app_context()
         self.app_context.push()
@@ -16,10 +20,14 @@ class TestDataSetTypes(unittest.TestCase):
 
     @mock.patch('base.data_set.g')
     def test_data_set_type(self, db_mock):
+        """Test that DatasetType returns correctly if the Redis Instance is not empty
+        and the name variable exists in the dictionary
+
+        """
         with app.app_context():
             db_mock.get = mock.Mock()
-            r = mock.Mock()
-            r.get.return_value = """
+            redis_mock = mock.Mock()
+            redis_mock.get.return_value = """
             {
                 "AD-cases-controls-MyersGeno": "Geno",
                 "AD-cases-controls-MyersPublish": "Publish",
@@ -32,4 +40,6 @@ class TestDataSetTypes(unittest.TestCase):
                 "B139_K_1206_R": "ProbeSet"
             }
             """
-            self.assertEqual(DatasetType(r)("All Phenotypes"), "Publish")
+            self.assertEqual(DatasetType(redis_mock)
+                             ("All Phenotypes"), "Publish")
+
