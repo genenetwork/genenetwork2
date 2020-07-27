@@ -4,7 +4,7 @@ import unittest
 import mock
 
 from wqflask import app
-
+from data import gen_menu_json
 from base.data_set import DatasetType
 
 
@@ -43,3 +43,17 @@ class TestDataSetTypes(unittest.TestCase):
             self.assertEqual(DatasetType(redis_mock)
                              ("All Phenotypes"), "Publish")
 
+    @mock.patch('base.data_set.requests.get')
+    def test_data_set_type_with_empty_redis(self, request_mock):
+        """Test that DatasetType returns correctly if the Redis Instance is empty and
+        the name variable exists in the dictionary
+
+        """
+        with app.app_context():
+            request_mock.return_value.content = gen_menu_json
+            redis_mock = mock.Mock()
+            redis_mock.get.return_value = None
+            data_set = DatasetType(redis_mock)
+            self.assertEqual(data_set("BXDGeno"), "Geno")
+            self.assertEqual(data_set("BXDPublish"), "Publish")
+            self.assertEqual(data_set("HLC_0311"), "ProbeSet")
