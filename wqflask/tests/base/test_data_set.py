@@ -42,6 +42,7 @@ class TestDataSetTypes(unittest.TestCase):
             """
             self.assertEqual(DatasetType(redis_mock)
                              ("All Phenotypes"), "Publish")
+            redis_mock.get.assert_called_once_with("dataset_structure")
 
     @mock.patch('base.data_set.requests.get')
     def test_data_set_type_with_empty_redis(self, request_mock):
@@ -57,3 +58,6 @@ class TestDataSetTypes(unittest.TestCase):
             self.assertEqual(data_set("BXDGeno"), "Geno")
             self.assertEqual(data_set("BXDPublish"), "Publish")
             self.assertEqual(data_set("HLC_0311"), "ProbeSet")
+            redis_mock.set.assert_called_once_with(
+                "dataset_structure",
+                '{"BXDGeno": "Geno", "BXDPublish": "Publish", "HLCPublish": "Publish", "HLC_0311": "ProbeSet", "HC_M2_0606_P": "ProbeSet"}')
