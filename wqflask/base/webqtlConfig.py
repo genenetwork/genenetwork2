@@ -85,7 +85,7 @@ assert_writable_dir(GENERATED_TEXT_DIR)
 # Flat file directories
 GENODIR              = flat_files('genotype')+'/'
 assert_dir(GENODIR)
-assert_dir(GENODIR+'bimbam') # for gemma
+# assert_dir(GENODIR+'bimbam') # for gemma
 
 # JSON genotypes are OBSOLETE
 JSON_GENODIR         = flat_files('genotype/json')+'/'
