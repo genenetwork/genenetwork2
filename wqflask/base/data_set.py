@@ -117,71 +117,56 @@ Publish or ProbeSet. E.g.
 
             self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
 
-        # Set LOG_LEVEL_DEBUG=5 to see the following:
-        logger.debugf(5, "datasets", self.datasets)
+    def set_dataset_key(self, t, name):
+        """If name is not in the object's dataset dictionary, set it, and update
+        dataset_structure in Redis
+
+        args:
+          t: Type of dataset structure which can be: 'mrna_expr', 'pheno',
+             'other_pheno', 'geno'
+          name: The name of the key to inserted in the datasets dictionary
+
+        """
+        sql_query_mapping = {
+            'mrna_expr': ("""SELECT ProbeSetFreeze.Id FROM """ +
+                          """ProbeSetFreeze WHERE ProbeSetFreeze.Name = "{}" """),
+            'pheno': ("""SELECT InfoFiles.GN_AccesionId """ +
+                      """FROM InfoFiles, PublishFreeze, InbredSet """ +
+                      """WHERE InbredSet.Name = '{}' AND """ +
+                      """PublishFreeze.InbredSetId = InbredSet.Id AND """ +
+                      """InfoFiles.InfoPageName = PublishFreeze.Name"""),
+            'other_pheno': ("""SELECT PublishFreeze.Name """ +
+                            """FROM PublishFreeze, InbredSet """ +
+                            """WHERE InbredSet.Name = '{}' AND """ +
+                            """PublishFreeze.InbredSetId = InbredSet.Id"""),
+            'geno':  ("""SELECT GenoFreeze.Id FROM GenoFreeze WHERE """ +
+                      """GenoFreeze.Name = "{}" """)
+        }
+
+        dataset_name_mapping = {
+            "mrna_expr": "ProbeSet",
+            "pheno": "Publish",
+            "other_pheno": "Publish",
+            "geno": "Geno",
+        }
+
+        if t in ['pheno', 'other_pheno']:
+            name = name.replace("Publish", "")
+        if bool(len(g.db.execute(sql_query_mapping[t].format(name)))):
+            self.datasets[name] = dataset_name_mapping[t]
+            self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
+            return True
+
+        return None
 
     def __call__(self, name):
+
         if name not in self.datasets:
-            mrna_expr_query = """
-                            SELECT
-                                ProbeSetFreeze.Id
-                            FROM
-                                ProbeSetFreeze
-                            WHERE
-                                ProbeSetFreeze.Name = "{0}"
-                            """.format(name)
-
-            results = g.db.execute(mrna_expr_query).fetchall()
-            if len(results):
-                self.datasets[name] = "ProbeSet"
-                redis_instance.set("dataset_structure", json.dumps(self.datasets))
-                return self.datasets[name]
-
-            group_name = name.replace("Publish", "")
-
-            pheno_query = """SELECT InfoFiles.GN_AccesionId
-                             FROM InfoFiles, PublishFreeze, InbredSet
-                             WHERE InbredSet.Name = '{0}' AND
-                                   PublishFreeze.InbredSetId = InbredSet.Id AND
-                                   InfoFiles.InfoPageName = PublishFreeze.Name""".format(group_name)
-
-            results = g.db.execute(pheno_query).fetchall()
-            if len(results):
-                self.datasets[name] = "Publish"
-                redis_instance.set("dataset_structure", json.dumps(self.datasets))
-                return self.datasets[name]
-
-            # ZS: For when there isn't an InfoFiles ID; not sure if this and the preceding query are both necessary
-            other_pheno_query = """SELECT PublishFreeze.Name
-                                   FROM PublishFreeze, InbredSet
-                                   WHERE InbredSet.Name = '{}' AND
-                                         PublishFreeze.InbredSetId = InbredSet.Id""".format(group_name)
-
-            results = g.db.execute(other_pheno_query).fetchall()
-            if len(results):
-                self.datasets[name] = "Publish"
-                redis_instance.set("dataset_structure", json.dumps(self.datasets))
-                return self.datasets[name]
-
-            geno_query = """
-                                SELECT
-                                    GenoFreeze.Id
-                                FROM
-                                    GenoFreeze
-                                WHERE
-                                    GenoFreeze.Name = "{0}"
-                            """.format(name)
-
-            results = g.db.execute(geno_query).fetchall()
-            if len(results):
-                self.datasets[name] = "Geno"
-                self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
-                return self.datasets[name]
-
-            # ZS: It shouldn't ever reach this
-            return None
-        else:
-            return self.datasets[name]
+            for t in ["mrna_expr", "pheno", "other_pheno", "geno"]:
+                # This has side-effects, with the end result being a truth-y value
+                if(self.set_dataset_key(t, name)):
+                    break
+        return self.datasets.get(name, None)  # Return None if name has not been set
 
 
 # Do the intensive work at startup one time only
