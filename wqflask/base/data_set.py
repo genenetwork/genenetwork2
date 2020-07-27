@@ -93,7 +93,7 @@ Publish or ProbeSet. E.g.
         """
         self.redis_instance = redis_instance
         self.datasets = {}
-        data = redis_instance.get("dataset_structure")
+        data = self.redis_instance.get("dataset_structure")
         if data:
             self.datasets = json.loads(data)
         else:  # ZS: I don't think this should ever run unless Redis is emptied
@@ -115,7 +115,7 @@ Publish or ProbeSet. E.g.
             except:
                 pass
 
-            redis_instance.set("dataset_structure", json.dumps(self.datasets))
+            self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
 
         # Set LOG_LEVEL_DEBUG=5 to see the following:
         logger.debugf(5, "datasets", self.datasets)
