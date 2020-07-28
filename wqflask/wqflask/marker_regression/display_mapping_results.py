@@ -2133,7 +2133,7 @@ class DisplayMappingResults(object):
                 #add by NL 09-03-2010
                 HREF = "javascript:chrView(%d,%s);" % (i,self.ChrLengthMbList)
                 #HREF = "javascript:changeView(%d,%s);" % (i,self.ChrLengthMbList)
-                Areas = HT.Area(shape='rect',coords=COORDS,href=HREF)
+                Areas = HT.Area(shape='rect', coords=COORDS, href=HREF)
                 gifmap.areas.append(Areas)
                 startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
