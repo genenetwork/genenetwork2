@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Resource Manager{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        {{ flash_me() }}
+        <div class="page-header" style="display: inline-block;">
+            <h1>Resource Manager</h1>
+            <h3>{% if owner_name is not none %}Current Owner: {{ owner_name }}{% endif %} {% if admin_status == "owner" %}<button id="change_owner" class="btn btn-danger" data-url="/resources/change_owner" style="margin-left: 20px;">Change Owner</button>{% endif %}</h3>
+        </div>
+        <form id="manage_resource" action="/resources/manage" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <div style="min-width: 600px; max-width: 800px;">
+                <fieldset>
+                    <div class="form-horizontal" style="width: 900px; margin-bottom: 50px;">
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Resource Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                {{ resource_info.name }}
+                            </div>
+                        </div>
+                        {% if admin_status == "owner" %}
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">Open to Public:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <label class="radio-inline">
+                                    <input type="radio" name="open_to_public" value="True" {% if default_mask != 'no-access' %}checked{% endif %}>
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="open_to_public" value="False" {% if default_mask == 'no-access' %}checked{% endif %}>
+                                    No
+                            </label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label class="col-xs-3" style="float: left; font-size: 18px;"></label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <button id="save_changes" class="btn btn-primary" data-url="/resources/change_default_privileges">Save Changes</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </fieldset>
+            </div>
+            {% if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access" %}
+            <div style="min-width: 600px; max-width: 800px;">
+                <hr>
+                <button id="add_group_to_resource" class="btn btn-primary" style="margin-bottom: 30px;" data-url="/resources/add_group">Add Group</button>
+                <br>
+                {% if group_masks|length > 0 %}
+                <h2>Current Group Permissions</h2>
+                <hr>
+                <table id="groups_table" class="table-hover table-striped cell-border">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Data</th>
+                            <th>Metadata</th>
+                            <th>Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in group_masks.iteritems() %}
+                        <tr>
+                            <td>{{ value.name }}</td>
+                            <td>{{ value.data }}</td>
+                            <td>{{ value.metadata }}</td>
+                            <td>{{ value.admin }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <h3>No groups are currently added to this resource.</h3>
+                {% endif %}
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $('#add_group_to_resource, #save_changes, #change_owner').click(function(){
+            url = $(this).data("url");
+            $('#manage_resource').attr("action", url)
+            $('#manage_resource').submit()
+        })
+
+        {% if group_masks|length > 0 %}
+        $('#groups_table').dataTable({
+            'sDom': 'tr',
+        });
+        {% endif %}
+    </script>
+{% endblock %}

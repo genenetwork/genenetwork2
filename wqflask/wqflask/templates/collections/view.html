@@ -80,7 +80,7 @@
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
             <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
-            <button class="btn btn-danger" id="remove" disabled="disabled" type="button"><i class="icon-minus-sign"></i> Delete Rows</button>
+            <button id="remove" class="btn btn-danger" data-url="/collections/remove" disabled="disabled" type="button"><i class="icon-minus-sign"></i> Delete Rows</button>
             <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
             </form>
             <div style="margin-top: 10px; margin-bottom: 5px;">
@@ -227,6 +227,16 @@
 
             $("#delete").on("click", function() {
                 url = $(this).data("url")
+                return submit_special(url)
+            });
+
+            $("#remove").on("click", function() {
+                url = $(this).data("url")
+                traits = $("#trait_table input:checked").map(function() {
+                    return $(this).val();
+                }).get();
+                $("#trait_list").val(traits)
+
                 return submit_special(url)
             });
 

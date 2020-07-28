@@ -4,7 +4,7 @@ import simplejson as json
 
 from pprint import pformat as pf
 
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 
 def export_sample_table(targs):
@@ -26,7 +26,7 @@ def export_sample_table(targs):
 
 def get_export_metadata(trait_id, dataset_name):
     dataset = data_set.create_dataset(dataset_name)
-    this_trait = GeneralTrait(dataset=dataset,
+    this_trait = create_trait(dataset=dataset,
                               name=trait_id,
                               cellid=None,
                               get_qtl_info=False)

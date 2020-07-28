@@ -70,7 +70,7 @@
                                   <li><a href="https://systems-genetics.org/">Systems Genetics PheWAS</a></li>
                                   <li><a href="http://ucscbrowser.genenetwork.org/">Genome Browser</a></li>
                                   <li><a href="http://power.genenetwork.org">BXD Power Calculator</a></li>
-                                  <li><a href="httP://datafiles.genenetwork.org">Interplanetary File System</a></li>
+                                  <li><a href="http://datafiles.genenetwork.org">Interplanetary File System</a></li>
                                 </ul>
                         </li>
                         {% if g.user_session %}
@@ -95,6 +95,15 @@
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        {% if g.user_session.logged_in %}
+                        <li class="">
+                            <a href="/edit_account_settings" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Account Settings<span class="caret"></a>
+                            <ul class="dropdown-menu">
+                                <li><a id="manage_user" title="User Options" href="/user/manage">User Options</a></li>
+                                <li><a id="manage_groups" title="Manage Groups" href="/groups/manage">Manage Groups</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
                         {% endif %}
                         <!--
                         <li style="margin-left: 20px;">

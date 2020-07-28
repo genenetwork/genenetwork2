@@ -90,9 +90,7 @@
                         <div class="mapping_method_fields form-group">
                           <label class="col-xs-3 control-label"></label>
                           <div style="margin-left:20px;" class="col-xs-6">
-                            <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression">
-                                Compute
-                            </button>
+                            <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression" value="Compute">Compute</button>
                           </div>
                         </div>
                     </div>
@@ -101,7 +99,7 @@
                 <div class="tab-pane" id="interval_mapping">
                     <div style="margin-top: 20px" class="form-horizontal">
                         <div class="mapping_method_fields form-group">
-                            <label for="reaper_version" style="text-align: right;" class="col-xs-3 control-label">Version<sup><a title="'New' is the new qtlreaper implementation written in RUST by Christian Fischer. 'Original' corresponds to the original version written in C.">?</a></sup></label>
+                            <label for="reaper_version" style="text-align: right;" class="col-xs-3 control-label">Version<sup><a href="https://github.com/chfi/rust-qtlreaper" target="_blank" title="'New' is the new qtlreaper implementation written in RUST by Christian Fischer. 'Original' corresponds to the original version written in C.">?</a></sup></label>
                             <div style="margin-left:20px;" class="col-xs-3 controls">
                                 <select name="reaper_version" class="form-control" style="width: 80px;">
                                     <option value="new">New</option>
@@ -136,6 +134,17 @@
                                 <select id="genofile_reaper" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="scale_select" style="text-align: right;" class="col-xs-3 control-label">Map Scale</label>
+                            <div style="margin-left:20px;" class="col-xs-2 controls">
+                                <select id="scale_reaper" class="form-control" style="width: 80px;">
+                                    {% for item in scales_in_geno[dataset.group.name + ".geno"] %}
+                                    <option value="{{ item[0] }}">{{ item[1] }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -215,9 +224,7 @@
                         <div class="mapping_method_fields form-group">
                             <label class="col-xs-3 control-label"></label>
                             <div style="margin-left:20px;" class="col-xs-6">
-                              <button id="interval_mapping_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
-                                  Compute
-                              </button>
+                              <button id="interval_mapping_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping" value="Compute">Compute</button>
                             </div>
                         </div>
                     </div>
@@ -380,9 +387,7 @@
                         <div class="mapping_method_fields form-group">
                             <label class="col-xs-3 control-label"></label>
                             <div style="margin-left:20px;" class="col-xs-6">
-                              <button id="rqtl_geno_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping">
-                                  Compute
-                              </button>
+                              <button id="rqtl_geno_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression" value="Compute">Compute</button>
                             </div>
                         </div>
                     </div>

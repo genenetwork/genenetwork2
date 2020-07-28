@@ -9,7 +9,7 @@ from MySQLdb import escape_string as escape
 from flask import g
 
 from base import data_set
-from base.trait import GeneralTrait, retrieve_sample_data
+from base.trait import create_trait, retrieve_sample_data
 
 from wqflask.correlation.show_corr_results import generate_corr_json
 from wqflask.correlation import correlation_functions
@@ -27,7 +27,7 @@ def do_correlation(start_vars):
 
     this_dataset = data_set.create_dataset(dataset_name = start_vars['db'])
     target_dataset = data_set.create_dataset(dataset_name = start_vars['target_db'])
-    this_trait = GeneralTrait(dataset = this_dataset, name = start_vars['trait_id'])
+    this_trait = create_trait(dataset = this_dataset, name = start_vars['trait_id'])
     this_trait = retrieve_sample_data(this_trait, this_dataset)
 
     corr_params = init_corr_params(start_vars)

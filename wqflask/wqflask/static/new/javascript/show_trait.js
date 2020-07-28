@@ -515,7 +515,7 @@ $('select[name=corr_type]').change(on_corr_method_change);
 
 submit_special = function(url) {
   $("#trait_data_form").attr("action", url);
-  return $("#trait_data_form").submit();
+  $("#trait_data_form").submit();
 };
 
 var corr_input_list = ['corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',

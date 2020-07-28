@@ -234,7 +234,7 @@
         <button type="button" class="btn btn-default" title="Write or review comments about this gene">GeneWiki</button>
         </a>
         {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
-        <a href="./snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on">
+        <a href="/snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on">
         <button type="button" class="btn btn-default" title="View SNPs and Indels">SNPs</button>
         </a>
         {% endif %}
@@ -248,6 +248,11 @@
         <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
         <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1">View in GN1</button>
         </a>
+        {% if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access" %}
+        <a target="_blank" href="./resources/manage?resource_id={{ resource_id }}">
+            <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource">Edit</button>
+        </a>
+        {% endif %}
     </div>
 </div>
 

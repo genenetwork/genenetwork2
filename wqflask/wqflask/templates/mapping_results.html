@@ -34,13 +34,14 @@
         {% for sample in samples %}
         <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
         {% endfor %}
-        <input type="hidden" name="num_vals" value="{{ n_samples }}">
+        <input type="hidden" name="n_samples" value="{{ n_samples }}">
         <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
         <input type="hidden" name="num_perm" value="{{ nperm }}">
-        <input type="hidden" name="perm_results" value="">
+        <input type="hidden" name="perm_info" value="">
+        <input type="hidden" name="perm_strata" value="{{ perm_strata }}">
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
@@ -433,7 +434,7 @@
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
-                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'num_vals']
+                            'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'n_samples']
 
         $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
 
@@ -463,13 +464,27 @@
 
         {% if mapping_method != "gemma" and mapping_method != "plink" %}
         $('#download_perm').click(function(){
-          var num_perm, perm_data;
-            num_perm = js_data.num_perm
-            perm_data = js_data.perm_results
-            json_perm_data = JSON.stringify(perm_data);
-            $('input[name=perm_results]').val(json_perm_data);
-            $('#marker_regression_form').attr('action', '/export_perm_data');
-            return $('#marker_regression_form').submit();
+          perm_info_dict = {
+            perm_data: js_data.perm_results,
+            num_perm: "{{ nperm }}",
+            trait_name: "{{ this_trait.display_name }}",
+            trait_description: "{{ this_trait.description_display }}",
+            cofactors: "{{ covariates }}",
+            n_samples: {{ n_samples }},
+            n_genotypes: {{ qtl_results|length }},
+            {% if genofile_string is defined %}
+            genofile: "{{ genofile_string }}",
+            {% else %}
+            genofile: "",
+            {% endif %}
+            units_linkage: "{{ LRS_LOD }}",
+            strat_cofactors: js_data.categorical_vars
+          }
+          json_perm_data = JSON.stringify(perm_info_dict);
+
+          $('input[name=perm_info]').val(json_perm_data);
+          $('#marker_regression_form').attr('action', '/export_perm_data');
+          return $('#marker_regression_form').submit();
         });
 
         modebar_options = {

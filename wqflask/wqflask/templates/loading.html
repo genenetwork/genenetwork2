@@ -11,7 +11,7 @@
         {% if start_vars.tool_used == "Mapping" %}
         <h1>Computing the Maps</h1>
         <br>
-        <i>n</i> = {{ start_vars.num_vals }}
+        <i>n</i> = {{ start_vars.n_samples }}
         <br>
         Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
         <br>

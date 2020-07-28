@@ -17,6 +17,10 @@ DEBUG = 1
 #USER privilege
 USERDICT = {'guest':1,'user':2, 'admin':3, 'root':4}
 
+#Set privileges
+SUPER_PRIVILEGES = {'data': ['no-access', 'view', 'edit'], 'metadata': ['no-access', 'view', 'edit'], 'admin': ['not-admin', 'edit-access', 'edit-admins']}
+DEFAULT_PRIVILEGES = {'data': ['no-access', 'view'], 'metadata': ['no-access', 'view'], 'admin': ['not-admin']}
+
 #minimum number of informative strains
 KMININFORMATIVE = 5
 
@@ -81,7 +85,7 @@ assert_writable_dir(GENERATED_TEXT_DIR)
 # Flat file directories
 GENODIR              = flat_files('genotype')+'/'
 assert_dir(GENODIR)
-assert_dir(GENODIR+'bimbam') # for gemma
+# assert_dir(GENODIR+'bimbam') # for gemma
 
 # JSON genotypes are OBSOLETE
 JSON_GENODIR         = flat_files('genotype/json')+'/'

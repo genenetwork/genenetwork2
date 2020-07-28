@@ -137,40 +137,6 @@ $(function() {
     }
   };
 
-  remove = function() {
-    var traits, uc_id;
-    checked_traits = $("#trait_table input:checked");
-    traits = checked_traits.map(function() {
-      return $(this).val();
-    }).get();
-    console.log("checked length is:", traits.length);
-    console.log("checked is:", traits);
-    if ( $("#uc_id").length ) {
-        uc_id = $("#uc_id").val();
-        return $.ajax({
-          type: "POST",
-          url: "/collections/remove",
-          data: {
-            uc_id: uc_id,
-            traits: traits
-          },
-          success: removed_traits
-        });
-    }
-    else {
-        collection_name = $("#collection_name").val();
-        return $.ajax({
-          type: "POST",
-          url: "/collections/remove",
-          data: {
-            collection_name: collection_name,
-            traits: traits
-          },
-          success: removed_traits
-        });
-    }
-  };
-
   submit_bnw = function() {
     trait_data = get_traits_from_table("trait_table", "submit_bnw")
   }
@@ -195,23 +161,11 @@ $(function() {
     trait_table.find('tbody tr').each(function (i, tr) {
       if (trait_table.find('input[name="searchResult"]:checked').length > 0) {
         if ($(this).find('input[name="searchResult"]').is(':checked')){
-          this_row = [];
-          $(tr).find('td').each(function(j, td){
-            if ($(td).data('export')){
-              this_row.push($(td).data('export'));
-            }
-          });
-          rows.push(this_row);
+          rows.push($(this).find('input[name="searchResult"]:checked').val())
         }
       }
       else {
-        this_row = [];
-        $(tr).find('td').each(function(j, td){
-          if ($(td).data('export')){
-            this_row.push($(td).data('export'));
-          }
-        });
-        rows.push(this_row);
+        rows.push($(this).find('input[name="searchResult"]').val())
       }
     });
     table_dict['rows'] = rows;
@@ -296,7 +250,6 @@ $(function() {
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
   $("#add").click(add);
-  $("#remove").click(remove);
   $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);

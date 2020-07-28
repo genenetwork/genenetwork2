@@ -3,9 +3,8 @@
   var block_outliers, composite_mapping_fields, do_ajax_post, get_progress, mapping_method_fields, open_mapping_results, outlier_text, showalert, submit_special, toggle_enable_disable, update_time_remaining;
 
   submit_special = function(url) {
-    console.log("In submit_special");
     $("#trait_data_form").attr("action", url);
-    return $("#trait_data_form").submit();
+    $("#trait_data_form").submit();
   };
 
   update_time_remaining = function(percent_complete) {
