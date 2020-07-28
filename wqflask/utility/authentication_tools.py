@@ -45,7 +45,7 @@ def check_resource_availability(dataset, trait_id=None):
 
 def add_new_resource(dataset, trait_id=None):
     resource_ob = {
-        'owner_id'    : webqtlConfig.DEFAULT_OWNER_ID,
+        'owner_id'    : "None",
         'default_mask': webqtlConfig.DEFAULT_PRIVILEGES,
         'group_masks' : {}
     }
