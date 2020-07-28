@@ -19,7 +19,8 @@ developers).  See the [installation docs](doc/README.org).
 
 ## Run
 
-Once installed GN2 can be run online through a browser interface
+Once having installed GN2 it can be run through a browser
+interface
 
 ```sh
 genenetwork2
@@ -35,14 +36,18 @@ For full examples (you may need to set a number of environment
 variables), including running scripts and a Python REPL, also see the
 startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
 
-Also Mysql and Elasticsearch need to be running, see
+Also mariadb and redis need to be running, see
 [INSTALL](./doc/README.org).
 
 ## Testing
 
+To have tests pass, the redis and mariadb instance should be running, because of
+asserts sprinkled in the code base(these will be removed in due time).
+
+#### Mechanical Rob
 We are building 'Mechanical Rob' automated testing using Python
-[requests](https://github.com/genenetwork/genenetwork2/tree/master/test/lib)
-which can be run with something like
+[requests](https://github.com/genenetwork/genenetwork2/tree/testing/test/requests)
+which can be run with:
 
 ```sh
 env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py -a http://localhost:5003
@@ -53,6 +58,32 @@ dependencies. The ./bin/genenetwork2 script sets up the environment
 and executes test-website.py in a Python interpreter. The -a switch
 says to run all tests and the URL points to the running GN2 http
 server.
+
+#### Unit tests
+
+To run unittests, first `cd` into the genenetwork2 directory:
+
+```sh
+# You can use the coverage tool to run the tests
+# You could omit the -v which makes the output verbose
+runcmd coverage run -m unittest discover -v
+
+# Alternatively, you could run the unittests using:
+runpython -m unittest discover -v
+
+# To generate a report in wqflask/coverage_html_report/:
+runcmd coverage html
+```
+
+The `runcmd` and `runpython` are shell aliases defined in the following way:
+
+```sh
+alias runpython="env GN2_PROFILE=~/opt/gn-latest TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2
+
+alias runcmd="time env GN2_PROFILE=~/opt/gn-latest TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -cli"
+```
+
+Replace some of the env variables as per your use case.
 
 ## Documentation
 
@@ -73,10 +104,10 @@ Contribute to GN2 source code by forking the
 [github repository](https://github.com/genenetwork/genenetwork2/) with
 git and sending us pull requests.
 
-For development GN2 has a
-[mailing list](http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev)
-and an active IRC channel #genenetwork on freenode.net with a
-[web interface](http://webchat.freenode.net/).
+For development GN2 has a [mailing
+list](http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev) and
+an active IRC channel #genenetwork on freenode.net with a [web
+interface](http://webchat.freenode.net/).
 
 ## License
 
