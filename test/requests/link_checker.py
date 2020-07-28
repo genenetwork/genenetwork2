@@ -1,6 +1,7 @@
 from __future__ import print_function
 import re
 import requests
+from lxml import html
 from lxml.html import parse
 from requests.exceptions import ConnectionError
 
@@ -79,3 +80,47 @@ def check_links(args_obj, parser):
     check_page(
         host,
         host+"/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P")
+
+def check_css_js_tags(args_obj):
+    """Check all script and css tags in a page"""
+
+    def flatten_list(l):
+        return [y for x in l for y in x]
+
+    host = args_obj.host
+    pages_arr = [
+        host,
+        host+"/help",
+        host+"/intro",
+        host+"/submit_trait",
+        host+"/help",
+        host+"/references",
+        host+"/tutorials",
+        host+"/policies",
+        host+"/links",
+        host+"/environments",
+        host+"/news",
+        host+"/snp_browser",
+        host+"/collections/list",
+        host+"/repositories",
+        host+"/n/login",
+        host+"/snp_browser?first_run=true&species=mouse&gene_name=Atp5j2&limit_strains=on",
+        host+"/credits",
+        host+"/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P"
+    ]
+
+    trees_arr = [html.fromstring(requests.get(page, timeout=20, verify=False).content)
+                 for page in pages_arr]
+
+    links_arr = flatten_list(
+        [tree.xpath('//script[@type="text/javascript"]/@src|link[@type="text/css"]/@href')
+         for tree in trees_arr]
+    )
+    links = list(set([host+l if l[0] == '/' and l[1] != '/' else l
+                      for l in links_arr]))  # Make links unique
+    for l in links:
+        if l[0:2] == '//':
+            l = l.replace("//", "http://")
+        assert requests.get(l).status_code == 200, ("Failed for: " + l)
+        print(l + " ==> OK")
+

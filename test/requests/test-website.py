@@ -5,7 +5,7 @@
 # Mostly to pick up the Guix GN2_PROFILE and python modules
 from __future__ import print_function
 import argparse
-from link_checker import check_links
+from link_checker import check_links, check_css_js_tags
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
 from main_web_functionality import check_main_web_functionality
@@ -31,6 +31,7 @@ def run_all(args_obj, parser):
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
     check_mapping(args_obj, parser)
+    check_css_js_tags(args_obj)
     # TODO: Add other functions as they are created.
 
 def print_help(args_obj, parser):
