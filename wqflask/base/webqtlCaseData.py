@@ -19,8 +19,7 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 #
 # Created by GeneNetwork Core Team 2010/08/10
-#
-# Last updated by GeneNetwork Core Team 2010/10/20
+
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -29,7 +28,7 @@ import utility.tools
 
 utility.tools.show_settings()
 
-class webqtlCaseData(object):
+class webqtlCaseData:
     """one case data in one trait"""
 
     def __init__(self, name, value=None, variance=None, num_cases=None, name2=None):
@@ -43,44 +42,40 @@ class webqtlCaseData(object):
         self.outlier = None   # Not set to True/False until later
 
     def __repr__(self):
-        str = "<webqtlCaseData> "
-        if self.value != None:
-            str += "value=%2.3f" % self.value
-        if self.variance != None:
-            str += " variance=%2.3f" % self.variance
+        case_data_string = "<webqtlCaseData> "
+        if self.value is not None:
+            case_data_string += "value=%2.3f" % self.value
+        if self.variance is not None:
+            case_data_string += " variance=%2.3f" % self.variance
         if self.num_cases:
-            str += " ndata=%s" % self.num_cases
+            case_data_string += " ndata=%s" % self.num_cases
         if self.name:
-            str += " name=%s" % self.name
+            case_data_string += " name=%s" % self.name
         if self.name2:
-            str += " name2=%s" % self.name2
-        return str
+            case_data_string += " name2=%s" % self.name2
+        return case_data_string
 
     @property
     def class_outlier(self):
         """Template helper"""
         if self.outlier:
             return "outlier"
-        else:
-            return ""
+        return ""
 
     @property
     def display_value(self):
-        if self.value != None:
+        if self.value is not None:
             return "%2.3f" % self.value
-        else:
-            return "x"
+        return "x"
 
     @property
     def display_variance(self):
-        if self.variance != None:
+        if self.variance is not None:
             return "%2.3f" % self.variance
-        else:
-            return "x"
+        return "x"
 
     @property
     def display_num_cases(self):
-        if self.num_cases != None:
+        if self.num_cases is not None:
             return "%s" % self.num_cases
-        else:
-            return "x"
+        return "x"
