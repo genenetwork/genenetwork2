@@ -24,9 +24,9 @@ def check_resource_availability(dataset, trait_id=None):
 
     resource_id = get_resource_id(dataset, trait_id)
 
-    if resource_id:
+    if resource_id: #ZS: This should never be false, but it's technically possible if a non-Temp dataset somehow had a type other than Publish/ProbeSet/Geno
         resource_info = get_resource_info(resource_id)
-        if not resource_info:
+        if not resource_info: #ZS: If resource isn't already in redis, add it with default privileges
             resource_info = add_new_resource(dataset, trait_id)
 
     #ZS: Check if super-user - we should probably come up with some way to integrate this into the proxy
@@ -84,7 +84,7 @@ def check_admin(resource_id=None):
     try:
         response = json.loads(requests.get(the_url).content)['admin']
     except:
-        logger.debug(resource_info)
+        resource_info = get_resource_info(resource_id)
         response = resource_info['default_mask']['admin']
 
     if 'edit-admins' in response:
