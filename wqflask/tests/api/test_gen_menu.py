@@ -4,6 +4,8 @@ import mock
 
 from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
+from wqflask.api.gen_menu import phenotypes_exist
+from wqflask.api.gen_menu import genotypes_exist
 
 
 class TestGenMenu(unittest.TestCase):
@@ -62,3 +64,50 @@ class TestGenMenu(unittest.TestCase):
                  "InbredSet.FullName) ASC, InbredSet.FullName ASC, " +
                  "InbredSet.MenuOrderId ASC").format(name)
             )
+
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_phenotypes_exist_called_with_correct_query(self, db_mock):
+        """Test that phenotypes_exist is called with the correct query"""
+        db_mock.db.execute.return_value.fetchone.return_value = None
+        phenotypes_exist("test")
+        db_mock.db.execute.assert_called_with(
+            "SELECT Name FROM PublishFreeze WHERE PublishFreeze.Name = 'testPublish'"
+        )
+
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_phenotypes_exist_with_falsy_values(self, db_mock):
+        """Test that phenotype check returns correctly when given a None value"""
+        for x in [None, False, (), [], ""]:
+            db_mock.db.execute.return_value.fetchone.return_value = x
+            self.assertFalse(phenotypes_exist("test"))
+
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_phenotypes_exist_with_truthy_value(self, db_mock):
+        """Test that phenotype check returns correctly when given Truthy """
+        for x in ["x", ("result"), ["result"], [1]]:
+            db_mock.db.execute.return_value.fetchone.return_value = (x)
+            self.assertTrue(phenotypes_exist("test"))
+
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_genotypes_exist_called_with_correct_query(self, db_mock):
+        """Test that genotypes_exist is called with the correct query"""
+        db_mock.db.execute.return_value.fetchone.return_value = None
+        genotypes_exist("test")
+        db_mock.db.execute.assert_called_with(
+            "SELECT Name FROM GenoFreeze WHERE GenoFreeze.Name = 'testGeno'"
+        )
+
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_genotypes_exist_with_falsy_values(self, db_mock):
+        """Test that genotype check returns correctly when given a None value"""
+        for x in [None, False, (), [], ""]:
+            db_mock.db.execute.return_value.fetchone.return_value = x
+            self.assertFalse(genotypes_exist("test"))
+
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_genotypes_exist_with_truthy_value(self, db_mock):
+        """Test that genotype check returns correctly when given Truthy """
+        for x in ["x", ("result"), ["result"], [1]]:
+            db_mock.db.execute.return_value.fetchone.return_value = (x)
+            self.assertTrue(phenotypes_exist("test"))
+
