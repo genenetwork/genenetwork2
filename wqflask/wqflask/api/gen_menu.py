@@ -31,9 +31,7 @@ def gen_dropdown_json():
 
 def get_species():
     """Build species list"""
-    results = g.db.execute("""SELECT Name, MenuName
-                              FROM Species
-                              ORDER BY OrderId""").fetchall()
+    results = g.db.execute("SELECT Name, MenuName FROM Species ORDER BY OrderId").fetchall()
 
     species = []
     for result in results:
@@ -47,12 +45,12 @@ def get_groups(species):
     for species_name, _species_full_name in species:
         groups[species_name] = []
 
-        results = g.db.execute("""SELECT InbredSet.Name, InbredSet.FullName, IFNULL(InbredSet.Family, 'None')
-                                FROM InbredSet, Species
-                                WHERE Species.Name = '{}' AND
-                                        InbredSet.SpeciesId = Species.Id
-                                GROUP by InbredSet.Name
-                                ORDER BY IFNULL(InbredSet.FamilyOrder, InbredSet.FullName) ASC, IFNULL(InbredSet.Family, InbredSet.FullName) ASC, InbredSet.FullName ASC, InbredSet.MenuOrderId ASC""".format(species_name)).fetchall()
+        results = g.db.execute(
+            ("SELECT InbredSet.Name, InbredSet.FullName, IFNULL(InbredSet.Family, 'None') " +
+             "FROM InbredSet, Species WHERE Species.Name = '{}' AND InbredSet.SpeciesId = " +
+             "Species.Id GROUP by InbredSet.Name ORDER BY IFNULL(InbredSet.FamilyOrder, " +
+             "InbredSet.FullName) ASC, IFNULL(InbredSet.Family, InbredSet.FullName) ASC, " +
+             "InbredSet.FullName ASC, InbredSet.MenuOrderId ASC").format(species_name)).fetchall()
 
         for result in results:
             family_name = "Family:" + str(result[2])
@@ -92,9 +90,9 @@ def get_types(groups):
     return types
 
 def phenotypes_exist(group_name):
-    results = g.db.execute("""SELECT Name
-                              FROM PublishFreeze
-                              WHERE PublishFreeze.Name = '{}'""".format(group_name+"Publish")).fetchone()
+    results = g.db.execute(
+        ("SELECT Name FROM PublishFreeze " +
+         "WHERE PublishFreeze.Name = '{}'").format(group_name+"Publish")).fetchone()
 
     if results != None:
         return True
@@ -102,9 +100,9 @@ def phenotypes_exist(group_name):
         return False
 
 def genotypes_exist(group_name):
-    results = g.db.execute("""SELECT Name
-                              FROM GenoFreeze
-                              WHERE GenoFreeze.Name = '{}'""".format(group_name+"Geno")).fetchone()
+    results = g.db.execute(
+        ("SELECT Name FROM GenoFreeze " +
+         "WHERE GenoFreeze.Name = '{}'").format(group_name+"Geno")).fetchone()
 
     if results != None:
         return True
