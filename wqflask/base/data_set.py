@@ -65,6 +65,9 @@ logger = getLogger(__name__ )
 DS_NAME_MAP = {}
 
 def create_dataset(dataset_name, dataset_type = None, get_samplelist = True, group_name = None):
+    if dataset_name == "Temp":
+        dataset_type = "Temp"
+
     if not dataset_type:
         dataset_type = Dataset_Getter(dataset_name)
 
@@ -93,22 +96,29 @@ Publish or ProbeSet. E.g.
 
         """
         self.datasets = {}
-        data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown").content)
-        #data = gen_menu.gen_dropdown_json()
 
+        data = Redis.get("dataset_structure")
+        if data:
+            self.datasets = json.loads(data)
+        else: #ZS: I don't think this should ever run unless Redis is emptied
+            try:
+                data = json.loads(requests.get(GN2_BASE_URL + "/api/v_pre1/gen_dropdown", timeout = 5).content)
+                for species in data['datasets']:
+                    for group in data['datasets'][species]:
+                        for dataset_type in data['datasets'][species][group]:
+                            for dataset in data['datasets'][species][group][dataset_type]:
+                                short_dataset_name = dataset[1]
+                                if dataset_type == "Phenotypes":
+                                    new_type = "Publish"
+                                elif dataset_type == "Genotypes":
+                                    new_type = "Geno"
+                                else:
+                                    new_type = "ProbeSet"
+                                self.datasets[short_dataset_name] = new_type
+            except:
+                pass
 
-        for species in data['datasets']:
-            for group in data['datasets'][species]:
-                for dataset_type in data['datasets'][species][group]:
-                    for dataset in data['datasets'][species][group][dataset_type]:
-                        short_dataset_name = dataset[1]
-                        if dataset_type == "Phenotypes":
-                            new_type = "Publish"
-                        elif dataset_type == "Genotypes":
-                            new_type = "Geno"
-                        else:
-                            new_type = "ProbeSet"
-                        self.datasets[short_dataset_name] = new_type
+            Redis.set("dataset_structure", json.dumps(self.datasets))
 
         # Set LOG_LEVEL_DEBUG=5 to see the following:
         logger.debugf(5, "datasets",self.datasets)
@@ -124,9 +134,10 @@ Publish or ProbeSet. E.g.
                                 ProbeSetFreeze.Name = "{0}"
                             """.format(name)
 
-            results = g.db.execute(geno_query).fetchall()
+            results = g.db.execute(mrna_expr_query).fetchall()
             if len(results):
                 self.datasets[name] = "ProbeSet"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             group_name = name.replace("Publish", "")
@@ -140,6 +151,7 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(pheno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Publish"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             #ZS: For when there isn't an InfoFiles ID; not sure if this and the preceding query are both necessary
@@ -151,26 +163,26 @@ Publish or ProbeSet. E.g.
             results = g.db.execute(other_pheno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Publish"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             geno_query =    """
                                 SELECT
-                                    GenoFreezeId
+                                    GenoFreeze.Id
                                 FROM
                                     GenoFreeze
                                 WHERE
                                     GenoFreeze.Name = "{0}"
-                                {1}
                             """.format(name)
 
             results = g.db.execute(geno_query).fetchall()
             if len(results):
                 self.datasets[name] = "Geno"
+                Redis.set("dataset_structure", json.dumps(self.datasets))
                 return self.datasets[name]
 
             #ZS: It shouldn't ever reach this
             return None
-
         else:
             return self.datasets[name]
 
@@ -477,25 +489,18 @@ class DatasetGroup(object):
 
 def datasets(group_name, this_group = None):
     key = "group_dataset_menu:v2:" + group_name
-    logger.debug("key is2:", key)
     dataset_menu = []
-    logger.debug("[tape4] webqtlConfig.PUBLICTHRESH:", webqtlConfig.PUBLICTHRESH)
-    logger.debug("[tape4] type webqtlConfig.PUBLICTHRESH:", type(webqtlConfig.PUBLICTHRESH))
     the_results = fetchall('''
          (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
           FROM PublishFreeze,InbredSet
           WHERE PublishFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name = '%s'
-            and PublishFreeze.public > %s
-            and PublishFreeze.confidentiality < 1
           ORDER BY PublishFreeze.Id ASC)
          UNION
          (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
           FROM GenoFreeze, InbredSet
           WHERE GenoFreeze.InbredSetId = InbredSet.Id
-            and InbredSet.Name = '%s'
-            and GenoFreeze.public > %s
-            and GenoFreeze.confidentiality < 1)
+            and InbredSet.Name = '%s')
          UNION
          (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
           FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
@@ -503,12 +508,10 @@ def datasets(group_name, this_group = None):
             and ProbeFreeze.TissueId = Tissue.Id
             and ProbeFreeze.InbredSetId = InbredSet.Id
             and InbredSet.Name like %s
-            and ProbeSetFreeze.public > %s
-            and ProbeSetFreeze.confidentiality < 1
           ORDER BY Tissue.Name, ProbeSetFreeze.OrderList DESC)
-        ''' % (group_name, webqtlConfig.PUBLICTHRESH,
-              group_name, webqtlConfig.PUBLICTHRESH,
-              "'" + group_name + "'", webqtlConfig.PUBLICTHRESH))
+        ''' % (group_name,
+              group_name,
+              "'" + group_name + "'"))
 
     sorted_results = sorted(the_results, key=lambda kv: kv[0])
 
@@ -628,29 +631,25 @@ class DataSet(object):
 
         """
 
-
         try:
             if self.type == "ProbeSet":
                 query_args = tuple(escape(x) for x in (
-                    str(webqtlConfig.PUBLICTHRESH),
                     self.name,
                     self.name,
                     self.name))
 
                 self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = fetch1("""
-SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
-FROM ProbeSetFreeze, ProbeFreeze, Tissue
-WHERE ProbeSetFreeze.public > %s
-AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-AND ProbeFreeze.TissueId = Tissue.Id
-AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
+    SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
+    FROM ProbeSetFreeze, ProbeFreeze, Tissue
+    WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+    AND ProbeFreeze.TissueId = Tissue.Id
+    AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
                 """ % (query_args),"/dataset/"+self.name+".json",
             lambda r: (r["id"],r["name"],r["full_name"],r["short_name"],r["data_scale"],r["tissue"])
                 )
             else:
                 query_args = tuple(escape(x) for x in (
                     (self.type + "Freeze"),
-                    str(webqtlConfig.PUBLICTHRESH),
                     self.name,
                     self.name,
                     self.name))
@@ -659,9 +658,8 @@ AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFre
                 self.id, self.name, self.fullname, self.shortname = fetchone("""
                         SELECT Id, Name, FullName, ShortName
                         FROM %s
-                        WHERE public > %s AND
-                             (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-                  """ % (query_args))
+                        WHERE (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
+                    """ % (query_args))
 
         except TypeError:
             logger.debug("Dataset {} is not yet available in GeneNetwork.".format(self.name))

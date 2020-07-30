@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function, division
 
+import codecs
+
 from flask import g
 
 from utility.logger import getLogger
@@ -20,7 +22,7 @@ class Docs(object):
             self.content = ""
         else:
             self.title = result[0]
-            self.content = result[1]
+            self.content = result[1].encode("latin1")
 
         self.editable = "false"
         # ZS: Removing option to edit to see if text still gets vandalized

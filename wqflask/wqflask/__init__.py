@@ -21,5 +21,5 @@ app.jinja_env.globals.update(
     numify = formatting.numify
 )
 
-import wqflask.views
 from wqflask.api import router
+import wqflask.views

@@ -1,12 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
+import os
 import string
 import resource
 import codecs
 import requests
-
-import redis
-Redis = redis.StrictRedis()
+import random
+import urllib
 
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
@@ -14,7 +14,10 @@ from base.data_set import create_dataset
 from db import webqtlDatabaseFunction
 from utility import webqtlUtil
 from utility import hmac
-from utility.tools import GN2_BASE_URL
+from utility.authentication_tools import check_resource_availability
+from utility.tools import GN2_BASE_URL, GN_VERSION
+from utility.redis_tools import get_redis_conn, get_resource_id, get_resource_info
+Redis = get_redis_conn()
 
 from wqflask import app
 
@@ -22,10 +25,35 @@ import simplejson as json
 from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
-from flask import Flask, g, request, url_for
+from flask import Flask, g, request, url_for, redirect, make_response, render_template
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
+
+def create_trait(**kw):
+    assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
+
+    permitted = True
+    if kw.get('name'):
+        if kw.get('dataset_name'):
+            if kw.get('dataset_name') != "Temp":
+                dataset = create_dataset(kw.get('dataset_name'))
+        else:
+            dataset = kw.get('dataset')
+
+        if kw.get('dataset_name') != "Temp":
+            if dataset.type == 'Publish':
+                permissions = check_resource_availability(dataset, kw.get('name'))
+            else:
+                permissions = check_resource_availability(dataset)
+
+    if "view" in permissions['data']:
+        the_trait = GeneralTrait(**kw)
+        if the_trait.dataset.type != "Temp":
+            the_trait = retrieve_trait_info(the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
+        return the_trait
+    else:
+        return None
 
 class GeneralTrait(object):
     """
@@ -51,6 +79,7 @@ class GeneralTrait(object):
         self.haveinfo = kw.get('haveinfo', False)
         self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
         self.data = kw.get('data', {})
+        self.view = True
 
         # Sets defaults
         self.locus = None
@@ -76,8 +105,6 @@ class GeneralTrait(object):
 
         # Todo: These two lines are necessary most of the time, but perhaps not all of the time
         # So we could add a simple if statement to short-circuit this if necessary
-        if self.dataset.type != "Temp":
-            self = retrieve_trait_info(self, self.dataset, get_qtl_info=get_qtl_info)
         if get_sample_info != False:
             self = retrieve_sample_data(self, self.dataset)
 
@@ -117,6 +144,7 @@ class GeneralTrait(object):
                 formatted = self.post_publication_description
         else:
             formatted = "Not available"
+
         return formatted
 
     @property
@@ -124,7 +152,7 @@ class GeneralTrait(object):
         '''Return a text formatted alias'''
 
         alias = 'Not available'
-        if self.alias:
+        if getattr(self, "alias", None):
             alias = string.replace(self.alias, ";", " ")
             alias = string.join(string.split(alias), ", ")
 
@@ -213,26 +241,28 @@ def get_sample_data():
     trait = params['trait']
     dataset = params['dataset']
 
-    trait_ob = GeneralTrait(name=trait, dataset_name=dataset)
+    trait_ob = create_trait(name=trait, dataset_name=dataset)
+    if trait_ob:
+        trait_dict = {}
+        trait_dict['name'] = trait
+        trait_dict['db'] = dataset
+        trait_dict['type'] = trait_ob.dataset.type
+        trait_dict['group'] = trait_ob.dataset.group.name
+        trait_dict['tissue'] = trait_ob.dataset.tissue
+        trait_dict['species'] = trait_ob.dataset.group.species
+        trait_dict['url'] = url_for('show_trait_page', trait_id = trait, dataset = dataset)
+        trait_dict['description'] = trait_ob.description_display
+        if trait_ob.dataset.type == "ProbeSet":
+            trait_dict['symbol'] = trait_ob.symbol
+            trait_dict['location'] = trait_ob.location_repr
+        elif trait_ob.dataset.type == "Publish":
+            if trait_ob.pubmed_id:
+                trait_dict['pubmed_link'] = trait_ob.pubmed_link
+            trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
-    trait_dict = {}
-    trait_dict['name'] = trait
-    trait_dict['db'] = dataset
-    trait_dict['type'] = trait_ob.dataset.type
-    trait_dict['group'] = trait_ob.dataset.group.name
-    trait_dict['tissue'] = trait_ob.dataset.tissue
-    trait_dict['species'] = trait_ob.dataset.group.species
-    trait_dict['url'] = url_for('show_trait_page', trait_id = trait, dataset = dataset)
-    trait_dict['description'] = trait_ob.description_display
-    if trait_ob.dataset.type == "ProbeSet":
-        trait_dict['symbol'] = trait_ob.symbol
-        trait_dict['location'] = trait_ob.location_repr
-    elif trait_ob.dataset.type == "Publish":
-        if trait_ob.pubmed_id:
-            trait_dict['pubmed_link'] = trait_ob.pubmed_link
-        trait_dict['pubmed_text'] = trait_ob.pubmed_text
-
-    return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])
+        return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])
+    else:
+        return None
     
 def jsonable(trait):
     """Return a dict suitable for using as json
@@ -347,90 +377,95 @@ def jsonable_table_row(trait, dataset_name, index):
     else:
         return dict()
 
+
 def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     assert dataset, "Dataset doesn't exist"
-    
+
+    resource_id = get_resource_id(dataset, trait.name)
     if dataset.type == 'Publish':
-        query = """
-                SELECT
-                        PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
-                        Phenotype.Pre_publication_description, Phenotype.Post_publication_description, Phenotype.Original_description,
-                        Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, PublishXRef.mean,
-                        Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
-                        Publication.Authors, Publication.Title, Publication.Abstract,
-                        Publication.Journal, Publication.Volume, Publication.Pages,
-                        Publication.Month, Publication.Year, PublishXRef.Sequence,
-                        Phenotype.Units, PublishXRef.comments
-                FROM
-                        PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
-                WHERE
-                        PublishXRef.Id = %s AND
-                        Phenotype.Id = PublishXRef.PhenotypeId AND
-                        Publication.Id = PublishXRef.PublicationId AND
-                        PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                        PublishXRef.InbredSetId = InbredSet.Id AND
-                        PublishFreeze.Id = %s
-                """ % (trait.name, dataset.id)
+        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
+    else:
+        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
 
-        logger.sql(query)
-        trait_info = g.db.execute(query).fetchone()
+    try:
+        response = requests.get(the_url).content
+        trait_info = json.loads(response)
+    except: #ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
+        if dataset.type == 'Publish':
+            query = """
+                    SELECT
+                            PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
+                            CAST(Phenotype.Pre_publication_description AS BINARY),
+                            CAST(Phenotype.Post_publication_description AS BINARY),
+                            CAST(Phenotype.Original_description AS BINARY),
+                            CAST(Phenotype.Pre_publication_abbreviation AS BINARY),
+                            CAST(Phenotype.Post_publication_abbreviation AS BINARY), PublishXRef.mean,
+                            Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
+                            CAST(Publication.Authors AS BINARY), CAST(Publication.Title AS BINARY), CAST(Publication.Abstract AS BINARY),
+                            CAST(Publication.Journal AS BINARY), Publication.Volume, Publication.Pages,
+                            Publication.Month, Publication.Year, PublishXRef.Sequence,
+                            Phenotype.Units, PublishXRef.comments
+                    FROM
+                            PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
+                    WHERE
+                            PublishXRef.Id = %s AND
+                            Phenotype.Id = PublishXRef.PhenotypeId AND
+                            Publication.Id = PublishXRef.PublicationId AND
+                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
+                            PublishXRef.InbredSetId = InbredSet.Id AND
+                            PublishFreeze.Id = %s
+                    """ % (trait.name, dataset.id)
 
+            logger.sql(query)
+            trait_info = g.db.execute(query).fetchone()
 
-    #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
-    #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
-    elif dataset.type == 'ProbeSet':
-        display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
-        display_fields_string = 'ProbeSet.' + display_fields_string
-        query = """
-                SELECT %s
-                FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                WHERE
-                        ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                        ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                        ProbeSetFreeze.Name = '%s' AND
-                        ProbeSet.Name = '%s'
-                """ % (escape(display_fields_string),
-                       escape(dataset.name),
-                       escape(str(trait.name)))
-        logger.sql(query)
-        trait_info = g.db.execute(query).fetchone()
-    #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
-    # to avoid the problem of same marker name from different species.
-    elif dataset.type == 'Geno':
-        display_fields_string = string.join(dataset.display_fields,',Geno.')
-        display_fields_string = 'Geno.' + display_fields_string
-        query = """
-                SELECT %s
-                FROM Geno, GenoFreeze, GenoXRef
-                WHERE
-                        GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-                        GenoXRef.GenoId = Geno.Id AND
-                        GenoFreeze.Name = '%s' AND
-                        Geno.Name = '%s'
-                """ % (escape(display_fields_string),
-                       escape(dataset.name),
-                       escape(trait.name))
-        logger.sql(query)
-        trait_info = g.db.execute(query).fetchone()
-    else: #Temp type
-        query = """SELECT %s FROM %s WHERE Name = %s"""
-        logger.sql(query)
-        trait_info = g.db.execute(query,
-                                  (string.join(dataset.display_fields,','),
-                                               dataset.type, trait.name)).fetchone()
+        #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
+        #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
+        elif dataset.type == 'ProbeSet':
+            display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
+            display_fields_string = 'ProbeSet.' + display_fields_string
+            query = """
+                    SELECT %s
+                    FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
+                    WHERE
+                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                            ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
+                            ProbeSetFreeze.Name = '%s' AND
+                            ProbeSet.Name = '%s'
+                    """ % (escape(display_fields_string),
+                        escape(dataset.name),
+                        escape(str(trait.name)))
+            logger.sql(query)
+            trait_info = g.db.execute(query).fetchone()
+        #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
+        # to avoid the problem of same marker name from different species.
+        elif dataset.type == 'Geno':
+            display_fields_string = string.join(dataset.display_fields,',Geno.')
+            display_fields_string = 'Geno.' + display_fields_string
+            query = """
+                    SELECT %s
+                    FROM Geno, GenoFreeze, GenoXRef
+                    WHERE
+                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                            GenoXRef.GenoId = Geno.Id AND
+                            GenoFreeze.Name = '%s' AND
+                            Geno.Name = '%s'
+                    """ % (escape(display_fields_string),
+                        escape(dataset.name),
+                        escape(trait.name))
+            logger.sql(query)
+            trait_info = g.db.execute(query).fetchone()
+        else: #Temp type
+            query = """SELECT %s FROM %s WHERE Name = %s"""
+            logger.sql(query)
+            trait_info = g.db.execute(query,
+                                    (string.join(dataset.display_fields,','),
+                                                dataset.type, trait.name)).fetchone()
 
     if trait_info:
         trait.haveinfo = True
-
-        #XZ: assign SQL query result to trait attributes.
         for i, field in enumerate(dataset.display_fields):
-            holder = trait_info[i]
-            # if isinstance(trait_info[i], basestring):
-            #     logger.debug("HOLDER:", holder)
-            #     logger.debug("HOLDER2:", holder.decode(encoding='latin1'))
-            #     holder = unicode(trait_info[i], "utf-8", "ignore")
-            if isinstance(trait_info[i], basestring):
-                holder = holder.encode('latin1')
+            holder =  trait_info[i]
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
@@ -449,13 +484,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             if trait.confidential:
                 trait.abbreviation = trait.pre_publication_abbreviation
                 trait.description_display = trait.pre_publication_description
-
-                #if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
-                #        privilege=self.dataset.privilege,
-                #        userName=self.dataset.userName,
-                #        authorized_users=self.authorized_users):
-                #
-                #    description = self.pre_publication_description
             else:
                 trait.abbreviation = trait.post_publication_abbreviation
                 if description:

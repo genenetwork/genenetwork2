@@ -17,6 +17,10 @@ DEBUG = 1
 #USER privilege
 USERDICT = {'guest':1,'user':2, 'admin':3, 'root':4}
 
+#Set privileges
+SUPER_PRIVILEGES = {'data': ['no-access', 'view', 'edit'], 'metadata': ['no-access', 'view', 'edit'], 'admin': ['not-admin', 'edit-access', 'edit-admins']}
+DEFAULT_PRIVILEGES = {'data': ['no-access', 'view'], 'metadata': ['no-access', 'view'], 'admin': ['not-admin']}
+
 #minimum number of informative strains
 KMININFORMATIVE = 5
 
@@ -58,6 +62,7 @@ PROTEIN_ATLAS_URL = "http://www.proteinatlas.org/search/%s"
 OPEN_TARGETS_URL = "https://genetics.opentargets.org/gene/%s"
 UNIPROT_URL = "https://www.uniprot.org/uniprot/%s"
 RGD_URL = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term=%s&category=Gene&species=%s"
+PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&genomeVer=rn6&section=geneEQTL"
 
 # Temporary storage (note that this TMPDIR can be set as an
 # environment variable - use utility.tools.TEMPDIR when you

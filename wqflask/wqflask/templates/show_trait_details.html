@@ -141,6 +141,12 @@
                 GTEx Portal
             </a>
             &nbsp;&nbsp;
+            {% if phenogen_link %}
+            <a href="{{ phenogen_link }}" target="_blank">
+                PhenoGen
+            </a>
+            &nbsp;&nbsp;
+            {% endif %}
             {% if genebridge_link %}
             <a href="{{ genebridge_link }}" target="_blank">
                 GeneBridge
@@ -212,7 +218,7 @@
         <a href="#redirect">
         <button type="button" id="add_to_collection" class="btn btn-primary" title="Add to collection">Add</button>
         </a>
-        {% if this_trait.dataset.type == 'ProbeSet' %}
+        {% if this_trait.dataset.type == 'ProbeSet' or this_trait.dataset.type == 'Geno' %}
         {% if this_trait.symbol != None %}
         <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
         <button type="button" class="btn btn-default" title="Find similar expression data">Find</button>
@@ -242,6 +248,11 @@
         <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
         <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1">View in GN1</button>
         </a>
+        {% if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access" %}
+        <a target="_blank" href="./resources/manage?resource_id={{ resource_id }}">
+            <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource">Edit</button>
+        </a>
+        {% endif %}
     </div>
 </div>
 

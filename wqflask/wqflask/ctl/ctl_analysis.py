@@ -17,7 +17,7 @@ import csv
 import itertools
 
 from base import data_set
-from base import trait as TRAIT
+from base.trait import create_trait, retrieve_sample_data
 
 from utility import helper_functions
 from utility.tools import locate, GN2_BRANCH_URL
@@ -122,8 +122,8 @@ class CTL(object):
           logger.debug("retrieving data for", trait)
           if trait != "":
             ts = trait.split(':')
-            gt = TRAIT.GeneralTrait(name = ts[0], dataset_name = ts[1])
-            gt = TRAIT.retrieve_sample_data(gt, dataset, individuals)
+            gt = create_trait(name = ts[0], dataset_name = ts[1])
+            gt = retrieve_sample_data(gt, dataset, individuals)
             for ind in individuals:
               if ind in gt.data.keys():
                 traits.append(gt.data[ind].value)
@@ -143,7 +143,7 @@ class CTL(object):
         #r_write_table(rPheno, "~/outputGN/pheno.csv")
 
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, ncores = 6)
+        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, nthreads = 6)
 
         # Get significant interactions
         significant = self.r_CTLsignificant(res, significance = significance)
@@ -180,8 +180,8 @@ class CTL(object):
             logger.debug(significant[0][x], significant[1][x], significant[2][x])     # Debug to console
             tsS = significant[0][x].split(':')                                        # Source
             tsT = significant[2][x].split(':')                                        # Target
-            gtS = TRAIT.GeneralTrait(name = tsS[0], dataset_name = tsS[1])            # Retrieve Source info from the DB
-            gtT = TRAIT.GeneralTrait(name = tsT[0], dataset_name = tsT[1])            # Retrieve Target info from the DB
+            gtS = create_trait(name = tsS[0], dataset_name = tsS[1])            # Retrieve Source info from the DB
+            gtT = create_trait(name = tsT[0], dataset_name = tsT[1])            # Retrieve Target info from the DB
             self.addNode(gtS)
             self.addNode(gtT)
             self.addEdge(gtS, gtT, significant, x)

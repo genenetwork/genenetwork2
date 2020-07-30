@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/typeahead-bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/snp_browser.css" />
@@ -406,8 +406,8 @@
       ],
       {% endif %}
       'order': [[1, "asc" ]],
-      'sDom': "rti",
-      'iDisplayLength': -1,
+      'sDom': "rtip",
+      'iDisplayLength': 500,
       'processing': true,
       'language': {
         'loadingRecords': '&nbsp;',

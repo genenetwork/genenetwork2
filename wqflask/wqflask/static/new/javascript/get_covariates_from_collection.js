@@ -110,7 +110,7 @@ submit_click = function() {
 trait_click = function() {
   var dataset, this_trait_url, trait;
   trait = $(this).parent().find('.trait').text();
-  dataset = $(this).parent().find('.dataset').text();
+  dataset = $(this).parent().find('.dataset').data("dataset");
   $("input[name=covariates]").val(trait + ":" + dataset)
   $(".selected_covariates").text(trait)
   return $.colorbox.close();

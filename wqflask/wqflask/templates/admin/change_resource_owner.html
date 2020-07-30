@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Resource Manager{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Search for user to assign ownership to:</h1>
+        </div>
+        <form id="change_owner_form" action="/resources/change_owner" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <div style="min-width: 600px; max-width: 800px;">
+                <fieldset>
+                    <div class="form-horizontal" style="width: 900px;">
+                        <div style="margin-bottom: 30px;">
+                            <h2>Search for user by either name or e-mail:</h2>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_name" class="col-xs-3" style="float: left; font-size: 18px;">User's Name:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="user_name" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">User's E-mail:</label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <input name="user_email" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="padding-left: 20px;">
+                            <label class="col-xs-3" style="float: left; font-size: 18px;"></label>
+                            <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
+                                <button type="button" id="find_users" class="btn btn-primary">Search</button>
+                                <button style="margin-left: 20px; display: none;" type="submit" id="submit_new_owner" class="btn btn-success">Assign Ownership to Selected User</button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr>
+                <div id="user_results">
+                </div>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+
+    <script language="javascript">
+        $('#find_users').click(function() {
+            $.ajax({
+                method: "POST",
+                url: "/search_for_users",
+                data: {
+                    user_name: $('input[name=user_name]').val(),
+                    user_email: $('input[name=user_email]').val()
+                },
+                success: populate_users
+            });
+        })
+
+        populate_users = function(json_user_list){
+            var user_list = JSON.parse(json_user_list)
+
+            var the_html = ""
+            if (user_list.length > 0){
+                the_html += "<table id='users_table' style='padding-top: 10px; width: 100%;' class='table-hover table-striped cell-border'>";
+                the_html += "<thead><tr><th></th><th>Index</th><th>Name</th><th>E-mail Address</th><th>Organization</th></tr></thead>";
+                the_html += "<tbody>";
+                for (_i = 0, _len = user_list.length; _i < _len; _i++) {
+                    this_user = user_list[_i]
+                    the_html += "<tr>";
+                    the_html += "<td align='center' class='select_user'><input type='radio' name='new_owner' value='" + this_user.user_id + "'></td>";
+                    the_html += "<td>" + (_i + 1).toString() + "</td>"
+                    if ("full_name" in this_user) {
+                        the_html += "<td>" + this_user.full_name + "</td>";
+                    } else {
+                        the_html += "<td>N/A</td>"
+                    }
+                    if ("email_address" in this_user) {
+                        the_html += "<td>" + this_user.email_address + "</td>";
+                    } else {
+                        the_html += "<td>N/A</td>"
+                    }
+                    if ("organization" in this_user) {
+                        the_html += "<td>" + this_user.organization + "</td>";
+                    } else {
+                        the_html += "<td>N/A</td>"
+                    }
+                    the_html += "</tr>"
+                }
+                the_html += "</tbody>";
+                the_html += "</table>";
+            } else {
+                the_html = "<span>No users were found matching the entered criteria.</span>"
+            }
+
+            $('#user_results').html(the_html)
+            if (user_list.length > 0){
+                $('#users_table').dataTable({
+                    'order': [[1, "asc" ]],
+                    'sDom': 'tr'
+                });
+                $('input[name=select_user]:eq(0)').prop("checked", true)
+                $('#submit_new_owner').css("display", "inline-block")
+            }
+        }
+    </script>
+{% endblock %}

@@ -41,16 +41,16 @@ import rpy2.robjects as robjects
 
 from pprint import pformat as pf
 
-import reaper
-
-import redis
-Redis = redis.StrictRedis()
+from utility.redis_tools import get_redis_conn
+Redis = get_redis_conn()
+THIRTY_DAYS = 60 * 60 * 24 * 30
 
 from utility.THCell import THCell
 from utility.TDCell import TDCell
 from base.trait import GeneralTrait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers
+
 from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
@@ -204,20 +204,6 @@ class CorrelationMatrix(object):
                                 samples = self.all_sample_list,
                                 sample_data = self.sample_data,)
             #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
-        
-    def get_trait_db_obs(self, trait_db_list):
-
-        self.trait_list = []
-        for i, trait_db in enumerate(trait_db_list):
-            if i == (len(trait_db_list) - 1):
-                break
-            trait_name, dataset_name = trait_db.split(":")
-            #print("dataset_name:", dataset_name)
-            dataset_ob = data_set.create_dataset(dataset_name)
-            trait_ob = GeneralTrait(dataset=dataset_ob,
-                                   name=trait_name,
-                                   cellid=None)
-            self.trait_list.append((trait_ob, dataset_ob))
 
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
         base = importr('base')
@@ -257,7 +243,7 @@ class CorrelationMatrix(object):
                     this_vals_string += "x "
             this_vals_string = this_vals_string[:-1]
 
-            Redis.set(trait_id, this_vals_string)
+            Redis.set(trait_id, this_vals_string, ex=THIRTY_DAYS)
             self.pca_trait_ids.append(trait_id)
 
         return pca

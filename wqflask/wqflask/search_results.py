@@ -1,15 +1,9 @@
-# from __future__ import absolute_import, print_function, division
+from __future__ import absolute_import, print_function, division
 
-
-import os
-import cPickle
 import re
 import uuid
 from math import *
 import time
-import math
-import datetime
-import collections
 import re
 import requests
 
@@ -18,18 +12,16 @@ from pprint import pformat as pf
 import json
 
 from base.data_set import create_dataset
-from base import trait
+from base.trait import create_trait
 from wqflask import parser
 from wqflask import do_search
-from utility import webqtlUtil,tools
 from db import webqtlDatabaseFunction
 
-from flask import render_template, Flask, g
+from flask import Flask, g
 
-from utility import formatting
-from utility import hmac
+from utility import hmac, helper_functions
 from utility.tools import GN2_BASE_URL
-from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
+from utility.type_checking import is_str
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -86,7 +78,7 @@ views.py).
         try:
             self.search()
         except:
-            self.search_term_exists = False
+           self.search_term_exists = False
         if self.search_term_exists:
             self.gen_search_result()
 
@@ -113,50 +105,49 @@ views.py).
 
             trait_dict = {}
             trait_id = result[0]
-            trait_dict['index'] = index + 1
-            this_trait = trait.GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
-            trait_dict['name'] = this_trait.name
-            if this_trait.dataset.type == "Publish":
-                trait_dict['display_name'] = this_trait.display_name
-            else:
-                trait_dict['display_name'] = this_trait.name
-            trait_dict['dataset'] = this_trait.dataset.name
-            trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
-            if this_trait.dataset.type == "ProbeSet":
-                trait_dict['symbol'] = this_trait.symbol
-                trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
-                trait_dict['location'] = this_trait.location_repr
-                trait_dict['mean'] = "N/A"
-                trait_dict['additive'] = "N/A"
-                if this_trait.mean != "" and this_trait.mean != None:
-                    trait_dict['mean'] = '%.3f' % this_trait.mean
-                trait_dict['lrs_score'] = this_trait.LRS_score_repr
-                trait_dict['lrs_location'] = this_trait.LRS_location_repr
-                if this_trait.additive != "":
-                    trait_dict['additive'] = '%.3f' % this_trait.additive
-            elif this_trait.dataset.type == "Geno":
-                trait_dict['location'] = this_trait.location_repr
-            elif this_trait.dataset.type == "Publish":
-                trait_dict['description'] = this_trait.description_display
-                trait_dict['authors'] = this_trait.authors
-                trait_dict['pubmed_id'] = "N/A"
-                if this_trait.pubmed_id:
-                    trait_dict['pubmed_id'] = this_trait.pubmed_id
-                    trait_dict['pubmed_link'] = this_trait.pubmed_link
-                trait_dict['pubmed_text'] = this_trait.pubmed_text
-                trait_dict['mean'] = "N/A"
-                if this_trait.mean != "" and this_trait.mean != None:
-                    trait_dict['mean'] = '%.3f' % this_trait.mean
-                trait_dict['lrs_score'] = this_trait.LRS_score_repr
-                trait_dict['lrs_location'] = this_trait.LRS_location_repr
-                trait_dict['additive'] = "N/A"
-                if this_trait.additive != "":
-                    trait_dict['additive'] = '%.3f' % this_trait.additive
-            trait_list.append(trait_dict)
-            #json_trait_list.append(trait.jsonable_table_row(this_trait, self.dataset.name, index + 1))
+            this_trait = create_trait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+            if this_trait:
+                trait_dict['index'] = index + 1
+                trait_dict['name'] = this_trait.name
+                if this_trait.dataset.type == "Publish":
+                    trait_dict['display_name'] = this_trait.display_name
+                else:
+                    trait_dict['display_name'] = this_trait.name
+                trait_dict['dataset'] = this_trait.dataset.name
+                trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
+                if this_trait.dataset.type == "ProbeSet":
+                    trait_dict['symbol'] = this_trait.symbol
+                    trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
+                    trait_dict['location'] = this_trait.location_repr
+                    trait_dict['mean'] = "N/A"
+                    trait_dict['additive'] = "N/A"
+                    if this_trait.mean != "" and this_trait.mean != None:
+                        trait_dict['mean'] = '%.3f' % this_trait.mean
+                    trait_dict['lrs_score'] = this_trait.LRS_score_repr
+                    trait_dict['lrs_location'] = this_trait.LRS_location_repr
+                    if this_trait.additive != "":
+                        trait_dict['additive'] = '%.3f' % this_trait.additive
+                elif this_trait.dataset.type == "Geno":
+                    trait_dict['location'] = this_trait.location_repr
+                elif this_trait.dataset.type == "Publish":
+                    trait_dict['description'] = this_trait.description_display
+                    trait_dict['authors'] = this_trait.authors
+                    trait_dict['pubmed_id'] = "N/A"
+                    if this_trait.pubmed_id:
+                        trait_dict['pubmed_id'] = this_trait.pubmed_id
+                        trait_dict['pubmed_link'] = this_trait.pubmed_link
+                    trait_dict['pubmed_text'] = this_trait.pubmed_text
+                    trait_dict['mean'] = "N/A"
+                    if this_trait.mean != "" and this_trait.mean != None:
+                        trait_dict['mean'] = '%.3f' % this_trait.mean
+                    trait_dict['lrs_score'] = this_trait.LRS_score_repr
+                    trait_dict['lrs_location'] = this_trait.LRS_location_repr
+                    trait_dict['additive'] = "N/A"
+                    if this_trait.additive != "":
+                        trait_dict['additive'] = '%.3f' % this_trait.additive
+                trait_list.append(trait_dict)
 
         self.trait_list = json.dumps(trait_list)
-        #self.json_trait_list = json.dumps(json_trait_list)
 
     def search(self):
         """
@@ -234,7 +225,6 @@ views.py).
                 self.header_fields = the_search.header_fields
 
     def get_search_ob(self, a_search):
-        logger.debug("[kodak] item is:", pf(a_search))
         search_term = a_search['search_term']
         search_operator = a_search['separator']
         search_type = {}
@@ -243,12 +233,10 @@ views.py).
             search_type['key'] = a_search['key'].upper()
         else:
             search_type['key'] = None
-        logger.debug("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)
         if search_ob:
             search_class = getattr(do_search, search_ob)
-            logger.debug("search_class is: ", pf(search_class))
             the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,

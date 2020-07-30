@@ -2,6 +2,10 @@ tr .outlier {
     background-color: #ffff99;
 }
 
+table.dataTable tbody tr.selected {
+    background-color: #ffee99;
+}
+
 #bar_chart_container {
     overflow-x:scroll;
 }
