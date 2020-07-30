@@ -111,15 +111,14 @@ def build_types(species, group):
 
     """
 
-    query = """SELECT DISTINCT Tissue.Name
-               FROM ProbeFreeze, ProbeSetFreeze, InbredSet, Tissue, Species
-               WHERE Species.Name = '{0}' AND
-                     Species.Id = InbredSet.SpeciesId AND
-                     InbredSet.Name = '{1}' AND
-                     ProbeFreeze.TissueId = Tissue.Id AND
-                     ProbeFreeze.InbredSetId = InbredSet.Id AND
-                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-               ORDER BY Tissue.Name""".format(species, group)
+    query = ("SELECT DISTINCT Tissue.Name " +
+             "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, " +
+             "Tissue, Species WHERE Species.Name = '{0}' " +
+             "AND Species.Id = InbredSet.SpeciesId AND " +
+             "InbredSet.Name = '{1}' AND ProbeFreeze.TissueId = " +
+             "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id " +
+             "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
+             "ORDER BY Tissue.Name").format(species, group)
 
     results = []
     for result in g.db.execute(query).fetchall():
@@ -150,14 +149,14 @@ def build_datasets(species, group, type_name):
     dataset_text = dataset_value = None
     datasets = []
     if type_name == "Phenotypes":
-        results = g.db.execute("""SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, PublishFreeze.FullName
-                                  FROM InfoFiles, PublishFreeze, InbredSet
-                                  WHERE InbredSet.Name = '{}' AND
-                                        PublishFreeze.InbredSetId = InbredSet.Id AND
-                                        InfoFiles.InfoPageName = PublishFreeze.Name
-                                  ORDER BY PublishFreeze.CreateTime ASC""".format(group)).fetchall()
-
         if len(results) > 0:
+        results = g.db.execute(
+            ("SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, " +
+             "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, " +
+             "InbredSet WHERE InbredSet.Name = '{}' AND " +
+             "PublishFreeze.InbredSetId = InbredSet.Id AND " +
+             "InfoFiles.InfoPageName = PublishFreeze.Name " +
+             "ORDER BY PublishFreeze.CreateTime ASC").format(group)).fetchall()
             for result in results:
                 dataset_id = str(result[0])
                 dataset_value = str(result[1])
@@ -168,11 +167,13 @@ def build_datasets(species, group, type_name):
                     dataset_text = str(result[2])
                 datasets.append([dataset_id, dataset_value, dataset_text])
         else:
-            result = g.db.execute("""SELECT PublishFreeze.Name, PublishFreeze.FullName
-                                      FROM PublishFreeze, InbredSet
-                                      WHERE InbredSet.Name = '{}' AND
-                                          PublishFreeze.InbredSetId = InbredSet.Id
-                                      ORDER BY PublishFreeze.CreateTime ASC""".format(group)).fetchone()
+            result = g.db.execute(
+                ("SELECT PublishFreeze.Name, PublishFreeze.FullName "
+                 "FROM PublishFreeze, InbredSet "
+                 "WHERE InbredSet.Name = '{}' AND "
+                 "PublishFreeze.InbredSetId = InbredSet.Id "
+                 "ORDER BY PublishFreeze.CreateTime ASC")
+                .format(group)).fetchone()
 
             dataset_id = "None"
             dataset_value = str(result[0])
@@ -180,14 +181,14 @@ def build_datasets(species, group, type_name):
             datasets.append([dataset_id, dataset_value, dataset_text])
 
     elif type_name == "Genotypes":
-        results = g.db.execute("""SELECT InfoFiles.GN_AccesionId
-                                  FROM InfoFiles, GenoFreeze, InbredSet
-                                  WHERE InbredSet.Name = '{}' AND
-                                        GenoFreeze.InbredSetId = InbredSet.Id AND
-                                        InfoFiles.InfoPageName = GenoFreeze.ShortName
-                                  ORDER BY GenoFreeze.CreateTime DESC""".format(group)).fetchone()
+        results = g.db.execute(
+            ("SELECT InfoFiles.GN_AccesionId " +
+             "FROM InfoFiles, GenoFreeze, InbredSet " +
+             "WHERE InbredSet.Name = '{}' AND " +
+             "GenoFreeze.InbredSetId = InbredSet.Id AND " +
+             "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
+             "ORDER BY GenoFreeze.CreateTime DESC").format(group)).fetchone()
 
-        if results != None:
             dataset_id = str(results[0])
         else:
             dataset_id = "None"
@@ -196,14 +197,16 @@ def build_datasets(species, group, type_name):
         datasets.append([dataset_id, dataset_value, dataset_text])
 
     else: # for mRNA expression/ProbeSet
-        results = g.db.execute("""SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName
-                                  FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species
-                                  WHERE Species.Name = '{0}' AND
-                                        Species.Id = InbredSet.SpeciesId AND
-                                        InbredSet.Name = '{1}' AND
-                                        ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and Tissue.Name = '{2}' AND
-                                        ProbeFreeze.TissueId = Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id
-                                  ORDER BY ProbeSetFreeze.CreateTime DESC""".format(species, group, type_name)).fetchall()
+        results = g.db.execute(
+            ("SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, " +
+             "ProbeSetFreeze.FullName FROM ProbeSetFreeze, " +
+             "ProbeFreeze, InbredSet, Tissue, Species WHERE " +
+             "Species.Name = '{0}' AND Species.Id = " +
+             "InbredSet.SpeciesId AND InbredSet.Name = '{1}' " +
+             "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
+             "and Tissue.Name = '{2}' AND ProbeFreeze.TissueId = " +
+             "Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id " +
+             "ORDER BY ProbeSetFreeze.CreateTime DESC").format(species, group, type_name)).fetchall()
 
         datasets = []
         for dataset_info in results:
