@@ -149,7 +149,6 @@ def build_datasets(species, group, type_name):
     dataset_text = dataset_value = None
     datasets = []
     if type_name == "Phenotypes":
-        if len(results) > 0:
         results = g.db.execute(
             ("SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, " +
              "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, " +
@@ -157,14 +156,14 @@ def build_datasets(species, group, type_name):
              "PublishFreeze.InbredSetId = InbredSet.Id AND " +
              "InfoFiles.InfoPageName = PublishFreeze.Name " +
              "ORDER BY PublishFreeze.CreateTime ASC").format(group)).fetchall()
+        if bool(results):
             for result in results:
                 dataset_id = str(result[0])
                 dataset_value = str(result[1])
+                dataset_text = str(result[2])
                 if group == 'MDP':
                     dataset_text = "Mouse Phenome Database"
-                else:
-                    #dataset_text = "%s Phenotypes" % group
-                    dataset_text = str(result[2])
+
                 datasets.append([dataset_id, dataset_value, dataset_text])
         else:
             result = g.db.execute(
@@ -189,9 +188,10 @@ def build_datasets(species, group, type_name):
              "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
              "ORDER BY GenoFreeze.CreateTime DESC").format(group)).fetchone()
 
+        dataset_id = "None"
+        if bool(results):
             dataset_id = str(results[0])
-        else:
-            dataset_id = "None"
+
         dataset_value = "%sGeno" % group
         dataset_text = "%s Genotypes" % group
         datasets.append([dataset_id, dataset_value, dataset_text])
