@@ -264,17 +264,14 @@ def get_resources():
     return resource_list
 
 def get_resource_id(dataset, trait_id=None):
+    resource_id = False
     if dataset.type == "Publish":
         if trait_id:
             resource_id = hmac.hmac_creation("{}:{}:{}".format('dataset-publish', dataset.id, trait_id))
-        else:
-            return False
     elif dataset.type == "ProbeSet":
         resource_id = hmac.hmac_creation("{}:{}".format('dataset-probeset', dataset.id))
     elif dataset.type == "Geno":
         resource_id = hmac.hmac_creation("{}:{}".format('dataset-geno', dataset.id))
-    else:
-        return False
 
     return resource_id
 

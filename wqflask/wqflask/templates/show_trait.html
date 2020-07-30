@@ -21,8 +21,7 @@
         {% endif %}
     </div>
 
-    <form method="post" action="" target="_blank" name="trait_page" id="trait_data_form"
-    class="form-horizontal">
+    <form method="post" action="" target="_blank" name="trait_page" id="trait_data_form" class="form-horizontal">
         <div id="hidden_inputs">
         <input type="hidden" name="trait_hmac" value="{{ data_hmac('{}:{}'.format(this_trait.name, dataset.name)) }}">
         {% for key in hddn %}
@@ -74,7 +73,7 @@
                         <div class="panel-body">
                             {% include 'show_trait_transform_and_filter.html' %}
                         </div>
-                        <div id="transform_alert_placeholder"><div id="transform_alert" style="display: none;"class="alert alert-success outlier-alert"><a class="close" data-dismiss="alert">�</a><span>Because there are some values between 0 and 1, log2 and log10 transforms will add 1 to each value.</span></div></div>
+                        <div id="transform_alert_placeholder"><div id="transform_alert" style="display: none;"class="alert alert-success outlier-alert"><a href="#" class="close" data-dismiss="alert">�</a><span>Because there are some values between 0 and 1, log2 and log10 transforms will add 1 to each value.</span></div></div>
                     </div>
                 </div>
                 <div class="panel panel-default">

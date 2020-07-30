@@ -104,16 +104,7 @@ parser.add_argument("-i", "--integration-tests", dest="accumulate"
                     , action="store_const", const=integration_tests, default=print_help
                     , help="Runs integration tests.")
 
-# Navigation tests deactivated since system relies on Javascript
-# parser.add_argument("-n", "--navigation", dest="accumulate"
-#                     , action="store_const", const=check_navigation, default=print_help
-#                     , help="Checks for navigation.")
-
-# parser.add_argument("-s", "--skip-broken", dest="accumulate"
-#                     , action="store_const", const=dummy, default=print_help
-#                     , help="Skip tests that are known to be broken.")
-
 args = parser.parse_args()
-# print("The arguments object: ", args)
+
 
 args.accumulate(args, parser)
