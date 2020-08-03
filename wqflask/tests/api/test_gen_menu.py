@@ -7,6 +7,7 @@ from wqflask.api.gen_menu import get_groups
 from wqflask.api.gen_menu import phenotypes_exist
 from wqflask.api.gen_menu import genotypes_exist
 from wqflask.api.gen_menu import build_datasets
+from wqflask.api.gen_menu import build_types
 
 
 class TestGenMenu(unittest.TestCase):
@@ -177,3 +178,29 @@ class TestGenMenu(unittest.TestCase):
             "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = " +
             "Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id " +
             "ORDER BY ProbeSetFreeze.CreateTime DESC")
+
+    @mock.patch('wqflask.api.gen_menu.build_datasets')
+    @mock.patch('wqflask.api.gen_menu.g')
+    def test_build_types(self, db_mock, datasets_mock):
+        """Test that correct tissue metadata is returned"""
+        datasets_mock.return_value = [
+            ["112", 'HC_M2_0606_P', "Hippocampus Consortium M430v2 (Jun06) PDNN"]
+        ]
+        db_mock.db.execute.return_value.fetchall.return_value = (
+            ('Mouse Tissue'), ('Human Tissue'), ('Rat Tissue')
+        )
+        self.assertEqual(build_types('mouse', 'random group'),
+                         [['M', 'M', 'Molecular Trait Datasets'],
+                          ['H', 'H', 'Molecular Trait Datasets'],
+                          ['R', 'R', 'Molecular Trait Datasets']])
+        db_mock.db.execute.assert_called_once_with(
+            "SELECT DISTINCT Tissue.Name " +
+            "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, " +
+            "Tissue, Species WHERE Species.Name = 'mouse' " +
+            "AND Species.Id = InbredSet.SpeciesId AND " +
+            "InbredSet.Name = 'random group' AND " +
+            "ProbeFreeze.TissueId = Tissue.Id AND " +
+            "ProbeFreeze.InbredSetId = InbredSet.Id AND " +
+            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
+            "ORDER BY Tissue.Name"
+        )
