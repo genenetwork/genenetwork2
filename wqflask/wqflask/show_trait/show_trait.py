@@ -546,9 +546,9 @@ def get_table_widths(sample_groups, has_num_cases=False):
 
     trait_table_width = 380
     if sample_groups[0].se_exists():
-        trait_table_width += 70
+        trait_table_width += 80
     if has_num_cases:
-        trait_table_width += 30
+        trait_table_width += 80
     trait_table_width += len(sample_groups[0].attributes)*70
 
     trait_table_width = str(trait_table_width) + "px"
