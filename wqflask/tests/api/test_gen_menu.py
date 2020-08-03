@@ -258,40 +258,7 @@ class TestGenMenu(unittest.TestCase):
         phenotypes_exist_mock.return_value = True
         genotypes_exist_mock.return_value = True
 
-        expected_result = {
-            'mouse': {
-                'H_T2': [('Phenotypes',
-                          'Traits and Cofactors',
-                          'Phenotypes'),
-                         ('Genotypes',
-                          'DNA Markers and SNPs',
-                          'Genotypes'),
-                         ['M', 'M', 'Molecular Trait Datasets']],
-                'H_T1': [('Phenotypes',
-                          'Traits and Cofactors',
-                          'Phenotypes'),
-                         ('Genotypes',
-                          'DNA Markers and SNPs',
-                          'Genotypes'),
-                         ['M', 'M', 'Molecular Trait Datasets']]
-            },
-            'human': {
-                'HLC': [('Phenotypes',
-                         'Traits and Cofactors',
-                         'Phenotypes'),
-                        ('Genotypes',
-                         'DNA Markers and SNPs',
-                         'Genotypes'),
-                        ['M', 'M', 'Molecular Trait Datasets']],
-                'BXD': [('Phenotypes',
-                         'Traits and Cofactors',
-                         'Phenotypes'),
-                        ('Genotypes',
-                         'DNA Markers and SNPs',
-                         'Genotypes'),
-                        ['M', 'M', 'Molecular Trait Datasets']]
-            }
-        }
+        expected_result = self.test_type
 
         build_types_mock.return_value = [
             ['M', 'M', 'Molecular Trait Datasets']
