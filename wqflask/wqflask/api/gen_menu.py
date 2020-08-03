@@ -76,11 +76,7 @@ def get_types(groups):
                 types_list = build_types(species, group_name)
                 if len(types_list) > 0:
                     types[species][group_name] += types_list
-                else:
-                    if not phenotypes_exist(group_name) and not genotypes_exist(group_name):
-                        types[species].pop(group_name, None)
-                        groups[species] = list(group for group in groups[species] if group[0] != group_name)
-            else: #ZS: This whole else statement might be unnecessary, need to check
+            else:
                 types_list = build_types(species, group_name)
                 if len(types_list) > 0:
                     types[species][group_name] = types_list
