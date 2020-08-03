@@ -4,6 +4,7 @@ import mock
 
 from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
+from wqflask.api.gen_menu import get_types
 from wqflask.api.gen_menu import phenotypes_exist
 from wqflask.api.gen_menu import genotypes_exist
 from wqflask.api.gen_menu import build_datasets
@@ -204,3 +205,107 @@ class TestGenMenu(unittest.TestCase):
             "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
             "ORDER BY Tissue.Name"
         )
+
+    @mock.patch('wqflask.api.gen_menu.build_types')
+    @mock.patch('wqflask.api.gen_menu.genotypes_exist')
+    @mock.patch('wqflask.api.gen_menu.phenotypes_exist')
+    def test_get_types_with_existing_genotype_and_phenotypes(
+            self,
+            phenotypes_exist_mock,
+            genotypes_exist_mock,
+            build_types_mock):
+        """Test that build types are constructed correctly if phenotypes and genotypes
+        exist
+
+        """
+        phenotypes_exist_mock.return_value = True
+        genotypes_exist_mock.return_value = True
+
+        expected_result = {
+            'mouse': {
+                'H_T2': [('Phenotypes',
+                          'Traits and Cofactors',
+                          'Phenotypes'),
+                         ('Genotypes',
+                          'DNA Markers and SNPs',
+                          'Genotypes'),
+                         ['M', 'M', 'Molecular Trait Datasets']],
+                'H_T1': [('Phenotypes',
+                          'Traits and Cofactors',
+                          'Phenotypes'),
+                         ('Genotypes',
+                          'DNA Markers and SNPs',
+                          'Genotypes'),
+                         ['M', 'M', 'Molecular Trait Datasets']]
+            },
+            'human': {
+                'HLC': [('Phenotypes',
+                         'Traits and Cofactors',
+                         'Phenotypes'),
+                        ('Genotypes',
+                         'DNA Markers and SNPs',
+                         'Genotypes'),
+                        ['M', 'M', 'Molecular Trait Datasets']],
+                'BXD': [('Phenotypes',
+                         'Traits and Cofactors',
+                         'Phenotypes'),
+                        ('Genotypes',
+                         'DNA Markers and SNPs',
+                         'Genotypes'),
+                        ['M', 'M', 'Molecular Trait Datasets']]
+            }
+        }
+
+        build_types_mock.return_value = [
+            ['M', 'M', 'Molecular Trait Datasets']
+        ]
+        self.assertEqual(get_types(self.test_group), expected_result)
+
+    @mock.patch('wqflask.api.gen_menu.build_types')
+    @mock.patch('wqflask.api.gen_menu.genotypes_exist')
+    @mock.patch('wqflask.api.gen_menu.phenotypes_exist')
+    def test_get_types_with_buildtype_and_non_existent_genotype_and_phenotypes(
+            self,
+            phenotypes_exist_mock,
+            genotypes_exist_mock,
+            build_types_mock):
+        """Test that build types are constructed correctly if phenotypes_exist and
+        genotypes_exist are false but build_type is falsy
+
+        """
+        phenotypes_exist_mock.return_value = False
+        genotypes_exist_mock.return_value = False
+
+        build_types_mock.return_value = []
+        self.assertEqual(get_types(self.test_group), {
+            'mouse': {},
+            'human': {}
+        })
+
+    @mock.patch('wqflask.api.gen_menu.build_types')
+    @mock.patch('wqflask.api.gen_menu.genotypes_exist')
+    @mock.patch('wqflask.api.gen_menu.phenotypes_exist')
+    def test_get_types_with_non_existent_genotype_phenotypes_and_buildtype(
+            self,
+            phenotypes_exist_mock,
+            genotypes_exist_mock,
+            build_types_mock):
+        """Test that build types are constructed correctly if phenotypes_exist,
+        genotypes_exist and build_types are truthy
+
+        """
+        phenotypes_exist_mock.return_value = False
+        genotypes_exist_mock.return_value = False
+
+        build_types_mock.return_value = [
+            ['M', 'M', 'Molecular Trait Datasets']
+        ]
+        expected_result = {
+            'mouse': {
+                'H_T2': [['M', 'M', 'Molecular Trait Datasets']],
+                'H_T1': [['M', 'M', 'Molecular Trait Datasets']]},
+            'human': {
+                'HLC': [['M', 'M', 'Molecular Trait Datasets']],
+                'BXD': [['M', 'M', 'Molecular Trait Datasets']]}}
+        self.assertEqual(get_types(self.test_group),
+                         expected_result)
