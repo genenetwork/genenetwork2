@@ -113,13 +113,13 @@ def build_types(species, group):
 
     """
 
-    query = ("SELECT DISTINCT Tissue.Name " +
-             "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, " +
-             "Tissue, Species WHERE Species.Name = '{0}' " +
-             "AND Species.Id = InbredSet.SpeciesId AND " +
-             "InbredSet.Name = '{1}' AND ProbeFreeze.TissueId = " +
-             "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id " +
-             "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
+    query = ("SELECT DISTINCT Tissue.Name "
+             "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, "
+             "Tissue, Species WHERE Species.Name = '{0}' "
+             "AND Species.Id = InbredSet.SpeciesId AND "
+             "InbredSet.Name = '{1}' AND ProbeFreeze.TissueId = "
+             "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id "
+             "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
              "ORDER BY Tissue.Name").format(species, group)
 
     results = []
@@ -154,11 +154,11 @@ def build_datasets(species, group, type_name):
     datasets = []
     if type_name == "Phenotypes":
         results = g.db.execute(
-            ("SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, " +
-             "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, " +
-             "InbredSet WHERE InbredSet.Name = '{}' AND " +
-             "PublishFreeze.InbredSetId = InbredSet.Id AND " +
-             "InfoFiles.InfoPageName = PublishFreeze.Name " +
+            ("SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, "
+             "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, "
+             "InbredSet WHERE InbredSet.Name = '{}' AND "
+             "PublishFreeze.InbredSetId = InbredSet.Id AND "
+             "InfoFiles.InfoPageName = PublishFreeze.Name "
              "ORDER BY PublishFreeze.CreateTime ASC").format(group)).fetchall()
         if bool(results):
             for result in results:
