@@ -2,6 +2,7 @@
 import unittest
 import mock
 
+from wqflask.api.gen_menu import gen_dropdown_json
 from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
 from wqflask.api.gen_menu import get_types
@@ -383,3 +384,31 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(get_datasets(self.test_type),
                          expected_result)
 
+    @mock.patch('wqflask.api.gen_menu.get_datasets')
+    @mock.patch('wqflask.api.gen_menu.get_types')
+    @mock.patch('wqflask.api.gen_menu.get_groups')
+    @mock.patch('wqflask.api.gen_menu.get_species')
+    def test_gen_dropdown_json(self,
+                               species_mock,
+                               groups_mock,
+                               types_mock,
+                               datasets_mock):
+        "Test that the correct dictionary is constructed properly"
+        species_mock.return_value = ("speciesA speciesB speciesC speciesD"
+                                     .split(" "))
+        datasets_mock.return_value = ("datasetA datasetB datasetC datasetD"
+                                      .split(" "))
+        groups_mock.return_value = ("groupA groupB groupC groupD"
+                                    .split(" "))
+        types_mock.return_value = ("typeA typeB typeC typeD"
+                                   .split(" "))
+        datasets_mock.return_value = ("datasetA datasetB datasetC datasetD"
+                                      .split(" "))
+
+        expected_result = {
+            'datasets': ['datasetA', 'datasetB', 'datasetC', 'datasetD'],
+            'types': ['typeA', 'typeB', 'typeC', 'typeD'],
+            'groups': ['groupA', 'groupB', 'groupC', 'groupD'],
+            'species': ['speciesA', 'speciesB', 'speciesC', 'speciesD']}
+
+        self.assertEqual(gen_dropdown_json(), expected_result)
