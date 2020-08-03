@@ -69,9 +69,11 @@ class TestGenMenu(unittest.TestCase):
 
     @mock.patch('wqflask.api.gen_menu.g')
     def test_get_species(self, db_mock):
-        """Test that assertion is raised when dataset and dataset_name are defined"""
-        db_mock.db.execute.return_value.fetchall.return_value = (('human', 'Human'),
-                                                                 ('mouse', 'Mouse'))
+        """Test that assertion is raised when dataset and dataset_name
+        are defined"""
+        db_mock.db.execute.return_value.fetchall.return_value = (
+            ('human', 'Human'),
+            ('mouse', 'Mouse'))
         self.assertEqual(get_species(),
                          [['human', 'Human'], ['mouse', 'Mouse']])
         db_mock.db.execute.assert_called_once_with(
@@ -84,7 +86,8 @@ class TestGenMenu(unittest.TestCase):
         db_mock.db.execute.return_value.fetchall.side_effect = [
             # Mouse
             (('BXD', 'BXD', None),
-             ('HLC', 'Liver: Normal Gene Expression with Genotypes (Merck)', 'Test')),
+             ('HLC', 'Liver: Normal Gene Expression with Genotypes (Merck)',
+              'Test')),
             # Human
             (('H_T1', "H_T", "DescriptionA"),
              ('H_T2', "H_T'", None))
@@ -111,12 +114,14 @@ class TestGenMenu(unittest.TestCase):
         db_mock.db.execute.return_value.fetchone.return_value = None
         phenotypes_exist("test")
         db_mock.db.execute.assert_called_with(
-            "SELECT Name FROM PublishFreeze WHERE PublishFreeze.Name = 'testPublish'"
+            "SELECT Name FROM PublishFreeze "
+            "WHERE PublishFreeze.Name = 'testPublish'"
         )
 
     @mock.patch('wqflask.api.gen_menu.g')
     def test_phenotypes_exist_with_falsy_values(self, db_mock):
-        """Test that phenotype check returns correctly when given a None value"""
+        """Test that phenotype check returns correctly when given
+        a None value"""
         for x in [None, False, (), [], ""]:
             db_mock.db.execute.return_value.fetchone.return_value = x
             self.assertFalse(phenotypes_exist("test"))
@@ -139,7 +144,8 @@ class TestGenMenu(unittest.TestCase):
 
     @mock.patch('wqflask.api.gen_menu.g')
     def test_genotypes_exist_with_falsy_values(self, db_mock):
-        """Test that genotype check returns correctly when given a None value"""
+        """Test that genotype check returns correctly when given
+        a None value"""
         for x in [None, False, (), [], ""]:
             db_mock.db.execute.return_value.fetchone.return_value = x
             self.assertFalse(genotypes_exist("test"))
@@ -150,7 +156,6 @@ class TestGenMenu(unittest.TestCase):
         for x in ["x", ("result"), ["result"], [1]]:
             db_mock.db.execute.return_value.fetchone.return_value = (x)
             self.assertTrue(phenotypes_exist("test"))
-
 
     @mock.patch('wqflask.api.gen_menu.g')
     def test_build_datasets_with_type_phenotypes(self, db_mock):
@@ -207,8 +212,9 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(build_datasets("Mouse", "HLC", "Genotypes"),
                          [["635", "HLCGeno", "HLC Genotypes"]])
         db_mock.db.execute.assert_called_with(
-            "SELECT InfoFiles.GN_AccesionId FROM InfoFiles, GenoFreeze, InbredSet " +
-            "WHERE InbredSet.Name = 'HLC' AND GenoFreeze.InbredSetId = InbredSet.Id AND " +
+            "SELECT InfoFiles.GN_AccesionId FROM InfoFiles, "
+            "GenoFreeze, InbredSet WHERE InbredSet.Name = 'HLC' AND "
+            "GenoFreeze.InbredSetId = InbredSet.Id AND "
             "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
             "ORDER BY GenoFreeze.CreateTime DESC"
         )
@@ -218,7 +224,8 @@ class TestGenMenu(unittest.TestCase):
 
     @mock.patch('wqflask.api.gen_menu.g')
     def test_build_datasets_with_type_mrna(self, db_mock):
-        """Test that correct dataset is returned for a mRNA expression/ Probeset"""
+        """Test that correct dataset is returned for a mRNA
+        expression/ Probeset"""
         db_mock.db.execute.return_value.fetchall.return_value = (
             (112, "HC_M2_0606_P",
              "Hippocampus Consortium M430v2 (Jun06) PDNN"), )
@@ -241,7 +248,8 @@ class TestGenMenu(unittest.TestCase):
     def test_build_types(self, db_mock, datasets_mock):
         """Test that correct tissue metadata is returned"""
         datasets_mock.return_value = [
-            ["112", 'HC_M2_0606_P', "Hippocampus Consortium M430v2 (Jun06) PDNN"]
+            ["112", 'HC_M2_0606_P',
+                "Hippocampus Consortium M430v2 (Jun06) PDNN"]
         ]
         db_mock.db.execute.return_value.fetchall.return_value = (
             ('Mouse Tissue'), ('Human Tissue'), ('Rat Tissue')
@@ -352,7 +360,6 @@ class TestGenMenu(unittest.TestCase):
                       'BXD': {'Genotypes': 'Test',
                               'M': 'Test',
                               'Phenotypes': 'Test'}}}
-        self.maxDiff = None
         self.assertEqual(get_datasets(self.test_type),
                          expected_result)
 
