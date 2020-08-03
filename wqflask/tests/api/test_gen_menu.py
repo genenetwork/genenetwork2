@@ -5,6 +5,7 @@ import mock
 from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
 from wqflask.api.gen_menu import get_types
+from wqflask.api.gen_menu import get_datasets
 from wqflask.api.gen_menu import phenotypes_exist
 from wqflask.api.gen_menu import genotypes_exist
 from wqflask.api.gen_menu import build_datasets
@@ -28,6 +29,41 @@ class TestGenMenu(unittest.TestCase):
                 ['HLC', 'Liver: Normal Gene Expression with Genotypes (Merck)',
                  'Family:Test']
             ]
+        }
+
+        self.test_type = {
+            'mouse': {
+                'H_T2': [('Phenotypes',
+                          'Traits and Cofactors',
+                          'Phenotypes'),
+                         ('Genotypes',
+                          'DNA Markers and SNPs',
+                          'Genotypes'),
+                         ['M', 'M', 'Molecular Trait Datasets']],
+                'H_T1': [('Phenotypes',
+                          'Traits and Cofactors',
+                          'Phenotypes'),
+                         ('Genotypes',
+                          'DNA Markers and SNPs',
+                          'Genotypes'),
+                         ['M', 'M', 'Molecular Trait Datasets']]
+            },
+            'human': {
+                'HLC': [('Phenotypes',
+                         'Traits and Cofactors',
+                         'Phenotypes'),
+                        ('Genotypes',
+                         'DNA Markers and SNPs',
+                         'Genotypes'),
+                        ['M', 'M', 'Molecular Trait Datasets']],
+                'BXD': [('Phenotypes',
+                         'Traits and Cofactors',
+                         'Phenotypes'),
+                        ('Genotypes',
+                         'DNA Markers and SNPs',
+                         'Genotypes'),
+                        ['M', 'M', 'Molecular Trait Datasets']]
+            }
         }
 
     @mock.patch('wqflask.api.gen_menu.g')
@@ -309,3 +345,41 @@ class TestGenMenu(unittest.TestCase):
                 'BXD': [['M', 'M', 'Molecular Trait Datasets']]}}
         self.assertEqual(get_types(self.test_group),
                          expected_result)
+
+    @mock.patch('wqflask.api.gen_menu.build_datasets')
+    def test_get_datasets_with_existent_datasets(self,
+                                                 build_datasets_mock):
+        """Test correct dataset is returned with existent build_datasets"""
+        build_datasets_mock.return_value = "Test"
+        expected_result = {
+            'mouse': {
+                'H_T2': {'Genotypes': 'Test',
+                         'M': 'Test',
+                         'Phenotypes': 'Test'},
+                'H_T1': {'Genotypes': 'Test',
+                         'M': 'Test',
+                         'Phenotypes': 'Test'}},
+            'human': {'HLC': {'Genotypes': 'Test',
+                              'M': 'Test',
+                              'Phenotypes': 'Test'},
+                      'BXD': {'Genotypes': 'Test',
+                              'M': 'Test',
+                              'Phenotypes': 'Test'}}}
+        self.maxDiff = None
+        self.assertEqual(get_datasets(self.test_type),
+                         expected_result)
+
+    @mock.patch('wqflask.api.gen_menu.build_datasets')
+    def test_get_datasets_with_non_existent_datasets(self,
+                                                     build_datasets_mock):
+        """Test correct dataset is returned with non-existent build_datasets"""
+        build_datasets_mock.return_value = None
+        expected_result = {
+            'mouse': {
+                'H_T2': {},
+                'H_T1': {}},
+            'human': {'HLC': {},
+                      'BXD': {}}}
+        self.assertEqual(get_datasets(self.test_type),
+                         expected_result)
+
