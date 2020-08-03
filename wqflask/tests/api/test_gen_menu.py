@@ -179,6 +179,25 @@ class TestGenMenu(unittest.TestCase):
                          [["None", "BXDPublish", "Mouse Phenome Database"]])
 
     @mock.patch('wqflask.api.gen_menu.g')
+    def test_build_datasets_with_type_phenotypes_and_no_results(self, db_mock):
+        """Test that correct dataset is returned for a phenotype type with no
+        results
+
+        """
+        db_mock.db.execute.return_value.fetchall.return_value = None
+        db_mock.db.execute.return_value.fetchone.return_value = (121,
+                                                                 "text value")
+        self.assertEqual(build_datasets("Mouse", "BXD", "Phenotypes"),
+                         [["None", "121", "text value"]])
+        db_mock.db.execute.assert_called_with(
+            "SELECT PublishFreeze.Name, PublishFreeze.FullName "
+            "FROM PublishFreeze, InbredSet "
+            "WHERE InbredSet.Name = 'BXD' AND "
+            "PublishFreeze.InbredSetId = InbredSet.Id "
+            "ORDER BY PublishFreeze.CreateTime ASC"
+        )
+
+    @mock.patch('wqflask.api.gen_menu.g')
     def test_build_datasets_with_type_genotypes(self, db_mock):
         """Test that correct dataset is returned for a phenotype type"""
         db_mock.db.execute.return_value.fetchone.return_value = (
