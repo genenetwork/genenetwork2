@@ -134,7 +134,7 @@ def get_datasets(types):
             datasets[species][group] = {}
             for type_name in type_list:
                 these_datasets = build_datasets(species, group, type_name[0])
-                if len(these_datasets) > 0:
+                if bool(these_datasets):
                     datasets[species][group][type_name[0]] = these_datasets
 
     return datasets
