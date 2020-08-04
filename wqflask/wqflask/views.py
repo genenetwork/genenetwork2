@@ -61,7 +61,7 @@ from utility.authentication_tools import check_resource_availability
 from utility.redis_tools import get_redis_conn
 Redis = get_redis_conn()
 
-from base.webqtlConfig import GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
@@ -91,27 +91,20 @@ def connect_db():
 def check_access_permissions():
     logger.debug("@app.before_request check_access_permissions")
     available = True
-    if "temp_trait" in request.args:
-        if request.args['temp_trait'] == "True":
-            pass
-    else:
-        if 'dataset' in request.args:
-            if request.args['dataset'] == "Temp":
-                permissions = check_resource_availability("Temp")
-            else:
-                dataset = create_dataset(request.args['dataset'])
+    if 'dataset' in request.args:
+        permissions = DEFAULT_PRIVILEGES
+        if request.args['dataset'] != "Temp":
+            dataset = create_dataset(request.args['dataset'])
 
-                if dataset.type == "Temp":
-                    permissions = False
-                if 'trait_id' in request.args:
-                    permissions = check_resource_availability(dataset, request.args['trait_id'])
-                elif dataset.type != "Publish":
-                    permissions = check_resource_availability(dataset)
-                else:
-                    return None
+            if dataset.type == "Temp":
+                permissions = DEFAULT_PRIVILEGES
+            elif 'trait_id' in request.args:
+                permissions = check_resource_availability(dataset, request.args['trait_id'])
+            elif dataset.type != "Publish":
+                permissions = check_resource_availability(dataset)
 
-            if 'view' not in permissions['data']:
-                return redirect(url_for("no_access_page"))
+        if 'view' not in permissions['data']:
+            return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
