@@ -368,15 +368,15 @@ class SnpBrowser(object):
 
         #ZS: list of booleans representing which columns are entirely empty, so they aren't displayed on the page; only including ones that are sometimes empty (since there's always a location, etc)
         self.empty_columns = {
-                    "snp_source": "false",
-                    "conservation_score": "false",
-                    "gene_name": "false",
-                    "transcript": "false",
-                    "exon": "false",
-                    "domain_2": "false",
-                    "function": "false", 
-                    "function_details": "false"
-            }
+            "snp_source": "false",
+            "conservation_score": "false",
+            "gene_name": "false",
+            "transcript": "false",
+            "exon": "false",
+            "domain_2": "false",
+            "function": "false",
+            "function_details": "false"
+        }
 
         the_rows = []
         for i, result in enumerate(self.filtered_results):
@@ -651,8 +651,6 @@ class SnpPage(object):
         self.rows_count = self.snp_browser.rows_count
         self.table_rows = self.snp_browser.table_rows
         self.header_data_names = self.snp_browser.header_data_names
-
-        logger.info(self.table_rows[0])
         
         self.sort_rows()
         self.paginate_rows()
@@ -778,8 +776,9 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
                 empty_field_count += 1
                 header_fields[0].remove('Details')
         
-        for col in empty_columns:
-            header_data_names.remove(col)
+        for col in empty_columns.keys():
+            if empty_columns[col] == "false":
+                header_data_names.remove(col)
 
     elif variant_type == "InDel":
         header_fields = ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source']

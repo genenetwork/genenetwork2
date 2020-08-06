@@ -320,7 +320,7 @@
           'data': null,
           'render': function(data, type, row, meta) {
             if (data.gene_name != "") {
-              return '<i>' + data.gene_name + '</i><br><a href="' + data.gene_link + '">NCBI</a>'
+              return '<i>' + data.gene_name + '</i>, <a href="' + data.gene_link + '">NCBI</a>'
             } else {
               return data.gene_name
             }
@@ -434,10 +434,6 @@
       'sAjaxSource': '/snp_browser_table'+getParams(window.location.href),
       'infoCallback': function(settings, start, end, max, total, pre) {
         return "Showing " + start + " to " + (start + this.api().data().length - 1) + " of " + total + " entries";
-      },
-      'language': {
-        'loadingRecords': '&nbsp;',
-        'processing': 'Loading...'
       }
     });
     {% endif %}
