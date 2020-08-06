@@ -1737,9 +1737,17 @@ class DisplayMappingResults(object):
         LRSLODFont=pid.Font(ttf="verdana", size=18*zoom*1.5, bold=0)
 
         yZero = yTopOffset + plotHeight
-        LRSHeightThresh = drawAreaHeight
-        AdditiveHeightThresh = drawAreaHeight/2
-        DominanceHeightThresh = drawAreaHeight/2
+        # LRSHeightThresh = drawAreaHeight
+        # AdditiveHeightThresh = drawAreaHeight/2
+        # DominanceHeightThresh = drawAreaHeight/2
+        if self.selectedChr == 1:
+            LRSHeightThresh = drawAreaHeight - yTopOffset + 30*(zoom - 1)
+            AdditiveHeightThresh = LRSHeightThresh/2
+            DominanceHeightThresh = LRSHeightThresh/2
+        else:
+            LRSHeightThresh = drawAreaHeight
+            AdditiveHeightThresh = drawAreaHeight/2
+            DominanceHeightThresh = drawAreaHeight/2
         # LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
         # AdditiveHeightThresh = LRSHeightThresh/2
         # DominanceHeightThresh = LRSHeightThresh/2
@@ -1900,7 +1908,7 @@ class DisplayMappingResults(object):
                     startPosX += newStartPosX
                     oldStartPosX = newStartPosX
 
-            #ZS: This is beause the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
+            #ZS: This is because the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
             this_chr = str(self.ChrList[self.selectedChr][0])
             if self.plotScale != "physic":
                 this_chr = str(self.ChrList[self.selectedChr][1]+1)
