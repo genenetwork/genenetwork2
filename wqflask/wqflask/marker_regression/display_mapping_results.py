@@ -73,6 +73,7 @@ MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 
 # ---- FONT FILES ---- #
 VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
+VERDANA_BOLD_FILE = "./wqflask/static/fonts/verdanab.ttf"
 TREBUC_FILE = "./wqflask/static/fonts/trebucbd.ttf"
 FNT_BS_FILE = "./wqflask/static/fonts/fnt_bs.ttf"
 ARIAL_FILE = "./wqflask/static/fonts/arial.ttf"
@@ -1719,18 +1720,16 @@ class DisplayMappingResults(object):
                 font=clickableRegionLabelFont, fill=self.CLICKABLE_ENSEMBL_TEXT_COLOR)
 
             #draw the gray text
-            chrFont = ImageFont.truetype(font=VERDANA_FILE, size=26*zoom)
-            traitFont = ImageFont.truetype(font=VERDANA_FILE, size=14)
+            chrFont = ImageFont.truetype(font=VERDANA_BOLD_FILE, size=26*zoom)
             chrX = xLeftOffset + plotWidth - 2 - im_drawer.textsize(
                 "Chr %s" % self.ChrList[self.selectedChr][0], font=chrFont)[0]
             im_drawer.text(
                 text="Chr %s" % self.ChrList[self.selectedChr][0],
-                xy=(chrX, ensemblPaddingTop-5), font=chrFont, fill=GRAY)
+                xy=(chrX, phenogenPaddingTop), font=chrFont, fill=GRAY)
             # end of drawBrowserClickableRegions
         else:
             #draw the gray text
             chrFont = ImageFont.truetype(font=VERDANA_FILE, size=26*zoom)
-            traitFont = ImageFont.truetype(font=VERDANA_FILE, size=14)
             chrX = xLeftOffset + (plotWidth - im_drawer.textsize(
                 "Chr %s" % currentChromosome, font=chrFont)[0])/2
             im_drawer.text(
@@ -1751,7 +1750,7 @@ class DisplayMappingResults(object):
 
         #Parameters
         NUM_MINOR_TICKS = 5 # Number of minor ticks between major ticks
-        X_MAJOR_TICK_THICKNESS = 2
+        X_MAJOR_TICK_THICKNESS = 3
         X_MINOR_TICK_THICKNESS = 1
         X_AXIS_THICKNESS = 1*zoom
 
@@ -1762,10 +1761,10 @@ class DisplayMappingResults(object):
         xAxisTickMarkColor = BLACK
         xAxisLabelColor = BLACK
         fontHeight = 12*fontZoom # How tall the font that we're using is
-        spacingFromLabelToAxis = 5
+        spacingFromLabelToAxis = 10
 
         if self.plotScale == 'physic':
-            strYLoc = yZero + spacingFromLabelToAxis + MBLabelFont.font.height
+            strYLoc = yZero + MBLabelFont.font.height/2
             ###Physical single chromosome view
             if self.selectedChr > -1:
                 XScale = Plot.detScale(startMb, endMb)
@@ -1826,18 +1825,17 @@ class DisplayMappingResults(object):
                                     yZero+10*zoom), fill=BLACK, angle=270)
                     startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
-            TEXT_Y_DISPLACEMENT = -15
             megabaseLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
             im_drawer.text(
                 text="Megabases",
                 xy=(
                     xLeftOffset+(plotWidth-im_drawer.textsize(
                         "Megabases",font=megabaseLabelFont)[0])/2,
-                    strYLoc+MBLabelFont.font.height+10*(zoom%2)+TEXT_Y_DISPLACEMENT),
+                    strYLoc+MBLabelFont.font.height+10*(zoom%2)),
                 font=megabaseLabelFont, fill=BLACK)
             pass
         else:
-            strYLoc = yZero + spacingFromLabelToAxis + MBLabelFont.font.height + 8
+            strYLoc = yZero + spacingFromLabelToAxis + MBLabelFont.font.height/2
             ChrAInfo = []
             preLpos = -1
             distinctCount = 0.0
@@ -1933,12 +1931,12 @@ class DisplayMappingResults(object):
                         fill=lineColor)
                 startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
 
-            centimorganLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=18*zoom*1.5)
+            centimorganLabelFont = ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
             im_drawer.text(
                 text="Centimorgans",
                 xy=(xLeftOffset+(plotWidth-im_drawer.textsize(
-                    "Megabases", font=centimorganLabelFont)[0])/2,
-                    strYLoc + MBLabelFont.font.height+ 10*(zoom%2) + 10),
+                    "Centimorgans", font=centimorganLabelFont)[0])/2,
+                    strYLoc + MBLabelFont.font.height+ 10*(zoom%2)),
                 font=centimorganLabelFont, fill=BLACK)
 
         im_drawer.line(xy=((xLeftOffset,yZero), (xLeftOffset+plotWidth,yZero)),
@@ -2055,8 +2053,16 @@ class DisplayMappingResults(object):
         LRSLODFont=ImageFont.truetype(font=VERDANA_FILE, size=int(18*zoom*1.5))
         yZero = yTopOffset + plotHeight
 
-        TEXT_X_DISPLACEMENT = -20
-        TEXT_Y_DISPLACEMENT = -215
+        # TEXT_X_DISPLACEMENT = -20
+        #TEXT_Y_DISPLACEMENT = -215
+        if all_int:
+            TEXT_X_DISPLACEMENT = -12
+        else:
+            TEXT_X_DISPLACEMENT = -30
+        if self.LRS_LOD == "-log(p)":
+            TEXT_Y_DISPLACEMENT = -242
+        else:
+            TEXT_Y_DISPLACEMENT = -210
         draw_rotated_text(
             canvas, text=self.LRS_LOD, font=LRSLODFont,
             xy=(xLeftOffset - im_drawer.textsize(
@@ -2140,7 +2146,7 @@ class DisplayMappingResults(object):
         else:
             if self.additiveChecked:
                 additiveMax = max(map(lambda X : abs(X['additive']), self.qtlresults))
-            lrsEdgeWidth = 2
+            lrsEdgeWidth = 3
 
         if zoom == 2:
             lrsEdgeWidth = 2 * lrsEdgeWidth
@@ -2307,7 +2313,7 @@ class DisplayMappingResults(object):
                         text="5",
                         xy=(
                             Xc-im_drawer.textsize("5",font=symbolFont)[0]/2+1,
-                            Yc+2),
+                            Yc-4),
                         fill=point_color, font=symbolFont)
                 else:
                     LRSCoordXY.append((Xc, Yc))
