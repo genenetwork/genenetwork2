@@ -269,7 +269,6 @@
       var parser = document.createElement('a');
       parser.href = url;
       var params = parser.search.substring(1);
-      console.log(params);
       if(params.length > 0) {
         return ('?'+params);
       }
@@ -548,7 +547,6 @@
       for (var i = 1; i < rows.length; i++) {
         var row = [], cols = rows[i].querySelectorAll("td");
         var checkBox = rows[i].querySelector("input");
-        console.log(checkBox);
 
         if(checkBox.checked == true) {
           for (var j = 1; j < cols.length; j++)
