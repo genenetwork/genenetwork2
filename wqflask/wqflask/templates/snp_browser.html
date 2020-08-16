@@ -227,9 +227,43 @@
       var json_rows = {{ table_rows|safe }};
       var json_rows_count = {{ rows_count|safe }};
       var empty_columns = {{ empty_columns|safe }};
+
+      var remain_field_count = {{ 15 - empty_field_count }};
+      var total_field_count = {{ 15 - empty_field_count }} + {{ allele_list|length }};
   </script>
 
   <script language="javascript">
+
+    var getColor = function(allele) {
+      switch (allele) {
+        case "A":
+          return ('A_allele_color');
+          break;
+        case "C":
+          return ('C_allele_color');
+          break;
+        case "T":
+          return ('T_allele_color');
+          break;
+        case "G":
+          return ('G_allele_color');
+          break;
+        case "t":
+          return ('t_allele_color');
+          break;
+        case "c":
+          return ('c_allele_color');
+          break;
+        case "a":
+          return ('a_allele_color');
+          break;
+        case "g":
+          return ('g_allele_color');
+          break;
+        default:
+          return ('default_allele_color');
+      }
+    }
 
     var getParams = function(url) {
       var parser = document.createElement('a');
@@ -280,6 +314,7 @@
       'columns': [
         {
           'data': null,
+          'className': 'dt-body-center',
           'orderable': false,
           'render': function(data, type, row, meta) {
             return '<input type="checkbox" name="trait_check">'
@@ -308,7 +343,7 @@
           'data': null,
           'render': function(data, type, row, meta) {
             if (data.snp_source == "Sanger/UCLA") {
-              return '<a href="' + data.source_urls[0] + '">Sanger</a><a href="' + data.source_urls[1] + '">UCLA</a>'
+              return '<a href="' + data.source_urls[0] + '">Sanger</a>, <a href="' + data.source_urls[1] + '">UCLA</a>'
             } else {
               return data.snp_source
             }
@@ -347,6 +382,7 @@
         }, {% endif %} {% for item in allele_list %} {
           'data': null,
           'orderable': false,
+          'className': 'dt-body-center ' + getColor('{{ item }}'),
           'render': function(data, type, row, meta) {
             if (typeof data.allele_value_list[{{ loop.index - 1 }}][0] !== "undefined") {
               return data.allele_value_list[{{ loop.index - 1 }}][0]
@@ -356,42 +392,6 @@
           }
         }{% if loop.index < allele_list|length %},{% endif %}{% endfor %}
       ],
-      'createdRow': function( row, data, dataIndex) {
-        $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
-        $('td', row).eq(1).attr("align", "right");
-        for (i = {{ 15 - empty_field_count }}; i < ({{ 15 - empty_field_count }} + {{ allele_list|length }}); i++) {
-          var this_allele = $('td', row).eq(i).text();
-          $('td', row).eq(i).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
-          switch (this_allele) {
-            case "A":
-              $('td', row).eq(i).addClass('A_allele_color');
-              break;
-            case "C":
-              $('td', row).eq(i).addClass('C_allele_color');
-              break;
-            case "T":
-              $('td', row).eq(i).addClass('T_allele_color');
-              break;
-            case "G":
-              $('td', row).eq(i).addClass('G_allele_color');
-              break;
-            case "t":
-              $('td', row).eq(i).addClass('t_allele_color');
-              break;
-            case "c":
-              $('td', row).eq(i).addClass('c_allele_color');
-              break;
-            case "a":
-              $('td', row).eq(i).addClass('a_allele_color');
-              break;
-            case "g":
-              $('td', row).eq(i).addClass('g_allele_color');
-              break;
-            default:
-              $('td', row).eq(i).addClass('default_allele_color');
-          }
-        }
-      },
       {% else %}
       'columns': [
         {
@@ -429,7 +429,7 @@
       {% endif %}
       'order': [[1, "asc" ]],
       'sDom': "rtip",
-      'iDisplayLength': 500,
+      'iDisplayLength': 100,
       'bServerSide': true,
       'sAjaxSource': '/snp_browser_table'+getParams(window.location.href),
       'infoCallback': function(settings, start, end, max, total, pre) {
