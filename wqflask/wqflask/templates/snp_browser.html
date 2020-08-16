@@ -226,8 +226,8 @@
   <script type='text/javascript'>
       var empty_columns = {{ empty_columns|safe }};
 
-      var remain_field_count = {{ 15 - empty_field_count }};
-      var total_field_count = {{ 15 - empty_field_count }} + {{ allele_list|length }};
+      var remain_field_count = 15 - {{ empty_field_count|safe }};
+      var total_field_count = 15 - {{ empty_field_count|safe }} + {{ allele_list|safe|length }};
   </script>
 
   <script language="javascript">
