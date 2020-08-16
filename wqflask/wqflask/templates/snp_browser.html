@@ -224,8 +224,6 @@
   <script language="javascript" type="text/javascript" src="/static/new/javascript/typeahead_rn6.json"></script>
 
   <script type='text/javascript'>
-      var json_rows = {{ table_rows|safe }};
-      var json_rows_count = {{ rows_count|safe }};
       var empty_columns = {{ empty_columns|safe }};
 
       var remain_field_count = {{ 15 - empty_field_count }};
@@ -233,37 +231,6 @@
   </script>
 
   <script language="javascript">
-
-    var getColor = function(allele) {
-      switch (allele) {
-        case "A":
-          return ('A_allele_color');
-          break;
-        case "C":
-          return ('C_allele_color');
-          break;
-        case "T":
-          return ('T_allele_color');
-          break;
-        case "G":
-          return ('G_allele_color');
-          break;
-        case "t":
-          return ('t_allele_color');
-          break;
-        case "c":
-          return ('c_allele_color');
-          break;
-        case "a":
-          return ('a_allele_color');
-          break;
-        case "g":
-          return ('g_allele_color');
-          break;
-        default:
-          return ('default_allele_color');
-      }
-    }
 
     var getParams = function(url) {
       var parser = document.createElement('a');
@@ -381,7 +348,7 @@
         }, {% endif %} {% for item in allele_list %} {
           'data': null,
           'orderable': false,
-          'className': 'dt-body-center ' + getColor('{{ item }}'),
+          'className': 'dt-body-center',
           'render': function(data, type, row, meta) {
             if (typeof data.allele_value_list[{{ loop.index - 1 }}][0] !== "undefined") {
               return data.allele_value_list[{{ loop.index - 1 }}][0]
@@ -391,6 +358,39 @@
           }
         }{% if loop.index < allele_list|length %},{% endif %}{% endfor %}
       ],
+      'createdRow': function(row, data, dataIndex) {
+        for (i = remain_field_count; i < total_field_count; i++) {
+          var this_allele = $('td', row).eq(i).text();
+          switch (this_allele) {
+            case "A":
+              $('td', row).eq(i).addClass('A_allele_color');
+              break;
+            case "C":
+              $('td', row).eq(i).addClass('C_allele_color');
+              break;
+            case "T":
+              $('td', row).eq(i).addClass('T_allele_color');
+              break;
+            case "G":
+              $('td', row).eq(i).addClass('G_allele_color');
+              break;
+            case "t":
+              $('td', row).eq(i).addClass('t_allele_color');
+              break;
+            case "c":
+              $('td', row).eq(i).addClass('c_allele_color');
+              break;
+            case "a":
+              $('td', row).eq(i).addClass('a_allele_color');
+              break;
+            case "g":
+              $('td', row).eq(i).addClass('g_allele_color');
+              break;
+            default:
+              $('td', row).eq(i).addClass('default_allele_color');
+          }
+        }
+      },
       {% else %}
       'columns': [
         {
