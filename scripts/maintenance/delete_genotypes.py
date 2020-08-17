@@ -8,13 +8,13 @@ import genotypes
 def main(argv):
     # config
     config = utilities.get_config(argv[1])
-    print "config:"
+    print("config:")
     for item in config.items('config'):
-        print "\t%s" % (str(item))
+        print(("\t%s" % (str(item))))
     # var
-    print "variable:"
+    print("variable:")
     inbredsetid = config.get('config', 'inbredsetid')
-    print "\tinbredsetid: %s" % inbredsetid
+    print(("\tinbredsetid: %s" % inbredsetid))
     # datafile
     datafile = open(config.get('config', 'datafile'), 'r')
     datafile = csv.reader(datafile, delimiter='\t', quotechar='"')
@@ -25,9 +25,9 @@ def main(argv):
             continue
         genoname = row[0]
         delrowcount += genotypes.delete(genoname, inbredsetid)
-    print "deleted %d genotypes" % (delrowcount)
+    print(("deleted %d genotypes" % (delrowcount)))
 
 if __name__ == "__main__":
-    print "command line arguments:\n\t%s" % sys.argv
+    print(("command line arguments:\n\t%s" % sys.argv))
     main(sys.argv)
-    print "exit successfully"
+    print("exit successfully")

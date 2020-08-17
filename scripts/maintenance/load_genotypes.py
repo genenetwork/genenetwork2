@@ -8,7 +8,7 @@ def main(argv):
     config = utilities.get_config(argv[1])
     print("config file:")
     for item in config.items('config'):
-        print("\t%s" % str(item))
+        print(("\t%s" % str(item)))
     parse_genofile(config, fetch_parameters(config))
 
 def fetch_parameters(config):
@@ -20,7 +20,7 @@ def fetch_parameters(config):
     config_dic['genofile'] = config.get('config', 'genofile')
     print("config dictionary:")
     for k, v in config_dic.items():
-        print("\t%s: %s" % (k, v))
+        print(("\t%s: %s" % (k, v)))
     return config_dic
 
 def parse_genofile(config, config_dic):
@@ -43,9 +43,9 @@ def parse_genofile(config, config_dic):
             #
             print("geno file meta dictionary:")
             for k, v in meta_dic.items():
-                print("\t%s: %s" % (k, v))
+                print(("\t%s: %s" % (k, v)))
             #
-            print("geno file head:\n\t%s" % line)
+            print(("geno file head:\n\t%s" % line))
             strainnames = line.split()[4:]
             config_dic['strains'] = datastructure.get_strains_bynames(inbredsetid=config_dic['inbredsetid'], strainnames=strainnames, updatestrainxref="yes")
             continue
@@ -81,7 +81,7 @@ def check_or_insert_geno(config_dic, marker_dic):
     result = cursor.fetchone()
     if result:
         genoid = result[0]
-        print("get geno record: %d" % genoid)
+        print(("get geno record: %d" % genoid))
     else:
         sql = """
             INSERT INTO Geno
@@ -95,7 +95,7 @@ def check_or_insert_geno(config_dic, marker_dic):
         cursor.execute(sql, (config_dic['speciesid'], marker_dic['locus'], marker_dic['locus'], marker_dic['chromosome'], marker_dic['mb']))
         rowcount = cursor.rowcount
         genoid = con.insert_id()
-        print("INSERT INTO Geno: %d record: %d" % (rowcount, genoid))
+        print(("INSERT INTO Geno: %d record: %d" % (rowcount, genoid)))
     return genoid
 
 def check_genoxref(config_dic, marker_dic):
@@ -146,9 +146,9 @@ def insert_genoxref(config_dic, marker_dic):
         """
     cursor.execute(sql, (config_dic['genofreezeid'], marker_dic['genoid'], config_dic['dataid'], marker_dic['cm'], 'N'))
     rowcount = cursor.rowcount
-    print("INSERT INTO GenoXRef: %d record" % (rowcount))
+    print(("INSERT INTO GenoXRef: %d record" % (rowcount)))
 
 if __name__ == "__main__":
-    print("command line arguments:\n\t%s" % sys.argv)
+    print(("command line arguments:\n\t%s" % sys.argv))
     main(sys.argv)
     print("exit successfully")

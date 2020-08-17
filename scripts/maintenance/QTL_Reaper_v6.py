@@ -53,7 +53,7 @@ for ProbeSetFreezeId in ProbeSetFreezeIds:
 	#if InbredSetId==12:
 	#	InbredSetId=2
 
-	print ProbeSetFreezeId, InbredSets[InbredSetId]
+	print((ProbeSetFreezeId, InbredSets[InbredSetId]))
 
 	genotype_1.read(InbredSets[InbredSetId])
 	locuses = []
@@ -102,7 +102,7 @@ for ProbeSetFreezeId in ProbeSetFreezeIds:
 
 		kj += 1
 		if kj%1000==0:
-			print ProbeSetFreezeId, InbredSets[InbredSetId],kj
+			print((ProbeSetFreezeId, InbredSets[InbredSetId],kj))
 
 
-	print ProbeSetFreezeIds
+	print(ProbeSetFreezeIds)

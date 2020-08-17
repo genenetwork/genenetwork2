@@ -102,7 +102,7 @@ if use_dom_implementation<>0:
         from xml.dom import implementation
         from xml.dom.ext import PrettyPrint
     except:
-        raise exceptions.ImportError, "PyXML is required for using the dom implementation"
+        raise exceptions.ImportError("PyXML is required for using the dom implementation")
 #The implementation is used for the creating the XML document.
 #The prettyprint module is used for converting the xml document object to a xml file
 
@@ -1018,12 +1018,12 @@ class drawing:
                         PrettyPrint(root,f)
                         f.close()
                 except:
-                    print "Cannot write SVG file: " + filename
+                    print(("Cannot write SVG file: " + filename))
     def validate(self):
         try:
             import xml.parsers.xmlproc.xmlval
         except:
-            raise exceptions.ImportError,'PyXml is required for validating SVG'
+            raise exceptions.ImportError('PyXml is required for validating SVG')
         svg=self.toXml()
         xv=xml.parsers.xmlproc.xmlval.XMLValidator()
         try:
@@ -1031,7 +1031,7 @@ class drawing:
         except:
             raise Exception("SVG is not well formed, see messages above")
         else:
-            print "SVG well formed"
+            print("SVG well formed")
 if __name__=='__main__':
 
 
@@ -1065,4 +1065,4 @@ if __name__=='__main__':
             s.addElement(c)
     d.setSVG(s)
 
-    print d.toXml()
+    print((d.toXml()))

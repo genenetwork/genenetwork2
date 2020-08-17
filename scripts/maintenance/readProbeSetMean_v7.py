@@ -42,9 +42,9 @@ try:
         con = MySQLdb.Connect(db='db_webqtl',host='localhost', user='username',passwd=passwd)
 
         db = con.cursor()
-        print "You have successfully connected to mysql.\n"
+        print("You have successfully connected to mysql.\n")
 except:
-        print "You entered incorrect password.\n"
+        print("You entered incorrect password.\n")
         sys.exit(0)
 
 time0 = time.time()
@@ -55,7 +55,7 @@ time0 = time.time()
 #  generate the gene list of expression data here
 #
 #########################################################################
-print 'Checking if each line have same number of members'
+print('Checking if each line have same number of members')
 
 GeneList = []
 isCont = 1
@@ -70,7 +70,7 @@ while line:
 	line2 = string.split(string.strip(line),'\t')
 	line2 = map(string.strip, line2)
 	if len(line2) != nfield:
-		print "Error : " + line
+		print(("Error : " + line))
 		isCont = 0
 
 	GeneList.append(line2[0])
@@ -78,7 +78,7 @@ while line:
 
 	kj+=1
 	if kj%100000 == 0:
-		print 'checked ',kj,' lines'
+		print(('checked ',kj,' lines'))
 
 GeneList = map(string.lower, GeneList)
 GeneList.sort()
@@ -87,14 +87,14 @@ if isCont==0:
 	sys.exit(0)
 
 
-print 'used ',time.time()-time0,' seconds'
+print(('used ',time.time()-time0,' seconds'))
 #########################################################################
 #
 #  Check if each strain exist in database
 #  generate the string id list of expression data here
 #
 #########################################################################
-print 'Checking if each strain exist in database'
+print('Checking if each strain exist in database')
 
 isCont = 1
 fp.seek(0)
@@ -109,20 +109,20 @@ for item in header:
 		db.execute('select Id from Strain where Name = "%s"' % item)
 		Ids.append(db.fetchall()[0][0])
 	except:
-		print item,'does not exist, check the if the strain name is correct'
+		print((item,'does not exist, check the if the strain name is correct'))
 		isCont=0
 
 if isCont==0:
 	sys.exit(0)
 
 
-print 'used ',time.time()-time0,' seconds'
+print(('used ',time.time()-time0,' seconds'))
 ########################################################################
 #
 # Check if each ProbeSet exist in database
 #
 ########################################################################
-print 'Check if each ProbeSet exist in database'
+print('Check if each ProbeSet exist in database')
 
 ##---- find PID is name or target ----##
 line = fp.readline()
@@ -146,7 +146,7 @@ Names = []
 for item in results:
 	Names.append(item[0])
 	
-print Names
+print(Names)
 
 Names = map(string.lower, Names)
 
@@ -170,7 +170,7 @@ while x<len(GeneList) and y<len(Names):
 		y += 1
 
 	if x%100000==0:
-		print 'check Name, checked %d lines'%x
+		print(('check Name, checked %d lines'%x))
 
 while x<len(GeneList):
 	GeneList2.append(GeneList[x])
@@ -180,20 +180,20 @@ isCont=1
 ferror = open("ProbeSetError.txt", "wb")
 for item in GeneList2:
 	ferror.write(item + " doesn't exist \n")
-	print item, " doesn't exist, check if the ProbeSet name is correct"
+	print((item, " doesn't exist, check if the ProbeSet name is correct"))
 	isCont = 0
         
 if isCont==0:
 	sys.exit(0)
 
 
-print 'used ',time.time()-time0,' seconds'
+print(('used ',time.time()-time0,' seconds'))
 #########################################################################
 #
 # Insert data into database
 #
 #########################################################################
-print 'getting ProbeSet/Id'
+print('getting ProbeSet/Id')
 
 
 #---- get Name/Id map ----#
@@ -202,16 +202,16 @@ results = db.fetchall()
 NameIds = {}
 for item in results:
 	NameIds[item[0]] = item[1]
-print 'used ',time.time()-time0,' seconds'
+print(('used ',time.time()-time0,' seconds'))
 
 
-print 'inserting data'
+print('inserting data')
 
 ##---- get old max dataId ----##
 db.execute('select max(Id) from ProbeSetData')
 maxDataId = int(db.fetchall()[0][0])
 bmax = maxDataId
-print "old_max = %d\n" % bmax
+print(("old_max = %d\n" % bmax))
 
 ##---- insert data ----##
 fp.seek(0)
@@ -255,8 +255,8 @@ while line:
 
 		values1=[]
 		values2=[]
-		print 'Inserted ', kj,' lines'
-		print 'used ',time.time()-time0,' seconds'
+		print(('Inserted ', kj,' lines'))
+		print(('used ',time.time()-time0,' seconds'))
 	
 	line = fp.readline()
 

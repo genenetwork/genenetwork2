@@ -214,20 +214,20 @@ ENDC  = '\033[0m'
 def show_settings():
     from utility.tools import LOG_LEVEL
 
-    print("Set global log level to "+BLUE+LOG_LEVEL+ENDC)
+    print(("Set global log level to "+BLUE+LOG_LEVEL+ENDC))
     log_level = getattr(logging, LOG_LEVEL.upper())
     logging.basicConfig(level=log_level)
 
     logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    print "runserver.py: ****** Webserver configuration - k,v pairs from app.config ******"
     keylist = app.config.keys()
+    print("runserver.py: ****** Webserver configuration - k,v pairs from app.config ******")
     keylist.sort()
     for k in keylist:
         try:
-            print("%s: %s%s%s%s" % (k,BLUE,BOLD,get_setting(k),ENDC))
+            print(("%s: %s%s%s%s" % (k,BLUE,BOLD,get_setting(k),ENDC)))
         except:
-            print("%s: %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC))
+            print(("%s: %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC)))
 
 
 # Cached values

@@ -82,14 +82,14 @@ while line:
     line2 = map(string.strip, line2)
     if len(line2) != nfield:
         isCont = 0
-        print("Error : " + line)
+        print(("Error : " + line))
 
     GeneList.append(line2[0])
     line = fp.readline()
 
     kj += 1
     if kj % 100000 == 0:
-        print('checked ', kj, ' lines')
+        print(('checked ', kj, ' lines'))
 
 GeneList = map(string.lower, GeneList)
 GeneList.sort()
@@ -98,7 +98,7 @@ if isCont == 0:
     sys.exit(0)
 
 
-print('used ', time.time()-time0, ' seconds')
+print(('used ', time.time()-time0, ' seconds'))
 #########################################################################
 #
 #  Check if each strain exist in database
@@ -121,13 +121,13 @@ for item in header:
         Ids.append(db.fetchall()[0][0])
     except:
         isCont = 0
-        print(item, 'does not exist, check the if the strain name is correct')
+        print((item, 'does not exist, check the if the strain name is correct'))
 
 if isCont == 0:
     sys.exit(0)
 
 
-print('used ', time.time()-time0, ' seconds')
+print(('used ', time.time()-time0, ' seconds'))
 ########################################################################
 #
 # Check if each ProbeSet exist in database
@@ -178,7 +178,7 @@ while x < len(GeneList) and y < len(Names):
         y += 1
 
     if x % 100000 == 0:
-        print('check Name, checked %d lines' % x)
+        print(('check Name, checked %d lines' % x))
 
 while x < len(GeneList):
     GeneList2.append(GeneList[x])
@@ -190,12 +190,12 @@ for item in GeneList2:
     ferror.write(item + " doesn't exist \n")
     isCont = 0
 
-    print(item, " doesn't exist")
+    print((item, " doesn't exist"))
 if isCont == 0:
     sys.exit(0)
 
 
-print('used ', time.time()-time0, ' seconds')
+print(('used ', time.time()-time0, ' seconds'))
 #############################
 # Insert new Data into SE
 ############################
@@ -244,9 +244,9 @@ while line:
 
         DataValues = []
         line = fp.readline()
-        print(CellId, " doesn't exist")
-        print('inserted ', kj, ' lines')
-        print('used ', time.time()-time0, ' seconds')
+        print((CellId, " doesn't exist"))
+        print(('inserted ', kj, ' lines'))
+        print(('used ', time.time()-time0, ' seconds'))
 
 if len(DataValues) > 0:
     DataValues = ','.join(DataValues)

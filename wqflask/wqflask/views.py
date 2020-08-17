@@ -943,5 +943,5 @@ def json_default_handler(obj):
     #     logger.info("Not going to serialize Dataset")
     #    return None
     else:
-        raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (
-            type(obj), repr(obj))
+        raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
+            type(obj), repr(obj)))
