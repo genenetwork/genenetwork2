@@ -97,7 +97,7 @@ def find_outliers(vals):
     >>> find_outliers([3.504, 5.234, 6.123, 7.234, 3.542, 5.341, 7.852, 4.555, 12.537])
     (11.252500000000001, 0.5364999999999993)
 
-    >>> >>> find_outliers([9,12,15,17,31,50,7,5,6,8])
+    >>> find_outliers([9,12,15,17,31,50,7,5,6,8])
     (32.0, -8.0)
 
     If there are no vals, returns None for the upper and lower bounds,
