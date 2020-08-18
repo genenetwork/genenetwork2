@@ -107,7 +107,7 @@ def hasAccessToConfidentialPhenotypeTrait(privilege, userName, authorized_users)
     if webqtlConfig.USERDICT[privilege] > webqtlConfig.USERDICT['user']:
         access_to_confidential_phenotype_trait = 1
     else:
-        AuthorizedUsersList=map(string.strip, string.split(authorized_users, ','))
+        AuthorizedUsersList=list(map(string.strip, string.split(authorized_users, ',')))
         if AuthorizedUsersList.__contains__(userName):
             access_to_confidential_phenotype_trait = 1
     return access_to_confidential_phenotype_trait

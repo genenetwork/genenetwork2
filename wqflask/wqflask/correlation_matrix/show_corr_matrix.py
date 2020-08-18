@@ -278,7 +278,7 @@ def zScore(trait_data_array):
             stdev = math.sqrt(var/(N-1))
             if stdev == 0:
                 stdev = 1e-100
-            data2 = map(lambda x:(x-mean)/stdev,data)
+            data2 = [(x-mean)/stdev for x in data]
             trait_data_array[i] = data2
             i += 1
         return trait_data_array
@@ -299,7 +299,7 @@ def sortEigenVectors(vector):
             A.append(item[0])
             B.append(item[1])
         sum = reduce(lambda x,y: x+y, A, 0.0)
-        A = map(lambda x:x*100.0/sum, A) 
+        A = [x*100.0/sum for x in A] 
         return [A, B]
     except:
         return []

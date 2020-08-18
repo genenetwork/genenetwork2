@@ -61,14 +61,14 @@ GeneList = []
 isCont = 1
 header = fp.readline()
 header = string.split(string.strip(header),'\t')
-header = map(string.strip, header)
+header = list(map(string.strip, header))
 nfield = len(header)
 line = fp.readline()
 
 kj=0
 while line:
 	line2 = string.split(string.strip(line),'\t')
-	line2 = map(string.strip, line2)
+	line2 = list(map(string.strip, line2))
 	if len(line2) != nfield:
 		print(("Error : " + line))
 		isCont = 0
@@ -80,7 +80,7 @@ while line:
 	if kj%100000 == 0:
 		print(('checked ',kj,' lines'))
 
-GeneList = map(string.lower, GeneList)
+GeneList = list(map(string.lower, GeneList))
 GeneList.sort()
 	
 if isCont==0:
@@ -100,8 +100,8 @@ isCont = 1
 fp.seek(0)
 header = fp.readline()
 header = string.split(string.strip(header),'\t')
-header = map(string.strip, header)
-header = map(translateAlias, header)
+header = list(map(string.strip, header))
+header = list(map(translateAlias, header))
 header = header[dataStart:]
 Ids = []
 for item in header:
@@ -128,7 +128,7 @@ print('Check if each ProbeSet exist in database')
 line = fp.readline()
 line = fp.readline()
 line2 = string.split(string.strip(line),'\t')
-line2 = map(string.strip, line2)
+line2 = list(map(string.strip, line2))
 PId = line2[0]
 
 db.execute('select Id from ProbeSet where Name="%s" and ChipId=%d' % (PId, GeneChipId) )
@@ -148,7 +148,7 @@ for item in results:
 	
 print(Names)
 
-Names = map(string.lower, Names)
+Names = list(map(string.lower, Names))
 
 Names.sort() # -- Fixed the lower case problem of ProbeSets affx-mur_b2_at  doesn't exist --#
 
@@ -223,7 +223,7 @@ values1 = []
 values2 = []
 while line:
 	line2 = string.split(string.strip(line),'\t')
-	line2 = map(string.strip, line2)
+	line2 = list(map(string.strip, line2))
 	PId = line2[0]
 	recordId = NameIds[PId]
 

@@ -27,8 +27,7 @@ def get_links(doc):
         lambda x: not (
             is_root_link(x)
             or is_mailto_link(x))
-        , map(lambda y: y.get("href")
-              , doc.cssselect("a")))
+        , [y.get("href") for y in doc.cssselect("a")])
 
 def verify_link(link):
     if link[0] == "#":

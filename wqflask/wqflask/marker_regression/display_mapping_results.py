@@ -389,9 +389,9 @@ class DisplayMappingResults(object):
                         Chr_Length.Name in (%s)
                 Order by
                         Chr_Length.OrderId
-                """ % (self.dataset.group.name, string.join(map(lambda X: "'%s'" % X[0], self.ChrList[1:]), ", ")))
+                """ % (self.dataset.group.name, string.join(["'%s'" % X[0] for X in self.ChrList[1:]], ", ")))
 
-        self.ChrLengthMbList = map(lambda x: x[0]/1000000.0, self.ChrLengthMbList)
+        self.ChrLengthMbList = [x[0]/1000000.0 for x in self.ChrLengthMbList]
         self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
         if self.ChrLengthMbList:
             self.MbGraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
@@ -1147,8 +1147,8 @@ class DisplayMappingResults(object):
                 tenPercentLength = geneLength*0.0001
                 SNPdensity = theGO["snpCount"]/geneLength
 
-                exonStarts = map(float, theGO['exonStarts'].split(",")[:-1])
-                exonEnds = map(float, theGO['exonEnds'].split(",")[:-1])
+                exonStarts = list(map(float, theGO['exonStarts'].split(",")[:-1]))
+                exonEnds = list(map(float, theGO['exonEnds'].split(",")[:-1]))
                 cdsStart = theGO['cdsStart']
                 cdsEnd = theGO['cdsEnd']
                 accession = theGO['NM_ID']
@@ -2145,7 +2145,7 @@ class DisplayMappingResults(object):
             lrsEdgeWidth = 1
         else:
             if self.additiveChecked:
-                additiveMax = max(map(lambda X : abs(X['additive']), self.qtlresults))
+                additiveMax = max([abs(X['additive']) for X in self.qtlresults])
             lrsEdgeWidth = 3
 
         if zoom == 2:

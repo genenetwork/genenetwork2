@@ -459,7 +459,7 @@ class SnpBrowser(object):
                 function_list = []
                 if function_details:
                     function_list = string.split(string.strip(function_details), ",")
-                    function_list = map(string.strip, function_list)
+                    function_list = list(map(string.strip, function_list))
                     function_list[0] = function_list[0].title()
                     function_details = ", ".join(item for item in function_list)
                     function_details = function_details.replace("_", " ")
@@ -725,11 +725,11 @@ def get_effect_details_by_category(effect_name = None, effect_value = None):
     codon_effect_group_list = ['Start Lost', 'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
 
     effect_detail_list = string.split(string.strip(effect_value), '|')
-    effect_detail_list = map(string.strip, effect_detail_list)
+    effect_detail_list = list(map(string.strip, effect_detail_list))
 
     for index, item in enumerate(effect_detail_list):
         item_list = string.split(string.strip(item), ',')
-        item_list = map(string.strip, item_list)
+        item_list = list(map(string.strip, item_list))
 
         gene_id = item_list[0]
         gene_name = item_list[1]

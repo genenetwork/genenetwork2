@@ -23,7 +23,7 @@ for item in results:
 ProbeSetFreezeIds=sys.argv[1:]
 if ProbeSetFreezeIds:
 	#####convert the Ids to integer
-	ProbeSetFreezeIds=map(int, ProbeSetFreezeIds)
+	ProbeSetFreezeIds=list(map(int, ProbeSetFreezeIds))
 
 else:
 	#####get all of the dataset that need be updated

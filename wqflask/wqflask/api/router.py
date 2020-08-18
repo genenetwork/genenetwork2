@@ -517,7 +517,7 @@ def all_sample_data(dataset_name, file_format = "csv"):
                         line_list.append("x")
                 results_list.append(line_list)
 
-            results_list = map(list, zip(*results_list))
+            results_list = list(map(list, zip(*results_list)))
 
             si = StringIO.StringIO()
             csv_writer = csv.writer(si)

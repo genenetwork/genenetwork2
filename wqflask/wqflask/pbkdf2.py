@@ -66,7 +66,7 @@ def pbkdf2_bin(data, salt, iterations=1000, keylen=24, hashfunc=None):
     def _pseudorandom(x, mac=mac):
         h = mac.copy()
         h.update(x)
-        return map(ord, h.digest())
+        return list(map(ord, h.digest()))
     buf = []
     for block in xrange(1, -(-keylen // mac.digest_size) + 1):
         rv = u = _pseudorandom(salt + _pack_int(block))
