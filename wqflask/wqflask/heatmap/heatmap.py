@@ -60,7 +60,7 @@ class Heatmap(object):
 
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
-        for key in self.species.chromosomes.chromosomes.keys():
+        for key in list(self.species.chromosomes.chromosomes.keys()):
             chrnames.append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
 
         for trait_db in self.trait_list:
@@ -93,7 +93,7 @@ class Heatmap(object):
         pos = []
         markernames = []
 
-        for trait in self.trait_results.keys():
+        for trait in list(self.trait_results.keys()):
             lodnames.append(trait)
 
         self.dataset.group.get_markers()

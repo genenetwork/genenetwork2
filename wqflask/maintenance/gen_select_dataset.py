@@ -108,7 +108,7 @@ def get_types(groups):
     """Build types list"""
     types = {}
     #print("Groups: ", pf(groups))
-    for species, group_dict in groups.iteritems():
+    for species, group_dict in list(groups.items()):
         types[species] = {}
         for group_name, _group_full_name in group_dict:
             # make group an alias to shorten the code
@@ -195,9 +195,9 @@ def build_types(species, group):
 def get_datasets(types):
     """Build datasets list"""
     datasets = {}
-    for species, group_dict in types.iteritems():
+    for species, group_dict in list(types.items()):
         datasets[species] = {}
-        for group, type_list in group_dict.iteritems():
+        for group, type_list in list(group_dict.items()):
             datasets[species][group] = {}
             for type_name in type_list:
                 these_datasets = build_datasets(species, group, type_name[0])

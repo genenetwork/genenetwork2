@@ -125,7 +125,7 @@ def add_group_to_resource():
 
 def get_group_names(group_masks):
     group_masks_with_names = {}
-    for group_id, group_mask in group_masks.iteritems():
+    for group_id, group_mask in list(group_masks.items()):
         this_mask = group_mask
         group_name = get_group_info(group_id)['name']
         this_mask['name'] = group_name

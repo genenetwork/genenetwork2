@@ -19,7 +19,7 @@ def fetch_parameters(config):
     config_dic['dataid'] = datastructure.get_nextdataid_genotype()
     config_dic['genofile'] = config.get('config', 'genofile')
     print("config dictionary:")
-    for k, v in config_dic.items():
+    for k, v in list(config_dic.items()):
         print(("\t%s: %s" % (k, v)))
     return config_dic
 
@@ -42,7 +42,7 @@ def parse_genofile(config, config_dic):
         if line.lower().startswith("chr"):
             #
             print("geno file meta dictionary:")
-            for k, v in meta_dic.items():
+            for k, v in list(meta_dic.items()):
                 print(("\t%s: %s" % (k, v)))
             #
             print(("geno file head:\n\t%s" % line))

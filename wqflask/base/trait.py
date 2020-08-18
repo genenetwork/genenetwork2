@@ -118,7 +118,7 @@ class GeneralTrait(object):
         vals = []
         the_vars = []
         sample_aliases = []
-        for sample_name, sample_data in self.data.items():
+        for sample_name, sample_data in list(self.data.items()):
             if sample_data.value != None:
                 if not include_variance or sample_data.variance != None:
                     samples.append(sample_name)
@@ -260,7 +260,7 @@ def get_sample_data():
                 trait_dict['pubmed_link'] = trait_ob.pubmed_link
             trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
-        return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])
+        return json.dumps([trait_dict, {key: value.value for key, value in list(trait_ob.data.items()) }])
     else:
         return None
     

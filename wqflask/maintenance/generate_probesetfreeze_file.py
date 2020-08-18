@@ -82,7 +82,7 @@ def get_probeset_vals(cursor, dataset_name):
 def trim_strains(strains, probeset_vals):
     trimmed_strains = []
     #print("probeset_vals is:", pf(probeset_vals))
-    first_probeset = list(probeset_vals.itervalues())[0]
+    first_probeset = list(probeset_vals.values())[0]
     print("\n**** first_probeset is:", pf(first_probeset))
     for strain in strains:
         print("\n**** strain is:", pf(strain))

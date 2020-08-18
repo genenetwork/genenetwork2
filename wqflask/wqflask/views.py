@@ -533,7 +533,7 @@ def heatmap_page():
 
             result = template_vars.__dict__
 
-            for item in template_vars.__dict__.keys():
+            for item in list(template_vars.__dict__.keys()):
                 logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
@@ -637,7 +637,7 @@ def loading_page():
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
-        for key, value in initial_start_vars.iteritems():
+        for key, value in list(initial_start_vars.items()):
             if key in wanted or key.startswith(('value:')):
                 start_vars[key] = value
 
@@ -737,7 +737,7 @@ def mapping_results_page():
         'transform'
     )
     start_vars = {}
-    for key, value in initial_start_vars.iteritems():
+    for key, value in list(initial_start_vars.items()):
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
     #logger.debug("Mapping called with start_vars:", start_vars)

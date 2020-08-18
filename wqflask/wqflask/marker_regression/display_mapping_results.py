@@ -229,7 +229,7 @@ class DisplayMappingResults(object):
 
         self.manhattan_plot = start_vars['manhattan_plot']
 
-        if 'permCheck' in start_vars.keys():
+        if 'permCheck' in list(start_vars.keys()):
             self.permChecked = start_vars['permCheck']
         else:
             self.permChecked = False
@@ -242,46 +242,46 @@ class DisplayMappingResults(object):
         else:
             self.nperm = 0
 
-        if 'bootCheck' in start_vars.keys():
+        if 'bootCheck' in list(start_vars.keys()):
             self.bootChecked = start_vars['bootCheck']
         else:
             self.bootChecked = False
-        if 'num_bootstrap' in start_vars.keys():
+        if 'num_bootstrap' in list(start_vars.keys()):
             self.nboot = int(start_vars['num_bootstrap'])
         else:
             self.nboot = 0
-        if 'bootstrap_results' in start_vars.keys():
+        if 'bootstrap_results' in list(start_vars.keys()):
             self.bootResult = start_vars['bootstrap_results']
         else:
             self.bootResult = []
 
-        if 'do_control' in start_vars.keys():
+        if 'do_control' in list(start_vars.keys()):
             self.doControl = start_vars['do_control']
         else:
             self.doControl = "false"
-        if 'control_marker' in start_vars.keys():
+        if 'control_marker' in list(start_vars.keys()):
             self.controlLocus = start_vars['control_marker']
         else:
             self.controlLocus = ""
-        if 'covariates' in start_vars.keys():
+        if 'covariates' in list(start_vars.keys()):
             self.covariates = start_vars['covariates']
-        if 'maf' in start_vars.keys():
+        if 'maf' in list(start_vars.keys()):
             self.maf = start_vars['maf']
         else:
             self.maf = ""
-        if 'output_files' in start_vars.keys():
+        if 'output_files' in list(start_vars.keys()):
             self.output_files = start_vars['output_files']
-        if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
+        if 'use_loco' in list(start_vars.keys()) and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
 
-        if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
+        if 'reaper_version' in list(start_vars.keys()) and self.mapping_method == "reaper":
             self.reaper_version = start_vars['reaper_version']
             if 'output_files' in start_vars:
                 self.output_files = ",".join(start_vars['output_files'])
 
         self.categorical_vars = ""
         self.perm_strata = ""
-        if 'perm_strata' in start_vars.keys() and 'categorical_vars' in start_vars.keys():
+        if 'perm_strata' in list(start_vars.keys()) and 'categorical_vars' in list(start_vars.keys()):
             self.categorical_vars = start_vars['categorical_vars']
             self.perm_strata = start_vars['perm_strata']
 
@@ -323,7 +323,7 @@ class DisplayMappingResults(object):
                self.graphWidth  = self.MULT_GRAPH_DEFAULT_WIDTH
 
 ## BEGIN HaplotypeAnalyst
-        if 'haplotypeAnalystCheck' in start_vars.keys():
+        if 'haplotypeAnalystCheck' in list(start_vars.keys()):
             self.haplotypeAnalystChecked = start_vars['haplotypeAnalystCheck']
         else:
             self.haplotypeAnalystChecked = False
@@ -331,25 +331,25 @@ class DisplayMappingResults(object):
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
         self.dominanceChecked = False
-        if 'LRSCheck' in start_vars.keys():
+        if 'LRSCheck' in list(start_vars.keys()):
             self.LRS_LOD = start_vars['LRSCheck']
         else:
             self.LRS_LOD = start_vars['score_type']
         self.intervalAnalystChecked = True
         self.draw2X = False
-        if 'additiveCheck' in start_vars.keys():
+        if 'additiveCheck' in list(start_vars.keys()):
             self.additiveChecked = start_vars['additiveCheck']
         else:
             self.additiveChecked = False
-        if 'viewLegend' in start_vars.keys():
+        if 'viewLegend' in list(start_vars.keys()):
             self.legendChecked = start_vars['viewLegend']
         else:
             self.legendChecked = False
-        if 'showSNP' in start_vars.keys():
+        if 'showSNP' in list(start_vars.keys()):
             self.SNPChecked = start_vars['showSNP']
         else:
             self.SNPChecked = False
-        if 'showGenes' in start_vars.keys():
+        if 'showGenes' in list(start_vars.keys()):
             self.geneChecked = start_vars['showGenes']
         else:
             self.geneChecked = False
@@ -530,7 +530,7 @@ class DisplayMappingResults(object):
             showLocusForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data',
                 name=showLocusForm, submit=HT.Input(type='hidden'))
             hddn = {'FormID':'showDatabase', 'ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
-            for key in hddn.keys():
+            for key in list(hddn.keys()):
                 showLocusForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
             showLocusForm.append(intImg)
         else:

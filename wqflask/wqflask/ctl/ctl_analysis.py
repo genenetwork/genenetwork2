@@ -125,7 +125,7 @@ class CTL(object):
             gt = create_trait(name = ts[0], dataset_name = ts[1])
             gt = retrieve_sample_data(gt, dataset, individuals)
             for ind in individuals:
-              if ind in gt.data.keys():
+              if ind in list(gt.data.keys()):
                 traits.append(gt.data[ind].value)
               else:
                 traits.append("-999")

@@ -61,7 +61,7 @@ def export_search_results_csv(targs):
     traits_by_group = sort_traits_by_group(trait_list)
 
     file_list = []
-    for group in traits_by_group.keys():
+    for group in list(traits_by_group.keys()):
         group_traits = traits_by_group[group]
         buff = StringIO.StringIO()
         writer = csv.writer(buff)
@@ -135,7 +135,7 @@ def export_search_results_csv(targs):
 def sort_traits_by_group(trait_list=[]):
     traits_by_group = {}
     for trait in trait_list:
-        if trait.dataset.group.name not in traits_by_group.keys():
+        if trait.dataset.group.name not in list(traits_by_group.keys()):
             traits_by_group[trait.dataset.group.name] = []
 
         traits_by_group[trait.dataset.group.name].append(trait)

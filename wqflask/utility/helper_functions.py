@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__ )
 
 def get_species_dataset_trait(self, start_vars):
     #assert type(read_genotype) == type(bool()), "Expecting boolean value for read_genotype"
-    if "temp_trait" in start_vars.keys():
+    if "temp_trait" in list(start_vars.keys()):
       if start_vars['temp_trait'] == "True":
         self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
       else:

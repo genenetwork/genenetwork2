@@ -47,7 +47,7 @@ def get_export_metadata(trait_id, dataset_name):
 
 
 def dict_to_sorted_list(dictionary):
-    sorted_list = [item for item in dictionary.iteritems()]
+    sorted_list = [item for item in list(dictionary.items())]
     sorted_list = sorted(sorted_list, cmp=cmp_samples)
     sorted_values = [item[1] for item in sorted_list]
     return sorted_values

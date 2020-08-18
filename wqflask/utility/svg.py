@@ -133,7 +133,7 @@ def _escape(data, entities={}):
     # data = data.replace("&", "&amp;")
     data = data.replace("<", "&lt;")
     data = data.replace(">", "&gt;")
-    for chars, entity in entities.items():
+    for chars, entity in list(entities.items()):
         data = data.replace(chars, entity)
     return data
 
@@ -299,7 +299,7 @@ class SVGelement:
         self.text = text
         self.namespace = namespace
         self.cdata = cdata
-        for arg in args.keys():
+        for arg in list(args.keys()):
             arg2 = arg.replace("__", ":")
             arg2 = arg2.replace("_", "-")
             self.attributes[arg2] = args[arg]
@@ -314,7 +314,7 @@ class SVGelement:
     def toXml(self, level, f):
         f.write('\t'*level)
         f.write('<'+self.type)
-        for attkey in self.attributes.keys():
+        for attkey in list(self.attributes.keys()):
             f.write(' '+_escape(str(attkey))+'=' +
                     _quoteattr(str(self.attributes[attkey])))
         if self.namespace:
@@ -365,7 +365,7 @@ class tspan(SVGelement):
 
     def __repr__(self):
         s = "<tspan"
-        for key, value in self.attributes.items():
+        for key, value in list(self.attributes.items()):
             s += ' %s="%s"' % (key, value)
         s += '>'
         s += self.text
@@ -390,7 +390,7 @@ class tref(SVGelement):
     def __repr__(self):
         s = "<tref"
 
-        for key, value in self.attributes.items():
+        for key, value in list(self.attributes.items()):
             s += ' %s="%s"' % (key, value)
         s += '/>'
         return s
@@ -963,7 +963,7 @@ class drawing:
             xml.write("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
             if self.entity:
                 xml.write(" [\n")
-                for item in self.entity.keys():
+                for item in list(self.entity.keys()):
                     xml.write("<!ENTITY %s \"%s\">\n" % (item, self.entity[item]))
                 xml.write("]")
             xml.write(">\n")
@@ -1015,7 +1015,7 @@ class drawing:
                 if element.text:
                     textnode=root.createTextNode(element.text)
                     e.appendChild(textnode)
-                for attribute in element.attributes.keys():   #in element.attributes is supported from python 2.2
+                for attribute in list(element.attributes.keys()):   #in element.attributes is supported from python 2.2
                     e.setAttribute(attribute,str(element.attributes[attribute]))
                 if element.elements:
                     for el in element.elements:

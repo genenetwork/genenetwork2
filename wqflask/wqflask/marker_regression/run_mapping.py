@@ -347,7 +347,7 @@ class RunMapping(object):
                   if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                       if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                           highest_chr = marker['chr1']
-                      if 'lod_score' in marker.keys():
+                      if 'lod_score' in list(marker.keys()):
                           self.qtl_results.append(marker)
 
               self.trimmed_markers = results
@@ -411,7 +411,7 @@ class RunMapping(object):
                   if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                       if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                           highest_chr = marker['chr']
-                      if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
+                      if ('lod_score' in list(marker.keys())) or ('lrs_value' in list(marker.keys())):
                           self.qtl_results.append(marker)
 
               with Bench("Exporting Results"):
@@ -538,28 +538,28 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write("Mb," + score_type)
         else:
             output_file.write("Cm," + score_type)
-        if "additive" in markers[0].keys():
+        if "additive" in list(markers[0].keys()):
             output_file.write(",Additive")
-        if "dominance" in markers[0].keys():
+        if "dominance" in list(markers[0].keys()):
             output_file.write(",Dominance")
         output_file.write("\n")
         for i, marker in enumerate(markers):
             output_file.write(marker['name'] + "," + str(marker['chr']) + "," + str(marker['Mb']) + ",")
-            if "lod_score" in marker.keys():
+            if "lod_score" in list(marker.keys()):
                 output_file.write(str(marker['lod_score']))
             else:
                 output_file.write(str(marker['lrs_value']))
-            if "additive" in marker.keys():
+            if "additive" in list(marker.keys()):
                 output_file.write("," + str(marker['additive']))
-            if "dominance" in marker.keys():
+            if "dominance" in list(marker.keys()):
                 output_file.write("," + str(marker['dominance']))
             if i < (len(markers) - 1):
                 output_file.write("\n")
 
 def trim_markers_for_figure(markers):
-    if 'p_wald' in markers[0].keys():
+    if 'p_wald' in list(markers[0].keys()):
         score_type = 'p_wald'
-    elif 'lod_score' in markers[0].keys():
+    elif 'lod_score' in list(markers[0].keys()):
         score_type = 'lod_score'
     else:
         score_type = 'lrs_value'
@@ -617,7 +617,7 @@ def trim_markers_for_figure(markers):
     return filtered_markers
 
 def trim_markers_for_table(markers):
-    if 'lod_score' in markers[0].keys():
+    if 'lod_score' in list(markers[0].keys()):
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
     else:
         sorted_markers = sorted(markers, key=lambda k: k['lrs_value'], reverse=True)
@@ -695,10 +695,10 @@ def get_genofile_samplelist(dataset):
 def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
     perm_strata_strings = []
     for sample in used_samples:
-        if sample in sample_list.sample_attribute_values.keys():
+        if sample in list(sample_list.sample_attribute_values.keys()):
             combined_string = ""
             for var in categorical_vars:
-                if var in sample_list.sample_attribute_values[sample].keys():
+                if var in list(sample_list.sample_attribute_values[sample].keys()):
                     combined_string += str(sample_list.sample_attribute_values[sample][var])
                 else:
                     combined_string += "NA"

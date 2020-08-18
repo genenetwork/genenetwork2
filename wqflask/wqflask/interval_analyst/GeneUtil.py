@@ -24,7 +24,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
 	
 	##List current Species and other Species
 	speciesId = speciesDict[species]
-	otherSpecies = [[X, speciesDict[X]] for X in speciesDict.keys()]
+	otherSpecies = [[X, speciesDict[X]] for X in list(speciesDict.keys())]
 	otherSpecies.remove([species, speciesId])
 
 	results = g.db.execute("""

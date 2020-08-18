@@ -220,7 +220,7 @@ def show_settings():
 
     logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    keylist = app.config.keys()
+    keylist = list(app.config.keys())
     print("runserver.py: ****** Webserver configuration - k,v pairs from app.config ******")
     keylist.sort()
     for k in keylist:

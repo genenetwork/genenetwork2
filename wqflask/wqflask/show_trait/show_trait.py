@@ -261,7 +261,7 @@ class ShowTrait(object):
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
         if len(self.scales_in_geno) < 2:
-            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0][0]
+            hddn['mapping_scale'] = self.scales_in_geno[list(self.scales_in_geno.keys())[0]][0][0]
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
@@ -405,7 +405,7 @@ class ShowTrait(object):
 
         if not self.temp_trait:
             other_sample_names = []
-            for sample in self.this_trait.data.keys():
+            for sample in list(self.this_trait.data.keys()):
                 if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
                     primary_sample_names.append(self.this_trait.data[sample].name)
                     primary_sample_names.remove(self.this_trait.data[sample].name2)
@@ -558,7 +558,7 @@ def get_table_widths(sample_groups, has_num_cases=False):
 def has_num_cases(this_trait):
     has_n = False
     if this_trait.dataset.type != "ProbeSet" and this_trait.dataset.type != "Geno":
-        for name, sample in this_trait.data.iteritems():
+        for name, sample in list(this_trait.data.items()):
             if sample.num_cases:
                 has_n = True
                 break
@@ -611,7 +611,7 @@ def get_categorical_variables(this_trait, sample_list):
     if len(sample_list.attributes) > 0:
         for attribute in sample_list.attributes:
             attribute_vals = []
-            for sample_name in this_trait.data.keys():
+            for sample_name in list(this_trait.data.keys()):
                 if sample_list.attributes[attribute].name in this_trait.data[sample_name].extra_attributes:
                     attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
                 else:

@@ -36,7 +36,7 @@ def do_correlation(start_vars):
     #corr_results = collections.OrderedDict(sorted(corr_results.items(), key=lambda t: -abs(t[1][0])))
 
     final_results = []
-    for _trait_counter, trait in enumerate(corr_results.keys()[:corr_params['return_count']]):
+    for _trait_counter, trait in enumerate(list(corr_results.keys())[:corr_params['return_count']]):
         if corr_params['type'] == "tissue":
             [sample_r, num_overlap, sample_p, symbol] = corr_results[trait]
             result_dict = {
@@ -76,20 +76,20 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
     if corr_params['type'] == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
         corr_results = do_tissue_correlation_for_all_traits(this_trait, trait_symbol_dict, corr_params)
-        sorted_results = collections.OrderedDict(sorted(corr_results.items(),
+        sorted_results = collections.OrderedDict(sorted(list(corr_results.items()),
                                                         key=lambda t: -abs(t[1][1])))
     elif corr_params['type'] == "literature" or corr_params['type'] == "lit": #ZS: Just so a user can use either "lit" or "literature"
         trait_geneid_dict = this_dataset.retrieve_genes("GeneId")
         corr_results = do_literature_correlation_for_all_traits(this_trait, this_dataset, trait_geneid_dict, corr_params)
-        sorted_results = collections.OrderedDict(sorted(corr_results.items(),
+        sorted_results = collections.OrderedDict(sorted(list(corr_results.items()),
                                                  key=lambda t: -abs(t[1][1])))
     else:
-        for target_trait, target_vals in target_dataset.trait_data.iteritems():
+        for target_trait, target_vals in list(target_dataset.trait_data.items()):
             result = get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_dataset, corr_params['type'])
             if result is not None:
                 corr_results[target_trait] = result
 
-        sorted_results = collections.OrderedDict(sorted(corr_results.items(), key=lambda t: -abs(t[1][0])))
+        sorted_results = collections.OrderedDict(sorted(list(corr_results.items()), key=lambda t: -abs(t[1][0])))
 
     return sorted_results
 
@@ -100,10 +100,10 @@ def do_tissue_correlation_for_all_traits(this_trait, trait_symbol_dict, corr_par
     if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
         primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower()]
 
-        corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(symbol_list=trait_symbol_dict.values())
+        corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(symbol_list=list(trait_symbol_dict.values()))
 
         tissue_corr_data = {}
-        for trait, symbol in trait_symbol_dict.iteritems():
+        for trait, symbol in list(trait_symbol_dict.items()):
             if symbol and symbol.lower() in corr_result_tissue_vals_dict:
                 this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower()]
 
@@ -119,7 +119,7 @@ def do_literature_correlation_for_all_traits(this_trait, target_dataset, trait_g
     input_trait_mouse_gene_id = convert_to_mouse_gene_id(target_dataset.group.species.lower(), this_trait.geneid)
 
     lit_corr_data = {}
-    for trait, gene_id in trait_geneid_dict.iteritems():
+    for trait, gene_id in list(trait_geneid_dict.items()):
         mouse_gene_id = convert_to_mouse_gene_id(target_dataset.group.species.lower(), gene_id)
 
         if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
