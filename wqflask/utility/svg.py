@@ -445,12 +445,8 @@ class rect(SVGelement):
 
     def __init__(self, x=None, y=None, width=None, height=None, fill=None, stroke=None, stroke_width=None, **args):
         if width == None or height == None:
-                raise ValueError, 'height is required'
-                raise ValueError, 'width is required'
-            if width!=None:
-            if height!=None:
-            else:
-                raise ValueError, 'both height and width are required'
+            raise ValueError, 'both height and width are required'
+
         SVGelement.__init__(self,'rect',{'width':width,'height':height},**args)
         if x!=None:
             self.attributes['x']=x
@@ -470,12 +466,8 @@ class ellipse(SVGelement):
     """
     def __init__(self,cx=None,cy=None,rx=None,ry=None,fill=None,stroke=None,stroke_width=None,**args):
         if rx==None or ry== None:
-                raise ValueError, 'rx is required'
-                raise ValueError, 'ry is required'
-            if rx!=None:
-            if ry!=None:
-            else:
-                raise ValueError, 'both rx and ry are required'
+            raise ValueError, 'both rx and ry are required'
+
         SVGelement.__init__(self,'ellipse',{'rx':rx,'ry':ry},**args)
         if cx!=None:
             self.attributes['cx']=cx
@@ -722,12 +714,7 @@ class image(SVGelement):
     """
     def __init__(self,url,x=None,y=None,width=None,height=None,**args):
         if width==None or height==None:
-                raise ValueError, 'height is required'
-                raise ValueError, 'width is required'
-            if width!=None:
-            if height!=None:
-            else:
-                raise ValueError, 'both height and width are required'
+            raise ValueError, 'both height and width are required'
         SVGelement.__init__(self,'image',{'xlink:href':url,'width':width,'height':height},**args)
         if x!=None:
             self.attributes['x']=x
