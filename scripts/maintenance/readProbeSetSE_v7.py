@@ -223,7 +223,7 @@ while line:
     line2 = list(map(string.strip, line2))
 
     CellId = line2[0]
-    if not ProbeNameId.has_key(CellId):
+    if CellId not in ProbeNameId:
         ferror.write(CellId + " doesn't exist\n")
     else:
         DataId = ProbeNameId[CellId]
