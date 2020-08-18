@@ -25,54 +25,56 @@
 # Last updated by GeneNetwork Core Team 2010/10/20
 
 #!/usr/bin/env python
-##Copyright (c) 2002, Fedor Baart & Hans de Wit (Stichting Farmaceutische Kengetallen)
-##All rights reserved.
+# Copyright (c) 2002, Fedor Baart & Hans de Wit (Stichting Farmaceutische Kengetallen)
+# All rights reserved.
 ##
-##Redistribution and use in source and binary forms, with or without modification,
-##are permitted provided that the following conditions are met:
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
 ##
-##Redistributions of source code must retain the above copyright notice, this
-##list of conditions and the following disclaimer.
+# Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
 ##
-##Redistributions in binary form must reproduce the above copyright notice,
-##this list of conditions and the following disclaimer in the documentation and/or
-##other materials provided with the distribution.
+# Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation and/or
+# other materials provided with the distribution.
 ##
-##Neither the name of the Stichting Farmaceutische Kengetallen nor the names of
-##its contributors may be used to endorse or promote products derived from this
-##software without specific prior written permission.
+# Neither the name of the Stichting Farmaceutische Kengetallen nor the names of
+# its contributors may be used to endorse or promote products derived from this
+# software without specific prior written permission.
 ##
-##THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-##AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-##IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-##DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-##FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-##DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-##SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-##CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-##OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-##OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-##Thanks to Gerald Rosennfellner for his help and useful comments.
+# Thanks to Gerald Rosennfellner for his help and useful comments.
 
-__doc__="""Use SVGdraw to generate your SVGdrawings.
+import sys
+import exceptions
+__doc__ = """Use SVGdraw to generate your SVGdrawings.
 
 SVGdraw uses an object model drawing and a method toXML to create SVG graphics
 by using easy to use classes and methods usualy you start by creating a drawing eg
 
     d=drawing()
-    #then you create a SVG root element
+    # then you create a SVG root element
     s=svg()
-    #then you add some elements eg a circle and add it to the svg root element
+    # then you add some elements eg a circle and add it to the svg root element
     c=circle()
-    #you can supply attributes by using named arguments.
+    # you can supply attributes by using named arguments.
     c=circle(fill='red',stroke='blue')
-    #or by updating the attributes attribute:
+    # or by updating the attributes attribute:
     c.attributes['stroke-width']=1
     s.addElement(c)
-    #then you add the svg root element to the drawing
+    # then you add the svg root element to the drawing
     d.setSVG(s)
-    #and finaly you xmlify the drawing
+    # and finaly you xmlify the drawing
     d.toXml()
 
 
@@ -82,7 +84,7 @@ This module was created using the SVG specification of www.w3c.org and the
 O'Reilly (www.oreilly.com) python books as information sources. A svg viewer
 is available from www.adobe.com"""
 
-__version__="1.0"
+__version__ = "1.0"
 
 # there are two possibilities to generate svg:
 # via a dom implementation and directly using <element>text</element> strings
@@ -93,33 +95,34 @@ __version__="1.0"
 # Note that PyXML is required for using the dom implementation.
 # It is also possible to use the standard minidom. But I didn't try that one.
 # Anyway the text based approach is about 60 times faster than using the full dom implementation.
-use_dom_implementation=0
+use_dom_implementation = 0
 
 
-import exceptions
-if use_dom_implementation!=0:
+if use_dom_implementation != 0:
     try:
         from xml.dom import implementation
         from xml.dom.ext import PrettyPrint
     except:
-        raise exceptions.ImportError("PyXML is required for using the dom implementation")
-#The implementation is used for the creating the XML document.
-#The prettyprint module is used for converting the xml document object to a xml file
+        raise exceptions.ImportError(
+            "PyXML is required for using the dom implementation")
+# The implementation is used for the creating the XML document.
+# The prettyprint module is used for converting the xml document object to a xml file
 
-import sys
-assert sys.version_info[0]>=2
-if sys.version_info[1]<2:
-    True=1
-    False=0
-    file=open
+assert sys.version_info[0] >= 2
+if sys.version_info[1] < 2:
+    True = 1
+    False = 0
+    file = open
 
-sys.setrecursionlimit=50
-#The recursion limit is set conservative so mistakes like s=svg() s.addElement(s)
-#won't eat up too much processor time.
+sys.setrecursionlimit = 50
+# The recursion limit is set conservative so mistakes like s=svg() s.addElement(s)
+# won't eat up too much processor time.
 
-#the following code is pasted form xml.sax.saxutils
-#it makes it possible to run the code without the xml sax package installed
-#To make it possible to have <rubbish> in your text elements, it is necessary to escape the texts
+# the following code is pasted form xml.sax.saxutils
+# it makes it possible to run the code without the xml sax package installed
+# To make it possible to have <rubbish> in your text elements, it is necessary to escape the texts
+
+
 def _escape(data, entities={}):
     """Escape &, <, and > in a string of data.
 
@@ -127,12 +130,13 @@ def _escape(data, entities={}):
     the optional entities parameter.  The keys and values must all be
     strings; each key will be replaced with its corresponding value.
     """
-    #data = data.replace("&", "&amp;")
+    # data = data.replace("&", "&amp;")
     data = data.replace("<", "&lt;")
     data = data.replace(">", "&gt;")
     for chars, entity in entities.items():
         data = data.replace(chars, entity)
     return data
+
 
 def _quoteattr(data, entities={}):
     """Escape and quote an attribute value.
@@ -156,94 +160,119 @@ def _quoteattr(data, entities={}):
     return data
 
 
-
 def _xypointlist(a):
     """formats a list of xy pairs"""
-    s=''
-    for e in a: #this could be done more elegant
-        s+=str(e)[1:-1] +'  '
+    s = ''
+    for e in a:  # this could be done more elegant
+        s += str(e)[1:-1] + '  '
     return s
+
 
 def _viewboxlist(a):
     """formats a tuple"""
-    s=''
+    s = ''
     for e in a:
-        s+=str(e)+' '
+        s += str(e)+' '
     return s
+
 
 def _pointlist(a):
     """formats a list of numbers"""
     return str(a)[1:-1]
 
+
 class pathdata:
     """class used to create a pathdata object which can be used for a path.
     although most methods are pretty straightforward it might be useful to look at the SVG specification."""
-    #I didn't test the methods below.
-    def __init__(self,x=None,y=None):
-        self.path=[]
+    # I didn't test the methods below.
+
+    def __init__(self, x=None, y=None):
+        self.path = []
         if x is not None and y is not None:
             self.path.append('M '+str(x)+' '+str(y))
+
     def closepath(self):
         """ends the path"""
         self.path.append('z')
-    def move(self,x,y):
+
+    def move(self, x, y):
         """move to absolute"""
         self.path.append('M '+str(x)+' '+str(y))
-    def relmove(self,x,y):
+
+    def relmove(self, x, y):
         """move to relative"""
         self.path.append('m '+str(x)+' '+str(y))
-    def line(self,x,y):
+
+    def line(self, x, y):
         """line to absolute"""
         self.path.append('L '+str(x)+' '+str(y))
-    def relline(self,x,y):
+
+    def relline(self, x, y):
         """line to relative"""
         self.path.append('l '+str(x)+' '+str(y))
-    def hline(self,x):
+
+    def hline(self, x):
         """horizontal line to absolute"""
         self.path.append('H'+str(x))
-    def relhline(self,x):
+
+    def relhline(self, x):
         """horizontal line to relative"""
         self.path.append('h'+str(x))
-    def vline(self,y):
+
+    def vline(self, y):
         """verical line to absolute"""
         self.path.append('V'+str(y))
-    def relvline(self,y):
+
+    def relvline(self, y):
         """vertical line to relative"""
         self.path.append('v'+str(y))
-    def bezier(self,x1,y1,x2,y2,x,y):
+
+    def bezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy absolut"""
-        self.path.append('C'+str(x1)+','+str(y1)+' '+str(x2)+','+str(y2)+' '+str(x)+','+str(y))
-    def relbezier(self,x1,y1,x2,y2,x,y):
+        self.path.append('C'+str(x1)+','+str(y1)+' '+str(x2) +
+                         ','+str(y2)+' '+str(x)+','+str(y))
+
+    def relbezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy relative"""
-        self.path.append('c'+str(x1)+','+str(y1)+' '+str(x2)+','+str(y2)+' '+str(x)+','+str(y))
-    def smbezier(self,x2,y2,x,y):
+        self.path.append('c'+str(x1)+','+str(y1)+' '+str(x2) +
+                         ','+str(y2)+' '+str(x)+','+str(y))
+
+    def smbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy absolut"""
         self.path.append('S'+str(x2)+','+str(y2)+' '+str(x)+','+str(y))
-    def relsmbezier(self,x2,y2,x,y):
+
+    def relsmbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy relative"""
         self.path.append('s'+str(x2)+','+str(y2)+' '+str(x)+','+str(y))
-    def qbezier(self,x1,y1,x,y):
+
+    def qbezier(self, x1, y1, x, y):
         """quadratic bezier with xy1 to xy absolut"""
         self.path.append('Q'+str(x1)+','+str(y1)+' '+str(x)+','+str(y))
-    def relqbezier(self,x1,y1,x,y):
+
+    def relqbezier(self, x1, y1, x, y):
         """quadratic bezier with xy1 to xy relative"""
         self.path.append('q'+str(x1)+','+str(y1)+' '+str(x)+','+str(y))
-    def smqbezier(self,x,y):
+
+    def smqbezier(self, x, y):
         """smooth quadratic bezier to xy absolut"""
         self.path.append('T'+str(x)+','+str(y))
-    def relsmqbezier(self,x,y):
+
+    def relsmqbezier(self, x, y):
         """smooth quadratic bezier to xy relative"""
         self.path.append('t'+str(x)+','+str(y))
-    def ellarc(self,rx,ry,xrot,laf,sf,x,y):
+
+    def ellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy absolut"""
-        self.path.append('A'+str(rx)+','+str(ry)+' '+str(xrot)+' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
-    def relellarc(self,rx,ry,xrot,laf,sf,x,y):
+        self.path.append('A'+str(rx)+','+str(ry)+' '+str(xrot) +
+                         ' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
+
+    def relellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy relative"""
-        self.path.append('a'+str(rx)+','+str(ry)+' '+str(xrot)+' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('a'+str(rx)+','+str(ry)+' '+str(xrot) +
+                         ' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
+
     def __repr__(self):
         return ' '.join(self.path)
-
-
 
 
 class SVGelement:
@@ -256,52 +285,56 @@ class SVGelement:
     namespace. Note the elements==None, if elements = None:self.elements=[] construction.
     This is done because if you default to elements=[] every object has a reference
     to the same empty list."""
-    def __init__(self,type='',attributes=None,elements=None,text='',namespace='',cdata=None, **args):
-        self.type=type
-        if attributes==None:
-            self.attributes={}
+
+    def __init__(self, type='', attributes=None, elements=None, text='', namespace='', cdata=None, **args):
+        self.type = type
+        if attributes == None:
+            self.attributes = {}
         else:
-            self.attributes=attributes
-        if elements==None:
-            self.elements=[]
+            self.attributes = attributes
+        if elements == None:
+            self.elements = []
         else:
-            self.elements=elements
-        self.text=text
-        self.namespace=namespace
-        self.cdata=cdata
+            self.elements = elements
+        self.text = text
+        self.namespace = namespace
+        self.cdata = cdata
         for arg in args.keys():
             arg2 = arg.replace("__", ":")
             arg2 = arg2.replace("_", "-")
-            self.attributes[arg2]=args[arg]
-    def addElement(self,SVGelement):
+            self.attributes[arg2] = args[arg]
+
+    def addElement(self, SVGelement):
         """adds an element to a SVGelement
 
         SVGelement.addElement(SVGelement)
         """
         self.elements.append(SVGelement)
 
-    def toXml(self,level,f):
+    def toXml(self, level, f):
         f.write('\t'*level)
         f.write('<'+self.type)
         for attkey in self.attributes.keys():
-            f.write(' '+_escape(str(attkey))+'='+_quoteattr(str(self.attributes[attkey])))
+            f.write(' '+_escape(str(attkey))+'=' +
+                    _quoteattr(str(self.attributes[attkey])))
         if self.namespace:
-            f.write(' xmlns="'+ _escape(str(self.namespace))+'" xmlns:xlink="http://www.w3.org/1999/xlink"')
+            f.write(' xmlns="' + _escape(str(self.namespace)) +
+                    '" xmlns:xlink="http://www.w3.org/1999/xlink"')
         if self.elements or self.text or self.cdata:
             f.write('>')
         if self.elements:
             f.write('\n')
         for element in self.elements:
-            element.toXml(level+1,f)
+            element.toXml(level+1, f)
         if self.cdata:
             f.write('\n'+'\t'*(level+1)+'<![CDATA[')
             for line in self.cdata.splitlines():
                 f.write('\n'+'\t'*(level+2)+line)
             f.write('\n'+'\t'*(level+1)+']]>\n')
         if self.text:
-            if type(self.text)==type(''): #If the text is only text
+            if type(self.text) == type(''):  # If the text is only text
                 f.write(_escape(str(self.text)))
-            else:                         #If the text is a spannedtext class
+            else:  # If the text is a spannedtext class
                 f.write(str(self.text))
         if self.elements:
             f.write('\t'*level+'</'+self.type+'>\n')
@@ -311,6 +344,7 @@ class SVGelement:
             f.write('\t'*level+'</'+self.type+'>\n')
         else:
             f.write('/>\n')
+
 
 class tspan(SVGelement):
     """ts=tspan(text='',**args)
@@ -323,18 +357,21 @@ class tspan(SVGelement):
     st.addtspan(ts)
     t=text(3,5,st)
     """
-    def __init__(self,text=None,**args):
-        SVGelement.__init__(self,'tspan',**args)
-        if self.text<>None:
-            self.text=text
+
+    def __init__(self, text=None, **args):
+        SVGelement.__init__(self, 'tspan', **args)
+        if self.text <> None:
+            self.text = text
+
     def __repr__(self):
-        s="<tspan"
-        for key,value in self.attributes.items():
-            s+= ' %s="%s"' % (key,value)
-        s+='>'
-        s+=self.text
-        s+='</tspan>'
+        s = "<tspan"
+        for key, value in self.attributes.items():
+            s += ' %s="%s"' % (key, value)
+        s += '>'
+        s += self.text
+        s += '</tspan>'
         return s
+
 
 class tref(SVGelement):
     """tr=tref(link='',**args)
@@ -346,15 +383,18 @@ class tref(SVGelement):
     st.addtref(tr)
     t=text(3,5,st)
     """
-    def __init__(self,link,**args):
-        SVGelement.__init__(self,'tref',{'xlink:href':link},**args)
-    def __repr__(self):
-        s="<tref"
 
-        for key,value in self.attributes.items():
-            s+= ' %s="%s"' % (key,value)
-        s+='/>'
+    def __init__(self, link, **args):
+        SVGelement.__init__(self, 'tref', {'xlink:href': link}, **args)
+
+    def __repr__(self):
+        s = "<tref"
+
+        for key, value in self.attributes.items():
+            s += ' %s="%s"' % (key, value)
+        s += '/>'
         return s
+
 
 class spannedtext:
     """st=spannedtext(textlist=[])
@@ -374,30 +414,37 @@ class spannedtext:
     st.addtext('This text is not bold')
     t=text(3,5,st)
     """
-    def __init__(self,textlist=None):
-        if textlist==None:
-            self.textlist=[]
+
+    def __init__(self, textlist=None):
+        if textlist == None:
+            self.textlist = []
         else:
-            self.textlist=textlist
-    def addtext(self,text=''):
+            self.textlist = textlist
+
+    def addtext(self, text=''):
         self.textlist.append(text)
-    def addtspan(self,tspan):
+
+    def addtspan(self, tspan):
         self.textlist.append(tspan)
-    def addtref(self,tref):
+
+    def addtref(self, tref):
         self.textlist.append(tref)
+
     def __repr__(self):
-        s=""
+        s = ""
         for element in self.textlist:
-            s+=str(element)
+            s += str(element)
         return s
+
 
 class rect(SVGelement):
     """r=rect(width,height,x,y,fill,stroke,stroke_width,**args)
 
     a rectangle is defined by a width and height and a xy pair
     """
-    def __init__(self,x=None,y=None,width=None,height=None,fill=None,stroke=None,stroke_width=None,**args):
-        if width==None or height==None:
+
+    def __init__(self, x=None, y=None, width=None, height=None, fill=None, stroke=None, stroke_width=None, **args):
+        if width == None or height == None:
                 raise ValueError, 'height is required'
                 raise ValueError, 'width is required'
             if width!=None:
@@ -841,7 +888,7 @@ class animateTransform(SVGelement):
     """
     def __init__(self,type=None,fr=None,to=None,dur=None,**args):
         SVGelement.__init__(self,'animateTransform',{'attributeName':'transform'},**args)
-        #As far as I know the attributeName is always transform
+        # As far as I know the attributeName is always transform
         if type!=None:
             self.attributes['type']=type
         if fr!=None:
@@ -920,7 +967,7 @@ class drawing:
         self.entity = entity
     def setSVG(self,svg):
         self.svg=svg
-        #Voeg een element toe aan de grafiek toe.
+        # Voeg een element toe aan de grafiek toe.
     if use_dom_implementation==0:
         def toXml(self, filename='',compress=False):
             import cStringIO
@@ -966,10 +1013,10 @@ class drawing:
             doctype = implementation.createDocumentType('svg',"-//W3C//DTD SVG 1.0//EN""",'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd ')
 
             global root
-            #root is defined global so it can be used by the appender. Its also possible to use it as an arugument but
-            #that is a bit messy.
+            # root is defined global so it can be used by the appender. Its also possible to use it as an arugument but
+            # that is a bit messy.
             root=implementation.createDocument(None,None,doctype)
-            #Create the xml document.
+            # Create the xml document.
             global appender
             def appender(element,elementroot):
                 """This recursive function appends elements to an element and sets the attributes
