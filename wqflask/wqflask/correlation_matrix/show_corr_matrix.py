@@ -42,6 +42,10 @@ import rpy2.robjects as robjects
 from pprint import pformat as pf
 
 from utility.redis_tools import get_redis_conn
+try:  # Only import this for Python3
+    from functools import reduce
+except:
+    pass
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
 

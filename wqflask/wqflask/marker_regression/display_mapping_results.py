@@ -48,6 +48,10 @@ from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
 import utility.logger
+try:  # Only import this for Python3
+    from functools import reduce
+except:
+    pass
 logger = utility.logger.getLogger(__name__ )
 
 RED = ImageColor.getrgb("red")
