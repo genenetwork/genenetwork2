@@ -18,7 +18,7 @@ def main(argv):
     # datafile
     datafile = open(config.get('config', 'datafile'), 'r')
     datafile = csv.reader(datafile, delimiter='\t', quotechar='"')
-    datafile.next()
+    next(datafile)
     delrowcount = 0
     for row in datafile:
         if len(row) == 0:

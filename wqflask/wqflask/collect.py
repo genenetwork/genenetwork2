@@ -193,7 +193,7 @@ def view_collection():
     params = request.args
 
     uc_id = params['uc_id']
-    uc = (collection for collection in g.user_session.user_collections if collection["id"] == uc_id).next()
+    uc = next((collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
     traits = uc["members"]
 
     trait_obs = []

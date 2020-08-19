@@ -22,22 +22,22 @@ def main(argv):
     # datafile
     datafile = open(config.get('config', 'datafile'), 'r')
     phenotypedata = csv.reader(datafile, delimiter='\t', quotechar='"')
-    phenotypedata_head = phenotypedata.next()
+    phenotypedata_head = next(phenotypedata)
     print(("phenotypedata head:\n\t%s" % phenotypedata_head))
     strainnames = phenotypedata_head[1:]
     strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref="yes")
     # metafile
     metafile = open(config.get('config', 'metafile'), 'r')
     phenotypemeta = csv.reader(metafile, delimiter='\t', quotechar='"')
-    phenotypemeta_head = phenotypemeta.next()
+    phenotypemeta_head = next(phenotypemeta)
     print(("phenotypemeta head:\n\t%s" % phenotypemeta_head))
     print()
     # load
     for metarow in phenotypemeta:
         #
-        datarow_value = phenotypedata.next()
-        datarow_se = phenotypedata.next()
-        datarow_n = phenotypedata.next()
+        datarow_value = next(phenotypedata)
+        datarow_se = next(phenotypedata)
+        datarow_n = next(phenotypedata)
         # Phenotype
         sql = """
             INSERT INTO Phenotype
