@@ -44,7 +44,7 @@ import hmac
 import hashlib
 from struct import Struct
 from operator import xor
-from itertools import izip, starmap
+from itertools import starmap
 
 
 _pack_int = Struct('>I').pack
@@ -72,7 +72,7 @@ def pbkdf2_bin(data, salt, iterations=1000, keylen=24, hashfunc=None):
         rv = u = _pseudorandom(salt + _pack_int(block))
         for i in xrange(iterations - 1):
             u = _pseudorandom(''.join(map(chr, u)))
-            rv = list(starmap(xor, izip(rv, u)))
+            rv = list(starmap(xor, zip(rv, u)))
         buf.extend(rv)
     return ''.join(map(chr, buf))[:keylen]
 
@@ -81,7 +81,7 @@ def safe_str_cmp(a, b):
     if len(a) != len(b):
         return False
     rv = 0
-    for x, y in izip(a, b):
+    for x, y in zip(a, b):
         rv |= ord(x) ^ ord(y)
     return rv == 0
 

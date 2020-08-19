@@ -259,7 +259,7 @@ class Markers(object):
             # if len(self.markers) > len(p_values):
             #    self.markers = self.markers[:len(p_values)]
 
-            for marker, p_value in itertools.izip(self.markers, p_values):
+            for marker, p_value in zip(self.markers, p_values):
                 if not p_value:
                     continue
                 marker['p_value'] = float(p_value)

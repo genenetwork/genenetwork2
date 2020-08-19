@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, division
 import sys
 sys.path.insert(0,'./')
 
-from itertools import izip
+
 
 import MySQLdb
 import urlparse
@@ -60,7 +60,7 @@ def set_data(dataset_name):
 
     sample_list = []
     with open(orig_file, 'r') as orig_fh, open('/home/zas1024/cfw_data/quant_norm.csv', 'r') as quant_fh:
-        for i, (line1, line2) in enumerate(izip(orig_fh, quant_fh)):
+        for i, (line1, line2) in enumerate(zip(orig_fh, quant_fh)):
             trait_dict = {}
             sample_list = []
             if i == 0:
