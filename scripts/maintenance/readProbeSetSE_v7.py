@@ -29,9 +29,9 @@ def translateAlias(str):
 
 dataStart = 1
 
-GeneChipId = int(raw_input("Enter GeneChipId:"))
-ProbeSetFreezeId = int(raw_input("Enter ProbeSetFreezeId:"))
-input_file_name = raw_input("Enter file name with suffix:")
+GeneChipId = int(input("Enter GeneChipId:"))
+ProbeSetFreezeId = int(input("Enter ProbeSetFreezeId:"))
+input_file_name = input("Enter file name with suffix:")
 
 fp = open("%s" % input_file_name, 'rb')
 
