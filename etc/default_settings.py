@@ -24,7 +24,7 @@
 import os
 import sys
 
-GN_VERSION = open("../etc/VERSION","r").read()
+GN_VERSION = open("../etc/VERSION", "r").read()
 GN_SERVER_URL = "http://localhost:8880/" # REST API server
 
 # ---- MySQL

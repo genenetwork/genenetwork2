@@ -22,7 +22,7 @@ import sys
 import json
 
 # NEW: Note we prepend the current path - otherwise a guix instance of GN2 may be used instead
-sys.path.insert(0,'./')
+sys.path.insert(0, './')
 
 # NEW: import app to avoid a circular dependency on utility.tools
 from wqflask import app

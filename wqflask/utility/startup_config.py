@@ -36,4 +36,4 @@ def app_config():
     # import utility.elasticsearch_tools as es
     # es.test_elasticsearch_connection()
 
-    print(("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" % (BLUE,str(port),ENDC,get_setting("WEBSERVER_URL"))))
+    print(("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" % (BLUE, str(port), ENDC, get_setting("WEBSERVER_URL"))))

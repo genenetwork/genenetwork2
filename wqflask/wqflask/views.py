@@ -55,7 +55,7 @@ from wqflask.ctl import ctl_analysis
 from wqflask.snp_browser import snp_browser
 
 from utility import temp_data
-from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
+from utility.tools import SQL_URI, TEMPDIR, USE_REDIS, USE_GN_SERVER, GN_SERVER_URL, GN_VERSION, JS_TWITTER_POST_FETCHER_PATH, JS_GUIX_PATH, CSS_PATH
 from utility.helper_functions import get_species_groups
 from utility.authentication_tools import check_resource_availability
 from utility.redis_tools import get_redis_conn
@@ -133,10 +133,10 @@ def handle_bad_request(e):
         list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
         animation = random.choice(list)
 
-    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation,version=GN_VERSION))
+    resp = make_response(render_template("error.html", message=err_msg, stack=formatted_lines, error_image=animation, version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
-    resp.set_cookie(err_msg[:32],animation)
+    resp.set_cookie(err_msg[:32], animation)
     return resp
 
 @app.route("/authentication_needed")
@@ -257,7 +257,7 @@ def docedit():
 @app.route('/generated/<filename>')
 def generated_file(filename):
     logger.info(request.url)
-    return send_from_directory(GENERATED_IMAGE_DIR,filename)
+    return send_from_directory(GENERATED_IMAGE_DIR, filename)
 
 @app.route("/help")
 def help():

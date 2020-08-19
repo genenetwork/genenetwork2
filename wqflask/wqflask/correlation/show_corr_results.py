@@ -108,17 +108,17 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
-            self.min_expr = get_float(start_vars,'min_expr')
-            self.p_range_lower = get_float(start_vars,'p_range_lower',-1.0)
-            self.p_range_upper = get_float(start_vars,'p_range_upper',1.0)
+            self.min_expr = get_float(start_vars, 'min_expr')
+            self.p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
+            self.p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
 
             if ('loc_chr' in start_vars and
                 'min_loc_mb' in start_vars and
                 'max_loc_mb' in start_vars):
 
-                self.location_chr = get_string(start_vars,'loc_chr')
-                self.min_location_mb = get_int(start_vars,'min_loc_mb')
-                self.max_location_mb = get_int(start_vars,'max_loc_mb')
+                self.location_chr = get_string(start_vars, 'loc_chr')
+                self.min_location_mb = get_int(start_vars, 'min_loc_mb')
+                self.max_location_mb = get_int(start_vars, 'max_loc_mb')
             else:
                 self.location_chr = self.min_location_mb = self.max_location_mb = None
 

@@ -26,8 +26,8 @@ GN_SERVER result when set (which should return a Tuple)
         else:
             res2 = result,
         if LOG_SQL:
-            logger.debug("Replaced SQL call",query)
-        logger.debug(path,res2)
+            logger.debug("Replaced SQL call", query)
+        logger.debug(path, res2)
         return res2
     else:
         return fetchone(query)
@@ -37,7 +37,7 @@ def fetchone(query):
 original fetchone, but with logging)
 
     """
-    with Bench("SQL",LOG_SQL):
+    with Bench("SQL", LOG_SQL):
         def helper(query):
             res = g.db.execute(query)
             return res.fetchone()
@@ -48,7 +48,7 @@ def fetchall(query):
 original fetchall, but with logging)
 
     """
-    with Bench("SQL",LOG_SQL):
+    with Bench("SQL", LOG_SQL):
         def helper(query):
             res = g.db.execute(query)
             return res.fetchall()
@@ -58,7 +58,7 @@ def gn_server(path):
     """Return JSON record by calling GN_SERVER
 
     """
-    with Bench("GN_SERVER",LOG_SQL):
+    with Bench("GN_SERVER", LOG_SQL):
         res = urllib.request.urlopen(GN_SERVER_URL+path)
         rest = res.read()
         res2 = json.loads(rest)

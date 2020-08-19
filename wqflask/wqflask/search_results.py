@@ -53,7 +53,7 @@ views.py).
         search = self.search_terms
         self.original_search_string = self.search_terms
         # check for dodgy search terms
-        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*',re.IGNORECASE)
+        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
             logger.info("Regex failed search")
             self.search_term_exists = False

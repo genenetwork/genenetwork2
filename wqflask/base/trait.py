@@ -193,7 +193,7 @@ class GeneralTrait(object):
         '''
 
         if self.chr and self.mb:
-            self.location = 'Chr %s @ %s Mb'  % (self.chr,self.mb)
+            self.location = 'Chr %s @ %s Mb'  % (self.chr, self.mb)
         elif self.chr:
             self.location = 'Chr %s @ Unknown position' % (self.chr)
         else:
@@ -440,7 +440,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif dataset.type == 'Geno':
-            display_fields_string = string.join(dataset.display_fields,',Geno.')
+            display_fields_string = string.join(dataset.display_fields, ',Geno.')
             display_fields_string = 'Geno.' + display_fields_string
             query = """
                     SELECT %s
@@ -459,7 +459,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             query = """SELECT %s FROM %s WHERE Name = %s"""
             logger.sql(query)
             trait_info = g.db.execute(query,
-                                    (string.join(dataset.display_fields,','),
+                                    (string.join(dataset.display_fields, ','),
                                                 dataset.type, trait.name)).fetchone()
 
     if trait_info:

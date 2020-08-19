@@ -7,7 +7,7 @@ import reaper
 import MySQLdb
 import time
 
-con = MySQLdb.Connect(db='db_webqtl',user='username',passwd='', host="localhost")
+con = MySQLdb.Connect(db='db_webqtl', user='username', passwd='', host="localhost")
 cursor = con.cursor()
 
 genotypeDir = '/gnshare/gn/web/genotypes/'
@@ -102,7 +102,7 @@ for ProbeSetFreezeId in ProbeSetFreezeIds:
 
 		kj += 1
 		if kj%1000==0:
-			print((ProbeSetFreezeId, InbredSets[InbredSetId],kj))
+			print((ProbeSetFreezeId, InbredSets[InbredSetId], kj))
 
 
 	print(ProbeSetFreezeIds)

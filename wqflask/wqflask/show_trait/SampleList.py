@@ -57,7 +57,7 @@ class SampleList(object):
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
-            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
+            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17'):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 

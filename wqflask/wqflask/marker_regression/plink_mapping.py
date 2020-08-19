@@ -54,7 +54,7 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
     for i, sample in enumerate(ped_sample_list):
         try:
             value = vals[i]
-            value = str(value).replace('value=','')
+            value = str(value).replace('value=', '')
             value = value.strip()
         except:
             value = -9999
@@ -78,7 +78,7 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
 
 # get strain name from ped file in order
 def get_samples_from_ped_file(dataset):
-    ped_file= open("{}{}.ped".format(flat_files('mapping'), dataset.group.name),"r")
+    ped_file= open("{}{}.ped".format(flat_files('mapping'), dataset.group.name), "r")
     line = ped_file.readline()
     sample_list=[]
 
@@ -155,7 +155,7 @@ def parse_plink_output(output_filename, species):
 # output: lineList list
 #######################################################
 def build_line_list(line=None):
-    line_list = string.split(string.strip(line),' ')# irregular number of whitespaces between columns
+    line_list = string.split(string.strip(line), ' ')# irregular number of whitespaces between columns
     line_list = [item for item in line_list if item !='']
     line_list = list(map(string.strip, line_list))
 

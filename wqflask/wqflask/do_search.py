@@ -46,8 +46,8 @@ class DoSearch(object):
 
     def handle_wildcard(self, str):
         keyword = str.strip()
-        keyword = keyword.replace("*",".*")
-        keyword = keyword.replace("?",".")
+        keyword = keyword.replace("*", ".*")
+        keyword = keyword.replace("?", ".")
 
         return keyword
 

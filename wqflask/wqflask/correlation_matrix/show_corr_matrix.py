@@ -275,8 +275,8 @@ def zScore(trait_data_array):
         i = 0
         for data in trait_data_array:
             N = len(data)
-            S = reduce(lambda x,y: x+y, data, 0.)
-            SS = reduce(lambda x,y: x+y*y, data, 0.)
+            S = reduce(lambda x, y: x+y, data, 0.)
+            SS = reduce(lambda x, y: x+y*y, data, 0.)
             mean = S/N
             var = SS - S*S/N
             stdev = math.sqrt(var/(N-1))
@@ -294,7 +294,7 @@ def sortEigenVectors(vector):
         combines = []
         i = 0
         for item in eigenValues:
-            combines.append([eigenValues[i],eigenVectors[i]])
+            combines.append([eigenValues[i], eigenVectors[i]])
             i += 1
         combines.sort(webqtlUtil.cmpEigenValue)
         A = []
@@ -302,7 +302,7 @@ def sortEigenVectors(vector):
         for item in combines:
             A.append(item[0])
             B.append(item[1])
-        sum = reduce(lambda x,y: x+y, A, 0.0)
+        sum = reduce(lambda x, y: x+y, A, 0.0)
         A = [x*100.0/sum for x in A] 
         return [A, B]
     except:

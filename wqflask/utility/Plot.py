@@ -58,7 +58,7 @@ def cformat(d, rank=0):
     strD = "%2.6f" % d
 
     if rank == 0:
-        while strD[-1] in ('0','.'):
+        while strD[-1] in ('0', '.'):
             if strD[-1] == '0' and strD[-2] == '.' and len(strD) <= 4:
                 break
             elif strD[-1] == '.':
@@ -162,7 +162,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
        j = int((item-xLow)/step)
        Count[j] += 1
 
-    yLow, yTop, stepY=detScale(0,max(Count))
+    yLow, yTop, stepY=detScale(0, max(Count))
 
     #draw data
     xScale = plotWidth/(xTop-xLow)
@@ -174,7 +174,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
            xc = (dataXY[i]-xLow)*xScale+xLeftOffset
            yc =-(count-yLow)*yScale+yTopOffset+plotHeight
            im_drawer.rectangle(
-               xy=((xc+2,yc),(xc+barWidth-2,yTopOffset+plotHeight)),
+               xy=((xc+2, yc), (xc+barWidth-2, yTopOffset+plotHeight)),
                outline=barColor, fill=barColor)
 
     #draw drawing region
@@ -183,81 +183,81 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     )
 
     #draw scale
-    scaleFont=ImageFont.truetype(font=COUR_FILE,size=11)
+    scaleFont=ImageFont.truetype(font=COUR_FILE, size=11)
     x=xLow
     for i in range(int(stepX)+1):
        xc=xLeftOffset+(x-xLow)*xScale
        im_drawer.line(
-           xy=((xc,yTopOffset+plotHeight),(xc,yTopOffset+plotHeight+5)),
+           xy=((xc, yTopOffset+plotHeight), (xc, yTopOffset+plotHeight+5)),
            fill=axesColor)
        strX = cformat(d=x, rank=0)
        im_drawer.text(
            text=strX,
-           xy=(xc-im_drawer.textsize(strX,font=scaleFont)[0]/2,
-               yTopOffset+plotHeight+14),font=scaleFont)
+           xy=(xc-im_drawer.textsize(strX, font=scaleFont)[0]/2,
+               yTopOffset+plotHeight+14), font=scaleFont)
        x+= (xTop - xLow)/stepX
 
     y=yLow
     for i in range(int(stepY)+1):
        yc=yTopOffset+plotHeight-(y-yLow)*yScale
-       im_drawer.line(xy=((xLeftOffset,yc),(xLeftOffset-5,yc)), fill=axesColor)
+       im_drawer.line(xy=((xLeftOffset, yc), (xLeftOffset-5, yc)), fill=axesColor)
        strY = "%d" %y
        im_drawer.text(
            text=strY,
-           xy=(xLeftOffset-im_drawer.textsize(strY,font=scaleFont)[0]-6,yc+5),
+           xy=(xLeftOffset-im_drawer.textsize(strY, font=scaleFont)[0]-6, yc+5),
            font=scaleFont)
        y+= (yTop - yLow)/stepY
 
     #draw label
-    labelFont=ImageFont.truetype(font=TAHOMA_FILE,size=17)
+    labelFont=ImageFont.truetype(font=TAHOMA_FILE, size=17)
     if XLabel:
        im_drawer.text(
            text=XLabel,
            xy=(xLeftOffset+(
-               plotWidth-im_drawer.textsize(XLabel,font=labelFont)[0])/2.0,
+               plotWidth-im_drawer.textsize(XLabel, font=labelFont)[0])/2.0,
                yTopOffset+plotHeight+yBottomOffset-10),
-           font=labelFont,fill=labelColor)
+           font=labelFont, fill=labelColor)
 
     if YLabel:
         draw_rotated_text(canvas, text=YLabel,
                           xy=(19,
                               yTopOffset+plotHeight-(
                                   plotHeight-im_drawer.textsize(
-                                      YLabel,font=labelFont)[0])/2.0),
+                                      YLabel, font=labelFont)[0])/2.0),
                           font=labelFont, fill=labelColor, angle=90)
 
-    labelFont=ImageFont.truetype(font=VERDANA_FILE,size=16)
+    labelFont=ImageFont.truetype(font=VERDANA_FILE, size=16)
     if title:
        im_drawer.text(
            text=title,
            xy=(xLeftOffset+(plotWidth-im_drawer.textsize(
-               title,font=labelFont)[0])/2.0,
+               title, font=labelFont)[0])/2.0,
                20),
-           font=labelFont,fill=labelColor)
+           font=labelFont, fill=labelColor)
 
 # This function determines the scale of the plot
-def detScaleOld(min,max):
+def detScaleOld(min, max):
     if min>=max:
         return None
     elif min == -1.0 and max == 1.0:
-        return [-1.2,1.2,12]
+        return [-1.2, 1.2, 12]
     else:
         a=max-min
         b=floor(log10(a))
-        c=pow(10.0,b)
+        c=pow(10.0, b)
         if a < c*5.0:
             c/=2.0
         #print a,b,c
         low=c*floor(min/c)
         high=c*ceil(max/c)
-        return [low,high,round((high-low)/c)]
+        return [low, high, round((high-low)/c)]
 
 def detScale(min=0,max=0):
 
     if min>=max:
         return None
     elif min == -1.0 and max == 1.0:
-        return [-1.2,1.2,12]
+        return [-1.2, 1.2, 12]
     else:
         a=max-min
         if max != 0:
@@ -269,7 +269,7 @@ def detScale(min=0,max=0):
                 min -= 0.1*a
         a=max-min
         b=floor(log10(a))
-        c=pow(10.0,b)
+        c=pow(10.0, b)
         low=c*floor(min/c)
         high=c*ceil(max/c)
         n = round((high-low)/c)
@@ -287,7 +287,7 @@ def detScale(min=0,max=0):
             high=c*ceil(max/c)
             n = round((high-low)/c)
 
-        return [low,high,n]
+        return [low, high, n]
 
 def bluefunc(x):
     return 1.0 / (1.0 + exp(-10*(x-0.6)))
@@ -296,7 +296,7 @@ def redfunc(x):
     return 1.0 / (1.0 + exp(10*(x-0.5)))
 
 def greenfunc(x):
-    return 1 - pow(redfunc(x+0.2),2) - bluefunc(x-0.3)
+    return 1 - pow(redfunc(x+0.2), 2) - bluefunc(x-0.3)
 
 def colorSpectrum(n=100):
     multiple = 10

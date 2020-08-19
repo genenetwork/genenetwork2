@@ -707,7 +707,7 @@ def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
 
         perm_strata_strings.append(combined_string)
 
-    d = dict([(y,x+1) for x,y in enumerate(sorted(set(perm_strata_strings)))])
+    d = dict([(y, x+1) for x, y in enumerate(sorted(set(perm_strata_strings)))])
     list_to_numbers = [d[x] for x in perm_strata_strings]
     perm_strata = list_to_numbers
 

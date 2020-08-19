@@ -558,10 +558,10 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
         sample_list = []
         for sample in sample_data:
             sample_dict = {
-              "sample_name"   : sample[0],
-              "sample_name_2" : sample[1],
-              "value"         : sample[2],
-              "data_id"       : sample[3],
+              "sample_name": sample[0],
+              "sample_name_2": sample[1],
+              "value": sample[2],
+              "data_id": sample[3],
             }
             if sample[4]:
                 sample_dict["se"] = sample[4]

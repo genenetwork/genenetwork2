@@ -867,7 +867,7 @@ def forgot_password_submit():
     email_address = params['email_address']
     next_page = None
     if email_address != "":
-        logger.debug("Wants to send password E-mail to ",email_address)
+        logger.debug("Wants to send password E-mail to ", email_address)
         user_details = get_user_by_unique_column("email_address", email_address)
         if user_details:
             ForgotPasswordEmail(user_details["email_address"])
