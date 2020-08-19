@@ -360,7 +360,7 @@ class tspan(SVGelement):
 
     def __init__(self, text=None, **args):
         SVGelement.__init__(self, 'tspan', **args)
-        if self.text <> None:
+        if self.text != None:
             self.text = text
 
     def __repr__(self):
