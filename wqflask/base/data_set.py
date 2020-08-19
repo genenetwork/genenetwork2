@@ -254,7 +254,7 @@ class Markers(object):
         logger.debug("length of self.markers:", len(self.markers))
         logger.debug("length of p_values:", len(p_values))
 
-        if type(p_values) is list:
+        if isinstance(p_values, list):
             # THIS IS only needed for the case when we are limiting the number of p-values calculated
             # if len(self.markers) > len(p_values):
             #    self.markers = self.markers[:len(p_values)]
@@ -270,7 +270,7 @@ class Markers(object):
                     marker['lod_score'] = -math.log10(marker['p_value'])
                     # Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
                     marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-        elif type(p_values) is dict:
+        elif isinstance(p_values, dict):
             filtered_markers = []
             for marker in self.markers:
                 #logger.debug("marker[name]", marker['name'])

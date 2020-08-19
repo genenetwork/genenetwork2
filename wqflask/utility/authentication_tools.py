@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__ )
 def check_resource_availability(dataset, trait_id=None):
 
     #At least for now assume temporary entered traits are accessible
-    if type(dataset) == str:
+    if isinstance(dataset, str):
         return webqtlConfig.DEFAULT_PRIVILEGES
     if dataset.type == "Temp":
         return webqtlConfig.DEFAULT_PRIVILEGES

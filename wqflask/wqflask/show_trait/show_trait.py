@@ -625,7 +625,7 @@ def get_categorical_variables(this_trait, sample_list):
 
 def get_genotype_scales(genofiles):
     geno_scales = {}
-    if type(genofiles) is list:
+    if isinstance(genofiles, list):
         for the_file in genofiles:
             file_location = the_file['location']
             geno_scales[file_location] = get_scales_from_genofile(file_location)

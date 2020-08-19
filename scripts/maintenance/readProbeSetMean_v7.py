@@ -80,8 +80,7 @@ while line:
 	if kj%100000 == 0:
 		print(('checked ',kj,' lines'))
 
-GeneList = list(map(string.lower, GeneList))
-GeneList.sort()
+GeneList = sorted(map(string.lower, GeneList))
 	
 if isCont==0:
 	sys.exit(0)
@@ -148,9 +147,8 @@ for item in results:
 	
 print(Names)
 
-Names = list(map(string.lower, Names))
+Names = sorted(map(string.lower, Names))
 
-Names.sort() # -- Fixed the lower case problem of ProbeSets affx-mur_b2_at  doesn't exist --#
 
 
 ##---- compare genelist with names ----##
