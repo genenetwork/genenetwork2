@@ -138,14 +138,14 @@ $(function() {
   };
 
   submit_bnw = function() {
-    trait_data = get_traits_from_table("trait_table", "submit_bnw")
+    trait_data = submit_traits_to_export_or_bnw("trait_table", "submit_bnw")
   }
 
   export_traits = function() {
-    trait_data = get_traits_from_table("trait_table", "export_csv")
+    trait_data = submit_traits_to_export_or_bnw("trait_table", "export_csv")
   };
 
-  get_traits_from_table = function(table_name, destination) {
+  submit_traits_to_export_or_bnw = function(table_name, destination) {
     trait_table = $('#'+table_name);
     table_dict = {};
 
@@ -181,55 +181,58 @@ $(function() {
     $('#export_form').submit();
   };
 
-  $("#corr_matrix").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
+  get_traits_from_table = function(){
+    traits = $("#trait_table input:checked").map(function() {
+      return $(this).val();
+    }).get();
+    if (traits.length == 0){
+      num_traits = $("#trait_table input").length
+      if (num_traits <= 100){
+        traits = $("#trait_table input").map(function() {
           return $(this).val();
-      }).get();
+        }).get();
+      }
+    }
+    return traits
+  }
+
+  $("#corr_matrix").on("click", function() {
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Correlation Matrix")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#network_graph").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
-         return $(this).val();
-      }).get();
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Network Graph")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#wgcna_setup").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
-          return $(this).val();
-      }).get();
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("WGCNA Setup")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#ctl_setup").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
-          return $(this).val();
-      }).get();
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("CTL Setup")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#heatmap").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
-          return $(this).val();
-      }).get();
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Heatmap")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#comp_bar_chart").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
-          return $(this).val();
-      }).get();
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Comparison Bar Chart")
       $("input[name=form_url]").val($(this).data("url"))
@@ -237,9 +240,7 @@ $(function() {
   });
 
   $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {
-      traits = $("#trait_table input:checked").map(function() {
-          return $(this).val();
-      }).get();
+      traits = get_traits_from_table()
       $("#trait_list").val(traits)
       url = $(this).data("url")
       return submit_special(url)
