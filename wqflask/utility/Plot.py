@@ -86,7 +86,7 @@ def frange(start, end=None, inc=1.0):
     # Need to adjust the count. AFAICT, it always comes up one short.
         count += 1
     L = [start] * count
-    for i in xrange(1, count):
+    for i in range(1, count):
         L[i] = start + i * inc
     return L
 

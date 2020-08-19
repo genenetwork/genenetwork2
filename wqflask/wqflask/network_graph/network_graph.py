@@ -202,8 +202,8 @@ class NetworkGraph(object):
 
         self.js_data = dict(traits = [trait.name for trait in self.traits],
                             groups = groups,
-                            cols = range(len(self.traits)),
-                            rows = range(len(self.traits)),
+                            cols = list(range(len(self.traits))),
+                            rows = list(range(len(self.traits))),
                             samples = self.all_sample_list,
                             sample_data = self.sample_data,
                             elements = self.elements,)

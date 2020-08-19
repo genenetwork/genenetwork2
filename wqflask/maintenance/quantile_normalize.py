@@ -37,7 +37,7 @@ def create_dataframe(input_file):
     with open(input_file) as f:
         ncols = len(f.readline().split("\t"))
 
-    input_array = np.loadtxt(open(input_file, "rb"), delimiter="\t", skiprows=1, usecols=range(1, ncols))
+    input_array = np.loadtxt(open(input_file, "rb"), delimiter="\t", skiprows=1, usecols=list(range(1, ncols)))
     return pd.DataFrame(input_array)
 
 #This function taken from https://github.com/ShawnLYU/Quantile_Normalize

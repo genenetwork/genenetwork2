@@ -228,4 +228,4 @@ def natural_sort(marker_list):
     """
     convert = lambda text: int(text) if text.isdigit() else text.lower()
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', str(marker_list[key]['chr'])) ]
-    return sorted(range(len(marker_list)), key = alphanum_key)
+    return sorted(list(range(len(marker_list))), key = alphanum_key)

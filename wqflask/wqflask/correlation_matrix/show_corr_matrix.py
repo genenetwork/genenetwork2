@@ -194,7 +194,7 @@ class CorrelationMatrix(object):
                 if self.do_PCA == True:
                     self.pca_works = "True"
                     self.pca_trait_ids = []
-                    pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+                    pca = self.calculate_pca(list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
                     self.loadings_array = self.process_loadings()
                 else:
                     self.pca_works = "False"
@@ -203,8 +203,8 @@ class CorrelationMatrix(object):
 
             self.js_data = dict(traits = [trait.name for trait in self.traits],
                                 groups = groups,
-                                cols = range(len(self.traits)),
-                                rows = range(len(self.traits)),
+                                cols = list(range(len(self.traits))),
+                                rows = list(range(len(self.traits))),
                                 samples = self.all_sample_list,
                                 sample_data = self.sample_data,)
             #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
