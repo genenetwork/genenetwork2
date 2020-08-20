@@ -167,7 +167,7 @@ the Guix suggested environment vars. Check the output of
 
 #+begin_src bash
 guix package --search-paths
-export PYTHONPATH="/root/.guix-profile/lib/python2.7/site-packages"
+export PYTHONPATH="/root/.guix-profile/lib/python3.8/site-packages"
 export R_LIBS_SITE="/root/.guix-profile/site-library/"
 #+end_src
 
@@ -265,7 +265,7 @@ software.
 If something is not working, take a hint from the settings file
 that comes in the Guix installation. It sits in something like
 
-: cat ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+: cat ~/.guix-profile/lib/python3.8/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
 
 ** Set up nginx port forwarding
 
@@ -380,7 +380,7 @@ After setting the paths for the server
 
 #+begin_src bash
 export PATH=~/.guix-profile/bin:$PATH
-export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+export PYTHONPATH="$HOME/.guix-profile/lib/python3.8/site-packages"
 export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
 export GUIX_GTK3_PATH="$HOME/.guix-profile/lib/gtk-3.0"
 export GI_TYPELIB_PATH="$HOME/.guix-profile/lib/girepository-1.0"

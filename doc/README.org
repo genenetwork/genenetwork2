@@ -218,7 +218,7 @@ information given by guix:
 
 On one system:
 
-: export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+: export PYTHONPATH="$HOME/.guix-profile/lib/python3.8/site-packages"
 : export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
 : export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
 
