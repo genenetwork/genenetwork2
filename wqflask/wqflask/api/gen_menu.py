@@ -128,7 +128,7 @@ def build_types(species, group):
             these_datasets = build_datasets(species, group, result[0])
             if len(these_datasets) > 0:
                 results.append([str(result[0]), str(result[0]),
-                                "Molecular Trait Datasets"])
+                                "Molecular Traits"])
 
     return results
 
