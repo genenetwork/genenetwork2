@@ -34,7 +34,6 @@ from utility import webqtlUtil
 from db import webqtlDatabaseFunction
 from base import species
 from base import webqtlConfig
-import reaper
 from flask import Flask, g
 import os
 import math
@@ -456,12 +455,7 @@ class DatasetGroup(object):
                 full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
-
-        if use_reaper:
-            genotype_1 = reaper.Dataset()
-            genotype_1.read(full_filename)
-        else:
-            genotype_1 = gen_geno_ob.genotype(full_filename)
+        genotype_1 = gen_geno_ob.genotype(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(
