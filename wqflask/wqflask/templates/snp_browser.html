@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/typeahead-bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/snp_browser.css" />
 {% endblock %}
@@ -215,8 +215,8 @@
 
 {% endblock %}
 {% block js %}
-  <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
-  <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+  <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
+  <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
   <script language="javascript" type="text/javascript" src="/static/new/js_external/typeahead.bundle.js"></script>
 
   <script language="javascript" type="text/javascript" src="/static/new/javascript/typeahead_rn6.json"></script>
