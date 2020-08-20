@@ -6,6 +6,7 @@
 from __future__ import print_function
 import argparse
 from link_checker import check_links
+from link_checker import check_packaged_js_files
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
 from main_web_functionality import check_main_web_functionality
@@ -30,6 +31,7 @@ def run_all(args_obj, parser):
     link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
+    check_packaged_js_files(args_obj, parser)
     check_mapping(args_obj, parser)
     # TODO: Add other functions as they are created.
 
