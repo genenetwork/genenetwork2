@@ -10,7 +10,7 @@ import uuid
 import hashlib
 import base64
 
-import urlparse
+import urllib.parse
 
 import simplejson as json
 

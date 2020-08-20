@@ -44,7 +44,7 @@ import codecs
 import json
 import requests
 import gzip
-import cPickle as pickle
+import pickle as pickle
 import itertools
 
 from redis import Redis

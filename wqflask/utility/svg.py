@@ -957,8 +957,8 @@ class drawing:
         # Voeg een element toe aan de grafiek toe.
     if use_dom_implementation==0:
         def toXml(self, filename='',compress=False):
-            import cStringIO
-            xml=cStringIO.StringIO()
+            import io
+            xml=io.StringIO()
             xml.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             xml.write("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
             if self.entity:
@@ -971,7 +971,7 @@ class drawing:
             if not filename:
                 if compress:
                     import gzip
-                    f=cStringIO.StringIO()
+                    f=io.StringIO()
                     zf=gzip.GzipFile(fileobj=f, mode='wb')
                     zf.write(xml.getvalue())
                     zf.close()
@@ -1024,12 +1024,12 @@ class drawing:
                 return elementroot
             root=appender(self.svg, root)
             if not filename:
-                import cStringIO
-                xml=cStringIO.StringIO()
+                import io
+                xml=io.StringIO()
                 PrettyPrint(root, xml)
                 if compress:
                     import gzip
-                    f=cStringIO.StringIO()
+                    f=io.StringIO()
                     zf=gzip.GzipFile(fileobj=f, mode='wb')
                     zf.write(xml.getvalue())
                     zf.close()
@@ -1041,8 +1041,8 @@ class drawing:
                 try:
                     if filename[-4:]=='svgz':
                         import gzip
-                        import cStringIO
-                        xml=cStringIO.StringIO()
+                        import io
+                        xml=io.StringIO()
                         PrettyPrint(root, xml)
                         f=gzip.GzipFile(filename=filename, mode='wb', compresslevel=9)
                         f.write(xml.getvalue())

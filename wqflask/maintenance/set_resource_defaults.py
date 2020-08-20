@@ -34,7 +34,7 @@ Redis = get_redis_conn()
 
 import MySQLdb
 
-import urlparse
+import urllib.parse
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -42,7 +42,7 @@ logger = getLogger(__name__)
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(SQL_URI)
+    parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],

@@ -2,7 +2,7 @@ from __future__ import print_function, division
 
 import csv
 import xlsxwriter
-import StringIO 
+import io 
 import datetime
 import itertools
 
@@ -63,7 +63,7 @@ def export_search_results_csv(targs):
     file_list = []
     for group in list(traits_by_group.keys()):
         group_traits = traits_by_group[group]
-        buff = StringIO.StringIO()
+        buff = io.StringIO()
         writer = csv.writer(buff)
         csv_rows = []
 

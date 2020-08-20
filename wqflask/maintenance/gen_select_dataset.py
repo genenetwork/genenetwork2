@@ -50,7 +50,7 @@ from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
 import MySQLdb
 
 import simplejson as json
-import urlparse
+import urllib.parse
 
 
 #import sqlalchemy as sa
@@ -66,7 +66,7 @@ from pprint import pformat as pf
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(SQL_URI)
+    parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],

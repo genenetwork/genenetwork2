@@ -14,13 +14,13 @@ import csv
 import simplejson as json
 import yaml
 import xlsxwriter
-import StringIO  # Todo: Use cStringIO?
+import io  # Todo: Use cStringIO?
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
 import gc
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 import uuid
 
 import flask
@@ -373,7 +373,7 @@ def export_trait_excel():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     for i, row in enumerate(sample_data):
@@ -397,7 +397,7 @@ def export_trait_csv():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     writer = csv.writer(buff)
     for row in sample_data:
         writer.writerow(row)
@@ -417,7 +417,7 @@ def export_traits_csv():
     file_list = export_traits.export_search_results_csv(request.form)
 
     if len(file_list) > 1:
-        memory_file = StringIO.StringIO()
+        memory_file = io.StringIO()
         with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
             for the_file in file_list:
                 zf.writestr(the_file[0], the_file[1])
@@ -460,7 +460,7 @@ def export_perm_data():
         ["#Comment: Results sorted from low to high peak linkage"]
     ]
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     writer = csv.writer(buff)
     writer.writerows(the_rows)
     for item in perm_info['perm_data']:

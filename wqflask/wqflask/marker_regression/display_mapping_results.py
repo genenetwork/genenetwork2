@@ -29,8 +29,8 @@ import string
 from math import *
 from PIL import (Image, ImageDraw, ImageFont, ImageColor)
 import sys, os
-import cPickle
-import httplib
+import pickle
+import http.client
 import json
 
 from flask import Flask, g

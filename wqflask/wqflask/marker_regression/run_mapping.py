@@ -18,7 +18,7 @@ import uuid
 import rpy2.robjects as ro
 import numpy as np
 
-import cPickle as pickle
+import pickle as pickle
 import itertools
 
 import simplejson as json

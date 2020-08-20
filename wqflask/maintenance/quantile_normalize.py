@@ -6,7 +6,7 @@ sys.path.insert(0, './')
 
 
 import MySQLdb
-import urlparse
+import urllib.parse
 
 import numpy as np
 import pandas as pd
@@ -22,7 +22,7 @@ from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, SQL_URI
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(SQL_URI)
+    parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],

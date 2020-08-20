@@ -24,7 +24,7 @@ import sys
 # sys.path.append(".")   Never do this in a webserver!
 
 import string
-import cPickle
+import pickle
 import os
 import time
 import pp

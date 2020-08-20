@@ -4,7 +4,7 @@ import sys
 # sys.path.append(".") Never in a running webserver
 
 import string
-import cPickle
+import pickle
 import os
 import datetime
 import time
@@ -30,7 +30,7 @@ from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 
 from MySQLdb import escape_string as escape
 
-import cPickle as pickle
+import pickle as pickle
 import simplejson as json
 
 from pprint import pformat as pf

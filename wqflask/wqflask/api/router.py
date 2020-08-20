@@ -6,7 +6,7 @@ import os, io, csv, json, datetime, requests, yaml
 import zlib
 from zipfile import ZipFile, ZIP_DEFLATED
 
-import StringIO
+import io
 
 import flask
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, send_file
@@ -308,7 +308,7 @@ def fetch_traits(dataset_name, file_format = "json"):
         else:
             filename = dataset_name + "_trait_ids.csv"
 
-            si = StringIO.StringIO()
+            si = io.StringIO()
             csv_writer = csv.writer(si)
             csv_writer.writerows([[trait_id] for trait_id in trait_ids])
             output = make_response(si.getvalue())
@@ -322,7 +322,7 @@ def fetch_traits(dataset_name, file_format = "json"):
         else:
             filename = dataset_name + "_trait_names.csv"
 
-            si = StringIO.StringIO()
+            si = io.StringIO()
             csv_writer = csv.writer(si)
             csv_writer.writerows([[trait_name] for trait_name in trait_names])
             output = make_response(si.getvalue())
@@ -413,7 +413,7 @@ def fetch_traits(dataset_name, file_format = "json"):
                 for result in g.db.execute(final_query).fetchall():
                     results_list.append(result)
 
-                si = StringIO.StringIO()
+                si = io.StringIO()
                 csv_writer = csv.writer(si)
                 csv_writer.writerows(results_list)
                 output = make_response(si.getvalue())
@@ -519,7 +519,7 @@ def all_sample_data(dataset_name, file_format = "csv"):
 
             results_list = list(map(list, zip(*results_list)))
 
-            si = StringIO.StringIO()
+            si = io.StringIO()
             csv_writer = csv.writer(si)
             csv_writer.writerows(results_list)
             output = make_response(si.getvalue())
@@ -706,7 +706,7 @@ def get_mapping_results():
         if format == "csv":
             filename = "mapping_" + datetime.datetime.utcnow().strftime("%b_%d_%Y_%I:%M%p") + ".csv"
 
-            si = StringIO.StringIO()
+            si = io.StringIO()
             csv_writer = csv.writer(si)
             csv_writer.writerows(results)
             output = make_response(si.getvalue())
@@ -732,7 +732,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
         if request.args['limit_to'].isdigit():
             limit_num = int(request.args['limit_to'])
 
-    si = StringIO.StringIO()
+    si = io.StringIO()
     if file_format == "csv" or file_format == "geno":
         filename = group_name + ".geno"
 
