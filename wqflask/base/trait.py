@@ -6,7 +6,6 @@ import resource
 import codecs
 import requests
 import random
-import urllib.request, urllib.parse, urllib.error
 
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData

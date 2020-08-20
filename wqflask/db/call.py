@@ -3,7 +3,10 @@
 from flask import g
 
 import string
-import urllib.request, urllib.error, urllib.parse
+try:  # Python2 support
+    import urllib.request, urllib.error, urllib.parse
+except:
+    import urllib2
 import json
 from utility.tools import USE_GN_SERVER, LOG_SQL, GN_SERVER_URL
 from utility.benchmark import Bench
@@ -59,7 +62,11 @@ def gn_server(path):
 
     """
     with Bench("GN_SERVER", LOG_SQL):
-        res = urllib.request.urlopen(GN_SERVER_URL+path)
+        res = ()
+        try:
+            res = urllib.request.urlopen(GN_SERVER_URL+path)
+        except:
+            res = urllib2.urlopen(GN_SERVER_URL+path)
         rest = res.read()
         res2 = json.loads(rest)
         logger.debug(res2)
