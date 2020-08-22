@@ -137,7 +137,7 @@
           </div>
           {% endif %}
           <!--<div id="table_container" style="min-width: {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}2000{% else %}380{% endif %}px;">-->
-          <div id="table_container">
+          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px;"{% endif %}>
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: {% if dataset.type == 'Geno' %}380px{% else %}100%{% endif %};">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
