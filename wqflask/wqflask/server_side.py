@@ -2,7 +2,27 @@
 
 
 
-class ServerSide(object):
+class ServerSideTable(object):
+    '''
+        This class is used to do server-side processing
+        on the DataTables table such as paginating, sorting,
+        filtering(not implemented) etc. This takes the load off
+        the client-side and reduces the size of data interchanged.
+
+        Usage:
+            ServerSideTable(table_data, request_values)
+        where,
+            `table_data` must have data members
+            `rows_count` as number of rows in the table,
+            `table_rows` as data rows of the table,
+            `header_data_names` as headers names of the table.
+
+            `request_values` must have request arguments values
+            including the DataTables server-side processing arguments.
+
+        Have a look at snp_browser_table() function in 
+        wqflask/wqflask/views.py for reference use.
+    '''
 
     def __init__(self, table_data, request_values):
         self.request_values = request_values
