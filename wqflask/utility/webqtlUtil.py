@@ -64,7 +64,7 @@ ParInfo ={
 #      Accessory Functions
 #########################################
 
-def genRandStr(prefix = "", length=8, chars=string.letters+string.digits):
+def genRandStr(prefix = "", length=8, chars=string.ascii_letters+string.digits):
     from random import choice
     _str = prefix[:]
     for i in range(length):
