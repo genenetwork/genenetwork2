@@ -20,22 +20,11 @@
 
 from __future__ import absolute_import, print_function, division
 
-import sys
-
-import string
-import pickle
-import os
-import time
-import pp
-import math
 import collections
-import resource
 import json
-
 import scipy
 import numpy
 import rpy2.robjects as ro                    # R Objects
-import rpy2.rinterface as ri
 
 from rpy2.robjects.packages import importr
 utils = importr("utils")
