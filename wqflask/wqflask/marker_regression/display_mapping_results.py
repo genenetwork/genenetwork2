@@ -83,8 +83,8 @@ assert(os.path.isfile(VERDANA_FILE))
 class HtmlGenWrapper:
     """Wrapper Methods for HTML gen"""
     @staticmethod
-    def create_image_tag(src, alt, **kwargs):
-        return HT.Image(src=src, alt=alt, **kwargs)
+    def create_image_tag(**kwargs):
+        return HT.Image(**kwargs)
 
     @staticmethod
     def create_form_tag(**kwargs):
