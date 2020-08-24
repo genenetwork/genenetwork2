@@ -80,6 +80,41 @@ ARIAL_FILE = "./wqflask/static/fonts/arial.ttf"
 assert(os.path.isfile(VERDANA_FILE))
 
 
+class HtmlGenWrapper:
+    """Wrapper Methods for HTML gen"""
+    @staticmethod
+    def create_image_tag(src, alt, **kwargs):
+        return HT.Image(src=src, alt=alt, **kwargs)
+
+    @staticmethod
+    def create_form_tag(**kwargs):
+        return HT.Form(**kwargs)
+
+    @staticmethod
+    def create_p_tag(**kwargs):
+        return HT.Paragraph(**kwargs)
+
+    @staticmethod
+    def create_br_tag():
+        return HT.BR()
+
+    @staticmethod
+    def create_input_tag(**kwargs):
+        return HT.Input(**kwargs)
+
+    @staticmethod
+    def create_area_tag(**kwargs):
+        return HT.Area(**kwargs)
+
+    @staticmethod
+    def create_link_tag(href, content, **kwargs):
+        return HT.Href(href, content, **kwargs)
+
+    @staticmethod
+    def create_map_tag(**kwargs):
+        return HT.Map(**kwargs)
+
+
 class DisplayMappingResults(object):
     """Inteval Mapping Plot Page"""
     cMGraphInterval = 5
