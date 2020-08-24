@@ -24,13 +24,13 @@
 #
 # Last updated by Zach 12/14/2010
 
-import datetime
 import string
 from math import *
-from PIL import (Image,ImageDraw,ImageFont,ImageColor)
-import sys,os
-import cPickle
-import httplib
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
+from PIL import ImageColor
+import os
 import json
 
 from flask import Flask, g
@@ -40,15 +40,14 @@ from htmlgen import HTMLgen2 as HT
 from base import webqtlConfig
 from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
-from utility import helper_functions
 from utility import Plot
 from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
-from base.webqtlConfig import GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 RED = ImageColor.getrgb("red")
 BLUE = ImageColor.getrgb("blue")
@@ -80,21 +79,17 @@ ARIAL_FILE = "./wqflask/static/fonts/arial.ttf"
 
 assert(os.path.isfile(VERDANA_FILE))
 
-# ---- END: FONT FILES ---- #
 
-#########################################
-#      Inteval Mapping Plot Page
-#########################################
 class DisplayMappingResults(object):
+    """Inteval Mapping Plot Page"""
     cMGraphInterval = 5
     GRAPH_MIN_WIDTH = 900
-    GRAPH_MAX_WIDTH = 10000 # Don't set this too high
+    GRAPH_MAX_WIDTH = 10000  # Don't set this too high
     GRAPH_DEFAULT_WIDTH = 1280
     MULT_GRAPH_DEFAULT_WIDTH = 2000
     MULT_GRAPH_MIN_WIDTH = 1400
     MULT_GRAPH_DEFAULT_WIDTH = 1600
     GRAPH_DEFAULT_HEIGHT = 600
-
 
     # Display order:
     # UCSC BAND =========
@@ -106,22 +101,24 @@ class DisplayMappingResults(object):
     BAND_HEIGHT = 10
     BAND_HEIGHT = 10
 
-    NUM_GENE_ROWS       = 10
-    EACH_GENE_HEIGHT    = 6  # number of pixels tall, for each gene to display
+    NUM_GENE_ROWS = 10
+    EACH_GENE_HEIGHT = 6  # number of pixels tall, for each gene to display
     EACH_GENE_ARROW_WIDTH = 5
     EACH_GENE_ARROW_SPACING = 14
     DRAW_DETAIL_MB = 4
     DRAW_UTR_LABELS_MB = 4
 
     qmarkImg = HT.Image('/images/qmarkBoxBlue.gif', width=10, height=13, border=0, alt='Glossary')
-    # Note that "qmark.gif" is a similar, smaller, rounded-edges question mark. It doesn't look
-    # like the ones on the image, though, which is why we don't use it here.
+
+    # Note that "qmark.gif" is a similar, smaller, rounded-edges
+    # question mark. It doesn't look like the ones on the image,
+    # though, which is why we don't use it here.
 
     HELP_WINDOW_NAME = 'helpWind'
 
-    ## BEGIN HaplotypeAnalyst
+    # BEGIN HaplotypeAnalyst
     NR_INDIVIDUALS = 0
-    ## END HaplotypeAnalyst
+    # END HaplotypeAnalyst
 
     ALEX_DEBUG_BOOL_PRINT_GENE_LIST = 1
 
@@ -129,13 +126,13 @@ class DisplayMappingResults(object):
 
     LODFACTOR = 4.61
 
-    SNP_COLOR           = ORANGE # Color for the SNP "seismograph"
+    SNP_COLOR = ORANGE  # Color for the SNP "seismograph"
     TRANSCRIPT_LOCATION_COLOR = MEDIUMPURPLE
 
     BOOTSTRAP_BOX_COLOR = YELLOW
-    LRS_COLOR           = ImageColor.getrgb("#0000FF")
-    SIGNIFICANT_COLOR   = ImageColor.getrgb("#EBC7C7")
-    SUGGESTIVE_COLOR    = GAINSBORO
+    LRS_COLOR = ImageColor.getrgb("#0000FF")
+    SIGNIFICANT_COLOR = ImageColor.getrgb("#EBC7C7")
+    SUGGESTIVE_COLOR = GAINSBORO
     SIGNIFICANT_WIDTH = 5
     SUGGESTIVE_WIDTH = 5
     ADDITIVE_COLOR_POSITIVE = GREEN
@@ -143,33 +140,33 @@ class DisplayMappingResults(object):
     DOMINANCE_COLOR_POSITIVE = DARKVIOLET
     DOMINANCE_COLOR_NEGATIVE = RED
 
-    ## BEGIN HaplotypeAnalyst
+    # BEGIN HaplotypeAnalyst
     HAPLOTYPE_POSITIVE = GREEN
     HAPLOTYPE_NEGATIVE = RED
     HAPLOTYPE_HETEROZYGOUS = BLUE
     HAPLOTYPE_RECOMBINATION = DARKGRAY
-    ## END HaplotypeAnalyst
+    # END HaplotypeAnalyst
 
     TOP_RIGHT_INFO_COLOR = BLACK
 
-    CLICKABLE_WEBQTL_REGION_COLOR     = ImageColor.getrgb("#F5D3D3")
+    CLICKABLE_WEBQTL_REGION_COLOR = ImageColor.getrgb("#F5D3D3")
     CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR = ImageColor.getrgb("#FCE9E9")
-    CLICKABLE_WEBQTL_TEXT_COLOR       = ImageColor.getrgb("#912828")
+    CLICKABLE_WEBQTL_TEXT_COLOR = ImageColor.getrgb("#912828")
 
-    CLICKABLE_PHENOGEN_REGION_COLOR   = ImageColor.getrgb("#A2FB94")
+    CLICKABLE_PHENOGEN_REGION_COLOR = ImageColor.getrgb("#A2FB94")
     CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR = ImageColor.getrgb("#CEFEC7")
-    CLICKABLE_PHENOGEN_TEXT_COLOR     = ImageColor.getrgb("#1FD504")
+    CLICKABLE_PHENOGEN_TEXT_COLOR = ImageColor.getrgb("#1FD504")
 
-    CLICKABLE_UCSC_REGION_COLOR     = ImageColor.getrgb("#DDDDEE")
+    CLICKABLE_UCSC_REGION_COLOR = ImageColor.getrgb("#DDDDEE")
     CLICKABLE_UCSC_REGION_OUTLINE_COLOR = ImageColor.getrgb("#EDEDFF")
-    CLICKABLE_UCSC_TEXT_COLOR       = ImageColor.getrgb("#333366")
+    CLICKABLE_UCSC_TEXT_COLOR = ImageColor.getrgb("#333366")
 
-    CLICKABLE_ENSEMBL_REGION_COLOR  = ImageColor.getrgb("#EEEEDD")
+    CLICKABLE_ENSEMBL_REGION_COLOR = ImageColor.getrgb("#EEEEDD")
     CLICKABLE_ENSEMBL_REGION_OUTLINE_COLOR = ImageColor.getrgb("#FEFEEE")
-    CLICKABLE_ENSEMBL_TEXT_COLOR    = ImageColor.getrgb("#555500")
+    CLICKABLE_ENSEMBL_TEXT_COLOR = ImageColor.getrgb("#555500")
 
     GRAPH_BACK_LIGHT_COLOR = ImageColor.getrgb("#FBFBFF")
-    GRAPH_BACK_DARK_COLOR  = ImageColor.getrgb("#F1F1F9")
+    GRAPH_BACK_DARK_COLOR = ImageColor.getrgb("#F1F1F9")
 
     HELP_PAGE_REF = '/glossary.html'
 
@@ -196,7 +193,8 @@ class DisplayMappingResults(object):
             self.temp_trait = "True"
             self.group = start_vars['group']
 
-        #Needing for form submission when doing single chr mapping or remapping after changing options
+        # Needing for form submission when doing single chr
+        # mapping or remapping after changing options
         self.samples = start_vars['samples']
         self.vals = start_vars['vals']
         self.transform = start_vars['transform']
@@ -207,9 +205,9 @@ class DisplayMappingResults(object):
             self.mapmodel_rqtl_geno = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
 
-        #if self.mapping_method != "gemma" and self.mapping_method != "plink":
         self.js_data = start_vars['js_data']
-        self.trimmed_markers = start_vars['trimmed_markers'] #Top markers to display in table
+        # Top markers to display in table
+        self.trimmed_markers = start_vars['trimmed_markers']
 
         if self.dataset.group.species == "rat":
             self._ucscDb = "rn6"
@@ -221,7 +219,7 @@ class DisplayMappingResults(object):
         #####################################
         # Options
         #####################################
-        #Mapping options
+        # Mapping options
         if start_vars['mapping_scale'] != "":
             self.plotScale = start_vars['mapping_scale']
         else:
@@ -542,10 +540,12 @@ class DisplayMappingResults(object):
         ################################################################
         # footnote goes here
         ################################################################
-        btminfo = HT.Paragraph(Id="smallsize") #Small('More information about this graph is available here.')
+        # Small('More information about this graph is available here.')
+        btminfo = HtmlGenWrapper.create_p_tag(id="smallsize")
 
         if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
-            btminfo.append(HT.BR(), 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
+            btminfo.append(HtmlGenWrapper.create_br_tag())
+            btminfo.append('Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
     def plotIntMapping(self, canvas, offset= (80, 120, 20, 100), zoom = 1, startMb = None, endMb = None, showLocusForm = ""):
         im_drawer = ImageDraw.Draw(canvas)
