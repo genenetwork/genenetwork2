@@ -143,7 +143,10 @@ class DisplayMappingResults(object):
     DRAW_DETAIL_MB = 4
     DRAW_UTR_LABELS_MB = 4
 
-    qmarkImg = HT.Image('/images/qmarkBoxBlue.gif', width=10, height=13, border=0, alt='Glossary')
+    qmarkImg = HtmlGenWrapper.create_image_tag(
+        src='/images/qmarkBoxBlue.gif',
+        width="10", height="13", border="0", alt='Glossary'
+    )
 
     # Note that "qmark.gif" is a similar, smaller, rounded-edges
     # question mark. It doesn't look like the ones on the image,
@@ -543,7 +546,11 @@ class DisplayMappingResults(object):
             "{}.png".format(
                 os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename)),
             format='png')
-        intImg=HT.Image('/image/'+self.filename+'.png', border=0, usemap='#WebQTLImageMap')
+        intImg = HtmlGenWrapper.create_image_tag(
+            src="/image/{}.png".format(self.filename),
+            border="0", usemap='#WebQTLImageMap'
+        )
+        self.intImg = intImg
 
         #Scales plot differently for high resolution
         if self.draw2X:
@@ -560,11 +567,16 @@ class DisplayMappingResults(object):
         ################################################################
         #this form is used for opening Locus page or trait page, only available for genetic mapping
         if showLocusForm:
-            showLocusForm = HT.Form(cgi= os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE), enctype='multipart/form-data',
-                name=showLocusForm, submit=HT.Input(type='hidden'))
+            showLocusForm = HtmlGenWrapper.create_form_tag(
+                cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
+                enctype='multipart/form-data',
+                name=showLocusForm,
+                submit=HtmlGenWrapper.create_input_tag(type='hidden'))
+
             hddn = {'FormID':'showDatabase', 'ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
             for key in hddn.keys():
-                showLocusForm.append(HT.Input(name=key, value=hddn[key], type='hidden'))
+                showLocusForm.append(HtmlGenWrapper.create_input_tag(
+                    name=key, value=hddn[key], type='hidden'))
             showLocusForm.append(intImg)
         else:
             showLocusForm = intImg
@@ -636,8 +648,8 @@ class DisplayMappingResults(object):
         if zoom == 2:
             drawAreaHeight -= 60
 
-        #Image map
-        gifmap = HT.Map(name = "WebQTLImageMap")
+        # Image map
+        gifmap = HtmlGenWrapper.create_map_tag(name="WebQTLImageMap")
 
         newoffset = (xLeftOffset, xRightOffset, yTopOffset, yBottomOffset)
         # Draw the alternating-color background first and get plotXScale
@@ -985,8 +997,8 @@ class DisplayMappingResults(object):
             if thisTrait.db:
                 COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift,yPaddingTop+kstep*15,rectWidth+2+rightShift+nameWidth,yPaddingTop+10+kstep*15,)
                 HREF= "javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm, thisTrait.db.name, thisTrait.name)
-                Areas = HT.Area(shape='rect',coords=COORDS,href=HREF)
-                gifmap.areas.append(Areas)
+                Areas = HtmlGenWrapper.create_area_tag(shape='rect',coords=COORDS,href=HREF)
+                gifmap.areas.append(Areas) ### TODO
 
     def drawLegendPanel(self, canvas, offset= (40, 120, 80, 10), zoom = 1):
         im_drawer = ImageDraw.Draw(canvas)
@@ -1388,7 +1400,13 @@ class DisplayMappingResults(object):
 
             COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
             # NL: 06-02-2011 Rob required to display NCBI info in a new window
-            gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE,target="_blank"))
+            gifmap.areas.append(
+                HtmlGenWrapper.create_area_tag(
+                    shape='rect',
+                    coords=COORDS,
+                    href=HREF,
+                    title=TITLE,
+                    target="_blank"))
 
 ## BEGIN HaplotypeAnalyst
     def drawHaplotypeBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -1556,7 +1574,12 @@ class DisplayMappingResults(object):
                                     COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
                                     TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[k], _chr[j].name, float(txStart))
                                     HREF = ''
-                                    gifmap.areas.append(HT.Area(shape='rect',coords=COORDS,href=HREF, title=TITLE))
+                                    gifmap.areas.append(
+                                        HtmlGenWrapper.create_area_tag(
+                                            shape='rect',
+                                            coords=COORDS,
+                                            href=HREF,
+                                            title=TITLE))
 
                                     # if there are no more markers in a chromosome, the plotRight value calculated above will be before the plotWidth
                                     # resulting in some empty space on the right side of the plot area. This draws an "unknown" bar from plotRight to the edge.
@@ -1675,7 +1698,12 @@ class DisplayMappingResults(object):
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
-                gifmap.areas.append(HT.Area(shape='rect',coords=WEBQTL_COORDS,href=WEBQTL_HREF, title=WEBQTL_TITLE))
+                gifmap.areas.append(
+                    HtmlGenWrapper.create_area_tag(
+                        shape='rect',
+                        coords=WEBQTL_COORDS,
+                        href=WEBQTL_HREF,
+                        title=WEBQTL_TITLE))
                 im_drawer.rectangle(
                     xy=((xBrowse1, paddingTop),
                         (xBrowse2, (paddingTop + self.BAND_HEIGHT))),
@@ -1692,7 +1720,12 @@ class DisplayMappingResults(object):
                     else:
                         PHENOGEN_HREF = "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
-                    gifmap.areas.append(HT.Area(shape='rect',coords=PHENOGEN_COORDS,href=PHENOGEN_HREF, title=PHENOGEN_TITLE))
+                    gifmap.areas.append(
+                        HtmlGenWrapper.create_area_tag(
+                            shape='rect',
+                            coords=PHENOGEN_COORDS,
+                            href=PHENOGEN_HREF,
+                            title=PHENOGEN_TITLE))
                     im_drawer.rectangle(
                         xy=((xBrowse1, phenogenPaddingTop),
                             (xBrowse2, (phenogenPaddingTop+self.BAND_HEIGHT))),
@@ -1708,7 +1741,12 @@ class DisplayMappingResults(object):
                 else:
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
-                gifmap.areas.append(HT.Area(shape='rect',coords=UCSC_COORDS,href=UCSC_HREF, title=UCSC_TITLE))
+                gifmap.areas.append(
+                    HtmlGenWrapper.create_area_tag(
+                        shape='rect',
+                        coords=UCSC_COORDS,
+                        href=UCSC_HREF,
+                        title=UCSC_TITLE))
                 im_drawer.rectangle(
                     xy=((xBrowse1, ucscPaddingTop),
                         (xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT))),
@@ -1725,7 +1763,11 @@ class DisplayMappingResults(object):
                 else:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
-                gifmap.areas.append(HT.Area(shape='rect',coords=ENSEMBL_COORDS,href=ENSEMBL_HREF, title=ENSEMBL_TITLE))
+                gifmap.areas.append(HtmlGenWrapper.create_area_tag(
+                    shape='rect',
+                    coords=ENSEMBL_COORDS,
+                    href=ENSEMBL_HREF,
+                    title=ENSEMBL_TITLE))
                 im_drawer.rectangle(
                     xy=((xBrowse1, ensemblPaddingTop),
                         (xBrowse2, (ensemblPaddingTop+self.BAND_HEIGHT))),
@@ -1957,9 +1999,14 @@ class DisplayMappingResults(object):
                         outline=rectColor,fill=rectColor,width = 0)
                     COORDS="%d,%d,%d,%d"%(xLeftOffset+offsetA-LRectHeight, yZero+40+Zorder*(LRectWidth+3),\
                             xLeftOffset+offsetA,yZero+40+Zorder*(LRectWidth+3)+LRectWidth)
-                    HREF="/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
+                    HREF = "/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
                     #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
-                    Areas=HT.Area(shape='rect', coords=COORDS, href=HREF, target="_blank", title="Locus : " + Lname)
+                    Areas = HtmlGenWrapper.create_area_tag(
+                        shape='rect',
+                        coords=COORDS,
+                        href=HREF,
+                        target="_blank",
+                        title="Locus : {}".format(Lname))
                     gifmap.areas.append(Areas)
                 ##piddle bug
                 if j == 0:
@@ -2168,8 +2215,14 @@ class DisplayMappingResults(object):
                 else:
                     sugg_title = "Suggestive LOD = %0.2f" % (self.suggestive/4.61)
                     sig_title = "Significant LOD = %0.2f" % (self.significant/4.61)
-                Areas1 = HT.Area(shape='rect',coords=sugg_coords,title=sugg_title)
-                Areas2 = HT.Area(shape='rect',coords=sig_coords,title=sig_title)
+                Areas1 = HtmlGenWrapper.create_area_tag(
+                    shape='rect',
+                    coords=sugg_coords,
+                    title=sugg_title)
+                Areas2 = HtmlGenWrapper.create_area_tag(
+                    shape='rect',
+                    coords=sig_coords,
+                    title=sig_title)
                 gifmap.areas.append(Areas1)
                 gifmap.areas.append(Areas2)
 
@@ -2621,7 +2674,10 @@ class DisplayMappingResults(object):
                 #add by NL 09-03-2010
                 HREF = "javascript:chrView(%d,%s);" % (i,self.ChrLengthMbList)
                 #HREF = "javascript:changeView(%d,%s);" % (i,self.ChrLengthMbList)
-                Areas = HT.Area(shape='rect', coords=COORDS, href=HREF)
+                Areas = HtmlGenWrapper.create_area_tag(
+                    shape='rect',
+                    coords=COORDS,
+                    href=HREF)
                 gifmap.areas.append(Areas)
                 startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
@@ -2707,7 +2763,11 @@ class DisplayMappingResults(object):
                 tableIterationsCnt = tableIterationsCnt + 1
 
                 this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="selectCheck", value=theGO["GeneSymbol"], Class="checkbox trait_checkbox") #checkbox for each row
+                selectCheck = HtmlGenWrapper.create_input_tag(
+                    type="checkbox",
+                    name="selectCheck",
+                    value=theGO["GeneSymbol"],
+                    Class="checkbox trait_checkbox")  # checkbox for each row
 
                 geneLength = (theGO["TxEnd"] - theGO["TxStart"])*1000.0
                 tenPercentLength = geneLength*0.0001
@@ -2765,41 +2825,77 @@ class DisplayMappingResults(object):
 
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
-                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__(),
-                                    HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        geneIdString,
+                                        theGO["GeneSymbol"],
+                                        target="_blank")
+                                    ),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        mouseStartString,
+                                        "{:.6f}".format(txStart),
+                                        target="_blank")
+                                    ),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        "javascript:rangeView('{}', {:f}, {:f})".format(
+                                            str(chr_as_int),
+                                            txStart-tenPercentLength,
+                                            txEnd+tenPercentLength),
+                                        "{:.3f}".format(geneLength))),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
                                     humanChr,
-                                    HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        humanStartString,
+                                        humanStartDisplay,
+                                        target="_blank")),
                                     literatureCorrelationString,
                                     geneDescription]
                     else:
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
-                                    HT.Href(geneIdString, theGO["GeneSymbol"], target="_blank").__str__(),
-                                    HT.Href(mouseStartString, "%0.6f" % txStart, target="_blank").__str__(),
-                                    HT.Href("javascript:rangeView('%s', %f, %f)" % (str(chr_as_int), txStart-tenPercentLength, txEnd+tenPercentLength), "%0.3f" % geneLength).__str__(),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        geneIdString, theGO["GeneSymbol"],
+                                        target="_blank")),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        mouseStartString,
+                                        "{:.6f}".format(txStart),
+                                        target="_blank")),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        "javascript:rangeView('{}', {:f}, {:f})".format(
+                                            str(chr_as_int),
+                                            txStart-tenPercentLength,
+                                            txEnd+tenPercentLength),
+                                        "{:.3f}".format(geneLength))),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
                                     humanChr,
-                                    HT.Href(humanStartString, humanStartDisplay, target="_blank").__str__(),
+                                    str(HtmlGenWrapper.create_link_tag(
+                                        humanStartString,
+                                        humanStartDisplay,
+                                        target="_blank")),
                                     geneDescription]
 
                 gene_table_body.append(this_row)
 
         elif self.dataset.group.species == 'rat':
             for gIndex, theGO in enumerate(geneCol):
-                this_row = [] #container for the cells of each row
-                selectCheck = HT.Input(type="checkbox", name="selectCheck", Class="checkbox trait_checkbox").__str__() #checkbox for each row
+                this_row = []  # container for the cells of each row
+                selectCheck = str(HtmlGenWrapper.create_input_tag(
+                    type="checkbox",
+                    name="selectCheck",
+                    Class="checkbox trait_checkbox"))  # checkbox for each row
 
                 #ZS: May want to get this working again later
                 #webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
-                    geneSymbolNCBI = HT.Href("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s" % theGO["GeneID"], theGO["GeneSymbol"], Class="normalsize", target="_blank").__str__()
+                    geneSymbolNCBI = str(HtmlGenWrapper.create_link_tag(
+                        "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={}".format(theGO["GeneID"]),
+                        theGO["GeneSymbol"],
+                        Class="normalsize",
+                        target="_blank"))
                 else:
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
@@ -2839,7 +2935,9 @@ class DisplayMappingResults(object):
                             str(gIndex+1),
                             geneSymbolNCBI,
                             "%0.6f" % theGO["TxStart"],
-                            HT.Href(geneLengthURL, "%0.3f" % (geneLength*1000.0)).__str__(),
+                            str(HtmlGenWrapper.create_link_tag(
+                                geneLengthURL,
+                                "{:.3f}".format(geneLength*1000.0))),
                             avgExprVal,
                             mouseChr,
                             mouseTxStart,
