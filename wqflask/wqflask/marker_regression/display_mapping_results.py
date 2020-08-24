@@ -44,7 +44,7 @@ from utility import helper_functions
 from utility import Plot
 from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
-from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_TEXT_DIR, GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
 import utility.logger
@@ -1384,6 +1384,8 @@ class DisplayMappingResults(object):
         oldgeneEndPix = -1
         #Initializing plotRight, error before
         plotRight = xRightOffset
+
+        im_drawer = ImageDraw.Draw(canvas)
 
 #### find out PlotRight
         for _chr in self.genotype:
