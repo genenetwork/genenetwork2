@@ -374,10 +374,15 @@ class RunMapping(object):
               self.annotations_for_browser = []
               highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
               for marker in results:
+                  if 'Mb' in marker:
+                      this_ps = marker['Mb']*1000000
+                  else:
+                      this_ps = marker['cM']*1000000
+
                   browser_marker = dict(
                       chr = str(marker['chr']),
                       rs  = marker['name'],
-                      ps  = marker['Mb']*1000000,
+                      ps  = this_ps,
                       url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
                   )
 
@@ -386,7 +391,7 @@ class RunMapping(object):
                           name = str(marker['name']),
                           chr = str(marker['chr']),
                           rs  = marker['name'],
-                          pos  = marker['Mb']*1000000,
+                          pos  = this_ps,
                           url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
                       )
                   else:
@@ -394,7 +399,7 @@ class RunMapping(object):
                           name = str(marker['name']),
                           chr = str(marker['chr']),
                           rs  = marker['name'],
-                          pos  = marker['Mb']*1000000
+                          pos  = this_ps
                       )
                   #if 'p_value' in marker:
                   #    logger.debug("P EXISTS:", marker['p_value'])
@@ -533,10 +538,10 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
         output_file.write("\n")
         output_file.write("Name,Chr,")
         if score_type.lower() == "-log(p)":
-            score_type = "'-log(p)"
-        if mapping_scale == "physic":
+            score_type = "-log(p)"
+        if 'Mb' in markers[0]:
             output_file.write("Mb," + score_type)
-        else:
+        if 'cM' in markers[0]:
             output_file.write("Cm," + score_type)
         if "additive" in markers[0].keys():
             output_file.write(",Additive")
@@ -544,7 +549,11 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write(",Dominance")
         output_file.write("\n")
         for i, marker in enumerate(markers):
-            output_file.write(marker['name'] + "," + str(marker['chr']) + "," + str(marker['Mb']) + ",")
+            output_file.write(marker['name'] + "," + str(marker['chr']) + ",")
+            if 'Mb' in marker:
+                output_file.write(str(marker['Mb']) + ",")
+            if 'cM' in marker:
+                output_file.write(str(marker['cM']) + ",")
             if "lod_score" in marker.keys():
                 output_file.write(str(marker['lod_score']))
             else:
@@ -669,16 +678,22 @@ def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
             except:
                 chr_as_num = 20
             if chr_as_num > this_chr or i == (len(qtl_results) - 1):
-                chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
-                this_chr = chr_as_num
-                highest_pos = 0
+                if i == (len(qtl_results) - 1):
+                    if mapping_method == "reaper":
+                        highest_pos = float(result['cM']) * 1000000
+                    else:
+                        highest_pos = float(result['Mb']) * 1000000
+                    chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
+                else:
+                    chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
+                    this_chr = chr_as_num
             else:
                 if mapping_method == "reaper":
                     if float(result['cM']) > highest_pos:
-                        highest_pos = float(result['cM'])
+                        highest_pos = float(result['cM']) * 1000000
                 else:
                     if float(result['Mb']) > highest_pos:
-                        highest_pos = float(result['Mb'])
+                        highest_pos = float(result['Mb']) * 1000000
 
     return chr_lengths
 
