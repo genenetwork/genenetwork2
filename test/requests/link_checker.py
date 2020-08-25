@@ -95,6 +95,8 @@ def check_packaged_js_files(args_obj, parser):
         "/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
         "/DataTables/js/jquery.dataTables.js",
         "/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
+        # natural.js [Datatables plugin]
+        "/DataTablesExtensions/plugins/sorting/natural.js",
     ]
 
     print("Checking links")
