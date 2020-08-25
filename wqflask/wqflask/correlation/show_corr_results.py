@@ -29,24 +29,16 @@ import rpy2.robjects as ro                    # R Objects
 from rpy2.robjects.packages import importr
 utils = importr("utils")
 
-from pprint import pformat as pf
-
-from base import webqtlConfig
-from utility.THCell import THCell
-from utility.TDCell import TDCell
-from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
 from db import webqtlDatabaseFunction
-import utility.webqtlUtil #this is for parallel computing only.
+import utility.webqtlUtil  #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 import utility.webqtlUtil
-from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
-
+from utility.type_checking import is_str, get_float, get_int, get_string
 from MySQLdb import escape_string as escape
 
-from pprint import pformat as pf
 
 from flask import Flask, g
 

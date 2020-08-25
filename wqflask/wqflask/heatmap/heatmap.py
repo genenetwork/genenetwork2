@@ -1,46 +1,19 @@
 from __future__ import absolute_import, print_function, division
 
-import sys
-# sys.path.append(".") Never in a running webserver
-
 import string
-import pickle
 import os
-import datetime
-import time
-import pp
-import math
 import random
-import collections
-import resource
-
-import scipy
-import numpy as np
-
-from pprint import pformat as pf
-
-from base.trait import GeneralTrait
-from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import helper_functions
-from utility import Plot, Bunch
-from utility import temp_data
+
 from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
-
-from MySQLdb import escape_string as escape
-
-import pickle as pickle
-import simplejson as json
-
-from pprint import pformat as pf
-
 from redis import Redis
+from flask import Flask, g
+from utility.logger import getLogger
+
 Redis = Redis()
 
-from flask import Flask, g
-
-from utility.logger import getLogger
 logger = getLogger(__name__ )
 
 class Heatmap(object):

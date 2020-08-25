@@ -20,27 +20,11 @@
 
 from __future__ import absolute_import, print_function, division
 
-import sys
-
-import string
-import pickle
-import os
-import time
-import pp
-import math
-import collections
-import resource
-
 import scipy
-
 import simplejson as json
-
-from rpy2.robjects.packages import importr
-import rpy2.robjects as robjects
-
 from pprint import pformat as pf
 
-from utility.THCell import THCell
+
 from utility.TDCell import TDCell
 from base.trait import create_trait
 from base import data_set
