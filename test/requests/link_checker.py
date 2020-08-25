@@ -89,14 +89,14 @@ def check_packaged_js_files(args_obj, parser):
         "/DataTablesExtensions/buttons/js/dataTables.buttons.min.js",
         "/DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css",
         "/DataTablesExtensions/buttons/js/dataTables.buttons.min.js",
-        "/DataTablesExtensions/plugins/sorting/natural.js",
         "/DataTablesExtensions/colResize/dataTables.colResize.js",
         "/DataTablesExtensions/colReorder/js/dataTables.colReorder.js",
         "/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
         "/DataTables/js/jquery.dataTables.js",
         "/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
-        # natural.js [Datatables plugin]
+        # Datatables plugins:
         "/DataTablesExtensions/plugins/sorting/natural.js",
+        "/DataTablesExtensions/plugins/sorting/scientific.js",
     ]
 
     print("Checking links")
