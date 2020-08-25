@@ -132,44 +132,8 @@
       <br>
       <div id="scatterplot2"></div>
       <br>
-      <div class="row" style="min-width: 700px; overflow: hidden;">
-      <div style="float: left;">
-      <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
-        <thead>
-          <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Number</td>
-            <td>{{jsdata.num_overlap}}</td>
-          </tr>
-          <tr>
-            <td>Slope</td>
-            <td>{{ jsdata.slope_string }}</td>
-          </tr>
-          <tr>
-            <td>Intercept</td>
-            <td>{{'%0.3f' % jsdata.intercept}}</td>
-          </tr>
-          <tr>
-            <td>r value</td>
-            <td>{{'%0.3f' % jsdata.r_value}}</td>
-          </tr>
-          <tr>
-            <td>P value</td>
-            <td>{% if jsdata.p_value < 0.001 %}{{'%0.3e' % jsdata.p_value}}{% else %}{{'%0.3f' % jsdata.p_value}}{% endif %}</td>
-          </tr>
-          <tr>
-            <td style="text-align: left;" colspan="2">
-              Regression Line
-              <br>
-              y = {{ jsdata.slope_string }} * x {% if jsdata.intercept < 0 %}- {{'%0.3f' % (jsdata.intercept * -1)}}{% else %}+ {{'%0.3f' % jsdata.intercept}}{% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-      <div style="margin-left: 50px; min-width: 300px; float: left;">
+      <div style="min-width: 700px; overflow: hidden;">
+      <div style="margin-left: 50px; min-width: 300px;">
         {% if trait_1.dataset.type == "ProbeSet" %}
         <div>
           X axis:
@@ -240,15 +204,7 @@
         </div>
         {% endif %}
       </div>
-      </div>
-    </div>
-
-    <div class="tab-pane" id="tp2">
-      <br>
-      <div id="srscatterplot2"></div>
-      <br>
-      <div class="row" style="min-width: 700px; overflow: hidden;">
-      <div style="float: left;">
+      <div style="float: left; margin-top:30px;">
         <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
           <thead>
             <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
@@ -260,31 +216,39 @@
             </tr>
             <tr>
               <td>Slope</td>
-              <td>{{ jsdata.srslope_string }}</td>
+              <td>{{ jsdata.slope_string }}</td>
             </tr>
             <tr>
               <td>Intercept</td>
-              <td>{{'%0.3f' % jsdata.srintercept}}</td>
+              <td>{{'%0.3f' % jsdata.intercept}}</td>
             </tr>
             <tr>
               <td>r value</td>
-              <td>{{'%0.3f' % jsdata.srr_value}}</td>
+              <td>{{'%0.3f' % jsdata.r_value}}</td>
             </tr>
-	    <tr>
+            <tr>
               <td>P value</td>
-              <td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td>
+              <td>{% if jsdata.p_value < 0.001 %}{{'%0.3e' % jsdata.p_value}}{% else %}{{'%0.3f' % jsdata.p_value}}{% endif %}</td>
             </tr>
             <tr>
               <td style="text-align: left;" colspan="2">
                 Regression Line
                 <br>
-                y = {{ jsdata.srslope_string }} * x {% if jsdata.srintercept < 0 %}- {{'%0.3f' % (jsdata.srintercept * -1)}}{% else %}+ {{'%0.3f' % jsdata.srintercept}}{% endif %}
+                y = {{ jsdata.slope_string }} * x {% if jsdata.intercept < 0 %}- {{'%0.3f' % (jsdata.intercept * -1)}}{% else %}+ {{'%0.3f' % jsdata.intercept}}{% endif %}
               </td>
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
-      <div style="margin-left: 50px; min-width: 300px; float: left;">
+    </div>
+
+    <div class="tab-pane" id="tp2">
+      <br>
+      <div id="srscatterplot2"></div>
+      <br>
+      <div class="row" style="min-width: 700px; overflow: hidden;">
+      <div style="margin-left: 50px; min-width: 300px;">
         {% if trait_1.dataset.type == "ProbeSet" %}
         <div>
           X axis:
@@ -335,6 +299,42 @@
         </div>
         {% endif %}
       </div>
+      <div style="float: left; margin-top: 30px;">
+        <table class="table table-hover table-striped table-bordered" style="width: 80%; margin-left: 60px; text-align: right;">
+          <thead>
+            <tr><th style="text-align: right;">Statistic</th><th style="text-align: right;">Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Number</td>
+              <td>{{jsdata.num_overlap}}</td>
+            </tr>
+            <tr>
+              <td>Slope</td>
+              <td>{{ jsdata.srslope_string }}</td>
+            </tr>
+            <tr>
+              <td>Intercept</td>
+              <td>{{'%0.3f' % jsdata.srintercept}}</td>
+            </tr>
+            <tr>
+              <td>r value</td>
+              <td>{{'%0.3f' % jsdata.srr_value}}</td>
+            </tr>
+	    <tr>
+              <td>P value</td>
+              <td>{% if jsdata.srp_value < 0.001 %}{{'%0.3e' % jsdata.srp_value}}{% else %}{{'%0.3f' % jsdata.srp_value}}{% endif %}</td>
+            </tr>
+            <tr>
+              <td style="text-align: left;" colspan="2">
+                Regression Line
+                <br>
+                y = {{ jsdata.srslope_string }} * x {% if jsdata.srintercept < 0 %}- {{'%0.3f' % (jsdata.srintercept * -1)}}{% else %}+ {{'%0.3f' % jsdata.srintercept}}{% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       </div>
   </div>
 
@@ -351,8 +351,8 @@
     <script language="javascript" type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.dataTables.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <!--<script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>-->
     <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot.js"></script>

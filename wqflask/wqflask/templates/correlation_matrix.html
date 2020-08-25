@@ -36,7 +36,7 @@
       <td align="center"><input type="checkbox" class="checkbox" style="margin-left: 3px; margin-right: 1px;"></td>
       <td align="right" style="padding-right: 4px;" >
         <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 14px; font-style: Bold;"><b>Trait {{ loop.index }}: {{ trait.dataset.name }}&nbsp;&nbsp;{{ trait.name }}</b></font></a>
-        <div class="shortName" style="display:none">{% if trait.dataset.type == "ProbeSet" %}Gene Symbol: {{ trait.symbol }}{% elif trait.dataset.type == "Publish" %}Trait Symbol: {{ trait.post_publication_abbreviation }}{% elif trait.dataset.type == "Geno" %}Genotype{% endif %} </div>
+        <div class="shortName">{% if trait.dataset.type == "ProbeSet" %}Gene Symbol: {{ trait.symbol }}{% elif trait.dataset.type == "Publish" %}Trait Symbol: {{ trait.post_publication_abbreviation }}{% elif trait.dataset.type == "Geno" %}Genotype{% endif %} </div>
         <div class="verboseName" style="display: none;">
         {% if trait.dataset.type == "ProbeSet" %}
           <div>{{ trait.symbol }} on Chr {{ trait.chr }} @ {{ trait.mb }} Mb</div><div>{{ trait.description }}</div><div>{{ trait.probe_target_description }}</div>

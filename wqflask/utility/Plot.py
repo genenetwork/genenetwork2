@@ -26,16 +26,12 @@
 
 from __future__ import print_function
 
-from PIL import (Image, ImageColor, ImageDraw, ImageFont)
-from pprint import pformat as pf
+from PIL import ImageColor
+from PIL import ImageDraw
+from PIL import ImageFont
 
 from math import *
-import random
-import sys, os
-from numarray import linear_algebra as la
-from numarray import ones, array, dot, swapaxes
 
-import webqtlUtil
 import corestats
 from base import webqtlConfig
 from utility.pillow_utils import draw_rotated_text

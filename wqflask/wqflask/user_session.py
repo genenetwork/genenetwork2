@@ -13,7 +13,7 @@ from wqflask import app
 from utility import hmac
 
 #from utility.elasticsearch_tools import get_elasticsearch_connection
-from utility.redis_tools import get_redis_conn, get_user_id, get_user_collections, save_collections
+from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
 Redis = get_redis_conn()
 
 from utility.logger import getLogger
@@ -52,6 +52,18 @@ def create_signed_cookie():
     uuid_signed = the_uuid + ":" + signature
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
+
+@app.route("/user/manage", methods=('GET','POST'))
+def manage_user():
+    params = request.form if request.form else request.args
+    if 'new_full_name' in params:
+        set_user_attribute(g.user_session.user_id, 'full_name', params['new_full_name'])
+    if 'new_organization' in params:
+        set_user_attribute(g.user_session.user_id, 'organization', params['new_organization'])
+
+    user_details = get_user_by_unique_column("user_id", g.user_session.user_id)
+
+    return render_template("admin/manage_user.html", user_details = user_details)
 
 class UserSession(object):
     """Logged in user handling"""
