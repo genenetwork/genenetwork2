@@ -32,7 +32,7 @@ from PIL import ImageFont
 
 from math import *
 
-import corestats
+import utility.corestats as corestats
 from base import webqtlConfig
 from utility.pillow_utils import draw_rotated_text
 import utility.logger
