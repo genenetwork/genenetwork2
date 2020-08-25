@@ -255,9 +255,9 @@ class TestGenMenu(unittest.TestCase):
             ('Mouse Tissue'), ('Human Tissue'), ('Rat Tissue')
         )
         self.assertEqual(build_types('mouse', 'random group'),
-                         [['M', 'M', 'Molecular Trait Datasets'],
-                          ['H', 'H', 'Molecular Trait Datasets'],
-                          ['R', 'R', 'Molecular Trait Datasets']])
+                         [['M', 'M', 'Molecular Traits'],
+                          ['H', 'H', 'Molecular Traits'],
+                          ['R', 'R', 'Molecular Traits']])
         db_mock.db.execute.assert_called_once_with(
             "SELECT DISTINCT Tissue.Name " +
             "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, " +
