@@ -7,8 +7,9 @@
 #
 # /sbin/iptables -A INPUT -p tcp -i eth0 -s ! 71.236.239.43 --dport 5003 -j DROP
 
-from wqflask import app
-
+from .wqflask import app
+from .utility.startup_config import app_config
+from .utility.tools import WEBSERVER_MODE, SERVER_PORT
 
 import logging
 
