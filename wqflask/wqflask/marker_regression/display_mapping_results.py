@@ -35,7 +35,7 @@ import json
 
 from flask import Flask, g
 
-from htmlgen import HTMLgen2 as HT
+import htmlgen as HT
 
 from base import webqtlConfig
 from base.GeneralObject import GeneralObject
@@ -88,35 +88,60 @@ class HtmlGenWrapper:
     """Wrapper Methods for HTML gen"""
     @staticmethod
     def create_image_tag(**kwargs):
-        return HT.Image(**kwargs)
+        image = HT.Image("", "")
+        for key, value in list(kwargs.items()):
+            image.set_attribute(key, value)
+        return image
 
     @staticmethod
     def create_form_tag(**kwargs):
-        return HT.Form(**kwargs)
+        form = HT.Form("POST", "")  # Default method is POST
+
+        for key, value in list(kwargs.items()):
+            if key == "submit":
+                form.append(value)
+                continue
+            form.set_attribute(key.replace("cgi", "action"), str(value))
+        return form
 
     @staticmethod
     def create_p_tag(**kwargs):
-        return HT.Paragraph(**kwargs)
+        paragraph = HT.Paragraph()
+        for key, value in list(kwargs.items()):
+            paragraph.set_attribute(key, value)
+        return paragraph
 
     @staticmethod
     def create_br_tag():
-        return HT.BR()
+        return HT.VoidElement("br")
 
     @staticmethod
     def create_input_tag(**kwargs):
-        return HT.Input(**kwargs)
+        input_ = HT.Input()
+        for key, value in list(kwargs.items()):
+            input_.set_attribute(key.lower().replace("_", ""), value)
+        return input_
 
     @staticmethod
     def create_area_tag(**kwargs):
-        return HT.Area(**kwargs)
+        area = HT.VoidElement("area")
+        for key, value in list(kwargs.items()):
+            area.set_attribute(key, value)
+        return area
 
     @staticmethod
     def create_link_tag(href, content, **kwargs):
-        return HT.Href(href, content, **kwargs)
+        link = HT.Link(href, content)
+        for key, value in list(kwargs.items()):
+            link.set_attribute(key, value)
+        return link
 
     @staticmethod
     def create_map_tag(**kwargs):
-        return HT.Map(**kwargs)
+        map_ = HT.Element("map")
+        for key, value in list(kwargs.items()):
+            map_.set_attribute(key, value)
+        return map_
 
 
 class DisplayMappingResults(object):
@@ -554,7 +579,6 @@ class DisplayMappingResults(object):
             src="/image/{}.png".format(self.filename),
             border="0", usemap='#WebQTLImageMap'
         )
-        self.intImg = intImg
 
         #Scales plot differently for high resolution
         if self.draw2X:
@@ -575,12 +599,12 @@ class DisplayMappingResults(object):
                 cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
                 enctype='multipart/form-data',
                 name=showLocusForm,
-                submit=HtmlGenWrapper.create_input_tag(type='hidden'))
+                submit=HtmlGenWrapper.create_input_tag(type_='hidden'))
 
             hddn = {'FormID':'showDatabase', 'ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
             for key in hddn.keys():
                 showLocusForm.append(HtmlGenWrapper.create_input_tag(
-                    name=key, value=hddn[key], type='hidden'))
+                    name=key, value=hddn[key], type_='hidden'))
             showLocusForm.append(intImg)
         else:
             showLocusForm = intImg
@@ -1002,7 +1026,7 @@ class DisplayMappingResults(object):
                 COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift, yPaddingTop+kstep*15, rectWidth+2+rightShift+nameWidth, yPaddingTop+10+kstep*15,)
                 HREF= "javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm, thisTrait.db.name, thisTrait.name)
                 Areas = HtmlGenWrapper.create_area_tag(shape='rect', coords=COORDS, href=HREF)
-                gifmap.areas.append(Areas) ### TODO
+                gifmap.append(Areas) ### TODO
 
     def drawLegendPanel(self, canvas, offset= (40, 120, 80, 10), zoom = 1):
         im_drawer = ImageDraw.Draw(canvas)
@@ -1404,7 +1428,7 @@ class DisplayMappingResults(object):
 
             COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
             # NL: 06-02-2011 Rob required to display NCBI info in a new window
-            gifmap.areas.append(
+            gifmap.append(
                 HtmlGenWrapper.create_area_tag(
                     shape='rect',
                     coords=COORDS,
@@ -1578,7 +1602,7 @@ class DisplayMappingResults(object):
                                     COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
                                     TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[k], _chr[j].name, float(txStart))
                                     HREF = ''
-                                    gifmap.areas.append(
+                                    gifmap.append(
                                         HtmlGenWrapper.create_area_tag(
                                             shape='rect',
                                             coords=COORDS,
@@ -1702,7 +1726,7 @@ class DisplayMappingResults(object):
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
-                gifmap.areas.append(
+                gifmap.append(
                     HtmlGenWrapper.create_area_tag(
                         shape='rect',
                         coords=WEBQTL_COORDS,
@@ -1724,7 +1748,7 @@ class DisplayMappingResults(object):
                     else:
                         PHENOGEN_HREF = "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
-                    gifmap.areas.append(
+                    gifmap.append(
                         HtmlGenWrapper.create_area_tag(
                             shape='rect',
                             coords=PHENOGEN_COORDS,
@@ -1745,7 +1769,7 @@ class DisplayMappingResults(object):
                 else:
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
-                gifmap.areas.append(
+                gifmap.append(
                     HtmlGenWrapper.create_area_tag(
                         shape='rect',
                         coords=UCSC_COORDS,
@@ -1767,7 +1791,7 @@ class DisplayMappingResults(object):
                 else:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
-                gifmap.areas.append(HtmlGenWrapper.create_area_tag(
+                gifmap.append(HtmlGenWrapper.create_area_tag(
                     shape='rect',
                     coords=ENSEMBL_COORDS,
                     href=ENSEMBL_HREF,
@@ -2011,7 +2035,7 @@ class DisplayMappingResults(object):
                         href=HREF,
                         target="_blank",
                         title="Locus : {}".format(Lname))
-                    gifmap.areas.append(Areas)
+                    gifmap.append(Areas)
                 ##piddle bug
                 if j == 0:
                     im_drawer.line(
@@ -2227,8 +2251,8 @@ class DisplayMappingResults(object):
                     shape='rect',
                     coords=sig_coords,
                     title=sig_title)
-                gifmap.areas.append(Areas1)
-                gifmap.areas.append(Areas2)
+                gifmap.append(Areas1)
+                gifmap.append(Areas2)
 
                 start_pos_x +=  (chr_length_dist+self.GraphInterval)*plotXScale
                 return start_pos_x
@@ -2682,7 +2706,7 @@ class DisplayMappingResults(object):
                     shape='rect',
                     coords=COORDS,
                     href=HREF)
-                gifmap.areas.append(Areas)
+                gifmap.append(Areas)
                 startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
         return plotXScale
@@ -2768,7 +2792,7 @@ class DisplayMappingResults(object):
 
                 this_row = [] #container for the cells of each row
                 selectCheck = HtmlGenWrapper.create_input_tag(
-                    type="checkbox",
+                    type_="checkbox",
                     name="selectCheck",
                     value=theGO["GeneSymbol"],
                     Class="checkbox trait_checkbox")  # checkbox for each row
@@ -2887,7 +2911,7 @@ class DisplayMappingResults(object):
             for gIndex, theGO in enumerate(geneCol):
                 this_row = []  # container for the cells of each row
                 selectCheck = str(HtmlGenWrapper.create_input_tag(
-                    type="checkbox",
+                    type_="checkbox",
                     name="selectCheck",
                     Class="checkbox trait_checkbox"))  # checkbox for each row
 
