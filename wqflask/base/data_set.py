@@ -23,7 +23,9 @@ from utility.logger import getLogger
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
 from db.gn_server import menu_main
 from pprint import pformat as pf
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
+from utility.db_tools import mescape
+from utility.db_tools import create_in_clause
 from maintenance import get_group_samplelists
 from utility.tools import locate, locate_ignore_error, flat_files
 from utility import gen_geno_ob
@@ -202,20 +204,6 @@ def create_datasets_list():
             r.expire(key, 60*60)
 
     return datasets
-
-
-def create_in_clause(items):
-    """Create an in clause for mysql"""
-    in_clause = ', '.join("'{}'".format(x) for x in mescape(*items))
-    in_clause = '( {} )'.format(in_clause)
-    return in_clause
-
-
-def mescape(*items):
-    """Multiple escape"""
-    escaped = [escape(str(item)) for item in items]
-    #logger.debug("escaped is:", escaped)
-    return escaped
 
 
 class Markers(object):
