@@ -490,9 +490,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 else:
                     trait.description_display = ""
 
-            trait.abbreviation = unicode(str(trait.abbreviation).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.description_display = unicode(str(trait.description_display).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.authors = unicode(str(trait.authors).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.abbreviation = str(str(trait.abbreviation).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.description_display = str(str(trait.description_display).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.authors = str(str(trait.authors).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
 
             if not trait.year.isdigit():
                 trait.pubmed_text = "N/A"
@@ -503,8 +503,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
 
         if dataset.type == 'ProbeSet' and dataset.group:
-            description_string = unicode(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = unicode(str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+            description_string = str(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
+            target_string = str(str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
             if len(description_string) > 1 and description_string != 'None':
                 description_display = description_string

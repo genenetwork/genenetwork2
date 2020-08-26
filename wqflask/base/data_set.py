@@ -1044,9 +1044,9 @@ class MrnaAssayDataSet(DataSet):
 
             # XZ, 12/08/2008: description
             # XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = unicode(
+            description_string = str(
                 str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = unicode(
+            target_string = str(
                 str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
             if len(description_string) > 1 and description_string != 'None':
