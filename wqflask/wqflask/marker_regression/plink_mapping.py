@@ -83,7 +83,7 @@ def get_samples_from_ped_file(dataset):
     sample_list=[]
 
     while line:
-        lineList = string.split(string.strip(line), '\t')
+        lineList = line.strip().split('\t')
         lineList = list(map(string.strip, lineList))
 
         sample_name = lineList[0]
@@ -155,7 +155,7 @@ def parse_plink_output(output_filename, species):
 # output: lineList list
 #######################################################
 def build_line_list(line=None):
-    line_list = string.split(string.strip(line), ' ')# irregular number of whitespaces between columns
+    line_list = line.strip().split(' ')# irregular number of whitespaces between columns
     line_list = [item for item in line_list if item !='']
     line_list = list(map(string.strip, line_list))
 

@@ -456,7 +456,7 @@ class SnpBrowser(object):
 
                 function_list = []
                 if function_details:
-                    function_list = string.split(string.strip(function_details), ",")
+                    function_list = function_details.strip().split(",")
                     function_list = list(map(string.strip, function_list))
                     function_list[0] = function_list[0].title()
                     function_details = ", ".join(item for item in function_list)
@@ -722,11 +722,11 @@ def get_effect_details_by_category(effect_name = None, effect_value = None):
     new_codon_group_list = ['Start Gained']
     codon_effect_group_list = ['Start Lost', 'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
 
-    effect_detail_list = string.split(string.strip(effect_value), '|')
+    effect_detail_list = effect_value.strip().split('|')
     effect_detail_list = list(map(string.strip, effect_detail_list))
 
     for index, item in enumerate(effect_detail_list):
-        item_list = string.split(string.strip(item), ',')
+        item_list = item.strip().split(',')
         item_list = list(map(string.strip, item_list))
 
         gene_id = item_list[0]
@@ -746,13 +746,13 @@ def get_effect_details_by_category(effect_name = None, effect_value = None):
             if effect_name in new_codon_group_list:
                 new_codon = item_list[6]
                 tmp_list = [biotype, new_codon]
-                function_detail_list.append(string.join(tmp_list, ", "))
+                function_detail_list.append(", ".join(tmp_list))
             elif effect_name in codon_effect_group_list:
                 old_new_AA = item_list[6]
                 old_new_codon = item_list[7]
                 codon_num = item_list[8]
                 tmp_list = [biotype, old_new_AA, old_new_codon, codon_num]
-                function_detail_list.append(string.join(tmp_list, ", "))
+                function_detail_list.append(", ".join(tmp_list))
             else:
                 function_detail_list.append(biotype)
 
@@ -852,7 +852,7 @@ def get_gene_id_name_dict(species_id, gene_name_list):
     if len(gene_name_list) == 0:
         return ""
     gene_name_str_list = ["'" + gene_name + "'" for gene_name in gene_name_list]
-    gene_name_str = string.join(gene_name_str_list, ",")
+    gene_name_str = ",".join(gene_name_str_list)
 
     query = """
                 SELECT

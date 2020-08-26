@@ -71,14 +71,14 @@ print('Checking if each line have same number of members')
 GeneList = []
 isCont = 1
 header = fp.readline()
-header = string.split(string.strip(header), '\t')
+header = header.strip().split('\t')
 header = list(map(string.strip, header))
 nfield = len(header)
 line = fp.readline()
 
 kj = 0
 while line:
-    line2 = string.split(string.strip(line), '\t')
+    line2 = line.strip().split('\t')
     line2 = list(map(string.strip, line2))
     if len(line2) != nfield:
         isCont = 0
@@ -109,7 +109,7 @@ print('Checking if each strain exist in database')
 isCont = 1
 fp.seek(0)
 header = fp.readline()
-header = string.split(string.strip(header), '\t')
+header = header.strip().split('\t')
 header = list(map(string.strip, header))
 header = list(map(translateAlias, header))
 header = header[dataStart:]
@@ -137,8 +137,8 @@ print('Check if each ProbeSet exist in database')
 ##---- find PID is name or target ----##
 line = fp.readline()
 line = fp.readline()
-line2 = string.split(string.strip(line), '\t')
-line2 = list(map(string.strip, line2))
+line2 = line.strip().split('\t')
+line2 = [x.strip() for x in line2]
 PId = line2[0]
 
 db.execute('select Id from ProbeSet where Name="%s" and ChipId=%d' %
@@ -217,8 +217,8 @@ line = fp.readline()
 
 kj = 0
 while line:
-    line2 = string.split(string.strip(line), '\t')
-    line2 = list(map(string.strip, line2))
+    line2 = line.strip().split('\t')
+    line2 = [x.strip() for x in line2]
 
     CellId = line2[0]
     if CellId not in ProbeNameId:

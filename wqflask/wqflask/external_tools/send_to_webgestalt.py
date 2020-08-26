@@ -47,7 +47,7 @@ class SendToWebGestalt(object):
             id_type = "entrezgene"
 
             self.hidden_vars = { 
-                             'gene_list'                  : string.join(gene_id_list, "\n"),
+                             'gene_list'                  : "\n".join(gene_id_list),
                              'id_type'                    : "entrezgene",
                              'ref_set'                    : "genome",
                              'enriched_database_category' : "geneontology",

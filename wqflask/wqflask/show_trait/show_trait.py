@@ -229,8 +229,8 @@ class ShowTrait(object):
         hddn = OrderedDict()
 
         if self.dataset.group.allsamples:
-            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
-        hddn['primary_samples'] = string.join(self.primary_sample_names, ',')
+            hddn['allsamples'] = ''.join(self.dataset.group.allsamples)
+        hddn['primary_samples'] = ''.join(self.primary_sample_names)
         hddn['trait_id'] = self.trait_id
         hddn['trait_display_name'] = self.this_trait.display_name
         hddn['dataset'] = self.dataset.name

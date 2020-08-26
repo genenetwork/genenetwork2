@@ -150,8 +150,8 @@ class GeneralTrait(object):
 
         alias = 'Not available'
         if getattr(self, "alias", None):
-            alias = string.replace(self.alias, ";", " ")
-            alias = string.join(string.split(alias), ", ")
+            alias = self.alias.replace(";", " ")
+            alias = ", ".join(alias.split())
 
         return alias
 
@@ -437,7 +437,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif dataset.type == 'Geno':
-            display_fields_string = string.join(dataset.display_fields, ',Geno.')
+            display_fields_string = ',Geno.'.join(dataset.display_fields)
             display_fields_string = 'Geno.' + display_fields_string
             query = """
                     SELECT %s
@@ -456,8 +456,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             query = """SELECT %s FROM %s WHERE Name = %s"""
             logger.sql(query)
             trait_info = g.db.execute(query,
-                                    (string.join(dataset.display_fields, ','),
-                                                dataset.type, trait.name)).fetchone()
+                                      ','.join(dataset.display_fields),
+                                      dataset.type, trait.name).fetchone()
 
     if trait_info:
         trait.haveinfo = True
@@ -501,8 +501,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
 
         if dataset.type == 'ProbeSet' and dataset.group:
-            description_string = str(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = str(str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+            description_string = trait.description
+            target_string = trait.probe_target_description
 
             if len(description_string) > 1 and description_string != 'None':
                 description_display = description_string

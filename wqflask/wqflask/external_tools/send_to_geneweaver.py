@@ -55,7 +55,7 @@ class SendToGeneWeaver(object):
                                  'client': "genenetwork",
                                  'species': species_name,
                                  'idtype': self.chip_name,
-                                 'list': string.join(trait_name_list, ","),
+                                 'list': ",".join(trait_name_list),
                                }
 
 def get_trait_name_list(trait_list):

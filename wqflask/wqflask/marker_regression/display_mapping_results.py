@@ -454,7 +454,7 @@ class DisplayMappingResults(object):
                         Chr_Length.Name in (%s)
                 Order by
                         Chr_Length.OrderId
-                """ % (self.dataset.group.name, string.join(["'%s'" % X[0] for X in self.ChrList[1:]], ", ")))
+                """ % (self.dataset.group.name, ", ".join(["'%s'" % X[0] for X in self.ChrList[1:]])))
 
         self.ChrLengthMbList = [x[0]/1000000.0 for x in self.ChrLengthMbList]
         self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
