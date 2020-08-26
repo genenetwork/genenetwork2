@@ -206,8 +206,6 @@ def search_page():
     result = the_search.__dict__
     valid_search = result['search_term_exists']
 
-    logger.debugf("result", result)
-
     if USE_REDIS and valid_search:
         Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*60)
