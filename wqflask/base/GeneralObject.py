@@ -61,5 +61,6 @@ class GeneralObject:
             s += '%s = %s\n' % (key, self.__dict__[key])
         return s
 
-    def __cmp__(self, other):
-        return len(list(self.__dict__.keys())).__cmp__(len(list(other.__dict__.keys())))
+    def __eq__(self, other):
+        return (len(list(self.__dict__.keys())) ==
+                len(list(other.__dict__.keys())))
