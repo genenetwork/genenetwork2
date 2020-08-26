@@ -12,10 +12,10 @@ from wqflask import app
 
 import logging
 
-BLUE  = '\033[94m'
+BLUE = '\033[94m'
 GREEN = '\033[92m'
-BOLD  = '\033[1m'
-ENDC  = '\033[0m'
+BOLD = '\033[1m'
+ENDC = '\033[0m'
 
 app_config()
 
@@ -38,7 +38,7 @@ elif WEBSERVER_MODE == 'DEV':
             threaded=False,
             processes=0,
             use_reloader=True)
-else: # staging/production modes
+else:  # staging/production modes
     app.run(host='0.0.0.0',
             port=SERVER_PORT,
             debug=False,
