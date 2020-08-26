@@ -19,7 +19,7 @@ Redis = get_redis_conn()
 from wqflask import app
 
 import simplejson as json
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
 from pprint import pformat as pf
 
 from flask import Flask, g, request, url_for, redirect, make_response, render_template

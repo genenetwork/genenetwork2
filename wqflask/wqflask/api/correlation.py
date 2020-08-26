@@ -2,7 +2,7 @@ import collections
 
 import scipy
 
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
 
 from flask import g
 

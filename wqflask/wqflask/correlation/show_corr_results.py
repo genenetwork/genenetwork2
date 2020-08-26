@@ -35,7 +35,7 @@ from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 import utility.webqtlUtil
 from utility.type_checking import is_str, get_float, get_int, get_string
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
 
 
 from flask import Flask, g

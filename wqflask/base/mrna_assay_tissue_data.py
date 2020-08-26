@@ -5,7 +5,7 @@ from flask import g
 from utility import db_tools
 from utility import Bunch
 
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
 
 
 from utility.logger import getLogger
