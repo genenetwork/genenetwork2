@@ -31,11 +31,6 @@ from utility.tools import GN2_BRANCH_URL
 from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
-from utility.benchmark import Bench
-
-from MySQLdb import escape_string as escape
-
-from pprint import pformat as pf
 
 from flask import Flask, g
 

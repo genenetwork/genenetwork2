@@ -2,11 +2,6 @@ import collections
 
 from flask import Flask, g
 
-#from MySQLdb import escape_string as escape
-
-from utility import Bunch
-
-from pprint import pformat as pf
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )

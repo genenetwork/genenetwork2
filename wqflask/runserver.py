@@ -11,24 +11,15 @@ from wqflask import app
 
 
 import logging
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
-
-import signal
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 BLUE  = '\033[94m'
 GREEN = '\033[92m'
 BOLD  = '\033[1m'
 ENDC  = '\033[0m'
 
-from utility.startup_config import app_config
-
 app_config()
 
 werkzeug_logger = logging.getLogger('werkzeug')
-
-from utility.tools import WEBSERVER_MODE, SERVER_PORT
 
 if WEBSERVER_MODE == 'DEBUG':
     app.run(host='0.0.0.0',

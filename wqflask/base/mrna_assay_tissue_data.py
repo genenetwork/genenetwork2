@@ -7,7 +7,6 @@ from utility import Bunch
 
 from MySQLdb import escape_string as escape
 
-from pprint import pformat as pf
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )

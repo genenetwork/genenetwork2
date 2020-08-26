@@ -8,7 +8,6 @@ from MySQLdb import escape_string as escape
 from pprint import pformat as pf
 
 import sys
-# sys.path.append("..") Never in a running webserver
 
 from db import webqtlDatabaseFunction
 from utility.tools import GN2_BASE_URL
@@ -16,6 +15,7 @@ from utility.tools import GN2_BASE_URL
 import logging
 from utility.logger import getLogger
 logger = getLogger(__name__)
+
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
