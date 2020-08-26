@@ -372,7 +372,7 @@ class ShowTrait(object):
             this_group = self.dataset.group.name
 
         # We're checking a string here!
-        assert isinstance(this_group, basestring), "We need a string type thing here"
+        assert isinstance(this_group, str), "We need a string type thing here"
         if this_group[:3] == 'BXD' and this_group != "BXD-Harvested":
             this_group = 'BXD'
 

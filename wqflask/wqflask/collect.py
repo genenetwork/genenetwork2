@@ -38,7 +38,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 def process_traits(unprocessed_traits):
-    if isinstance(unprocessed_traits, basestring):
+    if isinstance(unprocessed_traits, str):
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:

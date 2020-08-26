@@ -34,7 +34,7 @@ def get_species_dataset_trait(self, start_vars):
     #self.genotype = self.dataset.group.genotype
 
 def get_trait_db_obs(self, trait_db_list):
-    if isinstance(trait_db_list, basestring):
+    if isinstance(trait_db_list, str):
         trait_db_list = trait_db_list.split(",")
 
     self.trait_list = []

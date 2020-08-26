@@ -477,7 +477,7 @@ class SnpBrowser(object):
 
                 the_bases = []
                 for j, item in enumerate(allele_value_list):
-                    if item and isinstance(item, basestring):
+                    if item and isinstance(item, str):
                         this_base = [str(item), base_color_dict[item]]
                     else:
                         this_base = ""
@@ -612,7 +612,7 @@ class SnpBrowser(object):
             this_allele_list = []
 
             for item in self.allele_list:
-                if item and isinstance(item, basestring) and (item.lower() not in this_allele_list) and (item != "-"):
+                if item and isinstance(item, str) and (item.lower() not in this_allele_list) and (item != "-"):
                     this_allele_list.append(item.lower())
 
             total_allele_count = len(this_allele_list)
