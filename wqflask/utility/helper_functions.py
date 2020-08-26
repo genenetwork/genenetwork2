@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 from base import data_set
 from base.trait import create_trait
 from base.species import TheSpecies

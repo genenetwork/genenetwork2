@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 from base.trait import GeneralTrait
 from base import data_set
 from utility import helper_functions

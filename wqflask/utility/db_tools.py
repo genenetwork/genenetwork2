@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 from MySQLdb import escape_string as escape
 
 def create_in_clause(items):

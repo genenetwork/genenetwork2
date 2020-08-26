@@ -24,8 +24,6 @@
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
 
-from __future__ import print_function
-
 from PIL import ImageColor
 from PIL import ImageDraw
 from PIL import ImageFont

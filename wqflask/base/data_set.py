@@ -18,7 +18,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
 from db.call import fetchall, fetchone, fetch1
 from utility.logger import getLogger
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL

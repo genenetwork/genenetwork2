@@ -16,8 +16,6 @@ To run:
 
 """
 
-from __future__ import print_function, division
-
 import sys
 import json
 

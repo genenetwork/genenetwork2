@@ -24,8 +24,6 @@
 #
 # Last updated by NL 2011/03/23
 
-from __future__ import absolute_import, print_function, division
-
 import math
 import rpy2.robjects
 import string

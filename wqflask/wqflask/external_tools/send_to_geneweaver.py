@@ -18,8 +18,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
 import string
 
 from flask import Flask, g

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 from flask import Flask, g, url_for
 
 import string

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 

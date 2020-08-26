@@ -18,7 +18,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
 from pprint import pformat as pf
 
 from base.trait import create_trait

@@ -2,8 +2,6 @@
 #
 # Main routing table for GN2
 
-from __future__ import absolute_import, division, print_function
-
 import traceback # for error page
 import os        # for error gifs
 import random    # for random error gif

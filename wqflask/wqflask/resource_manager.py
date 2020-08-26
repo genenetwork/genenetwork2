@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import json
 
 from flask import (Flask, g, render_template, url_for, request, make_response,

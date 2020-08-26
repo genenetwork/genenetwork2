@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-from __future__ import absolute_import, print_function, division
-
 import time
 
 from pprint import pformat as pf

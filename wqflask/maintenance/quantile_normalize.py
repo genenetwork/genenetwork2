@@ -1,10 +1,5 @@
-from __future__ import absolute_import, print_function, division
-
 import sys
 sys.path.insert(0, './')
-
-
-
 import MySQLdb
 import urllib.parse
 

@@ -1,7 +1,5 @@
 # GN2 API
 
-from __future__ import absolute_import, division, print_function
-
 import os, io, csv, json, datetime, requests, yaml
 import zlib
 from zipfile import ZipFile, ZIP_DEFLATED

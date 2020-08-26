@@ -1,4 +1,3 @@
-from __future__ import print_function, division, absolute_import
 from redis import Redis
 
 import simplejson as json

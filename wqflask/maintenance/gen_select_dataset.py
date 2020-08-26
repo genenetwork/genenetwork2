@@ -30,14 +30,6 @@ It needs to be run manually when database has been changed. Run it as
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import print_function, division
-
-#from flask import config
-#
-#cdict = {}
-#config = config.Config(cdict).from_envvar('WQFLASK_SETTINGS')
-#print("cdict is:", cdict)
-
 import sys
 
 # NEW: Note we prepend the current path - otherwise a guix instance of GN2 may be used instead

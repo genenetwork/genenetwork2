@@ -18,8 +18,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
 from base.trait import GeneralTrait
 from utility import helper_functions, corr_result_helpers
 
