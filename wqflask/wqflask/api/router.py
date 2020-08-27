@@ -1,14 +1,21 @@
 # GN2 API
 
-import os, io, csv, json, datetime, requests, yaml
-import zlib
+import os
+import io
+import csv
+import json
+import datetime
+import requests
+
 from zipfile import ZipFile, ZIP_DEFLATED
 
-import io
 
 import flask
-from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, send_file
-import sqlalchemy
+from flask import g
+from flask import request
+from flask import make_response
+from flask import send_file
+
 from wqflask import app
 
 from wqflask.api import correlation, mapping, gen_menu
