@@ -139,6 +139,12 @@ def send_verification_email(user_details, template_name = "email/user_verificati
     send_email(recipient, subject, body)
     return {"recipient": recipient, "subject": subject, "body": body}
 
+def send_invitation_email(user_email, temp_password, template_name = "email/user_invitation.txt",  subject = "You've been added to a GeneNetwork user group"):
+    recipient = user_email
+    body = render_template(template_name, temp_password)
+    send_email(recipient, subject, body)
+    return {"recipient": recipient, "subject": subject, "body": body}
+
 @app.route("/manage/verify_email")
 def verify_email():
     if 'code' in request.args:
