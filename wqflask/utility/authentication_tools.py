@@ -49,7 +49,10 @@ def add_new_resource(dataset, trait_id=None):
     }
 
     if dataset.type == "Publish":
-        resource_ob['name'] = get_group_code(dataset) + "_" + str(trait_id)
+        group_code = get_group_code(dataset)
+        if group_code is None:
+            group_code = ""
+        resource_ob['name'] = group_code + "_" + str(trait_id)
         resource_ob['data'] = {
             'dataset': dataset.id,
             'trait'  : trait_id
@@ -74,7 +77,6 @@ def add_new_resource(dataset, trait_id=None):
 
 def get_group_code(dataset):
     results = g.db.execute("SELECT InbredSetCode from InbredSet where Name='{}'".format(dataset.group.name)).fetchone()
-
     return results[0]
 
 def check_admin(resource_id=None):
