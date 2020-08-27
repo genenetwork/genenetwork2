@@ -930,8 +930,8 @@ def json_default_handler(obj):
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
     # Handle integer keys for dictionaries
-    elif isinstance(obj, int):
-        return str(int)
+    elif isinstance(obj, int) or isinstance(obj, uuid.UUID):
+        return str(obj)
     # Handle custom objects
     if hasattr(obj, '__dict__'):
         return obj.__dict__
