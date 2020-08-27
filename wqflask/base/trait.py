@@ -488,10 +488,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 else:
                     trait.description_display = ""
 
-            trait.abbreviation = str(str(trait.abbreviation).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.description_display = str(str(trait.description_display).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.authors = str(str(trait.authors).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-
             if not trait.year.isdigit():
                 trait.pubmed_text = "N/A"
             else:
