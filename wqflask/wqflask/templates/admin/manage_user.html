@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}View and Edit Group{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        {% if 'full_name' in user_details %}
+        <div class="page-header">
+            <h1>User details for: {{ user_details.full_name }}</h1>
+        </div>
+        {% endif %}
+        <form id="user_form" action="/user/manage" method="POST">
+            <div class="row">
+                <div id="user_info_div" class="col-xs-8" style="margin-right: 30px; min-width: 800px; max-width: 1000px;">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="email_address" style="text-align: left;" class="col-xs-2">Email Address:</label>
+                            <div style="margin-left: 20px; text-align: left;" class="col-xs-2 controls">
+                                <span id="email_address">{% if 'email_address' in user_details %}{{ user_details.email_address }}{% else %}N/A{% endif %}</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="full_name" style="text-align: left;" class="col-xs-2">User Name:</label>
+                            <div style="margin-left: 20px; text-align: left;" class="col-xs-2 controls">
+                                <span id="full_name" class="old_user_attribute">{% if 'full_name' in user_details %}{{ user_details.full_name }}{% else %}N/A{% endif %}</span>
+                                <input type="text" name="new_full_name" style="display: none; width: 500px;" class="form-control new_user_attribute" placeholder="{% if 'full_name' in user_details %}{{ user_details.full_name }}{% else %}N/A{% endif %}"> 
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="organization" style="text-align: left;" class="col-xs-2">Organization:</label>
+                            <div style="margin-left: 20px; text-align: left;" class="col-xs-2 controls">
+                                <span id="organization" class="old_user_attribute">{% if 'organization' in user_details %}{{ user_details.organization }}{% else %}N/A{% endif %}</span>
+                                <input type="text" name="new_organization" style="display: none; width: 500px;" class="form-control new_user_attribute" placeholder="{% if 'organization' in user_details %}{{ user_details.organization }}{% else %}N/A{% endif %}"> 
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="change_user_details" style="text-align: left;" class="col-xs-2"></label>
+                            <div style="margin-left: 20px; text-align: left;" class="col-xs-2 controls">
+                                <input type="button" id="change_user_details" value="Change Details">
+                                <input type="button" id="save_changes" value="Save Changes" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready( function () {
+            $('#change_user_details').click(function(){
+                $('.new_user_attribute').css("display", "inline-block");
+                $('.old_user_attribute').css("display", "none");
+                $('#change_user_details').css("display", "none");
+                $('#save_changes').css("display", "inline-block");
+            });
+
+            $('#save_changes').click(function(){
+                $('.new_user_attribute').each(function(){
+                    if ($(this).val() == ""){
+                        $(this).val($(this).attr("placeholder"))
+                    }
+                });
+                $('#user_form').submit();
+            });
+        });
+    </script>
+{% endblock %}
