@@ -37,6 +37,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             opt_list.append("--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
         if control_marker != "" and do_control == "true":
             opt_list.append("-c " + control_marker)
+        if manhattan_plot != True:
+            opt_list.append("--interval 1")
 
         reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
                                                                                                                 genofile_name,
@@ -85,9 +87,17 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
     p_values = []
     marker_obs = []
 
+    only_cm = False
+    only_mb = False
+
     with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, gwa_filename)) as output_file:
         for line in output_file:
             if line.startswith("ID\t"):
+                if len(line.split("\t")) < 8:
+                    if 'cM' in line.split("\t"):
+                        only_cm = True
+                    else:
+                        only_mb = True
                 continue
             else:
                 marker = {}
@@ -96,16 +106,30 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                     marker['chr'] = int(line.split("\t")[2])
                 except:
                     marker['chr'] = line.split("\t")[2]
-                marker['cM'] = float(line.split("\t")[3])
-                if float(line.split("\t")[4]) > 1000:
-                    marker['Mb'] = float(line.split("\t")[4])/1000000
+                if only_cm or only_mb:
+                    if only_cm:
+                        marker['cM'] = float(line.split("\t")[3])
+                    else:
+                        if float(line.split("\t")[3]) > 1000:
+                            marker['Mb'] = float(line.split("\t")[3])/1000000
+                        else:
+                            marker['Mb'] = float(line.split("\t")[3])
+                    if float(line.split("\t")[6]) != 1:
+                        marker['p_value'] = float(line.split("\t")[6])
+                    marker['lrs_value'] = float(line.split("\t")[4])
+                    marker['lod_score'] = marker['lrs_value'] / 4.61
+                    marker['additive'] = float(line.split("\t")[5])
                 else:
-                    marker['Mb'] = float(line.split("\t")[4])
-                if float(line.split("\t")[7]) != 1:
-                    marker['p_value'] = float(line.split("\t")[7])
-                marker['lrs_value'] = float(line.split("\t")[5])
-                marker['lod_score'] = marker['lrs_value'] / 4.61
-                marker['additive'] = float(line.split("\t")[6])
+                    marker['cM'] = float(line.split("\t")[3])
+                    if float(line.split("\t")[4]) > 1000:
+                        marker['Mb'] = float(line.split("\t")[4])/1000000
+                    else:
+                        marker['Mb'] = float(line.split("\t")[4])
+                    if float(line.split("\t")[7]) != 1:
+                        marker['p_value'] = float(line.split("\t")[7])
+                    marker['lrs_value'] = float(line.split("\t")[5])
+                    marker['lod_score'] = marker['lrs_value'] / 4.61
+                    marker['additive'] = float(line.split("\t")[6])
                 marker_obs.append(marker)
 
     #ZS: Results have to be reordered because the new reaper returns results sorted alphabetically by chr for some reason, resulting in chr 1 being followed by 10, etc

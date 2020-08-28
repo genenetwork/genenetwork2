@@ -152,7 +152,8 @@ Publish or ProbeSet. E.g.
 
         if t in ['pheno', 'other_pheno']:
             name = name.replace("Publish", "")
-        if bool(len(g.db.execute(sql_query_mapping[t].format(name)))):
+
+        if bool(len(g.db.execute(sql_query_mapping[t].format(name)).fetchone())):
             self.datasets[name] = dataset_name_mapping[t]
             self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
             return True
