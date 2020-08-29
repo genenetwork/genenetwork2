@@ -417,6 +417,9 @@ def export_traits_csv():
     file_list = export_traits.export_search_results_csv(request.form)
 
     if len(file_list) > 1:
+        now = datetime.datetime.now()
+        time_str = now.strftime('%H:%M_%d%B%Y')
+        filename = "collection_{}".format(time_str)
         memory_file = StringIO.StringIO()
         with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
             for the_file in file_list:
@@ -923,8 +926,6 @@ def browser_inputs():
         file_contents = json.load(the_file)
 
     return flask.jsonify(file_contents)
-
-
 
 ##########################################################################
 
