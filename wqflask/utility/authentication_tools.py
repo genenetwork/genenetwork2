@@ -76,8 +76,10 @@ def add_new_resource(dataset, trait_id=None):
 
 def get_group_code(dataset):
     results = g.db.execute("SELECT InbredSetCode from InbredSet where Name='{}'".format(dataset.group.name)).fetchone()
-
-    return results[0]
+    if results[0]:
+        return results[0]
+    else:
+        return ""
 
 def check_admin(resource_id=None):
     the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
