@@ -99,6 +99,7 @@ def check_packaged_js_files(args_obj, parser):
         "/DataTablesExtensions/plugins/sorting/scientific.js",
         # Other js libraries
         "/chroma/chroma.min.js"
+        "/d3-tip/d3-tip.js"
     ]
 
     print("Checking links")
