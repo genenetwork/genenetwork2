@@ -288,7 +288,7 @@ def add_resource(resource_info, update=True):
     else:
         resource_id = hmac.hmac_creation('{}:{}'.format(str(resource_info['type']), str(resource_info['data']['dataset'])))
 
-    if not Redis.hexists("resources", resource_id):
+    if update or not Redis.hexists("resources", resource_id):
         Redis.hset("resources", resource_id, json.dumps(resource_info))
 
     return resource_info
