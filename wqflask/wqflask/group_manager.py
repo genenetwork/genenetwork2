@@ -1,10 +1,12 @@
+import random, string
+
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash)
 
 from wqflask import app
-from wqflask.user_login import send_verification_email
+from wqflask.user_login import send_verification_email, send_invitation_email, basic_info, set_password
 
-from utility.redis_tools import get_user_groups, get_group_info, create_group, delete_group, add_users_to_group, remove_users_from_group, \
+from utility.redis_tools import get_user_groups, get_group_info, save_user, create_group, delete_group, add_users_to_group, remove_users_from_group, \
                                 change_group_name, save_verification_code, check_verification_code, get_user_by_unique_column, get_resources, get_resource_info
 
 from utility.logger import getLogger
@@ -138,5 +140,16 @@ def send_group_invites(group_id, user_email_list = [], user_type="members"):
                continue
             else:
                send_verification_email(user_details, template_name = "email/group_verification.txt", key_prefix = "verification_code", subject = "You've been invited to join a GeneNetwork user group")
+      else:
+         temp_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+         user_details = {
+            'user_id': str(uuid.uuid4()),
+            'email_address': user_email,
+            'registration_info': basic_info(),
+            'password': set_password(temp_password),
+            'confirmed': 0
+         }
+         save_user(user_details, user_details['user_id'])
+         send_invitation_email(user_email, temp_password)
 
 #@app.route()
