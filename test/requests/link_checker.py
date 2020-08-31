@@ -97,6 +97,8 @@ def check_packaged_js_files(args_obj, parser):
         # Datatables plugins:
         "/DataTablesExtensions/plugins/sorting/natural.js",
         "/DataTablesExtensions/plugins/sorting/scientific.js",
+        # Other js libraries
+        "/chroma/chroma.min.js"
     ]
 
     print("Checking links")
