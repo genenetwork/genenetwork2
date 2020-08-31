@@ -88,7 +88,7 @@ def check_admin(resource_id=None):
         response = json.loads(requests.get(the_url).content)['admin']
     except:
         resource_info = get_resource_info(resource_id)
-l        response = resource_info['default_mask']['admin']
+        response = resource_info['default_mask']['admin']
 
     if 'edit-admins' in response:
         return "edit-admins"
