@@ -2,7 +2,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/network_graph.css" />
     <link rel="stylesheet" type="text/css" href="/js/cytoscape-panzoom/cytoscape.js-panzoom.css" />
-    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='qtip2/jquery.qtip.min.css') }}">
     <style>
         /* The Cytoscape Web container must have its dimensions set. */
         html, body { height: 100%; width: 100%; padding: 0; margin: 0; }
@@ -141,8 +141,8 @@
     </script>
 
     <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
-    <script language="javascript" type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='qtip2/jquery.qtip.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
 
     <script language="javascript" type="text/javascript" src="/js/cytoscape/cytoscape.min.js"></script>
     <script language="javascript" type="text/javascript" src="/js/cytoscape-panzoom/cytoscape-panzoom.js"></script>

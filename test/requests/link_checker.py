@@ -98,8 +98,12 @@ def check_packaged_js_files(args_obj, parser):
         "/DataTablesExtensions/plugins/sorting/natural.js",
         "/DataTablesExtensions/plugins/sorting/scientific.js",
         # Other js libraries
-        "/chroma/chroma.min.js"
-        "/d3-tip/d3-tip.js"
+        "/chroma/chroma.min.js",
+        "/d3-tip/d3-tip.js",
+        "/d3js/d3.min.js",
+        "/js_alt/underscore.min.js",
+        "/nvd3/nv.d3.min.css",
+        "/qtip2/jquery.qtip.min.js",
     ]
 
     print("Checking links")
