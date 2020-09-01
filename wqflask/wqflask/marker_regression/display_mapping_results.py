@@ -1586,12 +1586,12 @@ class DisplayMappingResults(object):
                                     if (plotRight < (xLeftOffset + plotWidth - 3)) and (lastGene == 0):
                                         drawEnd = xLeftOffset + plotWidth - 6
                                         mylineColor = self.HAPLOTYPE_RECOMBINATION
-                                im_drawer.line(
-                                    xy=((plotRight,
-                                         geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom),
-                                        (drawEnd,
-                                         geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom)),
-                                    fill= mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
+                                    im_drawer.line(
+                                        xy=((plotRight,
+                                            geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                            (drawEnd,
+                                            geneYLocation+7+2*ind*self.EACH_GENE_HEIGHT*zoom)),
+                                        fill= mylineColor, width=zoom*(self.EACH_GENE_HEIGHT+2))
 
 
                             if lastGene == 0:
