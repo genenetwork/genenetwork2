@@ -104,6 +104,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js_alt/underscore.min.js",
         "/nvd3/nv.d3.min.css",
         "/qtip2/jquery.qtip.min.js",
+        "/js_alt/md5.min.js",
     ]
 
     print("Checking links")

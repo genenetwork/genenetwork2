@@ -333,7 +333,7 @@
 {% block js %}  
 
     <script type="text/javascript" src="{{ url_for('js', filename='d3js/d3.min.js') }}"></script>
-    <script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename=underscore-string/underscore.string.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
