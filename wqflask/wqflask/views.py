@@ -175,13 +175,24 @@ def tmp_page(img_path):
     return render_template("show_image.html",
                             img_base64 = bytesarray )
 
+
 @app.route("/js/<path:filename>")
 def js(filename):
-    return send_from_directory(JS_GUIX_PATH, filename)
+    js_path = JS_GUIX_PATH
+    name = filename
+    if 'js_alt/' in filename:
+        js_path = js_path.replace('genenetwork2/javascript', 'javascript')
+        name = name.replace('js_alt/', '')
+    return send_from_directory(js_path, name)
 
 @app.route("/css/<path:filename>")
 def css(filename):
-    return send_from_directory(CSS_PATH, filename)
+    js_path = JS_GUIX_PATH
+    name = filename
+    if 'js_alt/' in filename:
+        js_path = js_path.replace('genenetwork2/javascript', 'javascript')
+        name = name.replace('js_alt/', '')
+    return send_from_directory(js_path, name)
 
 @app.route("/twitter/<path:filename>")
 def twitter(filename):
