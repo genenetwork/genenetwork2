@@ -24,14 +24,13 @@ class ServerSideTable(object):
         wqflask/wqflask/views.py for reference use.
     '''
 
-    def __init__(self, table_data, request_values):
+    def __init__(self, rows_count, table_rows, header_data_names, request_values):
         self.request_values = request_values
         self.sEcho = self.request_values['sEcho']
 
-        self.table_data = table_data
-        self.rows_count = self.table_data.rows_count
-        self.table_rows = self.table_data.table_rows
-        self.header_data_names = self.table_data.header_data_names
+        self.rows_count = rows_count
+        self.table_rows = table_rows
+        self.header_data_names = header_data_names
         
         self.sort_rows()
         self.paginate_rows()

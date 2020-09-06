@@ -922,7 +922,12 @@ def db_info_page():
 def snp_browser_table():
     logger.info(request.url)
     snp_table_data = snp_browser.SnpBrowser(request.args)
-    current_page = server_side.ServerSideTable(snp_table_data, request.args).get_page()
+    current_page = server_side.ServerSideTable(
+        snp_table_data.rows_count,
+        snp_table_data.table_rows,
+        snp_table_data.header_data_names,
+        request.args,
+    ).get_page()
 
     return flask.jsonify(current_page)
 
