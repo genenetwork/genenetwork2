@@ -6,6 +6,10 @@ table.dataTable thead th {
   vertical-align: bottom;
 }
 
+table.dataTable tbody tr.selected {
+  background-color: #ffee99;
+}
+
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc,

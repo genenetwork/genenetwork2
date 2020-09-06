@@ -283,7 +283,7 @@
           'className': 'dt-body-center',
           'orderable': false,
           'render': function(data, type, row, meta) {
-            return '<input type="checkbox" name="trait_check">'
+            return '<input type="checkbox" class="checkbox" id="variant_checkbox" onchange="onVarinatCheck(this)" name="trait_check">'
           }
         }, {
           'data': 'index',
@@ -396,7 +396,7 @@
         {
           'data': null,
           'render': function(data, type, row, meta) {
-            return '<input type="checkbox" name="trait_check">'
+            return '<input type="checkbox" class="checkbox" id="variant_checkbox" onchange="onVarinatCheck(this)" name="trait_check">'
           }
         }, {
           'data': 'index',
@@ -436,6 +436,19 @@
       }
     });
     {% endif %}
+
+    function onVarinatCheck(checkboxElem) {
+        if (checkboxElem.checked) {
+            if (!checkboxElem.parentElement.parentElement.classList.contains('selected')) {
+                checkboxElem.parentElement.parentElement.classList.add('selected')
+            }
+        }
+        else {
+            if (checkboxElem.parentElement.parentElement.classList.contains('selected')) {
+                checkboxElem.parentElement.parentElement.classList.remove('selected')
+            }
+        }
+    }
 
     $("#species_select").change(function() {
         this_species = $(this).val();
