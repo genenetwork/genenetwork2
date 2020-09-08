@@ -254,4 +254,31 @@ $(function() {
   $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
+
+
+  let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
+  let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
+
+  function sort_NAs(a, b, sort_function){
+    if (a === "N/A" && b === "N/A") {
+      return 0;
+    }
+    if (a === "N/A"){
+      return 1
+    }
+    if (b === "N/A") {
+      return -1;
+    }
+    return sort_function(a, b)
+  }
+
+  $.extend( $.fn.dataTableExt.oSort, {
+    "natural-minus-na-asc": function (a, b) {
+      return sort_NAs(a, b, naturalAsc)
+    },
+    "natural-minus-na-desc": function (a, b) {
+      return sort_NAs(a, b, naturalDesc)
+    }
+  });
+
 });
