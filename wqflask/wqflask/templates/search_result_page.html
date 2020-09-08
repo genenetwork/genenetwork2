@@ -8,11 +8,12 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <div style="padding-left: 10px;>
+    <div style="padding-left: 10px;">
         <input type="hidden" name="uc_id" id="uc_id" value="{{ uc_id }}">
 
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
         <!-- Need to customize text more for other types of searches -->
+
         <p><b>Search Results:</b> We searched <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
            to find all records
                 {% if go_term is not none %}
@@ -47,8 +48,9 @@
                 {% endfor %}
                 {% endif %}
                 <br>
-                {{ results|count }} records are shown below.
+                A total of {{ results|count }} records were found.
         </p>
+
         {% if go_term is not none %}
         <p><b>The associated genes include:</b><br><br>{% for word in search_terms %}{{ word.search_term[0] }}{% endfor %}</p>
         {% endif %}
@@ -58,7 +60,9 @@
         <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
 
         </div>
-
+        {% if too_many_results %}
+        <p>Your search generated over 50000 results. Please modify your search to generate 50000 or fewer matches.</p>
+        {% else %}
         <div style="min-width: 950px;">
           <form id="trait_submission_form" target="_blank" action="/corr_matrix" method="post">
             <input type="hidden" name="tool_used" value="" />
@@ -145,6 +149,7 @@
             </table>
           </div>
         </div>
+        {% endif %}
     </div>
 
     <div id="myModal"></div>
@@ -155,13 +160,14 @@
 
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script type='text/javascript'>
         var trait_list = {{ trait_list|safe }};
@@ -218,9 +224,7 @@
                 }
             }
 
-            console.time("Creating table");
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
-
             $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
@@ -314,33 +318,33 @@
                     },
                     {
                       'title': "Location",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "120px",
                       'data': "location"
                     },
                     {
                       'title': "Mean",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "40px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "80px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS Location",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "150px",
                       'data': "lrs_location"
                     },
                     {
                       'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': "additive",
                       'width': "120px",
                       'orderSequence': [ "desc", "asc"]
@@ -360,7 +364,7 @@
                     },
                     {
                       'title': "Mean",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "110px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
@@ -387,7 +391,7 @@
                     },
                     {
                       'title': "Year",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'orderDataType': "dom-inner-text",
                       'data': null,
                       'width': "80px",
@@ -402,27 +406,27 @@
                     },
                     {
                       'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "80px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS Location",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "150px",
                       'data': "lrs_location"
                     },
                     {
                       'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "120px",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Geno' %},
                     {
                       'title': "Location",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "140px",
                       'data': "location"
                     }{% endif %}
