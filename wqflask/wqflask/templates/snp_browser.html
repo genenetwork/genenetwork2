@@ -233,9 +233,9 @@
   <script language="javascript">
 
     var getParams = function(url) {
-      var parser = document.createElement('a');
+      let parser = document.createElement('a');
       parser.href = url;
-      var params = parser.search.substring(1);
+      let params = parser.search.substring(1);
       if(params.length > 0) {
         return ('?'+params);
       }
