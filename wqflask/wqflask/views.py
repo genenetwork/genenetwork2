@@ -37,6 +37,7 @@ from wqflask import gsearch
 from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
+from wqflask import db_info
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
@@ -908,11 +909,23 @@ def snp_browser_page():
 
     return render_template("snp_browser.html", **template_vars.__dict__)
 
+@app.route("/db_info", methods=('GET',))
+def db_info_page():
+    template_vars = db_info.InfoPage(request.args)
+
+    return render_template("info_page.html", **template_vars.__dict__)
+
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():
     #ZS: Currently just links to GN1
     logger.info(request.url)
     return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
+
+@app.route("/tutorial/security", methods=('GET',))
+def security_tutorial_page():
+    #ZS: Currently just links to GN1
+    logger.info(request.url)
+    return render_template("admin/security_help.html")
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
