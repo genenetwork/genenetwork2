@@ -27,9 +27,7 @@ import array
 import sqlalchemy
 from wqflask import app
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
-<<<<<<< HEAD
 
-=======
 from wqflask import group_manager
 from wqflask import resource_manager
 from wqflask import search_results
@@ -39,7 +37,6 @@ from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
 from wqflask import server_side
->>>>>>> ed2afa4a (move SnpPage to a generic class ServerSide)
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
