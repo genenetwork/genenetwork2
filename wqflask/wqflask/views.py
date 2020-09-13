@@ -234,6 +234,26 @@ def search_page():
     else:
         return render_template("search_error.html")
 
+@app.route("/search_table", methods=('GET',))
+def search_page_table():
+    logger.info("in search_page table")
+    logger.info(request.url)
+
+    logger.info("request.args is", request.args)
+    the_search = search_results.SearchResultPage(request.args)
+
+    logger.info(type(the_search.trait_list))
+    logger.info(the_search.trait_list)
+    
+    current_page = server_side.ServerSideTable(
+        len(the_search.trait_list),
+        the_search.trait_list,
+        the_search.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
+
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
     logger.info(request.url)

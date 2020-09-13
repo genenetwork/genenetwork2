@@ -28,9 +28,9 @@ class SearchResultPage(object):
     #maxReturn = 3000
 
     def __init__(self, kw):
-        """This class gets invoked after hitting submit on the main menu (in
-views.py).
-
+        """
+            This class gets invoked after hitting submit on the main menu (in
+            views.py).
         """
 
         ###########################################
@@ -85,7 +85,6 @@ views.py).
                 self.too_many_results = True
             else:
                 self.gen_search_result()
-
 
     def gen_search_result(self):
         """
@@ -155,7 +154,14 @@ views.py).
                         trait_dict[key] = trait_dict[key].decode('utf-8')
                 trait_list.append(trait_dict)
 
-        self.trait_list = json.dumps(trait_list)
+        self.trait_list = trait_list
+
+        if this_trait.dataset.type == "ProbeSet":
+            self.header_data_names = ['index', 'display_name', 'symbol', 'description', 'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
+        elif this_trait.dataset.type == "Publish":
+            self.header_data_names = ['index', 'display_name', 'description', 'mean', 'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
+        elif this_trait.dataset.type == "Geno":
+            self.header_data_names = ['index', 'display_name', 'location']
 
     def search(self):
         """
