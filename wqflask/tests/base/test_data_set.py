@@ -66,7 +66,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_key_mrna(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
@@ -84,7 +84,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_key_pheno(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
@@ -93,7 +93,6 @@ class TestDataSetTypes(unittest.TestCase):
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
                 '{"Aging-Brain-UCIPublish": "Publish", "AKXDGeno": "Geno", "B139_K_1206_M": "ProbeSet", "AD-cases-controls-MyersGeno": "Geno", "AD-cases-controls-MyersPublish": "Publish", "All Phenotypes": "Publish", "Test": "Publish", "AXBXAPublish": "Publish", "B139_K_1206_R": "ProbeSet", "AXBXAGeno": "Geno"}')
-            expected_db_call = """"""
             db_mock.db.execute.assert_called_with(
                 ("SELECT InfoFiles.GN_AccesionId " +
                  "FROM InfoFiles, PublishFreeze, InbredSet " +
@@ -105,7 +104,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_other_pheno(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
@@ -114,7 +113,6 @@ class TestDataSetTypes(unittest.TestCase):
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
                 '{"Aging-Brain-UCIPublish": "Publish", "AKXDGeno": "Geno", "B139_K_1206_M": "ProbeSet", "AD-cases-controls-MyersGeno": "Geno", "AD-cases-controls-MyersPublish": "Publish", "All Phenotypes": "Publish", "Test": "Publish", "AXBXAPublish": "Publish", "B139_K_1206_R": "ProbeSet", "AXBXAGeno": "Geno"}')
-            expected_db_call = """"""
             db_mock.db.execute.assert_called_with(
                 ("SELECT PublishFreeze.Name " +
                  "FROM PublishFreeze, InbredSet " +
@@ -125,7 +123,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_geno(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
