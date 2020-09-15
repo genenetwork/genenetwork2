@@ -150,6 +150,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/packages/noUiSlider/nouislider.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/get_covariates_from_collection.js"></script>
 
@@ -352,16 +353,15 @@
                   'order': [[1, "asc"]],
                   'sDom': "Ztr",
                   'autoWidth': true,
-                  'deferRender': true,
-                  'paging': false,
                   'orderClasses': true,
-                  'scrollY': "600px",
-                  'scrollCollapse': false,
-                  'processing': true,
-                  'language': {
-                    'loadingRecords': '&nbsp;',
-                    'processing': 'Loading...'
-                  }
+                  "scrollY": "50vh",
+                  'scroller':  true,
+                  'scrollCollapse': true
+                  // 'processing': true,
+                  // 'language': {
+                  //   'loadingRecords': '&nbsp;',
+                  //   'processing': 'Loading...'
+                  // }
                 } );
 
                 primary_table.on( 'order.dt search.dt draw.dt', function () {
@@ -502,16 +502,15 @@
                   'order': [[1, "asc"]],
                   'sDom': "Ztr",
                   'autoWidth': true,
-                  'deferRender': true,
-                  'paging': false,
                   'orderClasses': true,
-                  'scrollY': "600px",
-                  'scrollCollapse': false,
-                  'processing': true,
-                  'language': {
-                    'loadingRecords': '&nbsp;',
-                    'processing': 'Loading...'
-                  }
+                  "scrollY": "50vh",
+                  'scroller':  true,
+                  'scrollCollapse': true
+                  // 'processing': true,
+                  // 'language': {
+                  //   'loadingRecords': '&nbsp;',
+                  //   'processing': 'Loading...'
+                  // }
                 } );
 
                 $('#other_searchbox').on( 'keyup', function () {
