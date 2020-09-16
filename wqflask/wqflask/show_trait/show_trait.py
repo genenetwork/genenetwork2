@@ -545,7 +545,7 @@ def get_table_widths(sample_groups, has_num_cases=False):
         stats_table_width = 450
 
     trait_table_width = 380
-    if sample_groups[0].se_exists():
+    if sample_groups[0].se_exists:
         trait_table_width += 80
     if has_num_cases:
         trait_table_width += 80
