@@ -1,21 +1,20 @@
 from __future__ import absolute_import, print_function, division
 
-from flask import Flask, g
-
-from base import webqtlCaseData
-from utility import webqtlUtil, Plot, Bunch
-from base.trait import GeneralTrait
-
-import numpy as np
-from scipy import stats
-from pprint import pformat as pf
-
-import simplejson as json
-
 import itertools
 
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
+import numpy as np
+from flask import Flask, g
+from pprint import pformat as pf
+from scipy import stats
+
+from base import webqtlCaseData
+from base.trait import GeneralTrait
+from utility import logger
+from utility import webqtlUtil
+from utility import Plot
+from utility import Bunch
+
+logger = logger.getLogger(__name__ )
 
 class SampleList(object):
     def __init__(self,
@@ -34,8 +33,6 @@ class SampleList(object):
         self.sample_attribute_values = {}
 
         self.get_attributes()
-
-        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
         if self.this_trait and self.dataset:
             self.get_extra_attribute_values()
@@ -69,8 +66,6 @@ class SampleList(object):
                 #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
-
-        #logger.debug("attribute vals are", pf(self.sample_attribute_values))
 
         self.do_outliers()
 
@@ -155,48 +150,6 @@ class SampleList(object):
         """Returns true if SE values exist for any samples, otherwise false"""
 
         return any(sample.variance for sample in self.sample_list)
-
-# def get_transform_vals(dataset, trait):
-#     es = get_elasticsearch_connection(for_user=False)
-
-#     logger.info("DATASET NAME:", dataset.name)
-
-#     query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
-
-#     es_body = {
-#           "query": {
-#             "bool": {
-#               "must": [
-#                 {
-#                   "match": {
-#                     "name": "%s" % (trait.name)
-#                   }
-#                 },
-#                 {
-#                   "match": {
-#                     "dataset": "%s" % (dataset.name)
-#                   }
-#                 }
-#               ]
-#             }
-#           }
-#     }
-
-#     response = es.search( index = "traits", doc_type = "trait", body = es_body )
-#     logger.info("THE RESPONSE:", response)
-#     results = response['hits']['hits']
-
-#     if len(results) > 0:
-#         samples = results[0]['_source']['samples']
-
-#         sample_dict = {}
-#         for sample in samples:
-#             sample_dict[sample['name']] = sample['qnorm']
-
-#         #logger.info("SAMPLE DICT:", sample_dict)
-#         return sample_dict
-#     else:
-#         return None
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""
