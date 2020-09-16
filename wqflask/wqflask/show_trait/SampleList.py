@@ -67,6 +67,7 @@ class SampleList(object):
 
             self.sample_list.append(sample)
 
+        self.se_exists = any(sample.variance for sample in self.sample_list)
         self.do_outliers()
 
     def __repr__(self):
@@ -145,11 +146,6 @@ class SampleList(object):
 
                     attribute_values[self.attributes[item.Id].name] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
-
-    def se_exists(self):
-        """Returns true if SE values exist for any samples, otherwise false"""
-
-        return any(sample.variance for sample in self.sample_list)
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""
