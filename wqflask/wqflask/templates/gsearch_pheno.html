@@ -20,7 +20,7 @@
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
             <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-            <button class="btn btn-default" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+            <button class="btn btn-success" id="add" disabled ><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
             <form id="export_form" method="POST" action="/export_traits_csv" style="display: inline;">
@@ -46,13 +46,13 @@
 {% endblock %}
 
 {% block js %}
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script type='text/javascript'>
       var the_rows = {{ trait_list|safe }};
@@ -191,7 +191,7 @@
                     },
                     {
                       'title': "Mean",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "10%",
                       'data': "mean"
                     },
@@ -218,7 +218,7 @@
                     },
                     {
                       'title': "Year",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': null,
                       'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
@@ -232,19 +232,19 @@
                     },
                     {
                       'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': "LRS_score_repr",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS Location",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'width': "10%",
                       'data': "max_lrs_text"
                     },
                     {
                       'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }

@@ -77,8 +77,14 @@ views.py).
             self.search()
         except:
            self.search_term_exists = False
+
+        self.too_many_results = False
         if self.search_term_exists:
-            self.gen_search_result()
+            if len(self.results) > 50000:
+                self.trait_list = []
+                self.too_many_results = True
+            else:
+                self.gen_search_result()
 
 
     def gen_search_result(self):

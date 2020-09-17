@@ -71,7 +71,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_key_mrna(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
@@ -98,7 +98,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_key_pheno(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
@@ -127,7 +127,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_other_pheno(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)
@@ -157,7 +157,7 @@ class TestDataSetTypes(unittest.TestCase):
     @mock.patch('base.data_set.g')
     def test_set_dataset_geno(self, db_mock):
         with app.app_context():
-            db_mock.db.execute.return_value = [1, 2, 3]
+            db_mock.db.execute.return_value.fetchone.return_value = [1, 2, 3]
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             data_set = DatasetType(redis_mock)

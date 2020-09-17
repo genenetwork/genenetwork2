@@ -225,7 +225,7 @@
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-default" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}500{% else %}470{% endif %}px;">
@@ -332,11 +332,11 @@
 
 {% block js %}  
 
-    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
-    <script type="text/javascript" src="/static/new/js_external/md5.min.js"></script>
-    <script type="text/javascript" src="/static/new/js_external/underscore-min.js"></script>
-    <script type="text/javascript" src="/static/new/js_external/underscore.string.min.js"></script>
-    <script type="text/javascript" src="/static/new/js_external/d3-tip.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='d3js/d3.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='underscore-string/underscore.string.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
     <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>

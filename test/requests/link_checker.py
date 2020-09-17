@@ -48,6 +48,21 @@ def verify_link(link):
         if DO_FAIL:
             raise ex
 
+
+def verify_static_file(link):
+    print("verifying "+link)
+    try:
+        result = requests.get(link, timeout=20, verify=False)
+        if (result.status_code == 200 and
+                result.content.find("Error: 404 Not Found") <= 0):
+            print(link+" ==> OK")
+        else:
+            print("ERROR: link {}".format(link))
+            raise Exception("Failed verify")
+    except ConnectionError as ex:
+        print("ERROR: ", link, ex)
+
+
 def check_page(host, start_url):
     print("")
     print("Checking links host "+host+" in page `"+start_url+"`")
@@ -81,20 +96,28 @@ def check_packaged_js_files(args_obj, parser):
     host = args_obj.host
     js_files = [
         # Datatables Extensions:
-        "/DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css",
-        "/DataTablesExtensions/buttons/js/dataTables.buttons.min.js",
-        "/DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css",
-        "/DataTablesExtensions/buttons/js/dataTables.buttons.min.js",
-        "/DataTablesExtensions/colResize/dataTables.colResize.js",
-        "/DataTablesExtensions/colReorder/js/dataTables.colReorder.js",
-        "/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
-        "/DataTables/js/jquery.dataTables.js",
-        "/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
+        "/css/DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css",
+        "/js/DataTablesExtensions/buttons/js/dataTables.buttons.min.js",
+        "/css/DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css",
+        "/js/DataTablesExtensions/buttons/js/dataTables.buttons.min.js",
+        "/js/DataTablesExtensions/colResize/dataTables.colResize.js",
+        "/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js",
+        "/js/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
+        "/js/DataTables/js/jquery.dataTables.js",
+        "/css/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
         # Datatables plugins:
-        "/DataTablesExtensions/plugins/sorting/natural.js",
-        "/DataTablesExtensions/plugins/sorting/scientific.js",
+        "/js/DataTablesExtensions/plugins/sorting/natural.js",
+        "/js/DataTablesExtensions/plugins/sorting/scientific.js",
+        # Other js libraries
+        "/js/chroma/chroma.min.js",
+        "/js/d3-tip/d3-tip.js",
+        "/js/d3js/d3.min.js",
+        "/js/js_alt/underscore.min.js",
+        "/js/nvd3/nv.d3.min.css",
+        "/js/qtip2/jquery.qtip.min.js",
+        "/js/js_alt/md5.min.js",
     ]
 
     print("Checking links")
     for link in js_files:
-        verify_link(host+link)
+        verify_static_file(host+link)
