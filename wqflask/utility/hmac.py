@@ -10,7 +10,9 @@ def hmac_creation(stringy):
     """Helper function to create the actual hmac"""
 
     secret = app.config['SECRET_HMAC_CODE']
-    hmaced = hmac.new(secret, stringy, hashlib.sha1)
+    hmaced = hmac.new(bytearray(secret, "utf-8"),
+                      bytearray(stringy, "utf-8"),
+                      hashlib.sha1)
     hm = hmaced.hexdigest()
     # ZS: Leaving the below comment here to ask Pjotr about
     # "Conventional wisdom is that you don't lose much in terms of security if you throw away up to half of the output."
