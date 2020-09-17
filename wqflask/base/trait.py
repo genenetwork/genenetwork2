@@ -538,8 +538,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 description_display = trait.symbol
 
             if (len(description_display) > 1 and description_display != 'N/A' and
-                    len(target_string) > 1 and target_string != 'None'):
-                description_display = description_display + '; ' + target_string.strip()
+                    len(str(target_string)) > 1 and target_string != 'None'):
+                description_display = description_display + '; ' + str(target_string).strip()
 
             # Save it for the jinja2 template
             trait.description_display = description_display
