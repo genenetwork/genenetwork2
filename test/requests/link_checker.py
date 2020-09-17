@@ -54,7 +54,7 @@ def verify_static_file(link):
     try:
         result = requests.get(link, timeout=20, verify=False)
         if (result.status_code == 200 and
-                result.content.find("Error: 404 Not Found") <= 0):
+                result.content.find(bytes("Error: 404 Not Found", "utf-8")) <= 0):
             print(link+" ==> OK")
         else:
             print("ERROR: link {}".format(link))

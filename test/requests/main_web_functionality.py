@@ -9,7 +9,6 @@ def check_home(url):
     assert(search_button[0].value == "Search")
     print("OK")
 
-
 def check_search_page(host):
     data = dict(
         species="mouse",
@@ -19,7 +18,7 @@ def check_search_page(host):
         search_terms_or="",
         search_terms_and="MEAN=(15 16) LRS=(23 46)")
     result = requests.get(host+"/search", params=data)
-    found = result.text.find("records are shown below")
+    found = result.text.find("records were found.")
     assert(found >= 0)
     assert(result.status_code == 200)
     print("OK")
