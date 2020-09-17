@@ -38,9 +38,8 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                                 dataset={})
 
     @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.g', mock.Mock())
     def test_retrieve_trait_info_with_empty_trait_info(self,
-                                                       g_mock,
                                                        requests_mock):
         """Empty trait info"""
         requests_mock.return_value = TestNilResponse()
@@ -49,9 +48,8 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                                 dataset=mock.MagicMock())
 
     @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.g', mock.Mock())
     def test_retrieve_trait_info_with_non_empty_trait_info(self,
-                                                           g_mock,
                                                            requests_mock):
         """Test that attributes are set"""
         mock_dataset = mock.MagicMock()
@@ -66,9 +64,8 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         self.assertEqual(test_trait.d, 4)
 
     @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.g', mock.Mock())
     def test_retrieve_trait_info_utf8_parsing(self,
-                                              g_mock,
                                               requests_mock):
         """Test that utf-8 strings are parsed correctly"""
         utf_8_string = "test_string"
