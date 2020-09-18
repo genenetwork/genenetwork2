@@ -538,10 +538,9 @@ populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
   sample_attributes = {};
-  _ref = js_data.attribute_names;
-  for (key in _ref) {
-    if (!__hasProp.call(_ref, key)) continue;
-    attribute_info = _ref[key];
+  attr_keys = Object.keys(js_data.attributes).sort();
+  for (i=0; i < attr_keys.length; i++) {
+    attribute_info = js_data.attributes[attr_keys[i]];
     sample_attributes[attribute_info.name] = attribute_info.distinct_values;
   }
   selected_attribute = $('#exclude_menu').val().replace("_", " ");
@@ -549,13 +548,15 @@ populate_sample_attributes_values_dropdown = function() {
   _results = [];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     value = _ref1[_i];
-    _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+    if (value != ""){
+      _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+    }
   }
   return _results;
 };
-if (Object.keys(js_data.attribute_names).length > 0) {
-  populate_sample_attributes_values_dropdown();
-}
+
+populate_sample_attributes_values_dropdown();
+
 $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
 block_by_attribute_value = function() {
   var attribute_name, cell_class, exclude_by_value;
@@ -859,10 +860,9 @@ get_sample_table_data = function(table_name) {
       if ($(element).find('.edit_sample_num_cases').length > 0) {
         row_data.num_cases = $(element).find('.edit_sample_num_cases').val();
       }
-      _ref = js_data.attribute_names;
-      for (key in _ref) {
-        if (!__hasProp.call(_ref, key)) continue;
-        attribute_info = _ref[key];
+      attr_keys = Object.keys(js_data.attributes).sort()
+      for (i=0; i < attr_keys.length; i++) {
+        attribute_info = js_data.attributes[attr_keys[i]];
         row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_").replace("/", "\\/")).text());
       }
       return samples.push(row_data);
