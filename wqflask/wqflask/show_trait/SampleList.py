@@ -40,17 +40,16 @@ class SampleList(object):
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
+            if type(self.this_trait) is list: # ZS: self.this_trait will be a list if it is a Temp trait
                 if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
                 else:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
             else:
-                #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
+                # ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
                 try:
                     sample = self.this_trait.data[sample_name]
                 except KeyError:
-                    #logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
@@ -60,10 +59,9 @@ class SampleList(object):
 
             sample.this_id = str(counter)
 
-            #### For extra attribute columns; currently only used by several datasets - Zach
+            # ZS: For extra attribute columns; currently only used by several datasets
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
 
@@ -100,7 +98,6 @@ class SampleList(object):
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            #logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
@@ -137,8 +134,8 @@ class SampleList(object):
                 for item in items:
                     attribute_value = item.Value
 
-                    #ZS: If it's an int, turn it into one for sorting
-                    #(for example, 101 would be lower than 80 if they're strings instead of ints)
+                    # ZS: If it's an int, turn it into one for sorting
+                    # (for example, 101 would be lower than 80 if they're strings instead of ints)
                     try:
                         attribute_value = int(attribute_value)
                     except ValueError:
