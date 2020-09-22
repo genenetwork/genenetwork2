@@ -42,9 +42,17 @@ Also mariadb and redis need to be running, see
 ## Testing
 
 To have tests pass, the redis and mariadb instance should be running, because of
-asserts sprinkled in the code base(these will be removed in due time).
+asserts sprinkled in the code base.
+
+Right now, the only tests running in CI are unittests. Please make
+sure the existing unittests are green when submitting a PR.
+
+See
+[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/doc/docker-container.org)
+for more details.
 
 #### Mechanical Rob
+
 We are building 'Mechanical Rob' automated testing using Python
 [requests](https://github.com/genenetwork/genenetwork2/tree/testing/test/requests)
 which can be run with:
