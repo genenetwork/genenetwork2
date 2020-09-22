@@ -229,70 +229,60 @@
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}500{% else %}470{% endif %}px;">
-          <table id="trait_table" class="table-hover table-striped cell-border dataTable no-footer">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Row</th>
-                <th>Marker</th>
-                <th>{{ LRS_LOD }}</th>
-                <th>Chr</th>
-                {% if plotScale != "physic" %}
-                <th>cM</th>
-                {% else %}
-                <th align="right">Mb</th>
-                {% endif %}
-                {% if 'additive' in trimmed_markers[0] %}
-                <th>Add Eff</th>
-                {% endif %}
-                {% if 'dominance' in trimmed_markers[0] and dataset.group.genetic_type != "riset" %}
-                <th>Dom Eff</th>
-                {% endif %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for marker in trimmed_markers %}
-              <tr>
-                <td align="center" style="padding: 1px 0px 1px 0px;">
-                  <input type="checkbox" name="selectCheck"
-                         class="checkbox trait_checkbox"
-                         value="{{ data_hmac('{}:{}Geno'.format(marker.name, dataset.group.name)) }}">
-                </td>
-                <td align="right">{{ loop.index }}</td>
-                <td>{% if geno_db_exists == "True" %}<a href="/show_trait?trait_id={{ marker.name }}&dataset={{ dataset.group.name }}Geno">{{ marker.name }}</a>{% else %}{{ marker.name }}{% endif %}</td>
-                {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}
-                {% if 'lod_score' in marker %}
-                <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
-                {% else %}
-                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.61) }}</td>
-                {% endif %}
-                {% else %}
-                {% if 'lod_score' in marker %}
-                <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.61) }}</td>
-                {% else %}
-                <td align="right">{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
-                {% endif %}
-                {% endif %}
-                <td align="right">{{marker.chr}}</td>
-                {% if plotScale != "physic" %}
-                {% if 'cM' in marker %}
-                <td align="right">{{ '%0.3f' | format(marker.cM|float) }}</td>
-                {% else %}
-                <td align="right">{{ '%0.3f' | format(marker.Mb|float) }}</td>
-                {% endif %}
-                {% else %}
-                <td align="right">{{ '%0.6f' | format(marker.Mb|float) }}</td>
-                {% endif %}
-                {% if 'additive' in marker %}
-                <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
-                {% endif %}
-                {% if 'dominance' in marker and dataset.group.genetic_type != "riset" %}
-                <td align="right">{{ '%0.2f' | format(marker.dominance|float) }}</td>
-                {% endif %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+            <table id="trait_table" class="table-hover table-striped cell-border dataTable no-footer">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Row</th>
+                  <th>Marker</th>
+                  {% LRS_LOD == "-log(p)" %}
+                  <th>–log(p)</th>
+                  {% else %}
+                  <th>{{ LRS_LOD }}</th>
+                  {% endif %}
+                  <th>Position</th>
+                  {% if 'additive' in trimmed_markers[0] %}
+                  <th>Add Eff</th>
+                  {% endif %}
+                  {% if 'dominance' in trimmed_markers[0] and dataset.group.genetic_type != "riset" %}
+                  <th>Dom Eff</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for marker in trimmed_markers %}
+                <tr>
+                  <td align="center" style="padding: 1px 0px 1px 0px;">
+                    <input type="checkbox" name="selectCheck"
+                           class="checkbox trait_checkbox"
+                           value="{{ data_hmac('{}:{}Geno'.format(marker.name, dataset.group.name)) }}">
+                  </td>
+                  <td align="right">{{ loop.index }}</td>
+                  <td>{% if geno_db_exists == "True" %}<a href="/show_trait?trait_id={{ marker.name }}&dataset={{ dataset.group.name }}Geno">{{ marker.name }}</a>{% else %}{{ marker.name }}{% endif %}</td>
+                  {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}
+                  {% if 'lod_score' in marker %}
+                  <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
+                  {% else %}
+                  <td align="right">{{ '%0.2f' | format(marker.lrs_value|float / 4.61) }}</td>
+                  {% endif %}
+                  {% else %}
+                  {% if 'lod_score' in marker %}
+                  <td align="right">{{ '%0.2f' | format(marker.lod_score|float * 4.61) }}</td>
+                  {% else %}
+                  <td align="right">{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
+                  {% endif %}
+                  {% endif %}
+                  <td align="right">{{ marker.display_pos }}/td>
+                  {% if 'additive' in marker %}
+                  <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
+                  {% endif %}
+                  {% if 'dominance' in marker and dataset.group.genetic_type != "riset" %}
+                  <td align="right">{{ '%0.2f' | format(marker.dominance|float) }}</td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
         {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
