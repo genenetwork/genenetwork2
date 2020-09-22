@@ -416,9 +416,9 @@ class RunMapping(object):
                           highest_chr = marker['chr']
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                           if 'Mb' in marker.keys():
-                              marker['display_pos'] = str(marker['chr']) + "{.3f}".format(marker['Mb'])
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['Mb'])
                           elif 'cM' in marker.keys():
-                              marker['display_pos'] = str(marker['chr']) + "{.3f}".format(marker['Mb'])
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['cM'])
                           else:
                               marker['display_pos'] = "N/A"
                           self.qtl_results.append(marker)

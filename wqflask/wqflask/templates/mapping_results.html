@@ -228,19 +228,19 @@
         <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
         <br />
         <br />
-          <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}500{% else %}470{% endif %}px;">
+          <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
             <table id="trait_table" class="table-hover table-striped cell-border dataTable no-footer">
               <thead>
                 <tr>
                   <th></th>
                   <th>Row</th>
                   <th>Marker</th>
-                  {% LRS_LOD == "-log(p)" %}
+                  {% if LRS_LOD == "-log(p)" %}
                   <th>–log(p)</th>
                   {% else %}
                   <th>{{ LRS_LOD }}</th>
                   {% endif %}
-                  <th>Position</th>
+                  <th>Position ({% if plotScale == "physic" %}Mb{% else %}cM{% endif %})</th>
                   {% if 'additive' in trimmed_markers[0] %}
                   <th>Add Eff</th>
                   {% endif %}
@@ -272,7 +272,7 @@
                   <td align="right">{{ '%0.2f' | format(marker.lrs_value|float) }}</td>
                   {% endif %}
                   {% endif %}
-                  <td align="right">{{ marker.display_pos }}/td>
+                  <td align="right">{{ marker.display_pos }}</td>
                   {% if 'additive' in marker %}
                   <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
                   {% endif %}
@@ -352,8 +352,7 @@
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural" },
+                    { "type": "natural", "width": "20%" },
                     { "type": "natural" },
                     { "type": "natural" }{% if 'additive' in qtlresults[0] %},
                     { "type": "natural" }{% endif %}{% if 'dominance' in qtlresults[0] and dataset.group.genetic_type != "riset" %},
