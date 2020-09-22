@@ -1,4 +1,5 @@
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2) [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
+[![Actions Status](https://github.com/genenetwork/genenetwork2/workflows/tests/badge.svg)](https://github.com/genenetwork/genenetwork2/actions)
 
 # GeneNetwork
 
