@@ -1,12 +1,12 @@
 // ZS: This file initializes the tables for the show_trait page
 
 // ZS: This variable is just created to get the column position of the first case attribute (if case attributes exist), since it's needed to set the row classes in createdRow for the DataTable
-attribute_start_pos = 3
+var attribute_start_pos = 3;
 if (js_data.se_exists === "true") {
-  attribute_start_pos += 2
+  attribute_start_pos += 2;
 }
 if (js_data.has_num_cases === "true") {
-  attribute_start_post += 1
+  attribute_start_post += 1;
 }
 
 build_columns = function() {

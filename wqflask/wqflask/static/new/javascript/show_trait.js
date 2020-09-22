@@ -440,38 +440,40 @@ edit_data_change = function() {
     samples_other: {},
     samples_all: {}
   };
+
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
-    rows = $("#" + table).find('tr');
-    for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
-      row = rows[_j];
-      name = $(row).find('.edit_sample_sample_name').html();
-      name = $.trim(name);
-      real_value = $(row).find('.edit_sample_value').val();
-      checkbox = $(row).find(".edit_sample_checkbox");
-      if (is_number(real_value) && real_value !== "") {
-        real_value = parseFloat(real_value);
-        sample_sets[table].add_value(real_value);
-        real_variance = $(row).find('.edit_sample_se').val();
-        if (is_number(real_variance)) {
-          real_variance = parseFloat(real_variance);
-        } else {
-          real_variance = null;
+    if ($('#' + table).length){
+      table_api = $('#' + table).DataTable();
+      table_api.rows().eq(0).each( function ( index ) {
+        var row = primary_table.row( index );
+        sample_val = primary_table.cell(index, 3).nodes().to$().find('.edit_sample_value').val()
+        sample_name = $.trim(primary_table.cell(index, 2).nodes().to$().find('.edit_sample_sample_name').html())
+        if (is_number(sample_val) && sample_val !== "") {
+          sample_val = parseFloat(sample_val);
+          sample_sets[table].add_value(sample_val);
+          sample_var = primary_table.cell(index, 5).nodes().to$().find('.edit_sample_se').val()
+          if (is_number(sample_var)) {
+            sample_var = parseFloat(sample_var)
+          } else {
+            sample_var = null;
+          }
+          sample_dict = {
+            value: sample_val,
+            variance: sample_var
+          }
+          root.selected_samples[table][sample_name] = sample_dict;
+          if (!(sample_name in already_seen)) {
+            sample_sets['samples_all'].add_value(sample_val);
+            root.selected_samples['samples_all'][sample_name] = sample_dict;
+            already_seen[sample_name] = true;
+          }
         }
-        real_dict = {
-          value: real_value,
-          variance: real_variance
-        };
-        root.selected_samples[table][name] = real_dict;
-        if (!(name in already_seen)) {
-          sample_sets['samples_all'].add_value(real_value);
-          root.selected_samples['samples_all'][name] = real_dict;
-          already_seen[name] = true;
-        }
-      }
+      } );
     }
   }
+
   update_stat_values(sample_sets);
 
   if ($('#histogram').hasClass('js-plotly-plot')){
@@ -1447,7 +1449,8 @@ $('.stats_panel').click(function() {
     edit_data_change();
   }
 });
-$('#edit_sample_lists').change(edit_data_change);
+
+$('.edit_sample_value').change(edit_data_change);
 $('#block_by_index').click(edit_data_change);
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
