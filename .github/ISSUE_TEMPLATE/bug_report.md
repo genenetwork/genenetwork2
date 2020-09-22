@@ -26,7 +26,8 @@ If applicable, add screenshots to help explain your problem.
 **Environment setup (please complete the following information):**
 
 - OS: [e.g. Linux]
-- Racket Version [e.g. v7.6]
+- Guix Version (optional)
+- [Anything else you think is relevant]
 
 **Additional context**
 

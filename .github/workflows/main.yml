@@ -1,0 +1,31 @@
+name: tests
+
+# Run actions when pushing to the testing branch or when you create a
+# PR against it
+on:
+  push:
+    branches: [ testing ]
+  pull_request:
+    branches: [ testing ]
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    container: bonfacekilz/python2-genenetwork2:latest
+
+    steps:
+    # Use v1 of checkout since v2 fails
+    - name: Checkout Project
+      uses: actions/checkout@v1
+
+    # Redis is required by some of the tests
+    - name: Start Redis
+      run: |
+        redis-server --daemonize yes
+
+    - name: Run the unit tests
+      run: |
+        mkdir -p /genotype_files/genotype/json
+        env GN2_PROFILE=/usr/gn2-profile TMPDIR=/tmp SERVER_PORT=5004 \
+        GENENETWORK_FILES=/genotype_files/ bash bin/genenetwork2 \
+        etc/default_settings.py -c -m unittest discover -v
