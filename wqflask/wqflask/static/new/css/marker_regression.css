@@ -62,6 +62,10 @@ table.dataTable tbody td {
   padding: 4px 20px 2px 10px;
 }
 
+table.dataTable tbody tr.selected {
+  background-color: #ffee99;
+}
+
 table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
   border-top: 1px solid #ccc;
   border-right: 1px solid #ccc;
