@@ -1,0 +1,86 @@
+#+TITLE: Genenetwork2 Dockerized
+
+* Table of Contents                                                     :TOC:
+- [[#introduction][Introduction]]
+- [[#creating-the-docker-images][Creating the Docker Images]]
+- [[#pushing-to-dockerhub][Pushing to DockerHub]]
+
+* Introduction
+
+The CI(Continuous Integration) system for Genenetwork2 uses [[https://github.com/features/actions][Github
+Actions]]. As such, it's important to have a way to run tests using
+facilities provided by GUIX in a reproducible way. This project
+leverages GUIX to generate a docker container from which the unittests
+are ran from.
+
+Find instructions on how to set docker up inside GUIX [[https://github.com/pjotrp/guix-notes/blob/master/CONTAINERS.org#run-docker][here]]. This
+document will not get into that. It's assumed that you have a working
+dockec setup.
+
+The rest of this document outlines how the docker container used in
+the CI builds were created.
+
+* Creating the Docker Images
+
+First create the image by running:
+
+#+begin_src sh
+# For the Python 2 version:
+env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics::/home/bonface/projects/guix-past/modules" \
+    ./pre-inst-env guix pack -f docker --no-grafts \
+    -S /usr/bin=/bin -S /etc/profile=/etc/profile \
+    -S /share/genenetwork2=/share/genenetwork2 \
+    -S /share/javascript=/share/javascript \
+    -S /lib=/lib \
+    -S /usr/gn2-profile=/ \
+    coreutils bash genenetwork2
+
+# For the Python 3 version:
+env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics::/home/bonface/projects/guix-past/modules" \
+    ./pre-inst-env guix pack -f docker --no-grafts \
+    -S /usr/bin=/bin -S /etc/profile=/etc/profile \
+    -S /share/genenetwork2=/share/genenetwork2 \
+    -S /share/javascript=/share/javascript \
+    -S /lib=/lib \
+    -S /usr/gn2-profile=/ \
+    coreutils bash python3-genenetwork2
+  #+end_src
+
+The output will look something similar to:
+
+: /gnu/store/dj1xh19jq1l9vwq24w3nay2954x0wabb-docker-pack.tar.gz
+
+Load the docker image by running:
+
+: docker load --input /gnu/store/dj1xh19jq1l9vwq24w3nay2954x0wabb-docker-pack.tar.gz
+
+Results look something similar to:
+
+#+begin_export ascii
+a93f52b7f565: Loading layer  3.174GB/3.174GB
+Loaded image: coreutils-genenetwork2:latest
+#+end_export
+
+Assuming you have a docker instance running, you could always run
+commands in it e.g:
+
+: docker run "coreutils-genenetwork2:latest" python --version 
+
+
+* Pushing to DockerHub
+
+We use DockerHub to store the docker images from which we use on our
+CI environment using Github Actions.
+
+To push to dockerhub, first get the image name by running =docker
+images=. Push to dockerhub using a command similar to:
+
+: docker push bonfacekilz/python2-genenetwork2:latest
+
+Right now, we have 2 images on DockerHub:
+
+- https://hub.docker.com/repository/docker/bonfacekilz/python2-genenetwork2:
+  Contains the python2 version of gn2. Don't use this. Please use the
+  python3 image!
+- https://hub.docker.com/repository/docker/bonfacekilz/python3-genenetwork2:
+  Contains the python3 version of gn2.
