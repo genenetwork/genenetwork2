@@ -236,16 +236,16 @@
                   <th>Row</th>
                   <th>Marker</th>
                   {% if LRS_LOD == "-log(p)" %}
-                  <th>–log(p)</th>
+                  <th><div style="text-align: right;">–log(p)</div></th>
                   {% else %}
-                  <th>{{ LRS_LOD }}</th>
+                  <th><div style="text-align: right;">{{ LRS_LOD }}</div></th>
                   {% endif %}
-                  <th>Position ({% if plotScale == "physic" %}Mb{% else %}cM{% endif %})</th>
+                  <th><div style="text-align: right;">Position ({% if plotScale == "physic" %}Mb{% else %}cM{% endif %})</div></th>
                   {% if 'additive' in trimmed_markers[0] %}
-                  <th>Add Eff</th>
+                  <th><div style="text-align: right;">Add Eff</div></th>
                   {% endif %}
                   {% if 'dominance' in trimmed_markers[0] and dataset.group.genetic_type != "riset" %}
-                  <th>Dom Eff</th>
+                  <th><div style="text-align: right;">Dom Eff</div></th>
                   {% endif %}
                 </tr>
               </thead>
