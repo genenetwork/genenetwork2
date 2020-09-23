@@ -13,6 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     container: bonfacekilz/python2-genenetwork2:latest
 
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: gn2
+          MYSQL_PASSWORD: mysql_password
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: db_webqtl_s
+          MYSQL_ROOT_PASSWORD: mysql_password
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
     steps:
     # Use v1 of checkout since v2 fails
     - name: Checkout Project
