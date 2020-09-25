@@ -446,18 +446,25 @@ edit_data_change = function() {
     table = tables[_i];
     if ($('#' + table).length){
       table_api = $('#' + table).DataTable();
-      table_api.rows().eq(0).each( function ( index ) {
-        var row = primary_table.row( index );
-        sample_val = primary_table.cell(index, 3).nodes().to$().find('.edit_sample_value').val()
-        sample_name = $.trim(primary_table.cell(index, 2).nodes().to$().find('.edit_sample_sample_name').html())
+      sample_vals = [];
+      name_nodes = table_api.column(2).nodes().to$();
+      val_nodes = table_api.column(3).nodes().to$();
+      var_nodes = table_api.column(5).nodes().to$();
+      for (_j = 0; _j < val_nodes.length; _j++){
+        sample_val = val_nodes[_j].childNodes[0].value
+        sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
         if (is_number(sample_val) && sample_val !== "") {
           sample_val = parseFloat(sample_val);
           sample_sets[table].add_value(sample_val);
-          sample_var = primary_table.cell(index, 5).nodes().to$().find('.edit_sample_se').val()
-          if (is_number(sample_var)) {
-            sample_var = parseFloat(sample_var)
-          } else {
+          if (typeof var_nodes !== 'undefined'){
             sample_var = null;
+          } else {
+            sample_var = var_nodes[_j].childNodes[0].value
+            if (is_number(sample_var)) {
+              sample_var = parseFloat(sample_var)
+            } else {
+              sample_var = null;
+            }
           }
           sample_dict = {
             value: sample_val,
@@ -470,7 +477,7 @@ edit_data_change = function() {
             already_seen[sample_name] = true;
           }
         }
-      } );
+      }
     }
   }
 
@@ -557,7 +564,9 @@ populate_sample_attributes_values_dropdown = function() {
   return _results;
 };
 
-populate_sample_attributes_values_dropdown();
+if (Object.keys(js_data.attributes).length){
+  populate_sample_attributes_values_dropdown();
+}
 
 $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
 block_by_attribute_value = function() {
@@ -583,20 +592,6 @@ block_by_index = function() {
   _ref = index_string.split(",");
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     index_set = _ref[_i];
-    /*
-    if (index_set.indexOf('<') !== -1) {
-      try {
-        start_index = parseInt(index_set.split("<")[0]);
-        end_index = parseInt(index_set.split("<")[1]);
-        for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
-          index_list.push(index);
-        }
-      } catch (_error) {
-        error = _error;
-        alert("Syntax error");
-      }
-    }
-    */
     if (index_set.indexOf('-') !== -1) {
       try {
         start_index = parseInt(index_set.split("-")[0]);
@@ -614,19 +609,18 @@ block_by_index = function() {
     }
   }
   _results = [];
+  let block_group = $('#block_group').val();
+  if (block_group === "other") {
+    table_api = $('#samples_other').DataTable();
+  } else {
+    table_api = $('#samples_primary').DataTable();
+  }
+  val_nodes = table_api.column(3).nodes().to$();
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
-    if ($('#block_group').val() === "primary") {
-      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
-    } else if ($('#block_group').val() === "other") {
-      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
-    } else {
-      _results.push(void 0);
-    }
+    val_nodes[index - 1].childNodes[0].value = "x";
   }
-  return _results;
 };
-$('#block_by_index').click(block_by_index);
 
 hide_no_value = function() {
   return $('.value_se').each((function(_this) {
@@ -1450,8 +1444,10 @@ $('.stats_panel').click(function() {
   }
 });
 
-$('.edit_sample_value').change(edit_data_change);
-$('#block_by_index').click(edit_data_change);
+$('#block_by_index').click(function(){
+  block_by_index();
+  edit_data_change();
+});
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
 $('#reset').click(edit_data_change);
