@@ -1,4 +1,4 @@
-import httplib, urllib2
+import http.client, urllib.request, urllib.error, urllib.parse
 import re
 
 from flask import Flask, g
@@ -63,7 +63,7 @@ class InfoPage(object):
     def get_datasets_list(self):
         self.filelist = []
         try:
-            response = urllib2.urlopen("http://datafiles.genenetwork.org/download/GN%s" % self.gn_accession_id)
+            response = urllib.request.urlopen("http://datafiles.genenetwork.org/download/GN%s" % self.gn_accession_id)
             data = response.read()
 
             matches = re.findall(r"<tr>.+?</tr>", data, re.DOTALL)
@@ -77,7 +77,7 @@ class InfoPage(object):
                 filedate = "N/A" #ZS: Since we can't get it for now
 
                 self.filelist.append([filename, filedate, filesize])
-        except Exception, e:
+        except Exception as e:
             pass
 
 def process_query_results(results):
