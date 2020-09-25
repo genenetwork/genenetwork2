@@ -15,57 +15,60 @@ are ran from.
 
 Find instructions on how to set docker up inside GUIX [[https://github.com/pjotrp/guix-notes/blob/master/CONTAINERS.org#run-docker][here]]. This
 document will not get into that. It's assumed that you have a working
-dockec setup.
+docker setup.
 
 The rest of this document outlines how the docker container used in
-the CI builds were created.
+the CI builds was created.
 
 * Creating the Docker Images
 
-First create the image by running:
+The general idea is that GUIX is used to generate a set of binaries,
+which will be added to a base mariaDB image.
+
+First create the gn2 tar archive by running:
 
 #+begin_src sh
 # For the Python 2 version:
-env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics::/home/bonface/projects/guix-past/modules" \
-    ./pre-inst-env guix pack -f docker --no-grafts \
-    -S /usr/bin=/bin -S /etc/profile=/etc/profile \
-    -S /share/genenetwork2=/share/genenetwork2 \
-    -S /share/javascript=/share/javascript \
-    -S /lib=/lib \
-    -S /usr/gn2-profile=/ \
-    coreutils bash genenetwork2
+env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
+    ./pre-inst-env guix pack --no-grafts\
+    -S /gn2-profile=/ \
+    screen genenetwork2
 
 # For the Python 3 version:
-env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics::/home/bonface/projects/guix-past/modules" \
-    ./pre-inst-env guix pack -f docker --no-grafts \
-    -S /usr/bin=/bin -S /etc/profile=/etc/profile \
-    -S /share/genenetwork2=/share/genenetwork2 \
-    -S /share/javascript=/share/javascript \
-    -S /lib=/lib \
-    -S /usr/gn2-profile=/ \
-    coreutils bash python3-genenetwork2
+env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
+    ./pre-inst-env guix pack --no-grafts\
+    -S /gn2-profile=/ \
+    screen python3-genenetwork2
   #+end_src
 
 The output will look something similar to:
 
-: /gnu/store/dj1xh19jq1l9vwq24w3nay2954x0wabb-docker-pack.tar.gz
+: /gnu/store/x3m77vwaqcwba24p5s4lrb7w2ii16lj9-tarball-pack.tar.gz
 
-Load the docker image by running:
+Now create a folder from which will host the following dockerfile. You
+can name this file Dockerfile. Note that mariadb is the base image
+since it already has mariadb installed for us.
 
-: docker load --input /gnu/store/dj1xh19jq1l9vwq24w3nay2954x0wabb-docker-pack.tar.gz
+#+begin_src conf :mkdirp yes :tangle ~/docker/Dockerfile
+FROM mariadb:latest
 
-Results look something similar to:
+COPY ./gn2.tar.gz /tmp/gn2.tar.gz
+RUN tar -xzf /tmp/gn2.tar.gz -C / && rm -f /tmp/gn2.tar.gz && \
+    mkdir -p /usr/local/mysql /genotype_files/genotype/json
+#+end_src
 
-#+begin_export ascii
-a93f52b7f565: Loading layer  3.174GB/3.174GB
-Loaded image: coreutils-genenetwork2:latest
-#+end_export
+Build the image(Note the fullstop at the end):
+
+: sudo docker build -t python2-genenetwork2:latest -f Dockerfile .
+
+To load the image interactively you've just created:
+
+: docker run -ti "python2-genenetwork2:latest" bash
 
 Assuming you have a docker instance running, you could always run
 commands in it e.g:
 
-: docker run "coreutils-genenetwork2:latest" python --version 
-
+: docker run "python2-genenetwork2:latest" python --version 
 
 * Pushing to DockerHub
 
