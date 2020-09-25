@@ -147,8 +147,8 @@ var primary_table = $('#samples_primary').DataTable( {
 
       sorted_key_list = Object.keys(js_data.attributes).sort()
       for (i=0; i < sorted_key_list.length; i++) {
-        $('td', row).eq(attribute_start_pos + i).addClass("column_name-" + js_data.attributes[sorted_key_list[i]].name)
-        $('td', row).eq(attribute_start_pos + i).attr("style", "text-align: " + js_data.attributes[sorted_key_list[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+        $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[sorted_key_list[i]].name)
+        $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[sorted_key_list[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
       }
     },
     'data': js_data['sample_lists'][0],
@@ -205,8 +205,8 @@ if (js_data.sample_lists.length > 1){
 
         sorted_key_list = Object.keys(js_data.attributes).sort()
         for (i=0; i < sorted_key_list.length; i++) {
-          $('td', row).eq(attribute_start_pos + i).addClass("column_name-" + js_data.attributes[sorted_key_list[i]].name)
-          $('td', row).eq(attribute_start_pos + i).attr("style", "text-align: " + js_data.attributes[sorted_key_list[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+          $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[sorted_key_list[i]].name)
+          $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[sorted_key_list[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
         }
       },
       'data': js_data['sample_lists'][1],
