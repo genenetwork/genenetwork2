@@ -93,6 +93,6 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         test_trait = retrieve_trait_info(trait=mock_trait,
                                          dataset=mock_dataset)
         self.assertEqual(test_trait.abbreviation,
-                         "ファイルを画面毎に見て行くには、次のコマンドを使います。".decode('utf-8'))
+                         "ファイルを画面毎に見て行くには、次のコマンドを使います。")
         self.assertEqual(test_trait.authors,
-                         "Jane Doe かいと".decode('utf-8'))
+                         "Jane Doe かいと")
