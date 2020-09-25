@@ -451,7 +451,9 @@ def register_user(params):
         user_details['confirmed'] = 1
 
         user_details['registration_info'] = basic_info()
-        save_user(user_details, user_details['user_id'])
+
+        if len(errors) == 0:
+            save_user(user_details, user_details['user_id'])
 
         return errors
 

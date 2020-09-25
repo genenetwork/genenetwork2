@@ -18,7 +18,7 @@ def check_search_page(host):
         search_terms_or="",
         search_terms_and="MEAN=(15 16) LRS=(23 46)")
     result = requests.get(host+"/search", params=data)
-    found = result.text.find("records were found.")
+    found = result.text.find("records were found")
     assert(found >= 0)
     assert(result.status_code == 200)
     print("OK")

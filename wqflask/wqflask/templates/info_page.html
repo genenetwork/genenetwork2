@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Policies{% endblock %}
+{% block content %}
+
+<h1 id="parent-fieldname-title">Data Set Group: {{ info.dataset_name }}
+<!--<a href="/infoshare/manager/member-studies-edit.html?DatasetId=%s"><img src="/images/modify.gif" alt="modify this page" border="0" valign="middle"></a>-->
+<span style="color:red;">{{ info.info_page_name }}</span>
+</h1>
+<table border="0" width="100%">
+<tr>
+<td valign="top" width="50%">
+<table name="info_table" cellSpacing=0 cellPadding=5 width=100% border=0>
+    <tr><td><b>Data Set:</b>  {{ info.info_file_title }} <!--<a href="/infoshare/manager/member-infofile-edit.html?GN_AccesionId=%s"><img src="/images/modify.gif" alt="modify this page" border="0" valign="middle"></a>--></td></tr>
+    <tr><td><b>GN Accession:</b> GN{{ gn_accession_id }}</td></tr>
+    <tr><td><b>GEO Series:</b> <a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={{ info.geo_series }}" target="_blank">{{ info.geo_series }}</a></td></tr>
+    <tr><td><b>Title:</b> {{ info.publication_title }}</td></tr>
+    <tr><td><b>Organism:</b> <a href="http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id={{ info.taxonomy_id }}" target="_blank">{{ info.menu_name }}</a></td></tr>
+    <tr><td><b>Group:</b> {{ info.group_name }}</td></tr>
+    <tr><td><b>Tissue:</b> {{ info.tissue_name }}</td></tr>
+    <tr><td><b>Dataset Status:</b> {{ info.dataset_status_name }}</td></tr>
+    <tr><td><b>Platforms:</b> <a href="http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={{ info.geo_platform }}" target="_blank">{{ info.gene_chip_name }}</a></td></tr>
+    <tr><td><b>Normalization:</b> {{ info.avg_method_name }}</td></tr>
+</table>
+</td>
+<td valign="top" width="50%">
+<table border="0" width="100%">
+    <tr>
+        <td><b>Contact Information</b></td>
+    </tr>
+    <tr>
+        <td>
+            {{ info.investigator_first_name }} {{ info.inveestigator_last_name }}<br>
+            {{ info.organization_name }} <br>
+            {{ info.investigator_address }}<br>
+            {{ info.investigator_city }}, {{ info.investigator_state }} {{ info.investigator_zipcode }} {{ info.investigator_country }}<br>
+            Tel. {{ info.investigator_phone }}<br>
+            {{ info.investigator_email }}<br>
+            <a href="{{ info.investigator_url }}" target="_blank">Website</a>
+        </td>
+    </tr>
+
+<tr>
+    <td><b>Download datasets and supplementary data files</b></td>
+</tr>
+<tr>
+    <td>
+        <ul style="line-height: 160%">
+            {% for file in filelist %}
+            <li><a href="http://datafiles.genenetwork.org/download/GN{{ gn_accession_id }}/{{ file[0] }}">{{ file[0] }} ({{ file[2] }})</a></li>
+            {% endfor %}
+        </ul>
+    </td>
+</tr>
+
+<tr><td>
+</td></tr>
+
+</table>
+</td>
+</tr>
+</table>
+<HR>
+<p>
+<table name="info_table" width="100%" border="0" cellpadding="5" cellspacing="0">
+<tr><td><span style="font-size:115%%;font-weight:bold;">Specifics of this Data Set:</span></td></tr>
+    <tr><td> {{ info.specifics|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%%;font-weight:bold;">Summary:</span></td></tr>
+    <tr><td> {{ info.dataset_summary|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">About the cases used to generate this set of data:</span></td></tr>
+    <tr><td> {{ info.about_cases|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">About the tissue used to generate this set of data:</span></td></tr>
+    <tr><td> {{ info.about_tissue|safe }}<br><br></td></tr>
+    <tr><td><span style="font-size:115%; font-weight:bold;">About the array platform:</span></td></tr>
+    <tr><td> {{ info.about_platform|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">About data values and data processing:</span></td></tr>
+    <tr><td> {{ info.about_data_processing|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">Notes:</span></td></tr>
+    <tr><td> {{ info.notes|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">Experiment Type:</span></td></tr>
+    <tr><td> {{ info.experiment_design|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">Contributor:</span></td></tr>
+    <tr><td> {{ info.contributors|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">Citation:</span></td></tr>
+    <tr><td> {{ info.citation|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">Data source acknowledgment:</span></td></tr>
+    <tr><td> {{ info.acknowledgement|safe }}<br><br></td></tr>
+<tr><td><span style="font-size:115%; font-weight:bold;">Study Id:</span></td></tr>
+    <tr><td> {{ info.dataset_id }}<br><br></td></tr>
+</table>
+</p>
+ 
+{% endblock %}

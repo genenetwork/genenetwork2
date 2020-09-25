@@ -399,9 +399,7 @@ class RunMapping(object):
                           rs  = marker['name'],
                           pos  = this_ps
                       )
-                  #if 'p_value' in marker:
-                  #    logger.debug("P EXISTS:", marker['p_value'])
-                  #else:
+
                   if 'lrs_value' in marker and marker['lrs_value'] > 0:
                       browser_marker['p_wald'] = 10**-(marker['lrs_value']/4.61)
                   elif 'lod_score' in marker and marker['lod_score'] > 0:
@@ -414,7 +412,13 @@ class RunMapping(object):
                   if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
                       if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
                           highest_chr = marker['chr']
-                      if ('lod_score' in list(marker.keys())) or ('lrs_value' in list(marker.keys())):
+                      if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
+                          if 'Mb' in marker.keys():
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['Mb'])
+                          elif 'cM' in marker.keys():
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['cM'])
+                          else:
+                              marker['display_pos'] = "N/A"
                           self.qtl_results.append(marker)
 
               with Bench("Exporting Results"):

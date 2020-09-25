@@ -259,14 +259,16 @@ $(function() {
   let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
   let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
 
+  let na_equivalent_vals = ["N/A", "--", ""]; //ZS: Since there are multiple values that should be treated the same as N/A
+
   function sort_NAs(a, b, sort_function){
-    if (a === "N/A" && b === "N/A") {
+    if ( na_equivalent_vals.includes(a) && na_equivalent_vals.includes(b)) {
       return 0;
     }
-    if (a === "N/A"){
+    if (na_equivalent_vals.includes(a)){
       return 1
     }
-    if (b === "N/A") {
+    if (na_equivalent_vals.includes(b)) {
       return -1;
     }
     return sort_function(a, b)
@@ -280,5 +282,19 @@ $(function() {
       return sort_NAs(a, b, naturalDesc)
     }
   });
+
+  $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
+  {
+      return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+          return $('input', td).prop('checked') ? '1' : '0';
+      } );
+  };
+
+  $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
+  {
+      return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+          return $(td).text();
+      } );
+  }
 
 });
