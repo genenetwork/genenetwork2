@@ -1,6 +1,6 @@
 """Test cases for wqflask.api.gen_menu"""
 import unittest
-import mock
+from unittest import mock
 
 from wqflask import app
 from wqflask.api.gen_menu import gen_dropdown_json

@@ -1,7 +1,7 @@
 """Tests for wqflask/base/data_set.py"""
 
 import unittest
-import mock
+from unittest import mock
 
 from wqflask import app
 from .data import gen_menu_json

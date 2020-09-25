@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Tests wqflask/base/trait.py"""
 import unittest
-import mock
+from unittest import mock
 
 from base.trait import GeneralTrait
 from base.trait import retrieve_trait_info

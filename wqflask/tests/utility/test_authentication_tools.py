@@ -1,6 +1,6 @@
 """Tests for authentication tools"""
 import unittest
-import mock
+from unittest import mock
 
 from utility.authentication_tools import check_resource_availability
 from utility.authentication_tools import add_new_resource
