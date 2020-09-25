@@ -124,4 +124,4 @@ def process_query_results(results):
     }
 
     return info_ob
-        
+
