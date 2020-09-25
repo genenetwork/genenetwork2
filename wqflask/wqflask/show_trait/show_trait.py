@@ -43,8 +43,6 @@ logger = getLogger(__name__ )
 class ShowTrait(object):
 
     def __init__(self, kw):
-        logger.debug("in ShowTrait, kw are:", kw)
-
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
@@ -151,6 +149,7 @@ class ShowTrait(object):
                 self.nearest_marker = ""
                 #self.nearest_marker1 = ""
                 #self.nearest_marker2 = ""
+
 
         self.make_sample_lists()
 
@@ -397,6 +396,7 @@ class ShowTrait(object):
                                           return_results_menu_selected = return_results_menu_selected,)
 
     def make_sample_lists(self):
+
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         
         parent_f1_samples = []
@@ -405,13 +405,18 @@ class ShowTrait(object):
 
         primary_sample_names = list(all_samples_ordered)
 
+
         if not self.temp_trait:
             other_sample_names = []
-            for sample in self.this_trait.data.keys():
-                if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
-                    primary_sample_names.append(self.this_trait.data[sample].name)
-                    primary_sample_names.remove(self.this_trait.data[sample].name2)
-                elif sample not in all_samples_ordered:
+
+            for sample in self.this_trait.data:
+                if self.this_trait.data[sample].name2 != self.this_trait.data[sample].name:
+                    if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
+                        primary_sample_names.append(self.this_trait.data[sample].name)
+                        primary_sample_names.remove(self.this_trait.data[sample].name2)
+
+                all_samples_set = set(all_samples_ordered)
+                if sample not in all_samples_set:
                     all_samples_ordered.append(sample)
                     other_sample_names.append(sample)
 
@@ -424,6 +429,7 @@ class ShowTrait(object):
                 primary_header = "%s Only" % (self.dataset.group.name)
             else:
                 primary_header = "Samples"
+
             primary_samples = SampleList(dataset = self.dataset,
                                             sample_names=primary_sample_names,
                                             this_trait=self.this_trait,
@@ -523,9 +529,7 @@ def get_z_scores(sample_groups):
 
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
-    logger.debug("this_chr:", this_chr)
     this_mb = this_trait.locus_mb
-    logger.debug("this_mb:", this_mb)
     #One option is to take flanking markers, another is to take the two (or one) closest
     query = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
@@ -536,7 +540,6 @@ def get_nearest_marker(this_trait, this_db):
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
     logger.sql(query)
     result = g.db.execute(query).fetchall()
-    logger.debug("result:", result)
 
     if result == []:
         return ""
