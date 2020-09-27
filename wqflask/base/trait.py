@@ -599,10 +599,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                         trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                 else:
                     trait.locus = trait.lrs = trait.additive = ""
-
-            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and trait.locus_chr != "" and trait.locus_mb != "":
+            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
                 trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (trait.locus_chr, float(trait.locus_mb))
-                if trait.lrs != "":
+                if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
         raise KeyError, `trait.name`+' information is not found in the database.'
