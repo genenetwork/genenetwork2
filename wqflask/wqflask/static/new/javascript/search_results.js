@@ -93,7 +93,7 @@ $(function() {
 
   });
 
-  add = function() {
+  add_to_collection = function() {
     var traits;
     traits = $("#trait_table input:checked").map(function() {
       return $(this).val();
@@ -250,7 +250,7 @@ $(function() {
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
-  $("#add").click(add);
+  $("#add").click(add_to_collection);
   $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
