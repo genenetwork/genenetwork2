@@ -18,46 +18,25 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
-import sys
-
-import string
-import cPickle
-import os
-import time
-import pp
-import math
 import collections
-import resource
 import json
-
 import scipy
 import numpy
 import rpy2.robjects as ro                    # R Objects
-import rpy2.rinterface as ri
 
 from rpy2.robjects.packages import importr
 utils = importr("utils")
 
-from pprint import pformat as pf
-
-from base import webqtlConfig
-from utility.THCell import THCell
-from utility.TDCell import TDCell
-from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
 from db import webqtlDatabaseFunction
-import utility.webqtlUtil #this is for parallel computing only.
+import utility.webqtlUtil  #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
 import utility.webqtlUtil
-from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
+from utility.type_checking import is_str, get_float, get_int, get_string
+from utility.db_tools import escape
 
-from MySQLdb import escape_string as escape
-
-from pprint import pformat as pf
 
 from flask import Flask, g
 
@@ -108,17 +87,17 @@ class CorrelationResults(object):
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
-            self.min_expr = get_float(start_vars,'min_expr')
-            self.p_range_lower = get_float(start_vars,'p_range_lower',-1.0)
-            self.p_range_upper = get_float(start_vars,'p_range_upper',1.0)
+            self.min_expr = get_float(start_vars, 'min_expr')
+            self.p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
+            self.p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
 
             if ('loc_chr' in start_vars and
                 'min_loc_mb' in start_vars and
                 'max_loc_mb' in start_vars):
 
-                self.location_chr = get_string(start_vars,'loc_chr')
-                self.min_location_mb = get_int(start_vars,'min_loc_mb')
-                self.max_location_mb = get_int(start_vars,'max_loc_mb')
+                self.location_chr = get_string(start_vars, 'loc_chr')
+                self.min_location_mb = get_int(start_vars, 'min_loc_mb')
+                self.max_location_mb = get_int(start_vars, 'max_loc_mb')
             else:
                 self.location_chr = self.min_location_mb = self.max_location_mb = None
 
@@ -145,10 +124,10 @@ class CorrelationResults(object):
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
                                     self.dataset.group.parlist + self.dataset.group.f1list)]
-                self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
+                self.process_samples(start_vars, list(self.this_trait.data.keys()), primary_samples)
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
-            self.target_dataset.get_trait_data(self.sample_data.keys())
+            self.target_dataset.get_trait_data(list(self.sample_data.keys()))
 
             self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
 
@@ -168,41 +147,41 @@ class CorrelationResults(object):
 
                 tissue_corr_data = self.do_tissue_correlation_for_all_traits()
                 if tissue_corr_data != None:
-                    for trait in tissue_corr_data.keys()[:self.return_number]:
+                    for trait in list(tissue_corr_data.keys())[:self.return_number]:
                         self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
                 else:
-                    for trait, values in self.target_dataset.trait_data.iteritems():
+                    for trait, values in list(self.target_dataset.trait_data.items()):
                         self.get_sample_r_and_p_values(trait, values)
 
             elif self.corr_type == "lit":
                 self.trait_geneid_dict = self.dataset.retrieve_genes("GeneId")
                 lit_corr_data = self.do_lit_correlation_for_all_traits()
 
-                for trait in lit_corr_data.keys()[:self.return_number]:
+                for trait in list(lit_corr_data.keys())[:self.return_number]:
                     self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
 
             elif self.corr_type == "sample":
-                for trait, values in self.target_dataset.trait_data.iteritems():
+                for trait, values in list(self.target_dataset.trait_data.items()):
                     self.get_sample_r_and_p_values(trait, values)
 
-            self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
+            self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
                                                                    key=lambda t: -abs(t[1][0])))
 
             if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                 #ZS: Convert min/max chromosome to an int for the location range option
                 range_chr_as_int = None
-                for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
                     if 'loc_chr' in start_vars:
                         if chr_info.name == self.location_chr:
                             range_chr_as_int = order_id
 
-            for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
+            for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
                 trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
 
                 if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                     #ZS: Convert trait chromosome to an int for the location range option
                     chr_as_int = 0
-                    for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+                    for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
 
@@ -297,14 +276,14 @@ class CorrelationResults(object):
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols.values()))
             corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=self.trait_symbol_dict.values())
+                                                    symbol_list=list(self.trait_symbol_dict.values()))
 
             #print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols))
 
             tissue_corr_data = {}
-            for trait, symbol in self.trait_symbol_dict.iteritems():
+            for trait, symbol in list(self.trait_symbol_dict.items()):
                 if symbol and symbol.lower() in corr_result_tissue_vals_dict:
                     this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower()]
 
@@ -314,7 +293,7 @@ class CorrelationResults(object):
 
                     tissue_corr_data[trait] = [symbol, result[0], result[2]]
 
-            tissue_corr_data = collections.OrderedDict(sorted(tissue_corr_data.items(),
+            tissue_corr_data = collections.OrderedDict(sorted(list(tissue_corr_data.items()),
                                                            key=lambda t: -abs(t[1][1])))
 
             return tissue_corr_data
@@ -359,7 +338,7 @@ class CorrelationResults(object):
         input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
 
         lit_corr_data = {}
-        for trait, gene_id in self.trait_geneid_dict.iteritems():
+        for trait, gene_id in list(self.trait_geneid_dict.items()):
             mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), gene_id)
 
             if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
@@ -387,7 +366,7 @@ class CorrelationResults(object):
             else:
                 lit_corr_data[trait] = [gene_id, 0]
 
-        lit_corr_data = collections.OrderedDict(sorted(lit_corr_data.items(),
+        lit_corr_data = collections.OrderedDict(sorted(list(lit_corr_data.items()),
                                                            key=lambda t: -abs(t[1][1])))
 
         return lit_corr_data

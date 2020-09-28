@@ -2,7 +2,7 @@
 """Test hmac utility functions"""
 
 import unittest
-import mock
+from unittest import mock
 
 from utility.hmac import data_hmac
 from utility.hmac import url_for_hmac

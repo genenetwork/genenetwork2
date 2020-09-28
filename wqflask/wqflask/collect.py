@@ -1,6 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
-
 import os
 import hashlib
 import datetime
@@ -10,7 +7,7 @@ import uuid
 import hashlib
 import base64
 
-import urlparse
+import urllib.parse
 
 import simplejson as json
 
@@ -38,7 +35,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 def process_traits(unprocessed_traits):
-    if isinstance(unprocessed_traits, basestring):
+    if isinstance(unprocessed_traits, str):
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:
@@ -193,7 +190,7 @@ def view_collection():
     params = request.args
 
     uc_id = params['uc_id']
-    uc = (collection for collection in g.user_session.user_collections if collection["id"] == uc_id).next()
+    uc = next((collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
     traits = uc["members"]
 
     trait_obs = []

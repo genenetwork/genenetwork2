@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import string
 
 from base import data_set

@@ -18,29 +18,11 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
-import sys
-
-import string
-import cPickle
-import os
-import time
-import pp
-import math
-import collections
-import resource
-
 import scipy
-
 import simplejson as json
-
-from rpy2.robjects.packages import importr
-import rpy2.robjects as robjects
-
 from pprint import pformat as pf
 
-from utility.THCell import THCell
+
 from utility.TDCell import TDCell
 from base.trait import create_trait
 from base import data_set
@@ -49,11 +31,6 @@ from utility.tools import GN2_BRANCH_URL
 from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
-from utility.benchmark import Bench
-
-from MySQLdb import escape_string as escape
-
-from pprint import pformat as pf
 
 from flask import Flask, g
 
@@ -202,8 +179,8 @@ class NetworkGraph(object):
 
         self.js_data = dict(traits = [trait.name for trait in self.traits],
                             groups = groups,
-                            cols = range(len(self.traits)),
-                            rows = range(len(self.traits)),
+                            cols = list(range(len(self.traits))),
+                            rows = list(range(len(self.traits))),
                             samples = self.all_sample_list,
                             sample_data = self.sample_data,
                             elements = self.elements,)

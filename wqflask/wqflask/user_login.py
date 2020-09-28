@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import os
 import hashlib
 import datetime
@@ -199,7 +197,7 @@ def login():
             if user_details:
                 submitted_password = params['password']
                 pwfields = user_details['password']
-                if type(pwfields) is str:
+                if isinstance(pwfields, str):
                     pwfields = json.loads(pwfields)
                 encrypted_pass_fields = encode_password(pwfields, submitted_password)
                 password_match = pbkdf2.safe_str_cmp(encrypted_pass_fields['password'], pwfields['password'])

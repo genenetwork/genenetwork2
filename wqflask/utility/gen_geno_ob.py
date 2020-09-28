@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
@@ -175,7 +173,7 @@ class Locus(object):
                 start_pos = 3
 
             for allele in marker_row[start_pos:]:
-                if allele in geno_table.keys():
+                if allele in list(geno_table.keys()):
                     self.genotype.append(geno_table[allele])
                 else: #ZS: Some genotype appears that isn't specified in the metadata, make it unknown
                     self.genotype.append("U")

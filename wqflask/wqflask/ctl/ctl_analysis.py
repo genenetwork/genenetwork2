@@ -125,7 +125,7 @@ class CTL(object):
             gt = create_trait(name = ts[0], dataset_name = ts[1])
             gt = retrieve_sample_data(gt, dataset, individuals)
             for ind in individuals:
-              if ind in gt.data.keys():
+              if ind in list(gt.data.keys()):
                 traits.append(gt.data[ind].value)
               else:
                 traits.append("-999")
@@ -175,7 +175,7 @@ class CTL(object):
         sys.stdout.flush()
 
         # Create the interactive graph for cytoscape visualization (Nodes and Edges)
-        if not type(significant) == ri.RNULLType:
+        if not isinstance(significant, ri.RNULLType):
           for x in range(len(significant[0])):
             logger.debug(significant[0][x], significant[1][x], significant[2][x])     # Debug to console
             tsS = significant[0][x].split(':')                                        # Source

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 import re
 import uuid
 from math import *
@@ -53,7 +51,7 @@ views.py).
         search = self.search_terms
         self.original_search_string = self.search_terms
         # check for dodgy search terms
-        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*',re.IGNORECASE)
+        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
             logger.info("Regex failed search")
             self.search_term_exists = False
@@ -123,7 +121,7 @@ views.py).
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
                 if this_trait.dataset.type == "ProbeSet":
                     trait_dict['symbol'] = this_trait.symbol
-                    trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
+                    trait_dict['description'] = this_trait.description_display
                     trait_dict['location'] = this_trait.location_repr
                     trait_dict['mean'] = "N/A"
                     trait_dict['additive'] = "N/A"
@@ -272,7 +270,7 @@ def get_GO_symbols(a_search):
 def insert_newlines(string, every=64):
     """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
     lines = []
-    for i in xrange(0, len(string), every):
+    for i in range(0, len(string), every):
         lines.append(string[i:i+every])
     return '\n'.join(lines)
 

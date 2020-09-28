@@ -59,7 +59,7 @@ def get_elasticsearch_connection(for_user=True):
     try:
         assert(ELASTICSEARCH_HOST)
         assert(ELASTICSEARCH_PORT)
-        logger.info("ES HOST",ELASTICSEARCH_HOST)
+        logger.info("ES HOST", ELASTICSEARCH_HOST)
 
         es = Elasticsearch([{
             "host": ELASTICSEARCH_HOST, "port": ELASTICSEARCH_PORT

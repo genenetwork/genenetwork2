@@ -19,7 +19,7 @@ class Struct(object):
     '''
 
     def __init__(self, obj):
-        for k, v in obj.iteritems():
+        for k, v in list(obj.items()):
             if isinstance(v, dict):
                 setattr(self, k, Struct(v))
             else:
@@ -30,6 +30,6 @@ class Struct(object):
 
     def __repr__(self):
         return '{%s}' % str(', '.join('%s : %s' % (k, repr(v)) for
-            (k, v) in self.__dict__.iteritems()))
+            (k, v) in list(self.__dict__.items())))
 
 

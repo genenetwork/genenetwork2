@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import os
 import hashlib
 import datetime
@@ -9,7 +7,7 @@ import uuid
 import hashlib
 import hmac
 import base64
-import urlparse
+import urllib.parse
 
 import simplejson as json
 
@@ -252,7 +250,7 @@ class UserSession(object):
     def add_collection(self, collection_name, traits):
         """Add collection into ElasticSearch"""
 
-        collection_dict = {'id': unicode(uuid.uuid4()),
+        collection_dict = {'id': str(uuid.uuid4()),
                            'name': collection_name,
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
@@ -867,7 +865,7 @@ def forgot_password_submit():
     email_address = params['email_address']
     next_page = None
     if email_address != "":
-        logger.debug("Wants to send password E-mail to ",email_address)
+        logger.debug("Wants to send password E-mail to ", email_address)
         user_details = get_user_by_unique_column("email_address", email_address)
         if user_details:
             ForgotPasswordEmail(user_details["email_address"])

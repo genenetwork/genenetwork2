@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 from flask import Flask, g
 
 from base import webqtlCaseData
@@ -43,7 +41,7 @@ class SampleList(object):
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
+            if isinstance(self.this_trait, list): #ZS: self.this_trait will be a list if it is a Temp trait
                 if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
                 else:
@@ -57,7 +55,7 @@ class SampleList(object):
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
-            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
+            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17'):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 

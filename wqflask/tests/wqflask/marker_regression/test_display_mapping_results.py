@@ -1,6 +1,6 @@
 import unittest
 
-from htmlgen import HTMLgen2 as HT
+import htmlgen as HT
 from wqflask.marker_regression.display_mapping_results import (
     DisplayMappingResults,
     HtmlGenWrapper
@@ -26,9 +26,9 @@ class TestHtmlGenWrapper(unittest.TestCase):
                                                 width="10",
                                                 height="13",
                                                 usemap="#webqtlmap")),
-            ("""<IMG src="test.png" height="13" width="10" """
-             """alt="random" border="0" """
-             """usemap="#webqtlmap">""")
+            ("""<img alt="random" border="0" height="13" """
+             """src="test.png" usemap="#webqtlmap" """
+             """width="10"/>""")
         )
 
     def test_create_form(self):
@@ -37,7 +37,7 @@ class TestHtmlGenWrapper(unittest.TestCase):
             cgi="/testing/",
             enctype='multipart/form-data',
             name="formName",
-            submit=HT.Input(type='hidden')
+            submit=HtmlGenWrapper.create_input_tag(type_='hidden', name='Default_Name')
         )
         test_image = HtmlGenWrapper.create_image_tag(
             src="test.png",
@@ -49,10 +49,10 @@ class TestHtmlGenWrapper(unittest.TestCase):
         )
         self.assertEqual(
             str(test_form).replace("\n", ""),
-            ("""<FORM METHOD="POST" ACTION="/testing/" """
-             """ENCTYPE="multipart/form-data" """
-             """NAME="formName"><INPUT TYPE="hidden" """
-             """NAME="Default_Name"></FORM>"""))
+            ("""<form action="/testing/" enctype="multipart/form-data" """
+             """method="POST" """
+             """name="formName"><input name="Default_Name" """
+             """type="hidden"/></form>"""))
         hddn = {
             'FormID': 'showDatabase',
             'ProbeSetID': '_',
@@ -62,21 +62,26 @@ class TestHtmlGenWrapper(unittest.TestCase):
             'incparentsf1': 'ON'
         }
         for key in hddn.keys():
-            test_form.append(HT.Input(name=key, value=hddn[key],
-                                      type='hidden'))
+            test_form.append(
+                HtmlGenWrapper.create_input_tag(
+                    name=key,
+                    value=hddn[key],
+                    type_='hidden'))
         test_form.append(test_image)
+
         self.assertEqual(str(test_form).replace("\n", ""), (
-            """<FORM METHOD="POST" ACTION="/testing/" """
-            """ENCTYPE="multipart/form-data" NAME="formName">"""
-            """<INPUT TYPE="hidden" NAME="database" VALUE="TestGeno">"""
-            """<INPUT TYPE="hidden" NAME="incparentsf1" VALUE="ON">"""
-            """<INPUT TYPE="hidden" NAME="FormID" VALUE="showDatabase">"""
-            """<INPUT TYPE="hidden" NAME="ProbeSetID" VALUE="_">"""
-            """<INPUT TYPE="hidden" NAME="RISet" VALUE="Test">"""
-            """<INPUT TYPE="hidden" NAME="CellID" VALUE="_">"""
-            """<IMG src="test.png" height="13" width="10" alt="random" """
-            """border="0" usemap="#webqtlmap">"""
-            """<INPUT TYPE="hidden" NAME="Default_Name"></FORM>"""))
+            """<form action="/testing/" enctype="multipart/form-data" """
+            """method="POST" name="formName">"""
+            """<input name="Default_Name" type="hidden"/>"""
+            """<input name="FormID" type="hidden" value="showDatabase"/>"""
+            """<input name="ProbeSetID" type="hidden" value="_"/>"""
+            """<input name="database" type="hidden" value="TestGeno"/>"""
+            """<input name="CellID" type="hidden" value="_"/>"""
+            """<input name="RISet" type="hidden" value="Test"/>"""
+            """<input name="incparentsf1" type="hidden" value="ON"/>"""
+            """<img alt="random" border="0" height="13" src="test.png" """
+            """usemap="#webqtlmap" width="10"/>"""
+            """</form>"""))
 
     def test_create_paragraph(self):
         """Test HT.Paragraph method"""
@@ -89,48 +94,48 @@ class TestHtmlGenWrapper(unittest.TestCase):
         )
         self.assertEqual(
             str(test_p_element),
-            """<P id="smallSize"></P>"""
+            """<p id="smallSize"></p>"""
         )
-        test_p_element.append(HT.BR())
+        test_p_element.append(HtmlGenWrapper.create_br_tag())
         test_p_element.append(par_text)
         self.assertEqual(
             str(test_p_element),
-            """<P id="smallSize"><BR>{}</P>""".format(par_text)
+            """<p id="smallSize"><br/>{}</p>""".format(par_text)
         )
 
     def test_create_br_tag(self):
         """Test HT.BR() method"""
         self.assertEqual(str(HtmlGenWrapper.create_br_tag()),
-                         "<BR>")
+                         "<br/>")
 
     def test_create_input_tag(self):
         """Test HT.Input method"""
         self.assertEqual(
             str(HtmlGenWrapper.create_input_tag(
-                type="hidden",
+                type_="hidden",
                 name="name",
                 value="key",
                 Class="trait trait_")).replace("\n", ""),
-            ("""<INPUT TYPE="hidden" NAME="name" """
-             """class="trait trait_" VALUE="key">"""))
+            ("""<input class="trait trait_" name="name" """
+             """type="hidden" value="key"/>"""))
 
     def test_create_map_tag(self):
         """Test HT.Map method"""
         self.assertEqual(str(HtmlGenWrapper.create_map_tag(
             name="WebqTLImageMap")).replace("\n", ""),
-            """<MAP NAME="WebqTLImageMap"></MAP>""")
-        gifmap = HtmlGenWrapper.create_map_tag(areas=[])
-        gifmap.areas.append(HT.Area(shape="rect",
-                                    coords='1 2 3', href='#area1'))
-        gifmap.areas.append(HT.Area(shape="rect",
-                                    coords='1 2 3', href='#area2'))
+            """<map name="WebqTLImageMap"></map>""")
+        gifmap = HtmlGenWrapper.create_map_tag(name="test")
+        gifmap.append(HtmlGenWrapper.create_area_tag(shape="rect",
+                                                     coords='1 2 3', href='#area1'))
+        gifmap.append(HtmlGenWrapper.create_area_tag(shape="rect",
+                                                     coords='1 2 3', href='#area2'))
         self.assertEqual(
             str(gifmap).replace("\n", ""),
-            ("""<MAP NAME="">"""
-             """<AREA coords="1 2 3" """
-             """href="#area1" shape="rect">"""
-             """<AREA coords="1 2 3" href="#area2" shape="rect">"""
-             """</MAP>"""))
+            ("""<map name="test">"""
+             """<area coords="1 2 3" """
+             """href="#area1" shape="rect"/>"""
+             """<area coords="1 2 3" href="#area2" shape="rect"/>"""
+             """</map>"""))
 
     def test_create_area_tag(self):
         """Test HT.Area method"""
@@ -140,12 +145,12 @@ class TestHtmlGenWrapper(unittest.TestCase):
                 coords="1 2",
                 href="http://test.com",
                 title="Some Title")).replace("\n", ""),
-            ("""<AREA coords="1 2" href="http://test.com" """
-             """shape="rect" title="Some Title">"""))
+            ("""<area coords="1 2" href="http://test.com" """
+             """shape="rect" title="Some Title"/>"""))
 
     def test_create_link_tag(self):
         """Test HT.HREF method"""
         self.assertEqual(
             str(HtmlGenWrapper.create_link_tag(
                 "www.test.com", "test", target="_blank")).replace("\n", ""),
-            """<A HREF="www.test.com" TARGET="_blank">test</A>""")
+            """<a href="www.test.com" target="_blank">test</a>""")

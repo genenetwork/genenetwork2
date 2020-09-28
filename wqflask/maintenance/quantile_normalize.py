@@ -1,12 +1,7 @@
-from __future__ import absolute_import, print_function, division
-
 import sys
-sys.path.insert(0,'./')
-
-from itertools import izip
-
+sys.path.insert(0, './')
 import MySQLdb
-import urlparse
+import urllib.parse
 
 import numpy as np
 import pandas as pd
@@ -22,7 +17,7 @@ from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, SQL_URI
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(SQL_URI)
+    parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],
@@ -37,7 +32,7 @@ def create_dataframe(input_file):
     with open(input_file) as f:
         ncols = len(f.readline().split("\t"))
 
-    input_array = np.loadtxt(open(input_file, "rb"), delimiter="\t", skiprows=1, usecols=range(1, ncols))
+    input_array = np.loadtxt(open(input_file, "rb"), delimiter="\t", skiprows=1, usecols=list(range(1, ncols)))
     return pd.DataFrame(input_array)
 
 #This function taken from https://github.com/ShawnLYU/Quantile_Normalize
@@ -60,7 +55,7 @@ def set_data(dataset_name):
 
     sample_list = []
     with open(orig_file, 'r') as orig_fh, open('/home/zas1024/cfw_data/quant_norm.csv', 'r') as quant_fh:
-        for i, (line1, line2) in enumerate(izip(orig_fh, quant_fh)):
+        for i, (line1, line2) in enumerate(zip(orig_fh, quant_fh)):
             trait_dict = {}
             sample_list = []
             if i == 0:

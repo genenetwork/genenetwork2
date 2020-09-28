@@ -1,4 +1,3 @@
-from __future__ import print_function
 import re
 import requests
 from lxml.html import parse
@@ -23,12 +22,9 @@ def is_in_page_link(link):
     return pattern.match(link)
 
 def get_links(doc):
-    return filter(
-        lambda x: not (
+    return [x for x in [y.get("href") for y in doc.cssselect("a")] if not (
             is_root_link(x)
-            or is_mailto_link(x))
-        , map(lambda y: y.get("href")
-              , doc.cssselect("a")))
+            or is_mailto_link(x))]
 
 def verify_link(link):
     if link[0] == "#":
@@ -58,7 +54,7 @@ def verify_static_file(link):
     try:
         result = requests.get(link, timeout=20, verify=False)
         if (result.status_code == 200 and
-                result.content.find("Error: 404 Not Found") <= 0):
+                result.content.find(bytes("Error: 404 Not Found", "utf-8")) <= 0):
             print(link+" ==> OK")
         else:
             print("ERROR: link {}".format(link))
@@ -72,9 +68,9 @@ def check_page(host, start_url):
     print("Checking links host "+host+" in page `"+start_url+"`")
     doc = parse(start_url).getroot()
     links = get_links(doc)
-    in_page_links = filter(is_in_page_link, links)
-    internal_links = filter(is_internal_link, links)
-    external_links = filter(lambda x: not (is_internal_link(x) or is_in_page_link(x)), links)
+    in_page_links = list(filter(is_in_page_link, links))
+    internal_links = list(filter(is_internal_link, links))
+    external_links = [x for x in links if not (is_internal_link(x) or is_in_page_link(x))]
 
     for link in internal_links:
         verify_link(host+link)

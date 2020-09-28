@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import datetime
 import time
 import uuid
@@ -184,7 +182,7 @@ class UserSession(object):
     def add_collection(self, collection_name, traits):
         """Add collection into Redis"""
 
-        collection_dict = {'id': unicode(uuid.uuid4()),
+        collection_dict = {'id': str(uuid.uuid4()),
                            'name': collection_name,
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),

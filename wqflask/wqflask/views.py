@@ -2,8 +2,6 @@
 #
 # Main routing table for GN2
 
-from __future__ import absolute_import, division, print_function
-
 import traceback # for error page
 import os        # for error gifs
 import random    # for random error gif
@@ -14,13 +12,13 @@ import csv
 import simplejson as json
 import yaml
 import xlsxwriter
-import StringIO  # Todo: Use cStringIO?
+import io  # Todo: Use cStringIO?
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
 import gc
 import numpy as np
-import cPickle as pickle
+import pickle as pickle
 import uuid
 
 import flask
@@ -54,7 +52,7 @@ from wqflask.docs import Docs
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
-from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
+from utility.tools import SQL_URI, TEMPDIR, USE_REDIS, USE_GN_SERVER, GN_SERVER_URL, GN_VERSION, JS_TWITTER_POST_FETCHER_PATH, JS_GUIX_PATH, CSS_PATH
 from utility.helper_functions import get_species_groups
 from utility.authentication_tools import check_resource_availability
 from utility.redis_tools import get_redis_conn
@@ -129,10 +127,10 @@ def handle_bad_request(e):
         list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
         animation = random.choice(list)
 
-    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation,version=GN_VERSION))
+    resp = make_response(render_template("error.html", message=err_msg, stack=formatted_lines, error_image=animation, version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
-    resp.set_cookie(err_msg[:32],animation)
+    resp.set_cookie(err_msg[:32], animation)
     return resp
 
 @app.route("/authentication_needed")
@@ -215,8 +213,6 @@ def search_page():
     result = the_search.__dict__
     valid_search = result['search_term_exists']
 
-    logger.debugf("result", result)
-
     if USE_REDIS and valid_search:
         Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60*60)
@@ -264,7 +260,7 @@ def docedit():
 @app.route('/generated/<filename>')
 def generated_file(filename):
     logger.info(request.url)
-    return send_from_directory(GENERATED_IMAGE_DIR,filename)
+    return send_from_directory(GENERATED_IMAGE_DIR, filename)
 
 @app.route("/help")
 def help():
@@ -380,7 +376,7 @@ def export_trait_excel():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     for i, row in enumerate(sample_data):
@@ -404,7 +400,7 @@ def export_trait_csv():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     writer = csv.writer(buff)
     for row in sample_data:
         writer.writerow(row)
@@ -427,7 +423,7 @@ def export_traits_csv():
         now = datetime.datetime.now()
         time_str = now.strftime('%H:%M_%d%B%Y')
         filename = "export_{}".format(time_str)
-        memory_file = StringIO.StringIO()
+        memory_file = io.StringIO()
         with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
             for the_file in file_list:
                 zf.writestr(the_file[0], the_file[1])
@@ -470,7 +466,7 @@ def export_perm_data():
         ["#Comment: Results sorted from low to high peak linkage"]
     ]
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     writer = csv.writer(buff)
     writer.writerows(the_rows)
     for item in perm_info['perm_data']:
@@ -543,7 +539,7 @@ def heatmap_page():
 
             result = template_vars.__dict__
 
-            for item in template_vars.__dict__.keys():
+            for item in list(template_vars.__dict__.keys()):
                 logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
@@ -647,7 +643,7 @@ def loading_page():
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
-        for key, value in initial_start_vars.iteritems():
+        for key, value in list(initial_start_vars.items()):
             if key in wanted or key.startswith(('value:')):
                 start_vars[key] = value
 
@@ -747,7 +743,7 @@ def mapping_results_page():
         'transform'
     )
     start_vars = {}
-    for key, value in initial_start_vars.iteritems():
+    for key, value in list(initial_start_vars.items()):
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
     #logger.debug("Mapping called with start_vars:", start_vars)
@@ -954,8 +950,8 @@ def json_default_handler(obj):
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
     # Handle integer keys for dictionaries
-    elif isinstance(obj, int):
-        return str(int)
+    elif isinstance(obj, int) or isinstance(obj, uuid.UUID):
+        return str(obj)
     # Handle custom objects
     if hasattr(obj, '__dict__'):
         return obj.__dict__
@@ -963,5 +959,5 @@ def json_default_handler(obj):
     #     logger.info("Not going to serialize Dataset")
     #    return None
     else:
-        raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (
-            type(obj), repr(obj))
+        raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
+            type(obj), repr(obj)))

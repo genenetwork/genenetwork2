@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import uuid
 import datetime
 
@@ -18,7 +16,7 @@ from wqflask.database import Base, init_db
 
 class User(Base):
     __tablename__ = "user"
-    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email_address = Column(Unicode(50), unique=True, nullable=False)
 
     # Todo: Turn on strict mode for Mysql
@@ -120,7 +118,7 @@ class User(Base):
 
 class Login(Base):
     __tablename__ = "login"
-    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user = Column(Unicode(36), ForeignKey('user.id'))
     timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     ip_address = Column(Unicode(39))
@@ -138,7 +136,7 @@ class Login(Base):
 
 class UserCollection(Base):
     __tablename__ = "user_collection"
-    id = Column(Unicode(36), primary_key=True, default=lambda: unicode(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user = Column(Unicode(36), ForeignKey('user.id'))
 
     # I'd prefer this to not have a length, but for the index below it needs one

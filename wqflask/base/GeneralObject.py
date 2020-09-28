@@ -33,7 +33,7 @@ class GeneralObject:
 
     def __init__(self, *args, **kw):
         self.contents = list(args)
-        for name, value in kw.items():
+        for name, value in list(kw.items()):
             setattr(self, name, value)
 
     def __setitem__(self, key, value):
@@ -50,16 +50,17 @@ class GeneralObject:
 
     def __str__(self):
         s = ''
-        for key in self.__dict__.keys():
+        for key in list(self.__dict__.keys()):
             if key != 'contents':
                 s += '%s = %s\n' % (key, self.__dict__[key])
         return s
 
     def __repr__(self):
         s = ''
-        for key in self.__dict__.keys():
+        for key in list(self.__dict__.keys()):
             s += '%s = %s\n' % (key, self.__dict__[key])
         return s
 
-    def __cmp__(self, other):
-        return len(self.__dict__.keys()).__cmp__(len(other.__dict__.keys()))
+    def __eq__(self, other):
+        return (len(list(self.__dict__.keys())) ==
+                len(list(other.__dict__.keys())))

@@ -16,13 +16,11 @@ To run:
 
 """
 
-from __future__ import print_function, division
-
 import sys
 import json
 
 # NEW: Note we prepend the current path - otherwise a guix instance of GN2 may be used instead
-sys.path.insert(0,'./')
+sys.path.insert(0, './')
 
 # NEW: import app to avoid a circular dependency on utility.tools
 from wqflask import app
@@ -34,7 +32,7 @@ Redis = get_redis_conn()
 
 import MySQLdb
 
-import urlparse
+import urllib.parse
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -42,7 +40,7 @@ logger = getLogger(__name__)
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(SQL_URI)
+    parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],

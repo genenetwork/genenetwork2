@@ -18,8 +18,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
 import string
 
 from flask import Flask, g
@@ -49,7 +47,7 @@ class SendToWebGestalt(object):
             id_type = "entrezgene"
 
             self.hidden_vars = { 
-                             'gene_list'                  : string.join(gene_id_list, "\n"),
+                             'gene_list'                  : "\n".join(gene_id_list),
                              'id_type'                    : "entrezgene",
                              'ref_set'                    : "genome",
                              'enriched_database_category' : "geneontology",

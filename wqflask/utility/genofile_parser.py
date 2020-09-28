@@ -1,7 +1,6 @@
 # CTL analysis for GN2
 # Author / Maintainer: Danny Arends <Danny.Arends@gmail.com>
 
-from __future__ import print_function, division, absolute_import
 import sys
 import os
 import glob
