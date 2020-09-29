@@ -124,7 +124,8 @@ def collections_new():
         g.user_session.add_traits_to_collection(collection_id, traits)
         return redirect(url_for('view_collection', uc_id=collection_id))
     else:
-        CauseAnError
+        # CauseAnError
+        pass
 
 def create_new(collection_name):
     params = request.args
