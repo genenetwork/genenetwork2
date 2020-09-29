@@ -1,7 +1,7 @@
 """Test cases for some methods in collect.py"""
 
 import unittest
-import mock
+from unittest import mock
 
 from flask import Flask
 from wqflask.collect import process_traits
