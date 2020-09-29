@@ -16,8 +16,6 @@
         </h1>
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
-        <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
-
         <div>
           <form id="collection_form" action="/delete" method="post">
             <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
@@ -77,7 +75,7 @@
             <input type="hidden" name="database_name" id="database_name" value="None">
             <input type="hidden" name="export_data" id="export_data" value="">
             <input type="hidden" name="file_name" id="file_name" value="collection_table">
-            <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <button class="btn btn-default" id="export_traits">Download</button>
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
             <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
@@ -99,9 +97,9 @@
                             <th data-export="Description">Description</th>
                             <th data-export="Location">Location</th>
                             <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup>?</sup></a></th>
-                            <th data-export="Max LRS Location">Max LRS Location</th>
-                            <th data-export="Add. Eff.">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup>?</sup></a></th>
+                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
+                            <th data-export="Peak Location">Peak Location</th>
+                            <th data-export="Add. Eff.">Effect Size <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
                         </tr>
                     </thead>
 
