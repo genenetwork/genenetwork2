@@ -215,43 +215,27 @@
 
 <div style="margin-bottom:15px;" class="btn-toolbar">
     <div class="btn-group">
-        <a href="#redirect">
-        <button type="button" id="add_to_collection" class="btn btn-primary" title="Add to collection">Add</button>
-        </a>
+        <button type="button" id="add_to_collection" class="btn btn-success" title="Add to Collection">Add</button>
         {% if this_trait.dataset.type == 'ProbeSet' or this_trait.dataset.type == 'Geno' %}
         {% if this_trait.symbol != None %}
-        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}">
-        <button type="button" class="btn btn-default" title="Find similar expression data">Find</button>
-        </a>
+        <button type="button" class="btn btn-default" title="Find similar expression data" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?cmd=sch&amp;gene={{ this_trait.symbol }}&amp;alias=1&amp;species={{ dataset.group.species }}', '_blank')">Find</button>
         {% endif %}
         {% if UCSC_BLAT_URL != "" %}
-        <a target="_blank" href="{{ UCSC_BLAT_URL }}">
-        <button type="button" class="btn btn-default" title="Check probe locations at UCSC">Verify</button>
-        </a>
+        <button type="button" class="btn btn-default" title="Check probe locations at UCSC" onclick="window.open('{{ UCSC_BLAT_URL }}', '_blank')">Verify</button>
         {% endif %}
         {% if this_trait.symbol != None %}
-        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}">
-        <button type="button" class="btn btn-default" title="Write or review comments about this gene">GeneWiki</button>
-        </a>
+        <button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}', '_blank')">GeneWiki</button>
         {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
-        <a href="/snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on">
-        <button type="button" class="btn btn-default" title="View SNPs and Indels">SNPs</button>
-        </a>
+        <button type="button" class="btn btn-default" title="View SNPs and Indels" onclick="window.open('/snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on', '_blank')">SNPs</button>
         {% endif %}
         {% endif %}
         {% if show_probes == "True" %}
-        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON">
-        <button type="button" class="btn btn-default" title="Check sequence of probes">Probes</button>
-        </a>
+        <button type="button" class="btn btn-default" title="Check sequence of probes" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?FormID=showProbeInfo&database={{ this_trait.dataset.name }}&ProbeSetID={{ this_trait.name }}&CellID={{ this_trait.cellid }}&RISet={{ dataset.group.name }}&incparentsf1=ON', '_blank')">Probes</button>
         {% endif %}
         {% endif %}
-        <a target="_blank" href="http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}">
-        <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1">View in GN1</button>
-        </a>
+        <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}', '_blank')">Go to GN1</button>
         {% if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access" %}
-        <a target="_blank" href="./resources/manage?resource_id={{ resource_id }}">
-            <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource">Edit</button>
-        </a>
+            <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('./resources/manage?resource_id={{ resource_id }}', '_blank')">Edit</button>
         {% endif %}
     </div>
 </div>
