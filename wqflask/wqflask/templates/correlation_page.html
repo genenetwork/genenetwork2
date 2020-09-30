@@ -175,9 +175,13 @@
                         <TD data-export="N/A">N/A</TD>
                         {% endif %}
                         <td data-export="{{ trait.pubmed_text }}">
+                            {% if trait.pubmed_text != "N/A" %}
                             <a href="{{ trait.pubmed_link }}">
                                 {{ trait.pubmed_text }}
                             </a>
+                            {% else %}
+                            {{ trait.pubmed_text }}
+                            {% endif %}
                         </td>
                         <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
                         <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
