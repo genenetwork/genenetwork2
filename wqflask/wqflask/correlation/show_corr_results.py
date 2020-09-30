@@ -23,25 +23,29 @@ import json
 import scipy
 import numpy
 import rpy2.robjects as ro                    # R Objects
+import utility.logger
+import utility.webqtlUtil
 
 from rpy2.robjects.packages import importr
-utils = importr("utils")
 
 from base import data_set
-from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
-from db import webqtlDatabaseFunction
-import utility.webqtlUtil  #this is for parallel computing only.
+from utility import helper_functions
+from utility import corr_result_helpers
+from utility import hmac
+
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
-import utility.webqtlUtil
-from utility.type_checking import is_str, get_float, get_int, get_string
+
+from utility.type_checking import is_str
+from utility.type_checking import get_float
+from utility.type_checking import get_int
+from utility.type_checking import get_string
 from utility.db_tools import escape
 
+from flask import g
 
-from flask import Flask, g
-
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
+utils = importr("utils")
+logger = utility.logger.getLogger(__name__)
 
 METHOD_LIT = "3"
 METHOD_TISSUE_PEARSON = "4"
@@ -50,6 +54,7 @@ METHOD_TISSUE_RANK = "5"
 TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
 
 TISSUE_MOUSE_DB = 1
+
 
 class CorrelationResults(object):
     def __init__(self, start_vars):
