@@ -26,6 +26,8 @@ import rpy2.robjects as ro                    # R Objects
 import utility.logger
 import utility.webqtlUtil
 
+from base.trait import create_trait
+
 from rpy2.robjects.packages import importr
 
 from base import data_set
