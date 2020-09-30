@@ -164,13 +164,13 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
 
     <script language="javascript" type="text/javascript">
@@ -185,10 +185,14 @@
             console.time("Creating table");
             $('#trait_table').dataTable( {
                 "columns": [
-                    { "type": "natural", "width": 10 },
+                    {
+                        "orderDataType": "dom-checkbox",
+                        "orderSequence": [ "desc", "asc"],
+                        "width": 10
+                    },
                     { "type": "natural", "width": 50 },
                     { "type": "natural" },
-                    { "type": "natural", "width": 120 },
+                    { 'type': "natural-minus-na", "width": 120 },
                     { "type": "natural" },
                     { "type": "natural"  },
                     { "type": "natural", "width": 130 },
@@ -197,10 +201,6 @@
                     { "type": "natural", "width": 130 },
                     { "type": "natural" }
                 ],
-                "columnDefs": [ {
-                    "targets": 0,
-                    "orderable": false
-                } ],
                 "order": [[1, "asc" ]],
                 buttons: [
                     {
