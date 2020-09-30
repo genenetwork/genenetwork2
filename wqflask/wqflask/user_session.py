@@ -127,10 +127,10 @@ class UserSession(object):
     @property
     def user_id(self):
         """Shortcut to the user_id"""
-        if 'user_id' not in self.record:
-            self.record['user_id'] = str(uuid.uuid4())
+        if b'user_id' not in self.record:
+            self.record[b'user_id'] = str(uuid.uuid4())
 
-        return self.record['user_id']
+        return self.record[b'user_id']
 
     @property
     def redis_user_id(self):
