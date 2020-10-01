@@ -147,7 +147,8 @@ class GeneralTrait(object):
                 formatted = self.post_publication_description
         else:
             formatted = "Not available"
-
+        if isinstance(formatted, bytes):
+            formatted = formatted.decode("utf-8")
         return formatted
 
     @property
@@ -495,6 +496,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         trait.haveinfo = True
         for i, field in enumerate(dataset.display_fields):
             holder = trait_info[i]
+            if isinstance(holder, bytes):
+                holder = holder.decode('utf-8')
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
