@@ -1,40 +1,35 @@
 import re
-from flask import Flask, g
+import itertools
+import utility.logger
 
+from flask import g
 from base import webqtlCaseData
-from utility import webqtlUtil, Plot, Bunch
-from base.trait import GeneralTrait
 
-import numpy as np
-from scipy import stats
+from utility import Plot
+from utility import Bunch
+
 from pprint import pformat as pf
 
-import simplejson as json
+logger = utility.logger.getLogger(__name__)
 
-import itertools
-
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
 
 class SampleList(object):
     def __init__(self,
                  dataset,
                  sample_names,
                  this_trait,
-                 sample_group_type = "primary",
-                 header = "Samples"):
+                 sample_group_type="primary",
+                 header="Samples"):
 
         self.dataset = dataset
         self.this_trait = this_trait
         self.sample_group_type = sample_group_type    # primary or other
         self.header = header
 
-        self.sample_list = [] # The actual list
+        self.sample_list = []  # The actual list
         self.sample_attribute_values = {}
 
         self.get_attributes()
-
-        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
         if self.this_trait and self.dataset:
             self.get_extra_attribute_values()
@@ -42,42 +37,46 @@ class SampleList(object):
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            if isinstance(self.this_trait, list): #ZS: self.this_trait will be a list if it is a Temp trait
-                if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
-                    sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
+            # ZS: self.this_trait will be a list if it is a Temp trait
+            if isinstance(self.this_trait, list):
+                if (counter <= len(self.this_trait) and
+                        str(self.this_trait[counter-1]).upper() != 'X'):
+                    sample = webqtlCaseData.webqtlCaseData(
+                        name=sample_name,
+                        value=float(self.this_trait[counter-1]))
                 else:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
             else:
-                #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
+                # ZS - If there's no value for the sample/strain,
+                # create the sample object (so samples with no value
+                # are still displayed in the table)
                 try:
                     sample = self.this_trait.data[sample_name]
                 except KeyError:
-                    #logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
-            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17'):
+            if (self.dataset.group.name == 'AXBXA' and
+                    sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17')):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
             sample.this_id = str(counter)
 
-            #### For extra attribute columns; currently only used by several datasets - Zach
+            # For extra attribute columns; currently only used by
+            # several datasets - Zach
             if self.sample_attribute_values:
-                sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
-
+                sample.extra_attributes = self.sample_attribute_values.get(
+                    sample_name, {})
             self.sample_list.append(sample)
-
-        #logger.debug("attribute vals are", pf(self.sample_attribute_values))
-
         self.do_outliers()
 
     def __repr__(self):
         return "<SampleList> --> %s" % (pf(self.__dict__))
 
     def do_outliers(self):
-        values = [sample.value for sample in self.sample_list if sample.value != None]
+        values = [sample.value for sample in self.sample_list
+                  if sample.value is not None]
         upper_bound, lower_bound = Plot.find_outliers(values)
 
         for sample in self.sample_list:
@@ -105,7 +104,8 @@ class SampleList(object):
             key, name = attr
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
-            self.attributes[key].distinct_values = [item.Value for item in values]
+            self.attributes[key].distinct_values = [
+                item.Value for item in values]
             natural_sort(self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
@@ -138,8 +138,9 @@ class SampleList(object):
                 for item in items:
                     attribute_value = item.Value
 
-                    #ZS: If it's an int, turn it into one for sorting
-                    #(for example, 101 would be lower than 80 if they're strings instead of ints)
+                    # ZS: If it's an int, turn it into one for sorting
+                    # (for example, 101 would be lower than 80 if
+                    # they're strings instead of ints)
                     try:
                         attribute_value = int(attribute_value)
                     except ValueError:
@@ -154,13 +155,12 @@ class SampleList(object):
         return any(sample.variance for sample in self.sample_list)
 
 
-def natural_sort(list, key=lambda s:s):
+def natural_sort(list, key=lambda s: s):
     """
     Sort the list into natural alphanumeric order.
     """
     def get_alphanum_key_func(key):
-        convert = lambda text: int(text) if text.isdigit() else text 
+        def convert(text): return int(text) if text.isdigit() else text
         return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
     sort_key = get_alphanum_key_func(key)
     list.sort(key=sort_key)
-
