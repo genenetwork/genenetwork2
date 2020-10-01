@@ -175,9 +175,13 @@
                         <TD data-export="N/A">N/A</TD>
                         {% endif %}
                         <td data-export="{{ trait.pubmed_text }}">
+                            {% if trait.pubmed_text != "N/A" %}
                             <a href="{{ trait.pubmed_link }}">
                                 {{ trait.pubmed_text }}
                             </a>
+                            {% else %}
+                            {{ trait.pubmed_text }}
+                            {% endif %}
                         </td>
                         <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
                         <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
@@ -365,9 +369,9 @@
                     { "type": "numeric-html", 'orderSequence': [ "desc", "asc"] },
                     { "type": "numeric-html", 'orderSequence': [ "desc", "asc"] },
                     { "type": "scientific" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "natural-minus-na" },
+                    { "type": "natural-minus-na" },
+                    { "type": "natural-minus-na" }
                 ],
                 "createdRow": function ( row, data, index ) {
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
@@ -419,13 +423,13 @@
                     { "type": "natural" },
                     { "type": "natural", "width": "20%" },
                     { "type": "natural", "width": "12%" },
-                    { "orderDataType": "dom-innertext" },
+                    { "type": "natural-minus-na" },
                     { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
                     { "type": "natural" },
                     { "type": "scientific" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" }
+                    { "type": "natural-minus-na" },
+                    { "type": "natural-minus-na" },
+                    { "type": "natural-minus-na" }
                 ],
                 "order": [[9, "asc" ]],
                 "sDom": "Btir",
@@ -461,7 +465,7 @@
                     { "type": "natural" },
                     { "type": "natural" },
                     { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "natural" },
+                    { "type": "natural-minus-na" },
                     { "type": "scientific" }
                 ],
                 "order": [[6, "asc" ]],

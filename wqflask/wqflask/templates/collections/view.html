@@ -16,8 +16,6 @@
         </h1>
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
-        <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
-
         <div>
           <form id="collection_form" action="/delete" method="post">
             <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
@@ -77,7 +75,7 @@
             <input type="hidden" name="database_name" id="database_name" value="None">
             <input type="hidden" name="export_data" id="export_data" value="">
             <input type="hidden" name="file_name" id="file_name" value="collection_table">
-            <button class="btn btn-default" id="export_traits">Download CSV</button>
+            <button class="btn btn-default" id="export_traits">Download</button>
             <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
             <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
             <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
@@ -99,9 +97,9 @@
                             <th data-export="Description">Description</th>
                             <th data-export="Location">Location</th>
                             <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup>?</sup></a></th>
-                            <th data-export="Max LRS Location">Max LRS Location</th>
-                            <th data-export="Add. Eff.">Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup>?</sup></a></th>
+                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
+                            <th data-export="Peak Location">Peak Location</th>
+                            <th data-export="Add. Eff.">Effect Size <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
                         </tr>
                     </thead>
 
@@ -144,7 +142,7 @@
                             <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">N/A</TD>
                             {% endif %}
                             <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
-                            {% if this_trait.additive|float > 0 %}
+                            {% if this_trait.additive|float != 0 %}
                             <TD data-export="{{ this_trait.additive }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
                             {% else %}
                             <TD data-export="{{ this_trait.additive }}" align="right">N/A</TD>
@@ -166,13 +164,13 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
 
     <script language="javascript" type="text/javascript">
@@ -187,10 +185,14 @@
             console.time("Creating table");
             $('#trait_table').dataTable( {
                 "columns": [
-                    { "type": "natural", "width": 10 },
+                    {
+                        "orderDataType": "dom-checkbox",
+                        "orderSequence": [ "desc", "asc"],
+                        "width": 10
+                    },
                     { "type": "natural", "width": 50 },
                     { "type": "natural" },
-                    { "type": "natural", "width": 120 },
+                    { 'type': "natural-minus-na", "width": 120 },
                     { "type": "natural" },
                     { "type": "natural"  },
                     { "type": "natural", "width": 130 },
@@ -199,10 +201,6 @@
                     { "type": "natural", "width": 130 },
                     { "type": "natural" }
                 ],
-                "columnDefs": [ {
-                    "targets": 0,
-                    "orderable": false
-                } ],
                 "order": [[1, "asc" ]],
                 buttons: [
                     {
