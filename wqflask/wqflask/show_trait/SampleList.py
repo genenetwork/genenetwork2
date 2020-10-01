@@ -1,3 +1,4 @@
+import re
 from flask import Flask, g
 
 from base import webqtlCaseData
@@ -105,8 +106,7 @@ class SampleList(object):
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
-            self.attributes[key].distinct_values.sort(key=natural_sort_key)
-
+            natural_sort(self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:
@@ -152,11 +152,15 @@ class SampleList(object):
         """Returns true if SE values exist for any samples, otherwise false"""
 
         return any(sample.variance for sample in self.sample_list)
-def natural_sort_key(x):
-    """Get expected results when using as a key for sort - ints or strings are sorted properly"""
 
-    try:
-        x = int(x)
-    except ValueError:
-        pass
-    return x
+
+def natural_sort(list, key=lambda s:s):
+    """
+    Sort the list into natural alphanumeric order.
+    """
+    def get_alphanum_key_func(key):
+        convert = lambda text: int(text) if text.isdigit() else text 
+        return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
+    sort_key = get_alphanum_key_func(key)
+    list.sort(key=sort_key)
+
