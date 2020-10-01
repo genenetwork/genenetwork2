@@ -102,7 +102,6 @@ class SampleList(object):
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            #logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
@@ -153,49 +152,6 @@ class SampleList(object):
         """Returns true if SE values exist for any samples, otherwise false"""
 
         return any(sample.variance for sample in self.sample_list)
-
-# def get_transform_vals(dataset, trait):
-#     es = get_elasticsearch_connection(for_user=False)
-
-#     logger.info("DATASET NAME:", dataset.name)
-
-#     query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
-
-#     es_body = {
-#           "query": {
-#             "bool": {
-#               "must": [
-#                 {
-#                   "match": {
-#                     "name": "%s" % (trait.name)
-#                   }
-#                 },
-#                 {
-#                   "match": {
-#                     "dataset": "%s" % (dataset.name)
-#                   }
-#                 }
-#               ]
-#             }
-#           }
-#     }
-
-#     response = es.search( index = "traits", doc_type = "trait", body = es_body )
-#     logger.info("THE RESPONSE:", response)
-#     results = response['hits']['hits']
-
-#     if len(results) > 0:
-#         samples = results[0]['_source']['samples']
-
-#         sample_dict = {}
-#         for sample in samples:
-#             sample_dict[sample['name']] = sample['qnorm']
-
-#         #logger.info("SAMPLE DICT:", sample_dict)
-#         return sample_dict
-#     else:
-#         return None
-
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""
 
