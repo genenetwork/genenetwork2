@@ -218,9 +218,9 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                             marker['chr'] = int(line.split("\t")[0][3:])
                         else:
                             marker['chr'] = int(line.split("\t")[0])
-                        if marker['chr'] > previous_chr:
+                        if marker['chr'] > int(previous_chr):
                             previous_chr = marker['chr']
-                        elif marker['chr'] < previous_chr:
+                        elif marker['chr'] < int(previous_chr):
                             break
                     else:
                         marker['chr'] = line.split("\t")[0]
