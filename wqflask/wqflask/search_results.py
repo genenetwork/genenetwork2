@@ -149,6 +149,10 @@ views.py).
                     trait_dict['additive'] = "N/A"
                     if this_trait.additive != "":
                         trait_dict['additive'] = '%.3f' % this_trait.additive
+                # Convert any bytes in dict to a normal utf-8 string
+                for key in trait_dict.keys():
+                    if isinstance(trait_dict[key], bytes):
+                        trait_dict[key] = trait_dict[key].decode('utf-8')
                 trait_list.append(trait_dict)
 
         self.trait_list = json.dumps(trait_list)
