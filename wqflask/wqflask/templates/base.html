@@ -21,6 +21,14 @@
     {% block css %}
     {% endblock %}
 
+    <style>
+        table.dataTable thead .sorting_asc {
+            background-image: url({{ url_for("js", filename="DataTables/images/sort_asc_disabled.png") }});
+        }
+        table.dataTable thead .sorting_desc {
+            background-image: url({{ url_for("js", filename="DataTables/images/sort_desc_disabled.png") }});
+        }
+    </style>
 </head>
 
 <body style="width: 100%">
