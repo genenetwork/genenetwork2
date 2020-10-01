@@ -2157,7 +2157,7 @@ class DisplayMappingResults(object):
         #ZS: Convert to int if all axis values are whole numbers
         all_int = True
         for item in LRSAxisList:
-            if item.is_integer():
+            if isinstance(item, int):
                 continue
             else:
                 all_int = False
