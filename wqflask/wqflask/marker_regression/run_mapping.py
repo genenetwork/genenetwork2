@@ -409,8 +409,8 @@ class RunMapping(object):
 
                   self.results_for_browser.append(browser_marker)
                   self.annotations_for_browser.append(annot_marker)
-                  if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                      if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                  if str(marker['chr']) > '0' or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
+                      if str(marker['chr']) > str(highest_chr) or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
                           highest_chr = marker['chr']
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                           if 'Mb' in marker.keys():
