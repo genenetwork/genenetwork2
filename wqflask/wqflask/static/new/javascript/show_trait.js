@@ -499,6 +499,7 @@ edit_data_change = function() {
     return update_prob_plot();
   }
 };
+
 show_hide_outliers = function() {
   var label;
   label = $('#show_hide_outliers').val();
@@ -509,6 +510,7 @@ show_hide_outliers = function() {
     return console.log("Should be now Hide Outliers");
   }
 };
+
 on_corr_method_change = function() {
   var corr_method;
   corr_method = $('select[name=corr_type]').val();
@@ -523,9 +525,29 @@ on_corr_method_change = function() {
 $('select[name=corr_type]').change(on_corr_method_change);
 
 submit_special = function(url) {
+  get_table_contents_for_form_submit("trait_data_form");
   $("#trait_data_form").attr("action", url);
   $("#trait_data_form").submit();
 };
+
+get_table_contents_for_form_submit = function(form_id) {
+  // Borrowed code from - https://stackoverflow.com/questions/31418047/how-to-post-data-for-the-whole-table-using-jquery-datatables
+  let this_form = $("#" + form_id);
+  var params = primary_table.$('input').serializeArray();
+
+  $.each(params, function(){
+    // If element doesn't exist in DOM
+    if(!$.contains(document, this_form[this.name])){
+       // Create a hidden element
+       this_form.append(
+          $('<input>')
+             .attr('type', 'hidden')
+             .attr('name', this.name)
+             .val(this.value)
+       );
+    }
+ });
+}
 
 var corr_input_list = ['corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
