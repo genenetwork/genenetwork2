@@ -654,6 +654,7 @@ hide_no_value = function() {
   })(this));
 };
 $('#hide_no_value').click(hide_no_value);
+
 block_outliers = function() {
   return $('.outlier').each((function(_this) {
     return function(_index, element) {
@@ -662,6 +663,7 @@ block_outliers = function() {
   })(this));
 };
 $('#block_outliers').click(block_outliers);
+
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
@@ -677,96 +679,56 @@ $('.reset').click(function() {
   edit_data_change();
 });
 
-log2_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      current_value = $(element).data("value")
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        if (zero_to_one_vals_exist){
-          current_value = parseFloat(current_value) + 1;
-        }
-        $(element).val(Math.log2(current_value).toFixed(3));
-        return Math.log2(current_value).toFixed(3)
-      }
-    };
-  })(this));
+log2_data = function(this_node) {
+  current_value = this_node.value;
+  if(!isNaN(current_value)) {
+    if (zero_to_one_vals_exist){
+      current_value = parseFloat(current_value) + 1;
+    }
+    this_node.value = Math.log2(current_value).toFixed(3);
+  }
 };
 
-log10_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      current_value = $(element).data("value")
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        if (zero_to_one_vals_exist){
-          current_value = parseFloat(current_value) + 1;
-        }
-        $(element).val(Math.log10(current_value).toFixed(3));
-        return Math.log10(current_value).toFixed(3)
-      }
-    };
-  })(this));
+log10_data = function() {
+  current_value = this_node.value;
+  if(!isNaN(current_value)) {
+    if (zero_to_one_vals_exist){
+      current_value = parseFloat(current_value) + 1;
+    }
+    this_node.value = Math.log10(current_value).toFixed(3);
+  }
 };
 
 
-sqrt_normalize_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val(Math.sqrt(current_value).toFixed(3));
-        return Math.sqrt(current_value).toFixed(3)
-      }
-    };
-  })(this));
+sqrt_data = function() {
+  current_value = this_node.value;
+  if(!isNaN(current_value)) {
+    this_node.value = Math.sqrt(current_value).toFixed(3);
+  }
 };
 
 invert_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).val());
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val(-(current_value));
-        return -(current_value)
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  if(!isNaN(current_value)) {
+    this_node.value = -(current_value);
+  }
 };
 
 
 qnorm_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val($(element).data("qnorm"));
-        return $(element).data("qnorm");
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  qnorm_value = this_node.attributes['data-qnorm'].value;
+  if(!isNaN(current_value)) {
+    this_node.value = qnorm_value;
+  }
 };
 
 zscore_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val($(element).data("zscore"));
-        return $(element).data("zscore");
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  qnorm_value = this_node.attributes['data-zscore'].value;
+  if(!isNaN(current_value)) {
+    this_node.value = qnorm_value;
+  }
 };
 
 check_for_zero_to_one_vals = function() {
@@ -786,15 +748,47 @@ check_for_zero_to_one_vals = function() {
   return zero_to_one_vals_exist
 }
 
+do_transform = function(transform_type) {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0]
+        if (transform_type == "log2"){
+          log2_data(this_node)
+        }
+        if (transform_type == "log10"){
+          log10_data(this_node)
+        }
+        if (transform_type == "sqrt"){
+          sqrt_data(this_node)
+        }
+        if (transform_type == "invert"){
+          invert_data(this_node)
+        }
+        if (transform_type == "qnorm"){
+          qnorm_data(this_node)
+        }
+        if (transform_type == "zscore"){
+          zscore_data(this_node)
+        }
+      }
+    }
+  }
+}
+
 normalize_data = function() {
   if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
     if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
-      log2_normalize_data(zero_to_one_vals_exist)
+      do_transform("log2")
       $('input[name="transform"]').val("log2")
       $('span[name="transform_text"]').text(" - log2 transformed")
     } else {
       if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
-        log10_normalize_data(zero_to_one_vals_exist)
+        do_transform("log10")
         $('input[name="transform"]').val("log10")
         $('span[name="transform_text"]').text(" - log10 transformed")
       }
@@ -802,26 +796,26 @@ normalize_data = function() {
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
     if ($('input[name="transform"]').val() != "sqrt") {
-      sqrt_normalize_data()
+      do_transform("sqrt")
       $('input[name="transform"]').val("sqrt")
       $('span[name="transform_text"]').text(" - Square Root transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'invert'){
-    invert_data()
+    do_transform("invert")
     $('input[name="transform"]').val("inverted")
     $('span[name="transform_text"]').text(" - Inverted")
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
-      qnorm_data()
+      do_transform("qnorm")
       $('input[name="transform"]').val("qnorm")
       $('span[name="transform_text"]').text(" - Quantile Normalized")
     }
   }
   else if ($('#norm_method option:selected').val() == 'zscore'){
     if ($('input[name="transform"]').val() != "zscore") {
-      zscore_data()
+      do_transform("zscore")
       $('input[name="transform"]').val("zscore")
       $('span[name="transform_text"]').text(" - Z-Scores")
     }
