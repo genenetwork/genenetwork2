@@ -497,7 +497,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         for i, field in enumerate(dataset.display_fields):
             holder = trait_info[i]
             if isinstance(holder, bytes):
-                holder = holder.decode('utf-8')
+                holder = holder.decode("utf-8", errors="ignore")
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
