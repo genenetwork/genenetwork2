@@ -2,7 +2,7 @@
 
 // ZS: This variable is just created to get the column position of the first case attribute (if case attributes exist), since it's needed to set the row classes in createdRow for the DataTable
 var attribute_start_pos = 3;
-if (js_data.se_exists === true) {
+if (js_data.se_exists) {
   attribute_start_pos += 2;
 }
 if (js_data.has_num_cases === true) {
@@ -48,7 +48,7 @@ build_columns = function() {
     }
   ];
 
-  if (js_data.se_exists === true) {
+  if (js_data.se_exists) {
     column_list.push(
       {
         'bSortable': false,
@@ -130,7 +130,7 @@ var primary_table = $('#samples_primary').DataTable( {
       $('td', row).eq(1).addClass("column_name-Index")
       $('td', row).eq(2).addClass("column_name-Sample")
       $('td', row).eq(3).addClass("column_name-Value")
-      if (js_data.se_exists === true) {
+      if (js_data.se_exists) {
         $('td', row).eq(5).addClass("column_name-SE")
         if (js_data.has_num_cases === "true") {
           $('td', row).eq(6).addClass("column_name-num_cases")
@@ -188,7 +188,7 @@ if (js_data.sample_lists.length > 1){
         $('td', row).eq(1).addClass("column_name-Index")
         $('td', row).eq(2).addClass("column_name-Sample")
         $('td', row).eq(3).addClass("column_name-Value")
-        if (js_data.se_exists === true) {
+        if (js_data.se_exists) {
           $('td', row).eq(5).addClass("column_name-SE")
           if (js_data.has_num_cases === "true") {
             $('td', row).eq(6).addClass("column_name-num_cases")
