@@ -667,53 +667,91 @@ $('#block_outliers').click(block_outliers);
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      $(element).val($(element).data('value'));
-      return $(element).parents('.value_se').show();
-    };
-  })(this));
+
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0];
+        this_node.value = this_node.attributes["data-value"].value;
+      }
+      if (js_data.se_exists){
+        se_nodes = table_api.column(5).nodes().to$();
+        for (i = 0; i < val_nodes.length; i++) {
+          this_node = val_nodes[i].childNodes[0];
+          this_node.value = this_node.attributes["data-value"].value;
+        }
+      }
+    }
+  }
 };
 $('.reset').click(function() {
   reset_samples_table();
   edit_data_change();
 });
 
+check_for_zero_to_one_vals = function() {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0];
+        if(!isNaN(this_node.value)) {
+          if (0 <= this_node.value && this_node.value < 1){
+            return true
+          }
+        }
+      }
+    }
+  }
+  return false
+}
+
 log2_data = function(this_node) {
   current_value = this_node.value;
-  if(!isNaN(current_value)) {
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
     if (zero_to_one_vals_exist){
-      current_value = parseFloat(current_value) + 1;
+      original_value = parseFloat(original_value) + 1;
     }
-    this_node.value = Math.log2(current_value).toFixed(3);
+    this_node.value = Math.log2(original_value).toFixed(3);
   }
 };
 
 log10_data = function() {
   current_value = this_node.value;
-  if(!isNaN(current_value)) {
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
     if (zero_to_one_vals_exist){
-      current_value = parseFloat(current_value) + 1;
+      original_value = parseFloat(original_value) + 1;
     }
-    this_node.value = Math.log10(current_value).toFixed(3);
+    this_node.value = Math.log10(original_value).toFixed(3);
   }
 };
 
-
 sqrt_data = function() {
   current_value = this_node.value;
-  if(!isNaN(current_value)) {
-    this_node.value = Math.sqrt(current_value).toFixed(3);
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.sqrt(original_value).toFixed(3);
   }
 };
 
 invert_data = function() {
   current_value = this_node.value;
   if(!isNaN(current_value)) {
-    this_node.value = -(current_value);
+    this_node.value = parseFloat(-(current_value)).toFixed(3);
   }
 };
-
 
 qnorm_data = function() {
   current_value = this_node.value;
@@ -725,28 +763,11 @@ qnorm_data = function() {
 
 zscore_data = function() {
   current_value = this_node.value;
-  qnorm_value = this_node.attributes['data-zscore'].value;
+  zscore_value = this_node.attributes['data-zscore'].value;
   if(!isNaN(current_value)) {
-    this_node.value = qnorm_value;
+    this_node.value = zscore_value;
   }
 };
-
-check_for_zero_to_one_vals = function() {
-  zero_to_one_vals_exist = false
-  $('.trait_value_input').each(function() {
-    current_value = $(this).data("value")
-    if(isNaN(current_value)) {
-      return true;
-    } else {
-      current_value = parseFloat(current_value)
-      if (0 <= current_value && current_value < 1){
-        zero_to_one_vals_exist = true
-        return false
-      }
-    }
-  });
-  return zero_to_one_vals_exist
-}
 
 do_transform = function(transform_type) {
   tables = ['samples_primary', 'samples_other'];
@@ -804,7 +825,12 @@ normalize_data = function() {
   else if ($('#norm_method option:selected').val() == 'invert'){
     do_transform("invert")
     $('input[name="transform"]').val("inverted")
-    $('span[name="transform_text"]').text(" - Inverted")
+    if ($('span[name="transform_text"]:eq(0)').text() != ""){
+      current_text = $('span[name="transform_text"]:eq(0)').text();
+      $('span[name="transform_text"]').text(current_text + " + Inverted");
+    } else {
+      $('span[name="transform_text"]').text(" - Inverted")
+    }
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
@@ -822,11 +848,10 @@ normalize_data = function() {
   }
 }
 
-zero_to_one_vals_exist = false
+zero_to_one_vals_exist = check_for_zero_to_one_vals();
 
 show_transform_warning = function() {
   transform_type = $('#norm_method option:selected').val()
-  zero_to_one_vals_exist = check_for_zero_to_one_vals();
   if (transform_type == "log2" || transform_type == "log10"){
     if (zero_to_one_vals_exist){
       $('#transform_alert').css("display", "block")
