@@ -806,12 +806,12 @@ normalize_data = function() {
     if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
       do_transform("log2")
       $('input[name="transform"]').val("log2")
-      $('span[name="transform_text"]').text(" - log2 transformed")
+      $('span[name="transform_text"]').text(" - log2 Transformed")
     } else {
       if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
         do_transform("log10")
         $('input[name="transform"]').val("log10")
-        $('span[name="transform_text"]').text(" - log10 transformed")
+        $('span[name="transform_text"]').text(" - log10 Transformed")
       }
     }
   }
@@ -819,7 +819,7 @@ normalize_data = function() {
     if ($('input[name="transform"]').val() != "sqrt") {
       do_transform("sqrt")
       $('input[name="transform"]').val("sqrt")
-      $('span[name="transform_text"]').text(" - Square Root transformed")
+      $('span[name="transform_text"]').text(" - Square Root Transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'invert'){
@@ -827,7 +827,7 @@ normalize_data = function() {
     $('input[name="transform"]').val("inverted")
     if ($('span[name="transform_text"]:eq(0)').text() != ""){
       current_text = $('span[name="transform_text"]:eq(0)').text();
-      $('span[name="transform_text"]').text(current_text + " + Inverted");
+      $('span[name="transform_text"]').text(current_text + " and Inverted");
     } else {
       $('span[name="transform_text"]').text(" - Inverted")
     }
