@@ -50,7 +50,7 @@ from wqflask.search_results import SearchResultPage
 from wqflask.export_traits import export_search_results_csv
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
-from wqflask.docs import Docs
+from wqflask.docs import Docs, update_text
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
@@ -350,7 +350,7 @@ def environments():
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
-    docs.update_text(request.form)
+    update_text(request.form)
     doc = Docs(request.form['entry_type'], request.form)
     return render_template("docs.html", **doc.__dict__)
 
