@@ -28,6 +28,7 @@ import utility.logger
 
 from base import data_set
 from functools import reduce
+from functools import cmp_to_key
 from rpy2.robjects.packages import importr
 
 from utility import webqtlUtil
@@ -268,7 +269,7 @@ def sortEigenVectors(vector):
         for item in eigenValues:
             combines.append([eigenValues[i], eigenVectors[i]])
             i += 1
-        combines.sort(webqtlUtil.cmpEigenValue)
+        sorted(combines, key=cmp_to_key(webqtlUtil.cmpEigenValue))
         A = []
         B = []
         for item in combines:
