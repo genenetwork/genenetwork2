@@ -22,33 +22,24 @@ import datetime
 import math
 import numpy as np
 import scipy
-
-from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
+import utility.webqtlUtil  # this is for parallel computing only.
+import utility.logger
 
-from pprint import pformat as pf
-
-from utility.redis_tools import get_redis_conn
+from base import data_set
 from functools import reduce
+from rpy2.robjects.packages import importr
+
+from utility import webqtlUtil
+from utility import helper_functions
+from utility import corr_result_helpers
+from utility.redis_tools import get_redis_conn
+
+logger = utility.logger.getLogger(__name__)
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
-from utility.THCell import THCell
-from utility.TDCell import TDCell
-from base.trait import GeneralTrait
-from base import data_set
-from utility import webqtlUtil, helper_functions, corr_result_helpers
-
-from db import webqtlDatabaseFunction
-import utility.webqtlUtil #this is for parallel computing only.
-from wqflask.correlation import correlation_functions
-from utility.benchmark import Bench
-
-from flask import Flask, g, url_for
-
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
 
 class CorrelationMatrix(object):
 
