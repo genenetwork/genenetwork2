@@ -25,16 +25,16 @@ def manage_resource():
         group_masks_with_names = get_group_names(group_masks)
         default_mask = resource_info['default_mask']['data']
         owner_id = resource_info['owner_id']
-        owner_info = get_user_by_unique_column("user_id", owner_id)
 
-        if 'name' in owner_info:
-            owner_display_name = owner_info['full_name']
-        elif 'user_name' in owner_info:
-            owner_display_name = owner_info['user_name']
-        elif 'email_address' in owner_info:
-            owner_display_name = owner_info['email_address']
-        else:
-            owner_display_name = None
+        owner_display_name = None
+        if owner_id != "none":
+            owner_info = get_user_by_unique_column("user_id", owner_id)
+            if 'name' in owner_info:
+                owner_display_name = owner_info['full_name']
+            elif 'user_name' in owner_info:
+                owner_display_name = owner_info['user_name']
+            elif 'email_address' in owner_info:
+                owner_display_name = owner_info['email_address']
 
         return render_template("admin/manage_resource.html", owner_name = owner_display_name, resource_id = resource_id, resource_info=resource_info, default_mask=default_mask, group_masks=group_masks_with_names, admin_status=admin_status)
 
