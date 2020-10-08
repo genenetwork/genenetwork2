@@ -143,7 +143,7 @@ class CTL(object):
         #r_write_table(rPheno, "~/outputGN/pheno.csv")
 
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, ncores = 6)
+        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, nthreads=6)
 
         # Get significant interactions
         significant = self.r_CTLsignificant(res, significance = significance)
