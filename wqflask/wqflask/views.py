@@ -164,7 +164,7 @@ def tmp_page(img_path):
     logger.info("initial_start_vars:", initial_start_vars)
     imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
-    imgB64 = imgdata.encode("base64")
+    imgB64 = base64.b64encode(imgdata)
     bytesarray = array.array('B', imgB64)
     return render_template("show_image.html",
                             img_base64 = bytesarray )
@@ -790,7 +790,7 @@ def mapping_results_page():
                     logger.info("initial_start_vars:", initial_start_vars)
                     imgfile = open(TEMPDIR + img_path, 'rb')
                     imgdata = imgfile.read()
-                    imgB64 = imgdata.encode("base64")
+                    imgB64 = base64.b64encode(imgdata)
                     bytesarray = array.array('B', imgB64)
                     result['pair_scan_array'] = bytesarray
                     rendered_template = render_template("pair_scan_results.html", **result)
