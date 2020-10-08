@@ -144,7 +144,7 @@
                         <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</TD>
                         <td data-export="{{ trait.location_repr }}" style="white-space: nowrap;">{{ trait.location_repr }}</td>
                         <td data-export="{{ '%0.3f' % trait.mean|float }}" align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2={% if trait.dataset.name == 'Temp' %}Temp_{{ trait.dataset.group.name }}{% else %}{{ trait.dataset.name }}{% endif %}&trait_1={{ this_trait.name }}&trait_2={{ trait.name }}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
                         <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
                         <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                         {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
@@ -164,15 +164,15 @@
                         <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Publish" %}
                         {% if trait.abbreviation %}
-                        <TD title="{{ trait.abbreviation }}" data-export="{{ trait.abbreviation }}">{% if trait.abbreviation|length > 20 %}{{ trait.abbreviation[:20] }}...{% else %}{{ trait.abbreviation }}{% endif %}</TD>
+                        <td title="{{ trait.abbreviation }}" data-export="{{ trait.abbreviation }}">{% if trait.abbreviation|length > 20 %}{{ trait.abbreviation[:20] }}...{% else %}{{ trait.abbreviation }}{% endif %}</td>
                         {% else %}
-                        <TD data-export="N/A">N/A</TD>
+                        <td data-export="N/A">N/A</td>
                         {% endif %}
                         <td data-export="{{ trait.description_display }}">{% if trait.description_display|length > 70 %}{{ trait.description_display[:70] }}...{% else %}{{ trait.description_display }}{% endif %}</td>
                         {% if trait.authors %}
                         <td data-export="{{ trait.authors }}">{% if trait.authors.split(',') > 6 %}{{ trait.authors.split(',')[:6]|join(', ') }}, et al.{% else %}{{ trait.authors }}{% endif %}</td>
                         {% else %}
-                        <TD data-export="N/A">N/A</TD>
+                        <td data-export="N/A">N/A</td>
                         {% endif %}
                         <td data-export="{{ trait.pubmed_text }}">
                             {% if trait.pubmed_text != "N/A" %}
@@ -183,7 +183,7 @@
                             {{ trait.pubmed_text }}
                             {% endif %}
                         </td>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2={{ trait.dataset.name }}&trait_1={{ this_trait.name }}&trait_2={{ trait.name }}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
                         <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
                         <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                         <td data-export="{{ trait.LRS_score_repr }}" align="right">{{ trait.LRS_score_repr }}</td>
@@ -191,7 +191,7 @@
                         <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
                       {% elif target_dataset.type == "Geno" %}
                         <td data-export="{{ trait.location_repr }}" align="right">{{ trait.location_repr }}</TD>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={{dataset.name}}&dataset_2={{trait.dataset.name}}&trait_1={{this_trait.name}}&trait_2={{trait.name}}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
+                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2={{ trait.dataset.name }}&trait_1={{ this_trait.name }}&trait_2={{ trait.name }}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
                         <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
                         <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
                       {% endif %}
