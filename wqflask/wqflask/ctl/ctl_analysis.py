@@ -186,8 +186,8 @@ class CTL(object):
             self.addNode(gtT)
             self.addEdge(gtS, gtT, significant, x)
 
-            significant[0][x] = gtS.symbol + " (" + gtS.name + ")"                    # Update the trait name for the displayed table
-            significant[2][x] = gtT.symbol + " (" + gtT.name + ")"                    # Update the trait name for the displayed table
+            significant[0][x] = "{} ({})".format(gtS.symbol, gtS.name)                    # Update the trait name for the displayed table
+            significant[2][x] = "{} ({})".format(gtT.symbol, gtT.name)                    # Update the trait name for the displayed table
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
 
