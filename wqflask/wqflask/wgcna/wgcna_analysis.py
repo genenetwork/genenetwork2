@@ -4,8 +4,8 @@ import base64
 import sys
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
-import array
 
+from array import array as arr
 from numpy import *
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from rpy2.robjects.packages import importr
@@ -164,8 +164,8 @@ class WGCNA(object):
         print(("pre-loading imgage results:", self.results['imgloc']))
         imgfile = open(self.results['imgloc'], 'rb')
         imgdata = imgfile.read()
-        bytesarray = array.array('B', imgB64)
         imgB64 = base64.b64encode(imgdata)
+        bytesarray = arr('B', imgB64)
         self.results['imgdata'] = bytesarray
 
     def process_results(self, results):
