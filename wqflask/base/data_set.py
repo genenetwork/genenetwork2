@@ -1173,40 +1173,6 @@ class TempDataSet(DataSet):
         self.fullname = 'Temporary Storage'
         self.shortname = 'Temp'
 
-    @staticmethod
-    def handle_pca(desc):
-        if 'PCA' in desc:
-            # Todo: Modernize below lines
-            desc = desc[desc.rindex(':')+1:].strip()
-        else:
-            desc = desc[:desc.index('entered')].strip()
-        return desc
-
-    def get_desc(self):
-        query = 'SELECT description FROM Temp WHERE Name=%s' % self.name
-        logger.sql(query)
-        g.db.execute(query)
-        desc = g.db.fetchone()[0]
-        desc = self.handle_pca(desc)
-        return desc
-
-    def retrieve_sample_data(self, trait):
-        query = """
-                SELECT
-                        Strain.Name, TempData.value, TempData.SE, TempData.NStrain, TempData.Id
-                FROM
-                        TempData, Temp, Strain
-                WHERE
-                        TempData.StrainId = Strain.Id AND
-                        TempData.Id = Temp.DataId AND
-                        Temp.name = '%s'
-                Order BY
-                        Strain.Name
-                """ % escape(trait.name)
-
-        logger.sql(query)
-        results = g.db.execute(query).fetchall()
-
 
 def geno_mrna_confidentiality(ob):
     dataset_table = ob.type + "Freeze"

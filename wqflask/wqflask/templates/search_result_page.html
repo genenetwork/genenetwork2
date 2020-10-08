@@ -127,7 +127,7 @@
               <input type="hidden" name="export_data" id="export_data" value="">
               <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select</button>
               <button class="btn btn-success" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-              <button class="btn btn-default" id="export_traits">Download CSV</button>
+              <button class="btn btn-default" id="export_traits">Download <span class="glyphicon glyphicon-download"></span></button>
               <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
               <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
               <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
@@ -274,10 +274,9 @@
                     },
                     {
                       'title': "Record",
-                      'type': "natural",
+                      'type': "natural-minus-na",
                       'data': null,
                       'width': "60px",
-                      'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
                         return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
                       }
@@ -315,20 +314,20 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "80px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Max LRS Location",
+                      'title': "Peak Location",
                       'type': "natural-minus-na",
-                      'width': "150px",
+                      'width': "120px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Effect Size<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "additive",
                       'width': "120px",
@@ -367,17 +366,11 @@
                           author_string = data.authors
                         }
                         return author_string
-                        // try {
-                        //   return decodeURIComponent(escape(author_string))
-                        // } catch(err){
-                        //   return author_string
-                        // }
                       }
                     },
                     {
                       'title': "Year",
                       'type': "natural-minus-na",
-                      'orderDataType': "dom-inner-text",
                       'data': null,
                       'width': "80px",
                       'render': function(data, type, row, meta) {
@@ -390,20 +383,20 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "80px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Max LRS Location",
+                      'title': "Peak Location",
                       'type': "natural-minus-na",
-                      'width': "150px",
+                      'width': "120px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Additive Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Effect Size<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'width': "120px",
                       'data': "additive",
@@ -412,7 +405,7 @@
                     {
                       'title': "Location",
                       'type': "natural-minus-na",
-                      'width': "140px",
+                      'width': "120px",
                       'data': "location"
                     }{% endif %}
                 ],

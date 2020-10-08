@@ -29,15 +29,7 @@ import array
 import sqlalchemy
 from wqflask import app
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
-from wqflask import group_manager
-from wqflask import resource_manager
-from wqflask import search_results
-from wqflask import export_traits
-from wqflask import gsearch
-from wqflask import update_search_results
-from wqflask import docs
-from wqflask import news
-from wqflask import db_info
+
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
@@ -54,6 +46,12 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 from wqflask.snp_browser import snp_browser
+from wqflask.search_results import SearchResultPage
+from wqflask.export_traits import export_search_results_csv
+from wqflask.gsearch import GSearch
+from wqflask.update_search_results import GSearch as UpdateGSearch
+from wqflask.docs import Docs, update_text
+from wqflask.db_info import InfoPage
 
 from utility import temp_data
 from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
@@ -66,9 +64,6 @@ from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
-
-from wqflask import user_login
-from wqflask import user_session
 
 from wqflask import collect
 from wqflask.database import db_session
@@ -216,7 +211,7 @@ def search_page():
         logger.info("Skipping Redis cache (USE_REDIS=False)")
 
     logger.info("request.args is", request.args)
-    the_search = search_results.SearchResultPage(request.args)
+    the_search = SearchResultPage(request.args)
     result = the_search.__dict__
     valid_search = result['search_term_exists']
 
@@ -234,7 +229,7 @@ def search_page():
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
     logger.info(request.url)
-    result = gsearch.GSearch(request.args).__dict__
+    result = GSearch(request.args).__dict__
     type = request.args['type']
     if type == "gene":
         return render_template("gsearch_gene.html", **result)
@@ -245,7 +240,7 @@ def gsearchact():
 def gsearch_updating():
     logger.info("REQUEST ARGS:", request.values)
     logger.info(request.url)
-    result = update_search_results.GSearch(request.args).__dict__
+    result = UpdateGSearch(request.args).__dict__
     return result['results']
     # type = request.args['type']
     # if type == "gene":
@@ -258,7 +253,7 @@ def docedit():
     logger.info(request.url)
     try:
         if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
-            doc = docs.Docs(request.args['entry'], request.args)
+            doc = Docs(request.args['entry'], request.args)
             return render_template("docedit.html", **doc.__dict__)
         else:
             return "You shouldn't be here!"
@@ -274,7 +269,7 @@ def generated_file(filename):
 @app.route("/help")
 def help():
     logger.info(request.url)
-    doc = docs.Docs("help", request.args)
+    doc = Docs("help", request.args)
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/wgcna_setup", methods=('POST',))
@@ -309,54 +304,54 @@ def ctl_results():
 
 @app.route("/news")
 def news():
-    doc = docs.Docs("news", request.args)
+    doc = Docs("news", request.args)
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/references")
 def references():
-    doc = docs.Docs("references", request.args)
+    doc = Docs("references", request.args)
     return render_template("docs.html", **doc.__dict__)
     #return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
-    doc = docs.Docs("intro", request.args)
+    doc = Docs("intro", request.args)
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/policies")
 def policies():
-    doc = docs.Docs("policies", request.args)
+    doc = Docs("policies", request.args)
     #return render_template("policies.html")
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/links")
 def links():
-    #doc = docs.Docs("links", request.args)
+    #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("links.html")
 
 @app.route("/tutorials")
 def tutorials():
-    #doc = docs.Docs("links", request.args)
+    #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("tutorials.html")
 
 @app.route("/credits")
 def credits():
-    #doc = docs.Docs("links", request.args)
+    #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("credits.html")
 
 @app.route("/environments")
 def environments():
-    doc = docs.Docs("environments", request.args)
+    doc = Docs("environments", request.args)
     return render_template("docs.html", **doc.__dict__)
     #return render_template("environments.html", **doc.__dict__)
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
-    docs.update_text(request.form)
-    doc = docs.Docs(request.form['entry_type'], request.form)
+    update_text(request.form)
+    doc = Docs(request.form['entry_type'], request.form)
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/submit_trait")
@@ -371,7 +366,7 @@ def create_temp_trait():
 
     #template_vars = submit_trait.SubmitTrait(request.form)
 
-    doc = docs.Docs("links")
+    doc = Docs("links")
     return render_template("links.html", **doc.__dict__)
     #return render_template("show_trait.html", **template_vars.__dict__)
 
@@ -426,7 +421,7 @@ def export_traits_csv():
     logger.info("In export_traits_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    file_list = export_traits.export_search_results_csv(request.form)
+    file_list = export_search_results_csv(request.form)
 
     if len(file_list) > 1:
         now = datetime.datetime.now()
@@ -911,7 +906,7 @@ def snp_browser_page():
 
 @app.route("/db_info", methods=('GET',))
 def db_info_page():
-    template_vars = db_info.InfoPage(request.args)
+    template_vars = InfoPage(request.args)
 
     return render_template("info_page.html", **template_vars.__dict__)
 

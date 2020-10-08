@@ -507,13 +507,14 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             description_string = unicode(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
             target_string = unicode(str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
-            if len(description_string) > 1 and description_string != 'None':
+            if str(description_string or "") != "" and description_string != 'None':
                 description_display = description_string
             else:
                 description_display = trait.symbol
 
-            if (len(description_display) > 1 and description_display != 'N/A' and
-                    len(target_string) > 1 and target_string != 'None'):
+            if (str(description_display or "") != "" and
+                description_display != 'N/A' and
+                str(target_string or "") != "" and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
@@ -599,10 +600,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                         trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                 else:
                     trait.locus = trait.lrs = trait.additive = ""
-
-            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and trait.locus_chr != "" and trait.locus_mb != "":
+            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
                 trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (trait.locus_chr, float(trait.locus_mb))
-                if trait.lrs != "":
+                if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
         raise KeyError, `trait.name`+' information is not found in the database.'

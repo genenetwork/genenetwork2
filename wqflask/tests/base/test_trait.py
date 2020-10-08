@@ -96,6 +96,140 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         test_trait = retrieve_trait_info(trait=mock_trait,
                                          dataset=mock_dataset)
         self.assertEqual(test_trait.abbreviation,
-                         "ファイルを画面毎に見て行くには、次のコマンドを使います。")
+                         "ファイルを画面毎に見て行くには、次のコマンドを使います。".decode('utf-8'))
         self.assertEqual(test_trait.authors,
-                         "Jane Doe かいと")
+                         "Jane Doe かいと".decode('utf-8'))
+
+    @mock.patch('base.trait.requests.get')
+    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.get_resource_id')
+    def test_retrieve_trait_info_with_non_empty_lrs(self,
+                                                    resource_id_mock,
+                                                    g_mock,
+                                                    requests_mock):
+        """Test """
+        resource_id_mock.return_value = 1
+        g_mock.db.execute.return_value.fetchone = mock.Mock()
+        g_mock.db.execute.return_value.fetchone.side_effect = [
+            [1, 2, 3, 4],  # trait_info = g.db.execute(query).fetchone()
+            [1, 2.37, 3, 4, 5],  # trait_qtl = g.db.execute(query).fetchone()
+            [2.7333, 2.1204]  # trait_info = g.db.execute(query).fetchone()
+        ]
+        requests_mock.return_value = None
+
+        mock_dataset = mock.MagicMock()
+        type(mock_dataset).display_fields = mock.PropertyMock(
+            return_value=["a", "b", "c", "d"])
+        type(mock_dataset).type = "ProbeSet"
+        type(mock_dataset).name = "RandomName"
+
+        mock_trait = MockTrait(
+            dataset=mock_dataset,
+            pre_publication_description="test_string"
+        )
+        trait_attrs = {
+            "description": "some description",
+            "probe_target_description": "some description",
+            "cellid": False,
+            "chr": 2.733,
+            "mb": 2.1204
+        }
+
+        for key, val in list(trait_attrs.items()):
+            setattr(mock_trait, key, val)
+        test_trait = retrieve_trait_info(trait=mock_trait,
+                                         dataset=mock_dataset,
+                                         get_qtl_info=True)
+        self.assertEqual(test_trait.LRS_score_repr,
+                         "2.4")
+
+    @mock.patch('base.trait.requests.get')
+    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.get_resource_id')
+    def test_retrieve_trait_info_with_empty_lrs_field(self,
+                                                      resource_id_mock,
+                                                      g_mock,
+                                                      requests_mock):
+        """Test retrieve trait info with empty lrs field"""
+        resource_id_mock.return_value = 1
+        g_mock.db.execute.return_value.fetchone = mock.Mock()
+        g_mock.db.execute.return_value.fetchone.side_effect = [
+            [1, 2, 3, 4],  # trait_info = g.db.execute(query).fetchone()
+            [1, None, 3, 4, 5],  # trait_qtl = g.db.execute(query).fetchone()
+            [2, 3]  # trait_info = g.db.execute(query).fetchone()
+        ]
+        requests_mock.return_value = None
+
+        mock_dataset = mock.MagicMock()
+        type(mock_dataset).display_fields = mock.PropertyMock(
+            return_value=["a", "b", "c", "d"])
+        type(mock_dataset).type = "ProbeSet"
+        type(mock_dataset).name = "RandomName"
+
+        mock_trait = MockTrait(
+            dataset=mock_dataset,
+            pre_publication_description="test_string"
+        )
+        trait_attrs = {
+            "description": "some description",
+            "probe_target_description": "some description",
+            "cellid": False,
+            "chr": 2.733,
+            "mb": 2.1204
+        }
+
+        for key, val in list(trait_attrs.items()):
+            setattr(mock_trait, key, val)
+        test_trait = retrieve_trait_info(trait=mock_trait,
+                                         dataset=mock_dataset,
+                                         get_qtl_info=True)
+        self.assertEqual(test_trait.LRS_score_repr,
+                         "N/A")
+        self.assertEqual(test_trait.LRS_location_repr,
+                         "Chr2: 3.000000")
+
+    @mock.patch('base.trait.requests.get')
+    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.get_resource_id')
+    def test_retrieve_trait_info_with_empty_chr_field(self,
+                                                      resource_id_mock,
+                                                      g_mock,
+                                                      requests_mock):
+        """Test retrieve trait info with empty chr field"""
+        resource_id_mock.return_value = 1
+        g_mock.db.execute.return_value.fetchone = mock.Mock()
+        g_mock.db.execute.return_value.fetchone.side_effect = [
+            [1, 2, 3, 4],  # trait_info = g.db.execute(query).fetchone()
+            [1, 2, 3, 4, 5],  # trait_qtl = g.db.execute(query).fetchone()
+            [None, 3]  # trait_info = g.db.execute(query).fetchone()
+        ]
+
+        requests_mock.return_value = None
+
+        mock_dataset = mock.MagicMock()
+        type(mock_dataset).display_fields = mock.PropertyMock(
+            return_value=["a", "b", "c", "d"])
+        type(mock_dataset).type = "ProbeSet"
+        type(mock_dataset).name = "RandomName"
+
+        mock_trait = MockTrait(
+            dataset=mock_dataset,
+            pre_publication_description="test_string"
+        )
+        trait_attrs = {
+            "description": "some description",
+            "probe_target_description": "some description",
+            "cellid": False,
+            "chr": 2.733,
+            "mb": 2.1204
+        }
+
+        for key, val in list(trait_attrs.items()):
+            setattr(mock_trait, key, val)
+        test_trait = retrieve_trait_info(trait=mock_trait,
+                                         dataset=mock_dataset,
+                                         get_qtl_info=True)
+        self.assertEqual(test_trait.LRS_score_repr,
+                         "N/A")
+        self.assertEqual(test_trait.LRS_location_repr,
+                         "N/A")
