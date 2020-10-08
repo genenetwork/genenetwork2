@@ -194,7 +194,7 @@ class CTL(object):
     def loadImage(self, path, name):
         imgfile = open(self.results[path], 'rb')
         imgdata = imgfile.read()
-        imgB64 = imgdata.encode("base64")
+        imgB64 = base64.b64encode(imgdata)
         bytesarray = array.array('B', imgB64)
         self.results[name] = bytesarray
 

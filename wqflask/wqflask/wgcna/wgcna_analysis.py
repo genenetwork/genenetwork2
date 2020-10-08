@@ -1,5 +1,6 @@
 # WGCNA analysis for GN2
 # Author / Maintainer: Danny Arends <Danny.Arends@gmail.com>
+import base64
 import sys
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
@@ -163,8 +164,8 @@ class WGCNA(object):
         print(("pre-loading imgage results:", self.results['imgloc']))
         imgfile = open(self.results['imgloc'], 'rb')
         imgdata = imgfile.read()
-        imgB64 = imgdata.encode("base64")
         bytesarray = array.array('B', imgB64)
+        imgB64 = base64.b64encode(imgdata)
         self.results['imgdata'] = bytesarray
 
     def process_results(self, results):
