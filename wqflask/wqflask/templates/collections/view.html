@@ -8,7 +8,7 @@
 {% block content %}
 <!-- Start of body -->
 
-    <div class="container" style="min-width: 2050px;">
+    <div class="container">
         <h1>
             <span id="collection_name">{{ uc.name }}</span>
             <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
@@ -85,7 +85,7 @@
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
-            <div>
+            <div style="min-width: 1500px;">
                 <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                     <thead>
                         <tr>
@@ -97,7 +97,7 @@
                             <th data-export="Description">Description</th>
                             <th data-export="Location">Location</th>
                             <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">Max LRS <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
+                            <th data-export="Max LRS">High P <a href="http://genenetwork.org//glossary.html#L" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
                             <th data-export="Peak Location">Peak Location</th>
                             <th data-export="Add. Eff.">Effect Size <a href="http://genenetwork.org//glossary.html#A" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
                         </tr>
@@ -195,11 +195,11 @@
                     { 'type': "natural-minus-na", "width": 120 },
                     { "type": "natural" },
                     { "type": "natural"  },
-                    { "type": "natural", "width": 130 },
-                    { "type": "natural", "width": 35 },
-                    { "type": "natural", "width": 35 },
-                    { "type": "natural", "width": 130 },
-                    { "type": "natural" }
+                    { "type": "natural", "width": 125 },
+                    { "type": "natural", "width": 60 },
+                    { "type": "natural", "width": 60 },
+                    { "type": "natural", "width": 125 },
+                    { "type": "natural", "width": 85 }
                 ],
                 "order": [[1, "asc" ]],
                 buttons: [
