@@ -376,7 +376,7 @@ def export_trait_excel():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = io.StringIO()
+    buff = io.BytesIO()
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     for i, row in enumerate(sample_data):
