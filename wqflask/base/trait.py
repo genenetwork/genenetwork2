@@ -132,7 +132,7 @@ class GeneralTrait(object):
 
     @property
     def description_fmt(self):
-        '''Return a text formated description'''
+        """Return a text formated description"""
         if self.dataset.type == 'ProbeSet':
             if self.description:
                 formatted = self.description
@@ -153,7 +153,7 @@ class GeneralTrait(object):
 
     @property
     def alias_fmt(self):
-        '''Return a text formatted alias'''
+        """Return a text formatted alias"""
 
         alias = 'Not available'
         if getattr(self, "alias", None):
@@ -164,7 +164,7 @@ class GeneralTrait(object):
 
     @property
     def wikidata_alias_fmt(self):
-        '''Return a text formatted alias'''
+        """Return a text formatted alias"""
 
         alias = 'Not available'
         if self.symbol:
@@ -194,12 +194,12 @@ class GeneralTrait(object):
 
     @property
     def location_fmt(self):
-        '''Return a text formatted location
+        """Return a text formatted location
 
         While we're at it we set self.location in case we need it
         later (do we?)
 
-        '''
+        """
 
         if self.chr and self.mb:
             self.location = 'Chr %s @ %s Mb' % (self.chr, self.mb)
@@ -542,7 +542,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
             if (str(description_display or "") != "" and
                 description_display != 'N/A' and
-                str(target_string or "") != "" and target_string != 'None'):
+                    str(target_string or "") != "" and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
@@ -631,7 +631,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 else:
                     trait.locus = trait.lrs = trait.additive = ""
             if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
-                trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (trait.locus_chr, float(trait.locus_mb))
+                trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
+                    trait.locus_chr, float(trait.locus_mb))
                 if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:

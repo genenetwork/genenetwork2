@@ -15,8 +15,15 @@ class CorrScatterPlot(object):
     """Page that displays a correlation scatterplot with a line fitted to it"""
 
     def __init__(self, params):
-        self.dataset_1 = data_set.create_dataset(params['dataset_1'])
-        self.dataset_2 = data_set.create_dataset(params['dataset_2'])
+        if "Temp" in params['dataset_1']:
+            self.dataset_1 = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = params['dataset_1'].split("_")[1])
+        else:
+            self.dataset_1 = data_set.create_dataset(params['dataset_1'])
+        if "Temp" in params['dataset_2']:
+            self.dataset_2 = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = params['dataset_2'].split("_")[1])
+        else:
+            self.dataset_2 = data_set.create_dataset(params['dataset_2'])
+
         #self.dataset_3 = data_set.create_dataset(params['dataset_3'])
         self.trait_1 = create_trait(name=params['trait_1'], dataset=self.dataset_1)
         self.trait_2 = create_trait(name=params['trait_2'], dataset=self.dataset_2)

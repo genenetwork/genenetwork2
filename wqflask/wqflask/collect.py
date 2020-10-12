@@ -1,38 +1,29 @@
-import os
 import hashlib
 import datetime
-import time
-
-import uuid
-import hashlib
-import base64
-
-import urllib.parse
-
 import simplejson as json
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, jsonify)
+from flask import g
+from flask import render_template
+from flask import url_for
+from flask import request
+from flask import redirect
+from flask import flash
 
 from wqflask import app
-
-from pprint import pformat as pf
-
-from wqflask.database import db_session
-
-from wqflask import model
-
-from utility import Bunch, Struct, hmac
+from utility import hmac
 from utility.formatting import numify
 from utility.redis_tools import get_redis_conn
-Redis = get_redis_conn()
 
-from base.trait import create_trait, retrieve_trait_info, jsonable
+from base.trait import create_trait
+from base.trait import retrieve_trait_info
+from base.trait import jsonable
 from base.data_set import create_dataset
 
-import logging
 from utility.logger import getLogger
+
 logger = getLogger(__name__)
+Redis = get_redis_conn()
+
 
 def process_traits(unprocessed_traits):
     if isinstance(unprocessed_traits, bytes):

@@ -9,7 +9,7 @@ class Docs(object):
 
     def __init__(self, entry, start_vars={}):
         sql = """
-            SELECT Docs.title, Docs.content
+            SELECT Docs.title, CAST(Docs.content AS BINARY)
             FROM Docs
             WHERE Docs.entry LIKE %s
             """
@@ -20,7 +20,7 @@ class Docs(object):
             self.content = ""
         else:
             self.title = result[0]
-            self.content = result[1].encode("latin1")
+            self.content = result[1]
 
         self.editable = "false"
         # ZS: Removing option to edit to see if text still gets vandalized

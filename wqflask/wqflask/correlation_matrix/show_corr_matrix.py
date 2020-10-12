@@ -124,7 +124,7 @@ class CorrelationMatrix(object):
 
                     if num_overlap < self.lowest_overlap:
                         self.lowest_overlap = num_overlap
-                    if num_overlap == 0:
+                    if num_overlap < 2:
                         corr_result_row.append([target_trait, 0, num_overlap])
                         pca_corr_result_row.append(0)
                     else:
