@@ -69,8 +69,8 @@ class WGCNA(object):
         self.r_enableWGCNAThreads()
         self.trait_db_list = [trait.strip()
                               for trait in requestform['trait_list'].split(',')]
-        print("Retrieved phenotype data from database",
-              requestform['trait_list'])
+        print(("Retrieved phenotype data from database",
+              requestform['trait_list']))
         helper_functions.get_trait_db_obs(self, self.trait_db_list)
 
         # self.input contains the phenotype values we need to send to R
@@ -125,14 +125,14 @@ class WGCNA(object):
             powers = [int(threshold.strip())
                       for threshold in requestform['SoftThresholds'].rstrip().split(",")]
             rpow = r_unlist(r_c(powers))
-            print("SoftThresholds: {} == {}".format(powers, rpow))
+            print(("SoftThresholds: {} == {}".format(powers, rpow)))
             self.sft = self.r_pickSoftThreshold(
                 rM, powerVector=rpow, verbose=5)
 
-            print("PowerEstimate: {}".format(self.sft[0]))
+            print(("PowerEstimate: {}".format(self.sft[0])))
             self.results['PowerEstimate'] = self.sft[0]
             if self.sft[0][0] is ri.NA_Integer:
-                print "No power is suitable for the analysis, just use 1"
+                print("No power is suitable for the analysis, just use 1")
                 # No power could be estimated
                 self.results['Power'] = 1
             else:
