@@ -16,7 +16,7 @@ build_columns = function() {
       'orderDataType': "dom-checkbox",
       'searchable' : false,
       'render': function(data, type, row, meta) {
-      return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
+      return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
       }
     },
     {
@@ -42,7 +42,7 @@ build_columns = function() {
         if (data.value == null) {
             return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
         } else {
-            return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+            return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
         }
       }
     }
@@ -66,9 +66,9 @@ build_columns = function() {
         'data': null,
         'render': function(data, type, row, meta) {
           if (data.variance == null) {
-              return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
+              return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
           } else {
-              return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
+              return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
           }
         }
       }
@@ -84,9 +84,9 @@ build_columns = function() {
         'data': null,
         'render': function(data, type, row, meta) {
           if (data.num_cases == null || data.num_cases == undefined) {
-              return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+              return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
           } else {
-              return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+              return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
           }
         }
       }
