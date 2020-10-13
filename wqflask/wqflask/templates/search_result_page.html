@@ -140,7 +140,6 @@
             <b>Show/Hide Columns:</b>
           </div>
           {% endif %}
-          <!--<div id="table_container" style="min-width: {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}2000{% else %}380{% endif %}px;">-->
           <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px;"{% endif %}>
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: {% if dataset.type == 'Geno' %}380px{% else %}100%{% endif %};">
                 <tbody>
@@ -290,7 +289,6 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         try {
@@ -303,7 +301,7 @@
                     {
                       'title': "Location",
                       'type': "natural-minus-na",
-                      'width': "120px",
+                      'width': "125px",
                       'data': "location"
                     },
                     {
@@ -314,23 +312,23 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'title': "High P<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
-                      'width': "80px",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Peak Location",
                       'type': "natural-minus-na",
-                      'width': "120px",
+                      'width': "125px",
                       'data': "lrs_location"
                     },
                     {
                       'title': "Effect Size<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "additive",
-                      'width': "120px",
+                      'width': "85px",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Publish' %},
                     {
