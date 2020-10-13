@@ -35,8 +35,13 @@ table.dataTable thead th, table.dataTable tfoot {
   padding: 4px 18px 4px 10px;
 }
 
+/* Header for a column with a numeric value that should be right-aligned */
+table.dataTable thead th div.numeric_header {
+  text-align: right;
+}
+
 table.dataTable tbody td {
-  padding: 4px 15px 2px 10px;
+  padding: 2px 15px 0px 10px;
 }
 
 table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
@@ -51,4 +56,29 @@ table.dataTable.cell-border tbody tr td:first-child {
 .glyphicon {
   position: relative;
   top: 2px;
+}
+
+.trait_page_main_div {
+  min-width: 700px;
+}
+
+table.dataTable tbody td.column_name-Checkbox {
+  padding: 3px 0px 0px 9px;
+  text-align: center;
+}
+
+table.dataTable tbody td.column_name-Index {
+  padding: 2px 4px 0px 2px;
+  text-align: right;
+}
+
+/* the column with +/- in it that appears in the table when there's an SE column */
+table.dataTable tbody td.column_name-PlusMinus {
+  padding-left: 2px;
+  padding-right: 2px;
+  text-align: center;
+}
+
+table.dataTable tbody td.column_name-Value, table.dataTable tbody td.column_name-SE, table.dataTable tbody td.column_name-num_cases {
+  text-align: right;
 }

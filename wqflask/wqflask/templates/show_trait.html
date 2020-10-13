@@ -37,7 +37,7 @@
         <input type="hidden" name="covariates" value="">
         <input type="hidden" name="transform" value="">
 
-        <div class="container" style="min-width: 700px;">
+        <div class="container trait_page_main_div">
             <div class="panel-group" id="accordion">
                 <div class="panel panel-default">
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true">
@@ -237,30 +237,22 @@
                     if (data.outlier) {
                       $(row).addClass("outlier");
                     }
-                    $('td', row).eq(0).attr("align", "center");
-                    $('td', row).eq(0).attr("style", "padding: 2px 0px 0px 2px;");
+                    $('td', row).eq(0).addClass("column_name-Checkbox")
                     $('td', row).eq(1).addClass("column_name-Index")
-                    $('td', row).eq(1).attr("align", "right");
-                    $('td', row).eq(1).attr("style", "padding: 2px 4px 0px 2px;");
                     $('td', row).eq(2).addClass("column_name-Sample")
                     $('td', row).eq(3).addClass("column_name-Value")
-                    $('td', row).eq(3).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% if sample_groups[0].se_exists() %}
-                    $('td', row).eq(4).attr("align", "center");
-                    $('td', row).eq(4).attr("style", "padding-left: 2px; padding-right: 2px;");
-                    $('td', row).eq(5).addClass("column_name-SE")
-                    $('td', row).eq(5).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
+                    $('td', row).eq(4).addClass("column_name-PlusMinus")
+                    $('td', row).eq(5).addClass("column_name-SE value_column")
                     {% if has_num_cases %}
                     $('td', row).eq(6).addClass("column_name-num_cases")
-                    $('td', row).eq(6).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% endif %} {% else %} {% if has_num_cases %}
                     $('td', row).eq(4).addClass("column_name-num_cases")
-                    $('td', row).eq(4).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% endif %} {% endif %}
                     {% if sample_groups[0].attributes|length > 0 %}
                     {% for attribute in sample_groups[0].attributes|sort() %}
                     $('td', row).eq(attribute_start_pos + {{ loop.index }}).addClass("column_name-{{ sample_groups[0].attributes[attribute].name }}")
-                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).attr("style", "text-align: {{ sample_groups[0].attributes[attribute].alignment }}; padding-top: 2px; padding-bottom: 0px;")
+                    $('td', row).eq(attribute_start_pos + {{ loop.index }}).attr("style", "text-align: {{ sample_groups[0].attributes[attribute].alignment }};")
                     {% endfor %}
                     {% endif %}
                   },
@@ -271,7 +263,7 @@
                       'orderDataType': "dom-checkbox",
                       'searchable' : false,
                       'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
+                        return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
                       }
                     },
                     {
@@ -289,15 +281,15 @@
                       }
                     },
                     {
-                      'title': "<div style='text-align: right;'>Value</div>",
+                      'title': "<div class='numeric_header'>Value</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.value == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% if sample_groups[0].se_exists() %},
@@ -311,28 +303,28 @@
                       }
                     },
                     {
-                      'title': "<div style='text-align: right;'>SE</div>",
+                      'title': "<div class='numeric_header'>SE</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.variance == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% endif %}{% if has_num_cases %},
                     {
-                      'title': "<div style='text-align: right;'>N</div>",
+                      'title': "<div class='numeric_header'>N</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.num_cases == null || data.num_cases == undefined) {
-                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
                         } else {
-                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
                         }
                       }
                     }{% endif %}{% if sample_groups[0].attributes|length > 0 %}{% for attribute in sample_groups[0].attributes|sort() %},
@@ -387,25 +379,16 @@
                     if (data.outlier) {
                       $(row).addClass("outlier");
                     }
-                    $('td', row).eq(0).attr("align", "center");
-                    $('td', row).eq(0).attr("style", "padding: 2px 0px 0px 2px;");
                     $('td', row).eq(1).addClass("column_name-Index")
-                    $('td', row).eq(1).attr("align", "right");
-                    $('td', row).eq(1).attr("style", "padding: 2px 4px 0px 2px;");
                     $('td', row).eq(2).addClass("column_name-Sample")
                     $('td', row).eq(3).addClass("column_name-Value")
-                    $('td', row).eq(3).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% if sample_groups[1].se_exists() %}
-                    $('td', row).eq(4).attr("align", "center");
-                    $('td', row).eq(4).attr("style", "padding-left: 2px; padding-right: 2px;");
+                    $('td', row).eq(4).addClass("column_name-PlusMinus")
                     $('td', row).eq(5).addClass("column_name-SE")
-                    $('td', row).eq(5).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% if has_num_cases %}
                     $('td', row).eq(6).addClass("column_name-num_cases")
-                    $('td', row).eq(6).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% endif %} {% else %} {% if has_num_cases %}
                     $('td', row).eq(4).addClass("column_name-num_cases")
-                    $('td', row).eq(4).attr("style", "text-align: right; padding-top: 2px; padding-bottom: 0px;");
                     {% endif %} {% endif %}
                     {% if sample_groups[1].attributes|length > 0 %}
                     {% for attribute in sample_groups[1].attributes|sort() %}
@@ -421,7 +404,7 @@
                       'orderDataType': "dom-checkbox",
                       'searchable' : false,
                       'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" style="min-height: 20px;" class="checkbox edit_sample_checkbox" value="">'
+                        return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
                       }
                     },
                     {
@@ -439,15 +422,15 @@
                       }
                     },
                     {
-                      'title': "<div style='text-align: right;'>Value</div>",
+                      'title': "<div class='numeric_header'>Value</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.value == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][1][parseInt(data.this_id)] + '" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][1][parseInt(data.this_id)] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% if sample_groups[1].se_exists() %},
@@ -461,28 +444,28 @@
                       }
                     },
                     {
-                      'title': "<div style='text-align: right;'>SE</div>",
+                      'title': "<div class='numeric_header'>SE</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.variance == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% endif %}{% if has_num_cases %},
                     {
-                      'title': "<div style='text-align: right;'>N</div>",
+                      'title': "<div class='numeric_header'>N</div>",
                       'orderDataType': "dom-input",
                       'type': "cust-txt",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.num_cases == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
                         } else {
-                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
                         }
                       }
                     }{% endif %}{% if sample_groups[1].attributes|length > 0 %}{% for attribute in sample_groups[1].attributes|sort() %},
