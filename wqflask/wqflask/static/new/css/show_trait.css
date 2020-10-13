@@ -82,3 +82,7 @@ table.dataTable tbody td.column_name-PlusMinus {
 table.dataTable tbody td.column_name-Value, table.dataTable tbody td.column_name-SE, table.dataTable tbody td.column_name-num_cases {
   text-align: right;
 }
+
+.btn_toolbar {
+  margin-bottom:15px;
+}
