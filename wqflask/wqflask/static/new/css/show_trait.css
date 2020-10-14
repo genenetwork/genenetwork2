@@ -1,17 +1,17 @@
 tr .outlier {
-    background-color: #ffff99;
+  background-color: #ffff99;
 }
 
 table.dataTable tbody tr.selected {
-    background-color: #ffee99;
+  background-color: #ffee99;
 }
 
 #bar_chart_container {
-    overflow-x:scroll;
+  overflow-x:scroll;
 }
 
 div.sample_group {
-    overflow: auto; # needed because it contains float dataTable wrapper
+  overflow: auto; # needed because it contains float dataTable wrapper
 }
 
 .js-plotly-plot .plotly .modebar {
@@ -58,7 +58,7 @@ table.dataTable.cell-border tbody tr td:first-child {
   top: 2px;
 }
 
-.trait_page_main_div {
+.showtrait-main-div {
   min-width: 700px;
 }
 
@@ -83,11 +83,12 @@ table.dataTable tbody td.column_name-Value, table.dataTable tbody td.column_name
   text-align: right;
 }
 
-div.btn_toolbar {
+div.btn-toolbar {
   margin-bottom:15px;
 }
 
-div.stats_form_div {
+/* div containing the form options for each segment of the trait page - correlations, statistics, mapping, etc */
+div.section-form-div {
   padding: 20px;
 }
 
@@ -95,6 +96,46 @@ table.left-float {
   float: left;
 }
 
-div.scatterplot_btn_div {
+div.scatterplot-btn-div {
   margin-bottom:40px;
+}
+
+div.correlation-main {
+  min-width: 1200px;
+}
+
+div.correlation-options {
+  min-width: 700px;
+}
+
+.min-expr-field {
+  width: 70px;
+}
+
+span.p-range-container {
+  display: inline;
+}
+
+div.p-range-slider {
+  width: 200px;
+  margin-left: 15px;
+}
+
+span.p-range-lower {
+  margin-top: 5px;
+  font: 400 12px Arial;
+  color: #888; 
+  display: inline-block;
+}
+
+span.p-range-upper {
+  font: 400 12px Arial;
+  color: #888;
+  display: inline-block;
+  margin: 5px 0px 0px 170px;
+}
+
+.corr-location {
+  width: 50px;
+  display: inline;
 }
