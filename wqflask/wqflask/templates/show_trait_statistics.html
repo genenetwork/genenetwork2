@@ -27,12 +27,12 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="stats_tab">
-                <div class="form-horizontal padding-20">
+                <div class="form-horizontal stats_form_div">
                         <table id="stats_table" style="width: {{ stats_table_width }}px;" class="table table-hover table-striped table-bordered left-float"></table>
                 </div>
             </div>
             <div class="tab-pane" id="histogram_tab">
-                <div class="form-horizontal padding-20">
+                <div class="form-horizontal stats_form_div">
                     {% if sample_groups|length != 1 %}
                     Select Group:
                     <select class="histogram_samples_group">
@@ -49,7 +49,7 @@
             </div>
             {% if num_values < 256 %}
             <div class="tab-pane" id="bar_chart_tab">
-                <div class="form-horizontal padding-20">
+                <div class="form-horizontal stats_form_div">
                     {% if sample_groups|length != 1 %}
                     Select Group:
                     <select class="bar_chart_samples_group">

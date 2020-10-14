@@ -87,7 +87,7 @@ div.btn_toolbar {
   margin-bottom:15px;
 }
 
-div.padding-20 {
+div.stats_form_div {
   padding: 20px;
 }
 
@@ -95,6 +95,6 @@ table.left-float {
   float: left;
 }
 
-div.margin-b-40 {
+div.scatterplot_btn_div {
   margin-bottom:40px;
 }
