@@ -83,6 +83,18 @@ table.dataTable tbody td.column_name-Value, table.dataTable tbody td.column_name
   text-align: right;
 }
 
-.btn_toolbar {
+div.btn_toolbar {
   margin-bottom:15px;
+}
+
+div.padding-20 {
+  padding: 20px;
+}
+
+table.left-float {
+  float: left;
+}
+
+div.margin-b-40 {
+  margin-bottom:40px;
 }
