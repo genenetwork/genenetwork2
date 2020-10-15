@@ -152,3 +152,60 @@ div.block-by-attribute-div {
 div.normalize-div {
   margin-top:10px;
 }
+
+div.mapping-main {
+  min-width: 1200px;
+}
+div.mapping-options {
+  min-width: 500px;
+}
+
+div.covar-options {
+  padding-top: 7px;
+}
+
+.control-label {
+  text-align: right;
+}
+
+.chr-select, .maf-select, .scale-select, .reaper-ver-select {
+  width: 80px;
+}
+
+span.covar-text {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+div.select-covar-div {
+  margin-bottom: 10px;
+}
+
+.select-covar-button {
+  width: 80px;
+  padding-right: 10px;
+}
+
+.selected-covariates {
+  overflow-y: scroll;
+  resize: none;
+  width: 200px;
+}
+
+.cofactor-input {
+  width: 160px;
+  display: inline-block;
+}
+
+.no-control-radio {
+  margin-left: 10px;
+}
+
+.map-method-text {
+  margin-top: 20px;
+}
+
+.rqtl-description {
+  padding-top: 40px;
+  display: none;
+}

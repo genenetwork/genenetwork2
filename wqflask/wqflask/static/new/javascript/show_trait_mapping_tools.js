@@ -154,7 +154,7 @@
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                             'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples']
 
-  $(".rqtl_tab, #rqtl_geno_compute").on("click", (function(_this) {
+  $(".rqtl-tab, #rqtl_geno_compute").on("click", (function(_this) {
     return function() {
       if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
         var form_data, url;
@@ -178,7 +178,7 @@
     };
   })(this));
   
-  $(".gemma_tab, #gemma_compute").on("click", (function(_this) {
+  $(".gemma-tab, #gemma_compute").on("click", (function(_this) {
     return function() {
       if ($(this).hasClass('active') || $(this).attr('id') == "gemma_compute"){
         var form_data, url;
@@ -199,7 +199,7 @@
     };
   })(this));
 
-  $(".reaper_tab, #interval_mapping_compute").on("click", (function(_this) {
+  $(".reaper-tab, #interval_mapping_compute").on("click", (function(_this) {
     return function() {
       if ($(this).hasClass('active') || $(this).attr('id') == "interval_mapping_compute"){
         var form_data, url;
@@ -267,11 +267,11 @@
     }
   });
 
-  $("li.mapping_tab").click(function() {
-    if ($(this).hasClass("rqtl")){
-      $(".rqtl_description").css("display", "block");
+  $("li.mapping-tab").click(function() {
+    if ($(this).hasClass("rqtl-geno-tab")){
+      $(".rqtl-description").css("display", "block");
     } else {
-      $(".rqtl_description").css("display", "none");
+      $(".rqtl-description").css("display", "none");
     }
   });
 
