@@ -2915,9 +2915,6 @@ class DisplayMappingResults(object):
                     name="selectCheck",
                     Class="checkbox trait_checkbox"))  # checkbox for each row
 
-                #ZS: May want to get this working again later
-                #webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
-
                 if theGO["GeneID"] != "":
                     geneSymbolNCBI = str(HtmlGenWrapper.create_link_tag(
                         "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={}".format(theGO["GeneID"]),
