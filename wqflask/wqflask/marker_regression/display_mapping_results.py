@@ -2806,9 +2806,17 @@ class DisplayMappingResults(object):
                     geneIdString = 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s' % theGO["GeneID"]
 
                     if theGO["snpCount"]:
-                        snpString = HT.Href(url="http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (theGO["Chromosome"],
-                                theGO["TxStart"], theGO["TxEnd"], theGO["GeneSymbol"], self.diffCol[0], self.diffCol[1]),
-                                text=theGO["snpCount"], target="_blank", Class="normalsize")
+                        snpString = HT.Link(
+                            (f"http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&"
+                             f"chr={theGO['Chromosome']}&"
+                             f"start={theGO['TxStart']}&"
+                             f"end={theGO['TxEnd']}&"
+                             f"geneName={theGO['GeneSymbol']}&"
+                             f"s1={self.diffCol[0]}&s2=%d"),
+                            theGO["snpCount"] # The text to display
+                        )
+                        snpString.set_blank_target()
+                        snpString.set_attribute("class", "normalsize")
                     else:
                         snpString = 0
 
