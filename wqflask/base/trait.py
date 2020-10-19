@@ -1,4 +1,10 @@
 from __future__ import absolute_import, division, print_function
+from utility.logger import getLogger
+from flask import Flask, g, request, url_for, redirect, make_response, render_template
+from pprint import pformat as pf
+from MySQLdb import escape_string as escape
+import simplejson as json
+from wqflask import app
 
 import os
 import string
@@ -16,22 +22,19 @@ from utility import webqtlUtil
 from utility import hmac
 from utility.authentication_tools import check_resource_availability
 from utility.tools import GN2_BASE_URL, GN_VERSION
-from utility.redis_tools import get_redis_conn, get_resource_id, get_resource_info
+from utility.redis_tools import get_redis_conn
+from utility.redis_tools import get_resource_id
+from utility.redis_tools import get_resource_info
+
 Redis = get_redis_conn()
 
-from wqflask import app
 
-import simplejson as json
-from MySQLdb import escape_string as escape
-from pprint import pformat as pf
+logger = getLogger(__name__)
 
-from flask import Flask, g, request, url_for, redirect, make_response, render_template
-
-from utility.logger import getLogger
-logger = getLogger(__name__ )
 
 def create_trait(**kw):
-    assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
+    assert bool(kw.get('dataset')) != bool(
+        kw.get('dataset_name')), "Needs dataset ob. or name"
 
     permitted = True
     if kw.get('name'):
@@ -43,17 +46,20 @@ def create_trait(**kw):
 
         if kw.get('dataset_name') != "Temp":
             if dataset.type == 'Publish':
-                permissions = check_resource_availability(dataset, kw.get('name'))
+                permissions = check_resource_availability(
+                    dataset, kw.get('name'))
             else:
                 permissions = check_resource_availability(dataset)
 
     if "view" in permissions['data']:
         the_trait = GeneralTrait(**kw)
         if the_trait.dataset.type != "Temp":
-            the_trait = retrieve_trait_info(the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
+            the_trait = retrieve_trait_info(
+                the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
         return the_trait
     else:
         return None
+
 
 class GeneralTrait(object):
     """
@@ -64,12 +70,15 @@ class GeneralTrait(object):
 
     def __init__(self, get_qtl_info=False, get_sample_info=True, **kw):
         # xor assertion
-        assert bool(kw.get('dataset')) != bool(kw.get('dataset_name')), "Needs dataset ob. or name";
-        self.name = kw.get('name')                 # Trait ID, ProbeSet ID, Published ID, etc.
+        assert bool(kw.get('dataset')) != bool(
+            kw.get('dataset_name')), "Needs dataset ob. or name"
+        # Trait ID, ProbeSet ID, Published ID, etc.
+        self.name = kw.get('name')
         if kw.get('dataset_name'):
             if kw.get('dataset_name') == "Temp":
                 temp_group = self.name.split("_")[2]
-                self.dataset = create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = temp_group)
+                self.dataset = create_dataset(
+                    dataset_name="Temp", dataset_type="Temp", group_name=temp_group)
             else:
                 self.dataset = create_dataset(kw.get('dataset_name'))
         else:
@@ -77,7 +86,8 @@ class GeneralTrait(object):
         self.cellid = kw.get('cellid')
         self.identification = kw.get('identification', 'un-named trait')
         self.haveinfo = kw.get('haveinfo', False)
-        self.sequence = kw.get('sequence')         # Blat sequence, available for ProbeSet
+        # Blat sequence, available for ProbeSet
+        self.sequence = kw.get('sequence')
         self.data = kw.get('data', {})
         self.view = True
 
@@ -125,11 +135,11 @@ class GeneralTrait(object):
                     vals.append(sample_data.value)
                     the_vars.append(sample_data.variance)
                     sample_aliases.append(sample_data.name2)
-        return  samples, vals, the_vars, sample_aliases
+        return samples, vals, the_vars, sample_aliases
 
     @property
     def description_fmt(self):
-        '''Return a text formated description'''
+        """Return a text formated description"""
         if self.dataset.type == 'ProbeSet':
             if self.description:
                 formatted = self.description
@@ -149,7 +159,7 @@ class GeneralTrait(object):
 
     @property
     def alias_fmt(self):
-        '''Return a text formatted alias'''
+        """Return a text formatted alias"""
 
         alias = 'Not available'
         if getattr(self, "alias", None):
@@ -160,16 +170,20 @@ class GeneralTrait(object):
 
     @property
     def wikidata_alias_fmt(self):
-        '''Return a text formatted alias'''
+        """Return a text formatted alias"""
 
         alias = 'Not available'
         if self.symbol:
-            human_response = requests.get(GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.upper())
-            mouse_response = requests.get(GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.capitalize())
-            other_response = requests.get(GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.lower())
+            human_response = requests.get(
+                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.upper())
+            mouse_response = requests.get(
+                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.capitalize())
+            other_response = requests.get(
+                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.lower())
 
             if human_response and mouse_response and other_response:
-                alias_list = json.loads(human_response.content) + json.loads(mouse_response.content) + json.loads(other_response.content)
+                alias_list = json.loads(human_response.content) + json.loads(
+                    mouse_response.content) + json.loads(other_response.content)
 
                 filtered_aliases = []
                 seen = set()
@@ -183,31 +197,31 @@ class GeneralTrait(object):
 
         return alias
 
-
     @property
     def location_fmt(self):
-        '''Return a text formatted location
+        """Return a text formatted location
 
         While we're at it we set self.location in case we need it later (do we?)
 
-        '''
+        """
 
         if self.chr and self.mb:
-            self.location = 'Chr %s @ %s Mb'  % (self.chr,self.mb)
+            self.location = 'Chr %s @ %s Mb' % (self.chr, self.mb)
         elif self.chr:
             self.location = 'Chr %s @ Unknown position' % (self.chr)
         else:
             self.location = 'Not available'
 
         fmt = self.location
-        ##XZ: deal with direction
+        # XZ: deal with direction
         if self.strand_probe == '+':
             fmt += (' on the plus strand ')
         elif self.strand_probe == '-':
             fmt += (' on the minus strand ')
 
         return fmt
-        
+
+
 def retrieve_sample_data(trait, dataset, samplelist=None):
     if samplelist == None:
         samplelist = []
@@ -225,15 +239,18 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
             all_samples_ordered = dataset.group.all_samples_ordered()
             for i, item in enumerate(results):
                 try:
-                    trait.data[all_samples_ordered[i]] = webqtlCaseData(all_samples_ordered[i], float(item))
+                    trait.data[all_samples_ordered[i]] = webqtlCaseData(
+                        all_samples_ordered[i], float(item))
                 except:
                     pass
         else:
             for item in results:
                 name, value, variance, num_cases, name2 = item
                 if not samplelist or (samplelist and name in samplelist):
-                    trait.data[name] = webqtlCaseData(*item)   #name, value, variance, num_cases)
+                    # name, value, variance, num_cases)
+                    trait.data[name] = webqtlCaseData(*item)
     return trait
+
 
 @app.route("/trait/get_sample_data")
 def get_sample_data():
@@ -250,7 +267,8 @@ def get_sample_data():
         trait_dict['group'] = trait_ob.dataset.group.name
         trait_dict['tissue'] = trait_ob.dataset.tissue
         trait_dict['species'] = trait_ob.dataset.group.species
-        trait_dict['url'] = url_for('show_trait_page', trait_id = trait, dataset = dataset)
+        trait_dict['url'] = url_for(
+            'show_trait_page', trait_id=trait, dataset=dataset)
         trait_dict['description'] = trait_ob.description_display
         if trait_ob.dataset.type == "ProbeSet":
             trait_dict['symbol'] = trait_ob.symbol
@@ -260,22 +278,24 @@ def get_sample_data():
                 trait_dict['pubmed_link'] = trait_ob.pubmed_link
             trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
-        return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems() }])
+        return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems()}])
     else:
         return None
-    
+
+
 def jsonable(trait):
     """Return a dict suitable for using as json
 
     Actual turning into json doesn't happen here though"""
 
-    dataset = create_dataset(dataset_name = trait.dataset.name, dataset_type = trait.dataset.type, group_name = trait.dataset.group.name)
-    
+    dataset = create_dataset(dataset_name=trait.dataset.name,
+                             dataset_type=trait.dataset.type, group_name=trait.dataset.group.name)
+
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
                     symbol=trait.symbol,
                     dataset=dataset.name,
-                    dataset_name = dataset.shortname,
+                    dataset_name=dataset.shortname,
                     description=trait.description_display,
                     mean=trait.mean,
                     location=trait.location_repr,
@@ -287,7 +307,7 @@ def jsonable(trait):
         if trait.pubmed_id:
             return dict(name=trait.name,
                         dataset=dataset.name,
-                        dataset_name = dataset.shortname,
+                        dataset_name=dataset.shortname,
                         description=trait.description_display,
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
@@ -300,7 +320,7 @@ def jsonable(trait):
         else:
             return dict(name=trait.name,
                         dataset=dataset.name,
-                        dataset_name = dataset.shortname,
+                        dataset_name=dataset.shortname,
                         description=trait.description_display,
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
@@ -312,11 +332,12 @@ def jsonable(trait):
     elif dataset.type == "Geno":
         return dict(name=trait.name,
                     dataset=dataset.name,
-                    dataset_name = dataset.shortname,
+                    dataset_name=dataset.shortname,
                     location=trait.location_repr
                     )
     else:
         return dict()
+
 
 def jsonable_table_row(trait, dataset_name, index):
     """Return a list suitable for json and intended to be displayed in a table
@@ -324,7 +345,7 @@ def jsonable_table_row(trait, dataset_name, index):
     Actual turning into json doesn't happen here though"""
 
     dataset = create_dataset(dataset_name)
-    
+
     if dataset.type == "ProbeSet":
         if trait.mean == "":
             mean = "N/A"
@@ -336,11 +357,13 @@ def jsonable_table_row(trait, dataset_name, index):
             additive = "%.3f" % round(float(trait.additive), 2)
         return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                 index,
-                '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                '<a href="/show_trait?trait_id=' +
+                str(trait.name)+'&dataset='+dataset.name +
+                '">'+str(trait.name)+'</a>',
                 trait.symbol,
                 trait.description_display,
                 trait.location_repr,
-                mean, 
+                mean,
                 trait.LRS_score_repr,
                 trait.LRS_location_repr,
                 additive]
@@ -352,7 +375,9 @@ def jsonable_table_row(trait, dataset_name, index):
         if trait.pubmed_id:
             return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                     index,
-                    '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                    '<a href="/show_trait?trait_id=' +
+                    str(trait.name)+'&dataset='+dataset.name +
+                    '">'+str(trait.name)+'</a>',
                     trait.description_display,
                     trait.authors,
                     '<a href="' + trait.pubmed_link + '">' + trait.pubmed_text + '</href>',
@@ -362,7 +387,9 @@ def jsonable_table_row(trait, dataset_name, index):
         else:
             return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                     index,
-                    '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                    '<a href="/show_trait?trait_id=' +
+                    str(trait.name)+'&dataset='+dataset.name +
+                    '">'+str(trait.name)+'</a>',
                     trait.description_display,
                     trait.authors,
                     trait.pubmed_text,
@@ -372,7 +399,9 @@ def jsonable_table_row(trait, dataset_name, index):
     elif dataset.type == "Geno":
         return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
                 index,
-                '<a href="/show_trait?trait_id='+str(trait.name)+'&dataset='+dataset.name+'">'+str(trait.name)+'</a>',
+                '<a href="/show_trait?trait_id=' +
+                str(trait.name)+'&dataset='+dataset.name +
+                '">'+str(trait.name)+'</a>',
                 trait.location_repr]
     else:
         return dict()
@@ -383,14 +412,16 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
     resource_id = get_resource_id(dataset, trait.name)
     if dataset.type == 'Publish':
-        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(resource_id, g.user_session.user_id)
+        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(
+            resource_id, g.user_session.user_id)
     else:
-        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(resource_id, g.user_session.user_id, trait.name)
+        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(
+            resource_id, g.user_session.user_id, trait.name)
 
     try:
         response = requests.get(the_url).content
         trait_info = json.loads(response)
-    except: #ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
+    except:  # ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
         if dataset.type == 'Publish':
             query = """
                     SELECT
@@ -419,8 +450,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
 
-        #XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
-        #XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
+        # XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
+        # XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
         elif dataset.type == 'ProbeSet':
             display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
             display_fields_string = 'ProbeSet.' + display_fields_string
@@ -433,14 +464,15 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             ProbeSetFreeze.Name = '%s' AND
                             ProbeSet.Name = '%s'
                     """ % (escape(display_fields_string),
-                        escape(dataset.name),
-                        escape(str(trait.name)))
+                           escape(dataset.name),
+                           escape(str(trait.name)))
             logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
-        #XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
+        # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif dataset.type == 'Geno':
-            display_fields_string = string.join(dataset.display_fields,',Geno.')
+            display_fields_string = string.join(
+                dataset.display_fields, ',Geno.')
             display_fields_string = 'Geno.' + display_fields_string
             query = """
                     SELECT %s
@@ -451,21 +483,21 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             GenoFreeze.Name = '%s' AND
                             Geno.Name = '%s'
                     """ % (escape(display_fields_string),
-                        escape(dataset.name),
-                        escape(trait.name))
+                           escape(dataset.name),
+                           escape(trait.name))
             logger.sql(query)
             trait_info = g.db.execute(query).fetchone()
-        else: #Temp type
+        else:  # Temp type
             query = """SELECT %s FROM %s WHERE Name = %s"""
             logger.sql(query)
             trait_info = g.db.execute(query,
-                                    (string.join(dataset.display_fields,','),
-                                                dataset.type, trait.name)).fetchone()
+                                      (string.join(dataset.display_fields, ','),
+                                       dataset.type, trait.name)).fetchone()
 
     if trait_info:
         trait.haveinfo = True
         for i, field in enumerate(dataset.display_fields):
-            holder =  trait_info[i]
+            holder = trait_info[i]
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
@@ -478,9 +510,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
             description = trait.post_publication_description
 
-            #If the dataset is confidential and the user has access to confidential
-            #phenotype traits, then display the pre-publication description instead
-            #of the post-publication description
+            # If the dataset is confidential and the user has access to confidential
+            # phenotype traits, then display the pre-publication description instead
+            # of the post-publication description
             if trait.confidential:
                 trait.abbreviation = trait.pre_publication_abbreviation
                 trait.description_display = trait.pre_publication_description
@@ -491,9 +523,12 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 else:
                     trait.description_display = ""
 
-            trait.abbreviation = unicode(str(trait.abbreviation).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.description_display = unicode(str(trait.description_display).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.authors = unicode(str(trait.authors).strip(codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.abbreviation = unicode(str(trait.abbreviation).strip(
+                codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.description_display = unicode(str(trait.description_display).strip(
+                codecs.BOM_UTF8), 'utf-8', errors="replace")
+            trait.authors = unicode(str(trait.authors).strip(
+                codecs.BOM_UTF8), 'utf-8', errors="replace")
 
             if not trait.year.isdigit():
                 trait.pubmed_text = "N/A"
@@ -504,16 +539,19 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
 
         if dataset.type == 'ProbeSet' and dataset.group:
-            description_string = unicode(str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = unicode(str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+            description_string = unicode(
+                str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
+            target_string = unicode(
+                str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
-            if len(description_string) > 1 and description_string != 'None':
+            if str(description_string or "") != "" and description_string != 'None':
                 description_display = description_string
             else:
                 description_display = trait.symbol
 
-            if (len(description_display) > 1 and description_display != 'N/A' and
-                    len(target_string) > 1 and target_string != 'None'):
+            if (str(description_display or "") != "" and
+                description_display != 'N/A' and
+                    str(target_string or "") != "" and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
@@ -521,15 +559,17 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
             trait.location_repr = 'N/A'
             if trait.chr and trait.mb:
-                trait.location_repr = 'Chr%s: %.6f' % (trait.chr, float(trait.mb))
+                trait.location_repr = 'Chr%s: %.6f' % (
+                    trait.chr, float(trait.mb))
 
         elif dataset.type == "Geno":
             trait.location_repr = 'N/A'
             if trait.chr and trait.mb:
-                trait.location_repr = 'Chr%s: %.6f' % (trait.chr, float(trait.mb))
+                trait.location_repr = 'Chr%s: %.6f' % (
+                    trait.chr, float(trait.mb))
 
         if get_qtl_info:
-            #LRS and its location
+            # LRS and its location
             trait.LRS_score_repr = "N/A"
             trait.LRS_location_repr = "N/A"
             trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.additive = ""
@@ -599,12 +639,12 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                         trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                 else:
                     trait.locus = trait.lrs = trait.additive = ""
-
-            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and trait.locus_chr != "" and trait.locus_mb != "":
-                trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (trait.locus_chr, float(trait.locus_mb))
-                if trait.lrs != "":
+            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
+                trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
+                    trait.locus_chr, float(trait.locus_mb))
+                if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
-        raise KeyError, `trait.name`+' information is not found in the database.'
-        
+        raise KeyError, `trait.name`+ ' information is not found in the database.'
+
     return trait

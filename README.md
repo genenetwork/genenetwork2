@@ -1,4 +1,5 @@
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2) [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
+[![Actions Status](https://github.com/genenetwork/genenetwork2/workflows/tests/badge.svg)](https://github.com/genenetwork/genenetwork2/actions)
 
 # GeneNetwork
 
@@ -42,9 +43,17 @@ Also mariadb and redis need to be running, see
 ## Testing
 
 To have tests pass, the redis and mariadb instance should be running, because of
-asserts sprinkled in the code base(these will be removed in due time).
+asserts sprinkled in the code base.
+
+Right now, the only tests running in CI are unittests. Please make
+sure the existing unittests are green when submitting a PR.
+
+See
+[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/doc/docker-container.org)
+for more details.
 
 #### Mechanical Rob
+
 We are building 'Mechanical Rob' automated testing using Python
 [requests](https://github.com/genenetwork/genenetwork2/tree/testing/test/requests)
 which can be run with:

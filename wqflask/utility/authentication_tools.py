@@ -1,4 +1,6 @@
 from __future__ import absolute_import, print_function, division
+import logging
+from flask import Flask, g, redirect, url_for
 
 import json
 import requests
@@ -9,33 +11,31 @@ from utility import hmac
 from utility.redis_tools import get_redis_conn, get_resource_info, get_resource_id, add_resource
 Redis = get_redis_conn()
 
-from flask import Flask, g, redirect, url_for
 
-import logging
-logger = logging.getLogger(__name__ )
+logger = logging.getLogger(__name__)
+
 
 def check_resource_availability(dataset, trait_id=None):
 
-    #At least for now assume temporary entered traits are accessible
-    if type(dataset) == str:
-        return webqtlConfig.DEFAULT_PRIVILEGES
-    if dataset.type == "Temp":
+    # At least for now assume temporary entered traits are accessible
+    if type(dataset) == str or dataset.type == "Temp":
         return webqtlConfig.DEFAULT_PRIVILEGES
 
     resource_id = get_resource_id(dataset, trait_id)
 
-    if resource_id: #ZS: This should never be false, but it's technically possible if a non-Temp dataset somehow had a type other than Publish/ProbeSet/Geno
+    if resource_id:  # ZS: This should never be false, but it's technically possible if a non-Temp dataset somehow had a type other than Publish/ProbeSet/Geno
         resource_info = get_resource_info(resource_id)
-        if not resource_info: #ZS: If resource isn't already in redis, add it with default privileges
+        if not resource_info:  # ZS: If resource isn't already in redis, add it with default privileges
             resource_info = add_new_resource(dataset, trait_id)
 
-    #ZS: Check if super-user - we should probably come up with some way to integrate this into the proxy
+    # ZS: Check if super-user - we should probably come up with some way to integrate this into the proxy
     if g.user_session.user_id in Redis.smembers("super_users"):
-       return webqtlConfig.SUPER_PRIVILEGES
+        return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
 
-    the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
+    the_url = "http://localhost:8080/available?resource={}&user={}".format(
+        resource_id, g.user_session.user_id)
     try:
         response = json.loads(requests.get(the_url).content)
     except:
@@ -43,18 +43,19 @@ def check_resource_availability(dataset, trait_id=None):
 
     return response
 
+
 def add_new_resource(dataset, trait_id=None):
     resource_ob = {
-        'owner_id'    : "none", # webqtlConfig.DEFAULT_OWNER_ID,
+        'owner_id': "none",  # webqtlConfig.DEFAULT_OWNER_ID,
         'default_mask': webqtlConfig.DEFAULT_PRIVILEGES,
-        'group_masks' : {}
+        'group_masks': {}
     }
 
     if dataset.type == "Publish":
         resource_ob['name'] = get_group_code(dataset) + "_" + str(trait_id)
         resource_ob['data'] = {
             'dataset': dataset.id,
-            'trait'  : trait_id
+            'trait': trait_id
         }
         resource_ob['type'] = 'dataset-publish'
     elif dataset.type == "Geno":
@@ -74,15 +75,19 @@ def add_new_resource(dataset, trait_id=None):
 
     return resource_info
 
+
 def get_group_code(dataset):
-    results = g.db.execute("SELECT InbredSetCode from InbredSet where Name='{}'".format(dataset.group.name)).fetchone()
+    results = g.db.execute("SELECT InbredSetCode from InbredSet where Name='{}'".format(
+        dataset.group.name)).fetchone()
     if results[0]:
         return results[0]
     else:
         return ""
 
+
 def check_admin(resource_id=None):
-    the_url = "http://localhost:8080/available?resource={}&user={}".format(resource_id, g.user_session.user_id)
+    the_url = "http://localhost:8080/available?resource={}&user={}".format(
+        resource_id, g.user_session.user_id)
     try:
         response = json.loads(requests.get(the_url).content)['admin']
     except:
@@ -95,6 +100,7 @@ def check_admin(resource_id=None):
         return "edit-access"
     else:
         return "not-admin"
+
 
 def check_owner(dataset=None, trait_id=None, resource_id=None):
     if resource_id:
@@ -109,6 +115,7 @@ def check_owner(dataset=None, trait_id=None, resource_id=None):
                 return resource_id
 
     return False
+
 
 def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
     if not resource_id:

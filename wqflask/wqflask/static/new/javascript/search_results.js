@@ -93,7 +93,7 @@ $(function() {
 
   });
 
-  add = function() {
+  add_to_collection = function() {
     var traits;
     traits = $("#trait_table input:checked").map(function() {
       return $(this).val();
@@ -250,7 +250,7 @@ $(function() {
   $("#select_all").click(select_all);
   $("#deselect_all").click(deselect_all);
   $("#invert").click(invert);
-  $("#add").click(add);
+  $("#add").click(add_to_collection);
   $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
   $('.trait_checkbox, .btn').click(change_buttons);
@@ -259,14 +259,22 @@ $(function() {
   let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
   let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
 
+  let na_equivalent_vals = ["N/A", "--", ""]; //ZS: Since there are multiple values that should be treated the same as N/A
+
+  function extract_inner_text(the_string){
+    var span = document.createElement('span');
+    span.innerHTML = the_string;
+    return span.textContent || span.innerText;
+  }
+
   function sort_NAs(a, b, sort_function){
-    if (a === "N/A" && b === "N/A") {
+    if ( na_equivalent_vals.includes(a) && na_equivalent_vals.includes(b)) {
       return 0;
     }
-    if (a === "N/A"){
+    if (na_equivalent_vals.includes(a)){
       return 1
     }
-    if (b === "N/A") {
+    if (na_equivalent_vals.includes(b)) {
       return -1;
     }
     return sort_function(a, b)
@@ -274,11 +282,25 @@ $(function() {
 
   $.extend( $.fn.dataTableExt.oSort, {
     "natural-minus-na-asc": function (a, b) {
-      return sort_NAs(a, b, naturalAsc)
+      return sort_NAs(extract_inner_text(a), extract_inner_text(b), naturalAsc)
     },
     "natural-minus-na-desc": function (a, b) {
-      return sort_NAs(a, b, naturalDesc)
+      return sort_NAs(extract_inner_text(a), extract_inner_text(b), naturalDesc)
     }
   });
+
+  $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
+  {
+      return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+          return $('input', td).prop('checked') ? '1' : '0';
+      } );
+  };
+
+  $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
+  {
+      return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+          return $(td).text();
+      } );
+  }
 
 });

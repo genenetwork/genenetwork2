@@ -54,4 +54,8 @@ table.dataTable.cell-border tbody tr td:first-child {
 
 .trait_value_input {
   text-align: right;
+
+.glyphicon {
+  position: relative;
+  top: 2px;
 }

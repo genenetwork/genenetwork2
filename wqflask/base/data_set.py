@@ -150,10 +150,12 @@ Publish or ProbeSet. E.g.
             "geno": "Geno",
         }
 
+        group_name = name
         if t in ['pheno', 'other_pheno']:
-            name = name.replace("Publish", "")
+            group_name = name.replace("Publish", "")
 
-        if bool(len(g.db.execute(sql_query_mapping[t].format(name)).fetchone())):
+        results = g.db.execute(sql_query_mapping[t].format(group_name)).fetchone()
+        if results:
             self.datasets[name] = dataset_name_mapping[t]
             self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
             return True
@@ -1172,40 +1174,6 @@ class TempDataSet(DataSet):
         self.id = 1
         self.fullname = 'Temporary Storage'
         self.shortname = 'Temp'
-
-    @staticmethod
-    def handle_pca(desc):
-        if 'PCA' in desc:
-            # Todo: Modernize below lines
-            desc = desc[desc.rindex(':')+1:].strip()
-        else:
-            desc = desc[:desc.index('entered')].strip()
-        return desc
-
-    def get_desc(self):
-        query = 'SELECT description FROM Temp WHERE Name=%s' % self.name
-        logger.sql(query)
-        g.db.execute(query)
-        desc = g.db.fetchone()[0]
-        desc = self.handle_pca(desc)
-        return desc
-
-    def retrieve_sample_data(self, trait):
-        query = """
-                SELECT
-                        Strain.Name, TempData.value, TempData.SE, TempData.NStrain, TempData.Id
-                FROM
-                        TempData, Temp, Strain
-                WHERE
-                        TempData.StrainId = Strain.Id AND
-                        TempData.Id = Temp.DataId AND
-                        Temp.name = '%s'
-                Order BY
-                        Strain.Name
-                """ % escape(trait.name)
-
-        logger.sql(query)
-        results = g.db.execute(query).fetchall()
 
 
 def geno_mrna_confidentiality(ob):

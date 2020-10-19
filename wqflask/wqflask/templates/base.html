@@ -4,7 +4,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock %}</title>
+
+    <title>{% block title %}{% endblock %} GeneNetwork 2</title>
+
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
@@ -19,6 +21,14 @@
     {% block css %}
     {% endblock %}
 
+    <style>
+        table.dataTable thead .sorting_asc {
+            background-image: url({{ url_for("js", filename="DataTables/images/sort_asc_disabled.png") }});
+        }
+        table.dataTable thead .sorting_desc {
+            background-image: url({{ url_for("js", filename="DataTables/images/sort_desc_disabled.png") }});
+        }
+    </style>
 </head>
 
 <body style="width: 100%">
