@@ -48,6 +48,13 @@ table.dataTable.cell-border tbody tr td:first-child {
   border-left: 1px solid #ccc;
 }
 
+.checkbox {
+  min-height: 20px;
+}
+
+.trait_value_input {
+  text-align: right;
+
 .glyphicon {
   position: relative;
   top: 2px;

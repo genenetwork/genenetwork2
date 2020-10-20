@@ -1,21 +1,20 @@
 from __future__ import absolute_import, print_function, division
 
-from flask import Flask, g
-
-from base import webqtlCaseData
-from utility import webqtlUtil, Plot, Bunch
-from base.trait import GeneralTrait
-
-import numpy as np
-from scipy import stats
-from pprint import pformat as pf
-
-import simplejson as json
-
 import itertools
 
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
+import numpy as np
+from flask import Flask, g
+from pprint import pformat as pf
+from scipy import stats
+
+from base import webqtlCaseData
+from base.trait import GeneralTrait
+from utility import logger
+from utility import webqtlUtil
+from utility import Plot
+from utility import Bunch
+
+logger = logger.getLogger(__name__ )
 
 class SampleList(object):
     def __init__(self,
@@ -35,25 +34,22 @@ class SampleList(object):
 
         self.get_attributes()
 
-        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
-
         if self.this_trait and self.dataset:
             self.get_extra_attribute_values()
 
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
+            if type(self.this_trait) is list: # ZS: self.this_trait will be a list if it is a Temp trait
                 if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
                 else:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
             else:
-                #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
+                # ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
                 try:
                     sample = self.this_trait.data[sample_name]
                 except KeyError:
-                    #logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
@@ -63,15 +59,13 @@ class SampleList(object):
 
             sample.this_id = str(counter)
 
-            #### For extra attribute columns; currently only used by several datasets - Zach
+            # ZS: For extra attribute columns; currently only used by several datasets
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
 
             self.sample_list.append(sample)
 
-        #logger.debug("attribute vals are", pf(self.sample_attribute_values))
-
+        self.se_exists = any(sample.variance for sample in self.sample_list)
         self.do_outliers()
 
     def __repr__(self):
@@ -104,7 +98,6 @@ class SampleList(object):
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            #logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [item.Value for item in values]
@@ -141,8 +134,8 @@ class SampleList(object):
                 for item in items:
                     attribute_value = item.Value
 
-                    #ZS: If it's an int, turn it into one for sorting
-                    #(for example, 101 would be lower than 80 if they're strings instead of ints)
+                    # ZS: If it's an int, turn it into one for sorting
+                    # (for example, 101 would be lower than 80 if they're strings instead of ints)
                     try:
                         attribute_value = int(attribute_value)
                     except ValueError:
@@ -150,53 +143,6 @@ class SampleList(object):
 
                     attribute_values[self.attributes[item.Id].name] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
-
-    def se_exists(self):
-        """Returns true if SE values exist for any samples, otherwise false"""
-
-        return any(sample.variance for sample in self.sample_list)
-
-# def get_transform_vals(dataset, trait):
-#     es = get_elasticsearch_connection(for_user=False)
-
-#     logger.info("DATASET NAME:", dataset.name)
-
-#     query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
-
-#     es_body = {
-#           "query": {
-#             "bool": {
-#               "must": [
-#                 {
-#                   "match": {
-#                     "name": "%s" % (trait.name)
-#                   }
-#                 },
-#                 {
-#                   "match": {
-#                     "dataset": "%s" % (dataset.name)
-#                   }
-#                 }
-#               ]
-#             }
-#           }
-#     }
-
-#     response = es.search( index = "traits", doc_type = "trait", body = es_body )
-#     logger.info("THE RESPONSE:", response)
-#     results = response['hits']['hits']
-
-#     if len(results) > 0:
-#         samples = results[0]['_source']['samples']
-
-#         sample_dict = {}
-#         for sample in samples:
-#             sample_dict[sample['name']] = sample['qnorm']
-
-#         #logger.info("SAMPLE DICT:", sample_dict)
-#         return sample_dict
-#     else:
-#         return None
 
 def natural_sort_key(x):
     """Get expected results when using as a key for sort - ints or strings are sorted properly"""

@@ -150,10 +150,12 @@ Publish or ProbeSet. E.g.
             "geno": "Geno",
         }
 
+        group_name = name
         if t in ['pheno', 'other_pheno']:
-            name = name.replace("Publish", "")
+            group_name = name.replace("Publish", "")
 
-        if bool(len(g.db.execute(sql_query_mapping[t].format(name)).fetchone())):
+        results = g.db.execute(sql_query_mapping[t].format(group_name)).fetchone()
+        if results:
             self.datasets[name] = dataset_name_mapping[t]
             self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
             return True

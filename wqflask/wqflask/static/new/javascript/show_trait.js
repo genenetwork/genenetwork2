@@ -440,38 +440,47 @@ edit_data_change = function() {
     samples_other: {},
     samples_all: {}
   };
+
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
-    rows = $("#" + table).find('tr');
-    for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
-      row = rows[_j];
-      name = $(row).find('.edit_sample_sample_name').html();
-      name = $.trim(name);
-      real_value = $(row).find('.edit_sample_value').val();
-      checkbox = $(row).find(".edit_sample_checkbox");
-      if (is_number(real_value) && real_value !== "") {
-        real_value = parseFloat(real_value);
-        sample_sets[table].add_value(real_value);
-        real_variance = $(row).find('.edit_sample_se').val();
-        if (is_number(real_variance)) {
-          real_variance = parseFloat(real_variance);
-        } else {
-          real_variance = null;
-        }
-        real_dict = {
-          value: real_value,
-          variance: real_variance
-        };
-        root.selected_samples[table][name] = real_dict;
-        if (!(name in already_seen)) {
-          sample_sets['samples_all'].add_value(real_value);
-          root.selected_samples['samples_all'][name] = real_dict;
-          already_seen[name] = true;
+    if ($('#' + table).length){
+      table_api = $('#' + table).DataTable();
+      sample_vals = [];
+      name_nodes = table_api.column(2).nodes().to$();
+      val_nodes = table_api.column(3).nodes().to$();
+      var_nodes = table_api.column(5).nodes().to$();
+      for (_j = 0; _j < val_nodes.length; _j++){
+        sample_val = val_nodes[_j].childNodes[0].value
+        sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
+        if (is_number(sample_val) && sample_val !== "") {
+          sample_val = parseFloat(sample_val);
+          sample_sets[table].add_value(sample_val);
+          if (typeof var_nodes !== 'undefined'){
+            sample_var = null;
+          } else {
+            sample_var = var_nodes[_j].childNodes[0].value
+            if (is_number(sample_var)) {
+              sample_var = parseFloat(sample_var)
+            } else {
+              sample_var = null;
+            }
+          }
+          sample_dict = {
+            value: sample_val,
+            variance: sample_var
+          }
+          root.selected_samples[table][sample_name] = sample_dict;
+          if (!(sample_name in already_seen)) {
+            sample_sets['samples_all'].add_value(sample_val);
+            root.selected_samples['samples_all'][sample_name] = sample_dict;
+            already_seen[sample_name] = true;
+          }
         }
       }
     }
   }
+
   update_stat_values(sample_sets);
 
   if ($('#histogram').hasClass('js-plotly-plot')){
@@ -490,6 +499,7 @@ edit_data_change = function() {
     return update_prob_plot();
   }
 };
+
 show_hide_outliers = function() {
   var label;
   label = $('#show_hide_outliers').val();
@@ -500,6 +510,7 @@ show_hide_outliers = function() {
     return console.log("Should be now Hide Outliers");
   }
 };
+
 on_corr_method_change = function() {
   var corr_method;
   corr_method = $('select[name=corr_type]').val();
@@ -514,9 +525,29 @@ on_corr_method_change = function() {
 $('select[name=corr_type]').change(on_corr_method_change);
 
 submit_special = function(url) {
+  get_table_contents_for_form_submit("trait_data_form");
   $("#trait_data_form").attr("action", url);
   $("#trait_data_form").submit();
 };
+
+get_table_contents_for_form_submit = function(form_id) {
+  // Borrowed code from - https://stackoverflow.com/questions/31418047/how-to-post-data-for-the-whole-table-using-jquery-datatables
+  let this_form = $("#" + form_id);
+  var params = primary_table.$('input').serializeArray();
+
+  $.each(params, function(){
+    // If element doesn't exist in DOM
+    if(!$.contains(document, this_form[this.name])){
+       // Create a hidden element
+       this_form.append(
+          $('<input>')
+             .attr('type', 'hidden')
+             .attr('name', this.name)
+             .val(this.value)
+       );
+    }
+ });
+}
 
 var corr_input_list = ['corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
@@ -538,10 +569,9 @@ populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
   sample_attributes = {};
-  _ref = js_data.attribute_names;
-  for (key in _ref) {
-    if (!__hasProp.call(_ref, key)) continue;
-    attribute_info = _ref[key];
+  attr_keys = Object.keys(js_data.attributes).sort();
+  for (i=0; i < attr_keys.length; i++) {
+    attribute_info = js_data.attributes[attr_keys[i]];
     sample_attributes[attribute_info.name] = attribute_info.distinct_values;
   }
   selected_attribute = $('#exclude_menu').val().replace("_", " ");
@@ -549,13 +579,17 @@ populate_sample_attributes_values_dropdown = function() {
   _results = [];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     value = _ref1[_i];
-    _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+    if (value != ""){
+      _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+    }
   }
   return _results;
 };
-if (Object.keys(js_data.attribute_names).length > 0) {
+
+if (Object.keys(js_data.attributes).length){
   populate_sample_attributes_values_dropdown();
 }
+
 $('#exclude_menu').change(populate_sample_attributes_values_dropdown);
 block_by_attribute_value = function() {
   var attribute_name, cell_class, exclude_by_value;
@@ -580,20 +614,6 @@ block_by_index = function() {
   _ref = index_string.split(",");
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     index_set = _ref[_i];
-    /*
-    if (index_set.indexOf('<') !== -1) {
-      try {
-        start_index = parseInt(index_set.split("<")[0]);
-        end_index = parseInt(index_set.split("<")[1]);
-        for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
-          index_list.push(index);
-        }
-      } catch (_error) {
-        error = _error;
-        alert("Syntax error");
-      }
-    }
-    */
     if (index_set.indexOf('-') !== -1) {
       try {
         start_index = parseInt(index_set.split("-")[0]);
@@ -611,19 +631,18 @@ block_by_index = function() {
     }
   }
   _results = [];
+  let block_group = $('#block_group').val();
+  if (block_group === "other") {
+    table_api = $('#samples_other').DataTable();
+  } else {
+    table_api = $('#samples_primary').DataTable();
+  }
+  val_nodes = table_api.column(3).nodes().to$();
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
-    if ($('#block_group').val() === "primary") {
-      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
-    } else if ($('#block_group').val() === "other") {
-      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
-    } else {
-      _results.push(void 0);
-    }
+    val_nodes[index - 1].childNodes[0].value = "x";
   }
-  return _results;
 };
-$('#block_by_index').click(block_by_index);
 
 hide_no_value = function() {
   return $('.value_se').each((function(_this) {
@@ -635,6 +654,7 @@ hide_no_value = function() {
   })(this));
 };
 $('#hide_no_value').click(hide_no_value);
+
 block_outliers = function() {
   return $('.outlier').each((function(_this) {
     return function(_index, element) {
@@ -643,177 +663,195 @@ block_outliers = function() {
   })(this));
 };
 $('#block_outliers').click(block_outliers);
+
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      $(element).val($(element).data('value'));
-      return $(element).parents('.value_se').show();
-    };
-  })(this));
+
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0];
+        this_node.value = this_node.attributes["data-value"].value;
+      }
+      if (js_data.se_exists){
+        se_nodes = table_api.column(5).nodes().to$();
+        for (i = 0; i < val_nodes.length; i++) {
+          this_node = val_nodes[i].childNodes[0];
+          this_node.value = this_node.attributes["data-value"].value;
+        }
+      }
+    }
+  }
 };
 $('.reset').click(function() {
   reset_samples_table();
   edit_data_change();
 });
 
-log2_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      current_value = $(element).data("value")
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        if (zero_to_one_vals_exist){
-          current_value = parseFloat(current_value) + 1;
+check_for_zero_to_one_vals = function() {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0];
+        if(!isNaN(this_node.value)) {
+          if (0 <= this_node.value && this_node.value < 1){
+            return true
+          }
         }
-        $(element).val(Math.log2(current_value).toFixed(3));
-        return Math.log2(current_value).toFixed(3)
       }
-    };
-  })(this));
+    }
+  }
+  return false
+}
+
+log2_data = function(this_node) {
+  current_value = this_node.value;
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.log2(original_value).toFixed(3);
+  }
 };
 
-log10_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      current_value = $(element).data("value")
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        if (zero_to_one_vals_exist){
-          current_value = parseFloat(current_value) + 1;
-        }
-        $(element).val(Math.log10(current_value).toFixed(3));
-        return Math.log10(current_value).toFixed(3)
-      }
-    };
-  })(this));
+log10_data = function() {
+  current_value = this_node.value;
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.log10(original_value).toFixed(3);
+  }
 };
 
-
-sqrt_normalize_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val(Math.sqrt(current_value).toFixed(3));
-        return Math.sqrt(current_value).toFixed(3)
-      }
-    };
-  })(this));
+sqrt_data = function() {
+  current_value = this_node.value;
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.sqrt(original_value).toFixed(3);
+  }
 };
 
 invert_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).val());
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val(-(current_value));
-        return -(current_value)
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  if(!isNaN(current_value)) {
+    this_node.value = parseFloat(-(current_value)).toFixed(3);
+  }
 };
 
-
 qnorm_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val($(element).data("qnorm"));
-        return $(element).data("qnorm");
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  qnorm_value = this_node.attributes['data-qnorm'].value;
+  if(!isNaN(current_value)) {
+    this_node.value = qnorm_value;
+  }
 };
 
 zscore_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val($(element).data("zscore"));
-        return $(element).data("zscore");
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  zscore_value = this_node.attributes['data-zscore'].value;
+  if(!isNaN(current_value)) {
+    this_node.value = zscore_value;
+  }
 };
 
-check_for_zero_to_one_vals = function() {
-  zero_to_one_vals_exist = false
-  $('.trait_value_input').each(function() {
-    current_value = $(this).data("value")
-    if(isNaN(current_value)) {
-      return true;
-    } else {
-      current_value = parseFloat(current_value)
-      if (0 <= current_value && current_value < 1){
-        zero_to_one_vals_exist = true
-        return false
+do_transform = function(transform_type) {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0]
+        if (transform_type == "log2"){
+          log2_data(this_node)
+        }
+        if (transform_type == "log10"){
+          log10_data(this_node)
+        }
+        if (transform_type == "sqrt"){
+          sqrt_data(this_node)
+        }
+        if (transform_type == "invert"){
+          invert_data(this_node)
+        }
+        if (transform_type == "qnorm"){
+          qnorm_data(this_node)
+        }
+        if (transform_type == "zscore"){
+          zscore_data(this_node)
+        }
       }
     }
-  });
-  return zero_to_one_vals_exist
+  }
 }
 
 normalize_data = function() {
   if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
     if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
-      log2_normalize_data(zero_to_one_vals_exist)
+      do_transform("log2")
       $('input[name="transform"]').val("log2")
-      $('span[name="transform_text"]').text(" - log2 transformed")
+      $('span[name="transform_text"]').text(" - log2 Transformed")
     } else {
       if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
-        log10_normalize_data(zero_to_one_vals_exist)
+        do_transform("log10")
         $('input[name="transform"]').val("log10")
-        $('span[name="transform_text"]').text(" - log10 transformed")
+        $('span[name="transform_text"]').text(" - log10 Transformed")
       }
     }
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
     if ($('input[name="transform"]').val() != "sqrt") {
-      sqrt_normalize_data()
+      do_transform("sqrt")
       $('input[name="transform"]').val("sqrt")
-      $('span[name="transform_text"]').text(" - Square Root transformed")
+      $('span[name="transform_text"]').text(" - Square Root Transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'invert'){
-    invert_data()
+    do_transform("invert")
     $('input[name="transform"]').val("inverted")
-    $('span[name="transform_text"]').text(" - Inverted")
+    if ($('span[name="transform_text"]:eq(0)').text() != ""){
+      current_text = $('span[name="transform_text"]:eq(0)').text();
+      $('span[name="transform_text"]').text(current_text + " and Inverted");
+    } else {
+      $('span[name="transform_text"]').text(" - Inverted")
+    }
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
-      qnorm_data()
+      do_transform("qnorm")
       $('input[name="transform"]').val("qnorm")
       $('span[name="transform_text"]').text(" - Quantile Normalized")
     }
   }
   else if ($('#norm_method option:selected').val() == 'zscore'){
     if ($('input[name="transform"]').val() != "zscore") {
-      zscore_data()
+      do_transform("zscore")
       $('input[name="transform"]').val("zscore")
       $('span[name="transform_text"]').text(" - Z-Scores")
     }
   }
 }
 
-zero_to_one_vals_exist = false
+zero_to_one_vals_exist = check_for_zero_to_one_vals();
 
 show_transform_warning = function() {
   transform_type = $('#norm_method option:selected').val()
-  zero_to_one_vals_exist = check_for_zero_to_one_vals();
   if (transform_type == "log2" || transform_type == "log10"){
     if (zero_to_one_vals_exist){
       $('#transform_alert').css("display", "block")
@@ -859,10 +897,9 @@ get_sample_table_data = function(table_name) {
       if ($(element).find('.edit_sample_num_cases').length > 0) {
         row_data.num_cases = $(element).find('.edit_sample_num_cases').val();
       }
-      _ref = js_data.attribute_names;
-      for (key in _ref) {
-        if (!__hasProp.call(_ref, key)) continue;
-        attribute_info = _ref[key];
+      attr_keys = Object.keys(js_data.attributes).sort()
+      for (i=0; i < attr_keys.length; i++) {
+        attribute_info = js_data.attributes[attr_keys[i]];
         row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_").replace("/", "\\/")).text());
       }
       return samples.push(row_data);
@@ -1447,8 +1484,11 @@ $('.stats_panel').click(function() {
     edit_data_change();
   }
 });
-$('#edit_sample_lists').change(edit_data_change);
-$('#block_by_index').click(edit_data_change);
+
+$('#block_by_index').click(function(){
+  block_by_index();
+  edit_data_change();
+});
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
 $('#reset').click(edit_data_change);
