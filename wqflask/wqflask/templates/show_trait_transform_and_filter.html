@@ -1,9 +1,9 @@
 <div>
-    <div class="form-horizontal">
-            <p>Edit or delete values in the Trait Data boxes, and use the
-                <strong>Reset</strong> option as
-                needed.
-            </p>
+  <div class="form-horizontal">
+          <p>Edit or delete values in the Trait Data boxes, and use the
+              <strong>Reset</strong> option as
+              needed.
+          </p>
 
             <div id="blockMenuSpan" class="input-append block-by-index-div">
                 <label for="remove_samples_field">Block samples by index:</label>
@@ -53,10 +53,10 @@
                   {% if negative_vals_exist == "false" %}
                   <option value="log2">Log2</option>
                   <option value="log10">Log10</option>
+                  <option value="sqrt">Square Root</option>
                   {% endif %}
                   <option value="zscore">Z-score</option>
                   <option value="qnorm">Quantile</option>
-                  <option value="sqrt">Square Root</option>
                   <option value="invert">Invert +/-</option>
                 </select>
               </div>
@@ -64,20 +64,24 @@
               {% if sample_groups[0].sample_qnorm is not none %}
               <input type="button" id="qnorm" class="btn btn-default" value="Quantile Normalize">
               {% endif %}
-              -->
+              <option value="zscore">Z-score</option>
+              <option value="qnorm">Quantile</option>
+              <option value="invert">Invert +/-</option>
+            </select>
             </div>
-        <br>
+          </div>
+      <br>
 
-        <div>
-            <p>Outliers highlighted in
-                    <strong style="background-color:orange;">orange</strong>
-                    can be hidden using
-                    the <strong>Hide Outliers</strong> button.
-            </p>
+      <div>
+          <p>Outliers highlighted in
+                  <strong style="background-color:orange;">orange</strong>
+                  can be hidden using
+                  the <strong>Hide Outliers</strong> button.
+          </p>
 
-            <p>Samples with no value (x) can be hidden by clicking
-                    <strong>Hide No Value</strong> button.
-            </p>
-        </div>
-    </div>
+          <p>Samples with no value (x) can be hidden by clicking
+                  <strong>Hide No Value</strong> button.
+          </p>
+      </div>
+  </div>
 </div>
