@@ -37,15 +37,13 @@ def basic_info():
                 ip_address = request.remote_addr,
                 user_agent = request.headers.get('User-Agent'))
 
-def encode_password(pass_gen_fields, unencrypted_password):
-    hashfunc = getattr(hashlib, pass_gen_fields['hashfunc'])
 
-    salt = base64.b64decode(pass_gen_fields['salt'])
+def encode_password(pass_gen_fields, unencrypted_password):
     encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password), 
-                                 pass_gen_fields['salt'], 
-                                 pass_gen_fields['iterations'], 
-                                 pass_gen_fields['keylength'], 
-                                 hashfunc)
+                                           pass_gen_fields['salt'], 
+                                           pass_gen_fields['iterations'], 
+                                           pass_gen_fields['keylength'], 
+                                           pass_gen_fields['hashfunc'])
 
     pass_gen_fields.pop("unencrypted_password", None)
     pass_gen_fields["password"] = encrypted_password
