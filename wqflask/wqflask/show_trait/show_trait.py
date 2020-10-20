@@ -41,8 +41,6 @@ logger = getLogger(__name__ )
 class ShowTrait(object):
 
     def __init__(self, kw):
-        logger.debug("in ShowTrait, kw are:", kw)
-
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
@@ -149,6 +147,7 @@ class ShowTrait(object):
                 self.nearest_marker = ""
                 #self.nearest_marker1 = ""
                 #self.nearest_marker2 = ""
+
 
         self.make_sample_lists()
 
@@ -273,7 +272,9 @@ class ShowTrait(object):
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
-                       attribute_names = self.sample_groups[0].attributes,
+                       se_exists = self.sample_groups[0].se_exists,
+                       has_num_cases = self.has_num_cases,
+                       attributes = self.sample_groups[0].attributes,
                        categorical_vars = ",".join(categorical_var_list),
                        num_values = self.num_values,
                        qnorm_values = self.qnorm_vals,
@@ -393,6 +394,7 @@ class ShowTrait(object):
                                           return_results_menu_selected = return_results_menu_selected,)
 
     def make_sample_lists(self):
+
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         
         parent_f1_samples = []
@@ -401,13 +403,19 @@ class ShowTrait(object):
 
         primary_sample_names = list(all_samples_ordered)
 
+
         if not self.temp_trait:
             other_sample_names = []
+
             for sample in list(self.this_trait.data.keys()):
-                if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
-                    primary_sample_names.append(self.this_trait.data[sample].name)
-                    primary_sample_names.remove(self.this_trait.data[sample].name2)
-                elif sample not in all_samples_ordered:
+                if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
+                    if ((self.this_trait.data[sample].name2 in primary_sample_names) and
+                        (self.this_trait.data[sample].name not in primary_sample_names)):
+                        primary_sample_names.append(self.this_trait.data[sample].name)
+                        primary_sample_names.remove(self.this_trait.data[sample].name2)
+
+                all_samples_set = set(all_samples_ordered)
+                if sample not in all_samples_set:
                     all_samples_ordered.append(sample)
                     other_sample_names.append(sample)
 
@@ -420,6 +428,7 @@ class ShowTrait(object):
                 primary_header = "%s Only" % (self.dataset.group.name)
             else:
                 primary_header = "Samples"
+
             primary_samples = SampleList(dataset = self.dataset,
                                             sample_names=primary_sample_names,
                                             this_trait=self.this_trait,
@@ -451,6 +460,7 @@ class ShowTrait(object):
 
         self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
+
 
 def quantile_normalize_vals(sample_groups):
     def normf(trait_vals):
@@ -490,6 +500,7 @@ def quantile_normalize_vals(sample_groups):
 
     return qnorm_by_group
 
+
 def get_z_scores(sample_groups):
     zscore_by_group = []
     for sample_type in sample_groups:
@@ -514,11 +525,10 @@ def get_z_scores(sample_groups):
 
     return zscore_by_group
 
+
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
-    logger.debug("this_chr:", this_chr)
     this_mb = this_trait.locus_mb
-    logger.debug("this_mb:", this_mb)
     #One option is to take flanking markers, another is to take the two (or one) closest
     query = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
@@ -529,7 +539,6 @@ def get_nearest_marker(this_trait, this_db):
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
     logger.sql(query)
     result = g.db.execute(query).fetchall()
-    logger.debug("result:", result)
 
     if result == []:
         return ""
@@ -537,13 +546,14 @@ def get_nearest_marker(this_trait, this_db):
     else:
         return result[0][0]
 
+
 def get_table_widths(sample_groups, has_num_cases=False):
     stats_table_width = 250
     if len(sample_groups) > 1:
         stats_table_width = 450
 
     trait_table_width = 380
-    if sample_groups[0].se_exists():
+    if sample_groups[0].se_exists:
         trait_table_width += 80
     if has_num_cases:
         trait_table_width += 80
@@ -552,6 +562,7 @@ def get_table_widths(sample_groups, has_num_cases=False):
     trait_table_width = str(trait_table_width) + "px"
 
     return stats_table_width, trait_table_width
+
 
 def has_num_cases(this_trait):
     has_n = False
@@ -562,6 +573,7 @@ def has_num_cases(this_trait):
                 break
 
     return has_n
+
 
 def get_trait_units(this_trait):
     unit_type = ""
@@ -582,6 +594,7 @@ def get_trait_units(this_trait):
 
     return unit_type
 
+
 def check_if_attr_exists(the_trait, id_type):
     if hasattr(the_trait, id_type):
         if getattr(the_trait, id_type) == None or getattr(the_trait, id_type) == "":
@@ -590,6 +603,7 @@ def check_if_attr_exists(the_trait, id_type):
             return True
     else:
         return False
+
 
 def get_ncbi_summary(this_trait):
     if check_if_attr_exists(this_trait, 'geneid'):
@@ -602,6 +616,7 @@ def get_ncbi_summary(this_trait):
             return None
     else:
         return None
+
 
 def get_categorical_variables(this_trait, sample_list):
     categorical_var_list = []
@@ -621,6 +636,7 @@ def get_categorical_variables(this_trait, sample_list):
 
     return categorical_var_list
 
+
 def get_genotype_scales(genofiles):
     geno_scales = {}
     if isinstance(genofiles, list):
@@ -631,6 +647,7 @@ def get_genotype_scales(genofiles):
         geno_scales[genofiles] = get_scales_from_genofile(genofiles)
 
     return geno_scales
+
 
 def get_scales_from_genofile(file_location):
     geno_path = locate_ignore_error(file_location, 'genotype')
@@ -683,6 +700,7 @@ def get_scales_from_genofile(file_location):
             else:
                 if i > first_marker_line + 10:
                     break
+
 
     #ZS: This assumes that both won't be all zero, since if that's the case mapping shouldn't be an option to begin with
     if mb_all_zero:

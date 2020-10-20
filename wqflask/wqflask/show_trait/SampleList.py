@@ -1,16 +1,12 @@
 import re
 import itertools
-import utility.logger
 
 from flask import g
 from base import webqtlCaseData
+from pprint import pformat as pf
 
 from utility import Plot
 from utility import Bunch
-
-from pprint import pformat as pf
-
-logger = utility.logger.getLogger(__name__)
 
 
 class SampleList(object):
@@ -63,12 +59,15 @@ class SampleList(object):
 
             sample.this_id = str(counter)
 
-            # For extra attribute columns; currently only used by
-            # several datasets - Zach
+            # ZS: For extra attribute columns; currently only used by
+            # several datasets
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(
                     sample_name, {})
+
             self.sample_list.append(sample)
+
+        self.se_exists = any(sample.variance for sample in self.sample_list)
         self.do_outliers()
 
     def __repr__(self):
@@ -148,12 +147,6 @@ class SampleList(object):
 
                     attribute_values[self.attributes[item.Id].name] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
-
-    def se_exists(self):
-        """Returns true if SE values exist for any samples, otherwise false"""
-
-        return any(sample.variance for sample in self.sample_list)
-
 
 def natural_sort(list, key=lambda s: s):
     """
