@@ -446,14 +446,14 @@ edit_data_change = function() {
     rows = $("#" + table).find('tr');
     for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
       row = rows[_j];
-      name = $(row).find('.edit_sample_sample_name').html();
+      name = $(row).find('.edit-sample-sample-name').html();
       name = $.trim(name);
-      real_value = $(row).find('.edit_sample_value').val();
-      checkbox = $(row).find(".edit_sample_checkbox");
+      real_value = $(row).find('.edit-sample-value').val();
+      checkbox = $(row).find(".edit-sample-checkbox");
       if (is_number(real_value) && real_value !== "") {
         real_value = parseFloat(real_value);
         sample_sets[table].add_value(real_value);
-        real_variance = $(row).find('.edit_sample_se').val();
+        real_variance = $(row).find('.edit-sample-se').val();
         if (is_number(real_variance)) {
           real_variance = parseFloat(real_variance);
         } else {
@@ -567,7 +567,7 @@ block_by_attribute_value = function() {
       var row;
       if ($.trim($(element).text()) === exclude_by_value) {
         row = $(element).parent('tr');
-        return $(row).find(".trait_value_input").val("x");
+        return $(row).find(".trait-value-input").val("x");
       }
     };
   })(this));
@@ -614,9 +614,9 @@ block_by_index = function() {
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     if ($('#block_group').val() === "primary") {
-      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
+      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait-value-input').val("x"));
     } else if ($('#block_group').val() === "other") {
-      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
+      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait-value-input').val("x"));
     } else {
       _results.push(void 0);
     }
@@ -628,7 +628,7 @@ $('#block_by_index').click(block_by_index);
 hide_no_value = function() {
   return $('.value_se').each((function(_this) {
     return function(_index, element) {
-      if ($(element).find('.trait_value_input').val() === 'x') {
+      if ($(element).find('.trait-value-input').val() === 'x') {
         return $(element).hide();
       }
     };
@@ -638,7 +638,7 @@ $('#hide_no_value').click(hide_no_value);
 block_outliers = function() {
   return $('.outlier').each((function(_this) {
     return function(_index, element) {
-      return $(element).find('.trait_value_input').val('x');
+      return $(element).find('.trait-value-input').val('x');
     };
   })(this));
 };
@@ -646,7 +646,7 @@ $('#block_outliers').click(block_outliers);
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
-  return $('.trait_value_input').each((function(_this) {
+  return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       $(element).val($(element).data('value'));
       return $(element).parents('.value_se').show();
@@ -659,7 +659,7 @@ $('.reset').click(function() {
 });
 
 log2_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
+  return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       current_value = $(element).data("value")
       if(isNaN(current_value)) {
@@ -676,7 +676,7 @@ log2_normalize_data = function(zero_to_one_vals_exist) {
 };
 
 log10_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
+  return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       current_value = $(element).data("value")
       if(isNaN(current_value)) {
@@ -694,7 +694,7 @@ log10_normalize_data = function(zero_to_one_vals_exist) {
 
 
 sqrt_normalize_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
+  return $('.edit-sample-value').each((function(_this) {
     return function(_index, element) {
       current_value = parseFloat($(element).data("value")) + 1;
       if(isNaN(current_value)) {
@@ -708,7 +708,7 @@ sqrt_normalize_data = function() {
 };
 
 invert_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
+  return $('.edit-sample-value').each((function(_this) {
     return function(_index, element) {
       current_value = parseFloat($(element).val());
       if(isNaN(current_value)) {
@@ -723,7 +723,7 @@ invert_data = function() {
 
 
 qnorm_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
+  return $('.edit-sample-value').each((function(_this) {
     return function(_index, element) {
       current_value = parseFloat($(element).data("value")) + 1;
       if(isNaN(current_value)) {
@@ -737,7 +737,7 @@ qnorm_data = function() {
 };
 
 zscore_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
+  return $('.edit-sample-value').each((function(_this) {
     return function(_index, element) {
       current_value = parseFloat($(element).data("value")) + 1;
       if(isNaN(current_value)) {
@@ -752,7 +752,7 @@ zscore_data = function() {
 
 check_for_zero_to_one_vals = function() {
   zero_to_one_vals_exist = false
-  $('.trait_value_input').each(function() {
+  $('.trait-value-input').each(function() {
     current_value = $(this).data("value")
     if(isNaN(current_value)) {
       return true;
@@ -833,7 +833,7 @@ $('#normalize').hover(function(){
 $('#normalize').click(normalize_data)
 
 switch_qnorm_data = function() {
-  return $('.trait_value_input').each((function(_this) {
+  return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       transform_val = $(element).data('transform')
       if (transform_val != "") {
@@ -852,9 +852,9 @@ get_sample_table_data = function(table_name) {
       var attribute_info, key, row_data, _ref;
       row_data = {};
       row_data.name = $.trim($(element).find('.column_name-Sample').text());
-      row_data.value = $(element).find('.edit_sample_value:eq(0)').val();
-      if ($(element).find('.edit_sample_se').length > 0) {
-        row_data.se = $(element).find('.edit_sample_se').val();
+      row_data.value = $(element).find('.edit-sample-value:eq(0)').val();
+      if ($(element).find('.edit-sample-se').length > 0) {
+        row_data.se = $(element).find('.edit-sample-se').val();
       }
       if ($(element).find('.edit_sample_num_cases').length > 0) {
         row_data.num_cases = $(element).find('.edit_sample_num_cases').val();

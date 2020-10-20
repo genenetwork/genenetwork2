@@ -63,8 +63,9 @@ table.dataTable.cell-border tbody tr td:first-child {
 }
 
 table.dataTable tbody td.column_name-Checkbox {
-  padding: 3px 0px 0px 9px;
+  padding: 1px 0px 0px 9px; /* The left padding here is because text-align:center does not seem to be working properly. No idea why this is. */
   text-align: center;
+  vertical-align: middle;
 }
 
 table.dataTable tbody td.column_name-Index {
@@ -112,10 +113,6 @@ div.correlation-options {
   width: 70px;
 }
 
-span.p-range-container {
-  display: inline;
-}
-
 div.p-range-slider {
   width: 200px;
   margin-left: 15px;
@@ -135,7 +132,7 @@ span.p-range-upper {
   margin: 5px 0px 0px 170px;
 }
 
-.corr-location {
+input.corr-location {
   width: 50px;
   display: inline;
 }
@@ -208,4 +205,49 @@ div.select-covar-div {
 .rqtl-description {
   padding-top: 40px;
   display: none;
+}
+
+div.sample-table-container {
+  padding-bottom: 10px;
+}
+
+div.sample-table-search-container {
+  display: inline;
+  height: 40px;
+}
+
+input.sample-table-search {
+  width: 200px;
+  display: inline;
+  float: left;
+  vertical-align: top;
+}
+
+div.sample-table-export-container {
+  padding-left: 10px;
+  display: inline;
+}
+
+div.export-code-container {
+  width: 600px;
+  display: none;
+}
+
+.export-code-field {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  height: 150px;
+}
+
+table.sample-table {
+  float: left;
+  width:100%;
+}
+
+input.trait-value-input {
+  text-align: right;
+}
+
+div.inline-div {
+  display: inline;
 }

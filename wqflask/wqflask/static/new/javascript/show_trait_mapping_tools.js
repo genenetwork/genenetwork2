@@ -58,7 +58,7 @@
   block_outliers = function() {
     return $('.outlier').each((function(_this) {
       return function(_index, element) {
-        return $(element).find('.trait_value_input').val('x');
+        return $(element).find('.trait-value-input').val('x');
       };
     })(this));
   };
