@@ -227,7 +227,7 @@
 
                 var primary_table = $('#samples_primary').DataTable( {
                   'initComplete': function(settings, json) {
-                    $('.edit_sample_value').change(function() {
+                    $('.edit-sample-value').change(function() {
                       edit_data_change();
                     });
                   },
@@ -277,7 +277,7 @@
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return '<span class="edit_sample_sample_name">' + data.name + '</span>'
+                        return '<span class="edit-sample-sample-name">' + data.name + '</span>'
                       }
                     },
                     {
@@ -287,9 +287,9 @@
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.value == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait-value-input edit-sample-value" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait-value-input edit-sample-value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% if sample_groups[0].se_exists() %},
@@ -309,9 +309,9 @@
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.variance == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait-value-input edit_sample_se" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait-value-input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% endif %}{% if has_num_cases %},
@@ -322,9 +322,9 @@
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.num_cases == null || data.num_cases == undefined) {
-                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+                          return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait-value-input edit_sample_num_cases" value="x" size=4 maxlength=4>'
                         } else {
-                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait-value-input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
                         }
                       }
                     }{% endif %}{% if sample_groups[0].attributes|length > 0 %}{% for attribute in sample_groups[0].attributes|sort() %},
@@ -369,7 +369,7 @@
                 {% if sample_groups|length != 1 %}
                 var other_table = $('#samples_other').DataTable( {
                   'initComplete': function(settings, json) {
-                    $('.edit_sample_value').change(function() {
+                    $('.edit-sample-value').change(function() {
                       edit_data_change();
                     });
                   },
@@ -418,7 +418,7 @@
                       'type': "natural",
                       'data': null,
                       'render': function(data, type, row, meta) {
-                        return '<span class="edit_sample_sample_name">' + data.name + '</span>'
+                        return '<span class="edit-sample-sample-name">' + data.name + '</span>'
                       }
                     },
                     {
@@ -428,9 +428,9 @@
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.value == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait-value-input edit-sample-value" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][1][parseInt(data.this_id)] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][1][parseInt(data.this_id)] + '" name="value:' + data.name + '" class="trait-value-input edit-sample-value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% if sample_groups[1].se_exists() %},
@@ -450,9 +450,9 @@
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.variance == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait-value-input edit_sample_se" value="x" size=6 maxlength=6>'
                         } else {
-                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
+                          return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" name="value:' + data.name + '" class="trait-value-input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
                         }
                       }
                     }{% endif %}{% if has_num_cases %},
@@ -463,9 +463,9 @@
                       'data': null,
                       'render': function(data, type, row, meta) {
                         if (data.num_cases == null) {
-                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
+                          return '<input type="text" data-value="x" data-qnorm="x" name="value:' + data.name + '" class="trait-value-input edit_sample_num_cases" value="x" size=4 maxlength=4>'
                         } else {
-                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
+                          return '<input type="text" data-value="' + data.num_cases + '" data-qnorm="x" name="value:' + data.name + '" class="trait-value-input edit_sample_num_cases" value="' + data.num_cases + '" size=4 maxlength=4>'
                         }
                       }
                     }{% endif %}{% if sample_groups[1].attributes|length > 0 %}{% for attribute in sample_groups[1].attributes|sort() %},
