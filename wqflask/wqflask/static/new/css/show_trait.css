@@ -59,6 +59,7 @@ table.dataTable.cell-border tbody tr td:first-child {
 
 .trait_value_input {
   text-align: right;
+}
 
 .glyphicon {
   position: relative;
@@ -236,6 +237,7 @@ div.sample-table-export-container {
 }
 
 div.export-code-container {
+  padding-top: 20px;
   width: 600px;
   display: none;
 }

@@ -12,33 +12,33 @@
           </select>
           <input type="button" class="btn btn-success reset" value="Reset">
         </div>
-      </div>
-      <div id="export_code" class="export-code-container" style="">
-        <pre class="export-code_field">
-          <code>
-# read into R
-trait <- read.csv("{{ this_trait.display_name}}.csv", header = TRUE, comment.char = "#")
+        <div id="export_code" class="export-code-container">
+          <pre class="export-code_field">
+            <code>
+  # read into R
+  trait <- read.csv("{{ this_trait.display_name}}.csv", header = TRUE, comment.char = "#")
 
-# read into python
-import pandas as pd
-trait = pd.read_csv("{{ this_trait.display_name}}.csv", header = 0, comment = "#")
-          </code>
-        </pre>
-      </div>
-        {% set outer_loop = loop %}
-        <div class="sample_group" style="width:{{ trait_table_width }};">
-          <div style="position: relative;">
-            <div class="inline-div"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3>
-          </div>
-          <div id="table_container">
-          <table class="table-hover table-striped cell-border sample-table" id="samples_{{ sample_type.sample_group_type }}">
-              <tbody>
-                <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
-              </tbody>
-          </table>
-          </div>
+  # read into python
+  import pandas as pd
+  trait = pd.read_csv("{{ this_trait.display_name}}.csv", header = 0, comment = "#")
+            </code>
+          </pre>
         </div>
-        <br>
+      </div>
+      {% set outer_loop = loop %}
+      <div class="sample_group" style="width:{{ trait_table_width }};">
+        <div style="position: relative;">
+          <div class="inline-div"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3></div>
+        </div>
+        <div id="table_container">
+        <table class="table-hover table-striped cell-border sample-table" id="samples_{{ sample_type.sample_group_type }}">
+            <tbody>
+              <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+            </tbody>
+        </table>
+        </div>
+      </div>
+      <br>
     {% endfor %}
     <input type="hidden" name="Default_Name">
 </div>
