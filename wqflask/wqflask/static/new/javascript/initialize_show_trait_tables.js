@@ -6,7 +6,7 @@ if (js_data.se_exists) {
   attribute_start_pos += 2;
 }
 if (js_data.has_num_cases === true) {
-  attribute_start_post += 1;
+  attribute_start_pos += 1;
 }
 
 build_columns = function() {
