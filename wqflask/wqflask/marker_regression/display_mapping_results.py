@@ -2074,9 +2074,7 @@ class DisplayMappingResults(object):
                         pass
 
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                if self.significant > LRS_LOD_Max:
-                    LRS_LOD_Max = self.significant * 1.1
-                #LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
+                LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
             else:
                 LRS_LOD_Max = 1.15*LRS_LOD_Max
 
