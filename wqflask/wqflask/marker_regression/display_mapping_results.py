@@ -2075,8 +2075,6 @@ class DisplayMappingResults(object):
 
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                 LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
-            else:
-                LRS_LOD_Max = 1.15*LRS_LOD_Max
 
             #genotype trait will give infinite LRS
             LRS_LOD_Max = min(LRS_LOD_Max, webqtlConfig.MAXLRS)
