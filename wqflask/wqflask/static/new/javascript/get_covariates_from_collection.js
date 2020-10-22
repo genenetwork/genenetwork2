@@ -104,7 +104,7 @@ submit_click = function() {
   //covariates_display_string = covariates_display_string.substring(0, covariates_display_string.length - 2)
 
   $("input[name=covariates]").val(covariates_string)
-  $(".selected_covariates").val(covariates_display_string)
+  $(".selected-covariates").val(covariates_display_string)
 
   return $.colorbox.close();
 };
@@ -114,7 +114,7 @@ trait_click = function() {
   trait = $(this).parent().find('.trait').text();
   dataset = $(this).parent().find('.dataset').data("dataset");
   $("input[name=covariates]").val(trait + ":" + dataset)
-  $(".selected_covariates").text(trait)
+  $(".selected-covariates").text(trait)
   return $.colorbox.close();
 };
 

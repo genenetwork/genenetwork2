@@ -107,14 +107,14 @@ d3.select("#select_covariates").on("click", (function(_this) {
 })(this));
 $("#remove_covariates").click(function () {
     $("input[name=covariates]").val("")
-    $(".selected_covariates").val("")
+    $(".selected-covariates").val("")
 });
 $(".select_covariates").click(function () {
   open_covariate_selection();
 });
 $(".remove_covariates").click(function () {
   $("input[name=covariates]").val("")
-  $(".selected_covariates").val("")
+  $(".selected-covariates").val("")
 });
 d3.select("#clear_compare_trait").on("click", (function(_this) {
   return function() {
@@ -601,7 +601,7 @@ block_by_attribute_value = function() {
       var row;
       if ($.trim($(element).text()) === exclude_by_value) {
         row = $(element).parent('tr');
-        return $(row).find(".trait_value_input").val("x");
+        return $(row).find(".trait-value-input").val("x");
       }
     };
   })(this));
@@ -641,13 +641,14 @@ block_by_index = function() {
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     val_nodes[index - 1].childNodes[0].value = "x";
+
   }
 };
 
 hide_no_value = function() {
   return $('.value_se').each((function(_this) {
     return function(_index, element) {
-      if ($(element).find('.trait_value_input').val() === 'x') {
+      if ($(element).find('.trait-value-input').val() === 'x') {
         return $(element).hide();
       }
     };
@@ -658,7 +659,7 @@ $('#hide_no_value').click(hide_no_value);
 block_outliers = function() {
   return $('.outlier').each((function(_this) {
     return function(_index, element) {
-      return $(element).find('.trait_value_input').val('x');
+      return $(element).find('.trait-value-input').val('x');
     };
   })(this));
 };
@@ -667,7 +668,6 @@ $('#block_outliers').click(block_outliers);
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
-
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
@@ -871,7 +871,7 @@ $('#normalize').hover(function(){
 $('#normalize').click(normalize_data)
 
 switch_qnorm_data = function() {
-  return $('.trait_value_input').each((function(_this) {
+  return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       transform_val = $(element).data('transform')
       if (transform_val != "") {
@@ -890,9 +890,9 @@ get_sample_table_data = function(table_name) {
       var attribute_info, key, row_data, _ref;
       row_data = {};
       row_data.name = $.trim($(element).find('.column_name-Sample').text());
-      row_data.value = $(element).find('.edit_sample_value:eq(0)').val();
-      if ($(element).find('.edit_sample_se').length > 0) {
-        row_data.se = $(element).find('.edit_sample_se').val();
+      row_data.value = $(element).find('.edit-sample-value:eq(0)').val();
+      if ($(element).find('.edit-sample-se').length > 0) {
+        row_data.se = $(element).find('.edit-sample-se').val();
       }
       if ($(element).find('.edit_sample_num_cases').length > 0) {
         row_data.num_cases = $(element).find('.edit_sample_num_cases').val();

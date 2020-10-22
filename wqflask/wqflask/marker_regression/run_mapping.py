@@ -140,7 +140,7 @@ class RunMapping(object):
             mapping_results_filename = self.dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             self.mapping_results_path = "{}{}.csv".format(webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
-        if start_vars['manhattan_plot'] == "True":
+        if start_vars['manhattan_plot'] == "true":
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
