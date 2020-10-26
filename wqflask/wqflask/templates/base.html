@@ -9,6 +9,9 @@
 
     <meta name="description" content="">
     <meta name="author" content="">
+    <script type="text/javascript">
+     var pageLoadStart = Date.now();
+    </script>
     <link rel="icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
     <link rel="apple-touch-icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
     <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
@@ -203,6 +206,7 @@
             {% if version: %}
             <p><small>GeneNetwork {{ version }}</small></p>
             {% endif %}
+            <p> It took the server {{ g.request_time() }} seconds to process this page.</p>
 
         </div>
         <div class="col-xs-2">
@@ -256,6 +260,12 @@
     {% block js %}
     {% endblock %}
 
-
+    <script type="text/javascript">
+     $(window).load(function() {
+         let timeToLoad = document.createElement("p");
+         timeToLoad.innerHTML = "It took your browser " + ((Date.now() - pageLoadStart)/1000) + " second(s) to render this page";
+         document.querySelector("footer .row .col-xs-6").appendChild(timeToLoad);
+     });
+    </script>
 </body>
 </html>

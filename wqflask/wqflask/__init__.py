@@ -1,8 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+import time
 import jinja2
 
+from flask import g
 from flask import Flask
 from utility import formatting
 
@@ -18,6 +20,13 @@ app.config.from_envvar('GN2_SETTINGS')
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
     numify=formatting.numify)
+
+
+@app.before_request
+def before_request():
+   g.request_start_time = time.time()
+   g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
+
 
 from wqflask.api import router
 from wqflask import group_manager
