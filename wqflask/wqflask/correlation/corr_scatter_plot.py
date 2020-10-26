@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 import math
 
 from flask import g
@@ -43,13 +41,13 @@ class CorrScatterPlot(object):
         samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
 
         self.data = []
-        self.indIDs = samples_1.keys()
+        self.indIDs = list(samples_1.keys())
         vals_1 = []
-        for sample in samples_1.keys():
+        for sample in list(samples_1.keys()):
             vals_1.append(samples_1[sample].value)
         self.data.append(vals_1)
         vals_2 = []
-        for sample in samples_2.keys():
+        for sample in list(samples_2.keys()):
             vals_2.append(samples_2[sample].value)
         self.data.append(vals_2)
 

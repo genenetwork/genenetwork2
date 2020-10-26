@@ -42,10 +42,10 @@ class GNLogger:
 
     """
 
-    def __init__(self,name):
+    def __init__(self, name):
         self.logger = logging.getLogger(name)
 
-    def setLevel(self,value):
+    def setLevel(self, value):
         """Set the undelying log level"""
         self.logger.setLevel(value)
 
@@ -54,7 +54,7 @@ class GNLogger:
 level=num to filter on LOG_LEVEL_DEBUG.
 
         """
-        self.collect(self.logger.debug,*args)
+        self.collect(self.logger.debug, *args)
 
     def debug20(self,*args):
         """Call logging.debug for multiple args. Use level=num to filter on
@@ -63,15 +63,15 @@ LOG_LEVEL_DEBUG (NYI).
         """
         if level <= LOG_LEVEL_DEBUG:
             if self.logger.getEffectiveLevel() < 20:
-                self.collect(self.logger.debug,*args)
+                self.collect(self.logger.debug, *args)
 
     def info(self,*args):
         """Call logging.info for multiple args"""
-        self.collect(self.logger.info,*args)
+        self.collect(self.logger.info, *args)
 
     def warning(self,*args):
         """Call logging.warning for multiple args"""
-        self.collect(self.logger.warning,*args)
+        self.collect(self.logger.warning, *args)
         # self.logger.warning(self.collect(*args))
 
     def error(self,*args):
@@ -79,13 +79,13 @@ LOG_LEVEL_DEBUG (NYI).
         now = datetime.datetime.utcnow()
         time_str = now.strftime('%H:%M:%S UTC %Y%m%d')
         l = [time_str]+list(args)
-        self.collect(self.logger.error,*l)
+        self.collect(self.logger.error, *l)
 
     def infof(self,*args):
         """Call logging.info for multiple args lazily"""
         # only evaluate function when logging
         if self.logger.getEffectiveLevel() < 30:
-            self.collectf(self.logger.debug,*args)
+            self.collectf(self.logger.debug, *args)
 
     def debugf(self,level=0,*args):
         """Call logging.debug for multiple args lazily and handle
@@ -95,15 +95,15 @@ LOG_LEVEL_DEBUG (NYI).
         # only evaluate function when logging
         if level <= LOG_LEVEL_DEBUG:
             if self.logger.getEffectiveLevel() < 20:
-                self.collectf(self.logger.debug,*args)
+                self.collectf(self.logger.debug, *args)
 
     def sql(self, sqlcommand, fun = None):
         """Log SQL command, optionally invoking a timed fun"""
         if LOG_SQL:
             caller = stack()[1][3]
-            if caller in ['fetchone','fetch1','fetchall']:
+            if caller in ['fetchone', 'fetch1', 'fetchall']:
                 caller = stack()[2][3]
-            self.info(caller,sqlcommand)
+            self.info(caller, sqlcommand)
         if fun:
             result = fun(sqlcommand)
             if LOG_SQL:
@@ -119,7 +119,7 @@ LOG_LEVEL_DEBUG (NYI).
             if isinstance(a, str):
                 out = out + a
             else:
-                out = out + pf(a,width=160)
+                out = out + pf(a, width=160)
         fun(out)
 
     def collectf(self,fun,*args):
@@ -134,7 +134,7 @@ LOG_LEVEL_DEBUG (NYI).
                     if isinstance(a, str):
                         out = out + a
                     else:
-                        out = out + pf(a,width=160)
+                        out = out + pf(a, width=160)
         fun(out)
 
 # Get the module logger. You can override log levels at the

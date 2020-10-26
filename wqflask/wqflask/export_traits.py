@@ -1,8 +1,6 @@
-from __future__ import print_function, division
-
 import csv
 import xlsxwriter
-import StringIO 
+import io 
 import datetime
 import itertools
 
@@ -61,9 +59,9 @@ def export_search_results_csv(targs):
     traits_by_group = sort_traits_by_group(trait_list)
 
     file_list = []
-    for group in traits_by_group.keys():
+    for group in list(traits_by_group.keys()):
         group_traits = traits_by_group[group]
-        buff = StringIO.StringIO()
+        buff = io.StringIO()
         writer = csv.writer(buff)
         csv_rows = []
 
@@ -122,7 +120,7 @@ def export_search_results_csv(targs):
 
             csv_rows.append(row_contents)
 
-        csv_rows = map(list, itertools.izip_longest(*[row for row in csv_rows]))
+        csv_rows = list(map(list, itertools.zip_longest(*[row for row in csv_rows])))
         writer.writerows(csv_rows)
         csv_data = buff.getvalue()
         buff.close()
@@ -135,7 +133,7 @@ def export_search_results_csv(targs):
 def sort_traits_by_group(trait_list=[]):
     traits_by_group = {}
     for trait in trait_list:
-        if trait.dataset.group.name not in traits_by_group.keys():
+        if trait.dataset.group.name not in list(traits_by_group.keys()):
             traits_by_group[trait.dataset.group.name] = []
 
         traits_by_group[trait.dataset.group.name].append(trait)

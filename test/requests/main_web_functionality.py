@@ -1,9 +1,7 @@
-from __future__ import print_function
-import re
 import requests
 from lxml.html import parse
 from link_checker import check_page
-from requests.exceptions import ConnectionError
+
 
 def check_home(url):
     doc = parse(url).getroot()
@@ -13,18 +11,20 @@ def check_home(url):
 
 def check_search_page(host):
     data = dict(
-        species="mouse"
-        , group="BXD"
-        , type="Hippocampus mRNA"
-        , dataset="HC_M2_0606_P"
-        , search_terms_or=""
-        , search_terms_and="MEAN=(15 16) LRS=(23 46)")
+        species="mouse",
+        group="BXD",
+        type="Hippocampus mRNA",
+        dataset="HC_M2_0606_P",
+        search_terms_or="",
+        search_terms_and="MEAN=(15 16) LRS=(23 46)")
     result = requests.get(host+"/search", params=data)
     found = result.text.find("records were found")
     assert(found >= 0)
     assert(result.status_code == 200)
     print("OK")
-    check_traits_page(host, "/show_trait?trait_id=1435395_s_at&dataset=HC_M2_0606_P")
+    check_traits_page(host, ("/show_trait?trait_id=1435395_"
+                             "s_at&dataset=HC_M2_0606_P"))
+
 
 def check_traits_page(host, traits_url):
     doc = parse(host+traits_url).getroot()
@@ -32,6 +32,7 @@ def check_traits_page(host, traits_url):
     assert(traits_form.fields["corr_dataset"] == "HC_M2_0606_P")
     print("OK")
     check_page(host, host+traits_url)
+
 
 def check_main_web_functionality(args_obj, parser):
     print("")

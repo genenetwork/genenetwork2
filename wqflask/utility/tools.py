@@ -15,7 +15,7 @@ OVERRIDES = {}
 
 def app_set(command_id, value):
     """Set application wide value"""
-    app.config.setdefault(command_id,value)
+    app.config.setdefault(command_id, value)
     return value
 
 def get_setting(command_id,guess=None):
@@ -45,7 +45,7 @@ def get_setting(command_id,guess=None):
     def value(command):
         if command:
             # sys.stderr.write("Found "+command+"\n")
-            app_set(command_id,command)
+            app_set(command_id, command)
             return command
         else:
             return None
@@ -68,7 +68,7 @@ def get_setting(command_id,guess=None):
 
 def get_setting_bool(id):
     v = get_setting(id)
-    if v not in [0,False,'False','FALSE',None]:
+    if v not in [0, False, 'False', 'FALSE', None]:
       return True
     return False
 
@@ -108,16 +108,16 @@ def js_path(module=None):
     raise "No JS path found for "+module+" (if not in Guix check JS_GN_PATH)"
 
 def reaper_command(guess=None):
-    return get_setting("REAPER_COMMAND",guess)
+    return get_setting("REAPER_COMMAND", guess)
 
 def gemma_command(guess=None):
-    return assert_bin(get_setting("GEMMA_COMMAND",guess))
+    return assert_bin(get_setting("GEMMA_COMMAND", guess))
 
 def gemma_wrapper_command(guess=None):
-    return assert_bin(get_setting("GEMMA_WRAPPER_COMMAND",guess))
+    return assert_bin(get_setting("GEMMA_WRAPPER_COMMAND", guess))
 
 def plink_command(guess=None):
-    return assert_bin(get_setting("PLINK_COMMAND",guess))
+    return assert_bin(get_setting("PLINK_COMMAND", guess))
 
 def flat_file_exists(subdir):
     base = get_setting("GENENETWORK_FILES")
@@ -180,7 +180,7 @@ def locate(name, subdir=None):
     raise Exception("Can not locate "+name+" in "+base)
 
 def locate_phewas(name, subdir=None):
-    return locate(name,'/phewas/'+subdir)
+    return locate(name, '/phewas/'+subdir)
 
 def locate_ignore_error(name, subdir=None):
     """
@@ -204,7 +204,7 @@ def tempdir():
     """
     Get UNIX TMPDIR by default
     """
-    return valid_path(get_setting("TMPDIR","/tmp"))
+    return valid_path(get_setting("TMPDIR", "/tmp"))
 
 BLUE  = '\033[94m'
 GREEN = '\033[92m'
@@ -214,20 +214,20 @@ ENDC  = '\033[0m'
 def show_settings():
     from utility.tools import LOG_LEVEL
 
-    print("Set global log level to "+BLUE+LOG_LEVEL+ENDC)
+    print(("Set global log level to "+BLUE+LOG_LEVEL+ENDC))
     log_level = getattr(logging, LOG_LEVEL.upper())
     logging.basicConfig(level=log_level)
 
     logger.info(OVERRIDES)
     logger.info(BLUE+"Mr. Mojo Risin 2"+ENDC)
-    print "runserver.py: ****** Webserver configuration - k,v pairs from app.config ******"
-    keylist = app.config.keys()
+    keylist = list(app.config.keys())
+    print("runserver.py: ****** Webserver configuration - k,v pairs from app.config ******")
     keylist.sort()
     for k in keylist:
         try:
-            print("%s: %s%s%s%s" % (k,BLUE,BOLD,get_setting(k),ENDC))
+            print(("%s: %s%s%s%s" % (k, BLUE, BOLD, get_setting(k), ENDC)))
         except:
-            print("%s: %s%s%s%s" % (k,GREEN,BOLD,app.config[k],ENDC))
+            print(("%s: %s%s%s%s" % (k, GREEN, BOLD, app.config[k], ENDC)))
 
 
 # Cached values
@@ -279,10 +279,10 @@ SMTP_CONNECT = get_setting('SMTP_CONNECT')
 SMTP_USERNAME = get_setting('SMTP_USERNAME')
 SMTP_PASSWORD = get_setting('SMTP_PASSWORD')
 
-REAPER_COMMAND     = app_set("REAPER_COMMAND",reaper_command())
-GEMMA_COMMAND      = app_set("GEMMA_COMMAND",gemma_command())
+REAPER_COMMAND     = app_set("REAPER_COMMAND", reaper_command())
+GEMMA_COMMAND      = app_set("GEMMA_COMMAND", gemma_command())
 assert(GEMMA_COMMAND is not None)
-PLINK_COMMAND      = app_set("PLINK_COMMAND",plink_command())
+PLINK_COMMAND      = app_set("PLINK_COMMAND", plink_command())
 GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
 TEMPDIR            = tempdir() # defaults to UNIX TMPDIR
 assert_dir(TEMPDIR)
@@ -295,11 +295,11 @@ assert_dir(JS_GUIX_PATH+'/cytoscape-panzoom')
 CSS_PATH = JS_GUIX_PATH  # The CSS is bundled together with the JS
 # assert_dir(JS_PATH)
 
-JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH",js_path("javascript-twitter-post-fetcher"))
+JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH", js_path("javascript-twitter-post-fetcher"))
 assert_dir(JS_TWITTER_POST_FETCHER_PATH)
 assert_file(JS_TWITTER_POST_FETCHER_PATH+"/js/twitterFetcher_min.js")
 
-JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH",js_path("cytoscape"))
+JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH", js_path("cytoscape"))
 assert_dir(JS_CYTOSCAPE_PATH)
 assert_file(JS_CYTOSCAPE_PATH+'/cytoscape.min.js')
 

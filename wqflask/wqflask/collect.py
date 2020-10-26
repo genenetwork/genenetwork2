@@ -1,5 +1,4 @@
-from __future__ import print_function, division, absolute_import
-
+import hashlib
 import datetime
 import simplejson as json
 
@@ -27,7 +26,9 @@ Redis = get_redis_conn()
 
 
 def process_traits(unprocessed_traits):
-    if isinstance(unprocessed_traits, basestring):
+    if isinstance(unprocessed_traits, bytes):
+        unprocessed_traits = unprocessed_traits.decode('utf-8').split(",")
+    else:  # It's a string
         unprocessed_traits = unprocessed_traits.split(",")
     traits = set()
     for trait in unprocessed_traits:
@@ -114,7 +115,8 @@ def collections_new():
         g.user_session.add_traits_to_collection(collection_id, traits)
         return redirect(url_for('view_collection', uc_id=collection_id))
     else:
-        CauseAnError
+        # CauseAnError
+        pass
 
 def create_new(collection_name):
     params = request.args
@@ -182,7 +184,7 @@ def view_collection():
     params = request.args
 
     uc_id = params['uc_id']
-    uc = (collection for collection in g.user_session.user_collections if collection["id"] == uc_id).next()
+    uc = next((collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
     traits = uc["members"]
 
     trait_obs = []

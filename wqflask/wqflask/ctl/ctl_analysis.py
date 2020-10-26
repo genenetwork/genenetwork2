@@ -125,7 +125,7 @@ class CTL(object):
             gt = create_trait(name = ts[0], dataset_name = ts[1])
             gt = retrieve_sample_data(gt, dataset, individuals)
             for ind in individuals:
-              if ind in gt.data.keys():
+              if ind in list(gt.data.keys()):
                 traits.append(gt.data[ind].value)
               else:
                 traits.append("-999")
@@ -143,7 +143,7 @@ class CTL(object):
         #r_write_table(rPheno, "~/outputGN/pheno.csv")
 
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, ncores = 6)
+        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, nthreads=6)
 
         # Get significant interactions
         significant = self.r_CTLsignificant(res, significance = significance)
@@ -175,7 +175,7 @@ class CTL(object):
         sys.stdout.flush()
 
         # Create the interactive graph for cytoscape visualization (Nodes and Edges)
-        if not type(significant) == ri.RNULLType:
+        if not isinstance(significant, ri.RNULLType):
           for x in range(len(significant[0])):
             logger.debug(significant[0][x], significant[1][x], significant[2][x])     # Debug to console
             tsS = significant[0][x].split(':')                                        # Source
@@ -186,15 +186,15 @@ class CTL(object):
             self.addNode(gtT)
             self.addEdge(gtS, gtT, significant, x)
 
-            significant[0][x] = gtS.symbol + " (" + gtS.name + ")"                    # Update the trait name for the displayed table
-            significant[2][x] = gtT.symbol + " (" + gtT.name + ")"                    # Update the trait name for the displayed table
+            significant[0][x] = "{} ({})".format(gtS.symbol, gtS.name)                    # Update the trait name for the displayed table
+            significant[2][x] = "{} ({})".format(gtT.symbol, gtT.name)                    # Update the trait name for the displayed table
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
 
     def loadImage(self, path, name):
         imgfile = open(self.results[path], 'rb')
         imgdata = imgfile.read()
-        imgB64 = imgdata.encode("base64")
+        imgB64 = base64.b64encode(imgdata)
         bytesarray = array.array('B', imgB64)
         self.results[name] = bytesarray
 

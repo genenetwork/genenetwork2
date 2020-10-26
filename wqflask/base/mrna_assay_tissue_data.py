@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 import collections
 
 from flask import g
@@ -7,9 +5,8 @@ from flask import g
 from utility import db_tools
 from utility import Bunch
 
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
 
-from pprint import pformat as pf
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )

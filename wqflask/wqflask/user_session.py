@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import datetime
 import time
 import uuid
@@ -129,10 +127,10 @@ class UserSession(object):
     @property
     def user_id(self):
         """Shortcut to the user_id"""
-        if 'user_id' not in self.record:
-            self.record['user_id'] = str(uuid.uuid4())
+        if b'user_id' not in self.record:
+            self.record[b'user_id'] = str(uuid.uuid4())
 
-        return self.record['user_id']
+        return self.record[b'user_id']
 
     @property
     def redis_user_id(self):
@@ -184,7 +182,7 @@ class UserSession(object):
     def add_collection(self, collection_name, traits):
         """Add collection into Redis"""
 
-        collection_dict = {'id': unicode(uuid.uuid4()),
+        collection_dict = {'id': str(uuid.uuid4()),
                            'name': collection_name,
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),

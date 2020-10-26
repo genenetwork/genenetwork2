@@ -170,7 +170,8 @@
                         {% endif %}
                         <td data-export="{{ trait.description_display }}">{% if trait.description_display|length > 70 %}{{ trait.description_display[:70] }}...{% else %}{{ trait.description_display }}{% endif %}</td>
                         {% if trait.authors %}
-                        <td data-export="{{ trait.authors }}">{% if trait.authors.split(',') > 6 %}{{ trait.authors.split(',')[:6]|join(', ') }}, et al.{% else %}{{ trait.authors }}{% endif %}</td>
+                        {% set authors_list = trait.authors.split(',') %}
+                        <td data-export="{{ trait.authors }}">{% if authors_list|length > 6 %}{{ authors_list[:6]|join(', ') }}, et al.{% else %}{{ trait.authors }}{% endif %}</td>
                         {% else %}
                         <td data-export="N/A">N/A</td>
                         {% endif %}

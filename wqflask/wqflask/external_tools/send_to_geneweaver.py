@@ -18,8 +18,6 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
 import string
 
 from flask import Flask, g
@@ -54,10 +52,10 @@ class SendToGeneWeaver(object):
             trait_name_list = get_trait_name_list(self.trait_list)
 
             self.hidden_vars = {
-                                 'client'                     : "genenetwork",
-                                 'species'                    : species_name,
-                                 'idtype'                     : self.chip_name,
-                                 'list'                       : string.join(trait_name_list, ","),
+                                 'client': "genenetwork",
+                                 'species': species_name,
+                                 'idtype': self.chip_name,
+                                 'list': ",".join(trait_name_list),
                                }
 
 def get_trait_name_list(trait_list):

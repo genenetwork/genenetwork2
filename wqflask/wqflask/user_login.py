@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import os
 import hashlib
 import datetime
@@ -39,15 +37,13 @@ def basic_info():
                 ip_address = request.remote_addr,
                 user_agent = request.headers.get('User-Agent'))
 
-def encode_password(pass_gen_fields, unencrypted_password):
-    hashfunc = getattr(hashlib, pass_gen_fields['hashfunc'])
 
-    salt = base64.b64decode(pass_gen_fields['salt'])
+def encode_password(pass_gen_fields, unencrypted_password):
     encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password), 
-                                 pass_gen_fields['salt'], 
-                                 pass_gen_fields['iterations'], 
-                                 pass_gen_fields['keylength'], 
-                                 hashfunc)
+                                           pass_gen_fields['salt'], 
+                                           pass_gen_fields['iterations'], 
+                                           pass_gen_fields['keylength'], 
+                                           pass_gen_fields['hashfunc'])
 
     pass_gen_fields.pop("unencrypted_password", None)
     pass_gen_fields["password"] = encrypted_password
@@ -199,7 +195,7 @@ def login():
             if user_details:
                 submitted_password = params['password']
                 pwfields = user_details['password']
-                if type(pwfields) is str:
+                if isinstance(pwfields, str):
                     pwfields = json.loads(pwfields)
                 encrypted_pass_fields = encode_password(pwfields, submitted_password)
                 password_match = pbkdf2.safe_str_cmp(encrypted_pass_fields['password'], pwfields['password'])

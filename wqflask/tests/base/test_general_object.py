@@ -17,9 +17,9 @@ class TestGeneralObjectTests(unittest.TestCase):
     def test_object_dict(self):
         """Test whether the base class is printed properly"""
         test_obj = GeneralObject("a", name="test", value=1)
-        self.assertEqual(str(test_obj), "value = 1\nname = test\n")
+        self.assertEqual(str(test_obj), "name = test\nvalue = 1\n")
         self.assertEqual(
-            repr(test_obj), "value = 1\nname = test\ncontents = ['a']\n")
+            repr(test_obj), "contents = ['a']\nname = test\nvalue = 1\n")
         self.assertEqual(len(test_obj), 2)
         self.assertEqual(test_obj["value"], 1)
         test_obj["test"] = 1
@@ -36,6 +36,5 @@ class TestGeneralObjectTests(unittest.TestCase):
         test_obj1 = GeneralObject("a", name="test", value=1)
         test_obj2 = GeneralObject("b", name="test2", value=2)
         test_obj3 = GeneralObject("a", name="test", x=1, y=2)
-        self.assertTrue(test_obj1 == test_obj2 )
-        self.assertFalse(test_obj1 == test_obj3 )
-
+        self.assertTrue(test_obj1 == test_obj2)
+        self.assertFalse(test_obj1 == test_obj3)

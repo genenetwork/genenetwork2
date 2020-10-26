@@ -3,21 +3,19 @@ WGCNA analysis for GN2
 
 Author / Maintainer: Danny Arends <Danny.Arends@gmail.com>
 """
+import base64
 import sys
-from numpy import *
-import scipy as sp                            # SciPy
 import rpy2.robjects as ro                    # R Objects
 import rpy2.rinterface as ri
 
+from array import array as arr
+from numpy import *
 from base.webqtlConfig import GENERATED_IMAGE_DIR
+from rpy2.robjects.packages import importr
+
 from utility import webqtlUtil                # Random number for the image
-
-import base64
-import array
-
 from utility import helper_functions
 
-from rpy2.robjects.packages import importr
 utils = importr("utils")
 
 # Get pointers to some common R functions
@@ -71,8 +69,8 @@ class WGCNA(object):
         self.r_enableWGCNAThreads()
         self.trait_db_list = [trait.strip()
                               for trait in requestform['trait_list'].split(',')]
-        print("Retrieved phenotype data from database",
-              requestform['trait_list'])
+        print(("Retrieved phenotype data from database",
+              requestform['trait_list']))
         helper_functions.get_trait_db_obs(self, self.trait_db_list)
 
         # self.input contains the phenotype values we need to send to R
@@ -127,14 +125,14 @@ class WGCNA(object):
             powers = [int(threshold.strip())
                       for threshold in requestform['SoftThresholds'].rstrip().split(",")]
             rpow = r_unlist(r_c(powers))
-            print("SoftThresholds: {} == {}".format(powers, rpow))
+            print(("SoftThresholds: {} == {}".format(powers, rpow)))
             self.sft = self.r_pickSoftThreshold(
                 rM, powerVector=rpow, verbose=5)
 
-            print("PowerEstimate: {}".format(self.sft[0]))
+            print(("PowerEstimate: {}".format(self.sft[0])))
             self.results['PowerEstimate'] = self.sft[0]
             if self.sft[0][0] is ri.NA_Integer:
-                print "No power is suitable for the analysis, just use 1"
+                print("No power is suitable for the analysis, just use 1")
                 # No power could be estimated
                 self.results['Power'] = 1
             else:
@@ -157,7 +155,7 @@ class WGCNA(object):
         self.results['network'] = network
 
         # How many modules and how many gene per module ?
-        print "WGCNA found {} modules".format(r_table(network[1]))
+        print(("WGCNA found {} modules".format(r_table(network[1]))))
         self.results['nmod'] = r_length(r_table(network[1]))[0]
 
         # The iconic WCGNA plot of the modules in the hanging tree
@@ -172,11 +170,11 @@ class WGCNA(object):
         sys.stdout.flush()
 
     def render_image(self, results):
-        print("pre-loading imgage results:", self.results['imgloc'])
+        print(("pre-loading imgage results:", self.results['imgloc']))
         imgfile = open(self.results['imgloc'], 'rb')
         imgdata = imgfile.read()
-        imgB64 = imgdata.encode("base64")
-        bytesarray = array.array('B', imgB64)
+        imgB64 = base64.b64encode(imgdata)
+        bytesarray = arr('B', imgB64)
         self.results['imgdata'] = bytesarray
 
     def process_results(self, results):

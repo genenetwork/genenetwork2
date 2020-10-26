@@ -1,42 +1,30 @@
-from __future__ import absolute_import, division, print_function
-from utility.logger import getLogger
-from flask import Flask, g, request, url_for, redirect, make_response, render_template
-from pprint import pformat as pf
-from MySQLdb import escape_string as escape
+import requests
 import simplejson as json
 from wqflask import app
-
-import os
-import string
-import resource
-import codecs
-import requests
-import random
-import urllib
 
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
-from db import webqtlDatabaseFunction
-from utility import webqtlUtil
 from utility import hmac
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL, GN_VERSION
-from utility.redis_tools import get_redis_conn
-from utility.redis_tools import get_resource_id
-from utility.redis_tools import get_resource_info
+from utility.tools import GN2_BASE_URL
+from utility.redis_tools import get_redis_conn, get_resource_id
 
-Redis = get_redis_conn()
+from utility.db_tools import escape
 
+from flask import g, request, url_for
+
+from utility.logger import getLogger
 
 logger = getLogger(__name__)
+
+Redis = get_redis_conn()
 
 
 def create_trait(**kw):
     assert bool(kw.get('dataset')) != bool(
         kw.get('dataset_name')), "Needs dataset ob. or name"
 
-    permitted = True
     if kw.get('name'):
         if kw.get('dataset_name'):
             if kw.get('dataset_name') != "Temp":
@@ -55,7 +43,9 @@ def create_trait(**kw):
         the_trait = GeneralTrait(**kw)
         if the_trait.dataset.type != "Temp":
             the_trait = retrieve_trait_info(
-                the_trait, the_trait.dataset, get_qtl_info=kw.get('get_qtl_info'))
+                the_trait,
+                the_trait.dataset,
+                get_qtl_info=kw.get('get_qtl_info'))
         return the_trait
     else:
         return None
@@ -78,7 +68,9 @@ class GeneralTrait(object):
             if kw.get('dataset_name') == "Temp":
                 temp_group = self.name.split("_")[2]
                 self.dataset = create_dataset(
-                    dataset_name="Temp", dataset_type="Temp", group_name=temp_group)
+                    dataset_name="Temp",
+                    dataset_type="Temp",
+                    group_name=temp_group)
             else:
                 self.dataset = create_dataset(kw.get('dataset_name'))
         else:
@@ -113,9 +105,10 @@ class GeneralTrait(object):
             elif len(name2) == 3:
                 self.dataset, self.name, self.cellid = name2
 
-        # Todo: These two lines are necessary most of the time, but perhaps not all of the time
-        # So we could add a simple if statement to short-circuit this if necessary
-        if get_sample_info != False:
+        # Todo: These two lines are necessary most of the time, but
+        # perhaps not all of the time So we could add a simple if
+        # statement to short-circuit this if necessary
+        if get_sample_info is not False:
             self = retrieve_sample_data(self, self.dataset)
 
     def export_informative(self, include_variance=0):
@@ -128,9 +121,9 @@ class GeneralTrait(object):
         vals = []
         the_vars = []
         sample_aliases = []
-        for sample_name, sample_data in self.data.items():
-            if sample_data.value != None:
-                if not include_variance or sample_data.variance != None:
+        for sample_name, sample_data in list(self.data.items()):
+            if sample_data.value is not None:
+                if not include_variance or sample_data.variance is not None:
                     samples.append(sample_name)
                     vals.append(sample_data.value)
                     the_vars.append(sample_data.variance)
@@ -154,7 +147,8 @@ class GeneralTrait(object):
                 formatted = self.post_publication_description
         else:
             formatted = "Not available"
-
+        if isinstance(formatted, bytes):
+            formatted = formatted.decode("utf-8")
         return formatted
 
     @property
@@ -163,8 +157,8 @@ class GeneralTrait(object):
 
         alias = 'Not available'
         if getattr(self, "alias", None):
-            alias = string.replace(self.alias, ";", " ")
-            alias = string.join(string.split(alias), ", ")
+            alias = self.alias.replace(";", " ")
+            alias = ", ".join(alias.split())
 
         return alias
 
@@ -183,7 +177,8 @@ class GeneralTrait(object):
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(
-                    mouse_response.content) + json.loads(other_response.content)
+                    mouse_response.content) + \
+                    json.loads(other_response.content)
 
                 filtered_aliases = []
                 seen = set()
@@ -201,7 +196,8 @@ class GeneralTrait(object):
     def location_fmt(self):
         """Return a text formatted location
 
-        While we're at it we set self.location in case we need it later (do we?)
+        While we're at it we set self.location in case we need it
+        later (do we?)
 
         """
 
@@ -223,7 +219,7 @@ class GeneralTrait(object):
 
 
 def retrieve_sample_data(trait, dataset, samplelist=None):
-    if samplelist == None:
+    if samplelist is None:
         samplelist = []
 
     if dataset.type == "Temp":
@@ -278,7 +274,9 @@ def get_sample_data():
                 trait_dict['pubmed_link'] = trait_ob.pubmed_link
             trait_dict['pubmed_text'] = trait_ob.pubmed_text
 
-        return json.dumps([trait_dict, {key: value.value for key, value in trait_ob.data.iteritems()}])
+        return json.dumps([trait_dict, {key: value.value for
+                                        key, value in list(
+                                            trait_ob.data.items())}])
     else:
         return None
 
@@ -289,7 +287,8 @@ def jsonable(trait):
     Actual turning into json doesn't happen here though"""
 
     dataset = create_dataset(dataset_name=trait.dataset.name,
-                             dataset_type=trait.dataset.type, group_name=trait.dataset.group.name)
+                             dataset_type=trait.dataset.type,
+                             group_name=trait.dataset.group.name)
 
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
@@ -471,8 +470,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
         # to avoid the problem of same marker name from different species.
         elif dataset.type == 'Geno':
-            display_fields_string = string.join(
-                dataset.display_fields, ',Geno.')
+            display_fields_string = ',Geno.'.join(dataset.display_fields)
             display_fields_string = 'Geno.' + display_fields_string
             query = """
                     SELECT %s
@@ -491,13 +489,15 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             query = """SELECT %s FROM %s WHERE Name = %s"""
             logger.sql(query)
             trait_info = g.db.execute(query,
-                                      (string.join(dataset.display_fields, ','),
-                                       dataset.type, trait.name)).fetchone()
+                                      ','.join(dataset.display_fields),
+                                      dataset.type, trait.name).fetchone()
 
     if trait_info:
         trait.haveinfo = True
         for i, field in enumerate(dataset.display_fields):
             holder = trait_info[i]
+            if isinstance(holder, bytes):
+                holder = holder.decode("utf-8", errors="ignore")
             setattr(trait, field, holder)
 
         if dataset.type == 'Publish':
@@ -523,13 +523,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 else:
                     trait.description_display = ""
 
-            trait.abbreviation = unicode(str(trait.abbreviation).strip(
-                codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.description_display = unicode(str(trait.description_display).strip(
-                codecs.BOM_UTF8), 'utf-8', errors="replace")
-            trait.authors = unicode(str(trait.authors).strip(
-                codecs.BOM_UTF8), 'utf-8', errors="replace")
-
             if not trait.year.isdigit():
                 trait.pubmed_text = "N/A"
             else:
@@ -539,10 +532,8 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
 
         if dataset.type == 'ProbeSet' and dataset.group:
-            description_string = unicode(
-                str(trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = unicode(
-                str(trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+            description_string = trait.description
+            target_string = trait.probe_target_description
 
             if str(description_string or "") != "" and description_string != 'None':
                 description_display = description_string
@@ -645,6 +636,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
-        raise KeyError, `trait.name`+ ' information is not found in the database.'
-
+        raise KeyError(repr(trait.name) +
+                       ' information is not found in the database.')
     return trait

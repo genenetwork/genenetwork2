@@ -1,10 +1,14 @@
-import httplib, urllib2
+import http.client
+import urllib.request
+import urllib.error
+import urllib.parse
 import re
 
 from flask import Flask, g
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
+
 
 class InfoPage(object):
     def __init__(self, start_vars):
@@ -38,12 +42,15 @@ class InfoPage(object):
                       "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE ")
 
         if self.gn_accession_id:
-            final_query = query_base + "GN_AccesionId = {}".format(self.gn_accession_id)
+            final_query = query_base + \
+                "GN_AccesionId = {}".format(self.gn_accession_id)
             results = g.db.execute(final_query).fetchone()
             if self.info_page_name and not results:
-				final_query = query_base + "InfoPageName={}".format(self.info_page_name)
+                final_query = query_base + \
+                    "InfoPageName={}".format(self.info_page_name)
         elif self.info_page_name:
-            final_query = query_base + "InfoPageName={}".format(self.info_page_name)
+            final_query = query_base + \
+                "InfoPageName={}".format(self.info_page_name)
             results = g.db.execute(final_query).fetchone()
         else:
             raise 'No correct parameter found'
@@ -52,18 +59,20 @@ class InfoPage(object):
             self.info = process_query_results(results)
 
         if (not results or len(results) < 1) and self.info_page_name and create:
-            insert_sql = "INSERT INTO InfoFiles SET InfoFiles.InfoPageName={}".format(self.info_page_name)
+            insert_sql = "INSERT INTO InfoFiles SET InfoFiles.InfoPageName={}".format(
+                self.info_page_name)
             return self.get_info()
 
         if not self.gn_accession_id and self.info:
             self.gn_accession_id = self.info['accession_id']
         if not self.info_page_name and self.info:
-            self.info_page_name = self.info['info_page_name'] 
+            self.info_page_name = self.info['info_page_name']
 
     def get_datasets_list(self):
         self.filelist = []
         try:
-            response = urllib2.urlopen("http://datafiles.genenetwork.org/download/GN%s" % self.gn_accession_id)
+            response = urllib.request.urlopen(
+                "http://datafiles.genenetwork.org/download/GN%s" % self.gn_accession_id)
             data = response.read()
 
             matches = re.findall(r"<tr>.+?</tr>", data, re.DOTALL)
@@ -71,13 +80,14 @@ class InfoPage(object):
                 if i == 0:
                     continue
                 cells = re.findall(r"<td.+?>.+?</td>", match, re.DOTALL)
-                full_filename = re.search(r"<a href=\"(.+?)\"", cells[1], re.DOTALL).group(1).strip()
+                full_filename = re.search(
+                    r"<a href=\"(.+?)\"", cells[1], re.DOTALL).group(1).strip()
                 filename = full_filename.split("/")[-1]
                 filesize = re.search(r">(.+?)<", cells[2]).group(1).strip()
-                filedate = "N/A" #ZS: Since we can't get it for now
+                filedate = "N/A"  # ZS: Since we can't get it for now
 
                 self.filelist.append([filename, filedate, filesize])
-        except Exception, e:
+        except Exception as e:
             pass
 
 def process_query_results(results):
@@ -124,4 +134,5 @@ def process_query_results(results):
     }
 
     return info_ob
-        
+
+

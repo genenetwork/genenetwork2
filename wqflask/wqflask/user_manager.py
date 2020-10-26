@@ -1,52 +1,62 @@
-from __future__ import print_function, division, absolute_import
-
 import os
 import hashlib
 import datetime
 import time
-import logging
 import uuid
-import hashlib
 import hmac
 import base64
-import urlparse
-
+import redis  # used for collections
 import simplejson as json
-
-#from redis import StrictRedis
-import redis # used for collections
-Redis = redis.StrictRedis()
-
-from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, abort)
-
-from wqflask import app
-from pprint import pformat as pf
-
-from wqflask import pbkdf2 # password hashing
-from wqflask.database import db_session
-from wqflask import model
-
-from utility import Bunch, Struct, after
-
-import logging
-from utility.logger import getLogger
-logger = getLogger(__name__)
+import requests
 
 from base.data_set import create_datasets_list
 
-import requests
+from flask import g
+from flask import render_template
+from flask import url_for
+from flask import request
+from flask import make_response
+from flask import redirect
+from flask import flash
 
-from utility.redis_tools import get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
+from wqflask import app
+from wqflask import pbkdf2  # password hashing
+from wqflask.database import db_session
+from wqflask import model
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
+
+from pprint import pformat as pf
+
+from utility import Bunch
+from utility import Struct
+from utility.logger import getLogger
+
+from utility.redis_tools import get_user_id
+from utility.redis_tools import get_user_by_unique_column
+from utility.redis_tools import set_user_attribute
+from utility.redis_tools import save_user
+from utility.redis_tools import save_verification_code
+from utility.redis_tools import check_verification_code
+from utility.redis_tools import get_user_collections
+from utility.redis_tools import save_collections
+
+from utility.tools import SMTP_CONNECT
+from utility.tools import SMTP_USERNAME
+from utility.tools import SMTP_PASSWORD
+
+
+logger = getLogger(__name__)
+
+
+Redis = redis.StrictRedis()
 
 THREE_DAYS = 60 * 60 * 24 * 3
-#THREE_DAYS = 45
+
 
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
+
 
 class AnonUser(object):
     """Anonymous user handling"""
@@ -230,29 +240,10 @@ class UserSession(object):
 
         return len(self.user_collections)
 
-###
-# ZS: This is currently not used, but I'm leaving it here commented out because the old "set superuser" code (at the bottom of this file) used it
-###
-#    @property
-#    def user_ob(self):
-#        """Actual sqlalchemy record"""
-#        # Only look it up once if needed, then store it
-#        # raise "OBSOLETE: use ElasticSearch instead"
-#        try:
-#            if LOG_SQL_ALCHEMY:
-#                logging.getLogger('sqlalchemy.pool').setLevel(logging.DEBUG)
-#
-#            # Already did this before
-#            return self.db_object
-#        except AttributeError:
-#            # Doesn't exist so we'll create it
-#            self.db_object = model.User.query.get(self.user_id)
-#            return self.db_object
-
     def add_collection(self, collection_name, traits):
         """Add collection into ElasticSearch"""
 
-        collection_dict = {'id': unicode(uuid.uuid4()),
+        collection_dict = {'id': str(uuid.uuid4()),
                            'name': collection_name,
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
@@ -867,7 +858,7 @@ def forgot_password_submit():
     email_address = params['email_address']
     next_page = None
     if email_address != "":
-        logger.debug("Wants to send password E-mail to ",email_address)
+        logger.debug("Wants to send password E-mail to ", email_address)
         user_details = get_user_by_unique_column("email_address", email_address)
         if user_details:
             ForgotPasswordEmail(user_details["email_address"])

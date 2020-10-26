@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """Tests wqflask/base/trait.py"""
 import unittest
-import mock
+from unittest import mock
 
+from wqflask import app
 from base.trait import GeneralTrait
 from base.trait import retrieve_trait_info
 
@@ -31,6 +32,14 @@ class MockTrait(GeneralTrait):
 
 class TestRetrieveTraitInfo(unittest.TestCase):
     """Tests for 'retrieve_trait_info'"""
+
+    def setUp(self):
+        self.app_context = app.app_context()
+        self.app_context.push()
+
+    def tearDown(self):
+        self.app_context.pop()
+
     def test_retrieve_trait_info_with_empty_dataset(self):
         """Test that an exception is raised when dataset is empty"""
         with self.assertRaises(AssertionError):
@@ -38,9 +47,8 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                                 dataset={})
 
     @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.g', mock.Mock())
     def test_retrieve_trait_info_with_empty_trait_info(self,
-                                                       g_mock,
                                                        requests_mock):
         """Empty trait info"""
         requests_mock.return_value = TestNilResponse()
@@ -49,9 +57,8 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                                 dataset=mock.MagicMock())
 
     @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.g', mock.Mock())
     def test_retrieve_trait_info_with_non_empty_trait_info(self,
-                                                           g_mock,
                                                            requests_mock):
         """Test that attributes are set"""
         mock_dataset = mock.MagicMock()
@@ -66,9 +73,8 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         self.assertEqual(test_trait.d, 4)
 
     @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
+    @mock.patch('base.trait.g', mock.Mock())
     def test_retrieve_trait_info_utf8_parsing(self,
-                                              g_mock,
                                               requests_mock):
         """Test that utf-8 strings are parsed correctly"""
         utf_8_string = "test_string"
@@ -96,9 +102,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         test_trait = retrieve_trait_info(trait=mock_trait,
                                          dataset=mock_dataset)
         self.assertEqual(test_trait.abbreviation,
-                         "ファイルを画面毎に見て行くには、次のコマンドを使います。".decode('utf-8'))
+                         "ファイルを画面毎に見て行くには、次のコマンドを使います。")
         self.assertEqual(test_trait.authors,
-                         "Jane Doe かいと".decode('utf-8'))
+                         "Jane Doe かいと")
 
     @mock.patch('base.trait.requests.get')
     @mock.patch('base.trait.g')
@@ -107,7 +113,7 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                                                     resource_id_mock,
                                                     g_mock,
                                                     requests_mock):
-        """Test """
+        """Test retrieve trait info when lrs has a value"""
         resource_id_mock.return_value = 1
         g_mock.db.execute.return_value.fetchone = mock.Mock()
         g_mock.db.execute.return_value.fetchone.side_effect = [
