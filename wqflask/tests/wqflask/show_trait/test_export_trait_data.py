@@ -7,7 +7,7 @@ class TestExportTraits(unittest.TestCase):
     """Test methods related to converting dict to sortedlist"""
 
     def test_dict_to_sortedlist(self):
-        '''test for conversion of dict to sorted list'''
+        """test for conversion of dict to sorted list"""
         sample1 = {
             "other": "exp1",
             "name": "exp2"
@@ -33,11 +33,11 @@ class TestExportTraits(unittest.TestCase):
         self.assertEqual([3, 6, 1, 4], dict_to_sorted_list(sample2))
         self.assertEqual([3, 6, 1, 4], dict_to_sorted_list(rever))
         self.assertEqual(["one"], dict_to_sorted_list(oneItem))
-        '''test that the func returns the values not the keys'''
+        """test that the func returns the values not the keys"""
         self.assertFalse(["other", "name"] == dict_to_sorted_list(sample1))
 
     def test_cmp_samples(self):
-        '''test for comparing samples function'''
+        """test for comparing samples function"""
         sampleA = [
             [
                 ("value", "other"),
