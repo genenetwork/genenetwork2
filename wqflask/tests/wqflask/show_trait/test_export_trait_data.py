@@ -4,9 +4,10 @@ from wqflask.show_trait.export_trait_data import cmp_samples
 
 
 class TestExportTraits(unittest.TestCase):
-	"""Test methods related converting dict to sortedlist"""
+    """Test methods related to converting dict to sortedlist"""
+
     def test_dict_to_sortedlist(self):
-        '''Test for conversion of dict to sorted list'''
+        '''test for conversion of dict to sorted list'''
         sample1 = {
             "other": "exp1",
             "name": "exp2"
@@ -36,8 +37,7 @@ class TestExportTraits(unittest.TestCase):
         self.assertFalse(["other", "name"] == dict_to_sorted_list(sample1))
 
     def test_cmp_samples(self):
-        '''test for function that does comparisons of samples'''
-
+        '''test for comparing samples function'''
         sampleA = [
             [
                 ("value", "other"),
@@ -83,10 +83,12 @@ class TestExportTraits(unittest.TestCase):
                 "other_a", "val_a"),
                 ("other_b", "val"
                  )
-             ]]
+             ]
+        ]
         results = [cmp_samples(val[0], val[1]) for val in sampleA]
         resultB = [cmp_samples(val[0], val[1]) for val in sampleB]
         resultC = [cmp_samples(val[0], val[1]) for val in sampleC]
+
         self.assertEqual(1, *results)
         self.assertEqual(-1, *resultB)
         self.assertEqual([1, -1, 1, -1, -1, 1, -1, -1], resultC)
