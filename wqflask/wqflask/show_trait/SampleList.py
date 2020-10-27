@@ -8,7 +8,6 @@ from pprint import pformat as pf
 from utility import Plot
 from utility import Bunch
 
-
 class SampleList(object):
     def __init__(self,
                  dataset,
@@ -68,6 +67,12 @@ class SampleList(object):
             self.sample_list.append(sample)
 
         self.se_exists = any(sample.variance for sample in self.sample_list)
+        self.num_cases_exists = any(sample.num_cases for sample in self.sample_list)
+
+        first_attr_col = self.get_first_attr_col()
+        for sample in self.sample_list:
+            sample.first_attr_col = first_attr_col
+
         self.do_outliers()
 
     def __repr__(self):
@@ -147,6 +152,15 @@ class SampleList(object):
 
                     attribute_values[self.attributes[item.Id].name] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
+
+    def get_first_attr_col(self):
+        first_attr_col = 4
+        if self.se_exists:
+            first_attr_col += 2
+        if self.num_cases_exists:
+            first_attr_col += 1
+
+        return first_attr_col
 
 def natural_sort(list, key=lambda s: s):
     """
