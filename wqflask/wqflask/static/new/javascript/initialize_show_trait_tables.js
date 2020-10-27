@@ -75,7 +75,7 @@ build_columns = function() {
     );
   }
 
-  if (js_data.has_num_cases === "true") {
+  if (js_data.has_num_cases === true) {
     column_list.push(
       {
         'title': "<div style='text-align: right;'>N</div>",
@@ -101,7 +101,8 @@ build_columns = function() {
         'type': "natural",
         'data': null,
         'render': function(data, type, row, meta) {
-          attr_name = Object.keys(data.extra_attributes).sort((a, b) => (a > b) ? 1 : -1)[meta.col - data.first_attr_col]
+          attr_name = Object.keys(data.extra_attributes).sort()[meta.col - data.first_attr_col]
+
           if (attr_name != null && attr_name != undefined){
               return data.extra_attributes[attr_name]
           } else {
@@ -111,7 +112,6 @@ build_columns = function() {
       }
     )
   }
-
   return column_list
 }
 
@@ -132,23 +132,22 @@ var primary_table = $('#samples_primary').DataTable( {
       $('td', row).eq(3).addClass("column_name-Value")
       if (js_data.se_exists) {
         $('td', row).eq(5).addClass("column_name-SE")
-        if (js_data.has_num_cases === "true") {
+        if (js_data.has_num_cases === true) {
           $('td', row).eq(6).addClass("column_name-num_cases")
         } else {
-          if (js_data.has_num_cases === "true") {
+          if (js_data.has_num_cases === true) {
             $('td', row).eq(4).addClass("column_name-num_cases")
           }
         }
       } else {
-        if (js_data.has_num_cases === "true") {
+        if (js_data.has_num_cases === true) {
           $('td', row).eq(4).addClass("column_name-num_cases")
         }
       }
 
-      sorted_key_list = Object.keys(js_data.attributes).sort()
-      for (i=0; i < sorted_key_list.length; i++) {
-        $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[sorted_key_list[i]].name)
-        $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[sorted_key_list[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+      for (i=0; i < attr_keys.length; i++) {
+        $('td', row).eq(attribute_start_pos + i).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
+        $('td', row).eq(attribute_start_pos + i).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
       }
     },
     'data': js_data['sample_lists'][0],
@@ -190,23 +189,22 @@ if (js_data.sample_lists.length > 1){
         $('td', row).eq(3).addClass("column_name-Value")
         if (js_data.se_exists) {
           $('td', row).eq(5).addClass("column_name-SE")
-          if (js_data.has_num_cases === "true") {
+          if (js_data.has_num_cases === true) {
             $('td', row).eq(6).addClass("column_name-num_cases")
           } else {
-            if (js_data.has_num_cases === "true") {
+            if (js_data.has_num_cases === true) {
               $('td', row).eq(4).addClass("column_name-num_cases")
             }
           }
         } else {
-          if (js_data.has_num_cases === "true") {
+          if (js_data.has_num_cases === true) {
             $('td', row).eq(4).addClass("column_name-num_cases")
           }
         }
 
-        sorted_key_list = Object.keys(js_data.attributes).sort()
-        for (i=0; i < sorted_key_list.length; i++) {
-          $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[sorted_key_list[i]].name)
-          $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[sorted_key_list[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+        for (i=0; i < attr_keys.length; i++) {
+          $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
+          $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
         }
       },
       'data': js_data['sample_lists'][1],
