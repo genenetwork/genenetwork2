@@ -14,10 +14,16 @@ def export_sample_table(targs):
 
     final_sample_data = meta_data
 
+    column_headers = ["Name", "Value"]
+    if any(sample["se"] for sample in sample_data['primary_samples']):
+        column_headers.append("SE")
+    if any(sample["num_cases"] for sample in sample_data['primary_samples']):
+        column_headers.append("N")
+
+    final_sample_data.append(column_headers)
     for sample_group in ['primary_samples', 'other_samples']:
         for row in sample_data[sample_group]:
             sorted_row = dict_to_sorted_list(row)
-            print("sorted_row is:", pf(sorted_row))
             final_sample_data.append(sorted_row)
 
     return trait_name, final_sample_data
@@ -39,7 +45,15 @@ def get_export_metadata(trait_id, dataset_name):
         metadata.append(["Title: " + (this_trait.title if this_trait.title else "N/A")])
         metadata.append(["Journal: " + (this_trait.journal if this_trait.journal else "N/A")])
         metadata.append(["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset.name])
-        metadata.append([])
+    else:
+        metadata.append(["Record ID: " + trait_id])
+        metadata.append(["Trait URL: " + "http://genenetwork.org/show_trait?trait_id=" + trait_id + "&dataset=" + dataset_name])
+        if this_trait.symbol:
+            metadata.append(["Symbol: " + this_trait.symbol])
+        metadata.append(["Dataset: " + dataset.name])
+        metadata.append(["Group: " + dataset.group.name])
+
+    metadata.append([])
 
     return metadata
 
