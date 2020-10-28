@@ -2809,7 +2809,7 @@ class DisplayMappingResults(object):
                              f"end={theGO['TxEnd']}&"
                              f"geneName={theGO['GeneSymbol']}&"
                              f"s1={self.diffCol[0]}&s2=%d"),
-                            theGO["snpCount"] # The text to display
+                            str(theGO["snpCount"]) # The text to display
                         )
                         snpString.set_blank_target()
                         snpString.set_attribute("class", "normalsize")
