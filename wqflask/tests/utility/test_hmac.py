@@ -17,6 +17,19 @@ class TestHmacUtil(unittest.TestCase):
         """Test hmac creation with a utf-8 string"""
         self.assertEqual(hmac_creation("ファイ"), "7410466338cfe109e946")
 
+    @mock.patch("utility.hmac.app.config",
+                {'SECRET_HMAC_CODE': ('\x08\xdf\xfa\x93N\x80'
+                                      '\xd9\\H@\\\x9f`\x98d^'
+                                      '\xb4a;\xc6OM\x946a\xbc'
+                                      '\xfc\x80:*\xebc')})
+    def test_hmac_creation_with_cookie(self):
+        """Test hmac creation with a cookie"""
+        cookie = "3f4c1dbf-5b56-4260-87d6-f35445bda37e:af4fcf5eace9e7c864ce"
+        uuid_, _, signature = cookie.partition(":")
+        self.assertEqual(
+            hmac_creation(uuid_),
+            "af4fcf5eace9e7c864ce")
+
     @mock.patch("utility.hmac.app.config", {'SECRET_HMAC_CODE': "secret"})
     def test_data_hmac(self):
         """Test data_hmac fn with a utf-8 string"""
