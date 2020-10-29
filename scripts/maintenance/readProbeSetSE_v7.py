@@ -72,14 +72,14 @@ GeneList = []
 isCont = 1
 header = fp.readline()
 header = header.strip().split('\t')
-header = list(map(string.strip, header))
+header = [item.strip() for item in header]
 nfield = len(header)
 line = fp.readline()
 
 kj = 0
 while line:
     line2 = line.strip().split('\t')
-    line2 = list(map(string.strip, line2))
+    line2 = [item.strip() for item in line2]
     if len(line2) != nfield:
         isCont = 0
         print(("Error : " + line))
@@ -110,7 +110,7 @@ isCont = 1
 fp.seek(0)
 header = fp.readline()
 header = header.strip().split('\t')
-header = list(map(string.strip, header))
+header = [item.strip() for item in header]
 header = list(map(translateAlias, header))
 header = header[dataStart:]
 Ids = []

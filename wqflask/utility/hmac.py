@@ -10,7 +10,7 @@ def hmac_creation(stringy):
     """Helper function to create the actual hmac"""
 
     secret = app.config['SECRET_HMAC_CODE']
-    hmaced = hmac.new(bytearray(secret, "utf-8"),
+    hmaced = hmac.new(bytearray(secret, "latin-1"),
                       bytearray(stringy, "utf-8"),
                       hashlib.sha1)
     hm = hmaced.hexdigest()
