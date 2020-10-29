@@ -342,7 +342,7 @@ class DisplayMappingResults(object):
         if 'reaper_version' in list(start_vars.keys()) and self.mapping_method == "reaper":
             self.reaper_version = start_vars['reaper_version']
             if 'output_files' in start_vars:
-                self.output_files = ",".join(start_vars['output_files'])
+                self.output_files = ",".join([(the_file if the_file is not None else "") for the_file in start_vars['output_files']])
 
         self.categorical_vars = ""
         self.perm_strata = ""
@@ -752,7 +752,7 @@ class DisplayMappingResults(object):
                 BootChrCoord.append([Xc, self.bootResult[i]])
         else:
             for i, result in enumerate(self.qtlresults):
-                if result['chr'] == self.ChrList[self.selectedChr][0]:
+                if str(result['chr']) == str(self.ChrList[self.selectedChr][0]):
                     if self.plotScale == 'physic':
                         Xc = startX + (result['Mb']-self.startMb)*plotXScale
                     else:
