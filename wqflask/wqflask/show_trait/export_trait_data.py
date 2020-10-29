@@ -17,7 +17,7 @@ def export_sample_table(targs):
     for sample_group in ['primary_samples', 'other_samples']:
         for row in sample_data[sample_group]:
             sorted_row = dict_to_sorted_list(row)
-            print("sorted_row is:", pf(sorted_row))
+            #print("sorted_row is:", pf(sorted_row))
             final_sample_data.append(sorted_row)
 
     return trait_name, final_sample_data
