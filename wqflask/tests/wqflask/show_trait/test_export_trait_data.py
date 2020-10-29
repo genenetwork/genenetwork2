@@ -16,7 +16,14 @@ class TestExportTraits(unittest.TestCase):
                 "primary_samples": [
                     {
                         "other": "germanotta",
-                        "name": "Sauroniops"
+                        "name": "Sauroniops",
+                        "se":{
+                        "name":"S2"
+                        },
+                        "num_cases":{
+                        "k1":"value"
+
+                        }
                     }
                 ],
                 "other_samples": [
@@ -33,8 +40,13 @@ class TestExportTraits(unittest.TestCase):
             "dataset": {
             }
         }
-        exp_metadata.return_value = [["Phenotype ID:0a2be192-57f5-400b-bbbd-0cf50135995f"], ['Group:gp1'], ["Phenotype:p1"], [
-            "Authors:N/A"], ["Title:research1"], ["Journal:N/A"], ["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=name1"], []]
+        exp_metadata.return_value = [
+            ["Phenotype ID:0a2be192-57f5-400b-bbbd-0cf50135995f"], ['Group:gp1'],
+            ["Phenotype:p1"], [
+                "Authors:N/A"],
+            ["Title:research1"],
+            ["Journal:N/A"],
+            ["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=name1"], []]
         expected = ('Hair_color',
                     [['Phenotype ID:0a2be192-57f5-400b-bbbd-0cf50135995f'],
                      ['Group:gp1'],
@@ -45,6 +57,7 @@ class TestExportTraits(unittest.TestCase):
                      ['Dataset Link: '
                       'http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=name1'],
                      [],
+                     ['Name', 'Value', 'SE', 'N'],
                      ['Sauroniops', 'germanotta'],
                      [3, 6, 1, 4]])
 
