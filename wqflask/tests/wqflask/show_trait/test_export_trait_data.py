@@ -4,6 +4,7 @@ from wqflask.show_trait.export_trait_data import dict_to_sorted_list
 from wqflask.show_trait.export_trait_data import cmp_samples
 from wqflask.show_trait.export_trait_data import export_sample_table
 
+
 class TestExportTraits(unittest.TestCase):
     """Test methods related to converting dict to sortedlist"""
     @mock.patch("wqflask.show_trait.export_trait_data.dict_to_sorted_list")
@@ -50,7 +51,8 @@ class TestExportTraits(unittest.TestCase):
         dict_list.side_effect = [['Sauroniops', 'germanotta'], [3, 6, 1, 4]]
 
         self.assertEqual(export_sample_table(targs_obj), expected)
-        exp_metadata.assert_called_with("23177fdc-312e-4084-ad0c-f3eae785fff5", {})
+        exp_metadata.assert_called_with(
+            "23177fdc-312e-4084-ad0c-f3eae785fff5", {})
         self.assertEqual(dict_list.call_count, 2)
 
     def test_dict_to_sortedlist(self):
