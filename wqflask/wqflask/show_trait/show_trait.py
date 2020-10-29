@@ -1,9 +1,7 @@
-from __future__ import absolute_import, print_function, division
-
 import string
 import os
 import datetime
-import cPickle
+import pickle
 import uuid
 import requests
 import json as json
@@ -230,8 +228,8 @@ class ShowTrait(object):
         hddn = OrderedDict()
 
         if self.dataset.group.allsamples:
-            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
-        hddn['primary_samples'] = string.join(self.primary_sample_names, ',')
+            hddn['allsamples'] = ''.join(self.dataset.group.allsamples)
+        hddn['primary_samples'] = ''.join(self.primary_sample_names)
         hddn['trait_id'] = self.trait_id
         hddn['trait_display_name'] = self.this_trait.display_name
         hddn['dataset'] = self.dataset.name
@@ -260,7 +258,7 @@ class ShowTrait(object):
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
         if len(self.scales_in_geno) < 2:
-            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0][0]
+            hddn['mapping_scale'] = self.scales_in_geno[list(self.scales_in_geno.keys())[0]][0][0]
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
@@ -373,7 +371,7 @@ class ShowTrait(object):
             this_group = self.dataset.group.name
 
         # We're checking a string here!
-        assert isinstance(this_group, basestring), "We need a string type thing here"
+        assert isinstance(this_group, str), "We need a string type thing here"
         if this_group[:3] == 'BXD' and this_group != "BXD-Harvested":
             this_group = 'BXD'
 
@@ -409,9 +407,10 @@ class ShowTrait(object):
         if not self.temp_trait:
             other_sample_names = []
 
-            for sample in self.this_trait.data:
-                if self.this_trait.data[sample].name2 != self.this_trait.data[sample].name:
-                    if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
+            for sample in list(self.this_trait.data.keys()):
+                if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
+                    if ((self.this_trait.data[sample].name2 in primary_sample_names) and
+                        (self.this_trait.data[sample].name not in primary_sample_names)):
                         primary_sample_names.append(self.this_trait.data[sample].name)
                         primary_sample_names.remove(self.this_trait.data[sample].name2)
 
@@ -568,7 +567,7 @@ def get_table_widths(sample_groups, has_num_cases=False):
 def has_num_cases(this_trait):
     has_n = False
     if this_trait.dataset.type != "ProbeSet" and this_trait.dataset.type != "Geno":
-        for name, sample in this_trait.data.iteritems():
+        for name, sample in list(this_trait.data.items()):
             if sample.num_cases:
                 has_n = True
                 break
@@ -625,7 +624,7 @@ def get_categorical_variables(this_trait, sample_list):
     if len(sample_list.attributes) > 0:
         for attribute in sample_list.attributes:
             attribute_vals = []
-            for sample_name in this_trait.data.keys():
+            for sample_name in list(this_trait.data.keys()):
                 if sample_list.attributes[attribute].name in this_trait.data[sample_name].extra_attributes:
                     attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
                 else:
@@ -640,7 +639,7 @@ def get_categorical_variables(this_trait, sample_list):
 
 def get_genotype_scales(genofiles):
     geno_scales = {}
-    if type(genofiles) is list:
+    if isinstance(genofiles, list):
         for the_file in genofiles:
             file_location = the_file['location']
             geno_scales[file_location] = get_scales_from_genofile(file_location)

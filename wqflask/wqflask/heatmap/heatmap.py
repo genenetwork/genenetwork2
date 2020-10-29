@@ -1,46 +1,17 @@
-from __future__ import absolute_import, print_function, division
-
-import sys
-# sys.path.append(".") Never in a running webserver
-
 import string
-import cPickle
 import os
-import datetime
-import time
-import pp
-import math
 import random
-import collections
-import resource
-
-import scipy
-import numpy as np
-
-from pprint import pformat as pf
-
-from base.trait import GeneralTrait
-from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import helper_functions
-from utility import Plot, Bunch
-from utility import temp_data
+
 from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
-
-from MySQLdb import escape_string as escape
-
-import cPickle as pickle
-import simplejson as json
-
-from pprint import pformat as pf
-
 from redis import Redis
+from flask import Flask, g
+from utility.logger import getLogger
+
 Redis = Redis()
 
-from flask import Flask, g
-
-from utility.logger import getLogger
 logger = getLogger(__name__ )
 
 class Heatmap(object):
@@ -60,7 +31,7 @@ class Heatmap(object):
 
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
-        for key in self.species.chromosomes.chromosomes.keys():
+        for key in list(self.species.chromosomes.chromosomes.keys()):
             chrnames.append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
 
         for trait_db in self.trait_list:
@@ -93,7 +64,7 @@ class Heatmap(object):
         pos = []
         markernames = []
 
-        for trait in self.trait_results.keys():
+        for trait in list(self.trait_results.keys()):
             lodnames.append(trait)
 
         self.dataset.group.get_markers()

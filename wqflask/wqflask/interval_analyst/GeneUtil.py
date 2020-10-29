@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 import string
 
 from flask import Flask, g
@@ -24,7 +22,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
 	
 	##List current Species and other Species
 	speciesId = speciesDict[species]
-	otherSpecies = map(lambda X: [X, speciesDict[X]], speciesDict.keys())
+	otherSpecies = [[X, speciesDict[X]] for X in list(speciesDict.keys())]
 	otherSpecies.remove([species, speciesId])
 
 	results = g.db.execute("""
@@ -33,7 +31,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                       Chromosome = '%s' AND
 					  ((TxStart > %f and TxStart <= %f) OR (TxEnd > %f and TxEnd <= %f))
 				ORDER BY txStart
-                """ % (string.join(fetchFields, ", "),
+                """ % (", ".join(fetchFields),
                        speciesId, chrName,
                        startMb, endMb,
                        startMb, endMb)).fetchall()
@@ -68,7 +66,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
 				othSpec, othSpecId = item
 				newdict2 = {}
 				
-				resultsOther = g.db.execute("SELECT %s FROM GeneList WHERE SpeciesId = %d AND geneSymbol= '%s' LIMIT 1" % (string.join(fetchFields, ", "),
+				resultsOther = g.db.execute("SELECT %s FROM GeneList WHERE SpeciesId = %d AND geneSymbol= '%s' LIMIT 1" % (", ".join(fetchFields),
                                                                                                                            othSpecId,
                                                                                                                            newdict["GeneSymbol"])).fetchone()
 

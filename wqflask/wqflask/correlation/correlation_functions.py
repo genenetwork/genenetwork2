@@ -24,8 +24,6 @@
 #
 # Last updated by NL 2011/03/23
 
-from __future__ import absolute_import, print_function, division
-
 import math
 import rpy2.robjects
 import string
@@ -50,12 +48,12 @@ from flask import Flask, g
 
 def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pearson'):
 
-    R_primary = rpy2.robjects.FloatVector(range(len(primaryValue)))
+    R_primary = rpy2.robjects.FloatVector(list(range(len(primaryValue))))
     N = len(primaryValue)
     for i in range(len(primaryValue)):
         R_primary[i] = primaryValue[i]
 
-    R_target = rpy2.robjects.FloatVector(range(len(targetValue)))
+    R_target = rpy2.robjects.FloatVector(list(range(len(targetValue))))
     for i in range(len(targetValue)):
         R_target[i]=targetValue[i]
 

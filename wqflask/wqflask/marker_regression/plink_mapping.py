@@ -54,7 +54,7 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
     for i, sample in enumerate(ped_sample_list):
         try:
             value = vals[i]
-            value = str(value).replace('value=','')
+            value = str(value).replace('value=', '')
             value = value.strip()
         except:
             value = -9999
@@ -78,13 +78,13 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
 
 # get strain name from ped file in order
 def get_samples_from_ped_file(dataset):
-    ped_file= open("{}{}.ped".format(flat_files('mapping'), dataset.group.name),"r")
+    ped_file= open("{}{}.ped".format(flat_files('mapping'), dataset.group.name), "r")
     line = ped_file.readline()
     sample_list=[]
 
     while line:
-        lineList = string.split(string.strip(line), '\t')
-        lineList = map(string.strip, lineList)
+        lineList = line.strip().split('\t')
+        lineList = [item.strip() for item in lineList]
 
         sample_name = lineList[0]
         sample_list.append(sample_name)
@@ -111,7 +111,7 @@ def parse_plink_output(output_filename, species):
         line_list = build_line_list(line=line)
 
         # only keep the records whose chromosome name is in db
-        if species.chromosomes.chromosomes.has_key(int(line_list[0])) and line_list[-1] and line_list[-1].strip()!='NA':
+        if int(line_list[0]) in species.chromosomes.chromosomes and line_list[-1] and line_list[-1].strip()!='NA':
 
             chr_name = species.chromosomes.chromosomes[int(line_list[0])]
             snp = line_list[1]
@@ -121,7 +121,7 @@ def parse_plink_output(output_filename, species):
                 if p_value < threshold_p_value:
                     p_value_dict[snp] = float(p_value)
 
-            if plink_results.has_key(chr_name):
+            if chr_name in plink_results:
                 value_list = plink_results[chr_name]
 
                 # pvalue range is [0,1]
@@ -155,8 +155,8 @@ def parse_plink_output(output_filename, species):
 # output: lineList list
 #######################################################
 def build_line_list(line=None):
-    line_list = string.split(string.strip(line),' ')# irregular number of whitespaces between columns
-    line_list = [item for item in line_list if item <>'']
-    line_list = map(string.strip, line_list)
+    line_list = line.strip().split(' ')# irregular number of whitespaces between columns
+    line_list = [item for item in line_list if item !='']
+    line_list = [item.strip() for item in line_list]
 
     return line_list

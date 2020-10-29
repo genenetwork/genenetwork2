@@ -41,22 +41,22 @@ ParInfo ={
 'C57BL-6JxC57BL-6NJF2':['', '', 'C57BL/6J', 'C57BL/6NJ'],
 'BXD300':['B6D2F1', 'D2B6F1', 'C57BL/6J', 'DBA/2J'],
 'B6BTBRF2':['B6BTBRF1', 'BTBRB6F1', 'C57BL/6J', 'BTBRT<+>tf/J'],
-'BHHBF2':['B6HF2','HB6F2','C57BL/6J','C3H/HeJ'],
-'BHF2':['B6HF2','HB6F2','C57BL/6J','C3H/HeJ'],
+'BHHBF2':['B6HF2', 'HB6F2', 'C57BL/6J', 'C3H/HeJ'],
+'BHF2':['B6HF2', 'HB6F2', 'C57BL/6J', 'C3H/HeJ'],
 'B6D2F2':['B6D2F1', 'D2B6F1', 'C57BL/6J', 'DBA/2J'],
 'BDF2-1999':['B6D2F2', 'D2B6F2', 'C57BL/6J', 'DBA/2J'],
 'BDF2-2005':['B6D2F1', 'D2B6F1', 'C57BL/6J', 'DBA/2J'],
-'CTB6F2':['CTB6F2','B6CTF2','C57BL/6J','Castaneous'],
+'CTB6F2':['CTB6F2', 'B6CTF2', 'C57BL/6J', 'Castaneous'],
 'CXB':['CBF1', 'BCF1', 'C57BL/6ByJ', 'BALB/cByJ'],
 'AXBXA':['ABF1', 'BAF1', 'C57BL/6J', 'A/J'],
 'AXB':['ABF1', 'BAF1', 'C57BL/6J', 'A/J'],
 'BXA':['BAF1', 'ABF1', 'C57BL/6J', 'A/J'],
 'LXS':['LSF1', 'SLF1', 'ISS', 'ILS'],
 'HXBBXH':['SHR_BNF1', 'BN_SHRF1', 'BN-Lx/Cub', 'SHR/OlaIpcv'],
-'BayXSha':['BayXShaF1', 'ShaXBayF1', 'Bay-0','Shahdara'],
-'ColXBur':['ColXBurF1', 'BurXColF1', 'Col-0','Bur-0'],
-'ColXCvi':['ColXCviF1', 'CviXColF1', 'Col-0','Cvi'],
-'SXM':['SMF1', 'MSF1', 'Steptoe','Morex'],
+'BayXSha':['BayXShaF1', 'ShaXBayF1', 'Bay-0', 'Shahdara'],
+'ColXBur':['ColXBurF1', 'BurXColF1', 'Col-0', 'Bur-0'],
+'ColXCvi':['ColXCviF1', 'CviXColF1', 'Col-0', 'Cvi'],
+'SXM':['SMF1', 'MSF1', 'Steptoe', 'Morex'],
 'HRDP':['SHR_BNF1', 'BN_SHRF1', 'BN-Lx/Cub', 'SHR/OlaIpcv']
 }
 
@@ -64,7 +64,7 @@ ParInfo ={
 #      Accessory Functions
 #########################################
 
-def genRandStr(prefix = "", length=8, chars=string.letters+string.digits):
+def genRandStr(prefix = "", length=8, chars=string.ascii_letters+string.digits):
     from random import choice
     _str = prefix[:]
     for i in range(length):
@@ -91,7 +91,7 @@ def readLineCSV(line): ### dcrowell July 2008
     returnList[0]=returnList[0][1:]
     return returnList
 
-def cmpEigenValue(A,B):
+def cmpEigenValue(A, B):
     try:
         if A[0] > B[0]:
             return -1
@@ -107,7 +107,7 @@ def hasAccessToConfidentialPhenotypeTrait(privilege, userName, authorized_users)
     if webqtlConfig.USERDICT[privilege] > webqtlConfig.USERDICT['user']:
         access_to_confidential_phenotype_trait = 1
     else:
-        AuthorizedUsersList=map(string.strip, string.split(authorized_users, ','))
-        if AuthorizedUsersList.__contains__(userName):
+        AuthorizedUsersList=[x.strip() for x in authorized_users.split(',')]
+        if userName in AuthorizedUsersList:
             access_to_confidential_phenotype_trait = 1
     return access_to_confidential_phenotype_trait

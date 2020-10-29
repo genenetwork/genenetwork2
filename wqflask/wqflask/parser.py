@@ -17,8 +17,6 @@ be acceptable.]
 
 """
 
-from __future__ import print_function, division
-
 import re
 
 from pprint import pformat as pf
@@ -77,22 +75,6 @@ def parse(pstring):
         items.append(term)
     logger.debug("* items are:", pf(items) + "\n")
     return(items)
-
-    #def encregexp(self,str):
-    #    if not str:
-    #        return []
-    #    else:
-    #        wildcardkeyword = str.strip()
-    #        wildcardkeyword = string.replace(wildcardkeyword,',',' ')
-    #        wildcardkeyword = string.replace(wildcardkeyword,';',' ')
-    #        wildcardkeyword = wildcardkeyword.split()
-    #    NNN = len(wildcardkeyword)
-    #    for i in range(NNN):
-    #        keyword = wildcardkeyword[i]
-    #        keyword = string.replace(keyword,"*",".*")
-    #        keyword = string.replace(keyword,"?",".")
-    #        wildcardkeyword[i] = keyword#'[[:<:]]'+ keyword+'[[:>:]]'
-    #    return wildcardkeyword
 
 
 if __name__ == '__main__':

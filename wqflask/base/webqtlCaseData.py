@@ -41,8 +41,6 @@ class webqtlCaseData:
         self.this_id = None   # Set a sane default (can't be just "id" cause that's a reserved word)
         self.outlier = None   # Not set to True/False until later
 
-        self.first_attr_col = self.get_first_attr_col()
-
     def __repr__(self):
         case_data_string = "<webqtlCaseData> "
         if self.value is not None:
@@ -81,12 +79,3 @@ class webqtlCaseData:
         if self.num_cases is not None:
             return "%s" % self.num_cases
         return "x"
-
-    def get_first_attr_col(self):
-        col_num = 4
-        if self.variance is not None:
-            col_num += 2
-        if self.num_cases is not None:
-            col_num += 1
-
-        return col_num

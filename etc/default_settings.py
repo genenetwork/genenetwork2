@@ -19,12 +19,12 @@
 #
 # For GNU Guix deployment also check the paths in
 #
-#  ~/.guix-profile/lib/python2.7/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+#  ~/.guix-profile/lib/python3.8/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
 
 import os
 import sys
 
-GN_VERSION = open("../etc/VERSION","r").read()
+GN_VERSION = open("../etc/VERSION", "r").read()
 GN_SERVER_URL = "http://localhost:8880/" # REST API server
 
 # ---- MySQL

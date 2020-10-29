@@ -1,20 +1,20 @@
-<table class="table" style="max-width: 1400px;">
+<table class="table">
     <tr>
-        <td width="150px"><b>Group</b></td>
+        <td><b>Group</b></td>
         <td>{{ this_trait.dataset.group.species[0]|upper }}{{ this_trait.dataset.group.species[1:] }}: {{ this_trait.dataset.group.name }} group</td>
     </tr>
     {% if this_trait.dataset.type == 'Publish' %}
     <tr>
         <td><b>Phenotype</b></td>
-        <td><div style="width:40%;">{{ this_trait.description_fmt }}</div></td>
+        <td><div>{{ this_trait.description_fmt }}</div></td>
     </tr>
     <tr>
         <td><b>Authors</b></td>
-        <td><div style="width:40%;">{{ this_trait.authors }}</div></td>
+        <td><div>{{ this_trait.authors }}</div></td>
     </tr>
     <tr>
         <td><b>Title</b></td>
-        <td><div style="width:40%;">{{ this_trait.title }}</div></td>
+        <td><div>{{ this_trait.title }}</div></td>
     </tr>
     <tr>
         <td><b>Journal</b></td>
@@ -213,7 +213,7 @@
     {% endif %}
 </table>
 
-<div style="margin-bottom:15px;" class="btn-toolbar">
+<div class="btn-toolbar">
     <div class="btn-group">
         <button type="button" id="add_to_collection" class="btn btn-success" title="Add to Collection">Add</button>
         {% if this_trait.dataset.type == 'ProbeSet' or this_trait.dataset.type == 'Geno' %}

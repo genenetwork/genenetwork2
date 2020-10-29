@@ -18,13 +18,14 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
 from db.call import fetchall, fetchone, fetch1
 from utility.logger import getLogger
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
 from db.gn_server import menu_main
 from pprint import pformat as pf
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
+from utility.db_tools import mescape
+from utility.db_tools import create_in_clause
 from maintenance import get_group_samplelists
 from utility.tools import locate, locate_ignore_error, flat_files
 from utility import gen_geno_ob
@@ -34,7 +35,6 @@ from utility import webqtlUtil
 from db import webqtlDatabaseFunction
 from base import species
 from base import webqtlConfig
-import reaper
 from flask import Flask, g
 import os
 import math
@@ -45,7 +45,7 @@ import codecs
 import json
 import requests
 import gzip
-import cPickle as pickle
+import pickle as pickle
 import itertools
 
 from redis import Redis
@@ -209,20 +209,6 @@ def create_datasets_list():
     return datasets
 
 
-def create_in_clause(items):
-    """Create an in clause for mysql"""
-    in_clause = ', '.join("'{}'".format(x) for x in mescape(*items))
-    in_clause = '( {} )'.format(in_clause)
-    return in_clause
-
-
-def mescape(*items):
-    """Multiple escape"""
-    escaped = [escape(str(item)) for item in items]
-    #logger.debug("escaped is:", escaped)
-    return escaped
-
-
 class Markers(object):
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
 
@@ -257,12 +243,12 @@ class Markers(object):
         logger.debug("length of self.markers:", len(self.markers))
         logger.debug("length of p_values:", len(p_values))
 
-        if type(p_values) is list:
+        if isinstance(p_values, list):
             # THIS IS only needed for the case when we are limiting the number of p-values calculated
             # if len(self.markers) > len(p_values):
             #    self.markers = self.markers[:len(p_values)]
 
-            for marker, p_value in itertools.izip(self.markers, p_values):
+            for marker, p_value in zip(self.markers, p_values):
                 if not p_value:
                     continue
                 marker['p_value'] = float(p_value)
@@ -273,7 +259,7 @@ class Markers(object):
                     marker['lod_score'] = -math.log10(marker['p_value'])
                     # Using -log(p) for the LRS; need to ask Rob how he wants to get LRS from p-values
                     marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-        elif type(p_values) is dict:
+        elif isinstance(p_values, dict):
             filtered_markers = []
             for marker in self.markers:
                 #logger.debug("marker[name]", marker['name'])
@@ -459,12 +445,7 @@ class DatasetGroup(object):
                 full_filename = str(locate(self.genofile, 'genotype'))
         else:
             full_filename = str(locate(self.name + '.geno', 'genotype'))
-
-        if use_reaper:
-            genotype_1 = reaper.Dataset()
-            genotype_1.read(full_filename)
-        else:
-            genotype_1 = gen_geno_ob.genotype(full_filename)
+        genotype_1 = gen_geno_ob.genotype(full_filename)
 
         if genotype_1.type == "group" and self.parlist:
             genotype_2 = genotype_1.add(
@@ -707,7 +688,7 @@ class DataSet(object):
             else:
                 query = "SELECT {}.Name,".format(escape(dataset_type))
             data_start_pos = 1
-            query += string.join(temp, ', ')
+            query += ', '.join(temp)
             query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
                                                                      self.type,
                                                                      self.type))
@@ -1053,9 +1034,9 @@ class MrnaAssayDataSet(DataSet):
 
             # XZ, 12/08/2008: description
             # XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = unicode(
+            description_string = str(
                 str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = unicode(
+            target_string = str(
                 str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
             if len(description_string) > 1 and description_string != 'None':

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 import json
 
 from flask import Flask, g
@@ -37,7 +35,7 @@ class GSearch(object):
                 ProbeSetFreeze.FullName AS probesetfreeze_fullname,
                 ProbeSet.Name AS probeset_name,
                 ProbeSet.Symbol AS probeset_symbol,
-                ProbeSet.`description` AS probeset_description,
+                CAST(ProbeSet.`description` AS BINARY) AS probeset_description,
                 ProbeSet.Chr AS chr,
                 ProbeSet.Mb AS mb,
                 ProbeSetXRef.Mean AS mean,
@@ -137,8 +135,8 @@ class GSearch(object):
                 PublishFreeze.`Name`,
                 PublishFreeze.`FullName`,
                 PublishXRef.`Id`,
-                Phenotype.`Pre_publication_description`,
-                Phenotype.`Post_publication_description`,
+                CAST(Phenotype.`Pre_publication_description` AS BINARY),
+                CAST(Phenotype.`Post_publication_description` AS BINARY),
                 Publication.`Authors`,
                 Publication.`Year`,
                 Publication.`PubMed_ID`,

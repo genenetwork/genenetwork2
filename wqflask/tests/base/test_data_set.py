@@ -1,10 +1,10 @@
 """Tests for wqflask/base/data_set.py"""
 
 import unittest
-import mock
+from unittest import mock
 
 from wqflask import app
-from data import gen_menu_json
+from .data import gen_menu_json
 from base.data_set import DatasetType
 
 
@@ -59,9 +59,14 @@ class TestDataSetTypes(unittest.TestCase):
             self.assertEqual(data_set("BXDGeno"), "Geno")
             self.assertEqual(data_set("BXDPublish"), "Publish")
             self.assertEqual(data_set("HLC_0311"), "ProbeSet")
+
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
-                '{"BXDGeno": "Geno", "BXDPublish": "Publish", "HLCPublish": "Publish", "HLC_0311": "ProbeSet", "HC_M2_0606_P": "ProbeSet"}')
+                ('{"HLC_0311": "ProbeSet", '
+                 '"HLCPublish": "Publish", '
+                 '"BXDGeno": "Geno", '
+                 '"HC_M2_0606_P": "ProbeSet", '
+                 '"BXDPublish": "Publish"}'))
 
     @mock.patch('base.data_set.g')
     def test_set_dataset_key_mrna(self, db_mock):
@@ -74,8 +79,17 @@ class TestDataSetTypes(unittest.TestCase):
             self.assertEqual(data_set("Test"), "ProbeSet")
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
-                '{"Aging-Brain-UCIPublish": "Publish", "AKXDGeno": "Geno", "B139_K_1206_M": "ProbeSet", "AD-cases-controls-MyersGeno": "Geno", "AD-cases-controls-MyersPublish": "Publish", "All Phenotypes": "Publish", "Test": "ProbeSet", "AXBXAPublish": "Publish", "B139_K_1206_R": "ProbeSet", "AXBXAGeno": "Geno"}')
-            expected_db_call = """"""
+                ('{"AD-cases-controls-MyersGeno": "Geno", '
+                 '"AD-cases-controls-MyersPublish": "Publish", '
+                 '"AKXDGeno": "Geno", '
+                 '"AXBXAGeno": "Geno", '
+                 '"AXBXAPublish": "Publish", '
+                 '"Aging-Brain-UCIPublish": "Publish", '
+                 '"All Phenotypes": "Publish", '
+                 '"B139_K_1206_M": "ProbeSet", '
+                 '"B139_K_1206_R": "ProbeSet", '
+                 '"Test": "ProbeSet"}'))
+
             db_mock.db.execute.assert_called_with(
                 ("SELECT ProbeSetFreeze.Id FROM ProbeSetFreeze " +
                  "WHERE ProbeSetFreeze.Name = \"Test\" ")
@@ -92,12 +106,21 @@ class TestDataSetTypes(unittest.TestCase):
             self.assertEqual(data_set("Test"), "Publish")
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
-                '{"Aging-Brain-UCIPublish": "Publish", "AKXDGeno": "Geno", "B139_K_1206_M": "ProbeSet", "AD-cases-controls-MyersGeno": "Geno", "AD-cases-controls-MyersPublish": "Publish", "All Phenotypes": "Publish", "Test": "Publish", "AXBXAPublish": "Publish", "B139_K_1206_R": "ProbeSet", "AXBXAGeno": "Geno"}')
+                ('{"AD-cases-controls-MyersGeno": "Geno", '
+                 '"AD-cases-controls-MyersPublish": "Publish", '
+                 '"AKXDGeno": "Geno", '
+                 '"AXBXAGeno": "Geno", '
+                 '"AXBXAPublish": "Publish", '
+                 '"Aging-Brain-UCIPublish": "Publish", '
+                 '"All Phenotypes": "Publish", '
+                 '"B139_K_1206_M": "ProbeSet", '
+                 '"B139_K_1206_R": "ProbeSet", '
+                 '"Test": "Publish"}'))
             db_mock.db.execute.assert_called_with(
-                ("SELECT InfoFiles.GN_AccesionId " +
-                 "FROM InfoFiles, PublishFreeze, InbredSet " +
+                ("SELECT InfoFiles.GN_AccesionId "
+                 "FROM InfoFiles, PublishFreeze, InbredSet "
                  "WHERE InbredSet.Name = 'Test' AND "
-                 "PublishFreeze.InbredSetId = InbredSet.Id AND " +
+                 "PublishFreeze.InbredSetId = InbredSet.Id AND "
                  "InfoFiles.InfoPageName = PublishFreeze.Name")
             )
 
@@ -110,9 +133,20 @@ class TestDataSetTypes(unittest.TestCase):
             data_set = DatasetType(redis_mock)
             data_set.set_dataset_key("other_pheno", "Test")
             self.assertEqual(data_set("Test"), "Publish")
+
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
-                '{"Aging-Brain-UCIPublish": "Publish", "AKXDGeno": "Geno", "B139_K_1206_M": "ProbeSet", "AD-cases-controls-MyersGeno": "Geno", "AD-cases-controls-MyersPublish": "Publish", "All Phenotypes": "Publish", "Test": "Publish", "AXBXAPublish": "Publish", "B139_K_1206_R": "ProbeSet", "AXBXAGeno": "Geno"}')
+                ('{"AD-cases-controls-MyersGeno": "Geno", '
+                 '"AD-cases-controls-MyersPublish": "Publish", '
+                 '"AKXDGeno": "Geno", '
+                 '"AXBXAGeno": "Geno", '
+                 '"AXBXAPublish": "Publish", '
+                 '"Aging-Brain-UCIPublish": "Publish", '
+                 '"All Phenotypes": "Publish", '
+                 '"B139_K_1206_M": "ProbeSet", '
+                 '"B139_K_1206_R": "ProbeSet", '
+                 '"Test": "Publish"}'))
+
             db_mock.db.execute.assert_called_with(
                 ("SELECT PublishFreeze.Name " +
                  "FROM PublishFreeze, InbredSet " +
@@ -131,8 +165,17 @@ class TestDataSetTypes(unittest.TestCase):
             self.assertEqual(data_set("Test"), "Geno")
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
-                '{"Aging-Brain-UCIPublish": "Publish", "AKXDGeno": "Geno", "B139_K_1206_M": "ProbeSet", "AD-cases-controls-MyersGeno": "Geno", "AD-cases-controls-MyersPublish": "Publish", "All Phenotypes": "Publish", "Test": "Geno", "AXBXAPublish": "Publish", "B139_K_1206_R": "ProbeSet", "AXBXAGeno": "Geno"}')
-            expected_db_call = """"""
+                ('{"AD-cases-controls-MyersGeno": "Geno", '
+                 '"AD-cases-controls-MyersPublish": "Publish", '
+                 '"AKXDGeno": "Geno", '
+                 '"AXBXAGeno": "Geno", '
+                 '"AXBXAPublish": "Publish", '
+                 '"Aging-Brain-UCIPublish": "Publish", '
+                 '"All Phenotypes": "Publish", '
+                 '"B139_K_1206_M": "ProbeSet", '
+                 '"B139_K_1206_R": "ProbeSet", '
+                 '"Test": "Geno"}'))
+
             db_mock.db.execute.assert_called_with(
-                ("SELECT GenoFreeze.Id FROM GenoFreeze WHERE GenoFreeze.Name = \"Test\" ")
-            )
+                ("SELECT GenoFreeze.Id FROM "
+                 "GenoFreeze WHERE GenoFreeze.Name = \"Test\" "))

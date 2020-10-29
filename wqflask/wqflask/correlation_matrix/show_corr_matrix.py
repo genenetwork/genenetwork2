@@ -18,52 +18,29 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
-import sys
-# sys.path.append(".")   Never do this in a webserver!
-
-import string
-import cPickle
-import os
 import datetime
-import time
-import pp
 import math
-import collections
-import resource
-
 import numpy as np
 import scipy
-
-from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
+import utility.webqtlUtil  # this is for parallel computing only.
+import utility.logger
 
-from pprint import pformat as pf
+from base import data_set
+from functools import reduce
+from functools import cmp_to_key
+from rpy2.robjects.packages import importr
 
+from utility import webqtlUtil
+from utility import helper_functions
+from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
+
+logger = utility.logger.getLogger(__name__)
+
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
-from utility.THCell import THCell
-from utility.TDCell import TDCell
-from base.trait import GeneralTrait
-from base import data_set
-from utility import webqtlUtil, helper_functions, corr_result_helpers
-
-from db import webqtlDatabaseFunction
-import utility.webqtlUtil #this is for parallel computing only.
-from wqflask.correlation import correlation_functions
-from utility.benchmark import Bench
-
-from MySQLdb import escape_string as escape
-
-from pprint import pformat as pf
-
-from flask import Flask, g, url_for
-
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
 
 class CorrelationMatrix(object):
 
@@ -190,7 +167,7 @@ class CorrelationMatrix(object):
                 if self.do_PCA == True:
                     self.pca_works = "True"
                     self.pca_trait_ids = []
-                    pca = self.calculate_pca(range(len(self.traits)), corr_eigen_value, corr_eigen_vectors)
+                    pca = self.calculate_pca(list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
                     self.loadings_array = self.process_loadings()
                 else:
                     self.pca_works = "False"
@@ -199,8 +176,8 @@ class CorrelationMatrix(object):
 
             self.js_data = dict(traits = [trait.name for trait in self.traits],
                                 groups = groups,
-                                cols = range(len(self.traits)),
-                                rows = range(len(self.traits)),
+                                cols = list(range(len(self.traits))),
+                                rows = list(range(len(self.traits))),
                                 samples = self.all_sample_list,
                                 sample_data = self.sample_data,)
             #                    corr_results = [result[1] for result in result_row for result_row in self.corr_results])
@@ -271,14 +248,14 @@ def zScore(trait_data_array):
         i = 0
         for data in trait_data_array:
             N = len(data)
-            S = reduce(lambda x,y: x+y, data, 0.)
-            SS = reduce(lambda x,y: x+y*y, data, 0.)
+            S = reduce(lambda x, y: x+y, data, 0.)
+            SS = reduce(lambda x, y: x+y*y, data, 0.)
             mean = S/N
             var = SS - S*S/N
             stdev = math.sqrt(var/(N-1))
             if stdev == 0:
                 stdev = 1e-100
-            data2 = map(lambda x:(x-mean)/stdev,data)
+            data2 = [(x-mean)/stdev for x in data]
             trait_data_array[i] = data2
             i += 1
         return trait_data_array
@@ -290,16 +267,16 @@ def sortEigenVectors(vector):
         combines = []
         i = 0
         for item in eigenValues:
-            combines.append([eigenValues[i],eigenVectors[i]])
+            combines.append([eigenValues[i], eigenVectors[i]])
             i += 1
-        combines.sort(webqtlUtil.cmpEigenValue)
+        sorted(combines, key=cmp_to_key(webqtlUtil.cmpEigenValue))
         A = []
         B = []
         for item in combines:
             A.append(item[0])
             B.append(item[1])
-        sum = reduce(lambda x,y: x+y, A, 0.0)
-        A = map(lambda x:x*100.0/sum, A) 
+        sum = reduce(lambda x, y: x+y, A, 0.0)
+        A = [x*100.0/sum for x in A] 
         return [A, B]
     except:
         return []

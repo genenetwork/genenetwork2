@@ -30,18 +30,10 @@ It needs to be run manually when database has been changed. Run it as
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import print_function, division
-
-#from flask import config
-#
-#cdict = {}
-#config = config.Config(cdict).from_envvar('WQFLASK_SETTINGS')
-#print("cdict is:", cdict)
-
 import sys
 
 # NEW: Note we prepend the current path - otherwise a guix instance of GN2 may be used instead
-sys.path.insert(0,'./')
+sys.path.insert(0, './')
 # NEW: import app to avoid a circular dependency on utility.tools
 from wqflask import app
 
@@ -50,7 +42,7 @@ from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
 import MySQLdb
 
 import simplejson as json
-import urlparse
+import urllib.parse
 
 
 #import sqlalchemy as sa
@@ -66,7 +58,7 @@ from pprint import pformat as pf
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
-    parsed_uri = urlparse.urlparse(SQL_URI)
+    parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
                         db = parsed_uri.path[1:],
@@ -108,7 +100,7 @@ def get_types(groups):
     """Build types list"""
     types = {}
     #print("Groups: ", pf(groups))
-    for species, group_dict in groups.iteritems():
+    for species, group_dict in list(groups.items()):
         types[species] = {}
         for group_name, _group_full_name in group_dict:
             # make group an alias to shorten the code
@@ -195,9 +187,9 @@ def build_types(species, group):
 def get_datasets(types):
     """Build datasets list"""
     datasets = {}
-    for species, group_dict in types.iteritems():
+    for species, group_dict in list(types.items()):
         datasets[species] = {}
-        for group, type_list in group_dict.iteritems():
+        for group, type_list in list(group_dict.items()):
             datasets[species][group] = {}
             for type_name in type_list:
                 these_datasets = build_datasets(species, group, type_name[0])

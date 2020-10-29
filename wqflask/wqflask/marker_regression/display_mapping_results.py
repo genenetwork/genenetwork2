@@ -35,7 +35,7 @@ import json
 
 from flask import Flask, g
 
-from htmlgen import HTMLgen2 as HT
+import htmlgen as HT
 
 from base import webqtlConfig
 from base.GeneralObject import GeneralObject
@@ -47,7 +47,11 @@ from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
 import utility.logger
-logger = utility.logger.getLogger(__name__)
+try:  # Only import this for Python3
+    from functools import reduce
+except:
+    pass
+logger = utility.logger.getLogger(__name__ )
 
 RED = ImageColor.getrgb("red")
 BLUE = ImageColor.getrgb("blue")
@@ -84,35 +88,60 @@ class HtmlGenWrapper:
     """Wrapper Methods for HTML gen"""
     @staticmethod
     def create_image_tag(**kwargs):
-        return HT.Image(**kwargs)
+        image = HT.Image("", "")
+        for key, value in list(kwargs.items()):
+            image.set_attribute(key, value)
+        return image
 
     @staticmethod
     def create_form_tag(**kwargs):
-        return HT.Form(**kwargs)
+        form = HT.Form("POST", "")  # Default method is POST
+
+        for key, value in list(kwargs.items()):
+            if key == "submit":
+                form.append(value)
+                continue
+            form.set_attribute(key.replace("cgi", "action"), str(value))
+        return form
 
     @staticmethod
     def create_p_tag(**kwargs):
-        return HT.Paragraph(**kwargs)
+        paragraph = HT.Paragraph()
+        for key, value in list(kwargs.items()):
+            paragraph.set_attribute(key, value)
+        return paragraph
 
     @staticmethod
     def create_br_tag():
-        return HT.BR()
+        return HT.VoidElement("br")
 
     @staticmethod
     def create_input_tag(**kwargs):
-        return HT.Input(**kwargs)
+        input_ = HT.Input()
+        for key, value in list(kwargs.items()):
+            input_.set_attribute(key.lower().replace("_", ""), value)
+        return input_
 
     @staticmethod
     def create_area_tag(**kwargs):
-        return HT.Area(**kwargs)
+        area = HT.VoidElement("area")
+        for key, value in list(kwargs.items()):
+            area.set_attribute(key, value)
+        return area
 
     @staticmethod
     def create_link_tag(href, content, **kwargs):
-        return HT.Href(href, content, **kwargs)
+        link = HT.Link(href, content)
+        for key, value in list(kwargs.items()):
+            link.set_attribute(key, value)
+        return link
 
     @staticmethod
     def create_map_tag(**kwargs):
-        return HT.Map(**kwargs)
+        map_ = HT.Element("map")
+        for key, value in list(kwargs.items()):
+            map_.set_attribute(key, value)
+        return map_
 
 
 class DisplayMappingResults(object):
@@ -265,7 +294,7 @@ class DisplayMappingResults(object):
 
         self.manhattan_plot = start_vars['manhattan_plot']
 
-        if 'permCheck' in start_vars.keys():
+        if 'permCheck' in list(start_vars.keys()):
             self.permChecked = start_vars['permCheck']
         else:
             self.permChecked = False
@@ -278,46 +307,46 @@ class DisplayMappingResults(object):
         else:
             self.nperm = 0
 
-        if 'bootCheck' in start_vars.keys():
+        if 'bootCheck' in list(start_vars.keys()):
             self.bootChecked = start_vars['bootCheck']
         else:
             self.bootChecked = False
-        if 'num_bootstrap' in start_vars.keys():
+        if 'num_bootstrap' in list(start_vars.keys()):
             self.nboot = int(start_vars['num_bootstrap'])
         else:
             self.nboot = 0
-        if 'bootstrap_results' in start_vars.keys():
+        if 'bootstrap_results' in list(start_vars.keys()):
             self.bootResult = start_vars['bootstrap_results']
         else:
             self.bootResult = []
 
-        if 'do_control' in start_vars.keys():
+        if 'do_control' in list(start_vars.keys()):
             self.doControl = start_vars['do_control']
         else:
             self.doControl = "false"
-        if 'control_marker' in start_vars.keys():
+        if 'control_marker' in list(start_vars.keys()):
             self.controlLocus = start_vars['control_marker']
         else:
             self.controlLocus = ""
-        if 'covariates' in start_vars.keys():
+        if 'covariates' in list(start_vars.keys()):
             self.covariates = start_vars['covariates']
-        if 'maf' in start_vars.keys():
+        if 'maf' in list(start_vars.keys()):
             self.maf = start_vars['maf']
         else:
             self.maf = ""
-        if 'output_files' in start_vars.keys():
+        if 'output_files' in list(start_vars.keys()):
             self.output_files = start_vars['output_files']
-        if 'use_loco' in start_vars.keys() and self.mapping_method == "gemma":
+        if 'use_loco' in list(start_vars.keys()) and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
 
-        if 'reaper_version' in start_vars.keys() and self.mapping_method == "reaper":
+        if 'reaper_version' in list(start_vars.keys()) and self.mapping_method == "reaper":
             self.reaper_version = start_vars['reaper_version']
             if 'output_files' in start_vars:
                 self.output_files = ",".join(start_vars['output_files'])
 
         self.categorical_vars = ""
         self.perm_strata = ""
-        if 'perm_strata' in start_vars.keys() and 'categorical_vars' in start_vars.keys():
+        if 'perm_strata' in list(start_vars.keys()) and 'categorical_vars' in list(start_vars.keys()):
             self.categorical_vars = start_vars['categorical_vars']
             self.perm_strata = start_vars['perm_strata']
 
@@ -359,7 +388,7 @@ class DisplayMappingResults(object):
                self.graphWidth  = self.MULT_GRAPH_DEFAULT_WIDTH
 
 ## BEGIN HaplotypeAnalyst
-        if 'haplotypeAnalystCheck' in start_vars.keys():
+        if 'haplotypeAnalystCheck' in list(start_vars.keys()):
             self.haplotypeAnalystChecked = start_vars['haplotypeAnalystCheck']
         else:
             self.haplotypeAnalystChecked = False
@@ -367,25 +396,25 @@ class DisplayMappingResults(object):
 
         self.graphHeight = self.GRAPH_DEFAULT_HEIGHT
         self.dominanceChecked = False
-        if 'LRSCheck' in start_vars.keys():
+        if 'LRSCheck' in list(start_vars.keys()):
             self.LRS_LOD = start_vars['LRSCheck']
         else:
             self.LRS_LOD = start_vars['score_type']
         self.intervalAnalystChecked = True
         self.draw2X = False
-        if 'additiveCheck' in start_vars.keys():
+        if 'additiveCheck' in list(start_vars.keys()):
             self.additiveChecked = start_vars['additiveCheck']
         else:
             self.additiveChecked = False
-        if 'viewLegend' in start_vars.keys():
+        if 'viewLegend' in list(start_vars.keys()):
             self.legendChecked = start_vars['viewLegend']
         else:
             self.legendChecked = False
-        if 'showSNP' in start_vars.keys():
+        if 'showSNP' in list(start_vars.keys()):
             self.SNPChecked = start_vars['showSNP']
         else:
             self.SNPChecked = False
-        if 'showGenes' in start_vars.keys():
+        if 'showGenes' in list(start_vars.keys()):
             self.geneChecked = start_vars['showGenes']
         else:
             self.geneChecked = False
@@ -425,9 +454,9 @@ class DisplayMappingResults(object):
                         Chr_Length.Name in (%s)
                 Order by
                         Chr_Length.OrderId
-                """ % (self.dataset.group.name, string.join(map(lambda X: "'%s'" % X[0], self.ChrList[1:]), ", ")))
+                """ % (self.dataset.group.name, ", ".join(["'%s'" % X[0] for X in self.ChrList[1:]])))
 
-        self.ChrLengthMbList = map(lambda x: x[0]/1000000.0, self.ChrLengthMbList)
+        self.ChrLengthMbList = [x[0]/1000000.0 for x in self.ChrLengthMbList]
         self.ChrLengthMbSum = reduce(lambda x, y:x+y, self.ChrLengthMbList, 0.0)
         if self.ChrLengthMbList:
             self.MbGraphInterval = self.ChrLengthMbSum/(len(self.ChrLengthMbList)*12) #Empirical Mb interval
@@ -458,7 +487,7 @@ class DisplayMappingResults(object):
                 else:
                     continue
             samplelist = list(self.genotype.prgy)
-            for j,_geno in enumerate (self.genotype[0][1].genotype):
+            for j, _geno in enumerate (self.genotype[0][1].genotype):
                 for item in smd:
                     if item.name == samplelist[j]:
                         self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
@@ -550,11 +579,10 @@ class DisplayMappingResults(object):
             src="/image/{}.png".format(self.filename),
             border="0", usemap='#WebQTLImageMap'
         )
-        self.intImg = intImg
 
         #Scales plot differently for high resolution
         if self.draw2X:
-            intCanvasX2 = Image.new("RGBA", size=(self.graphWidth*2,self.graphHeight*2))
+            intCanvasX2 = Image.new("RGBA", size=(self.graphWidth*2, self.graphHeight*2))
             gifmapX2 = self.plotIntMapping(intCanvasX2, startMb = self.startMb, endMb = self.endMb, showLocusForm= showLocusForm, zoom=2)
             intCanvasX2.save(
                 "{}.png".format(
@@ -571,12 +599,12 @@ class DisplayMappingResults(object):
                 cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
                 enctype='multipart/form-data',
                 name=showLocusForm,
-                submit=HtmlGenWrapper.create_input_tag(type='hidden'))
+                submit=HtmlGenWrapper.create_input_tag(type_='hidden'))
 
             hddn = {'FormID':'showDatabase', 'ProbeSetID':'_','database':fd.RISet+"Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
             for key in hddn.keys():
                 showLocusForm.append(HtmlGenWrapper.create_input_tag(
-                    name=key, value=hddn[key], type='hidden'))
+                    name=key, value=hddn[key], type_='hidden'))
             showLocusForm.append(intImg)
         else:
             showLocusForm = intImg
@@ -791,17 +819,17 @@ class DisplayMappingResults(object):
         bootScale = bootScale[:-1] + [highestPercent]
 
         bootOffset = 50*fontZoom
-        bootScaleFont=ImageFont.truetype(font=VERDANA_FILE,size=13*fontZoom)
+        bootScaleFont=ImageFont.truetype(font=VERDANA_FILE, size=13*fontZoom)
         im_drawer.rectangle(
             xy=((canvas.size[0]-bootOffset, yZero-bootHeightThresh),
-                (canvas.size[0]-bootOffset-15*zoom,yZero)),
+                (canvas.size[0]-bootOffset-15*zoom, yZero)),
             fill = YELLOW, outline=BLACK)
         im_drawer.line(
             xy=((canvas.size[0]-bootOffset+4, yZero),
                 (canvas.size[0]-bootOffset, yZero)),
             fill=BLACK)
         TEXT_Y_DISPLACEMENT = -8
-        im_drawer.text(xy=(canvas.size[0]-bootOffset+10,yZero+TEXT_Y_DISPLACEMENT), text='0%',
+        im_drawer.text(xy=(canvas.size[0]-bootOffset+10, yZero+TEXT_Y_DISPLACEMENT), text='0%',
                        font=bootScaleFont, fill=BLACK)
 
         for item in bootScale:
@@ -809,10 +837,10 @@ class DisplayMappingResults(object):
                 continue
             bootY = yZero-bootHeightThresh*item/highestPercent
             im_drawer.line(
-                xy=((canvas.size[0]-bootOffset+4,bootY),
-                 (canvas.size[0]-bootOffset,bootY)),
+                xy=((canvas.size[0]-bootOffset+4, bootY),
+                 (canvas.size[0]-bootOffset, bootY)),
                 fill=BLACK)
-            im_drawer.text(xy=(canvas.size[0]-bootOffset+10,bootY+TEXT_Y_DISPLACEMENT),
+            im_drawer.text(xy=(canvas.size[0]-bootOffset+10, bootY+TEXT_Y_DISPLACEMENT),
                            text='%2.1f'%item, font=bootScaleFont, fill=BLACK)
 
         if self.legendChecked:
@@ -821,7 +849,7 @@ class DisplayMappingResults(object):
             smallLabelFont = ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
             leftOffset = xLeftOffset+(nCol-1)*200
             im_drawer.rectangle(
-                xy=((leftOffset,startPosY-6), (leftOffset+12,startPosY+6)),
+                xy=((leftOffset, startPosY-6), (leftOffset+12, startPosY+6)),
                 fill=YELLOW, outline=BLACK)
             im_drawer.text(xy=(leftOffset+ 20, startPosY+TEXT_Y_DISPLACEMENT),
                            text='Frequency of the Peak LRS',
@@ -918,7 +946,7 @@ class DisplayMappingResults(object):
             TEXT_Y_DISPLACEMENT = -8
             im_drawer.text(
                 text="Sequence Site",
-                xy=(leftOffset+15,startPosY+TEXT_Y_DISPLACEMENT), font=smallLabelFont,
+                xy=(leftOffset+15, startPosY+TEXT_Y_DISPLACEMENT), font=smallLabelFont,
                 fill=self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -968,7 +996,7 @@ class DisplayMappingResults(object):
     def drawMultiTraitName(self, fd, canvas, gifmap, showLocusForm, offset= (40, 120, 80, 10), zoom = 1):
         nameWidths = []
         yPaddingTop = 10
-        colorFont=ImageFont.truetype(font=TREBUC_FILE,size=12)
+        colorFont=ImageFont.truetype(font=TREBUC_FILE, size=12)
         if len(self.qtlresults) >20 and self.selectedChr > -1:
             rightShift = 20
             rightShiftStep = 60
@@ -987,21 +1015,21 @@ class DisplayMappingResults(object):
                 rightShift += rightShiftStep
 
             name = thisTrait.displayName()
-            nameWidth, nameHeight = im_drawer.textsize(name,font=colorFont)
+            nameWidth, nameHeight = im_drawer.textsize(name, font=colorFont)
             nameWidths.append(nameWidth)
 
             im_drawer.rectangle(
-                xy=((rightShift,yPaddingTop+kstep*15),
-                    (rectWidth+rightShift,yPaddingTop+10+kstep*15)),
+                xy=((rightShift, yPaddingTop+kstep*15),
+                    (rectWidth+rightShift, yPaddingTop+10+kstep*15)),
                 fill=thisLRSColor, outline=BLACK)
             im_drawer.text(
-                text=name,xy=(rectWidth+2+rightShift,yPaddingTop+10+kstep*15),
-                font=colorFont,fill=BLACK)
+                text=name, xy=(rectWidth+2+rightShift, yPaddingTop+10+kstep*15),
+                font=colorFont, fill=BLACK)
             if thisTrait.db:
-                COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift,yPaddingTop+kstep*15,rectWidth+2+rightShift+nameWidth,yPaddingTop+10+kstep*15,)
+                COORDS = "%d,%d,%d,%d" %(rectWidth+2+rightShift, yPaddingTop+kstep*15, rectWidth+2+rightShift+nameWidth, yPaddingTop+10+kstep*15,)
                 HREF= "javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm, thisTrait.db.name, thisTrait.name)
-                Areas = HtmlGenWrapper.create_area_tag(shape='rect',coords=COORDS,href=HREF)
-                gifmap.areas.append(Areas) ### TODO
+                Areas = HtmlGenWrapper.create_area_tag(shape='rect', coords=COORDS, href=HREF)
+                gifmap.append(Areas) ### TODO
 
     def drawLegendPanel(self, canvas, offset= (40, 120, 80, 10), zoom = 1):
         im_drawer = ImageDraw.Draw(canvas)
@@ -1014,80 +1042,80 @@ class DisplayMappingResults(object):
         if zoom == 2:
             fontZoom = 1.5
 
-        labelFont=ImageFont.truetype(font=TREBUC_FILE,size=12*fontZoom)
+        labelFont=ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
         startPosY = 15
         stepPosY = 12*fontZoom
         if self.manhattan_plot != True:
             im_drawer.line(
-                xy=((xLeftOffset,startPosY),(xLeftOffset+32,startPosY)),
+                xy=((xLeftOffset, startPosY), (xLeftOffset+32, startPosY)),
                 fill=self.LRS_COLOR, width=2)
             im_drawer.text(
-                text=self.LRS_LOD, xy=(xLeftOffset+40,startPosY+TEXT_Y_DISPLACEMENT),
-                font=labelFont,fill=BLACK)
+                text=self.LRS_LOD, xy=(xLeftOffset+40, startPosY+TEXT_Y_DISPLACEMENT),
+                font=labelFont, fill=BLACK)
             startPosY += stepPosY
 
         if self.additiveChecked:
             startPosX = xLeftOffset
             im_drawer.line(
-                xy=((startPosX,startPosY),(startPosX+17,startPosY)),
+                xy=((startPosX, startPosY), (startPosX+17, startPosY)),
                 fill=self.ADDITIVE_COLOR_POSITIVE, width=2)
             im_drawer.line(
-                xy=((startPosX+18,startPosY),(startPosX+32,startPosY)),
+                xy=((startPosX+18, startPosY), (startPosX+32, startPosY)),
                 fill=self.ADDITIVE_COLOR_NEGATIVE, width=2)
             im_drawer.text(
-                text='Additive Effect',xy=(startPosX+40,startPosY+TEXT_Y_DISPLACEMENT),
-                font=labelFont,fill=BLACK)
+                text='Additive Effect', xy=(startPosX+40, startPosY+TEXT_Y_DISPLACEMENT),
+                font=labelFont, fill=BLACK)
 
         if self.genotype.type == 'intercross' and self.dominanceChecked:
             startPosX = xLeftOffset
             startPosY += stepPosY
             im_drawer.line(
-                xy=((startPosX,startPosY),(startPosX+17,startPosY)),
+                xy=((startPosX, startPosY), (startPosX+17, startPosY)),
                 fill=self.DOMINANCE_COLOR_POSITIVE, width=4)
             im_drawer.line(
-                xy=((startPosX+18,startPosY),(startPosX+35,startPosY)),
+                xy=((startPosX+18, startPosY), (startPosX+35, startPosY)),
                 fill=self.DOMINANCE_COLOR_NEGATIVE, width=4)
             im_drawer.text(
-                text='Dominance Effect', xy=(startPosX+42,startPosY+5),
-                font=labelFont,fill=BLACK)
+                text='Dominance Effect', xy=(startPosX+42, startPosY+5),
+                font=labelFont, fill=BLACK)
 
         if self.haplotypeAnalystChecked:
             startPosY += stepPosY
             startPosX = xLeftOffset
             im_drawer.line(
-                xy=((startPosX,startPosY),(startPosX+17,startPosY)),
+                xy=((startPosX, startPosY), (startPosX+17, startPosY)),
                 fill=self.HAPLOTYPE_POSITIVE, width=4)
             im_drawer.line(
-                xy=((startPosX+18,startPosY),(startPosX+35,startPosY)),
+                xy=((startPosX+18, startPosY), (startPosX+35, startPosY)),
                 fill=self.HAPLOTYPE_NEGATIVE, width=4)
             im_drawer.line(
-                xy=((startPosX+36,startPosY),(startPosX+53,startPosY)),
+                xy=((startPosX+36, startPosY), (startPosX+53, startPosY)),
                 fill=self.HAPLOTYPE_HETEROZYGOUS, width=4)
             im_drawer.line(
-                xy=((startPosX+54,startPosY),(startPosX+67,startPosY)),
+                xy=((startPosX+54, startPosY), (startPosX+67, startPosY)),
                 fill=self.HAPLOTYPE_RECOMBINATION, width=4)
             im_drawer.text(
                 text='Haplotypes (Pat, Mat, Het, Unk)',
-                xy=(startPosX+76,startPosY+5),font=labelFont,fill=BLACK)
+                xy=(startPosX+76, startPosY+5), font=labelFont, fill=BLACK)
 
         if self.permChecked and self.nperm > 0:
             startPosY += stepPosY
             startPosX = xLeftOffset
             im_drawer.line(
-                xy=((startPosX, startPosY),( startPosX + 32, startPosY)),
+                xy=((startPosX, startPosY), ( startPosX + 32, startPosY)),
                 fill=self.SIGNIFICANT_COLOR, width=self.SIGNIFICANT_WIDTH)
             im_drawer.line(
-                xy=((startPosX, startPosY + stepPosY),( startPosX + 32, startPosY + stepPosY)),
+                xy=((startPosX, startPosY + stepPosY), ( startPosX + 32, startPosY + stepPosY)),
                 fill=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
             im_drawer.text(
-                text='Significant %s = %2.2f' % (self.LRS_LOD,self.significant),
-                xy=(xLeftOffset+42,startPosY+TEXT_Y_DISPLACEMENT),font=labelFont,fill=BLACK)
+                text='Significant %s = %2.2f' % (self.LRS_LOD, self.significant),
+                xy=(xLeftOffset+42, startPosY+TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
             im_drawer.text(
                 text='Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),
-                xy=(xLeftOffset+42,startPosY + TEXT_Y_DISPLACEMENT +stepPosY),font=labelFont,
+                xy=(xLeftOffset+42, startPosY + TEXT_Y_DISPLACEMENT +stepPosY), font=labelFont,
                 fill=BLACK)
 
-        labelFont = ImageFont.truetype(font=VERDANA_FILE,size=12*fontZoom)
+        labelFont = ImageFont.truetype(font=VERDANA_FILE, size=12*fontZoom)
         labelColor = BLACK
         if self.dataset.type == "Publish" or self.dataset.type == "Geno":
             dataset_label = self.dataset.fullname
@@ -1155,22 +1183,22 @@ class DisplayMappingResults(object):
                 im_drawer.textsize(string2, font=labelFont)[0])
             im_drawer.text(
                 text=identification,
-                xy=(canvas.size[0] - xRightOffset-d,20*fontZoom),font=labelFont,
+                xy=(canvas.size[0] - xRightOffset-d, 20*fontZoom), font=labelFont,
                 fill=labelColor)
         else:
             d = 4+ max(
                 im_drawer.textsize(string1, font=labelFont)[0],
                 im_drawer.textsize(string2, font=labelFont)[0])
         im_drawer.text(
-            text=string1,xy=(canvas.size[0] - xRightOffset-d,35*fontZoom),
-            font=labelFont,fill=labelColor)
+            text=string1, xy=(canvas.size[0] - xRightOffset-d, 35*fontZoom),
+            font=labelFont, fill=labelColor)
         im_drawer.text(
-            text=string2,xy=(canvas.size[0] - xRightOffset-d,50*fontZoom),
-            font=labelFont,fill=labelColor)
+            text=string2, xy=(canvas.size[0] - xRightOffset-d, 50*fontZoom),
+            font=labelFont, fill=labelColor)
         if string3 != '':
             im_drawer.text(
-                text=string3,xy=(canvas.size[0] - xRightOffset-d,65*fontZoom),
-                font=labelFont,fill=labelColor)
+                text=string3, xy=(canvas.size[0] - xRightOffset-d, 65*fontZoom),
+                font=labelFont, fill=labelColor)
 
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -1197,8 +1225,8 @@ class DisplayMappingResults(object):
                 tenPercentLength = geneLength*0.0001
                 SNPdensity = theGO["snpCount"]/geneLength
 
-                exonStarts = map(float, theGO['exonStarts'].split(",")[:-1])
-                exonEnds = map(float, theGO['exonEnds'].split(",")[:-1])
+                exonStarts = list(map(float, theGO['exonStarts'].split(",")[:-1]))
+                exonEnds = list(map(float, theGO['exonEnds'].split(",")[:-1]))
                 cdsStart = theGO['cdsStart']
                 cdsEnd = theGO['cdsEnd']
                 accession = theGO['NM_ID']
@@ -1391,7 +1419,7 @@ class DisplayMappingResults(object):
                             labelText = "3'"
                             im_drawer.text(
                                 text=labelText,
-                                xy=(utrEndPix+2,geneYLocation+self.EACH_GENE_HEIGHT),
+                                xy=(utrEndPix+2, geneYLocation+self.EACH_GENE_HEIGHT),
                                 font=ImageFont.truetype(font=ARIAL_FILE, size=2))
 
             #draw the genes as rectangles
@@ -1403,7 +1431,7 @@ class DisplayMappingResults(object):
 
             COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
             # NL: 06-02-2011 Rob required to display NCBI info in a new window
-            gifmap.areas.append(
+            gifmap.append(
                 HtmlGenWrapper.create_area_tag(
                     shape='rect',
                     coords=COORDS,
@@ -1544,7 +1572,7 @@ class DisplayMappingResults(object):
                                         counter = counter + 1
                                         if item.name == samplelist[k]:
                                             ind = counter
-                                    maxind=max(ind,maxind)
+                                    maxind=max(ind, maxind)
 
                                     # lines
                                     if (oldgeno[k] == -1 and _geno == -1):
@@ -1577,7 +1605,7 @@ class DisplayMappingResults(object):
                                     COORDS = "%d, %d, %d, %d" %(geneStartPix, geneYLocation+ind*self.EACH_GENE_HEIGHT, geneEndPix+1, (geneYLocation + ind*self.EACH_GENE_HEIGHT))
                                     TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[k], _chr[j].name, float(txStart))
                                     HREF = ''
-                                    gifmap.areas.append(
+                                    gifmap.append(
                                         HtmlGenWrapper.create_area_tag(
                                             shape='rect',
                                             coords=COORDS,
@@ -1698,7 +1726,7 @@ class DisplayMappingResults(object):
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
-                gifmap.areas.append(
+                gifmap.append(
                     HtmlGenWrapper.create_area_tag(
                         shape='rect',
                         coords=WEBQTL_COORDS,
@@ -1710,7 +1738,7 @@ class DisplayMappingResults(object):
                     outline=self.CLICKABLE_WEBQTL_REGION_COLOR,
                     fill=self.CLICKABLE_WEBQTL_REGION_COLOR)
                 im_drawer.line(
-                    xy=((xBrowse1, paddingTop),( xBrowse1, (paddingTop + self.BAND_HEIGHT))),
+                    xy=((xBrowse1, paddingTop), ( xBrowse1, (paddingTop + self.BAND_HEIGHT))),
                     fill=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
 
                 if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
@@ -1720,7 +1748,7 @@ class DisplayMappingResults(object):
                     else:
                         PHENOGEN_HREF = "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&geneTxt=chr%s:%d-%d&genomeVer=mm10" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
-                    gifmap.areas.append(
+                    gifmap.append(
                         HtmlGenWrapper.create_area_tag(
                             shape='rect',
                             coords=PHENOGEN_COORDS,
@@ -1732,7 +1760,7 @@ class DisplayMappingResults(object):
                         outline=self.CLICKABLE_PHENOGEN_REGION_COLOR,
                         fill=self.CLICKABLE_PHENOGEN_REGION_COLOR)
                     im_drawer.line(
-                        xy=((xBrowse1, phenogenPaddingTop),( xBrowse1, (phenogenPaddingTop+self.BAND_HEIGHT))),
+                        xy=((xBrowse1, phenogenPaddingTop), ( xBrowse1, (phenogenPaddingTop+self.BAND_HEIGHT))),
                         fill=self.CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR)
 
                 UCSC_COORDS = "%d, %d, %d, %d" %(xBrowse1, ucscPaddingTop, xBrowse2, (ucscPaddingTop+self.BAND_HEIGHT))
@@ -1741,7 +1769,7 @@ class DisplayMappingResults(object):
                 else:
                     UCSC_HREF = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=chr%s:%d-%d" % (self._ucscDb, self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
-                gifmap.areas.append(
+                gifmap.append(
                     HtmlGenWrapper.create_area_tag(
                         shape='rect',
                         coords=UCSC_COORDS,
@@ -1763,7 +1791,7 @@ class DisplayMappingResults(object):
                 else:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (self.selectedChr, max(0, calBase-flankingWidthInBases), calBase+flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
-                gifmap.areas.append(HtmlGenWrapper.create_area_tag(
+                gifmap.append(HtmlGenWrapper.create_area_tag(
                     shape='rect',
                     coords=ENSEMBL_COORDS,
                     href=ENSEMBL_HREF,
@@ -1864,8 +1892,8 @@ class DisplayMappingResults(object):
                         continue
                     Xc = xLeftOffset + plotXScale*(_Mb - startMb)
                     if counter % NUM_MINOR_TICKS == 0: # Draw a MAJOR mark, not just a minor tick mark
-                        im_drawer.line(xy=((Xc,yZero),
-                                           (Xc,yZero+xMajorTickHeight)),
+                        im_drawer.line(xy=((Xc, yZero),
+                                           (Xc, yZero+xMajorTickHeight)),
                                        fill=xAxisTickMarkColor,
                                        width=X_MAJOR_TICK_THICKNESS) # Draw the MAJOR tick mark
                         labelStr = str(formatStr % _Mb) # What Mbase location to put on the label
@@ -1875,8 +1903,8 @@ class DisplayMappingResults(object):
                                        text=labelStr, font=MBLabelFont,
                                        fill=xAxisLabelColor)
                     else:
-                        im_drawer.line(xy=((Xc,yZero),
-                                          (Xc,yZero+xMinorTickHeight)),
+                        im_drawer.line(xy=((Xc, yZero),
+                                          (Xc, yZero+xMinorTickHeight)),
                                        fill=xAxisTickMarkColor,
                                        width=X_MINOR_TICK_THICKNESS) # Draw the MINOR tick mark
 
@@ -1909,7 +1937,7 @@ class DisplayMappingResults(object):
                 text="Megabases",
                 xy=(
                     xLeftOffset+(plotWidth-im_drawer.textsize(
-                        "Megabases",font=megabaseLabelFont)[0])/2,
+                        "Megabases", font=megabaseLabelFont)[0])/2,
                     strYLoc+MBLabelFont.font.height+10*(zoom%2)),
                 font=megabaseLabelFont, fill=BLACK)
             pass
@@ -1964,7 +1992,7 @@ class DisplayMappingResults(object):
             for j, ChrInfo in enumerate(ChrAInfo):
                 preLpos = -1
                 for i, item in enumerate(ChrInfo):
-                    Lname,Lpos = item
+                    Lname, Lpos = item
                     if Lpos != preLpos:
                         offsetA += stepA
                         differ = 1
@@ -1978,17 +2006,17 @@ class DisplayMappingResults(object):
                         Zorder = 0
                     if differ:
                         im_drawer.line(
-                            xy=((startPosX+Lpos,yZero),(xLeftOffset+offsetA,\
+                            xy=((startPosX+Lpos, yZero), (xLeftOffset+offsetA,\
                         yZero+25)),
                             fill=lineColor)
                         im_drawer.line(
-                            xy=((xLeftOffset+offsetA,yZero+25),(xLeftOffset+offsetA,\
+                            xy=((xLeftOffset+offsetA, yZero+25), (xLeftOffset+offsetA,\
                         yZero+40+Zorder*(LRectWidth+3))),
                             fill=lineColor)
                         rectColor = ORANGE
                     else:
                         im_drawer.line(
-                            xy=((xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)-3),(\
+                            xy=((xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)-3), (\
                         xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3))),
                             fill=lineColor)
                         rectColor = DEEPPINK
@@ -1996,7 +2024,7 @@ class DisplayMappingResults(object):
                         xy=((xLeftOffset+offsetA, yZero+40+Zorder*(LRectWidth+3)),
                             (xLeftOffset+offsetA-LRectHeight,
                              yZero+40+Zorder*(LRectWidth+3)+LRectWidth)),
-                        outline=rectColor,fill=rectColor,width = 0)
+                        outline=rectColor, fill=rectColor, width = 0)
                     COORDS="%d,%d,%d,%d"%(xLeftOffset+offsetA-LRectHeight, yZero+40+Zorder*(LRectWidth+3),\
                             xLeftOffset+offsetA,yZero+40+Zorder*(LRectWidth+3)+LRectWidth)
                     HREF = "/show_trait?trait_id=%s&dataset=%s" % (Lname, self.dataset.group.name+"Geno")
@@ -2007,11 +2035,11 @@ class DisplayMappingResults(object):
                         href=HREF,
                         target="_blank",
                         title="Locus : {}".format(Lname))
-                    gifmap.areas.append(Areas)
+                    gifmap.append(Areas)
                 ##piddle bug
                 if j == 0:
                     im_drawer.line(
-                        xy=((startPosX,yZero),(startPosX,yZero+40)),
+                        xy=((startPosX, yZero), (startPosX, yZero+40)),
                         fill=lineColor)
                 startPosX += (self.ChrLengthDistList[j]+self.GraphInterval)*plotXScale
 
@@ -2023,7 +2051,7 @@ class DisplayMappingResults(object):
                     strYLoc + MBLabelFont.font.height+ 10*(zoom%2)),
                 font=centimorganLabelFont, fill=BLACK)
 
-        im_drawer.line(xy=((xLeftOffset,yZero), (xLeftOffset+plotWidth,yZero)),
+        im_drawer.line(xy=((xLeftOffset, yZero), (xLeftOffset+plotWidth, yZero)),
                        fill=BLACK, width=X_AXIS_THICKNESS) # Draw the X axis itself
 
 
@@ -2125,7 +2153,7 @@ class DisplayMappingResults(object):
         #ZS: Convert to int if all axis values are whole numbers
         all_int = True
         for item in LRSAxisList:
-            if item.is_integer():
+            if isinstance(item, int):
                 continue
             else:
                 all_int = False
@@ -2163,7 +2191,7 @@ class DisplayMappingResults(object):
                 LRS_LOD_Max = 0.000001
             yTopOffset + 30*(zoom - 1)
             yLRS = yZero - (item/LRS_LOD_Max) * LRSHeightThresh
-            im_drawer.line(xy=((xLeftOffset,yLRS), (xLeftOffset-4,yLRS)),
+            im_drawer.line(xy=((xLeftOffset, yLRS), (xLeftOffset-4, yLRS)),
                            fill=self.LRS_COLOR, width=1*zoom)
             if all_int:
                 scaleStr = "%d" % item
@@ -2219,8 +2247,8 @@ class DisplayMappingResults(object):
                     shape='rect',
                     coords=sig_coords,
                     title=sig_title)
-                gifmap.areas.append(Areas1)
-                gifmap.areas.append(Areas2)
+                gifmap.append(Areas1)
+                gifmap.append(Areas2)
 
                 start_pos_x +=  (chr_length_dist+self.GraphInterval)*plotXScale
                 return start_pos_x
@@ -2239,7 +2267,7 @@ class DisplayMappingResults(object):
             lrsEdgeWidth = 1
         else:
             if self.additiveChecked:
-                additiveMax = max(map(lambda X : abs(X['additive']), self.qtlresults))
+                additiveMax = max([abs(X['additive']) for X in self.qtlresults])
             lrsEdgeWidth = 3
 
         if zoom == 2:
@@ -2406,7 +2434,7 @@ class DisplayMappingResults(object):
                     im_drawer.text(
                         text="5",
                         xy=(
-                            Xc-im_drawer.textsize("5",font=symbolFont)[0]/2+1,
+                            Xc-im_drawer.textsize("5", font=symbolFont)[0]/2+1,
                             Yc-4),
                         fill=point_color, font=symbolFont)
                 else:
@@ -2473,8 +2501,8 @@ class DisplayMappingResults(object):
                             )
                         else:
                             im_drawer.line(
-                                xy=((Xc0,yZero-(Yc0-yZero)),
-                                    (Xc,yZero-(Yc-yZero))),
+                                xy=((Xc0, yZero-(Yc0-yZero)),
+                                    (Xc, yZero-(Yc-yZero))),
                                 fill=minusColor, width=lineWidth
                                 #, clipX=(xLeftOffset, xLeftOffset + plotWidth)
                             )
@@ -2561,8 +2589,8 @@ class DisplayMappingResults(object):
 
         ###draw additive scale
         if not self.multipleInterval and self.additiveChecked:
-            additiveScaleFont=ImageFont.truetype(font=VERDANA_FILE,size=16*zoom)
-            additiveScale = Plot.detScaleOld(0,additiveMax)
+            additiveScaleFont=ImageFont.truetype(font=VERDANA_FILE, size=16*zoom)
+            additiveScale = Plot.detScaleOld(0, additiveMax)
             additiveStep = (additiveScale[1]-additiveScale[0])/additiveScale[2]
             additiveAxisList = Plot.frange(0, additiveScale[1], additiveStep)
             addPlotScale = AdditiveHeightThresh/additiveMax
@@ -2572,18 +2600,18 @@ class DisplayMappingResults(object):
             for item in additiveAxisList:
                 additiveY = yZero - item*addPlotScale
                 im_drawer.line(
-                    xy=((xLeftOffset + plotWidth,additiveY),
-                        (xLeftOffset+4+ plotWidth,additiveY)),
+                    xy=((xLeftOffset + plotWidth, additiveY),
+                        (xLeftOffset+4+ plotWidth, additiveY)),
                     fill=self.ADDITIVE_COLOR_POSITIVE, width=1*zoom)
                 scaleStr = "%2.3f" % item
                 im_drawer.text(
                     text=scaleStr,
-                    xy=(xLeftOffset + plotWidth +6,additiveY+TEXT_Y_DISPLACEMENT),
-                    font=additiveScaleFont,fill=self.ADDITIVE_COLOR_POSITIVE)
+                    xy=(xLeftOffset + plotWidth +6, additiveY+TEXT_Y_DISPLACEMENT),
+                    font=additiveScaleFont, fill=self.ADDITIVE_COLOR_POSITIVE)
 
             im_drawer.line(
-                xy=((xLeftOffset+plotWidth,additiveY),
-                    (xLeftOffset+plotWidth,yZero)),
+                xy=((xLeftOffset+plotWidth, additiveY),
+                    (xLeftOffset+plotWidth, yZero)),
                 fill=self.ADDITIVE_COLOR_POSITIVE, width=1*zoom)
 
         im_drawer.line(
@@ -2643,7 +2671,7 @@ class DisplayMappingResults(object):
                 chrFontZoom = 2
             else:
                 chrFontZoom = 1
-            chrLabelFont=ImageFont.truetype(font=VERDANA_FILE,size=24*chrFontZoom)
+            chrLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=24*chrFontZoom)
 
             for i, _chr in enumerate(self.genotype):
                 if (i % 2 == 0):
@@ -2665,16 +2693,16 @@ class DisplayMappingResults(object):
                 TEXT_Y_DISPLACEMENT = 0
                 im_drawer.text(xy=(chrStartPix, yTopOffset + TEXT_Y_DISPLACEMENT),
                                text=_chr.name, font=chrLabelFont, fill=BLACK)
-                COORDS = "%d,%d,%d,%d" %(chrStartPix, yTopOffset, chrEndPix,yTopOffset +20)
+                COORDS = "%d,%d,%d,%d" %(chrStartPix, yTopOffset, chrEndPix, yTopOffset +20)
 
                 #add by NL 09-03-2010
-                HREF = "javascript:chrView(%d,%s);" % (i,self.ChrLengthMbList)
+                HREF = "javascript:chrView(%d,%s);" % (i, self.ChrLengthMbList)
                 #HREF = "javascript:changeView(%d,%s);" % (i,self.ChrLengthMbList)
                 Areas = HtmlGenWrapper.create_area_tag(
                     shape='rect',
                     coords=COORDS,
                     href=HREF)
-                gifmap.areas.append(Areas)
+                gifmap.append(Areas)
                 startPosX +=  (self.ChrLengthDistList[i]+self.GraphInterval)*plotXScale
 
         return plotXScale
@@ -2760,7 +2788,7 @@ class DisplayMappingResults(object):
 
                 this_row = [] #container for the cells of each row
                 selectCheck = HtmlGenWrapper.create_input_tag(
-                    type="checkbox",
+                    type_="checkbox",
                     name="selectCheck",
                     value=theGO["GeneSymbol"],
                     Class="checkbox trait_checkbox")  # checkbox for each row
@@ -2774,9 +2802,17 @@ class DisplayMappingResults(object):
                     geneIdString = 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s' % theGO["GeneID"]
 
                     if theGO["snpCount"]:
-                        snpString = HT.Href(url="http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&chr=%s&start=%s&end=%s&geneName=%s&s1=%d&s2=%d" % (theGO["Chromosome"],
-                                theGO["TxStart"], theGO["TxEnd"], theGO["GeneSymbol"], self.diffCol[0], self.diffCol[1]),
-                                text=theGO["snpCount"], target="_blank", Class="normalsize")
+                        snpString = HT.Link(
+                            (f"http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&"
+                             f"chr={theGO['Chromosome']}&"
+                             f"start={theGO['TxStart']}&"
+                             f"end={theGO['TxEnd']}&"
+                             f"geneName={theGO['GeneSymbol']}&"
+                             f"s1={self.diffCol[0]}&s2=%d"),
+                            str(theGO["snpCount"]) # The text to display
+                        )
+                        snpString.set_blank_target()
+                        snpString.set_attribute("class", "normalsize")
                     else:
                         snpString = 0
 
@@ -2817,7 +2853,7 @@ class DisplayMappingResults(object):
                     else:
                         chr_as_int = int(theGO["Chromosome"]) - 1
                     if refGene:
-                        literatureCorrelationString = str(self.getLiteratureCorrelation(self.cursor,refGene,theGO['GeneID']) or "N/A")
+                        literatureCorrelationString = str(self.getLiteratureCorrelation(self.cursor, refGene, theGO['GeneID']) or "N/A")
 
                         this_row = [selectCheck.__str__(),
                                     str(tableIterationsCnt),
@@ -2879,12 +2915,9 @@ class DisplayMappingResults(object):
             for gIndex, theGO in enumerate(geneCol):
                 this_row = []  # container for the cells of each row
                 selectCheck = str(HtmlGenWrapper.create_input_tag(
-                    type="checkbox",
+                    type_="checkbox",
                     name="selectCheck",
                     Class="checkbox trait_checkbox"))  # checkbox for each row
-
-                #ZS: May want to get this working again later
-                #webqtlSearch = HT.Href(os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)+"?cmd=sch&gene=%s&alias=1&species=rat" % theGO["GeneSymbol"], ">>", target="_blank").__str__()
 
                 if theGO["GeneID"] != "":
                     geneSymbolNCBI = str(HtmlGenWrapper.create_link_tag(
@@ -2955,8 +2988,8 @@ class DisplayMappingResults(object):
         lCorr = None
         try:
             query = 'SELECT Value FROM LCorrRamin3 WHERE GeneId1 = %s and GeneId2 = %s'
-            for x,y in [(geneId1,geneId2),(geneId2,geneId1)]:
-                cursor.execute(query,(x,y))
+            for x, y in [(geneId1, geneId2), (geneId2, geneId1)]:
+                cursor.execute(query, (x, y))
                 lCorr =  cursor.fetchone()
                 if lCorr:
                     lCorr = lCorr[0]

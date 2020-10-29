@@ -3,7 +3,7 @@
 #   env GN2_PROFILE=/home/wrk/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py http://localhost:5003
 #
 # Mostly to pick up the Guix GN2_PROFILE and python modules
-from __future__ import print_function
+
 import argparse
 from link_checker import check_links
 from link_checker import check_packaged_js_files

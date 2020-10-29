@@ -1,4 +1,3 @@
-from __future__ import print_function, division, absolute_import
 from redis import Redis
 
 import simplejson as json
@@ -20,6 +19,6 @@ class TempData(object):
 
 if __name__ == "__main__":
     redis = Redis()
-    for key in redis.keys():
+    for key in list(redis.keys()):
         for field in redis.hkeys(key):
             print("{}.{}={}".format(key, field, redis.hget(key, field)))
