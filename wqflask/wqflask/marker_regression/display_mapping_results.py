@@ -342,7 +342,7 @@ class DisplayMappingResults(object):
         if 'reaper_version' in list(start_vars.keys()) and self.mapping_method == "reaper":
             self.reaper_version = start_vars['reaper_version']
             if 'output_files' in start_vars:
-                self.output_files = ",".join(start_vars['output_files'])
+                self.output_files = ",".join([(the_file if the_file is not None else "") for the_file in start_vars['output_files']])
 
         self.categorical_vars = ""
         self.perm_strata = ""
@@ -684,7 +684,7 @@ class DisplayMappingResults(object):
         plotXScale = self.drawGraphBackground(canvas, gifmap, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         #draw bootstap
-        if self.bootChecked and not self.multipleInterval and not self.manhattan_plot:
+        if self.bootChecked and not self.multipleInterval:
             self.drawBootStrapResult(canvas, self.nboot, drawAreaHeight, plotXScale, offset=newoffset, zoom= zoom, startMb=startMb, endMb = endMb)
 
         # Draw clickable region and gene band if selected
@@ -731,31 +731,34 @@ class DisplayMappingResults(object):
         #break bootstrap result into groups
         BootCoord = []
         i = 0
+        previous_chr = None
+        previous_chr_as_int = 0
         startX = xLeftOffset
 
+        BootChrCoord = []
         if self.selectedChr == -1: #ZS: If viewing full genome/all chromosomes
-            for j, _chr in enumerate(self.genotype):
-                BootCoord.append( [])
-                for _locus in _chr:
-                    if self.plotScale == 'physic':
-                        Xc = startX + (_locus.Mb-self.startMb)*plotXScale
-                    else:
-                        Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
-                    BootCoord[-1].append([Xc, self.bootResult[i]])
-                    i += 1
-                startX += (self.ChrLengthDistList[j] + self.GraphInterval)*plotXScale
+            for i, result in enumerate(self.qtlresults):
+                if result['chr'] != previous_chr:
+                    previous_chr = result['chr']
+                    previous_chr_as_int += 1
+                    if previous_chr_as_int != 1:
+                        BootCoord.append(BootChrCoord)
+                        BootChrCoord = []
+                        startX += (self.ChrLengthDistList[previous_chr_as_int - 2] + self.GraphInterval)*plotXScale
+                if self.plotScale == 'physic':
+                    Xc = startX + (result['Mb']-self.startMb)*plotXScale
+                else:
+                    Xc = startX + (result['cM']-self.qtlresults[0]['cM'])*plotXScale
+                BootChrCoord.append([Xc, self.bootResult[i]])
         else:
-            for j, _chr in enumerate(self.genotype):
-                if _chr.name == self.ChrList[self.selectedChr][0]:
-                    BootCoord.append( [])
-                for _locus in _chr:
-                    if _chr.name == self.ChrList[self.selectedChr][0]:
-                        if self.plotScale == 'physic':
-                            Xc = startX + (_locus.Mb-startMb)*plotXScale
-                        else:
-                            Xc = startX + (_locus.cM-_chr[0].cM)*plotXScale
-                        BootCoord[-1].append([Xc, self.bootResult[i]])
-                    i += 1
+            for i, result in enumerate(self.qtlresults):
+                if str(result['chr']) == str(self.ChrList[self.selectedChr][0]):
+                    if self.plotScale == 'physic':
+                        Xc = startX + (result['Mb']-self.startMb)*plotXScale
+                    else:
+                        Xc = startX + (result['cM']-self.qtlresults[0]['cM'])*plotXScale
+                    BootChrCoord.append([Xc, self.bootResult[i]])
+            BootCoord = [BootChrCoord]
 
         #reduce bootResult
         if self.selectedChr > -1:
@@ -1715,9 +1718,6 @@ class DisplayMappingResults(object):
             for pixel in range(xLeftOffset, xLeftOffset + plotWidth, pixelStep):
 
                 calBase = self.kONE_MILLION*(startMb + (endMb-startMb)*(pixel-xLeftOffset-0.0)/plotWidth)
-                if pixel == (xLeftOffset + pixelStep*2):
-                  logger.debug("CALBASE:", calBase)
-                  logger.debug("FLANKING:", flankingWidthInBases)
 
                 xBrowse1 = pixel
                 xBrowse2 = min(xLeftOffset + plotWidth, (pixel + pixelStep - 1))
