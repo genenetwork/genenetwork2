@@ -2146,9 +2146,6 @@ class DisplayMappingResults(object):
             LRSScale = 1.0
 
         LRSAxisList = Plot.frange(LRSScale, LRS_LOD_Max, LRSScale)
-        #make sure the user's value appears on the y-axis
-        #update by NL 6-21-2011: round the LOD value to 100 when LRS_LOD_Max is equal to 460
-        LRSAxisList.append(ceil(LRS_LOD_Max))
 
         #ZS: Convert to int if all axis values are whole numbers
         all_int = True
