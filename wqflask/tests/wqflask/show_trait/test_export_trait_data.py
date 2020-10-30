@@ -3,10 +3,72 @@ from unittest import mock
 from wqflask.show_trait.export_trait_data import dict_to_sorted_list
 from wqflask.show_trait.export_trait_data import cmp_samples
 from wqflask.show_trait.export_trait_data import export_sample_table
+from wqflask.show_trait.export_trait_data import get_export_metadata
+
+
+class MockGeneral(object):
+    def __init__(self, obj):
+        for key, value in obj.items():
+            setattr(self, key, value)
+
+
+class MockChild(object):
+    pass
 
 
 class TestExportTraits(unittest.TestCase):
     """Test methods related to converting dict to sortedlist"""
+    @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
+    @mock.patch("wqflask.show_trait.export_trait_data.data_set")
+    def test_get_export_metadata_no_publish(self, mock_dataset, mock_trait):
+        """test for exporting metadata with no publish"""
+        mock_data_instance = MockGeneral(
+            {"type": "no_publish", "dataset_name": "Temp", "name": "Temp"})
+
+        group_obj = MockChild()
+        group_obj.name = "name"
+        mock_data_instance.group = group_obj
+        mock_dataset.create_dataset.return_value = mock_data_instance
+        mock_trait.return_value = MockGeneral({"symbol": "", "description_display": "Description",
+                                               "title": "research1", "journal": "", "authors": ""})
+
+        results = get_export_metadata("random_id", "Temp")
+        expected = [["Record ID: random_id"],
+                    ["Trait URL: http://genenetwork.org/show_trait?trait_id=random_id&dataset=Temp"],
+                    ["Dataset: Temp"],
+                    ["Group: name"], []]
+
+        mock_dataset.create_dataset.assert_called_with("Temp")
+        mock_trait.assert_called_with(
+            dataset=mock_data_instance, name="random_id", cellid=None, get_qtl_info=False)
+        self.assertEqual(results, expected)
+
+    @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
+    @mock.patch("wqflask.show_trait.export_trait_data.data_set")
+    def test_get_export_metadata_with_publish(self, data_mock, trait_mock):
+        """test for exporting metadata with dataset.type=Publish"""
+        mock_instance = MockGeneral({"type": "Publish", "dataset_name": "Temp",
+                                     "name": "Temp", "description_display": "Description goes here"})
+
+        group_obj = MockChild()
+        group_obj.name = "name"
+        mock_instance.group = group_obj
+        data_mock.create_dataset.return_value = mock_instance
+        trait_instance = MockGeneral({"symbol": "", "description_display": "Description",
+                                      "title": "research1", "journal": "", "authors": ""})
+        trait_mock.return_value = trait_instance
+
+        results = get_export_metadata(
+            "29ae0615-0d77-4814-97c7-c9e91f6bfd7b", "Temp")
+
+        expected = [['Phenotype ID: 29ae0615-0d77-4814-97c7-c9e91f6bfd7b'],
+                    ['Phenotype URL: http://genenetwork.org/show_trait?trait_id=29ae0615-0d77-4814-97c7-c9e91f6bfd7b&dataset=Temp'], [
+                        'Group: name'], ['Phenotype: Description'],
+                    ['Authors: N/A'], ['Title: research1'],
+                    ['Journal: N/A'], ['Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=Temp'], []]
+
+        self.assertEqual(results, expected)
+
     @mock.patch("wqflask.show_trait.export_trait_data.dict_to_sorted_list")
     @mock.patch("wqflask.show_trait.export_trait_data.get_export_metadata")
     def test_export_sample_table(self, exp_metadata, dict_list):
