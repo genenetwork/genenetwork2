@@ -6,13 +6,13 @@ from wqflask.show_trait.export_trait_data import export_sample_table
 from wqflask.show_trait.export_trait_data import get_export_metadata
 
 
-class MockGeneral(object):
+class AttributesSetterClass:
     def __init__(self, obj):
         for key, value in obj.items():
             setattr(self, key, value)
 
 
-class MockChild(object):
+class HelperClass:
     pass
 
 
@@ -22,15 +22,15 @@ class TestExportTraits(unittest.TestCase):
     @mock.patch("wqflask.show_trait.export_trait_data.data_set")
     def test_get_export_metadata_no_publish(self, mock_dataset, mock_trait):
         """test for exporting metadata with no publish"""
-        mock_data_instance = MockGeneral(
+        mock_dataset_attributes = AttributesSetterClass(
             {"type": "no_publish", "dataset_name": "Temp", "name": "Temp"})
 
-        group_obj = MockChild()
-        group_obj.name = "name"
-        mock_data_instance.group = group_obj
-        mock_dataset.create_dataset.return_value = mock_data_instance
-        mock_trait.return_value = MockGeneral({"symbol": "", "description_display": "Description",
-                                               "title": "research1", "journal": "", "authors": ""})
+        mock_nested_attributes = HelperClass()
+        mock_nested_attributes.name = "name"
+        mock_dataset_attributes.group = mock_nested_attributes
+        mock_dataset.create_dataset.return_value = mock_dataset_attributes
+        mock_trait.return_value = AttributesSetterClass({"symbol": "", "description_display": "Description",
+                                                         "title": "research1", "journal": "", "authors": ""})
 
         results = get_export_metadata("random_id", "Temp")
         expected = [["Record ID: random_id"],
@@ -40,22 +40,22 @@ class TestExportTraits(unittest.TestCase):
 
         mock_dataset.create_dataset.assert_called_with("Temp")
         mock_trait.assert_called_with(
-            dataset=mock_data_instance, name="random_id", cellid=None, get_qtl_info=False)
+            dataset=mock_dataset_attributes, name="random_id", cellid=None, get_qtl_info=False)
         self.assertEqual(results, expected)
 
     @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
     @mock.patch("wqflask.show_trait.export_trait_data.data_set")
     def test_get_export_metadata_with_publish(self, data_mock, trait_mock):
         """test for exporting metadata with dataset.type=Publish"""
-        mock_instance = MockGeneral({"type": "Publish", "dataset_name": "Temp",
-                                     "name": "Temp", "description_display": "Description goes here"})
+        mock_dataset_attributes = AttributesSetterClass({"type": "Publish", "dataset_name": "Temp",
+                                               "name": "Temp", "description_display": "Description goes here"})
 
-        group_obj = MockChild()
-        group_obj.name = "name"
-        mock_instance.group = group_obj
-        data_mock.create_dataset.return_value = mock_instance
-        trait_instance = MockGeneral({"symbol": "", "description_display": "Description",
-                                      "title": "research1", "journal": "", "authors": ""})
+        mock_nested_attributes = HelperClass()
+        mock_nested_attributes.name = "name"
+        mock_dataset_attributes.group = mock_nested_attributes
+        data_mock.create_dataset.return_value = mock_dataset_attributes
+        trait_instance = AttributesSetterClass({"symbol": "", "description_display": "Description",
+                                                "title": "research1", "journal": "", "authors": ""})
         trait_mock.return_value = trait_instance
 
         results = get_export_metadata(
