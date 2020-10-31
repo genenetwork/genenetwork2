@@ -6,7 +6,7 @@ from wqflask.show_trait.export_trait_data import export_sample_table
 from wqflask.show_trait.export_trait_data import get_export_metadata
 
 
-class AttributesSetterClass:
+class AttributesSetter:
     def __init__(self, obj):
         for key, value in obj.items():
             setattr(self, key, value)
@@ -22,14 +22,14 @@ class TestExportTraits(unittest.TestCase):
     @mock.patch("wqflask.show_trait.export_trait_data.data_set")
     def test_get_export_metadata_no_publish(self, mock_dataset, mock_trait):
         """test for exporting metadata with no publish"""
-        mock_dataset_attributes = AttributesSetterClass(
+        mock_dataset_attributes = AttributesSetter(
             {"type": "no_publish", "dataset_name": "Temp", "name": "Temp"})
 
         mock_nested_attributes = HelperClass()
         mock_nested_attributes.name = "name"
         mock_dataset_attributes.group = mock_nested_attributes
         mock_dataset.create_dataset.return_value = mock_dataset_attributes
-        mock_trait.return_value = AttributesSetterClass({"symbol": "", "description_display": "Description",
+        mock_trait.return_value = AttributesSetter({"symbol": "", "description_display": "Description",
                                                          "title": "research1", "journal": "", "authors": ""})
 
         results = get_export_metadata("random_id", "Temp")
@@ -47,14 +47,14 @@ class TestExportTraits(unittest.TestCase):
     @mock.patch("wqflask.show_trait.export_trait_data.data_set")
     def test_get_export_metadata_with_publish(self, data_mock, trait_mock):
         """test for exporting metadata with dataset.type=Publish"""
-        mock_dataset_attributes = AttributesSetterClass({"type": "Publish", "dataset_name": "Temp",
-                                               "name": "Temp", "description_display": "Description goes here"})
+        mock_dataset_attributes = AttributesSetter({"type": "Publish", "dataset_name": "Temp",
+                                                         "name": "Temp", "description_display": "Description goes here"})
 
         mock_nested_attributes = HelperClass()
         mock_nested_attributes.name = "name"
         mock_dataset_attributes.group = mock_nested_attributes
         data_mock.create_dataset.return_value = mock_dataset_attributes
-        trait_instance = AttributesSetterClass({"symbol": "", "description_display": "Description",
+        trait_instance = AttributesSetter({"symbol": "", "description_display": "Description",
                                                 "title": "research1", "journal": "", "authors": ""})
         trait_mock.return_value = trait_instance
 
