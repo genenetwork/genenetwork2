@@ -20,6 +20,7 @@ from wqflask.show_trait.show_trait import get_nearest_marker
 
 from wqflask.show_trait.show_trait import get_genotype_scales
 
+
 class TraitObject:
     def __init__(self, obj):
         for key, value in obj.items():
@@ -141,7 +142,7 @@ class TestTraits(unittest.TestCase):
     def test_get_table_widths(self):
         """test for getting table widths"""
         sample_groups = [TraitObject({'se_exists': True, "attributes": ["attr1", "attr2", "attr3"]}
-                                    ), TraitObject(
+                                     ), TraitObject(
             {"se_exists": False, "attributes": ["at1", "at2"]
              })]
 
@@ -221,47 +222,39 @@ class TestTraits(unittest.TestCase):
         mock_db.db.execute.assert_called_once()
         self.assertEqual(results_empty_db, "")
 
-    
     @mock.patch("wqflask.show_trait.show_trait.get_scales_from_genofile")
-    def test_get_genotype_scales_with_genofile_is_list(self,mock_get_scales):
+    def test_get_genotype_scales_with_genofile_is_list(self, mock_get_scales):
         """test for getting genotype scales with genofile as list """
-        #where genofile is instance of list
-        genofiles_list = [{"filename":"file1","location":"~/data/files/f1"},{"filename":"file2","location":"~/data/files/f2"},{"filename":"file3","location":"~/data/files/f3"}]
+        # where genofile is instance of list
+        genofiles_list = [{"filename": "file1", "location": "~/data/files/f1"},
+                          {"filename": "file2", "location": "~/data/files/f2"},
+                          {"filename": "file3", "location": "~/data/files/f3"}]
 
-        mock_get_scales.side_effect = [[["morgan", "cM"]],[["morgan", "cM"]],[["physic", "Mb"]]]
+        mock_get_scales.side_effect = [[["morgan", "cM"]],
+                                       [["morgan", "cM"]],
+                                       [["physic", "Mb"]]]
 
         results = get_genotype_scales(genofiles_list)
 
         expected_results = {
-        "~/data/files/f1":[["morgan","cM"]],
-        "~/data/files/f2":[["morgan","cM"]],
-        "~/data/files/f3":[["physic","Mb"]]
+            "~/data/files/f1": [["morgan", "cM"]],
+            "~/data/files/f2": [["morgan", "cM"]],
+            "~/data/files/f3": [["physic", "Mb"]]
         }
 
-        multiple_calls = [mock.call('~/data/files/f1'),mock.call('~/data/files/f2'),
-        mock.call('~/data/files/f3')]
-
+        multiple_calls = [mock.call('~/data/files/f1'), mock.call('~/data/files/f2'),
+                          mock.call('~/data/files/f3')]
 
         mock_get_scales.assert_has_calls(multiple_calls)
-        self.assertEqual(results,expected_results)
-
+        self.assertEqual(results, expected_results)
 
     @mock.patch("wqflask.show_trait.show_trait.get_scales_from_genofile")
-    def test_genotype_scales_with_genofile_other(self,mock_get_scales):
+    def test_genotype_scales_with_genofile_other(self, mock_get_scales):
         """test for getting genotype scales with genofile as a string"""
         file_location = "~/another_file_location"
-        mock_get_scales.return_value = [["physic","Mb"]]
+        mock_get_scales.return_value = [["physic", "Mb"]]
 
-        expected_results = {f"{file_location}":[["physic","Mb"]]}
+        expected_results = {f"{file_location}": [["physic", "Mb"]]}
 
-
-        self.assertEqual(get_genotype_scales(file_location),expected_results)
+        self.assertEqual(get_genotype_scales(file_location), expected_results)
         mock_get_scales.assert_called_once_with(file_location)
-
-
-
-
-
-
-
-    
