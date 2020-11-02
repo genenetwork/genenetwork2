@@ -25,6 +25,10 @@ def is_redis_available():
     return True
 
 
+def load_json_from_redis(item_list, column_value):
+    return json.loads(item_list[str.encode(column_value)])
+
+
 def get_user_id(column_name, column_value):
     user_list = Redis.hgetall("users")
     key_list = []
@@ -46,7 +50,7 @@ def get_user_by_unique_column(column_name, column_value):
             if column_name in user_ob and user_ob[column_name] == column_value:
                 item_details = user_ob
     else:
-        item_details = json.loads(user_list[column_value])
+        item_details = load_json_from_redis(user_list, column_value)
 
     return item_details
 
@@ -70,7 +74,7 @@ def get_users_like_unique_column(column_name, column_value):
                     if column_value in user_ob[column_name]:
                         matched_users.append(user_ob)
         else:
-            matched_users.append(json.loads(user_list[column_value]))
+            matched_users.append(load_json_from_redis(user_list, column_value))
 
     return matched_users
 
@@ -199,7 +203,7 @@ def get_groups_like_unique_column(column_name, column_value):
                         if column_value in group_info[column_name]:
                             matched_groups.append(group_info)
         else:
-            matched_groups.append(json.loads(group_list[column_value]))
+            matched_groups.append(load_json_from_redis(group_list, column_value))
 
     return matched_groups
 
