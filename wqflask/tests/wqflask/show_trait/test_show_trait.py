@@ -45,7 +45,7 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(result2, True)
 
     def test_check_if_attr_exists_empty_attr(self):
-        """test if attributes exists with empty attributes"""
+        """test if attributes exists with false return"""
         trait_obj = TraitObject({"sample": ""})
         trait_obj2 = TraitObject({"group": None})
         result = check_if_attr_exists(trait_obj, "sample")
@@ -248,7 +248,7 @@ class TestTraits(unittest.TestCase):
 
     @mock.patch("wqflask.show_trait.show_trait.get_scales_from_genofile")
     def test_genotype_scales_with_genofile_other(self,mock_get_scales):
-        """test for getting genotype scales with genofile as a strig"""
+        """test for getting genotype scales with genofile as a string"""
         file_location = "~/another_file_location"
         mock_get_scales.return_value = [["physic","Mb"]]
 
