@@ -28,7 +28,7 @@ class GeneralObject:
     """
     Base class to define an Object.
     a = [Spam(1, 4), Spam(9, 3), Spam(4,6)]
-    a.sort(lambda x, y: cmp(x.eggs, y.eggs))
+    a.sort(key = lambda x: x.eggs)
     """
 
     def __init__(self, *args, **kw):
