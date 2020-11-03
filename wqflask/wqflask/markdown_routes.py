@@ -2,6 +2,7 @@
 
 Render pages from github, or if they are unavailable, look for it else where
 """
+import os
 import requests
 import mistune
 
@@ -11,19 +12,27 @@ from flask import render_template
 glossary_blueprint = Blueprint('glossary_blueprint', __name__)
 
 
-@glossary_blueprint.route('/')
-def glossary():
-    markdown_url = ("https://raw.githubusercontent.com"
-                    "/genenetwork/genenetwork2/"
-                    "wqflask/wqflask/static"
-                    "/glossary.md")
+def render_markdown(file_name):
+    """Try to fetch the file name from Github and if that fails, try to
+look for it inside the file system
+
+    """
+    markdown_url = (f"https://raw.githubusercontent.com"
+                    f"/genenetwork/genenetwork2/"
+                    f"wqflask/wqflask/static/"
+                    f"{file_name}")
     md_content = requests.get(markdown_url)
     if md_content.status_code == 200:
-        return render_template(
-            "glossary_html",
-            rendered_markdown=mistune.html(
-                md_content.content.decode("utf-8"))), 200
+        return mistune.html(md_content.content.decode("utf-8"))
 
+    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                           f"static/markdown/{file_name}")) as md_file:
+        markdown = md_file.read()
+        return mistune.html(markdown)
+
+
+@glossary_blueprint.route('/')
+def glossary():
     return render_template(
         "glossary.html",
-        rendered_markdown=mistune.html("# Github Down!")), 200
+        rendered_markdown=render_markdown("glossary.md")), 200
