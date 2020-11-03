@@ -155,7 +155,22 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(get_categorical_variables(trait, sample_list), [])
 
     def test_get_categorical_variables_with_sample_attributes(self):
-        pass
+        this_trait=TraitObject({"data":{
+            "Gene1":TraitObject({"extra_attributes":{"ex1":"ex1value"}}),
+            "Gene2":TraitObject({"extra_attributes":{"ex2":"ex2value"}}),
+            "Gene3":TraitObject({"extra_attributes":{"ex3":"ex3value"}})
+            }})
+        sample_list=TraitObject({"attributes":{
+             "sample_attribute_1":TraitObject({"name":"ex1"}),
+             "sample_attribute_2":TraitObject({"name":"ex2"}),
+             "sample_attribute_3":TraitObject({"name":"ex3"}),
+             "sample_attribute_4":TraitObject({"name":"not_in_extra_attributes"}),
+
+
+            }})
+
+        results=get_categorical_variables(this_trait,sample_list)
+        self.assertEqual(["ex1","ex2","ex3","not_in_extra_attributes"],results)
 
     def test_get_trait_units(self):
         """test for getting trait units"""
