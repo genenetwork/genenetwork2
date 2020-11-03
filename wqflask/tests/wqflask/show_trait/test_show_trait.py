@@ -1,24 +1,12 @@
 """test for wqflask/show_trait/test_show_trait.py"""
 
-
 import unittest
 from unittest import mock
 from wqflask import app
-from wqflask.show_trait.show_trait import check_if_attr_exists
-from wqflask.show_trait.show_trait import requests
-
-from wqflask.show_trait.show_trait import get_ncbi_summary
-
-from wqflask.show_trait.show_trait import has_num_cases
-
-from wqflask.show_trait.show_trait import get_table_widths
-
-from wqflask.show_trait.show_trait import get_categorical_variables
-from wqflask.show_trait.show_trait import get_trait_units
-
-from wqflask.show_trait.show_trait import get_nearest_marker
-
-from wqflask.show_trait.show_trait import get_genotype_scales
+from wqflask.show_trait.show_trait import (check_if_attr_exists, get_ncbi_summary,
+                                           has_num_cases, get_table_widths,
+                                           get_categorical_variables,
+                                           get_trait_units, get_nearest_marker, get_genotype_scales, requests)
 
 
 class TraitObject:
@@ -42,8 +30,8 @@ class TestTraits(unittest.TestCase):
         results = check_if_attr_exists(trait_obj, "id_type")
         result2 = check_if_attr_exists(trait_obj2, "sample_name")
         self.assertIsInstance(trait_obj, TraitObject)
-        self.assertEqual(results, True)
-        self.assertEqual(result2, True)
+        self.assertTrue(results, True)
+        self.assertTrue(result2, True)
 
     def test_check_if_attr_exists_empty_attr(self):
         """test if attributes exists with false return"""
@@ -51,14 +39,14 @@ class TestTraits(unittest.TestCase):
         trait_obj2 = TraitObject({"group": None})
         result = check_if_attr_exists(trait_obj, "sample")
         result2 = check_if_attr_exists(trait_obj, "group")
-        self.assertEqual(result, False)
-        self.assertEqual(result2, False)
+        self.assertFalse(result, False)
+        self.assertFalse(result2, False)
 
     def test_check_if_attr_exists_falsey(self):
         """check if attribute exists with empty attributes"""
         trait_obj = TraitObject({})
         results = check_if_attr_exists(trait_obj, "any")
-        self.assertEqual(results, False)
+        self.assertFalse(results, False)
 
     @mock.patch("wqflask.show_trait.show_trait.requests.get")
     @mock.patch("wqflask.show_trait.show_trait.check_if_attr_exists")
@@ -110,7 +98,7 @@ class TestTraits(unittest.TestCase):
         create_dataset = TraitObject({"type": "ProbeSet"})
         create_trait = TraitObject({"dataset": create_dataset})
 
-        self.assertEqual(has_num_cases(create_trait), False)
+        self.assertFalse(has_num_cases(create_trait), False)
 
     def test_hash_num_cases_no_probeset(self):
         """test for hash num cases with dataset.type not Probeset"""
@@ -136,8 +124,8 @@ class TestTraits(unittest.TestCase):
 
         results = has_num_cases(create_trait)
 
-        self.assertEqual(has_num_cases(create_trait), True)
-        self.assertEqual(has_num_cases(create_trait2), False)
+        self.assertTrue(has_num_cases(create_trait), True)
+        self.assertFalse(has_num_cases(create_trait2), False)
 
     def test_get_table_widths(self):
         """test for getting table widths"""
@@ -171,7 +159,7 @@ class TestTraits(unittest.TestCase):
         pass
 
     def test_get_trait_units(self):
-        """test for gettting trait units"""
+        """test for getting trait units"""
         trait = TraitObject(
             {"description_fmt": "[this is a description] another test [N/A]"})
 
