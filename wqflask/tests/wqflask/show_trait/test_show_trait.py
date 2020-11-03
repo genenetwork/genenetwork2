@@ -31,7 +31,6 @@ class TestTraits(unittest.TestCase):
         self.assertIsInstance(trait_obj, TraitObject)
         self.assertIs(results, True)
         self.assertIs(result2, True)
-        
 
     def test_check_if_attr_exists_empty_attr(self):
         """test if attributes exists with false return"""
@@ -98,7 +97,7 @@ class TestTraits(unittest.TestCase):
         create_dataset = TraitObject({"type": "ProbeSet"})
         create_trait = TraitObject({"dataset": create_dataset})
 
-        self.assertFalse(has_num_cases(create_trait), False)
+        self.assertIs(has_num_cases(create_trait), False)
 
     def test_hash_num_cases_no_probeset(self):
         """test for hash num cases with dataset.type not Probeset"""
