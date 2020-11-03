@@ -1460,7 +1460,7 @@ class DisplayMappingResults(object):
             else:
                 continue
 
-        smd.sort(lambda A, B: cmp(A.value, B.value))
+        smd.sort(key = lambda A: A.value)
         smd.reverse()
 
         samplelist = list(self.genotype.prgy)
