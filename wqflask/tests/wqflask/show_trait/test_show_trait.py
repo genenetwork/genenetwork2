@@ -155,6 +155,7 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(get_categorical_variables(trait, sample_list), [])
 
     def test_get_categorical_variables_with_sample_attributes(self):
+        """test for getting categorical variable names with no samples"""
         this_trait=TraitObject({"data":{
             "Gene1":TraitObject({"extra_attributes":{"ex1":"ex1value"}}),
             "Gene2":TraitObject({"extra_attributes":{"ex2":"ex2value"}}),
@@ -168,6 +169,8 @@ class TestTraits(unittest.TestCase):
 
 
             }})
+
+        #
 
         results=get_categorical_variables(this_trait,sample_list)
         self.assertEqual(["ex1","ex2","ex3","not_in_extra_attributes"],results)
