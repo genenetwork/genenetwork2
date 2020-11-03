@@ -184,6 +184,8 @@ class CorrelationResults(object):
 
             for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
                 trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+                if not trait_object:
+                    continue
 
                 if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
                     #ZS: Convert trait chromosome to an int for the location range option
@@ -434,15 +436,15 @@ class CorrelationResults(object):
 
         self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
 
-        #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
-        if self.corr_method == 'bicor':
-            sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
-        elif self.corr_method == 'pearson':
-            sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
-        else:
-            sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
-
         if num_overlap > 5:
+            #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
+            if self.corr_method == 'bicor':
+                sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
+            elif self.corr_method == 'pearson':
+                sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
+            else:
+                sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
+
             if numpy.isnan(sample_r):
                 pass
             else:
@@ -635,3 +637,4 @@ def get_header_fields(data_type, corr_method):
                                 'Sample p(r)']
 
     return header_fields
+
