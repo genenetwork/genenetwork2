@@ -3,5 +3,7 @@
 {% block title %}Glossary{% endblock %}
 
 {% block content %}
-<p id="mytest"> Test</p>
+
+{{ rendered_markdown|safe }}
+
 {% endblock %}
