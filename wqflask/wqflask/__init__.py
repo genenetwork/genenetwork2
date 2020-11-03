@@ -6,6 +6,7 @@ import jinja2
 from flask import g
 from flask import Flask
 from utility import formatting
+from wqflask.glossary import glossary_blueprint
 
 app = Flask(__name__)
 
@@ -16,6 +17,8 @@ app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
     numify=formatting.numify)
 
+# Registering blueprints
+app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
 
 @app.before_request
 def before_request():
