@@ -6,7 +6,7 @@ import jinja2
 from flask import g
 from flask import Flask
 from utility import formatting
-from wqflask.glossary import glossary_blueprint
+from wqflask.markdown_routes import glossary_blueprint
 
 app = Flask(__name__)
 
