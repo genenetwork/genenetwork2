@@ -117,8 +117,6 @@ class TestTraits(unittest.TestCase):
             "nm1": TraitObject({"num_cases": False}),
             "nm2": TraitObject({"num_cases": False}),
             "nm3": TraitObject({"num_cases": False})
-
-
         }
 
         create_trait = TraitObject(
