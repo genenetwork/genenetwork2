@@ -13,6 +13,8 @@ Resource. gn1.genenetwork.org/glossary.html</small>
 
 ## A
 
+<div id="additive"></div>
+
 #### Additive Allele Effect:
 
 The additive allele effect is an estimate of the change in the average phenotype that would be produced by substituting a single allele of one type with that of another type (e.g., a replaced by A) in a population. In a standard F2 intercross between two inbred parental lines there are two alleles at every polymorphic locus that are often referred to as the little "a" allele and big "A" allele. F2 progeny inherit the a/a, a/A, or A/A genotypes at every genetic locus in a ratio close to 1:2:1. The additive effect is half of the difference between the mean of all cases that are homozygous for one parental allele (aa) compared to the mean of all cases that are homozygous for the other parental allele (AA):
@@ -28,6 +30,8 @@ The dominance effects of alleles are also computed on maps for F2 populations (e
 [Go back to index](#index)
 
 <div id="b"></div>
+
+<div id="bootstrap"></div>
 
 #### Bootstrap:
 
@@ -64,6 +68,8 @@ Complex trait analysis is the study of multiple causes of variation of phenotype
 #### Composite Interval Mapping:
 
 Composite interval mapping is a method of mapping chromosomal regions that controls for some fraction of the genetic variability in a quantitative trait. Unlike simple interval mapping, composite interval mapping usually controls for variation produced at one or more background marker loci. These background markers are generally chosen because they are already known to be close to the location of a significant QTL. By factoring out a portion of the genetic variance produced by a major QTL, one can occasionally detect secondary QTLs. WebQTL allows users to control for a single background marker. To select this marker, first run the Marker Regression analysis (and if necessary, check the box labeled display all LRS, select the appropriate locus, and the click on either Composite Interval Mapping or Composite Regression. A more powerful and effective alternative to composite interval mapping is pair-scan analysis. This latter method takes into accounts (models) both the independent effects of two loci and possible two-locus epistatic interactions. [Williams RW, Dec 20, 2004] 
+
+<div id="Correlations"></div>
 
 #### Correlations: Pearson and Spearman:
 
@@ -298,11 +304,15 @@ Interval mapping is a process in which the statistical significance of a hypothe
 
 ## L
 
+<div id="Literature"></div>
+
 #### Literature Correlation:
 
 The literature correlation is a unique feature in GeneNetwork that quantifies the similarity of words used to describe genes and their functions. Sets of words associated with genes were extracted from MEDLINE/PubMed abstracts (Jan 2017 by Ramin Homayouni, Diem-Trang Pham, and Sujoy Roy). For example, about 2500 PubMed abstracts contain reference to the gene "Sonic hedgehog" (Shh) in mouse, human, or rat. The words in all of these abstracts were extracted and categorize by their information content. A word such as "the" is not interesting, but words such as "dopamine" or "development" are useful in quantifying similarity. Sets of informative words are then compared—one gene's word set is compared the word set for all other genes. Similarity values are computed for a matrix of about 20,000 genes using latent semantic indexing (see Xu et al., 2011). Similarity values are also known as literature correlations. These values are always positive and range from 0 to 1. Values between 0.5 and 1.0 indicate moderate-to-high levels of overlap of vocabularies.
 
 The literature correlation can be used to compare the "semantic" signal-to-noise of different measurements of gene, mRNA, and protein expression. Consider this common situation:There are three probe sets that measure Kit gene expression (1459588\_at, 1415900\_a\_at, and 1452514\_a\_at) in the Mouse BXD Lung mRNA data set (HZI Lung M430v2 (Apr08) RMA). Which one of these three gives the best measurement of Kit expression? It is impractical to perform quantitative rtPCR studies to answer this question, but there is a solid statistical answer that relies on Literature Correlation. Do the following: For each of the three probe sets, generate the top 1000 literature correlates. This will generate three apparently identical lists of genes that are known from the PubMed literature to be associated with the Kit oncogene. But the three lists are NOT actually identical when we look at the Sample Correlation column. To answer the question "which of the three probe sets is best", review the actual performance of the probe sets against this set of 1000 "friends of Kit". Do this by sorting all three lists by their Sample Correlation column (high to low). The clear winner is probe set 1415900_a_at. The 100th row in this probe set's list has a Sample Correlation of 0.620 (absolute value). In comparison, the 100th row for probe set 1452514_a_at has a Sample Correlation of 0.289. The probe set that targets the intron comes in last at 0.275. In conclusion, the probe set that targets the proximal half of the 3' UTR (1415900_a_at) has the highest "agreement" between Literature Correlation and Sample Correlation, and is our preferred measurement of Kit expression in the lung in this data set. (Updated by RWW and Ramin Homayouni, April 2017.) 
+
+<div id="LOD"></div>
 
 #### LOD:
 
@@ -323,6 +333,8 @@ In the two likelihoods, one has maximized over the various nuisance parameters (
 With complete data at a marker, the log likelihood for the normal model reduces to the (-n/2) times the log of the residual sum of squares.
 
 LOD values can be converted to LRS scores (likelihood ratio statistics) by multiplying by 4.61. The LOD is also roughly equivalent to the -log(P), where P is the probability of linkage (P = 0.001 => 3). The LOD itself is not a precise measurement of the probability of linkage, but in general for F2 crosses and RI strains, values above 3.3 will usually be worth attention for simple interval maps. [Williams RW, June 15, 2005, updated with text from Karl Broman, Oct 28, 2010, updated Apr 21, 2020 with Nyholt reference].
+
+<div id="LRS"></div>
 
 #### LRS:
 
@@ -415,6 +427,8 @@ Please see the related Glossary terms "Tissue Correlation". [RWW, Aug 21, 2009; 
 
 If you place a number of traits in a Trait Collection you can carry out some of the key steps of a principal component analysis, including defining the variance directed along specific principal component eigenvectors. You can also plot the positions of cases against the first two eigenvectors; in essence a type of scatterplot. Finally, GeneNetwork allows you to exploit PCA methods to make new "synthetic" eigentraits from collections of correlated traits. These synthetic traits are the values of cases along specific eigenvectors and they may be less noisy than single traits. If this seems puzzling, then have a look at these useful PCA explanation by G. Dallas and by Powell and Lehe. How to do it: You can select and assemble many different traits into a single Trait Collection window using the check boxes and Add To Collection buttons. One of the most important function buttons in the Collection window is labeled Correlation Matrix. This function computes Pearson product moment correlations and Spearman rank order correlations for all possible pairs of traits in the Collection window. It also perfoms a principal component or factor analysis. For example, if you have 20 traits in the Collection window, the correlation matrix will consist of 20*19 or 190 correlations and the identity diagonal. Principal components analysis is a linear algebraic procedure that finds a small number of independent factors or principal components that efficiently explain variation in the original 20 traits. It is a effective method to reduce the dimensionality of a group of traits. If the 20 traits share a great deal of variation, then only two or three factors may explain variation among the traits. Instead of analyzing 20 traits as if they were independent, we can now analyze the main principal components labeled PC01, PC02, etc. PC01 and PC02 can be treated as new synthetic traits that represent the main sources of variation among original traits. You can treat a PC trait like any other trait except that it is not stored permanently in a database table. You can put a PC trait in your Collection window and see how well correlated each of the 20 original traits is with this new synthetic trait. You can also map a PC trait. [RWW, Aug 23, 2005]
 
+<div id="Permutation"></div>
+
 #### Permutation Test:
 
 A permutation test is a computationally intensive but conceptually simple method used to evaluate the statisical significance of findings. Permutation tests are often used to evaluate QTL significance. Some background: In order to detect parts of chromosomes that apparently harbor genes that contribute to differences in a trait's value, it is common to search for associations (linkage) across the entire genome. This is referred to as a "whole genome" scan, and it usually involves testing hundreds of independently segregating regions of the genome using hundreds, or even thousands of genetic markers (SNPs and microsatellites). A parametric test such as a conventional t test of F test can be used to estimate the probability of the null hypothesis at any single location in the genome (the null hypothesis is that there is no QTL at this particular location). But a parametric test of this type makes assumptions about the distribution of the trait (its normality), and also does not provide a way to correct for the large number of independent tests that are performed while scanning the whole genome. We need protection against many false discoveries as well as some assurance that we are not neglecting truly interesting locations. A permutation test is an elegant solution to both problems. The procedure involves randomly reassigning (permuting) traits values and genotypes of all cases used in the analysis. The permuted data sets have the same set of phenotypes and genotypes (in other words, distributions are the same), but obviously the permutation procedure almost invariably obliterates genuine gene-to-phenotype relation in large data sets. We typically generate several thousand permutations of the data. Each of these is analyzed using precisely the same method that was used to analyze the correctly ordered data set. We then compare statistical results of the original data set with the collection of values generated by the many permuted data sets. The hope is that the correctly ordered data are associated with larger LRS and LOD values than more than 95% of the permuted data sets. This is how we define the p = .05 whole genome significance threshold for a QTL. Please see the related Glossary terms "Significant threshold" and "Suggestive threshold". [RWW, July 15, 2005]
@@ -481,6 +495,8 @@ A Scree Plot is a simple line segment plot that shows the fraction of total vari
 
 The significant threshold represents the approximate LRS value that corresponds to a genome-wide p-value of 0.05, or a 5% probability of falsely rejecting the null hypothesis that there is no linkage anywhere in the genome. This threshold is computed by evaluating the distribution of highest LRS scores generated by a set of 2000 random permutations of strain means. For example, a random permutation of the correctly ordered data may give a peak LRS score of 10 somewhere across the genome. The set of 1000 or more of these highest LRS scores is then compared to the actual LRS obtained for the correctly ordered (real) data at any location in the genome. If fewer than 50 (5%) of the 1000 permutations have peak LRS scores anywhere in the genome that exceed that obtained at a particular locus using the correctly ordered data, then one can usually claim that a QTL has been defined at a genome-wide p-value of .05. The threshold will vary slightly each time it is recomputed due to the random generation of the permutations. You can view the actual histogram of the permutation results by selecting the "Marker Regression" function in the Analysis Tools area of the Trait Data and Editing Form. WebQTL does make it possible to search through hundreds of traits for those that may have significant linkage somewhere in the genome. Keep in mind that this introduces a second tier of multiple testing problems for which the permutation test will not usually provide adequate protection. If you anticipate mapping many independent traits, then you will need to correct for the number of traits you have tested. [Williams RW, Nov 14, 2004]
 
+<div id="snpSeismograph"></div>
+
 #### SNP Seismograph Track:
 
 SNP is an acronym for single nucleotide polymorphisms (SNPs). SNPs are simple one base pair variants that distinguish individuals and strains. The SNP Seismograph track is a unique feature of physical maps in the GeneNetwork. Each track is customized for a particular cross and shows only those SNPs that differ between the two parental strains. For example, on mouse BXD maps, only the SNPs that differ between C57BL/6J and DBA/2J will be displayed. Regions with high numbers of SNPs are characterised by wider excursions of the yellow traces that extends along the x axis. Since these regions have many SNPs they have a higher prior probability of containing functional sequence differences that might have downstream effects on phenotypes. Large genes with many SNPs close to the peak LRS and that also have a biological connection with the trait ypu are studying are high priority candidate genes.
@@ -518,6 +534,8 @@ The term "systems genetics" was coined by Grant Morahan, October 2004, during a 
 <div id="t"></div>
 
 ## T
+
+<div id="tissueCorr"></div>
 
 #### Tissue Correlation:
 
