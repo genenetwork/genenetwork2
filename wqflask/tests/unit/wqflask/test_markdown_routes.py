@@ -38,8 +38,8 @@ class TestMarkdownRoutesFunctions(unittest.TestCase):
             "/genenetwork/genenetwork2/"
             "wqflask/wqflask/static/"
             "glossary.md")
-        self.assertEqual("<h1>Content</h1>\n",
-                         markdown_content)
+        self.assertRegexpMatches(markdown_content,
+                                 "Glossary of Terms and Features")
 
     @mock.patch('wqflask.markdown_routes.requests.get')
     def test_render_markdown_when_fetching_remotely(self, requests_mock):
