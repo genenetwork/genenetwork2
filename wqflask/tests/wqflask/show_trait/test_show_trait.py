@@ -3,7 +3,7 @@ import unittest
 from unittest import mock
 from wqflask import app
 from wqflask.show_trait.show_trait import check_if_attr_exists
-from wqflask.show_trait.show_trait import  get_ncbi_summary
+from wqflask.show_trait.show_trait import get_ncbi_summary
 from wqflask.show_trait.show_trait import has_num_cases
 from wqflask.show_trait.show_trait import get_table_widths
 from wqflask.show_trait.show_trait import get_categorical_variables
@@ -11,6 +11,7 @@ from wqflask.show_trait.show_trait import get_trait_units
 from wqflask.show_trait.show_trait import get_nearest_marker
 from wqflask.show_trait.show_trait import get_genotype_scales
 from wqflask.show_trait.show_trait import requests
+
 
 class TraitObject:
     def __init__(self, obj):
@@ -169,9 +170,7 @@ class TestTraits(unittest.TestCase):
             "sample_attribute_1": TraitObject({"name": "ex1"}),
             "sample_attribute_2": TraitObject({"name": "ex2"}),
             "sample_attribute_3": TraitObject({"name": "ex3"}),
-            "sample_attribute_4": TraitObject({"name": "not_in_extra_attributes"}),
-
-
+            "sample_attribute_4": TraitObject({"name": "not_in_extra_attributes"})
         }})
 
         results = get_categorical_variables(this_trait, sample_list)
