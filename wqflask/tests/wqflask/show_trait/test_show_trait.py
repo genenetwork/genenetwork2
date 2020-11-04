@@ -112,7 +112,6 @@ class TestTraits(unittest.TestCase):
             "nm2": TraitObject({"num_cases": False}),
             "nm3": TraitObject({"num_cases": False})
         }
-
         create_trait = TraitObject(
             {"dataset": create_dataset, "data": construct_data})
         create_trait2 = TraitObject(
@@ -161,7 +160,6 @@ class TestTraits(unittest.TestCase):
             "sample_attribute_3": TraitObject({"name": "ex3"}),
             "sample_attribute_4": TraitObject({"name": "not_in_extra_attributes"})
         }})
-
         results = get_categorical_variables(this_trait, sample_list)
         self.assertEqual(
             ["ex1", "ex2", "ex3", "not_in_extra_attributes"], results)
