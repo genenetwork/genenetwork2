@@ -67,11 +67,8 @@ class TestTraits(unittest.TestCase):
           }
         }
         """
-
         get_return_obj = TraitObject({"content": content_json_string})
-
         mock_get.return_value = get_return_obj
-
         results = get_ncbi_summary(trait)
         mock_exists.assert_called_once()
         mock_get.assert_called_once_with(f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={trait.geneid}&retmode=json")
@@ -93,7 +90,6 @@ class TestTraits(unittest.TestCase):
           }
         }
         """
-
         results = get_ncbi_summary(trait)
         self.assertEqual(results, None)
 
@@ -101,13 +97,11 @@ class TestTraits(unittest.TestCase):
         """test for hash num_cases with dataset.type set to Probeset"""
         create_dataset = TraitObject({"type": "ProbeSet"})
         create_trait = TraitObject({"dataset": create_dataset})
-
         self.assertFalse(has_num_cases(create_trait))
 
     def test_hash_num_cases_no_probeset(self):
         """test for hash num cases with dataset.type not Probeset"""
         create_dataset = TraitObject({"type": "Temp"})
-
         construct_data = {
             "nm1": TraitObject({"num_cases": False}),
             "nm2": TraitObject({"num_cases": True}),
@@ -125,7 +119,6 @@ class TestTraits(unittest.TestCase):
             {"dataset": create_dataset, "data": construct_data2})
 
         results = has_num_cases(create_trait)
-
         self.assertTrue(has_num_cases(create_trait))
         self.assertFalse(has_num_cases(create_trait2))
 
@@ -144,7 +137,6 @@ class TestTraits(unittest.TestCase):
         expected_with_numcase = (450, "750px")
         expected_no_numcase = (450, "670px")
         expected_one_sample = (250, "540px")
-
         self.assertEqual(results_with_numcase, expected_with_numcase)
         self.assertEqual(result_no_numcase, expected_no_numcase)
         self.assertEqual(results_one_sample,
@@ -154,7 +146,6 @@ class TestTraits(unittest.TestCase):
         """test for getting categorical variable names with no samples"""
         trait = TraitObject({})
         sample_list = TraitObject({"se_exists": True, "attributes": []})
-
         self.assertEqual(get_categorical_variables(trait, sample_list), [])
 
     def test_get_categorical_variables_with_sample_attributes(self):
@@ -179,9 +170,7 @@ class TestTraits(unittest.TestCase):
         """test for getting trait units"""
         trait = TraitObject(
             {"description_fmt": "[this is a description] another test [N/A]"})
-
         trait_no_unit_type = TraitObject({"description_fmt": ""})
-
         results = get_trait_units(trait)
         results_no_unit = get_trait_units(trait_no_unit_type)
         self.assertEqual(results, "this is a descriptionN/A")
@@ -195,13 +184,9 @@ class TestTraits(unittest.TestCase):
             ["Geno1", "Geno2"], ["Geno3"]]
 
         trait = TraitObject({"locus_chr": "test_chr", "locus_mb": "test_mb"})
-
         group_name = TraitObject({"name": "group_name"})
-
         this_db = TraitObject({"group": group_name})
-
         results_with_item_db = get_nearest_marker(trait, this_db)
-
         called_with_value = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
                WHERE Geno.Chr = 'test_chr' AND
@@ -218,11 +203,9 @@ class TestTraits(unittest.TestCase):
     def test_get_nearest_marker_empty_db(self, mock_db):
         """test for getting nearest marker with empty db"""
         mock_db.db.execute.return_value.fetchall.return_value = []
-
         trait = TraitObject({"locus_chr": "test_chr", "locus_mb": "test_mb"})
         group_name = TraitObject({"name": "group_name"})
         this_db = TraitObject({"group": group_name})
-
         results_empty_db = get_nearest_marker(trait, this_db)
         mock_db.db.execute.assert_called_once()
         self.assertEqual(results_empty_db, "")
@@ -240,7 +223,6 @@ class TestTraits(unittest.TestCase):
                                        [["physic", "Mb"]]]
 
         results = get_genotype_scales(genofiles_list)
-
         expected_results = {
             "~/data/files/f1": [["morgan", "cM"]],
             "~/data/files/f2": [["morgan", "cM"]],
@@ -249,7 +231,6 @@ class TestTraits(unittest.TestCase):
 
         multiple_calls = [mock.call('~/data/files/f1'), mock.call('~/data/files/f2'),
                           mock.call('~/data/files/f3')]
-
         mock_get_scales.assert_has_calls(multiple_calls)
         self.assertEqual(results, expected_results)
 
@@ -258,8 +239,6 @@ class TestTraits(unittest.TestCase):
         """test for getting genotype scales with genofile as a string"""
         file_location = "~/another_file_location"
         mock_get_scales.return_value = [["physic", "Mb"]]
-
         expected_results = {f"{file_location}": [["physic", "Mb"]]}
-
         self.assertEqual(get_genotype_scales(file_location), expected_results)
         mock_get_scales.assert_called_once_with(file_location)
