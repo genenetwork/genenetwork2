@@ -2,9 +2,9 @@
 {% block title %}Correlation Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
     <div class="container" style="min-width: 1250px;">
@@ -127,77 +127,7 @@
                 </thead>
 
                 <tbody>
-                {% for trait in correlation_results %}
-                    <tr>
-                        <td><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" style="padding-right: 0px;" VALUE="{{ data_hmac('{}:{}'.format(trait.name, trait.dataset.name)) }}"></td>
-                        <td data-export="{{ loop.index }}" style="padding-left: 8px; padding-right: 0px; padding-top: 4px; align: right;">{{ loop.index }}</td>
-                        <td data-export="{{ trait.name }}">
-                            <a href="{{ url_for('show_trait_page',
-                                    trait_id = trait.name,
-                                    dataset = trait.dataset.name
-                                    )}}">
-                                {{ trait.name }}
-                            </a>
-                        </td>
-                      {% if target_dataset.type == 'ProbeSet' %}
-                        <td data-export="{{ trait.symbol }}">{{ trait.symbol }}</td>
-                        <td data-export="{{ trait.description_display }}">{{ trait.description_display }}</TD>
-                        <td data-export="{{ trait.location_repr }}" style="white-space: nowrap;">{{ trait.location_repr }}</td>
-                        <td data-export="{{ '%0.3f' % trait.mean|float }}" align="right">{{ '%0.3f' % trait.mean|float }}</td>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2={% if trait.dataset.name == 'Temp' %}Temp_{{ trait.dataset.group.name }}{% else %}{{ trait.dataset.name }}{% endif %}&trait_1={{ this_trait.name }}&trait_2={{ trait.name }}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
-                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
-                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
-                        {% if trait.lit_corr == "" or trait.lit_corr == 0.000 %}
-                        <td data-export="--" align="right">--</td>
-                        {% else %}
-                        <td data-export="{{ '%0.3f'|format(trait.lit_corr) }}" align="right">{{ '%0.3f'|format(trait.lit_corr) }}</td>
-                        {% endif %}
-                        {% if trait.tissue_corr == "" or trait.tissue_corr == 0.000 %}
-                        <td data-export="--" align="right">--</td>
-                        <td data-export="--" align="right">--</td>
-                        {% else %}
-                        <td data-export="{{ '%0.3f'|format(trait.tissue_corr) }}" align="right">{{ '%0.3f'|format(trait.tissue_corr) }}</td>
-                        <td data-export="{{ '%0.3e'|format(trait.tissue_pvalue) }}" align="right">{{ '%0.3e'|format(trait.tissue_pvalue) }}</td>
-                        {% endif %}
-                        <td data-export={% if trait.LRS_score_repr != "N/A" %}"{{ '%0.1f' % trait.LRS_score_repr|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.LRS_score_repr != "N/A" %}{{ '%0.1f' % trait.LRS_score_repr|float }}{% else %}N/A{% endif %}</td>
-                        <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
-                        <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
-                      {% elif target_dataset.type == "Publish" %}
-                        {% if trait.abbreviation %}
-                        <td title="{{ trait.abbreviation }}" data-export="{{ trait.abbreviation }}">{% if trait.abbreviation|length > 20 %}{{ trait.abbreviation[:20] }}...{% else %}{{ trait.abbreviation }}{% endif %}</td>
-                        {% else %}
-                        <td data-export="N/A">N/A</td>
-                        {% endif %}
-                        <td data-export="{{ trait.description_display }}">{% if trait.description_display|length > 70 %}{{ trait.description_display[:70] }}...{% else %}{{ trait.description_display }}{% endif %}</td>
-                        {% if trait.authors %}
-                        {% set authors_list = trait.authors.split(',') %}
-                        <td data-export="{{ trait.authors }}">{% if authors_list|length > 6 %}{{ authors_list[:6]|join(', ') }}, et al.{% else %}{{ trait.authors }}{% endif %}</td>
-                        {% else %}
-                        <td data-export="N/A">N/A</td>
-                        {% endif %}
-                        <td data-export="{{ trait.pubmed_text }}">
-                            {% if trait.pubmed_text != "N/A" %}
-                            <a href="{{ trait.pubmed_link }}">
-                                {{ trait.pubmed_text }}
-                            </a>
-                            {% else %}
-                            {{ trait.pubmed_text }}
-                            {% endif %}
-                        </td>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2={{ trait.dataset.name }}&trait_1={{ this_trait.name }}&trait_2={{ trait.name }}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
-                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
-                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
-                        <td data-export="{{ trait.LRS_score_repr }}" align="right">{{ trait.LRS_score_repr }}</td>
-                        <td data-export="{{ trait.LRS_location_repr }}" align="right">{{ trait.LRS_location_repr }}</td>
-                        <td data-export={% if trait.additive != "" %}"{{ '%0.3f' % trait.additive|float }}"{% else %}"N/A"{% endif %} align="right">{% if trait.additive != "" %}{{ '%0.3f' % trait.additive|float }}{% else %}N/A{% endif %}</td>
-                      {% elif target_dataset.type == "Geno" %}
-                        <td data-export="{{ trait.location_repr }}" align="right">{{ trait.location_repr }}</TD>
-                        <td data-export="{{ '%0.3f'|format(trait.sample_r) }}"" align="right"><a target="_blank" href="corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2={{ trait.dataset.name }}&trait_1={{ this_trait.name }}&trait_2={{ trait.name }}">{{ '%0.3f'|format(trait.sample_r) }}</a></td>
-                        <td data-export="{{ trait.num_overlap }}" align="right">{{ trait.num_overlap }}</td>
-                        <td data-export="{{ '%0.3e'|format(trait.sample_p) }}" align="right">{{ '%0.3e'|format(trait.sample_p) }}</td>
-                      {% endif %}
-                    </tr>
-                {% endfor %}
+                    <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
             </table>
         </div>
@@ -332,14 +262,6 @@
 
             {% if target_dataset.type == "ProbeSet" %}
             table_conf = {
-                "drawCallback": function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                     $('.trait_checkbox:checkbox').on("change", change_buttons);
-                },
                 buttons: [
                     {
                         extend: 'columnsToggle',
@@ -353,40 +275,253 @@
                         postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
+                "data": table_json,
+                "columns": [
+                    {
+                      'data': null,
+                      'width': "25px",
+                      'orderDataType': "dom-checkbox",
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
+                      }
+                    },
+                    {
+                      'title': "Index",
+                      'type': "natural",
+                      'width': "30px",
+                      'data': "index"
+                    },
+                    {
+                      'title': "Record",
+                      'type': "natural-minus-na",
+                      'data': null,
+                      'width': "60px",
+                      'render': function(data, type, row, meta) {
+                        return '<a target="_blank" href="/show_trait?trait_id=' + data.trait_id + '&dataset=' + data.dataset + '">' + data.trait_id + '</a>'
+                      }
+                    }{% if target_dataset.type == 'ProbeSet' %},
+                    {
+                      'title': "Symbol",
+                      'type': "natural",
+                      'width': "120px",
+                      'data': "symbol"
+                    },
+                    {
+                      'title': "Description",
+                      'type': "natural",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+                        try {
+                          return decodeURIComponent(escape(data.description))
+                        } catch(err){
+                          return escape(data.description)
+                        }
+                      }
+                    },
+                    {
+                      'title': "Location",
+                      'type': "natural-minus-na",
+                      'width': "125px",
+                      'data': "location"
+                    },
+                    {
+                      'title': "Mean",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "mean",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "sample_r",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "N",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "num_overlap",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "sample_p",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Lit {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "lit_corr",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Tissue {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "tissue_corr",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Tissue p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "tissue_pvalue",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "High P<a href=\"http://gn1.genenetwork.org/glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'type': "natural-minus-na",
+                      'data': "lrs_score",
+                      'width': "60px",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Peak Location",
+                      'type': "natural-minus-na",
+                      'width': "125px",
+                      'data': "lrs_location"
+                    },
+                    {
+                      'title': "Effect Size<a href=\"http://gn1.genenetwork.org/glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'type': "natural-minus-na",
+                      'data': "additive",
+                      'width': "85px",
+                      'orderSequence': [ "desc", "asc"]
+                    }{% elif target_dataset.type == 'Publish' %},
+                    {
+                      'title': "Abbreviation",
+                      'type': "natural",
+                      'width': "500px",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+			            try {
+                            return decodeURIComponent(escape(data.abbreviation))
+			            } catch(err){
+			                return data.abbreviation
+                        }
+                      }
+                    },
+                    {
+                      'title': "Description",
+                      'type': "natural",
+                      'width': "500px",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+			            try {
+                            return decodeURIComponent(escape(data.description))
+			            } catch(err){
+			                return data.description
+                        }
+                      }
+                    },
+                    {
+                      'title': "Authors",
+                      'type': "natural",
+                      'width': "500px",
+                      'data': null,
+                      'render': function(data, type, row, meta) {
+			            try {
+                            return decodeURIComponent(escape(data.authors_display))
+			            } catch(err){
+			                return data.authors_display
+                        }
+                    },
+                    {
+                      'title': "Year",
+                      'type': "natural-minus-na",
+                      'data': null,
+                      'width': "80px",
+                      'render': function(data, type, row, meta) {
+                        if (data.pubmed_id != "N/A"){
+                          return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
+                        } else {
+                          return data.pubmed_text
+                        }
+                      },
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "sample_r",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "N",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "num_overlap",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "sample_p",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "High P<a href=\"http://gn1.genenetwork.org/glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'type': "natural-minus-na",
+                      'data': "lrs_score",
+                      'width': "60px",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Peak Location",
+                      'type': "natural-minus-na",
+                      'width': "125px",
+                      'data': "lrs_location"
+                    },
+                    {
+                      'title': "Effect Size<a href=\"http://gn1.genenetwork.org/glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'type': "natural-minus-na",
+                      'data': "additive",
+                      'width': "85px",
+                      'orderSequence': [ "desc", "asc"]
+                    }{% elif dataset.type == 'Geno' %},
+                    {
+                      'title': "Location",
+                      'type': "natural-minus-na",
+                      'width': "120px",
+                      'data': "location"
+                    }, 
+                    {
+                      'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "sample_r",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "N",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "num_overlap",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
+                      'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "sample_p",
+                      'orderSequence': [ "desc", "asc"]
+                    }{% endif %}
+                ],
                 "columnDefs": [ {
                     "targets": 0,
                     "orderable": false
                 } ],
-                "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "15%" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "natural" },
-                    { "type": "scientific" },
-                    { "type": "natural-minus-na", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "natural-minus-na", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "scientific" },
-                    { "type": "natural-minus-na" },
-                    { "type": "natural-minus-na" },
-                    { "type": "natural-minus-na" }
-                ],
-                "createdRow": function ( row, data, index ) {
-                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 40) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 40));
-                        $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-                    }
-                },
                 "order": [[9, "asc" ]],
-                "sDom": "Btir",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "deferRender": true,
+                "sDom": "Bpitirp",
+                "autoWidth": true,
                 "bSortClasses": false,
                 "scrollY": "50vh",
                 "scroller":  true,
@@ -438,6 +573,7 @@
                 "sDom": "Btir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
+                "processing": true,
                 "deferRender": true,
                 "bSortClasses": false,
                 "scrollY": "50vh",
@@ -485,6 +621,12 @@
             {% endif %}
 
             the_table = $('#trait_table').DataTable(table_conf);
+
+            the_table.on( 'order.dt search.dt draw.dt', function () {
+                the_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i+1;
+                } );
+            } ).draw();
 
             console.timeEnd("Creating table");
 
