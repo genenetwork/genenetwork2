@@ -484,30 +484,26 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         if trait.view == False:
             continue
         results_dict = {}
-        if not for_api:
-            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + hmac.hmac_creation('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
-            results_dict['index'] = i + 1
-            results_dict['trait_id'] = "<a href='/show_trait?trait_id="+str(trait.name)+"&dataset="+str(dataset.name)+"'>"+str(trait.name)+"</a>"
-        else:
-            results_dict['trait_id'] = trait.name
+        results_dict['index'] = i + 1
+        results_dict['trait_id'] = trait.name
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
             results_dict['description'] = trait.description_display
             results_dict['location'] = trait.location_repr
-            results_dict['mean'] = float(trait.mean)
+            if trait.mean and trait.mean != "":
+                results_dict['mean'] = float(trait.mean)
+            else:
+                results_dict['mean'] = "N/A"
             if trait.LRS_score_repr != "N/A":
                 results_dict['lrs_score'] = "%.1f" % float(trait.LRS_score_repr)
             else:
                 results_dict['lrs_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if trait.additive != "":
+            if trait.additive and trait.additive != "":
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
             else:
                 results_dict['additive'] = "N/A"
-            if for_api:
-                results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
-            else:
-                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
+            results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
             if trait.lit_corr == "" or trait.lit_corr == 0:
@@ -535,22 +531,16 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                     results_dict['pubmed'] = "N/A"
             results_dict['lrs_score'] = trait.LRS_score_repr
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if trait.additive != "":
+            if trait.additive and trait.additive != "":
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
             else:
                 results_dict['additive'] = "N/A"
-            if for_api:
-                results_dict['sample_r'] = "%0.3f" % trait.sample_r
-            else:
-                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % trait.sample_r + "</a>"
+            results_dict['sample_r'] = "%0.3f" % trait.sample_r
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
         else:
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if for_api:
-                results_dict['sample_r'] = "%0.3f" % trait.sample_r
-            else:
-                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
+            results_dict['sample_r'] = "%0.3f" % trait.sample_r
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
 
