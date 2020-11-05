@@ -242,25 +242,6 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(get_genotype_scales(file_location), expected_results)
         mock_get_scales.assert_called_once_with(file_location)
 
-    @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
-    def test_get_scales_from_genofile_found(self, mock_location_ignore):
-        # test no complete to be continued with
-        # a .geno file
-        mock_location_ignore.return_value = True
-        mock_file_with_one_line = mock.mock_open(
-            read_data="Some data from opened file")
-
-        mock_file = """#@scale and random data:is here_returned\n
-           This is second   with spaced with tabs\n  """
-        mock_file_result = mock.mock_open(read_data=mock_file)
-
-        with mock.patch("builtins.open", mock_file_with_one_line):
-            result = get_scales_from_genofile("~/data/file")
-            self.assertEqual(result, [['morgan', 'cM']])
-
-        with mock.patch("builtins.open", mock_file_result):
-            results = get_scales_from_genofile("~data/file_geno")
-            self.assertEqual(results, [['physic', 'Mb']])
 
     @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
     def test_get_scales_from_genofile_found(self, mock_ingore_location):
