@@ -244,9 +244,9 @@ class TestTraits(unittest.TestCase):
 
 
     @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
-    def test_get_scales_from_genofile_found(self, mock_ingore_location):
+    def test_get_scales_from_genofile_found(self, mock_ignore_location):
         """"add test for get scales from genofile where file is found"""
-        mock_ingore_location.return_value = True
+        mock_ignore_location.return_value = True
         geno_file = """
                 #sample line    with no  @scales:other\n
                 #sample line     @scales and :separated   by semicolon\n
