@@ -486,8 +486,13 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_dict = {}
         results_dict['index'] = i + 1
         results_dict['trait_id'] = trait.name
+        results_dict['dataset'] = trait.dataset.name
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
+            if len(trait.description_display) > 40:
+                results_dict['description'] = trait.description_display[:40] + "..."
+            else:
+                results_dict['description'] = trait.description_display
             results_dict['description'] = trait.description_display
             results_dict['location'] = trait.location_repr
             if trait.mean and trait.mean != "":
@@ -512,11 +517,26 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                 results_dict['lit_corr'] = "%0.3f" % float(trait.lit_corr)
             if trait.tissue_corr == "" or trait.tissue_corr == 0:
                 results_dict['tissue_corr'] = "--"
+                results_dict['tissue_pvalue'] = "--"
             else:
                 results_dict['tissue_corr'] = "%0.3f" % float(trait.tissue_corr)
+                results_dict['tissue_pvalue'] = "%0.3e" % float(trait.tissue_pvalue)
         elif target_dataset.type == "Publish":
-            results_dict['description'] = trait.description_display
+            results_dict['abbreviation'] = trait.abbreviation
+            if len(trait.abbreviation) > 20:
+                results_dict['abbreviation_display'] = trait.abbreviation[:20] + "..."
+            else:
+                results_dict['abbreviation_display'] = trait.abbreviation
+            if len(trait.description_display) > 40:
+                results_dict['description'] = trait.description_display[:40] + "..."
+            else:
+                results_dict['description'] = trait.description_display
             results_dict['authors'] = trait.authors
+            authors_list = trait.authors.split(',')
+            if len(authors_list > 6):
+                results_dict['authors_display'] = authors_list[:6].join(", ") + ", et al."
+            else:
+                results_dict['authors_display'] = trait.authors
             if trait.pubmed_id:
                 if for_api:
                     results_dict['pubmed_id'] = trait.pubmed_id
