@@ -8,6 +8,7 @@ from pprint import pformat as pf
 from utility import Plot
 from utility import Bunch
 
+
 class SampleList(object):
     def __init__(self,
                  dataset,
@@ -67,7 +68,8 @@ class SampleList(object):
             self.sample_list.append(sample)
 
         self.se_exists = any(sample.variance for sample in self.sample_list)
-        self.num_cases_exists = any(sample.num_cases for sample in self.sample_list)
+        self.num_cases_exists = any(
+            sample.num_cases for sample in self.sample_list)
 
         first_attr_col = self.get_first_attr_col()
         for sample in self.sample_list:
@@ -162,6 +164,7 @@ class SampleList(object):
 
         return first_attr_col
 
+
 def natural_sort(a_list, key=lambda s: s):
     """
     Sort the list into natural alphanumeric order.
@@ -170,8 +173,5 @@ def natural_sort(a_list, key=lambda s: s):
         def convert(text): return int(text) if text.isdigit() else text
         return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
     sort_key = get_alphanum_key_func(key)
-
-    sorted_list=sorted(a_list,key=sort_key)
-
+    sorted_list = sorted(a_list, key=sort_key)
     return sorted_list
-    
