@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/scroller/css/scroller.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+    <link rel="stylesheet" type="text/css" href="static/new/css/trait_list.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -40,10 +41,10 @@
                     {% elif word.search_term|length == 5 %}
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
-                    {% elif word.key|lower == "position" %}
-                    with <u>target genes</u> on chromosome <strong>{% if word.search_term[0].split('chr')|length > 1 %}{{ word.search_term[0].split('chr')[1] }}{% elif word.search_term[0].split('CHR')|length > 1 %}{{ word.search_term[0].split('CHR')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
+                    {% elif word.key|lower == "position" or word.key|lower == "mb" %}
+                    with <u>target genes</u> on chromosome <strong>{% if (word.search_term[0]|lower).split('chr')|length > 1 %}{{ (word.search_term[0]|lower).split('chr')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% else %}
-                    {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match:<br>{% endif %}<b>"{{ word.search_term[0] }}"</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
+                    {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match:<br>{% endif %}<b>{{ word.search_term[0] }}</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
                     {% endif %}
                 {% endfor %}
                 {% endif %}
@@ -133,11 +134,29 @@
               <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
             </div>
           </form>
-          <br />
           {% if dataset.type != 'Geno' %}
-          <br />
-          <div style="margin-bottom: 5px;">
+          <div class="show-hide-container">
             <b>Show/Hide Columns:</b>
+            <br>
+            <button class="toggle-vis" data-column="1">Index</button>
+            <button class="toggle-vis" data-column="2">Record</button>
+            {% if dataset.type == 'ProbeSet' %}
+            <button class="toggle-vis" data-column="3">Symbol</button>
+            <button class="toggle-vis" data-column="4">Description</button>
+            <button class="toggle-vis" data-column="5">Location</button>
+            <button class="toggle-vis" data-column="6">Mean</button>
+            <button class="toggle-vis" data-column="7">High P</button>
+            <button class="toggle-vis" data-column="8">Peak Location</button>
+            <button class="toggle-vis" data-column="9">Effect Size</button>
+            {% elif dataset.type == 'Publish' %}
+            <button class="toggle-vis" data-column="3">Description</button>
+            <button class="toggle-vis" data-column="4">Mean</button>
+            <button class="toggle-vis" data-column="5">Authors</button>
+            <button class="toggle-vis" data-column="6">Year</button>
+            <button class="toggle-vis" data-column="7">High P</button>
+            <button class="toggle-vis" data-column="8">Peak Location</button>
+            <button class="toggle-vis" data-column="9">Effect Size</button>
+            {% endif %}
           </div>
           {% endif %}
           <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px;"{% endif %}>
@@ -209,7 +228,7 @@
             }
 
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
-            $('#trait_table').DataTable( {
+            trait_table = $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
                          if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
@@ -312,7 +331,7 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "High P<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'title': "High P<a href=\"http://gn1.genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "60px",
@@ -325,7 +344,7 @@
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Effect Size<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'title': "Effect Size<a href=\"http://gn1.genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "additive",
                       'width': "85px",
@@ -381,7 +400,7 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Max LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'title': "High P<a href=\"http://gn1.genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "80px",
@@ -394,7 +413,7 @@
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Effect Size<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
+                      'title': "Effect Size<a href=\"http://gn1.genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup style=\"font-size: small; color: #FF0000;\"> ?</sup></a>",
                       'type': "natural-minus-na",
                       'width': "120px",
                       'data': "additive",
@@ -408,24 +427,7 @@
                     }{% endif %}
                 ],
                 "order": [[1, "asc" ]],
-                {% if dataset.type != 'Geno' %}
-                buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: function( idx, data, node ) {
-                          if (idx != 0) {
-                            return true;
-                          } else {
-                            return false;
-                          }
-                        },
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                'sDom': "Bpitirp",
-                {% else %}
                 'sDom': "pitirp",
-                {% endif %}
                 'iDisplayLength': 500,
                 'deferRender': true,
                 'paging': true,
@@ -439,6 +441,23 @@
 
             console.timeEnd("Creating table");
             
+            $('.toggle-vis').on( 'click', function (e) {
+              e.preventDefault();
+
+              // Get the column API object
+              var column = trait_table.column( $(this).attr('data-column') );
+
+              // Toggle the visibility
+              column.visible( ! column.visible() );
+
+              if (column.visible()){
+                $(this).removeClass("active");
+              } else {
+                $(this).addClass("active");
+              }
+            } );
+
+
             $('#redraw').click(function() {
                 var table = $('#trait_table').DataTable();
                 table.colReorder.reset()
@@ -452,3 +471,4 @@
         });
     </script>
 {% endblock %}
+
