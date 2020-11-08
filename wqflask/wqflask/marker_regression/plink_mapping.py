@@ -154,7 +154,7 @@ def parse_plink_output(output_filename, species):
 # function: convert line from str to list;
 # output: lineList list
 #######################################################
-def build_line_list(line=None):
+def build_line_list(line=""):
     line_list = line.strip().split(' ')# irregular number of whitespaces between columns
     line_list = [item for item in line_list if item !='']
     line_list = [item.strip() for item in line_list]
