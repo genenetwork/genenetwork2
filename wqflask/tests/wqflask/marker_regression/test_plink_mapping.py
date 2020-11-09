@@ -12,8 +12,6 @@ class AttributeSetter:
     def __init__(self, obj):
         for key, val in obj.items():
             setattr(self, key, val)
-
-
 class TestPlinkMapping(unittest.TestCase):
 
     def test_build_line_list(self):
@@ -72,7 +70,6 @@ Expected_2\there
 
         mock_line_list.side_effect = [["0", "AACCAT", "T98.6", "0.89"], [
             "2", "AATA", "B45", "0.3"], ["121", "ACG", "B56.4", "NA"]]
-        # print("sdfsfdf",species.chromosomes)
         with mock.patch("builtins.open", mock.mock_open(read_data=fake_file)) as mock_open:
             parse_results = parse_plink_output(
                 output_filename="P1_file", species=species)
