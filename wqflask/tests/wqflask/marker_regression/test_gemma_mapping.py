@@ -21,13 +21,6 @@ class MockDatasetGroup(AttributeSetter):
 
 
 class TestGemmaMapping(unittest.TestCase):
-    # def test_fail(self):
-    #     self.assertEqual(2,3)
-
-    def setUp(self):
-        pass
-
-
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
     def test_run_gemma_first_run_loco_set_false(self, mock_parse_loco):
@@ -36,7 +29,6 @@ class TestGemmaMapping(unittest.TestCase):
 
         output_files = "file1"
         use_loco = False
-        mock_parse_loco.side_effect = None
         mock_parse_loco.return_value = []
         this_trait = AttributeSetter({"name": "t1"})
 
@@ -45,7 +37,6 @@ class TestGemmaMapping(unittest.TestCase):
 
         expected_results = ([], "file1")
         self.assertEqual(expected_results, result)
-
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
     @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMAOPTS", "-debug")
@@ -59,7 +50,7 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.gemma_mapping.string.digits", "R")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_gen_covar, mock_flat_files,mock_logger,mock_parse_loco):
+    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
 
         chromosomes = []
         for i in range(1, 5):
@@ -75,35 +66,28 @@ class TestGemmaMapping(unittest.TestCase):
 
         trait = AttributeSetter({"name": "trait1"})
         samples = []
-        mock_gen_pheno_txt.side_effect = None
+
         mock_gen_pheno_txt.return_value = None
         mock_os.path.isfile.return_value = True
-        mock_os.system.return_value = None
-        mock_os.system.side_effect = None
-        mock_gen_covar.side_effect = None
         mock_gen_covar.return_value = None
         mock_flat_files.return_value = "/home/genotype/bimbam"
-        mock_parse_loco.side_effect = None
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
         ], vals=[], covariates="", use_loco=True)
-        # check results
         self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
         mock_gen_pheno_txt.assert_called_once()
         self.assertEqual(mock_flat_files.call_count, 4)
-
-
         system_calls = [mock.call('ghc --json -- -debug -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt -a /home/genotype/bimbam/file_snps.txt -gk > /home/user/data//gn2/GP1_K_RRRRRR.json'),
                         mock.call('ghc --json --input /home/user/data//gn2/GP1_K_RRRRRR.json -- -debug -a /home/genotype/bimbam/file_snps.txt -lmm 2 -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt > /home/user/data//gn2/GP1_GWA_RRRRRR.json')]
 
         mock_os.system.assert_has_calls(system_calls)
 
-        mock_os.path.isfile.assert_called_once_with(('/home/user/imgfile_output.assoc.txt'))
+        mock_os.path.isfile.assert_called_once_with(
+            ('/home/user/imgfile_output.assoc.txt'))
 
-        self.assertEqual(mock_logger.debug.call_count,2)
-                                                    
+        self.assertEqual(mock_logger.debug.call_count, 2)
 
-        mock_parse_loco.assert_called_once_with(dataset,"GP1_GWA_RRRRRR")
+        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR")
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
     def test_gen_pheno_txt_file(self):
@@ -144,7 +128,6 @@ class TestGemmaMapping(unittest.TestCase):
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
             gen_covariates_file(this_dataset=this_dataset, covariates=covariates,
                                 samples=["x1", "x2", "X3"])
-            # test mocked methods
 
             create_dataset.assert_has_calls(
                 [mock.call('X2'), mock.call('Y2'), mock.call('M3'), mock.call('V2')])
@@ -157,13 +140,10 @@ class TestGemmaMapping(unittest.TestCase):
 
             create_trait.assert_has_calls(mock_calls)
 
-            # test writing of covariates.txt
-
             flat_files.assert_called_once_with('mapping')
             mock_open.assert_called_once_with(
                 'Home/Genenetwork/group_X_covariates.txt', 'w')
             filehandler = mock_open()
-            # expected all-9
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
 
@@ -186,23 +166,18 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
             self.assertEqual(results, expected)
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
-    def test_xparse_gemma_output_empty_return(self):
+    def test_parse_gemma_output_empty_return(self):
         output_file_results = """chr\t today"""
         with mock.patch("builtins.open", mock.mock_open(read_data=output_file_results)) as mock_open:
             results = parse_gemma_output(genofile_name="gema_file")
             self.assertEqual(results, [])
 
-    @mock.patch("builtins.open", mock.mock_open(read_data="chr\t"))
-    def test_parse_gemma_output_empty_return(self):
-        # duplicate
-        string_read = parse_gemma_output(genofile_name="hdf")
-        # print(string_read)
-
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     def test_parse_loco_output_file_found(self, mock_os):
-        mock_os.path.isfile.return_value = False
+        mock_os.path.isfile.return_value = True
         file_to_write = """{"files":["file_1","file_2"]}"""
+        #incomplete
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
