@@ -1,4 +1,4 @@
-#test for wqflask/marker_regression/gemma_mapping.py
+# test for wqflask/marker_regression/gemma_mapping.py
 import unittest
 import random
 from unittest import mock
@@ -24,22 +24,62 @@ class TestGemmaMapping(unittest.TestCase):
     # def test_fail(self):
     #     self.assertEqual(2,3)
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
     def setUp(self):
-    	pass
+        pass
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMAOPTS", "-debug")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMA_WRAPPER_COMMAND", "ghc")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data/")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.gen_covariates_file")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.string.ascii_uppercase", "R")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.string.digits", "R")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
-    def test_run_gemma_first_run_set_true(self, mock_gen_pheno, mock_os):
-        chromosomes = AttributeSetter({"chromosomes": "SA"})
-        covariates = "XI:X2,X4:X3,X6:X7"
-        dataset_group = MockDatasetGroup({"genofile": "fileX"})
-        dataset = AttributeSetter(
-            {"group": dataset_group, "name": "dataset1_name", "species": chromosomes})
+    @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
+    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_gen_covar, mock_flat_files, mock_parse_loco):
+
+        chromosomes = []
+        for i in range(1, 5):
+            chromosomes.append(AttributeSetter({"name": f"CH{i}"}))
+
+        chromo = AttributeSetter({"chromosomes": chromosomes})
+
+        dataset_group = MockDatasetGroup(
+            {"name": "GP1", "genofile": "file_geno"})
+
+        dataset = AttributeSetter({"group": dataset_group, "name": "dataset1_name",
+                                   "species": AttributeSetter({"chromosomes": chromo})})
+
         trait = AttributeSetter({"name": "trait1"})
-        mock_gen_pheno.side_effect = None
-        mock_gen_pheno.return_value = None
+        samples = []
+        mock_gen_pheno_txt.side_effect = None
+        mock_gen_pheno_txt.return_value = None
         mock_os.path.isfile.return_value = True
+        mock_os.system.return_value = None
+        mock_os.system.side_effect = None
+        mock_gen_covar.side_effect = None
+        mock_gen_covar.return_value = None
+        mock_flat_files.return_value = "/home/genotype/bimbam"
+        mock_parse_loco.side_effect = None
+        mock_parse_loco.return_value = []
+        results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
+        ], vals=[], covariates="", use_loco=True)
+        # check results
+        self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
+        mock_gen_pheno_txt.assert_called_once()
+        self.assertEqual(mock_flat_files.call_count, 4)
+
+        system_calls = [mock.call('ghc --json -- -debug -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt -a /home/genotype/bimbam/file_snps.txt -gk > /home/user/data//gn2/GP1_K_RRRRRR.json'),
+                        mock.call('ghc --json --input /home/user/data//gn2/GP1_K_RRRRRR.json -- -debug -a /home/genotype/bimbam/file_snps.txt -lmm 2 -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt > /home/user/data//gn2/GP1_GWA_RRRRRR.json')]
+
+        mock_os.system.assert_has_calls(system_calls)
+
+        mock_os.path.isfile.assert_called_once_with(('/home/user/imgfile_output.assoc.txt')
+                                                    )
+
+        mock_parse_loco.assert_called_once_with(dataset,"GP1_GWA_RRRRRR")
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
     def test_run_gemma_first_run_loco_set_false(self, mock_parse_loco):
@@ -130,7 +170,8 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
 """
         with mock.patch("builtins.open", mock.mock_open(read_data=file)) as mock_open:
             results = parse_gemma_output(genofile_name="gema_file")
-            expected =  [{'name': ' gn2', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {'name': 'gn2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {'name': 'gn7', 'chr': 'X', 'Mb': 2.324424, 'p_value': 0.4, 'lod_score': 0.3979400086720376}, {'name': 'gn9', 'chr': 125, 'Mb': 0.433575, 'p_value': 0.67, 'lod_score': 0.17392519729917352}]
+            expected = [{'name': ' gn2', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {'name': 'gn2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812},
+                        {'name': 'gn7', 'chr': 'X', 'Mb': 2.324424, 'p_value': 0.4, 'lod_score': 0.3979400086720376}, {'name': 'gn9', 'chr': 125, 'Mb': 0.433575, 'p_value': 0.67, 'lod_score': 0.17392519729917352}]
 
             mock_open.assert_called_once_with(
                 "/home/user/img/gema_file_output.assoc.txt")
@@ -146,7 +187,7 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
 
     @mock.patch("builtins.open", mock.mock_open(read_data="chr\t"))
     def test_parse_gemma_output_empty_return(self):
-    	#duplicate
+        # duplicate
         string_read = parse_gemma_output(genofile_name="hdf")
         # print(string_read)
 
@@ -155,7 +196,6 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
     def test_parse_loco_output_file_found(self, mock_os):
         mock_os.path.isfile.return_value = False
         file_to_write = """{"files":["file_1","file_2"]}"""
-
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
