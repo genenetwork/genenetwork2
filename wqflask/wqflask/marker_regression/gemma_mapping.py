@@ -31,16 +31,11 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
       gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
       this_chromosomes = this_dataset.species.chromosomes.chromosomes
-      chr_list_string = ""
-      for i in range(len(this_chromosomes)):
-          if i < (len(this_chromosomes) - 1):
-              chr_list_string += this_chromosomes[i+1].name + ","
-          else:
-              chr_list_string += this_chromosomes[i+1].name
+      this_chromosomes_name=[chromosome.name for chromosome in this_chromosomes]
 
+      chr_list_string=",".join(this_chromosomes_name)
       if covariates != "":
           gen_covariates_file(this_dataset, covariates, samples)
-
       if use_loco == "True":
           generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                           genofile_name,
