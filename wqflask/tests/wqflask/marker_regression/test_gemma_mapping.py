@@ -49,52 +49,41 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os,mock_choice,mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
-
+    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
         chromosomes = []
         for i in range(1, 5):
             chromosomes.append(AttributeSetter({"name": f"CH{i}"}))
-
         chromo = AttributeSetter({"chromosomes": chromosomes})
-
         dataset_group = MockDatasetGroup(
             {"name": "GP1", "genofile": "file_geno"})
-
         dataset = AttributeSetter({"group": dataset_group, "name": "dataset1_name",
                                    "species": AttributeSetter({"chromosomes": chromo})})
-
         trait = AttributeSetter({"name": "trait1"})
         samples = []
-
         mock_gen_pheno_txt.return_value = None
         mock_os.path.isfile.return_value = True
         mock_gen_covar.return_value = None
-        mock_choice.return_value="R"
+        mock_choice.return_value = "R"
         mock_flat_files.return_value = "/home/genotype/bimbam"
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
         ], vals=[], covariates="", use_loco=True)
-        self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
-        mock_gen_pheno_txt.assert_called_once()
-        self.assertEqual(mock_flat_files.call_count, 4)
         system_calls = [mock.call('ghc --json -- -debug -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt -a /home/genotype/bimbam/file_snps.txt -gk > /home/user/data//gn2/GP1_K_RRRRRR.json'),
                         mock.call('ghc --json --input /home/user/data//gn2/GP1_K_RRRRRR.json -- -debug -a /home/genotype/bimbam/file_snps.txt -lmm 2 -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt > /home/user/data//gn2/GP1_GWA_RRRRRR.json')]
-
         mock_os.system.assert_has_calls(system_calls)
-
+        mock_gen_pheno_txt.assert_called_once()
+        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR")
         mock_os.path.isfile.assert_called_once_with(
             ('/home/user/imgfile_output.assoc.txt'))
-
         self.assertEqual(mock_logger.debug.call_count, 2)
-
-        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR")
+        self.assertEqual(mock_flat_files.call_count, 4)
+        self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
     def test_gen_pheno_txt_file(self):
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
             gen_pheno_txt_file(this_dataset={}, genofile_name="", vals=[
                                "x", "w", "q", "we", "R"], trait_filename="fitr.re")
-
             mock_open.assert_called_once_with(
                 '/home/user/data/gn2/fitr.re.txt', 'w')
             filehandler = mock_open()
@@ -159,26 +148,21 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
             results = parse_gemma_output(genofile_name="gema_file")
             expected = [{'name': ' gn2', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {'name': 'gn2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812},
                         {'name': 'gn7', 'chr': 'X', 'Mb': 2.324424, 'p_value': 0.4, 'lod_score': 0.3979400086720376}, {'name': 'gn9', 'chr': 125, 'Mb': 0.433575, 'p_value': 0.67, 'lod_score': 0.17392519729917352}]
-
             mock_open.assert_called_once_with(
                 "/home/user/img/gema_file_output.assoc.txt")
-
             self.assertEqual(results, expected)
-
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
     def test_parse_gemma_output_empty_return(self):
         output_file_results = """chr\t today"""
         with mock.patch("builtins.open", mock.mock_open(read_data=output_file_results)) as mock_open:
             results = parse_gemma_output(genofile_name="gema_file")
             self.assertEqual(results, [])
-
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     def test_parse_loco_output_file_found(self, mock_os):
         mock_os.path.isfile.return_value = True
         file_to_write = """{"files":["file_1","file_2"]}"""
-        # incomplete
-
+        pass
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     def test_parse_loco_output_file_not_found(self, mock_os):
