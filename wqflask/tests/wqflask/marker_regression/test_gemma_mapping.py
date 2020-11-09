@@ -46,11 +46,10 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.gemma_mapping.logger")
     @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_covariates_file")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.string.ascii_uppercase", "R")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.string.digits", "R")
+    @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
+    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os,mock_choice,mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
 
         chromosomes = []
         for i in range(1, 5):
@@ -70,6 +69,7 @@ class TestGemmaMapping(unittest.TestCase):
         mock_gen_pheno_txt.return_value = None
         mock_os.path.isfile.return_value = True
         mock_gen_covar.return_value = None
+        mock_choice.return_value="R"
         mock_flat_files.return_value = "/home/genotype/bimbam"
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
@@ -177,7 +177,7 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
     def test_parse_loco_output_file_found(self, mock_os):
         mock_os.path.isfile.return_value = True
         file_to_write = """{"files":["file_1","file_2"]}"""
-        #incomplete
+        # incomplete
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
