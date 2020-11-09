@@ -27,18 +27,39 @@ class TestGemmaMapping(unittest.TestCase):
     def setUp(self):
         pass
 
+
+
+    @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
+    def test_run_gemma_first_run_loco_set_false(self, mock_parse_loco):
+        dataset = AttributeSetter(
+            {"group": AttributeSetter({"genofile": "genofile.geno"})})
+
+        output_files = "file1"
+        use_loco = False
+        mock_parse_loco.side_effect = None
+        mock_parse_loco.return_value = []
+        this_trait = AttributeSetter({"name": "t1"})
+
+        result = run_gemma(this_trait=this_trait, this_dataset=dataset, samples=[], vals=[
+        ], covariates="", use_loco=True, first_run=False, output_files=output_files)
+
+        expected_results = ([], "file1")
+        self.assertEqual(expected_results, result)
+
+
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
     @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMAOPTS", "-debug")
     @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMA_WRAPPER_COMMAND", "ghc")
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data/")
     @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.logger")
     @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_covariates_file")
     @mock.patch("wqflask.marker_regression.gemma_mapping.string.ascii_uppercase", "R")
     @mock.patch("wqflask.marker_regression.gemma_mapping.string.digits", "R")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_gen_covar, mock_flat_files, mock_parse_loco):
+    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_gen_covar, mock_flat_files,mock_logger,mock_parse_loco):
 
         chromosomes = []
         for i in range(1, 5):
@@ -71,32 +92,18 @@ class TestGemmaMapping(unittest.TestCase):
         mock_gen_pheno_txt.assert_called_once()
         self.assertEqual(mock_flat_files.call_count, 4)
 
+
         system_calls = [mock.call('ghc --json -- -debug -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt -a /home/genotype/bimbam/file_snps.txt -gk > /home/user/data//gn2/GP1_K_RRRRRR.json'),
                         mock.call('ghc --json --input /home/user/data//gn2/GP1_K_RRRRRR.json -- -debug -a /home/genotype/bimbam/file_snps.txt -lmm 2 -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt > /home/user/data//gn2/GP1_GWA_RRRRRR.json')]
 
         mock_os.system.assert_has_calls(system_calls)
 
-        mock_os.path.isfile.assert_called_once_with(('/home/user/imgfile_output.assoc.txt')
-                                                    )
+        mock_os.path.isfile.assert_called_once_with(('/home/user/imgfile_output.assoc.txt'))
+
+        self.assertEqual(mock_logger.debug.call_count,2)
+                                                    
 
         mock_parse_loco.assert_called_once_with(dataset,"GP1_GWA_RRRRRR")
-
-    @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
-    def test_run_gemma_first_run_loco_set_false(self, mock_parse_loco):
-        dataset = AttributeSetter(
-            {"group": AttributeSetter({"genofile": "genofile.geno"})})
-
-        output_files = "file1"
-        use_loco = False
-        mock_parse_loco.side_effect = None
-        mock_parse_loco.return_value = []
-        this_trait = AttributeSetter({"name": "t1"})
-
-        result = run_gemma(this_trait=this_trait, this_dataset=dataset, samples=[], vals=[
-        ], covariates="", use_loco=True, first_run=False, output_files=output_files)
-
-        expected_results = ([], "file1")
-        self.assertEqual(expected_results, result)
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
     def test_gen_pheno_txt_file(self):
