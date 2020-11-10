@@ -260,7 +260,6 @@
 
             console.time("Creating table");
 
-            {% if target_dataset.type == "ProbeSet" %}
             table_conf = {
                 buttons: [
                     {
@@ -400,10 +399,10 @@
                       'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
-			            try {
-                            return decodeURIComponent(escape(data.abbreviation))
-			            } catch(err){
-			                return data.abbreviation
+			                  try {
+                          return decodeURIComponent(escape(data.abbreviation))
+			                  } catch(err){
+			                    return data.abbreviation
                         }
                       }
                     },
@@ -413,10 +412,10 @@
                       'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
-			            try {
-                            return decodeURIComponent(escape(data.description))
-			            } catch(err){
-			                return data.description
+			                  try {
+                          return decodeURIComponent(escape(data.description))
+			                  } catch(err){
+			                    return data.description
                         }
                       }
                     },
@@ -426,11 +425,12 @@
                       'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
-			            try {
-                            return decodeURIComponent(escape(data.authors_display))
-			            } catch(err){
-			                return data.authors_display
+			                  try {
+                          return decodeURIComponent(escape(data.authors_display))
+			                  } catch(err){
+			                    return data.authors_display
                         }
+                      }
                     },
                     {
                       'title': "Year",
@@ -520,105 +520,13 @@
                     "orderable": false
                 } ],
                 "order": [[9, "asc" ]],
-                "sDom": "Bpitirp",
+                "sDom": "Bitir",
                 "autoWidth": true,
                 "bSortClasses": false,
                 "scrollY": "50vh",
                 "scroller":  true,
                 "scrollCollapse": true
             }
-
-            {% elif target_dataset.type == "Publish" %}
-            table_conf =  {
-                "drawCallback": function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                     $('.trait_checkbox:checkbox').on("change", change_buttons);
-                },
-                "buttons": [
-                    {
-                        extend: 'columnsToggle',
-                        columns: function( idx, data, node ) {
-                          if (idx != 0) {
-                            return true;
-                          } else {
-                            return false;
-                          }
-                        },
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                "columnDefs": [ 
-                    { "targets": 0, "orderable": false }
-                ],  
-                "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural", "width": "20%" },
-                    { "type": "natural", "width": "12%" },
-                    { "type": "natural-minus-na" },
-                    { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "natural" },
-                    { "type": "scientific" },
-                    { "type": "natural-minus-na" },
-                    { "type": "natural-minus-na" },
-                    { "type": "natural-minus-na" }
-                ],
-                "order": [[9, "asc" ]],
-                "sDom": "Btir",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "processing": true,
-                "deferRender": true,
-                "bSortClasses": false,
-                "scrollY": "50vh",
-                "scroller":  true,
-                "scrollCollapse": true
-            }
-            {% elif target_dataset.type == "Geno" %}
-            table_conf = {
-                "paging": false,
-                buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: function( idx, data, node ) {
-                          if (idx != 0) {
-                            return true;
-                          } else {
-                            return false;
-                          }
-                        },
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                "columnDefs": [ 
-                    { "targets": 0, "orderable": false }
-                ],  
-                "columns": [
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "type": "natural" },
-                    { "orderDataType": "dom-innertext", 'orderSequence': [ "desc", "asc"] },
-                    { "type": "natural-minus-na" },
-                    { "type": "scientific" }
-                ],
-                "order": [[6, "asc" ]],
-                "sDom": "Btir",
-                "autoWidth": false,
-                "bDeferRender": true,
-                "scrollY": "800px",
-                "scrollCollapse": false,
-                "scrollY": "50vh",
-                "scroller":  true,
-                "scrollCollapse": true
-            }
-            {% endif %}
 
             the_table = $('#trait_table').DataTable(table_conf);
 

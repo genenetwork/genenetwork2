@@ -522,19 +522,19 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                 results_dict['tissue_corr'] = "%0.3f" % float(trait.tissue_corr)
                 results_dict['tissue_pvalue'] = "%0.3e" % float(trait.tissue_pvalue)
         elif target_dataset.type == "Publish":
-            results_dict['abbreviation'] = trait.abbreviation
-            if len(trait.abbreviation) > 20:
+            results_dict['abbreviation'] = "N/A"
+            if trait.abbreviation and len(trait.abbreviation) > 20:
                 results_dict['abbreviation_display'] = trait.abbreviation[:20] + "..."
             else:
                 results_dict['abbreviation_display'] = trait.abbreviation
-            if len(trait.description_display) > 40:
-                results_dict['description'] = trait.description_display[:40] + "..."
-            else:
-                results_dict['description'] = trait.description_display
+            # if len(trait.description_display) > 40:
+            #     results_dict['description'] = trait.description_display[:40] + "..."
+            # else:
+            results_dict['description'] = trait.description_display
             results_dict['authors'] = trait.authors
             authors_list = trait.authors.split(',')
-            if len(authors_list > 6):
-                results_dict['authors_display'] = authors_list[:6].join(", ") + ", et al."
+            if len(authors_list) > 6:
+                results_dict['authors_display'] = ", ".join(authors_list[:6]) + ", et al."
             else:
                 results_dict['authors_display'] = trait.authors
             if trait.pubmed_id:
@@ -542,13 +542,15 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                     results_dict['pubmed_id'] = trait.pubmed_id
                     results_dict['year'] = trait.pubmed_text
                 else:
-                    results_dict['pubmed'] = "<a href='" + trait.pubmed_link + "'> " + trait.pubmed_text + "</a>"
+                    results_dict['pubmed_link'] = trait.pubmed_link
+                    results_dict['pubmed_text'] = trait.pubmed_text
             else:
                 if for_api:
                     results_dict['pubmed_id'] = "N/A"
                     results_dict['year'] = "N/A"
                 else:
-                    results_dict['pubmed'] = "N/A"
+                    results_dict['pubmed_link'] = "N/A"
+                    results_dict['pubmed_text'] = "N/A"
             results_dict['lrs_score'] = trait.LRS_score_repr
             results_dict['lrs_location'] = trait.LRS_location_repr
             if trait.additive and trait.additive != "":
