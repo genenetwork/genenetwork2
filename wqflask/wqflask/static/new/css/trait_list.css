@@ -1,0 +1,34 @@
+div.tool-button-container {
+    min-width: 950px;
+}
+
+div.collection-table-options {
+    min-width: 1100px;
+}
+
+div.show-hide-container {
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+/* div.dts_label {
+    position: absolute;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+    text-align: right;
+    border-radius: 3px;
+    padding: 0.4em;
+    z-index: 2;
+    display: none;
+} */
+
+table.dataTable tbody td {
+    /* word-wrap: break-word;
+    word-break: break-all; */
+    overflow: hidden;
+    max-width: 500px;
+    overflow-wrap: break-word;
+    text-overflow: ellipsis;
+}
