@@ -34,13 +34,18 @@ class SampleList(object):
 
             # ZS: self.this_trait will be a list if it is a Temp trait
             if isinstance(self.this_trait, list):
-                if (counter <= len(self.this_trait) and
-                        self.this_trait[counter-1].decode("utf-8").lower() != 'x'):
-                    sample = webqtlCaseData.webqtlCaseData(
-                        name=sample_name,
-                        value=float(self.this_trait[counter-1]))
-                else:
-                    sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+                sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+                if counter <= len(self.this_trait):
+                    if isinstance(self.this_trait[counter-1], (bytes, bytearray)):
+                        if (self.this_trait[counter-1].decode("utf-8").lower() != 'x'):
+                            sample = webqtlCaseData.webqtlCaseData(
+                                name=sample_name,
+                                value=float(self.this_trait[counter-1]))
+                    else:
+                        if (self.this_trait[counter-1].lower() != 'x'):
+                            sample = webqtlCaseData.webqtlCaseData(
+                                name=sample_name,
+                                value=float(self.this_trait[counter-1]))
             else:
                 # ZS - If there's no value for the sample/strain,
                 # create the sample object (so samples with no value
