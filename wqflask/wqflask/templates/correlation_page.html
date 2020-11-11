@@ -396,20 +396,19 @@
                     {
                       'title': "Abbreviation",
                       'type': "natural",
-                      'width': "500px",
+                      'width': "200px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
-                          return decodeURIComponent(escape(data.abbreviation))
+                          return decodeURIComponent(escape(data.abbreviation_display))
 			                  } catch(err){
-			                    return data.abbreviation
+			                    return data.abbreviation_display
                         }
                       }
                     },
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
@@ -422,7 +421,7 @@
                     {
                       'title': "Authors",
                       'type': "natural",
-                      'width': "500px",
+                      'width': "400px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
