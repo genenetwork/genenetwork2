@@ -522,15 +522,12 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                 results_dict['tissue_corr'] = "%0.3f" % float(trait.tissue_corr)
                 results_dict['tissue_pvalue'] = "%0.3e" % float(trait.tissue_pvalue)
         elif target_dataset.type == "Publish":
-            results_dict['abbreviation'] = "N/A"
-            if trait.abbreviation and len(trait.abbreviation) > 20:
-                results_dict['abbreviation_display'] = trait.abbreviation[:20] + "..."
-            else:
+            results_dict['abbreviation_display'] = "N/A"
+            if trait.abbreviation:
                 results_dict['abbreviation_display'] = trait.abbreviation
-            # if len(trait.description_display) > 40:
-            #     results_dict['description'] = trait.description_display[:40] + "..."
-            # else:
-            results_dict['description'] = trait.description_display
+            results_dict['description'] = "N/A"
+            if trait.description_display:
+                results_dict['description'] = trait.description_display
             results_dict['authors'] = trait.authors
             authors_list = trait.authors.split(',')
             if len(authors_list) > 6:
