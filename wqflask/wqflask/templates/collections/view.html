@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -16,7 +17,7 @@
         </h1>
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
-        <div>
+        <div class="tool-button-container">
           <form id="collection_form" action="/delete" method="post">
             <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
             <input type="hidden" name="collection_name" id="collection_name" value="{{ collection_name }}" />
@@ -68,20 +69,22 @@
 
         <div>
             <br />
-            <form id="export_form" method="POST" action="/export_traits_csv">
-            <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-            <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-ok"></span> Invert</button>
-            <button class="btn btn-success" id="add" disabled="disabled" type="button"><i class="icon-plus-sign"></i> Copy</button>
-            <input type="hidden" name="database_name" id="database_name" value="None">
-            <input type="hidden" name="export_data" id="export_data" value="">
-            <input type="hidden" name="file_name" id="file_name" value="collection_table">
-            <button class="btn btn-default" id="export_traits">Download</button>
-            <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
-            <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
-            <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
-            <button id="remove" class="btn btn-danger" data-url="/collections/remove" disabled="disabled" type="button"><i class="icon-minus-sign"></i> Delete Rows</button>
-            <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
-            </form>
+            <div class="collection-table-options">
+                <form id="export_form" method="POST" action="/export_traits_csv">
+                    <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+                    <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-ok"></span> Invert</button>
+                    <button class="btn btn-success" id="add" disabled="disabled" type="button"><i class="icon-plus-sign"></i> Copy</button>
+                    <input type="hidden" name="database_name" id="database_name" value="None">
+                    <input type="hidden" name="export_data" id="export_data" value="">
+                    <input type="hidden" name="file_name" id="file_name" value="collection_table">
+                    <button class="btn btn-default" id="export_traits">Download</button>
+                    <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
+                    <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
+                    <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+                    <button id="remove" class="btn btn-danger" data-url="/collections/remove" disabled="disabled" type="button"><i class="icon-minus-sign"></i> Delete Rows</button>
+                    <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
+                </form>
+            </div>
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>

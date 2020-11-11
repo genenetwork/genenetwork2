@@ -228,8 +228,8 @@ class ShowTrait(object):
         hddn = OrderedDict()
 
         if self.dataset.group.allsamples:
-            hddn['allsamples'] = ''.join(self.dataset.group.allsamples)
-        hddn['primary_samples'] = ''.join(self.primary_sample_names)
+            hddn['allsamples'] = ','.join(self.dataset.group.allsamples)
+        hddn['primary_samples'] = ','.join(self.primary_sample_names)
         hddn['trait_id'] = self.trait_id
         hddn['trait_display_name'] = self.this_trait.display_name
         hddn['dataset'] = self.dataset.name
@@ -372,7 +372,7 @@ class ShowTrait(object):
 
         # We're checking a string here!
         assert isinstance(this_group, str), "We need a string type thing here"
-        if this_group[:3] == 'BXD' and this_group != "BXD-Harvested":
+        if this_group[:3] == 'BXD' and this_group != "BXD-Longevity":
             this_group = 'BXD'
 
         if this_group:
