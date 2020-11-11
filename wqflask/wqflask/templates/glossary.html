@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Glossary{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
+
+{% block content %}
+
+<div id="markdown" class="container">
+    <small>
+        <a href="https://raw.githubusercontent.com/genenetwork/genenetwork2/wqflask/wqflask/static/glossary.md" target="_">[Edit on Github]</a></small>
+    {{ rendered_markdown|safe }}
+</div>
+{% endblock %}

@@ -140,7 +140,7 @@
                         chromosome 1 between 25 and 30 Mb.</li>
 
                         <li><b>MEAN=(15 16) LRS=(23 46)</b> in the <b>Combined</b> field finds
-                        highly expressed genes (15 to 16 log2 units) AND with peak <a href="http://www.genenetwork.org/glossary.html#L">LRS</a>
+                        highly expressed genes (15 to 16 log2 units) AND with peak <a href="{{ url_for('glossary_blueprint.glossary') }}#L">LRS</a>
                         linkage between 23 and 46.</li>
 
                         <li><b>RANGE=(1.5 2.5)</b> in the <b>Any</b> field finds traits with values with a specified fold-range (minimum = 1). 
@@ -157,12 +157,12 @@
                         <a href="http://amigo.geneontology.org/amigo/medial_search?q=GO%3A0045202">Gene Ontology</a>.</li>
 
                         <li><b>GO:0045202 LRS=(9 99 Chr4 122 155) cisLRS=(9 999 10)</b>
-                        finds synapse-associated genes with <a href="http://www.genenetwork.org/glossary.html#E">
+                        finds synapse-associated genes with <a href="{{ url_for('glossary_blueprint.glossary') }}#E">
                         cis eQTL</a> on Chr 4 from 122 and 155 Mb with LRS scores
                         between 9 and 999.</li>
 
                         <li><b>RIF=diabetes LRS=(9 999 Chr2 100 105) transLRS=(9 999 10)</b>
-                        finds diabetes-associated transcripts with peak <a href="http://www.genenetwork.org/glossary.html#E">
+                        finds diabetes-associated transcripts with peak <a href="{{ url_for('glossary_blueprint.glossary') }}#E">
                         trans eQTLs</a> on Chr 2 between 100 and 105 Mb with LRS
                         scores between 9 and 999.</li>
                       </ul>
