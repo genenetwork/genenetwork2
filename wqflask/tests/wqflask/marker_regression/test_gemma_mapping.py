@@ -151,18 +151,21 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
             mock_open.assert_called_once_with(
                 "/home/user/img/gema_file_output.assoc.txt")
             self.assertEqual(results, expected)
+
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
     def test_parse_gemma_output_empty_return(self):
         output_file_results = """chr\t today"""
         with mock.patch("builtins.open", mock.mock_open(read_data=output_file_results)) as mock_open:
             results = parse_gemma_output(genofile_name="gema_file")
             self.assertEqual(results, [])
+
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     def test_parse_loco_output_file_found(self, mock_os):
         mock_os.path.isfile.return_value = True
         file_to_write = """{"files":["file_1","file_2"]}"""
         pass
+
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     def test_parse_loco_output_file_not_found(self, mock_os):
