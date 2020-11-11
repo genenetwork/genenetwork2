@@ -1,0 +1,13 @@
+#markdown {
+    padding: 20px;
+}
+
+#markdown h2, #markdown h3, #markdown h4, #markdown h5 {
+    font-weight: bold;
+}
+
+#markdown img {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
