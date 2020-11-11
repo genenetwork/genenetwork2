@@ -238,7 +238,7 @@ Conventional knockout lines (KOs) of mice are often mixtures of the genomes of t
 
 It is often thought that 10 generations of backcrossing will result in a pure genetic background (99.8% C57BL/6J). Unfortunately, this is not true for the region around the KO, and even after many generations of backcrossing of KO stock to C57BL/6J, a large region around the KO is still derived from the 129 substrain (see the residual white "line" at N10 in the figure below. 
 
-<img width="600px" src="/static/images/Congenic.png" alt="Congenic" />
+<img width="300px" src="/static/images/Congenic.png" alt="Congenic" />
 
 After 20 generations of backcrossing nearly +/-5 cM on either side of the KO will still usually be derived from 129 (see [Figure 3.6](http://www.informatics.jax.org/silverbook/frames/frame3-3.shtml)) This amounts to an average of +/- 10 megabases of DNA around the KO. The wildtype littermates do NOT have this flanking DNA from 129 and they will be like a true C57BL/6J. The +/- 10 megabases to either side of the KO is known as the "hitchhiking" chromosomal interval. Any polymorphism between 129 and B6 in this interval has the potential to have significant downstream effects on gene expression, protein expression, and higher order traits such as anxiety, activity, and maternal behavior. Much of the conventional KO literature is highly suspect due to this hitchhiker effect (see Gerlai R, [Trends in Neurosci 1996 19:177](http://gn1.genenetwork.org/images/upload/Gerlai_TINS_1996.pdf)).
 
