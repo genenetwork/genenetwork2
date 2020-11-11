@@ -15,6 +15,7 @@ class AttributeSetter:
 class TestPlinkMapping(unittest.TestCase):
 
     def test_build_line_list(self):
+        """testing for building line list"""
         line_1 = "this is line one test"
         irregular_line = "  this     is an, irregular line     "
         exp_line1 = ["this", "is", "line", "one", "test"]
@@ -26,6 +27,7 @@ class TestPlinkMapping(unittest.TestCase):
 
     @mock.patch("wqflask.marker_regression.plink_mapping.flat_files")
     def test_get_samples_from_ped_file(self, mock_flat_files):
+        """test for getting samples from ped file"""
         dataset = AttributeSetter({"group": AttributeSetter({"name": "n_1"})})
         file_sample = """Expected_1\tline test
 Expected_2\there
@@ -41,6 +43,7 @@ Expected_2\there
     @mock.patch("wqflask.marker_regression.plink_mapping.TMPDIR", "/home/user/data/")
     @mock.patch("wqflask.marker_regression.plink_mapping.get_samples_from_ped_file")
     def test_gen_pheno_txt_file_plink(self, mock_samples):
+        """test for getting gen_pheno txt file"""
         mock_samples.return_value = ["Expected_1", "Expected_2", "Expected_3"]
 
         trait = AttributeSetter({"name": "TX"})
@@ -62,6 +65,7 @@ Expected_2\there
     @mock.patch("wqflask.marker_regression.plink_mapping.TMPDIR", "/home/user/data/")
     @mock.patch("wqflask.marker_regression.plink_mapping.build_line_list")
     def test_parse_plink_output(self, mock_line_list):
+        """test for parsing plink output"""
         chromosomes = [0, 34, 110, 89, 123, 23, 2]
         species = AttributeSetter(
             {"name": "S1", "chromosomes": AttributeSetter({"chromosomes": chromosomes})})

@@ -28,24 +28,24 @@ class TestRunMapping(unittest.TestCase):
 
         self.group = MockDataSetGroup(
             {"genofile": "~/genofiles/g1_file", "name": "GP1_", "species": "Human"})
-        chromosomes={
-    	 "3":AttributeSetter({
-    	 "name":"C1",
-    	 "length":"0.04"
-    	 }),
-    	  "4":AttributeSetter({
-    	 "name":"C2",
-    	 "length":"0.03"
-    	 }),
-    	  "5":AttributeSetter({
-    	 "name":"C4",
-    	 "length":"0.01"
-    	 })
-    	}
+        chromosomes = {
+            "3": AttributeSetter({
+                "name": "C1",
+                "length": "0.04"
+            }),
+            "4": AttributeSetter({
+                "name": "C2",
+                "length": "0.03"
+            }),
+            "5": AttributeSetter({
+                "name": "C4",
+                "length": "0.01"
+            })
+        }
         self.dataset = AttributeSetter(
             {"fullname": "dataser_1", "group": self.group, "type": "ProbeSet"})
 
-        self.chromosomes=AttributeSetter({"chromosomes":chromosomes})
+        self.chromosomes = AttributeSetter({"chromosomes": chromosomes})
         self.trait = AttributeSetter(
             {"symbol": "IGFI", "chr": "X1", "mb": 123313})
 
@@ -142,6 +142,7 @@ class TestRunMapping(unittest.TestCase):
         self.assertEqual(result_2, marker_2)
 
     def test_export_mapping_results(self):
+        """test for exporting mapping results"""
         datetime_mock = mock.Mock(wraps=datetime.datetime)
         datetime_mock.now.return_value = datetime.datetime(
             2019, 9, 1, 10, 12, 12)
@@ -206,78 +207,78 @@ class TestRunMapping(unittest.TestCase):
                 filehandler = mock_open()
                 filehandler.write.assert_has_calls(write_calls)
 
-
     @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
-    def test_write_input_for_browser(self,mock_choice):
-    	mock_choice.side_effect=["F","i","l","e","s","x"]
-    	with mock.patch("builtins.open",mock.mock_open()) as mock_open:
-    		expected=['GP1__Filesx_GWAS', 'GP1__Filesx_ANNOT']
+    def test_write_input_for_browser(self, mock_choice):
+        """test for writing input for browser"""
+        mock_choice.side_effect = ["F", "i", "l", "e", "s", "x"]
+        with mock.patch("builtins.open", mock.mock_open()) as mock_open:
+            expected = ['GP1__Filesx_GWAS', 'GP1__Filesx_ANNOT']
 
-    		results=write_input_for_browser(this_dataset=self.dataset,gwas_results={},annotations={})
-    		self.assertEqual(results,expected)
-
+            results = write_input_for_browser(
+                this_dataset=self.dataset, gwas_results={}, annotations={})
+            self.assertEqual(results, expected)
 
     def test_get_perm_strata(self):
-    	categorical_vars=["C1","C2","W1"]
-    	used_samples=["S1","S2"]
-    	sample_list=AttributeSetter({"sample_attribute_values":{
-    		"S1":{
-    		 "C1":"c1_value",
-    		 "C2":"c2_value",
-    		 "W1":"w1_value"
+        categorical_vars = ["C1", "C2", "W1"]
+        used_samples = ["S1", "S2"]
+        sample_list = AttributeSetter({"sample_attribute_values": {
+            "S1": {
+                "C1": "c1_value",
+                "C2": "c2_value",
+                "W1": "w1_value"
 
-    		},
-    		"S2":{
-    		"W1":"w2_value",
-    		 "W2":"w2_value"
+            },
+            "S2": {
+                "W1": "w2_value",
+                "W2": "w2_value"
 
-    		},
-    		"S3":{
+            },
+            "S3": {
 
-    		"C1":"c1_value",
-    		"C2":"c2_value"
+                "C1": "c1_value",
+                "C2": "c2_value"
 
-    		},
-    		
-    		}})
+            },
 
-    	results=get_perm_strata(this_trait={},sample_list=sample_list,categorical_vars=categorical_vars,used_samples=used_samples)
-    	self.assertEqual(results,[2,1])
+        }})
 
+        results = get_perm_strata(this_trait={}, sample_list=sample_list,
+                                  categorical_vars=categorical_vars, used_samples=used_samples)
+        self.assertEqual(results, [2, 1])
 
     def test_get_chr_length(self):
-    	chromosomes=AttributeSetter({"chromosomes":self.chromosomes})
-    	dataset=AttributeSetter({"species":chromosomes})
-    	results=get_chr_lengths(mapping_scale="physic",mapping_method="reaper",dataset=dataset,qtl_results=[])
-    	chr_lengths=[]
-    	for key,chromo in self.chromosomes.chromosomes.items():
-    		chr_lengths.append({"chr":chromo.name,"size":chromo.length})
+        """test for getting chromosome length"""
+        chromosomes = AttributeSetter({"chromosomes": self.chromosomes})
+        dataset = AttributeSetter({"species": chromosomes})
+        results = get_chr_lengths(
+            mapping_scale="physic", mapping_method="reaper", dataset=dataset, qtl_results=[])
+        chr_lengths = []
+        for key, chromo in self.chromosomes.chromosomes.items():
+            chr_lengths.append({"chr": chromo.name, "size": chromo.length})
 
-    	self.assertEqual(chr_lengths,results)
+        self.assertEqual(chr_lengths, results)
 
-    	qtl_results=[{
-    	"chr":"16",
-    	"cM":"0.2"
-    	},
-    	{
-    	"chr":"12",
-    	"cM":"0.5"
-    	},
-    	{
-    	"chr":"18",
-    	"cM":"0.1"
-    	},
-    	{
-    	"chr":"22",
-    	"cM":"0.4"
-    	},
-    	]
+        qtl_results = [{
+            "chr": "16",
+            "cM": "0.2"
+        },
+            {
+            "chr": "12",
+            "cM": "0.5"
+        },
+            {
+            "chr": "18",
+            "cM": "0.1"
+        },
+            {
+            "chr": "22",
+            "cM": "0.4"
+        },
+        ]
 
+        result_with_other_mapping_scale = get_chr_lengths(
+            mapping_scale="other", mapping_method="reaper", dataset=dataset, qtl_results=qtl_results)
+        expected_value = [{'chr': '1', 'size': '0'}, {
+            'chr': '16', 'size': '500000.0'}, {'chr': '18', 'size': '400000.0'}]
 
-
-    	result_with_other_mapping_scale=get_chr_lengths(mapping_scale="other",mapping_method="reaper",dataset=dataset,qtl_results=qtl_results)
-    	expected_value= [{'chr': '1', 'size': '0'}, {'chr': '16', 'size': '500000.0'}, {'chr': '18', 'size': '400000.0'}]
-
-    	self.assertEqual(result_with_other_mapping_scale,expected_value)    	
-
-
+        self.assertEqual(result_with_other_mapping_scale, expected_value)

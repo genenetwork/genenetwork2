@@ -1,13 +1,12 @@
 import unittest
 from unittest import  mock
 from wqflask.marker_regression.qtlreaper_mapping import  gen_pheno_txt_file
-from wqflask.marker_regression.qtlreaper_mapping import  natural_sort
 
 #issues some methods in genofile object are not defined
 #modify samples should equal to vals
 class TestQtlReaperMapping(unittest.TestCase):
 	@mock.patch("wqflask.marker_regression.qtlreaper_mapping.TEMPDIR", "/home/user/data")
-	def  test_gen_pheno_txt_file(self):
+	def  test_gen_pheno_txt_file(self):                   
 		vals=["V1","x","V4","V3","x"]
 		samples=["S1","S2","S3","S4","S5"]
 		trait_filename="trait_file"
