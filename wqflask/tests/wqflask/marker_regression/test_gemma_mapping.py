@@ -28,13 +28,12 @@ class TestGemmaMapping(unittest.TestCase):
         dataset = AttributeSetter(
             {"group": AttributeSetter({"genofile": "genofile.geno"})})
 
-        output_files = "file1"
-        use_loco = False
+        output_file = "file1"
         mock_parse_loco.return_value = []
         this_trait = AttributeSetter({"name": "t1"})
 
         result = run_gemma(this_trait=this_trait, this_dataset=dataset, samples=[], vals=[
-        ], covariates="", use_loco=True, first_run=False, output_files=output_files)
+        ], covariates="", use_loco=True, first_run=False, output_files=output_file)
 
         expected_results = ([], "file1")
         self.assertEqual(expected_results, result)
