@@ -168,28 +168,29 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.json")
-    def test_parse_loco_output_file_found(self,mock_json,mock_os):
+    def test_parse_loco_output_file_found(self, mock_json, mock_os):
         """add tests for parse loco output file found"""
-        mock_json.load.return_value={
-        "files":[["file_name","user","~/file1"],
-        ["file_name","user","~/file2"]]
+        mock_json.load.return_value = {
+            "files": [["file_name", "user", "~/file1"],
+                      ["file_name", "user", "~/file2"]]
         }
-        return_file_1="""X/Y\t L1\t21\tQ\tE\tA\tP\tMMB\tCDE\t0.5
+        return_file_1 = """X/Y\t L1\t21\tQ\tE\tA\tP\tMMB\tCDE\t0.5
 X/Y\tL2\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5
 chr\tL3\t12312\tQ\tE\tA\tP\tMMB\tCDE\t0.7"""
-        return_file_2="""chr\tother\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5"""
+        return_file_2 = """chr\tother\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5"""
         mock_os.path.isfile.return_value = True
         file_to_write = """{"files":["file_1","file_2"]}"""
         with mock.patch("builtins.open") as mock_open:
 
-            handles=(mock.mock_open(read_data="gwas").return_value,mock.mock_open(read_data=return_file_1).return_value,mock.mock_open(read_data=return_file_2).return_value)
-            mock_open.side_effect=handles
+            handles = (mock.mock_open(read_data="gwas").return_value, mock.mock_open(
+                read_data=return_file_1).return_value, mock.mock_open(read_data=return_file_2).return_value)
+            mock_open.side_effect = handles
             results = parse_loco_output(
                 this_dataset={}, gwa_output_filename=".xw/")
-            expected_results= [{'name': ' L1', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {'name': 'L2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812}]
+            expected_results = [{'name': ' L1', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {
+                'name': 'L2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812}]
 
-            self.assertEqual(expected_results,results)
-
+            self.assertEqual(expected_results, results)
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
