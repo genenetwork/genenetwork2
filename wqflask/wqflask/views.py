@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Main routing table for GN2
+"""Main routing table for GN2"""
 
 import traceback # for error page
 import os        # for error gifs

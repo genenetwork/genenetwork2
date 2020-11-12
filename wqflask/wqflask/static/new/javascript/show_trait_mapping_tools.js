@@ -147,7 +147,7 @@ var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form
                           'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                           'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples']
 
-$(".rqtl_tab, #rqtl_geno_compute").on("click", (function(_this) {
+$(".rqtl-tab, #rqtl_geno_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
       var form_data, url;
@@ -171,7 +171,7 @@ $(".rqtl_tab, #rqtl_geno_compute").on("click", (function(_this) {
   };
 })(this));
 
-$(".gemma_tab, #gemma_compute").on("click", (function(_this) {
+$(".gemma-tab, #gemma_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "gemma_compute"){
       var form_data, url;
@@ -192,7 +192,7 @@ $(".gemma_tab, #gemma_compute").on("click", (function(_this) {
   };
 })(this));
 
-$(".reaper_tab, #interval_mapping_compute").on("click", (function(_this) {
+$(".reaper-tab, #interval_mapping_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "interval_mapping_compute"){
       var form_data, url;
@@ -260,7 +260,7 @@ $("#mapmethod_rqtl_geno").change(function() {
   }
 });
 
-$("li.mapping_tab").click(function() {
+$("li.mapping-tab").click(function() {
   if ($(this).hasClass("rqtl")){
     $(".rqtl_description").css("display", "block");
   } else {
