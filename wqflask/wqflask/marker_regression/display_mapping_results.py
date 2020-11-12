@@ -2076,7 +2076,7 @@ class DisplayMappingResults(object):
         if self.lrsMax <= 0:  #sliding scale
             if "lrs_value" in self.qtlresults[0]:
                 LRS_LOD_Max = max([result['lrs_value'] for result in self.qtlresults])
-                if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
+                if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                     LRS_LOD_Max = LRS_LOD_Max / self.LODFACTOR
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                         self.significant = min(self.significant / self.LODFACTOR, webqtlConfig.MAXLRS)
@@ -2172,7 +2172,7 @@ class DisplayMappingResults(object):
             TEXT_X_DISPLACEMENT = -12
         else:
             TEXT_X_DISPLACEMENT = -30
-        if self.LRS_LOD == "-log(p)":
+        if self.LRS_LOD == "-logP":
             TEXT_Y_DISPLACEMENT = -242
         else:
             TEXT_Y_DISPLACEMENT = -210
@@ -2397,7 +2397,7 @@ class DisplayMappingResults(object):
 
 
                 if 'lrs_value' in qtlresult:
-                    if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
+                    if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                             #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)

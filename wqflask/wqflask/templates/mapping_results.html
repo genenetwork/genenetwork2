@@ -99,7 +99,7 @@
                       <input type="radio" name="LRSCheck" value="LRS" {% if LRS_LOD == "LRS" %}checked{% endif %}>LRS
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-log(p)" %}-log(p){% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}checked{% endif %}>{% if LRS_LOD == "-log(p)" %}-log(p){% else %}LOD{% endif %}
+                      <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}checked{% endif %}>{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}
                     </label>
                     <a href="http://genenetwork.org/glossary.html#LOD" target="_blank">
                       <sup style="color:#f00"> ?</sup>
@@ -235,8 +235,8 @@
                   <th></th>
                   <th>Row</th>
                   <th>Marker</th>
-                  {% if LRS_LOD == "-log(p)" %}
-                  <th><div style="text-align: right;">–log(p)</div></th>
+                  {% if LRS_LOD == "-logP" %}
+                  <th><div style="text-align: right;">–logP</div></th>
                   {% else %}
                   <th><div style="text-align: right;">{{ LRS_LOD }}</div></th>
                   {% endif %}
@@ -259,7 +259,7 @@
                   </td>
                   <td align="right">{{ loop.index }}</td>
                   <td>{% if geno_db_exists == "True" %}<a href="/show_trait?trait_id={{ marker.name }}&dataset={{ dataset.group.name }}Geno">{{ marker.name }}</a>{% else %}{{ marker.name }}{% endif %}</td>
-                  {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}
+                  {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}
                   {% if 'lod_score' in marker %}
                   <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                   {% else %}

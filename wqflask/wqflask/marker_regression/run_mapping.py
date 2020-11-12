@@ -228,7 +228,7 @@ class RunMapping(object):
                 self.output_files = start_vars['output_files']
             if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
                 self.first_run = False
-            self.score_type = "-log(p)"
+            self.score_type = "-logP"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 if self.use_loco == "True":
@@ -327,7 +327,7 @@ class RunMapping(object):
                                                                                                                                                              self.control_marker,
                                                                                                                                                              self.manhattan_plot)
         elif self.mapping_method == "plink":
-            self.score_type = "-log(p)"
+            self.score_type = "-logP"
             self.manhattan_plot = True
             results = plink_mapping.run_plink(self.this_trait, self.dataset, self.species, self.vals, self.maf)
             #results = self.run_plink()
@@ -539,8 +539,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
         output_file.write("\n")
         output_file.write("Name,Chr,")
-        if score_type.lower() == "-log(p)":
-            score_type = "-log(p)"
+        if score_type.lower() == "-logP":
+            score_type = "-logP"
         if 'Mb' in markers[0]:
             output_file.write("Mb," + score_type)
         if 'cM' in markers[0]:
