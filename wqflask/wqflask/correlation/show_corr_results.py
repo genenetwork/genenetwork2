@@ -494,61 +494,60 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             results_dict['mean'] = "N/A"
             results_dict['lrs_score'] = "N/A"
             results_dict['additive'] = "N/A"
-            if trait.description_display:
+            if bool(trait.description_display):
                 results_dict['description'] = trait.description_display
-            if trait.mean and trait.mean != "":
+            if bool(trait.mean):
                 results_dict['mean'] = float(trait.mean)
             if trait.LRS_score_repr != "N/A":
                 results_dict['lrs_score'] = "%.1f" % float(trait.LRS_score_repr)
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if trait.additive and trait.additive != "":
+            if bool(trait.additive):
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
             results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
-            if trait.lit_corr == "" or trait.lit_corr == 0:
-                results_dict['lit_corr'] = "--"
-            else:
+            results_dict['lit_corr'] = "--"
+            results_dict['tissue_corr'] = "--"
+            results_dict['tissue_pvalue'] = "--"
+            if bool(trait.lit_corr):
                 results_dict['lit_corr'] = "%0.3f" % float(trait.lit_corr)
-            if trait.tissue_corr == "" or trait.tissue_corr == 0:
-                results_dict['tissue_corr'] = "--"
-                results_dict['tissue_pvalue'] = "--"
-            else:
+            if bool(trait.tissue_corr):
                 results_dict['tissue_corr'] = "%0.3f" % float(trait.tissue_corr)
                 results_dict['tissue_pvalue'] = "%0.3e" % float(trait.tissue_pvalue)
         elif target_dataset.type == "Publish":
             results_dict['abbreviation_display'] = "N/A"
-            if trait.abbreviation:
-                results_dict['abbreviation_display'] = trait.abbreviation
             results_dict['description'] = "N/A"
-            if trait.description_display:
-                results_dict['description'] = trait.description_display
-            results_dict['authors'] = trait.authors
-            authors_list = trait.authors.split(',')
-            if len(authors_list) > 6:
-                results_dict['authors_display'] = ", ".join(authors_list[:6]) + ", et al."
+            results_dict['authors_display'] = "N/A"
+            results_dict['additive'] = "N/A"
+            if for_api:
+                results_dict['pubmed_id'] = "N/A"
+                results_dict['year'] = "N/A"
             else:
-                results_dict['authors_display'] = trait.authors
-            if trait.pubmed_id:
+                results_dict['pubmed_link'] = "N/A"
+                results_dict['pubmed_text'] = "N/A"
+
+            if bool(trait.abbreviation):
+                results_dict['abbreviation_display'] = trait.abbreviation
+            if bool(trait.description_display):
+                results_dict['description'] = trait.description_display
+            if bool(trait.authors):
+                authors_list = trait.authors.split(',')
+                if len(authors_list) > 6:
+                    results_dict['authors_display'] = ", ".join(authors_list[:6]) + ", et al."
+                else:
+                    results_dict['authors_display'] = trait.authors
+            if bool(trait.pubmed_id):
                 if for_api:
                     results_dict['pubmed_id'] = trait.pubmed_id
                     results_dict['year'] = trait.pubmed_text
                 else:
                     results_dict['pubmed_link'] = trait.pubmed_link
                     results_dict['pubmed_text'] = trait.pubmed_text
-            else:
-                if for_api:
-                    results_dict['pubmed_id'] = "N/A"
-                    results_dict['year'] = "N/A"
-                else:
-                    results_dict['pubmed_link'] = "N/A"
-                    results_dict['pubmed_text'] = "N/A"
+
             results_dict['lrs_score'] = trait.LRS_score_repr
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if trait.additive and trait.additive != "":
+            if bool(trait.additive):
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
-            else:
-                results_dict['additive'] = "N/A"
             results_dict['sample_r'] = "%0.3f" % trait.sample_r
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
