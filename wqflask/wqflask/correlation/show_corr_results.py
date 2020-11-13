@@ -499,21 +499,21 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             if bool(trait.mean):
                 results_dict['mean'] = float(trait.mean)
             if trait.LRS_score_repr != "N/A":
-                results_dict['lrs_score'] = "%.1f" % float(trait.LRS_score_repr)
+                results_dict['lrs_score'] = f"{float(trait.LRS_score_repr):.1f}"
             results_dict['lrs_location'] = trait.LRS_location_repr
             if bool(trait.additive):
-                results_dict['additive'] = "%0.3f" % float(trait.additive)
-            results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
+                results_dict['additive'] = f"{float(trait.additive):.3f}"
+            results_dict['sample_r'] = f"{float(trait.sample_r):.3f}"
             results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
+            results_dict['sample_p'] = f"{float(trait.sample_p):.3e}"
             results_dict['lit_corr'] = "--"
             results_dict['tissue_corr'] = "--"
             results_dict['tissue_pvalue'] = "--"
             if bool(trait.lit_corr):
-                results_dict['lit_corr'] = "%0.3f" % float(trait.lit_corr)
+                results_dict['lit_corr'] = f"{float(trait.lit_corr):.3f}"
             if bool(trait.tissue_corr):
-                results_dict['tissue_corr'] = "%0.3f" % float(trait.tissue_corr)
-                results_dict['tissue_pvalue'] = "%0.3e" % float(trait.tissue_pvalue)
+                results_dict['tissue_corr'] = f"{float(trait.tissue_corr):.3f}"
+                results_dict['tissue_pvalue'] = f"{float(trait.tissue_pvalue):.3e}"
         elif target_dataset.type == "Publish":
             results_dict['abbreviation_display'] = "N/A"
             results_dict['description'] = "N/A"
@@ -547,15 +547,15 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             results_dict['lrs_score'] = trait.LRS_score_repr
             results_dict['lrs_location'] = trait.LRS_location_repr
             if bool(trait.additive):
-                results_dict['additive'] = "%0.3f" % float(trait.additive)
-            results_dict['sample_r'] = "%0.3f" % trait.sample_r
+                results_dict['additive'] = f"{float(trait.additive):.3f}"
+            results_dict['sample_r'] = f"{float(trait.sample_r):.3f}"
             results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
+            results_dict['sample_p'] = f"{float(trait.sample_p):.3e}"
         else:
             results_dict['location'] = trait.location_repr
-            results_dict['sample_r'] = "%0.3f" % trait.sample_r
+            results_dict['sample_r'] = f"{float(trait.sample_r):.3f}"
             results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
+            results_dict['sample_p'] = f"{float(trait.sample_p):.3e}"
 
         results_list.append(results_dict)
 
