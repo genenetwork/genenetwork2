@@ -489,25 +489,20 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_dict['dataset'] = trait.dataset.name
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
-            if len(trait.description_display) > 40:
-                results_dict['description'] = trait.description_display[:40] + "..."
-            else:
-                results_dict['description'] = trait.description_display
-            results_dict['description'] = trait.description_display
+            results_dict['description'] = "N/A"
             results_dict['location'] = trait.location_repr
+            results_dict['mean'] = "N/A"
+            results_dict['lrs_score'] = "N/A"
+            results_dict['additive'] = "N/A"
+            if trait.description_display:
+                results_dict['description'] = trait.description_display
             if trait.mean and trait.mean != "":
                 results_dict['mean'] = float(trait.mean)
-            else:
-                results_dict['mean'] = "N/A"
             if trait.LRS_score_repr != "N/A":
                 results_dict['lrs_score'] = "%.1f" % float(trait.LRS_score_repr)
-            else:
-                results_dict['lrs_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
             if trait.additive and trait.additive != "":
                 results_dict['additive'] = "%0.3f" % float(trait.additive)
-            else:
-                results_dict['additive'] = "N/A"
             results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
@@ -558,7 +553,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
         else:
-            results_dict['lrs_location'] = trait.LRS_location_repr
+            results_dict['location'] = trait.location_repr
             results_dict['sample_r'] = "%0.3f" % trait.sample_r
             results_dict['num_overlap'] = trait.num_overlap
             results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
