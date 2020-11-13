@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
@@ -113,10 +114,38 @@
             </div>
             {% endif %}
         </div>
-        <div style="margin-bottom: 5px;">
-            <b>Show/Hide Columns:</b>
+        <div class="show-hide-container">
+          <b>Show/Hide Columns:</b>
+          <br>
+          <button class="toggle-vis" data-column="1">Index</button>
+          <button class="toggle-vis" data-column="2">Record</button>
+          {% if target_dataset.type == 'ProbeSet' %}
+          <button class="toggle-vis" data-column="3">Symbol</button>
+          <button class="toggle-vis" data-column="4">Description</button>
+          <button class="toggle-vis" data-column="5">Location</button>
+          <button class="toggle-vis" data-column="6">Mean</button>
+          <button class="toggle-vis" data-column="7">High P</button>
+          <button class="toggle-vis" data-column="8">Peak Location</button>
+          <button class="toggle-vis" data-column="9">Effect Size</button>
+          {% elif target_dataset.type == 'Publish' %}
+          <button class="toggle-vis" data-column="3">Abbreviation</button>
+          <button class="toggle-vis" data-column="4">Description</button>
+          <button class="toggle-vis" data-column="5">Authors</button>
+          <button class="toggle-vis" data-column="6">Year</button>
+          <button class="toggle-vis" data-column="7">Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}</button>
+          <button class="toggle-vis" data-column="8">N</button>
+          <button class="toggle-vis" data-column="9">Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})</button>
+          <button class="toggle-vis" data-column="10">High P</button>
+          <button class="toggle-vis" data-column="11">Peak Location</button>
+          <button class="toggle-vis" data-column="12">Effect Size</button>
+          {% else %}
+          <button class="toggle-vis" data-column="3">Location</button>
+          <button class="toggle-vis" data-column="4">Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}</button>
+          <button class="toggle-vis" data-column="5">N</button>
+          <button class="toggle-vis" data-column="6">Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})</button>
+          {% endif %}
         </div>
-        <div style="width: 100%; min-width: {% if target_dataset.type == "ProbeSet" %}1700px{% elif target_dataset.type == "Publish" %}1600px{% else %}600px{% endif %};">
+        <div style="width: 100%; {% if target_dataset.type == "ProbeSet" %}min-width: 1700px;{% elif target_dataset.type == "Publish" %}min-width: 1600px;{% else %}width: 650px;{% endif %}">
             <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <thead>
                     <tr>
@@ -350,7 +379,7 @@
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
                       'type': "natural-minus-na",
-                      'width': "40px",
+                      'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
                     },
@@ -464,7 +493,7 @@
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
                       'type': "natural-minus-na",
-                      'width': "40px",
+                      'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
                     },
@@ -487,7 +516,7 @@
                       'data': "additive",
                       'width': "85px",
                       'orderSequence': [ "desc", "asc"]
-                    }{% elif dataset.type == 'Geno' %},
+                    }{% elif target_dataset.type == 'Geno' %},
                     {
                       'title': "Location",
                       'type': "natural-minus-na",
@@ -511,7 +540,7 @@
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
                       'type': "natural-minus-na",
-                      'width': "40px",
+                      'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
                     }{% endif %}
@@ -520,8 +549,12 @@
                     "targets": 0,
                     "orderable": false
                 } ],
+                {% if target_dataset.type == 'Geno' %}
+                "order": [[6, "asc" ]],
+                {% else %}
                 "order": [[9, "asc" ]],
-                "sDom": "Bitir",
+                {% endif %}
+                "sDom": "itir",
                 "autoWidth": true,
                 "bSortClasses": false,
                 "scrollY": "50vh",
@@ -529,15 +562,31 @@
                 "scrollCollapse": true
             }
 
-            the_table = $('#trait_table').DataTable(table_conf);
+            trait_table = $('#trait_table').DataTable(table_conf);
 
-            the_table.on( 'order.dt search.dt draw.dt', function () {
-                the_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            trait_table.on( 'order.dt search.dt draw.dt', function () {
+                trait_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
                 cell.innerHTML = i+1;
                 } );
             } ).draw();
 
             console.timeEnd("Creating table");
+
+            $('.toggle-vis').on( 'click', function (e) {
+              e.preventDefault();
+
+              // Get the column API object
+              var column = trait_table.column( $(this).attr('data-column') );
+
+              // Toggle the visibility
+              column.visible( ! column.visible() );
+
+              if (column.visible()){
+                $(this).removeClass("active");
+              } else {
+                $(this).addClass("active");
+              }
+            } );
 
             submit_special = function(url) {
                 $("#correlation_form").attr("action", url);
@@ -555,7 +604,7 @@
 
             $("#select_traits").click(function() {
                 console.log("redrawing")
-                the_table.draw();
+                trait_table.draw();
             });
         });
     </script>
