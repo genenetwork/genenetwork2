@@ -156,7 +156,8 @@ def check_packaged_js_files(args_obj, parser):
         "/js/js_alt/jstat.min.js",
         #shapiro-wilk
         "/js/shapiro-wilk/shapiro-wilk.js",
-        "/js/plotly/plotly.min.js"
+        "/js/plotly/plotly.min.js",
+        "/js/js_alt/typeahead.bundle.js"
 
 
 
