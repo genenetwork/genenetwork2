@@ -217,7 +217,7 @@
 {% block js %}
   <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
   <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-  <script language="javascript" type="text/javascript" src="/static/new/js_external/typeahead.bundle.js"></script>
+  <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/typeahead.bundle.js') }}"></script>
 
   <script language="javascript" type="text/javascript" src="/static/new/javascript/typeahead_rn6.json"></script>
 
