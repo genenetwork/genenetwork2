@@ -147,7 +147,7 @@ def check_packaged_js_files(args_obj, parser):
         #cytoscape-qtip
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         #twitter fetcher
-        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
+        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js"
         #
 
 
