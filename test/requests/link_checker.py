@@ -147,8 +147,17 @@ def check_packaged_js_files(args_obj, parser):
         #cytoscape-qtip
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         #twitter fetcher
-        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js"
-        #
+        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
+        #nouislider
+        "/js/nouislider/nouislider.js",
+        #undescore string
+        "/js/underscore-string/underscore.string.min.js",
+        #jstat
+        "/js/js_alt/jstat.min.js",
+        #shapiro-wilk
+        "/js/shapiro-wilk/shapiro-wilk.js",
+        "js/plotly/plotly.min.js"
+
 
 
 
