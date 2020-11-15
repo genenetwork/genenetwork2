@@ -116,6 +116,46 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
+        #other datatable
+    
+        "/js/DataTables/js/jquery.js",
+        #time ago lib
+        "/js/js_alt/timeago.min.js",
+        #jzip
+        "/js/jszip/jszip.min.js",
+        "/js/zxcvbn-async/zxcvbn-async.min.js",
+        #parsley min js
+        "/js/js_alt/parsley.min.js",
+        #colorbox
+        "/js/colorbox/jquery.colorbox-min.js",
+        #jquery ui
+        "/js/jquery-ui/jquery-ui.min.js",
+        #jquery cookie
+        "/js/jquery-cookie/jquery.cookie.js",
+        #jquery
+        "/js/jquery/jquery.min.js",
+        #bootstrap
+        "/js/bootstrap/js/bootstrap.min.js",
+        #plotly
+        "/js/plotly/plotly.min.js",
+        #jscolor
+        "/js/jscolor/jscolor.js",
+        #cytoscape
+        "/js/cytoscape/cytoscape.min.js",
+        #cytoscape-panzoom
+        "/js/cytoscape-panzoom/cytoscape-panzoom.js",
+        #cytoscape-qtip
+        "/js/cytoscape-qtip/cytoscape-qtip.js",
+        #twitter fetcher
+        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
+        #
+
+
+
+
+
+
+
     ]
 
     print("Checking links")
