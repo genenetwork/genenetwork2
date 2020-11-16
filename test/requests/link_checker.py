@@ -116,60 +116,36 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
-        #other Datatable
         "/js/DataTables/js/jquery.js",
-        #time ago lib
         "/js/js_alt/timeago.min.js",
-        #jzip
         "/js/jszip/jszip.min.js",
-        #jxcvbn
         "/js/zxcvbn-async/zxcvbn-async.min.js",
-        #parsley min js
         "/js/js_alt/parsley.min.js",
-        #colorbox
         "/js/colorbox/jquery.colorbox-min.js",
-        #jquery ui
         "/js/jquery-ui/jquery-ui.min.js",
-        #jquery cookie
         "/js/jquery-cookie/jquery.cookie.js",
-        #jquery
         "/js/jquery/jquery.min.js",
-        #bootstrap
         "/js/bootstrap/js/bootstrap.min.js",
         "/css/bootstrap/css/docs.css",
         "/css/bootstrap/css/bootstrap.min.css",
-        #plotly
         "/js/plotly/plotly.min.js",
-        #jscolor
         "/js/jscolor/jscolor.js",
-        #cytoscape
         "/js/cytoscape/cytoscape.min.js",
-        #cytoscape-panzoom
         "/js/cytoscape-panzoom/cytoscape-panzoom.js",
         "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
-        #cytoscape-qtip
         "/js/cytoscape-qtip/cytoscape-qtip.js",
-        #twitter fetcher
         "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
-        #nouislider
         "/js/nouislider/nouislider.js",
         "/css/nouislider/nouislider.min.css",
-        #undescore string
         "/js/underscore-string/underscore.string.min.js",
-        #jstat
         "/js/js_alt/jstat.min.js",
-        #shapiro-wilk
         "/js/shapiro-wilk/shapiro-wilk.js",
         "/js/plotly/plotly.min.js",
         "/js/typeahead/typeahead.bundle.js",
-        #ckeditor
         "/js/ckeditor/ckeditor.js",
-        #purescript-genome
         "/js/purescript-genome-browser/js/purescript-genetics-browser.js",
         "/js/purescript-genome-browser/css/purescript-genetics-browser.css",
-        #css file
         "/css/DataTables/css/jquery.dataTables.css",
-        #d3-tip css
         "/css/d3-tip/d3-tip.css"
 
     ]
