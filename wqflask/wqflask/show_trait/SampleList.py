@@ -117,7 +117,7 @@ class SampleList(object):
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
-            natural_sort(self.attributes[key].distinct_values)
+            self.attributes[key].distinct_values=natural_sort(self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:
