@@ -153,6 +153,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
         #nouislider
         "/js/nouislider/nouislider.js",
+        "/css/nouislider/nouislider.min.css",
         #undescore string
         "/js/underscore-string/underscore.string.min.js",
         #jstat
@@ -161,10 +162,17 @@ def check_packaged_js_files(args_obj, parser):
         "/js/shapiro-wilk/shapiro-wilk.js",
         "/js/plotly/plotly.min.js",
         "/js/typeahead/typeahead.bundle.js",
+        #ckeditor
+        "/js/ckeditor/ckeditor.js",
+        #purescript-genome
+        "/js/purescript-genome-browser/js/purescript-genetics-browser.js",
+        "/js/purescript-genome-browser/css/purescript-genetics-browser.css",
+
         #css file
         "/css/DataTables/css/jquery.dataTables.css",
         #d3-tip css 
-        "/css/d3-tip/d3-tip.css"
+        "/css/d3-tip/d3-tip.css",
+
 
 
 
