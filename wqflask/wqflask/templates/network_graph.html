@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/network_graph.css" />
-    <link rel="stylesheet" type="text/css" href="/js/cytoscape-panzoom/cytoscape.js-panzoom.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='cytoscape-panzoom/cytoscape.js-panzoom.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='qtip2/jquery.qtip.min.css') }}">
     <style>
         /* The Cytoscape Web container must have its dimensions set. */
