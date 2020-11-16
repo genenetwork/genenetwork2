@@ -116,13 +116,13 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
-        #other datatable
-    
+        #other Datatable
         "/js/DataTables/js/jquery.js",
         #time ago lib
         "/js/js_alt/timeago.min.js",
         #jzip
         "/js/jszip/jszip.min.js",
+        #jxcvbn
         "/js/zxcvbn-async/zxcvbn-async.min.js",
         #parsley min js
         "/js/js_alt/parsley.min.js",
@@ -167,20 +167,10 @@ def check_packaged_js_files(args_obj, parser):
         #purescript-genome
         "/js/purescript-genome-browser/js/purescript-genetics-browser.js",
         "/js/purescript-genome-browser/css/purescript-genetics-browser.css",
-
         #css file
         "/css/DataTables/css/jquery.dataTables.css",
-        #d3-tip css 
-        "/css/d3-tip/d3-tip.css",
-
-
-
-
-
-
-
-
-
+        #d3-tip css
+        "/css/d3-tip/d3-tip.css"
 
     ]
 
