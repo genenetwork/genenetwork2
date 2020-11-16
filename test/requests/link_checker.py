@@ -146,6 +146,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/cytoscape/cytoscape.min.js",
         #cytoscape-panzoom
         "/js/cytoscape-panzoom/cytoscape-panzoom.js",
+        "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
         #cytoscape-qtip
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         #twitter fetcher
@@ -162,6 +163,8 @@ def check_packaged_js_files(args_obj, parser):
         "/js/typeahead/typeahead.bundle.js",
         #css file
         "/css/DataTables/css/jquery.dataTables.css",
+        #d3-tip css 
+        "/css/d3-tip/d3-tip.css"
 
 
 
