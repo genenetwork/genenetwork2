@@ -157,7 +157,10 @@ def check_packaged_js_files(args_obj, parser):
         #shapiro-wilk
         "/js/shapiro-wilk/shapiro-wilk.js",
         "/js/plotly/plotly.min.js",
-        "/js/typeahead/typeahead.bundle.js"
+        "/js/typeahead/typeahead.bundle.js",
+        #css file
+        "/css/DataTables/css/jquery.dataTables.css",
+        
 
 
 
