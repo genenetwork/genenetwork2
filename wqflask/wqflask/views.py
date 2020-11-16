@@ -681,8 +681,6 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
     initial_start_vars = request.form
-    #logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
-    logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
@@ -744,18 +742,11 @@ def mapping_results_page():
     for key, value in list(initial_start_vars.items()):
         if key in wanted or key.startswith(('value:')):
             start_vars[key] = value
-    #logger.debug("Mapping called with start_vars:", start_vars)
 
     version = "v3"
     key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    #logger.info("key is:", pf(key))
     with Bench("Loading cache"):
         result = None # Just for testing
-        #result = Redis.get(key)
-
-    #logger.info("************************ Starting result *****************")
-    #logger.info("result is [{}]: {}".format(type(result), result))
-    #logger.info("************************ Ending result ********************")
 
     if result:
         logger.info("Cache hit!!!")
@@ -773,10 +764,9 @@ def mapping_results_page():
                 rendered_template = render_template("mapping_error.html")
                 return rendered_template
 
-            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
-                                                    default=json_default_handler,
-                                                    indent="   ")
+                                               default=json_default_handler,
+                                               indent="   ")
 
             result = template_vars.__dict__
 
@@ -794,14 +784,7 @@ def mapping_results_page():
                     rendered_template = render_template("pair_scan_results.html", **result)
             else:
                 gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-                #logger.info("pickled result length:", len(pickled_result))
-                #Redis.set(key, pickled_result)
-                #Redis.expire(key, 1*60)
-
                 with Bench("Rendering template"):
-                    #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                    #gn1_template_vars.pop('qtlresults', None)
                     rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
