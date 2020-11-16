@@ -234,7 +234,10 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                 else:
                     marker = {}
                     marker['name'] = line.split("\t")[1]
-                    if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y" and line.split("\t")[0] != "Y" and line.split("\t")[0] != "M":
+                    if (line.split("\t")[0] != "X" and
+                        line.split("\t")[0] != "X/Y" and
+                        line.split("\t")[0] != "Y" and
+                        line.split("\t")[0] != "M"):
                         if "chr" in line.split("\t")[0]:
                             marker['chr'] = int(line.split("\t")[0][3:])
                         else:
@@ -247,7 +250,8 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
                     marker['p_value'] = float(line.split("\t")[9])
-                    if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
+                    if (math.isnan(marker['p_value']) or
+                        (marker['p_value'] <= 0)):
                         marker['lod_score'] = 0
                         #marker['lrs_value'] = 0
                     else:
