@@ -62,7 +62,7 @@ class TestRunMapping(unittest.TestCase):
         self.assertEqual(result_2, [])
 
     @mock.patch("wqflask.marker_regression.run_mapping.data_set")
-    def test_geno_db_exists(self, mock_data_set):
+    def test_if_geno_db_exists(self, mock_data_set):
         mock_data_set.create_dataset.side_effect = [
             AttributeSetter({}), Exception()]
         results_no_error = geno_db_exists(self.dataset)

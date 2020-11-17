@@ -23,7 +23,7 @@ class MockDatasetGroup(AttributeSetter):
 class TestGemmaMapping(unittest.TestCase):
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
-    def test_run_gemma_first_run_loco_set_false(self, mock_parse_loco):
+    def test_run_gemma_firstrun_set_false(self, mock_parse_loco):
         """add tests for gemma function where  first run is set to false"""
         dataset = AttributeSetter(
             {"group": AttributeSetter({"genofile": "genofile.geno"})})
@@ -49,7 +49,7 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_first_run_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
+    def test_run_gemma_firstrun_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
         """add tests for run_gemma where first run is set to true"""
         chromosomes = []
         for i in range(1, 5):
@@ -140,7 +140,7 @@ class TestGemmaMapping(unittest.TestCase):
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img/")
-    def test_parse_gemma_output_obj_returned(self):
+    def test_parse_gemma_output(self):
         """add test for generating gemma output with obj returned"""
         file = """X/Y\t gn2\t21\tQ\tE\tA\tP\tMMB\tCDE\t0.5
 X/Y\tgn2\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5
@@ -157,7 +157,7 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
             self.assertEqual(results, expected)
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
-    def test_parse_gemma_output_empty_return(self):
+    def test_parse_gemma_output_with_empty_return(self):
         """add tests for parse gemma output where nothing returned"""
         output_file_results = """chr\t today"""
         with mock.patch("builtins.open", mock.mock_open(read_data=output_file_results)) as mock_open:
@@ -167,7 +167,7 @@ X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.json")
-    def test_parse_loco_output_file_found(self, mock_json, mock_os):
+    def test_parse_loco_outputfile_found(self, mock_json, mock_os):
         """add tests for parse loco output file found"""
         mock_json.load.return_value = {
             "files": [["file_name", "user", "~/file1"],
@@ -193,8 +193,8 @@ chr\tL3\t12312\tQ\tE\tA\tP\tMMB\tCDE\t0.7"""
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
-    def test_parse_loco_output_file_not_found(self, mock_os):
-        """add tests for parse loco output file not found"""
+    def test_parse_loco_outputfile_not_found(self, mock_os):
+        """add tests for parse loco output where  output file not found"""
 
         mock_os.path.isfile.return_value = False
         file_to_write = """{"files":["file_1","file_2"]}"""
