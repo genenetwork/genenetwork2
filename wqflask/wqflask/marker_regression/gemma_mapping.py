@@ -142,8 +142,6 @@ def run_gemma(this_trait,
 
 def gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename):
     """Generates phenotype file for GEMMA"""
-
-    current_file_data = []
     with open(f"{TEMPDIR}/gn2/{trait_filename}.txt", "w") as outfile:
         for value in vals:
             if value == "x":
@@ -231,11 +229,8 @@ def parse_loco_output(this_dataset, gwa_output_filename):
     p_values = []
     marker_obs = []
     previous_chr = 0
-
-    no_results = False
     for this_file in output_filelist:
         if not os.path.isfile(this_file):
-            no_results = True
             break
         with open(this_file) as output_file:
             for line in output_file:
