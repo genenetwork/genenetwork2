@@ -7,7 +7,11 @@ import json
 from base import webqtlConfig
 from base.trait import create_trait
 from base.data_set import create_dataset
-from utility.tools import flat_files, GEMMA_COMMAND, GEMMA_WRAPPER_COMMAND, TEMPDIR, WEBSERVER_MODE
+
+from utility.tools import flat_files
+from utility.tools import GEMMA_WRAPPER_COMMAND
+from utility.tools import TEMPDIR
+from utility.tools import WEBSERVER_MODE
 
 import utility.logger
 logger = utility.logger.getLogger(__name__)
@@ -239,10 +243,10 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                 else:
                     marker = {}
                     marker['name'] = line.split("\t")[1]
-                    if (line.split("\t")[0] != "X" and
-                        line.split("\t")[0] != "X/Y" and
-                        line.split("\t")[0] != "Y" and
-                        line.split("\t")[0] != "M"):
+                    if all([line.split("\t")[0] != "X",
+                            line.split("\t")[0] != "X/Y",
+                            line.split("\t")[0] != "Y",
+                            line.split("\t")[0] != "M"]):
                         if "chr" in line.split("\t")[0]:
                             marker['chr'] = int(line.split("\t")[0][3:])
                         else:
@@ -255,8 +259,8 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
                     marker['p_value'] = float(line.split("\t")[9])
-                    if (math.isnan(marker['p_value']) or
-                        (marker['p_value'] <= 0)):
+                    if any([math.isnan(marker['p_value']),
+                            (marker['p_value'] <= 0)]):
                         marker['lod_score'] = 0
                     else:
                         marker['lod_score'] = -math.log10(marker['p_value'])
