@@ -9,11 +9,11 @@ import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
 def run_plink(this_trait, dataset, species, vals, maf):
-    plink_output_filename = webqtlUtil.genRandStr("%s_%s_"%(dataset.group.name, this_trait.name))
+    plink_output_filename = webqtlUtil.genRandStr(f"{dataset.group.name}_{this_trait.name}_")
     gen_pheno_txt_file(dataset, vals)
 
-    plink_command = PLINK_COMMAND + ' --noweb --bfile %s/%s --no-pheno --no-fid --no-parents --no-sex --maf %s --out %s%s --assoc ' % (
-        flat_files('mapping'), dataset.group.name, maf, TMPDIR, plink_output_filename)
+    
+    plink_command = f"{PLINK_COMMAND}  --noweb --bfile {flat_files('mapping')}/{dataset.group.name} --no-pheno --no-fid --no-parents --no-sex --maf {maf} --out { TMPDIR}{plink_output_filename} --assoc "
     logger.debug("plink_command:", plink_command)
 
     os.system(plink_command)
@@ -29,12 +29,12 @@ def gen_pheno_txt_file(this_dataset, vals):
     """Generates phenotype file for GEMMA/PLINK"""
 
     current_file_data = []
-    with open("{}/{}.fam".format(flat_files('mapping'), this_dataset.group.name), "r") as outfile:
+    with open(f"{flat_files('mapping')}/{this_dataset.group.name}.fam", "r") as outfile:
         for i, line in enumerate(outfile):
             split_line = line.split()
             current_file_data.append(split_line)
 
-    with open("{}/{}.fam".format(flat_files('mapping'), this_dataset.group.name), "w") as outfile:
+    with open(f"{flat_files('mapping')}/{this_dataset.group.name}.fam","w") as outfile:
         for i, line in enumerate(current_file_data):
             if vals[i] == "x":
                 this_val = -9
@@ -44,8 +44,8 @@ def gen_pheno_txt_file(this_dataset, vals):
 
 def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
     ped_sample_list = get_samples_from_ped_file(dataset)
-    output_file = open("%s%s.txt" % (TMPDIR, pheno_filename), "wb")
-    header = 'FID\tIID\t%s\n' % this_trait.name
+    output_file = open(f"{TMPDIR}{pheno_filename}.txt", "wb")
+    header = f"FID\tIID\t{this_trait.name}\n"
     output_file.write(header)
 
     new_value_list = []
@@ -65,7 +65,7 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
     for i, sample in enumerate(ped_sample_list):
         j = i+1
         value = new_value_list[i]
-        new_line += '%s\t%s\t%s\n'%(sample, sample, value)
+        new_line += f"{sample}\t{sample}\t{value}\n"
 
         if j%1000 == 0:
             output_file.write(newLine)
@@ -78,7 +78,7 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename = ''):
 
 # get strain name from ped file in order
 def get_samples_from_ped_file(dataset):
-    ped_file= open("{}{}.ped".format(flat_files('mapping'), dataset.group.name), "r")
+    ped_file= open(f"{flat_files('mapping')}{dataset.group.name}.ped","r")
     line = ped_file.readline()
     sample_list=[]
 
@@ -98,7 +98,7 @@ def parse_plink_output(output_filename, species):
 
     threshold_p_value = 1
 
-    result_fp = open("%s%s.qassoc"% (TMPDIR, output_filename), "rb")
+    result_fp = open(f"{TMPDIR}{output_filename}.qassoc","rb")
 
     line = result_fp.readline()
 
