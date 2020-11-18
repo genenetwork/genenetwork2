@@ -201,13 +201,17 @@ populate_cofactor_info = function(trait_info) {
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor1_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
-    } else {
+    } else if (trait_info['type'] == "Publish") {
       $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
       if ('pubmed_link' in trait_info) {
         $('#cofactor1_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
       } else {
-        $('#cofactor1_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+        $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+        $('#cofactor1_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
       }
+    } else {
+      $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor1_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n")
     }
     $('#select_cofactor1').text("Change Cofactor 1");
     $('#cofactor1_info_container').css("display", "inline");
@@ -217,13 +221,17 @@ populate_cofactor_info = function(trait_info) {
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor2_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
-    } else {
+    } else if (trait_info['type'] == "Publish") {
       $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
       if ('pubmed_link' in trait_info) {
         $('#cofactor2_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
       } else {
-        $('#cofactor2_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+        $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+        $('#cofactor2_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
       }
+    } else {
+      $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor2_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n")
     }
     $('#select_cofactor2').text("Change Cofactor 2");
     $('#cofactor2_info_container').css("display", "inline");
@@ -233,13 +241,17 @@ populate_cofactor_info = function(trait_info) {
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor3_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
-    } else {
+    } else if (trait_info['type'] == "Publish") {
       $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
       if ('pubmed_link' in trait_info) {
         $('#cofactor3_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
       } else {
-        $('#cofactor3_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+        $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+        $('#cofactor3_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
       }
+    } else {
+      $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor3_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n")
     }
     $('#select_cofactor3').text("Change Cofactor 3");
     $('#cofactor3_info_container').css("display", "inline");
