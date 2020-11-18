@@ -127,7 +127,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/jquery/jquery.min.js",
         "/js/bootstrap/js/bootstrap.min.js",
         "/css/bootstrap/css/docs.css",
-        "/css/bootstrap/css/bootstrap.min.css",
+        "/css/bootstrap/css/bootstrap.css",
         "/js/plotly/plotly.min.js",
         "/js/jscolor/jscolor.js",
         "/js/cytoscape/cytoscape.min.js",
