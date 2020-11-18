@@ -147,10 +147,11 @@ def check_packaged_js_files(args_obj, parser):
         "/js/purescript-genome-browser/js/purescript-genetics-browser.js",
         "/js/purescript-genome-browser/css/purescript-genetics-browser.css",
         "/css/DataTables/css/jquery.dataTables.css",
-        "/css/d3-tip/d3-tip.css"
-
+        "/css/d3-tip/d3-tip.css",
+        #img
+        "/js/DataTables/images/sort_asc_disabled.png",
+        "/js/DataTables/images/sort_desc_disabled.png"
     ]
-
     print("Checking links")
     for link in js_files:
         verify_static_file(host+link)
