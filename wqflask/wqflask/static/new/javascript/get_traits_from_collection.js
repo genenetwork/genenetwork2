@@ -397,8 +397,8 @@ process_traits = function(trait_data, textStatus, jqXHR) {
 };
 
 back_to_collections = function() {
-  collection_list_html = $('#collection_list_html').html()
-  $("#collections_holder").html(collection_list_html);
+  console.log("collection_list:", collection_list);
+  $("#collections_holder").html(collection_list);
   $(document).on("click", ".collection_line", collection_click);
   return $('#collections_holder').colorbox.resize();
 };
