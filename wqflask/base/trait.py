@@ -274,6 +274,8 @@ def get_sample_data():
             if trait_ob.pubmed_id:
                 trait_dict['pubmed_link'] = trait_ob.pubmed_link
             trait_dict['pubmed_text'] = trait_ob.pubmed_text
+        else:
+            trait_dict['location'] = trait_ob.location_repr
 
         return json.dumps([trait_dict, {key: value.value for
                                         key, value in list(
