@@ -2,9 +2,8 @@
 
 Render pages from github, or if they are unavailable, look for it else where
 """
-import os
 import requests
-import mistune
+import markdown
 
 from flask import Blueprint
 from flask import render_template
@@ -21,16 +20,20 @@ look for it inside the file system
                   "genenetwork/gn-docs/master/")
     md_content = requests.get(f"{github_url}{file_name}")
     if md_content.status_code == 200:
-        return mistune.html(md_content.content.decode("utf-8"))
+        return markdown.Markdown().convert(md_content.content.decode("utf-8"))
 
-    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                           f"static/markdown/{file_name}")) as md_file:
-        markdown = md_file.read()
-        return mistune.html(markdown)
+    # TODO: Add fallback on our git server by checking the mirror.
+
+    # Content not available
+    return (f"\nContent for {file_name} not available. "
+            "Please check "
+            "(here to see where content exists)"
+            "[https://github.com/genenetwork/gn-docs]. "
+            "Please reach out to the gn2 team to have a look at this")
 
 
 @glossary_blueprint.route('/')
 def glossary():
     return render_template(
         "glossary.html",
-        rendered_markdown=render_markdown("glossary.md")), 200
+        rendered_markdown=render_markdown("general/glossary/glossary.md")), 200
