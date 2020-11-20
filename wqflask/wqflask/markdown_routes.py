@@ -17,11 +17,9 @@ def render_markdown(file_name):
 look for it inside the file system
 
     """
-    markdown_url = (f"https://raw.githubusercontent.com"
-                    f"/genenetwork/genenetwork2/"
-                    f"wqflask/wqflask/static/"
-                    f"{file_name}")
-    md_content = requests.get(markdown_url)
+    github_url = ("https://raw.githubusercontent.com/"
+                  "genenetwork/gn-docs/master/")
+    md_content = requests.get(f"{github_url}{file_name}")
     if md_content.status_code == 200:
         return mistune.html(md_content.content.decode("utf-8"))
 
