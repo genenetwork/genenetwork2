@@ -23,8 +23,7 @@ class MockRequests200:
 This is some content
 
 ## Sub-heading
-This is another sub-heading
-        """
+This is another sub-heading"""
 
 class TestMarkdownRoutesFunctions(unittest.TestCase):
     """Test cases for functions in markdown_routes"""
@@ -32,27 +31,26 @@ class TestMarkdownRoutesFunctions(unittest.TestCase):
     @mock.patch('wqflask.markdown_routes.requests.get')
     def test_render_markdown_when_fetching_locally(self, requests_mock):
         requests_mock.return_value = MockRequests404()
-        markdown_content = render_markdown("glossary.md")
+        markdown_content = render_markdown("general/glossary/glossary.md")
         requests_mock.assert_called_with(
             "https://raw.githubusercontent.com"
-            "/genenetwork/genenetwork2/"
-            "wqflask/wqflask/static/"
-            "glossary.md")
+            "/genenetwork/gn-docs/"
+            "master/general/"
+            "glossary/glossary.md")
         self.assertRegexpMatches(markdown_content,
-                                 "Glossary of Terms and Features")
+                                 "Content for general/glossary/glossary.md not available.")
 
     @mock.patch('wqflask.markdown_routes.requests.get')
     def test_render_markdown_when_fetching_remotely(self, requests_mock):
         requests_mock.return_value = MockRequests200()
-        markdown_content = render_markdown("glossary.md")
+        markdown_content = render_markdown("general/glossary/glossary.md")
         requests_mock.assert_called_with(
             "https://raw.githubusercontent.com"
-            "/genenetwork/genenetwork2/"
-            "wqflask/wqflask/static/"
-            "glossary.md")
+            "/genenetwork/gn-docs/"
+            "master/general/"
+            "glossary/glossary.md")
         self.assertEqual("""<h1>Glossary</h1>
 <p>This is some content</p>
 <h2>Sub-heading</h2>
-<p>This is another sub-heading</p>
-""",
+<p>This is another sub-heading</p>""",
                          markdown_content)
