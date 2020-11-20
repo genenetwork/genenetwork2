@@ -3,27 +3,25 @@
 import unittest
 from unittest import mock
 
+from dataclasses import dataclass
 from wqflask.markdown_routes import render_markdown
 
 
+@dataclass
 class MockRequests404:
-    @property
-    def status_code(self):
-        return 404
+    status_code: int = 404
 
+
+@dataclass
 class MockRequests200:
-    @property
-    def status_code(self):
-        return 200
-
-    @property
-    def content(self):
-        return b"""
+    status_code: int = 200
+    content: str = b"""
 # Glossary
 This is some content
 
 ## Sub-heading
 This is another sub-heading"""
+
 
 class TestMarkdownRoutesFunctions(unittest.TestCase):
     """Test cases for functions in markdown_routes"""
