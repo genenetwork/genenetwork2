@@ -608,7 +608,7 @@ block_by_attribute_value = function() {
 };
 $('#exclude_group').click(block_by_attribute_value);
 block_by_index = function() {
-  var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref, _results;
+  var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref;
   index_string = $('#remove_samples_field').val();
   index_list = [];
   _ref = index_string.split(",");
@@ -630,7 +630,7 @@ block_by_index = function() {
       index_list.push(index);
     }
   }
-  _results = [];
+
   let block_group = $('#block_group').val();
   if (block_group === "other") {
     table_api = $('#samples_other').DataTable();
@@ -642,6 +642,45 @@ block_by_index = function() {
     index = index_list[_k];
     val_nodes[index - 1].childNodes[0].value = "x";
 
+  }
+};
+
+filter_by_value = function() {
+  let filter_logic = $('#filter_logic').val();
+  let filter_value = $('#filter_value').val();
+
+  block_group = $('#filter_group').val();
+  if (block_group === "other") {
+    table_api = $('#samples_other').DataTable();
+  } else {
+    table_api = $('#samples_primary').DataTable();
+  }
+
+  let val_nodes = table_api.column(3).nodes().to$();
+  for (i = 0; i < val_nodes.length; i++) {
+    let this_node = val_nodes[i].childNodes[0];
+    if(!isNaN(this_node.value) && !isNaN(filter_value)) {
+      if (filter_logic == "greater_than"){
+        if (parseFloat(this_node.value) <= parseFloat(filter_value)){
+          this_node.value = "x";
+        }
+      }
+      else if (filter_logic == "less_than"){
+        if (parseFloat(this_node.value) >= parseFloat(filter_value)){
+          this_node.value = "x";
+        }
+      }
+      else if (filter_logic == "greater_or_equal"){
+        if (parseFloat(this_node.value) < parseFloat(filter_value)){
+          this_node.value = "x";
+        }
+      }
+      else if (filter_logic == "less_or_equal"){
+        if (parseFloat(this_node.value) > parseFloat(filter_value)){
+          this_node.value = "x";
+        }
+      }
+    }
   }
 };
 
@@ -1528,6 +1567,12 @@ $('#block_by_index').click(function(){
   block_by_index();
   edit_data_change();
 });
+
+$('#filter_by_value').click(function(){
+  filter_by_value();
+  edit_data_change();
+})
+
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
 $('#reset').click(edit_data_change);
