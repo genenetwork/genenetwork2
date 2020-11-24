@@ -145,11 +145,11 @@ input.corr-location {
   display: inline;
 }
 
-div.block-by-index-div {
+div.block-div {
   margin-bottom: 10px;
 }
 
-div.block-by-attribute-div {
+div.block-div-2 {
   margin-top:10px;
   margin-bottom:10px;
 }
