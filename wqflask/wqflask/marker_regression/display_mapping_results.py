@@ -74,6 +74,34 @@ DARKVIOLET = ImageColor.getrgb("darkviolet")
 MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 # ---- END: Define common colours ---- #
 
+# ZS: List of distinct colors for manhattan plot if user selects "varied"
+DISTINCT_COLOR_LIST = [
+    ImageColor.getrgb("#FF0000"),
+    ImageColor.getrgb("#00FF00"),
+    ImageColor.getrgb("#0000FF"),
+    ImageColor.getrgb("#FFFF00"),
+    ImageColor.getrgb("#FF00FF"),
+    ImageColor.getrgb("#00FFFF"),
+    ImageColor.getrgb("#000000"),
+    ImageColor.getrgb("#800000"),
+    ImageColor.getrgb("#008000"),
+    ImageColor.getrgb("#000080"),
+    ImageColor.getrgb("#808000"),
+    ImageColor.getrgb("#800080"),
+    ImageColor.getrgb("#008080"),
+    ImageColor.getrgb("#808080"),
+    ImageColor.getrgb("#C00000"),
+    ImageColor.getrgb("#00C000"),
+    ImageColor.getrgb("#0000C0"),
+    ImageColor.getrgb("#C0C000"),
+    ImageColor.getrgb("#C000C0"),
+    ImageColor.getrgb("#00C0C0"),
+    ImageColor.getrgb("#C0C0C0"),
+    ImageColor.getrgb("#400000"),
+    ImageColor.getrgb("#004000"),
+    ImageColor.getrgb("#000040"),
+]
+
 # ---- FONT FILES ---- #
 VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
 VERDANA_BOLD_FILE = "./wqflask/static/fonts/verdanab.ttf"
@@ -293,6 +321,12 @@ class DisplayMappingResults(object):
             self.plotScale = "physic"
 
         self.manhattan_plot = start_vars['manhattan_plot']
+        if self.manhattan_plot:
+            self.color_scheme = "alternating"
+            if 'color_scheme' in start_vars:
+                self.color_scheme = start_vars['color_scheme']
+                if self.color_scheme == "single":
+                    self.manhattan_single_color = ImageColor.getrgb("#" + start_vars['manhattan_single_color'])
 
         if 'permCheck' in list(start_vars.keys()):
             self.permChecked = start_vars['permCheck']
@@ -2424,10 +2458,16 @@ class DisplayMappingResults(object):
                             Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
-                        point_color = RED
+                    if self.color_scheme == "single":
+                        point_color = self.manhattan_single_color
+                    elif self.color_scheme == "varied":
+                        point_color = DISTINCT_COLOR_LIST[previous_chr_as_int]
                     else:
-                        point_color = BLUE
+                        if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
+                            point_color = RED
+                        else:
+                            point_color = BLUE
+
                     im_drawer.text(
                         text="5",
                         xy=(
