@@ -7,6 +7,7 @@ from flask import g
 from flask import Flask
 from utility import formatting
 from wqflask.markdown_routes import glossary_blueprint
+from wqflask.markdown_routes import  references_blueprint
 
 app = Flask(__name__)
 
@@ -19,6 +20,7 @@ app.jinja_env.globals.update(
 
 # Registering blueprints
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
+app.register_blueprint(references_blueprint,url_prefix="/references")
 
 @app.before_request
 def before_request():
@@ -39,4 +41,4 @@ from wqflask import db_info
 from wqflask import user_login
 from wqflask import user_session
 
-import wqflask.views
+import wqflask.views 
