@@ -304,8 +304,8 @@ def news():
 @app.route("/references")
 def references():
     doc = Docs("references", request.args)
+    # return render_template("reference.html")
     return render_template("docs.html", **doc.__dict__)
-    #return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
