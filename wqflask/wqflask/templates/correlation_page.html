@@ -572,7 +572,7 @@
 
             console.timeEnd("Creating table");
 
-            $('.toggle-vis').on( 'click', function (e) {
+            $('.toggle-vis').on('click', function (e) {
               e.preventDefault();
 
               // Get the column API object
@@ -587,6 +587,12 @@
                 $(this).addClass("active");
               }
             } );
+
+            $('#redraw').on('click', function (e) {
+              e.preventDefault();
+              trait_table.columns().visible( true );
+              $('.toggle-vis.active').removeClass('active');
+            });
 
             submit_special = function(url) {
                 $("#correlation_form").attr("action", url);
