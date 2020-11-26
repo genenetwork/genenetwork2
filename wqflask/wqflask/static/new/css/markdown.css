@@ -15,8 +15,6 @@
     margin-left: auto;
 }
 
-
-
 .github-btn {
     margin: 20px 10px;
     display: flex;
@@ -32,13 +30,8 @@
     transition-duration: 0.5s;
     padding: 8px 12px;
     color: #fff;
-    /*background: #27407a;*/
     background: blue;
     border-radius: 20px;
-
-    /*text-align: center;*/
-
-
 }
 
 .github-btn a:hover {
