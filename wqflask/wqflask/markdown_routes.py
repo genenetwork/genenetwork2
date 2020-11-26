@@ -15,10 +15,6 @@ links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
 
-# for debug
-# https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/
-
-
 def render_markdown(file_name):
     github_url = ("https://raw.githubusercontent.com/"
                   "genenetwork/gn-docs/master/")
