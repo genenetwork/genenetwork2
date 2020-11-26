@@ -307,17 +307,7 @@ def intro():
     doc = Docs("intro", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/policies")
-def policies():
-    doc = Docs("policies", request.args)
-    #return render_template("policies.html")
-    return render_template("docs.html", **doc.__dict__)
 
-@app.route("/links")
-def links():
-    #doc = Docs("links", request.args)
-    #return render_template("docs.html", **doc.__dict__)
-    return render_template("links.html")
 
 @app.route("/tutorials")
 def tutorials():
