@@ -20,7 +20,24 @@ github_url = ("https://raw.githubusercontent.com/"
 
 
 
+
+def render_markdown_table(file_name,github_url="https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/"):
+
+    md_content=md_content=requests.get(f"{github_url}{file_name}")
+    if md_content.status_code==200:
+        return markdown.markdown(md_content.content.decode("utf-8"), extensions=['tables'])
+    return (f"\nContent for {file_name} not available. "
+            "Please check "
+            "(here to see where content exists)"
+            "[https://github.com/genenetwork/gn-docs]. "
+            "Please reach out to the gn2 team to have a look at this")
+
+
+
+
 def render_markdown(file_name,github_url="https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/"):
+    github_url = ("https://raw.githubusercontent.com/"
+                  "genenetwork/gn-docs/master/")
  
     md_content=requests.get(f"{github_url}{file_name}")
     """Try to fetch the file name from Github and if that fails, try to
@@ -60,7 +77,7 @@ def references():
 
 @environments_blueprint.route("/")
 def environments():
-    return render_template("environments.html", rendered_markdown=render_markdown("general/links/links.md"))
+    return render_template("environment.html", rendered_markdown=render_markdown_table("general/environments/environments.md")),200
 
 
 @links_blueprint.route("/")
