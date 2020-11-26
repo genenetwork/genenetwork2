@@ -15,6 +15,7 @@ links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
 
+
 def render_markdown(file_name):
     """Try to fetch the file name from Github and if that fails, try to
 look for it inside the file system """
@@ -51,7 +52,7 @@ def references():
 
 @environments_blueprint.route("/")
 def environments():
-    return render_template("environment.html", rendered_markdown=render_markdown_table("general/environments/environments.md")), 200
+    return render_template("environment.html", rendered_markdown=render_markdown("general/environments/environments.md")), 200
 
 
 @links_blueprint.route("/")
