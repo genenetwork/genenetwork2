@@ -75,32 +75,12 @@ MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 # ---- END: Define common colours ---- #
 
 # ZS: List of distinct colors for manhattan plot if user selects "varied"
-DISTINCT_COLOR_LIST = [
-    ImageColor.getrgb("#FF0000"),
-    ImageColor.getrgb("#00FF00"),
-    ImageColor.getrgb("#0000FF"),
-    ImageColor.getrgb("#FFFF00"),
-    ImageColor.getrgb("#FF00FF"),
-    ImageColor.getrgb("#00FFFF"),
-    ImageColor.getrgb("#000000"),
-    ImageColor.getrgb("#800000"),
-    ImageColor.getrgb("#008000"),
-    ImageColor.getrgb("#000080"),
-    ImageColor.getrgb("#808000"),
-    ImageColor.getrgb("#800080"),
-    ImageColor.getrgb("#008080"),
-    ImageColor.getrgb("#808080"),
-    ImageColor.getrgb("#C00000"),
-    ImageColor.getrgb("#00C000"),
-    ImageColor.getrgb("#0000C0"),
-    ImageColor.getrgb("#C0C000"),
-    ImageColor.getrgb("#C000C0"),
-    ImageColor.getrgb("#00C0C0"),
-    ImageColor.getrgb("#C0C0C0"),
-    ImageColor.getrgb("#400000"),
-    ImageColor.getrgb("#004000"),
-    ImageColor.getrgb("#000040"),
-]
+COLOR_CODES = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF",
+               "#000000", "#800000", "#008000", "#000080", "#808000", "#800080",
+               "#008080", "#808080", "#C00000", "#00C000", "#0000C0", "#C0C000",
+               "#C000C0", "#00C0C0", "#C0C0C0", "#400000", "#004000", "#000040"]
+
+DISTINCT_COLOR_LIST = [ImageColor.getrgb(color) for color in COLOR_CODES]
 
 # ---- FONT FILES ---- #
 VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
