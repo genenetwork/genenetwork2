@@ -321,12 +321,6 @@ def credits():
     #return render_template("docs.html", **doc.__dict__)
     return render_template("credits.html")
 
-# @app.route("/environments")
-# def environments():
-#     doc = Docs("environments", request.args)
-#     return render_template("docs.html", **doc.__dict__)
-    #return render_template("environments.html", **doc.__dict__)
-
 @app.route("/update_text", methods=('POST',))
 def update_page():
     update_text(request.form)
