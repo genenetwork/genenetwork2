@@ -26,7 +26,6 @@ look for it inside the file system """
     if md_content.status_code == 200:
 
         return markdown.markdown(md_content.content.decode("utf-8"), extensions=['tables'])
-        # return markdown.Markdown().convert(md_content.content.decode("utf-8"))
     # TODO: Add fallback on our git server by checking the mirror.
     # Content not available
     return (f"\nContent for {file_name} not available. "
