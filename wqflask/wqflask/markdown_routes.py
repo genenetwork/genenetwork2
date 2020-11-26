@@ -13,6 +13,7 @@ references_blueprint = Blueprint("references_blueprint", __name__)
 environments_blueprint = Blueprint("environments_blueprint", __name__)
 links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
+facilities_blueprint=Blueprint("facilities",__name__)
 
 #for debug
 github_url = ("https://raw.githubusercontent.com/"
@@ -36,8 +37,8 @@ def render_markdown_table(file_name,github_url="https://raw.githubusercontent.co
 
 
 def render_markdown(file_name,github_url="https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/"):
-    github_url = ("https://raw.githubusercontent.com/"
-                  "genenetwork/gn-docs/master/")
+    # github_url = ("https://raw.githubusercontent.com/"
+    #               "genenetwork/gn-docs/master/")
  
     md_content=requests.get(f"{github_url}{file_name}")
     """Try to fetch the file name from Github and if that fails, try to
@@ -92,3 +93,8 @@ def policies():
     return render_template(
         "links.html",
         rendered_markdown=render_markdown("general/policies/policies.md")), 200
+
+
+@facilities_blueprint.route("/")
+def facilities():
+    return render_template("facilities",rendered_markdown=render_markdown("general/policies/policies.md")), 200
