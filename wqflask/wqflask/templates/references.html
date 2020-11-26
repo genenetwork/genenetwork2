@@ -3,13 +3,13 @@
 {% block title %}Reference{% endblock %}
 
 {% block css %}
-<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+<!-- <link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" /> -->
 {% endblock %}
 
 {% block content %}
 
  <div class="github-btn">
- <a href="https://github.com/genenetwork/genenetwork2">Edit on Github</a>	
+ <a href="https://raw.githubusercontent.com/genenetwork/gn-docs/master/general/glossary/glos">Edit on Github</a>	
  </div>
 
 <div id="markdown" class="container">
@@ -18,12 +18,23 @@
 </div>
 
 <style type="text/css">
-
-
-/*html{
+<!--  -->
+.container {
+width:80vw;
+margin: auto;
+max-width:80vw; 
   
-  scroll-behavior: smooth;
-}*/
+}
+
+p {
+	font-size: 17px;
+	 word-spacing: 0.2em;
+}
+@media(max-width:650px){
+	.container{
+		width: 100vw;
+	}
+}
 
 </style>
 <link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
