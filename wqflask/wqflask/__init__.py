@@ -24,11 +24,11 @@ app.jinja_env.globals.update(
 
 # Registering blueprints
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
-app.register_blueprint(references_blueprint,url_prefix="/references")
-app.register_blueprint(links_blueprint,url_prefix="/links")
-app.register_blueprint(policies_blueprint,url_prefix="/policies")
-app.register_blueprint(environments_blueprint,url_prefix="/environments")
-app.register_blueprint(facilities_blueprint,url_prefix="/facilities")
+app.register_blueprint(references_blueprint, url_prefix="/references")
+app.register_blueprint(links_blueprint, url_prefix="/links")
+app.register_blueprint(policies_blueprint, url_prefix="/policies")
+app.register_blueprint(environments_blueprint, url_prefix="/environments")
+app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 
 @app.before_request
 def before_request():
