@@ -16,6 +16,8 @@ policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
 
 def render_markdown(file_name):
+    """Try to fetch the file name from Github and if that fails, try to
+look for it inside the file system """
     github_url = ("https://raw.githubusercontent.com/"
                   "genenetwork/gn-docs/master/")
 
