@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Facilities{% endblock %}
+
+{% block css %}
+<!-- <link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" /> -->
+{% endblock %}
+
+{% block content %}
+
+ <div class="github-btn">
+ <a href="https://github.com/genenetwork/gn-docs">Edit on Github</a>	
+ </div>
+
+<div id="markdown" class="container">
+   {{ rendered_markdown|safe }}
+
+</div>
+
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
