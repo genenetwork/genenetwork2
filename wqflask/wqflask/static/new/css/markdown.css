@@ -2,7 +2,10 @@
     padding: 20px;
 }
 
-#markdown h2, #markdown h3, #markdown h4, #markdown h5 {
+#markdown h2,
+#markdown h3,
+#markdown h4,
+#markdown h5 {
     font-weight: bold;
 }
 
@@ -11,36 +14,53 @@
     margin-right: auto;
     margin-left: auto;
 }
-#markdown {
-	background: red;
+
+
+
+.github-btn {
+    margin: 20px 10px;
+    display: flex;
+    width: 90vw;
+    justify-content: flex-end;
+}
+
+.github-btn a {
+    display: inline-block;
+    align-self: center;
+    text-decoration: none;
+    transition-property: all;
+    transition-duration: 0.5s;
+    padding: 8px 12px;
+    color: #fff;
+    /*background: #27407a;*/
+    background: blue;
+    border-radius: 20px;
+   
+    /*text-align: center;*/
+
+
+}
+
+.github-btn a:hover {
+
+    background: #333;
+
 }
 
 
+.container {
+width:80vw;
+margin: auto;
+max-width:80vw; 
+  
+}
 
-	.github-btn{
-		margin:20px 10px;
-		display: flex;
-		width: 90vw;
-		justify-content: flex-end;
-	}
-	.github-btn a{
-		display: inline-block;
-		align-self:center;
-		text-decoration: none;
-		transition-property:all;
-		transition-duration:0.5s;
-		padding:8px 12px;
-		color:#fff;
-		/*background: #27407a;*/
-		background: blue;
-		border-radius: 20px;
-		background: red;
-		/*text-align: center;*/
-
-
-	}
-	.github-btn a:hover{
-
-		background: #333;
-
-	}
+.container p {
+    font-size: 17px;
+     word-spacing: 0.2em;
+}
+@media(max-width:650px){
+    .container{
+        width: 100vw;
+    }
+}
