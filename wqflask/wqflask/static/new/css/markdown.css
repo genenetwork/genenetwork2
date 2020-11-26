@@ -35,7 +35,7 @@
     /*background: #27407a;*/
     background: blue;
     border-radius: 20px;
-   
+
     /*text-align: center;*/
 
 
@@ -49,18 +49,19 @@
 
 
 .container {
-width:80vw;
-margin: auto;
-max-width:80vw; 
-  
+    width: 80vw;
+    margin: auto;
+    max-width: 80vw;
+
 }
 
 .container p {
     font-size: 17px;
-     word-spacing: 0.2em;
+    word-spacing: 0.2em;
 }
-@media(max-width:650px){
-    .container{
+
+@media(max-width:650px) {
+    .container {
         width: 100vw;
     }
 }

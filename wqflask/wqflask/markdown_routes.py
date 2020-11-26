@@ -13,47 +13,22 @@ references_blueprint = Blueprint("references_blueprint", __name__)
 environments_blueprint = Blueprint("environments_blueprint", __name__)
 links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
-facilities_blueprint=Blueprint("facilities_blueprint",__name__)
+facilities_blueprint = Blueprint("facilities_blueprint", __name__)
 
-#for debug
-github_url = ("https://raw.githubusercontent.com/"
-              "genenetwork/gn-docs/master/general/glossary/glossary.md")
-
+# for debug
+# https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/
 
 
-
-def render_markdown_table(file_name,github_url="https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/"):
-
-    md_content=md_content=requests.get(f"{github_url}{file_name}")
-    if md_content.status_code==200:
-        return markdown.markdown(md_content.content.decode("utf-8"), extensions=['tables'])
-    return (f"\nContent for {file_name} not available. "
-            "Please check "
-            "(here to see where content exists)"
-            "[https://github.com/genenetwork/gn-docs]. "
-            "Please reach out to the gn2 team to have a look at this")
-
-
-
-
-def render_markdown(file_name,github_url="https://raw.githubusercontent.com/Alexanderlacuna/gn-docs/feature/add-markdown-pages/"):
+def render_markdown(file_name):
     github_url = ("https://raw.githubusercontent.com/"
                   "genenetwork/gn-docs/master/")
- 
-    md_content=requests.get(f"{github_url}{file_name}")
-    """Try to fetch the file name from Github and if that fails, try to
-look for it inside the file system
-po
-    """
-    # github_url = ("https://raw.githubusercontent.com/"
-    #               "genenetwork/gn-docs/master/")
-    # md_content = requests.get(f"{github_url}{file_name}")
+
+    md_content = requests.get(f"{github_url}{file_name}")
     if md_content.status_code == 200:
-        # print(md_content.content.decode("utf-8"))
-        return markdown.Markdown().convert(md_content.content.decode("utf-8"))
 
+        return markdown.markdown(md_content.content.decode("utf-8"), extensions=['tables'])
+        # return markdown.Markdown().convert(md_content.content.decode("utf-8"))
     # TODO: Add fallback on our git server by checking the mirror.
-
     # Content not available
     return (f"\nContent for {file_name} not available. "
             "Please check "
@@ -78,7 +53,7 @@ def references():
 
 @environments_blueprint.route("/")
 def environments():
-    return render_template("environment.html", rendered_markdown=render_markdown_table("general/environments/environments.md")),200
+    return render_template("environment.html", rendered_markdown=render_markdown_table("general/environments/environments.md")), 200
 
 
 @links_blueprint.route("/")
@@ -97,4 +72,4 @@ def policies():
 
 @facilities_blueprint.route("/")
 def facilities():
-    return render_template("facilities.html",rendered_markdown=render_markdown("general/help/facilities.md")), 200
+    return render_template("facilities.html", rendered_markdown=render_markdown("general/help/facilities.md")), 200
