@@ -138,7 +138,12 @@ class RunMapping(object):
             mapping_results_filename = self.dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             self.mapping_results_path = "{}{}.csv".format(webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
-        if start_vars['manhattan_plot'] == "true":
+        if start_vars['manhattan_plot']:
+            self.color_scheme = "alternating"
+            if "color_scheme" in start_vars:
+                self.color_scheme = start_vars['color_scheme']
+                if self.color_scheme == "single":
+                    self.manhattan_single_color = start_vars['manhattan_single_color']
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False

@@ -718,6 +718,8 @@ def mapping_results_page():
         'maf',
         'use_loco',
         'manhattan_plot',
+        'color_scheme',
+        'manhattan_single_color',
         'control_marker',
         'control_marker_db',
         'do_control',
