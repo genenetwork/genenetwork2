@@ -8,9 +8,14 @@
 
 {% block content %}
 
- <div class="github-btn">
- <a href="https://github.com/genenetwork/gn-docs">Edit on Github</a>	
- </div>
+ <div class="github-btn-container">
+    <div class="github-btn ">
+        <a href="https://github.com/genenetwork/gn-docs">
+            Edit on Github inner
+            <img src="/static/images/edit.png">
+        </a>
+    </div>
+</div>
 <div id="markdown" class="container">
 	
    <div  class="cls-table-style">{{ rendered_markdown|safe }} </div>
