@@ -50,4 +50,7 @@
 
 <script>
     $('#add_form').parsley();
+    $('#add_form').on('submit', function(){
+      parent.jQuery.colorbox.close();
+    });
 </script>

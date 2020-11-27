@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Main routing table for GN2
+"""Main routing table for GN2"""
 
 import traceback # for error page
 import os        # for error gifs
@@ -306,8 +304,8 @@ def news():
 @app.route("/references")
 def references():
     doc = Docs("references", request.args)
+    # return render_template("reference.html")
     return render_template("docs.html", **doc.__dict__)
-    #return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
@@ -720,6 +718,8 @@ def mapping_results_page():
         'maf',
         'use_loco',
         'manhattan_plot',
+        'color_scheme',
+        'manhattan_single_color',
         'control_marker',
         'control_marker_db',
         'do_control',
