@@ -17,7 +17,7 @@ class AttributeSetter:
             setattr(self, k, v)
 
 
-class MockDataSetGroup(AttributeSetter):
+class MockGroup(AttributeSetter):
 
     def get_genofiles(self):
         return [{"location": "~/genofiles/g1_file", "sample_list": ["S1", "S2", "S3", "S4"]}]
@@ -26,7 +26,7 @@ class MockDataSetGroup(AttributeSetter):
 class TestRunMapping(unittest.TestCase):
     def setUp(self):
 
-        self.group = MockDataSetGroup(
+        self.group = MockGroup(
             {"genofile": "~/genofiles/g1_file", "name": "GP1_", "species": "Human"})
         chromosomes = {
             "3": AttributeSetter({

@@ -15,7 +15,7 @@ class AttributeSetter:
             setattr(self, key, val)
 
 
-class MockDatasetGroup(AttributeSetter):
+class MockGroup(AttributeSetter):
     def get_samplelist(self):
         return None
 
@@ -55,7 +55,7 @@ class TestGemmaMapping(unittest.TestCase):
         for i in range(1, 5):
             chromosomes.append(AttributeSetter({"name": f"CH{i}"}))
         chromo = AttributeSetter({"chromosomes": chromosomes})
-        dataset_group = MockDatasetGroup(
+        dataset_group = MockGroup(
             {"name": "GP1", "genofile": "file_geno"})
         dataset = AttributeSetter({"group": dataset_group, "name": "dataset1_name",
                                    "species": AttributeSetter({"chromosomes": chromo})})
@@ -113,7 +113,7 @@ class TestGemmaMapping(unittest.TestCase):
         create_dataset.side_effect = create_trait_side_effect
         create_trait.side_effect = create_trait_side_effect
 
-        group = MockDatasetGroup({"name": "group_X", "samplelist": samplelist})
+        group = MockGroup({"name": "group_X", "samplelist": samplelist})
         this_dataset = AttributeSetter({"group": group})
         flat_files.return_value = "Home/Genenetwork"
 
