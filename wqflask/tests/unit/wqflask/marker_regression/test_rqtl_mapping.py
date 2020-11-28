@@ -19,10 +19,10 @@ class TestRqtlMapping(unittest.TestCase):
 	@mock.patch("wqflask.marker_regression.rqtl_mapping.logger")
 	def test_get_trait_data(self,mock_logger,mock_db):
 		"""test for getting trait data_type return True"""
-		caller_value="""SELECT value FROM TraitMetadata WHERE type='trait_data_type'"""
+		query_value="""SELECT value FROM TraitMetadata WHERE type='trait_data_type'"""
 		mock_db.db.execute.return_value.fetchone.return_value=["""{"type":"trait_data_type","name":"T1","traid_id":"fer434f"}"""]
 		results=get_trait_data_type("traid_id")
-		mock_db.db.execute.assert_called_with(caller_value)
+		mock_db.db.execute.assert_called_with(query_value)
 		self.assertEqual(results,"fer434f")
 
 	def test_sanitize_rqtl_phenotype(self):

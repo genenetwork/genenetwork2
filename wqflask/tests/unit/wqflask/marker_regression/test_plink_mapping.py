@@ -14,8 +14,9 @@ class AttributeSetter:
             setattr(self, key, val)
 class TestPlinkMapping(unittest.TestCase):
 
+
     def test_build_line_list(self):
-        """testing for building line list"""
+        """test for building line list"""
         line_1 = "this is line one test"
         irregular_line = "  this     is an, irregular line     "
         exp_line1 = ["this", "is", "line", "one", "test"]
