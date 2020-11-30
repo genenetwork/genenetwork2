@@ -1,5 +1,6 @@
 import unittest
 import json
+import csv
 from unittest import mock
 from wqflask.api.router import app
 from wqflask.api.router import get_group_id
@@ -158,7 +159,7 @@ class TestRouter(unittest.TestCase):
 			self.assertEqual(rv.status_code,200)
 			self.assertEqual(rv_data,expected_results)
 
-	@mock.patch("wqflask.api.correlation.do_correlation")
+	@mock.patch("wqflask.api.router.correlation.do_correlation")
 	def test_get_corr_results(self,do_correlation):
 
 		results=[{
@@ -182,3 +183,43 @@ class TestRouter(unittest.TestCase):
 			 {'gene_id': 'dewfjkf78f8re', 'sample_r': 'R2', 'trait': 'T2'}]
 
 			self.assertEqual(expected_results,rv_data)
+
+
+	@mock.patch("wqflask.api.router.mapping.do_mapping_for_api")
+	def test_get_mapping_results_json(self,mapping_api):
+
+		mapping_api.return_value=([{"mapping_method":"gemma","use_loco":"True","name":"nm1","lod_score":"2312","chr":"23","Mb":"32"}],"json")
+		expected_results=[{'Mb': '32', 'chr': '23', 'lod_score': '2312', 'mapping_method': 'gemma', 'name': 'nm1', 'use_loco': 'True'}]
+
+		with app.test_client() as client:
+			rv=client.get("/api/v_pre1/mapping")
+			rv_data=json.loads(rv.data)
+			self.assertEqual(expected_results,rv_data)
+			self.assertEqual(rv.status_code,200)
+
+	@mock.patch("wqflask.api.router.mapping.do_mapping_for_api")
+	def test_get_mapping_results_unsupported_format(self,mapping_api):
+		mapping_api.return_value=([{"mapping_method":"gemma"}],"txt")
+		with app.test_client() as client:
+			rv=client.get("api/v_pre1/mapping")
+			rv_data=json.loads(rv.data)["errors"][0]
+			self.assertEqual(rv_data["status"],415)
+			self.assertEqual(rv_data["title"],"Unsupported Format")
+
+	@mock.patch("wqflask.api.router.mapping.do_mapping_for_api")
+	def test_get_mapping_results_csv(self,mapping_api):
+		mapping_api.return_value=([["foo", "bar", "spam"],
+           ["oof", "rab", "maps"],
+           ["writerow", "isn't", "writerows"]],"csv")
+
+		with app.test_client() as client:
+			rv=client.get("api/v_pre1/mapping")
+			rv_data=rv.data.decode("utf-8")
+	
+			csv_data = list(csv.reader(rv_data.splitlines(), delimiter=','))
+			expected_results=[['foo', 'bar', 'spam'], ['oof', 'rab', 'maps'], ['writerow', "isn't", 'writerows']]
+			self.assertEqual(expected_results,csv_data)
+
+
+
+
