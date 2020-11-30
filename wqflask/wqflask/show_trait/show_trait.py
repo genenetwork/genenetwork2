@@ -260,6 +260,10 @@ class ShowTrait(object):
         if len(self.scales_in_geno) < 2:
             hddn['mapping_scale'] = self.scales_in_geno[list(self.scales_in_geno.keys())[0]][0][0]
 
+        hddn['par_f1_samples'] = []
+        if self.dataset.group.parlist and self.dataset.group.f1list:
+            hddn['par_f1_samples'] = self.dataset.group.parlist + self.dataset.group.f1list
+
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
 

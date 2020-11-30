@@ -9,7 +9,6 @@
       <div style="min-height: 80vh; display: flex; align-items: center; text-align: center;">
         <div style="margin-bottom: 5px; left: 50%; margin-right: -50%; margin-top: 10%; transform: translate(-50%, -50%); position: absolute;">
         {% if start_vars.tool_used == "Mapping" %}
-        <span>{{ start_vars }}</span>
         <h1>Computing the Maps</h1>
         <br>
         Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
@@ -20,6 +19,10 @@
         {% endif %}
         <i>n</i> = {{ start_vars.n_samples }}
         <br>
+        {% if start_vars.selected_chr != '-1' %}
+        Chromosome = {{ start_vars.selected_chr }}
+        <br>
+        {% endif %}
         {% if start_vars.num_perm != '0' %}
         # Permutations = {{ start_vars.num_perm }}
         <br>
@@ -41,10 +44,16 @@
         transform = {{ start_vars.transform }}
         <br>
         {% endif %}
-        MAF >= {{ start_vars.maf }}
+        MAF ≥ {{ start_vars.maf }}
         {% else %}
         <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
         {% endif %}
+        <br><br>
+        Genotypes: {{ start_vars.genofile.split(":")[1] }}
+        <br>
+        Filename: {{ start_vars.genofile.split(":")[0]}}
+        <br><br>
+        {{ start_vars.current_datetime }}
         <br><br>
         <img align="center" src="/static/gif/89.gif">
         </div>
