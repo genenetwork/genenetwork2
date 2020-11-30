@@ -24,11 +24,15 @@
         # Permutations = {{ start_vars.num_perm }}
         <br>
         {% endif %}
+        {% if start_vars.method == "reaper" and start_vars.num_bootstrap != '0' %}
+        # Bootstrap = {{ start_vars.num_bootstrap }}
+        <br>
+        {% endif %}
         {% if start_vars.do_control == 'True' and start_vars.control_marker != '' %}
         Controlling for marker {{ start_vars.control_marker }}
         <br>
         {% endif %}
-        {% if start_vars.covariates != '' %}
+        {% if start_vars.covariates != '' and (start_vars.method == "gemma" or start_vars.method == "rqtl_geno") %}
         {% set covariates_list = start_vars.covariates.split(',') %}
         Using {% if covariates_list|length > 2 %}{% for covariate in covariates_list[:-1] %}{{ covariate.split(':')[0] }}, {% endfor %}{% else %}{{ covariates_list[0].split(':')[0] }} {% endif %}and {{ covariates_list[-1].split(':')[0] }} as cofactors
         <br>
