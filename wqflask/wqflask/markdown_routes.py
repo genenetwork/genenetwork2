@@ -4,6 +4,8 @@ Render pages from github, or if they are unavailable, look for it else where
 """
 import requests
 import markdown
+import os
+import sys
 
 from flask import Blueprint
 from flask import render_template
@@ -31,6 +33,14 @@ look for it inside the file system """
             "(here to see where content exists)"
             "[https://github.com/genenetwork/gn-docs]. "
             "Please reach out to the gn2 team to have a look at this")
+
+
+def get_file_from_python_search_path(pathname_suffix):
+    cands = [os.path.join(d, pathname_suffix) for d in sys.path]
+    try:
+        return list(filter(os.path.exists, cands))[0]
+    except IndexError:
+        return None
 
 
 @glossary_blueprint.route('/')
