@@ -44,7 +44,7 @@ def export_search_results_csv(targs):
         if targs['filter_term'] != "None":
             metadata.append(["Search Filter Terms: " + targs['filter_term']])
     metadata.append(["Exported Row Number: " + str(len(table_rows))])
-    metadata.append(["Funding for The GeneNetwork: NIGMS (R01 GM123489, 2017-2021), NIDA (P30 DA044223, 2017-2022), NIA (R01AG043930, 2013-2018), NIAAA (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425, 2006-2017), NIDA/NIMH/NIAAA (P20-DA 21131, 2001-2012), NCI MMHCC (U01CA105417), NCRR/BIRN (U24 RR021760)
+    metadata.append(["Funding for The GeneNetwork: NIGMS (R01 GM123489, 2017-2021), NIDA (P30 DA044223, 2017-2022), NIA (R01AG043930, 2013-2018), NIAAA (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425, 2006-2017), NIDA/NIMH/NIAAA (P20-DA 21131, 2001-2012), NCI MMHCC (U01CA105417), NCRR/BIRN (U24 RR021760)"])
     metadata.append([])
 
     trait_list = []
