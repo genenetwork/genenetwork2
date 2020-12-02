@@ -1,10 +1,10 @@
 
 $(function (){
-$("table th").each(function(index,col_th){
+$("table th").each(function(th_index,col_th){
 	var filter_counter = 0;
 	// map each column to row ie  column i to ith element
 	var column_tds = $(this).closest('table').find('tr td:nth-child(' + (index + 1) + ')')
-	column_tds.each(function(j,col_td){
+	column_tds.each(function(td_index,col_td){
 		if(this.innerHTML==''||this.innerHTML=="N/A"){
 			filter_counter+=1;
 		}
