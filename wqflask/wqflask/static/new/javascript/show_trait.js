@@ -568,14 +568,29 @@ create_value_dropdown = function(value) {
 populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
-  sample_attributes = {};
-  attr_keys = Object.keys(js_data.attributes).sort();
-  for (i=0; i < attr_keys.length; i++) {
-    attribute_info = js_data.attributes[attr_keys[i]];
-    sample_attributes[attribute_info.name] = attribute_info.distinct_values;
+  sample_attributes = [];
+
+  var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
+    return [key, js_data.attributes[key].name];
+  });
+
+  attributes_as_list.sort(function(first, second) {
+    if (second[1] > first[1]){
+      return -1
+    }
+    if (first[1] > second[1]){
+      return 1
+    }
+    return 0
+  });
+
+  for (i=0; i < attributes_as_list.length; i++) {
+    attribute_info = js_data.attributes[attributes_as_list[i][0]]
+    sample_attributes.push(attribute_info.distinct_values);
   }
-  selected_attribute = $('#exclude_menu').val().replace("_", " ");
-  _ref1 = sample_attributes[selected_attribute];
+
+  selected_attribute = $('#exclude_column').val()
+  _ref1 = sample_attributes[selected_attribute - 1];
   _results = [];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     value = _ref1[_i];
@@ -590,25 +605,37 @@ if (Object.keys(js_data.attributes).length){
   populate_sample_attributes_values_dropdown();
 }
 
-$('#exclude_menu').change(populate_sample_attributes_values_dropdown);
+$('#exclude_column').change(populate_sample_attributes_values_dropdown);
 block_by_attribute_value = function() {
   var attribute_name, cell_class, exclude_by_value;
-  attribute_name = $('#exclude_menu').val();
+
+  let exclude_group = $('#exclude_by_attr_group').val();
+  let exclude_column = $('#exclude_column').val();
+
+  if (exclude_group === "other") {
+    var table_api = $('#samples_other').DataTable();
+  } else {
+    var table_api = $('#samples_primary').DataTable();
+  }
+
   exclude_by_value = $('#attribute_values').val();
-  cell_class = ".column_name-" + attribute_name;
-  return $(cell_class).each((function(_this) {
-    return function(index, element) {
-      var row;
-      if ($.trim($(element).text()) === exclude_by_value) {
-        row = $(element).parent('tr');
-        return $(row).find(".trait-value-input").val("x");
-      }
-    };
-  })(this));
+
+  let val_nodes = table_api.column(3).nodes().to$();
+  let exclude_val_nodes = table_api.column(attribute_start_pos + parseInt(exclude_column)).nodes().to$();
+
+  for (i = 0; i < exclude_val_nodes.length; i++) {
+    let this_col_value = exclude_val_nodes[i].childNodes[0].data;
+    let this_val_node = val_nodes[i].childNodes[0];
+
+    if (this_col_value == exclude_by_value){
+      this_val_node.value = "x";
+    }
+  }
 };
-$('#exclude_group').click(block_by_attribute_value);
+$('#exclude_by_attr').click(block_by_attribute_value);
+
 block_by_index = function() {
-  var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref, _results;
+  var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref;
   index_string = $('#remove_samples_field').val();
   index_list = [];
   _ref = index_string.split(",");
@@ -630,7 +657,7 @@ block_by_index = function() {
       index_list.push(index);
     }
   }
-  _results = [];
+
   let block_group = $('#block_group').val();
   if (block_group === "other") {
     table_api = $('#samples_other').DataTable();
@@ -642,6 +669,65 @@ block_by_index = function() {
     index = index_list[_k];
     val_nodes[index - 1].childNodes[0].value = "x";
 
+  }
+};
+
+filter_by_value = function() {
+  let filter_logic = $('#filter_logic').val();
+  let filter_column = $('#filter_column').val();
+  let filter_value = $('#filter_value').val();
+  let block_group = $('#filter_group').val();
+
+  if (block_group === "other") {
+    var table_api = $('#samples_other').DataTable();
+  } else {
+    var table_api = $('#samples_primary').DataTable();
+  }
+
+  let val_nodes = table_api.column(3).nodes().to$();
+  if (filter_column == "value"){
+    var filter_val_nodes = table_api.column(3).nodes().to$();
+  }
+  else if (filter_column == "stderr"){
+    var filter_val_nodes = table_api.column(5).nodes().to$();
+  }
+  else if (!isNaN(filter_column)){
+    var filter_val_nodes = table_api.column(attribute_start_pos + parseInt(filter_column)).nodes().to$();
+  }
+  else {
+    return false
+  }
+
+  for (i = 0; i < filter_val_nodes.length; i++) {
+    if (filter_column == "value" || filter_column == "stderr"){
+      var this_col_value = filter_val_nodes[i].childNodes[0].value;
+    } else {
+      var this_col_value = filter_val_nodes[i].childNodes[0].data;
+    }
+    let this_val_node = val_nodes[i].childNodes[0];
+
+    if(!isNaN(this_col_value) && !isNaN(filter_value)) {
+      if (filter_logic == "greater_than"){
+        if (parseFloat(this_col_value) <= parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+      else if (filter_logic == "less_than"){
+        if (parseFloat(this_col_value) >= parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+      else if (filter_logic == "greater_or_equal"){
+        if (parseFloat(this_col_value) < parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+      else if (filter_logic == "less_or_equal"){
+        if (parseFloat(this_col_value) > parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+    }
   }
 };
 
@@ -1528,6 +1614,12 @@ $('#block_by_index').click(function(){
   block_by_index();
   edit_data_change();
 });
+
+$('#filter_by_value').click(function(){
+  filter_by_value();
+  edit_data_change();
+})
+
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
 $('#reset').click(edit_data_change);
