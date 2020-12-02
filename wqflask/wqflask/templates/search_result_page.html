@@ -2,6 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/scroller/css/scroller.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
@@ -440,8 +441,6 @@
                   'processing': 'Loading...'
                 }
             } );
-
-            console.timeEnd("Creating table");
             
             $('.toggle-vis').on( 'click', function (e) {
               e.preventDefault();

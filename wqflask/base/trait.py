@@ -516,7 +516,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             # If the dataset is confidential and the user has access to confidential
             # phenotype traits, then display the pre-publication description instead
             # of the post-publication description
-            if trait.confidential:
+            if not trait.pubmed_id:
                 trait.abbreviation = trait.pre_publication_abbreviation
                 trait.description_display = trait.pre_publication_description
             else:

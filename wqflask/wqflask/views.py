@@ -301,28 +301,13 @@ def news():
     doc = Docs("news", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/references")
-def references():
-    doc = Docs("references", request.args)
-    # return render_template("reference.html")
-    return render_template("docs.html", **doc.__dict__)
 
 @app.route("/intro")
 def intro():
     doc = Docs("intro", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/policies")
-def policies():
-    doc = Docs("policies", request.args)
-    #return render_template("policies.html")
-    return render_template("docs.html", **doc.__dict__)
 
-@app.route("/links")
-def links():
-    #doc = Docs("links", request.args)
-    #return render_template("docs.html", **doc.__dict__)
-    return render_template("links.html")
 
 @app.route("/tutorials")
 def tutorials():
@@ -335,12 +320,6 @@ def credits():
     #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("credits.html")
-
-@app.route("/environments")
-def environments():
-    doc = Docs("environments", request.args)
-    return render_template("docs.html", **doc.__dict__)
-    #return render_template("environments.html", **doc.__dict__)
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
@@ -718,6 +697,8 @@ def mapping_results_page():
         'maf',
         'use_loco',
         'manhattan_plot',
+        'color_scheme',
+        'manhattan_single_color',
         'control_marker',
         'control_marker_db',
         'do_control',
