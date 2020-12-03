@@ -31,21 +31,25 @@ $(function() {
   };
 
   invert = function() {
-    $(".trait_checkbox").each(function() {
-        if ($(this).prop('checked') == true) {
-            $(this).prop('checked', false)
-        }
-        else {
-            $(this).prop('checked', true)
-        }
+    table_api = $('#trait_table').DataTable();
 
-        if ($(this).closest('tr').hasClass('selected')) {
-            $(this).closest('tr').removeClass('selected')
-        }
-        else {
-            $(this).closest('tr').addClass('selected')
-        }
-    });
+    check_cells = table_api.column(0).nodes().to$();
+    for (let i = 0; i < check_cells.length; i++) {
+      if (check_cells[i].childNodes[0].checked){
+        check_cells[i].childNodes[0].checked = false;
+      } else {
+        check_cells[i].childNodes[0].checked = true;
+      }
+    }
+
+    check_rows = table_api.rows().nodes();
+    for (let i =0; i < check_rows.length; i++) {
+      if (check_rows[i].classList.contains("selected")){
+        check_rows[i].classList.remove("selected")
+      } else {
+        check_rows[i].classList.add("selected")
+      }
+    }
   };
 
   $('#searchbox').keyup(function(){
