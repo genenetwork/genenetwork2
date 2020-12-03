@@ -1,5 +1,31 @@
+change_buttons = function() {
+  var button, buttons, item, num_checked, text, _i, _j, _k, _l, _len, _len2, _len3, _len4, _results, _results2;
+  buttons = ["#add", "#remove"];
+
+  num_checked = 0
+  table_api = $('#trait_table').DataTable();
+  check_cells = table_api.column(0).nodes().to$();
+  for (let i = 0; i < check_cells.length; i++) {
+    if (check_cells[i].childNodes[0].checked){
+      num_checked += 1
+    }
+  }
+
+  if (num_checked === 0) {
+    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+      button = buttons[_i];
+      $(button).prop("disabled", true);
+    }
+  } else {
+    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
+      button = buttons[_j];
+      $(button).prop("disabled", false);
+    }
+  }
+};
+
 $(function() {
-  var add, change_buttons, checked_traits, deselect_all, invert, remove, removed_traits, select_all;
+  var add, checked_traits, deselect_all, invert, remove, removed_traits, select_all;
 
   checked_traits = null;
   select_all = function() {
@@ -12,8 +38,10 @@ $(function() {
 
     check_rows = table_api.rows().nodes();
     for (let i =0; i < check_rows.length; i++) {
-      check_rows[i].classList.add("selected")
+      check_rows[i].classList.add("selected");
     }
+
+    change_buttons();
   };
 
   deselect_all = function() {
@@ -28,6 +56,8 @@ $(function() {
     for (let i =0; i < check_rows.length; i++) {
       check_rows[i].classList.remove("selected")
     }
+
+    change_buttons();
   };
 
   invert = function() {
@@ -50,6 +80,8 @@ $(function() {
         check_rows[i].classList.add("selected")
       }
     }
+
+    change_buttons();
   };
 
   $('#searchbox').keyup(function(){
@@ -90,22 +122,6 @@ $(function() {
       change_buttons();
   });
 
-  $('.trait_checkbox:checkbox').change(function() {
-      change_buttons()
-
-      if ($(this).is(":checked")) {
-          if (!$(this).closest('tr').hasClass('selected')) {
-              $(this).closest('tr').addClass('selected')
-          }
-      }
-      else {
-          if ($(this).closest('tr').hasClass('selected')) {
-              $(this).closest('tr').removeClass('selected')
-          }
-      }
-
-  });
-
   add_to_collection = function() {
     var traits;
     traits = $("#trait_table input:checked").map(function() {
@@ -130,24 +146,7 @@ $(function() {
   };
 
   removed_traits = function() {
-    console.log('in removed_traits with checked_traits:', checked_traits);
     return checked_traits.closest("tr").fadeOut();
-  };
-  change_buttons = function() {
-    var button, buttons, item, num_checked, text, _i, _j, _k, _l, _len, _len2, _len3, _len4, _results, _results2;
-    buttons = ["#add", "#remove"];
-    num_checked = $('.trait_checkbox:checked').length;
-    if (num_checked === 0) {
-      for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-        button = buttons[_i];
-        $(button).prop("disabled", true);
-      }
-    } else {
-      for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
-        button = buttons[_j];
-        $(button).prop("disabled", false);
-      }
-    }
   };
 
   submit_bnw = function() {
@@ -271,8 +270,6 @@ $(function() {
   $("#add").click(add_to_collection);
   $("#submit_bnw").click(submit_bnw);
   $("#export_traits").click(export_traits);
-  $('.trait_checkbox, .btn').click(change_buttons);
-
 
   let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
   let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
