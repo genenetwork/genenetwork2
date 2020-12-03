@@ -86,7 +86,7 @@ def export_search_results_csv(targs):
                 trait_symbol = "N/A"
             row_contents = [
                 i + 1,
-                "https://genenetwork.org/show_trait?trait_id=" + trait.name + "&dataset=" + trait.dataset.name,
+                "https://genenetwork.org/show_trait?trait_id=" + str(trait.name) + "&dataset=" + str(trait.dataset.name),
                 trait.dataset.group.species,
                 trait.dataset.group.name,
                 trait.dataset.name,

@@ -487,6 +487,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_dict['index'] = i + 1
         results_dict['trait_id'] = trait.name
         results_dict['dataset'] = trait.dataset.name
+        results_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait.name, trait.dataset.name))
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
             results_dict['description'] = "N/A"
