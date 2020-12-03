@@ -8,9 +8,16 @@
 
 {% block content %}
 
+<div class="github-btn-container">
+    <div class="github-btn">
+        <a href="https://github.com/genenetwork/gn-docs">
+            Edit Text
+            <img src="/static/images/edit.png">
+        </a>
+    </div>
+</div>
 <div id="markdown" class="container">
-    <small>
-        <a href="https://raw.githubusercontent.com/genenetwork/genenetwork2/wqflask/wqflask/static/glossary.md" target="_">[Edit on Github]</a></small>
+	
     {{ rendered_markdown|safe }}
 </div>
 {% endblock %}

@@ -2,10 +2,6 @@
 var add_trait_data, assemble_into_json, back_to_collections, collection_click, collection_list, color_by_trait, create_trait_data_csv, get_this_trait_vals, get_trait_data, process_traits, selected_traits, submit_click, this_trait_data, trait_click,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-console.log("before get_traits_from_collection");
-
-//collection_list = null;
-
 this_trait_data = null;
 
 selected_traits = {};
@@ -69,7 +65,7 @@ if ( ! $.fn.DataTable.isDataTable( '#collection_table' ) ) {
 
 collection_click = function() {
   var this_collection_url;
-  //console.log("Clicking on:", $(this));
+
   this_collection_url = $(this).find('.collection_name').prop("href");
   this_collection_url += "&json";
   collection_list = $("#collections_holder").html();
@@ -87,9 +83,7 @@ submit_click = function() {
   $('#collections_holder').find('input[type=checkbox]:checked').each(function() {
     var this_dataset, this_trait, this_trait_url;
     this_trait = $(this).parents('tr').find('.trait').text();
-    console.log("this_trait is:", this_trait);
     this_dataset = $(this).parents('tr').find('.dataset').text();
-    console.log("this_dataset is:", this_dataset);
     this_trait_url = "/trait/get_sample_data?trait=" + this_trait + "&dataset=" + this_dataset;
     return $.ajax({
       dataType: "json",
@@ -147,7 +141,7 @@ create_trait_data_csv = function(selected_traits) {
     }
     all_vals.push(this_trait_vals);
   }
-  console.log("all_vals:", all_vals);
+
   trait_vals_csv = trait_names.join(",");
   trait_vals_csv += "\n";
   for (index = _k = 0, _len2 = samples.length; _k < _len2; index = ++_k) {
@@ -168,7 +162,7 @@ create_trait_data_csv = function(selected_traits) {
 
 trait_click = function() {
   var dataset, this_trait_url, trait;
-  console.log("Clicking on:", $(this));
+
   trait = $(this).parent().find('.trait').text();
   dataset = $(this).parent().find('.dataset').text();
   this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
@@ -182,7 +176,6 @@ trait_click = function() {
 
 trait_row_click = function() {
   var dataset, this_trait_url, trait;
-  console.log("Clicking on:", $(this));
   trait = $(this).find('.trait').text();
   dataset = $(this).find('.dataset').data("dataset");
   this_trait_url = "/trait/get_sample_data?trait=" + trait + "&dataset=" + dataset;
@@ -208,13 +201,17 @@ populate_cofactor_info = function(trait_info) {
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor1_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
-    } else {
+    } else if (trait_info['type'] == "Publish") {
       $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
       if ('pubmed_link' in trait_info) {
         $('#cofactor1_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
       } else {
-        $('#cofactor1_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+        $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+        $('#cofactor1_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
       }
+    } else {
+      $('#cofactor1_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor1_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n")
     }
     $('#select_cofactor1').text("Change Cofactor 1");
     $('#cofactor1_info_container').css("display", "inline");
@@ -224,13 +221,17 @@ populate_cofactor_info = function(trait_info) {
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor2_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
-    } else {
+    } else if (trait_info['type'] == "Publish") {
       $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
       if ('pubmed_link' in trait_info) {
         $('#cofactor2_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
       } else {
-        $('#cofactor2_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+        $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+        $('#cofactor2_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
       }
+    } else {
+      $('#cofactor2_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor2_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n")
     }
     $('#select_cofactor2').text("Change Cofactor 2");
     $('#cofactor2_info_container').css("display", "inline");
@@ -240,13 +241,17 @@ populate_cofactor_info = function(trait_info) {
     if (trait_info['type'] == "ProbeSet"){
       $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['tissue'] + " " + trait_info['db'] + ": " + trait_info['name'])
       $('#cofactor3_description').text("[" + trait_info['symbol'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
-    } else {
+    } else if (trait_info['type'] == "Publish") {
       $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
       if ('pubmed_link' in trait_info) {
         $('#cofactor3_description').html('<a href=\"' + trait_info['pubmed_link'] + '\">PubMed: ' + trait_info['pubmed_text'] + '</a><br>' + trait_info['description'])
       } else {
-        $('#cofactor3_description').html('PubMed: ' + trait_info['pubmed_text'] + '<br>' + trait_info['description'])
+        $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+        $('#cofactor3_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n" + trait_info['description'])
       }
+    } else {
+      $('#cofactor3_trait_link').text(trait_info['species'] + " " + trait_info['group'] + " " + trait_info['db'] + ": " + trait_info['name'])
+      $('#cofactor3_description').text("[" + trait_info['name'] + " on " + trait_info['location'] + " Mb]\n")
     }
     $('#select_cofactor3').text("Change Cofactor 3");
     $('#cofactor3_info_container').css("display", "inline");
@@ -256,7 +261,6 @@ populate_cofactor_info = function(trait_info) {
 get_trait_data = function(trait_data, textStatus, jqXHR) {
   var sample, samples, this_trait_vals, trait_sample_data, vals, _i, _len;
   trait_sample_data = trait_data[1];
-  console.log("IN GET TRAIT DATA")
   if ( $('input[name=allsamples]').length ) {
     samples = $('input[name=allsamples]').val().split(" ");
   } else {
@@ -362,13 +366,11 @@ assemble_into_json = function(this_trait_vals) {
 };
 
 color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
-  console.log('in color_by_trait:', trait_sample_data);
   return root.bar_chart.color_by_trait(trait_sample_data);
 };
 
 process_traits = function(trait_data, textStatus, jqXHR) {
   var the_html, trait, _i, _len;
-  console.log('in process_traits with trait_data:', trait_data);
   the_html = "<button id='back_to_collections' class='btn btn-inverse btn-small'>";
   the_html += "<i class='icon-white icon-arrow-left'></i> Back </button>";
   the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
@@ -397,13 +399,11 @@ process_traits = function(trait_data, textStatus, jqXHR) {
 };
 
 back_to_collections = function() {
-  collection_list_html = $('#collection_list_html').html()
-  $("#collections_holder").html(collection_list_html);
+  $("#collections_holder").html(collection_list);
   $(document).on("click", ".collection_line", collection_click);
   return $('#collections_holder').colorbox.resize();
 };
 
-console.log("inside get_traits_from_collection");
 $(".collection_line").on("click", collection_click);
 $("#submit").on("click", submit_click);
 if ($('#scatterplot2').length){

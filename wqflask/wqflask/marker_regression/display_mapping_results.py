@@ -74,6 +74,14 @@ DARKVIOLET = ImageColor.getrgb("darkviolet")
 MEDIUMPURPLE = ImageColor.getrgb("mediumpurple")
 # ---- END: Define common colours ---- #
 
+# ZS: List of distinct colors for manhattan plot if user selects "varied"
+COLOR_CODES = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF",
+               "#000000", "#800000", "#008000", "#000080", "#808000", "#800080",
+               "#008080", "#808080", "#C00000", "#00C000", "#0000C0", "#C0C000",
+               "#C000C0", "#00C0C0", "#C0C0C0", "#400000", "#004000", "#000040"]
+
+DISTINCT_COLOR_LIST = [ImageColor.getrgb(color) for color in COLOR_CODES]
+
 # ---- FONT FILES ---- #
 VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
 VERDANA_BOLD_FILE = "./wqflask/static/fonts/verdanab.ttf"
@@ -293,6 +301,12 @@ class DisplayMappingResults(object):
             self.plotScale = "physic"
 
         self.manhattan_plot = start_vars['manhattan_plot']
+        if self.manhattan_plot:
+            self.color_scheme = "alternating"
+            if 'color_scheme' in start_vars:
+                self.color_scheme = start_vars['color_scheme']
+                if self.color_scheme == "single":
+                    self.manhattan_single_color = ImageColor.getrgb("#" + start_vars['manhattan_single_color'])
 
         if 'permCheck' in list(start_vars.keys()):
             self.permChecked = start_vars['permCheck']
@@ -2076,7 +2090,7 @@ class DisplayMappingResults(object):
         if self.lrsMax <= 0:  #sliding scale
             if "lrs_value" in self.qtlresults[0]:
                 LRS_LOD_Max = max([result['lrs_value'] for result in self.qtlresults])
-                if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
+                if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                     LRS_LOD_Max = LRS_LOD_Max / self.LODFACTOR
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
                         self.significant = min(self.significant / self.LODFACTOR, webqtlConfig.MAXLRS)
@@ -2172,7 +2186,7 @@ class DisplayMappingResults(object):
             TEXT_X_DISPLACEMENT = -12
         else:
             TEXT_X_DISPLACEMENT = -30
-        if self.LRS_LOD == "-log(p)":
+        if self.LRS_LOD == "-logP":
             TEXT_Y_DISPLACEMENT = -242
         else:
             TEXT_Y_DISPLACEMENT = -210
@@ -2397,7 +2411,7 @@ class DisplayMappingResults(object):
 
 
                 if 'lrs_value' in qtlresult:
-                    if self.LRS_LOD == "LOD" or self.LRS_LOD == "-log(p)":
+                    if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value']=='inf':
                             #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRS_LOD_Max*self.LODFACTOR)
@@ -2424,10 +2438,16 @@ class DisplayMappingResults(object):
                             Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRS_LOD_Max
 
                 if self.manhattan_plot == True:
-                    if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
-                        point_color = RED
+                    if self.color_scheme == "single":
+                        point_color = self.manhattan_single_color
+                    elif self.color_scheme == "varied":
+                        point_color = DISTINCT_COLOR_LIST[previous_chr_as_int]
                     else:
-                        point_color = BLUE
+                        if self.selectedChr == -1 and (previous_chr_as_int % 2 == 1):
+                            point_color = RED
+                        else:
+                            point_color = BLUE
+
                     im_drawer.text(
                         text="5",
                         xy=(

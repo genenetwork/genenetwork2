@@ -265,14 +265,17 @@ def get_sample_data():
         trait_dict['species'] = trait_ob.dataset.group.species
         trait_dict['url'] = url_for(
             'show_trait_page', trait_id=trait, dataset=dataset)
-        trait_dict['description'] = trait_ob.description_display
         if trait_ob.dataset.type == "ProbeSet":
             trait_dict['symbol'] = trait_ob.symbol
             trait_dict['location'] = trait_ob.location_repr
+            trait_dict['description'] = trait_ob.description_display
         elif trait_ob.dataset.type == "Publish":
+            trait_dict['description'] = trait_ob.description_display
             if trait_ob.pubmed_id:
                 trait_dict['pubmed_link'] = trait_ob.pubmed_link
             trait_dict['pubmed_text'] = trait_ob.pubmed_text
+        else:
+            trait_dict['location'] = trait_ob.location_repr
 
         return json.dumps([trait_dict, {key: value.value for
                                         key, value in list(
@@ -513,7 +516,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             # If the dataset is confidential and the user has access to confidential
             # phenotype traits, then display the pre-publication description instead
             # of the post-publication description
-            if trait.confidential:
+            if not trait.pubmed_id:
                 trait.abbreviation = trait.pre_publication_abbreviation
                 trait.description_display = trait.pre_publication_description
             else:
