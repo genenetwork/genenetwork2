@@ -1,21 +1,28 @@
-$(function(){
-	$("table").each(function(table){
-		$(this).find("th").each(function(col_index,col_th){
-			var filter_counter=0
-			var col_td=$(this).closest('table').find('tr td:nth-child(' + (col_index + 1) + ')')
-			col_td.each(function(td_index,col_td){
-				if(this.innerHTML==""||this.innerHTML=="N/A"){
-					filter_counter+=1
-				}
-				else{
-					return false
-				}
-			})
-			if (filter_counter==$(this).closest("table").find("tr").length-1){
-					$(this).hide();
-                   col_td.hide();
+function filterDatable(datatable){
+        let visitedColumns=[]
+        let columnCount=datatable.columns().header().length;
+        let numberOfRows=datatable.data().length;
+        for (let i=0;i<numberOfRows;i++){
+            if (visitedColumns.length==columnCount){
+                break;
+            }
+            let rowObj=datatable.rows(i).data()
+            rowObj.data().each(function(rowData,v){
+                if (visitedColumns.length==columnCount){
+                    return false;
+                }
+                for (let j=0;j<rowData.length;j++){
+                    if (j in visitedColumns||visitedColumns.length==columnCount){
+                        break;
+                    }
+                    if (rowData[j]!="N/A" && rowData[j]!=""){
 
-			}
-		})
-	})
-})
+                        visitedColumns.push(j)
+                    }
+                }
+            })
+        }
+        emptyColumns=Array.from(Array(columnCount).keys()).filter((item)=>visitedColumns.indexOf(item)<0);
+        return datatable.columns(emptyColumns).visible(false);
+
+}
