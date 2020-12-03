@@ -157,18 +157,23 @@ $(function() {
     });
     table_dict['headers'] = headers;
 
-    rows = [];
-    trait_table.find('tbody tr').each(function (i, tr) {
-      if (trait_table.find('input[name="searchResult"]:checked').length > 0) {
-        if ($(this).find('input[name="searchResult"]').is(':checked')){
-          rows.push($(this).find('input[name="searchResult"]:checked').val())
-        }
+    selected_rows = [];
+    all_rows = []; //ZS: If no rows are checked, export all
+    table_api = $('#' + table_name).DataTable();
+    check_cells = table_api.column(0).nodes().to$();
+    for (let i = 0; i < check_cells.length; i++) {
+      this_node = check_cells[i].childNodes[0];
+      all_rows.push(this_node.value)
+      if (this_node.checked){
+        selected_rows.push(this_node.value)
       }
-      else {
-        rows.push($(this).find('input[name="searchResult"]').val())
-      }
-    });
-    table_dict['rows'] = rows;
+    }
+
+    if (selected_rows.length > 0){
+      table_dict['rows'] = selected_rows;
+    } else {
+      table_dict['rows'] = all_rows;
+    }
 
     json_table_dict = JSON.stringify(table_dict);
     $('input[name=export_data]').val(json_table_dict);
