@@ -204,42 +204,21 @@
                 }
             });
 
-            function change_buttons() {
-                buttons = ["#add", "#remove"];
-                num_checked = $('.trait_checkbox:checked').length;
-                if (num_checked === 0) {
-                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-                        button = buttons[_i];
-                        $(button).prop("disabled", true);
-                    }
-                } else {
-                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
-                        button = buttons[_j];
-                        $(button).prop("disabled", false);
-                    }
-                }
-                         //});
-                if ($(this).is(":checked")) {
-                    if (!$(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').addClass('selected')
-                    }
-                }
-                else {
-                    if ($(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').removeClass('selected')
-                    }
-                }
-            }
-
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
             trait_table = $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                      $('#trait_table tr').off().on("click", function(event) {
+                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                          var obj =$(this).find('input');
+                          obj.prop('checked', !obj.is(':checked'));
+                        }
+                        if ($(this).hasClass("selected")){
+                          $(this).removeClass("selected")
+                        } else {
+                          $(this).addClass("selected")
+                        }
+                        change_buttons()
+                      });
                 },
                 'createdRow': function ( row, data, index ) {
                     $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
