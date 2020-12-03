@@ -7,6 +7,8 @@ import markdown
 import os
 import sys
 
+from bs4 import BeautifulSoup
+
 from flask import Blueprint
 from flask import render_template
 
@@ -68,10 +70,21 @@ def references():
 
 @environments_blueprint.route("/")
 def environments():
+
     md_file = get_file_from_python_search_path("wqflask/DEPENDENCIES.md")
+    svg_file = get_file_from_python_search_path(
+        "wqflask/dependency-graph.html")
+    svg_data = None
+    if svg_file:
+        with open(svg_file, 'r') as f:
+            svg_data = "".join(
+                BeautifulSoup(f.read(),
+                              'lxml').body.script.contents)
+
     if md_file is not None:
         return (
             render_template("environment.html",
+                            svg_data=svg_data,
                             rendered_markdown=render_markdown(
                                 md_file,
                                 is_remote_file=False)),
@@ -80,6 +93,7 @@ def environments():
     # Fallback: Fetch file from server
     return (render_template(
         "environment.html",
+        svg_data=None,
         rendered_markdown=render_markdown(
             "general/environments/environments.md")),
             200)

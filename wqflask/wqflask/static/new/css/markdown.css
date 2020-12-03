@@ -57,6 +57,20 @@
     word-spacing: 0.2em;
 }
 
+.graph-legend h1 {
+    text-align: center;
+}
+
+.graph-legend,
+#guix-graph {
+    width: 90%;
+    margin: 10px auto;
+}
+
+#guix-graph {
+    border: solid 2px black;
+}
+
 #markdown table {
     width: 100%;
 }
