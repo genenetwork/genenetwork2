@@ -3,22 +3,31 @@ $(function() {
 
   checked_traits = null;
   select_all = function() {
-    console.log("selected_all");
-    $(".trait_checkbox").each(function() {
-        $(this).prop('checked', true);
-        if (!$(this).closest('tr').hasClass('selected')) {
-            $(this).closest('tr').addClass('selected')
-        }
-    });
+    table_api = $('#trait_table').DataTable();
+
+    check_cells = table_api.column(0).nodes().to$();
+    for (let i = 0; i < check_cells.length; i++) {
+      check_cells[i].childNodes[0].checked = true;
+    }
+
+    check_rows = table_api.rows().nodes();
+    for (let i =0; i < check_rows.length; i++) {
+      check_rows[i].classList.add("selected")
+    }
   };
 
   deselect_all = function() {
-    $(".trait_checkbox").each(function() {
-        $(this).prop('checked', false);
-        if ($(this).closest('tr').hasClass('selected')) {
-            $(this).closest('tr').removeClass('selected')
-        }
-    });
+    table_api = $('#trait_table').DataTable();
+
+    check_cells = table_api.column(0).nodes().to$();
+    for (let i = 0; i < check_cells.length; i++) {
+      check_cells[i].childNodes[0].checked = false;
+    }
+
+    check_rows = table_api.rows().nodes();
+    for (let i =0; i < check_rows.length; i++) {
+      check_rows[i].classList.remove("selected")
+    }
   };
 
   invert = function() {
