@@ -31,7 +31,8 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
       gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
       this_chromosomes = this_dataset.species.chromosomes.chromosomes
-      this_chromosomes_name=[chromosome.name for chromosome in this_chromosomes]
+      this_chromosomes_name=[this_chromosomes[chromosome].name for chromosome in this_chromosomes]
+
 
       chr_list_string=",".join(this_chromosomes_name)
       if covariates != "":
