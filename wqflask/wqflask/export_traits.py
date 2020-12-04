@@ -44,7 +44,7 @@ def export_search_results_csv(targs):
         if targs['filter_term'] != "None":
             metadata.append(["Search Filter Terms: " + targs['filter_term']])
     metadata.append(["Exported Row Number: " + str(len(table_rows))])
-    metadata.append(["Funding for The GeneNetwork: NIAAA (U01AA13499, U24AA13513), NIDA, NIMH, and NIAAA (P20-DA21131), NCI MMHCC (U01CA105417), and NCRR (U01NR 105417)"])
+    metadata.append(["Funding for The GeneNetwork: NIGMS (R01 GM123489, 2017-2021), NIDA (P30 DA044223, 2017-2022), NIA (R01AG043930, 2013-2018), NIAAA (U01 AA016662, U01 AA013499, U24 AA013513, U01 AA014425, 2006-2017), NIDA/NIMH/NIAAA (P20-DA 21131, 2001-2012), NCI MMHCC (U01CA105417), NCRR/BIRN (U24 RR021760)"])
     metadata.append([])
 
     trait_list = []
@@ -54,7 +54,7 @@ def export_search_results_csv(targs):
         trait_ob = retrieve_trait_info(trait_ob, trait_ob.dataset, get_qtl_info=True)
         trait_list.append(trait_ob)
 
-    table_headers = ['Species', 'Group', 'Dataset', 'Record ID', 'Symbol', 'Description', 'ProbeTarget', 'PubMed_ID', 'Chr', 'Mb', 'Alias', 'Gene_ID', 'Homologene_ID', 'UniGene_ID', 'Strand_Probe', 'Probe_set_specificity', 'Probe_set_BLAT_score', 'Probe_set_BLAT_Mb_start', 'Probe_set_BLAT_Mb_end', 'QTL_Chr', 'QTL_Mb', 'Locus_at_Peak', 'Max_LRS', 'P_value_of_MAX', 'Mean_Expression']
+    table_headers = ['Index', 'URL', 'Species', 'Group', 'Dataset', 'Record ID', 'Symbol', 'Description', 'ProbeTarget', 'PubMed_ID', 'Chr', 'Mb', 'Alias', 'Gene_ID', 'Homologene_ID', 'UniGene_ID', 'Strand_Probe', 'Probe_set_specificity', 'Probe_set_BLAT_score', 'Probe_set_BLAT_Mb_start', 'Probe_set_BLAT_Mb_end', 'QTL_Chr', 'QTL_Mb', 'Locus_at_Peak', 'Max_LRS', 'P_value_of_MAX', 'Mean_Expression']
 
     traits_by_group = sort_traits_by_group(trait_list)
 
@@ -77,7 +77,7 @@ def export_search_results_csv(targs):
 
         csv_rows.append(full_headers)
 
-        for trait in group_traits:
+        for i, trait in enumerate(group_traits):
             if getattr(trait, "symbol", None):
                 trait_symbol = getattr(trait, "symbol")
             elif getattr(trait, "abbreviation", None):
@@ -85,6 +85,8 @@ def export_search_results_csv(targs):
             else:
                 trait_symbol = "N/A"
             row_contents = [
+                i + 1,
+                "https://genenetwork.org/show_trait?trait_id=" + str(trait.name) + "&dataset=" + str(trait.dataset.name),
                 trait.dataset.group.species,
                 trait.dataset.group.name,
                 trait.dataset.name,

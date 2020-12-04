@@ -75,6 +75,7 @@
         <div>
             <form id="export_form" method="POST" action="/export_traits_csv">
                 <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+                <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
                 <button class="btn btn-success" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
                 <input type="hidden" name="database_name" id="database_name" value="None">
                 <input type="hidden" name="export_data" id="export_data" value="">
@@ -256,41 +257,6 @@
         {% endif %}
 
         $(document).ready( function () {
-
-            $('#trait_table tr').click(function(event) {
-                if (event.target.type !== 'checkbox') {
-                    $(':checkbox', this).trigger('click');
-                }
-            });
-
-            function change_buttons() {
-                buttons = ["#add", "#remove"];
-                num_checked = $('.trait_checkbox:checked').length;
-                if (num_checked === 0) {
-                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-                        button = buttons[_i];
-                        $(button).prop("disabled", true);
-                    }
-                } else {
-                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
-                        button = buttons[_j];
-                        $(button).prop("disabled", false);
-                    }
-                }
-                if ($(this).is(":checked")) {
-                    if (!$(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').addClass('selected')
-                    }
-                }
-                else {
-                    if ($(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').removeClass('selected')
-                    }
-                }
-            }
-
-            console.time("Creating table");
-
             table_conf = {
                 buttons: [
                     {
@@ -305,6 +271,20 @@
                         postfixButtons: [ 'colvisRestore' ]
                     }
                 ],
+                'drawCallback': function( settings ) {
+                      $('#trait_table tr').off().on("click", function(event) {
+                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                          var obj =$(this).find('input');
+                          obj.prop('checked', !obj.is(':checked'));
+                        }
+                        if ($(this).hasClass("selected")){
+                          $(this).removeClass("selected")
+                        } else {
+                          $(this).addClass("selected")
+                        }
+                      });
+                      $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "data": table_json,
                 "columns": [
                     {
@@ -557,7 +537,7 @@
                 "sDom": "itir",
                 "autoWidth": true,
                 "bSortClasses": false,
-                "scrollY": "50vh",
+                "scrollY": "100vh",
                 "scroller":  true,
                 "scrollCollapse": true
             }
@@ -569,8 +549,6 @@
                 cell.innerHTML = i+1;
                 } );
             } ).draw();
-
-            console.timeEnd("Creating table");
 
             $('.toggle-vis').on('click', function (e) {
               e.preventDefault();

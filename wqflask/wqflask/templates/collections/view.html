@@ -73,7 +73,7 @@
                 <form id="export_form" method="POST" action="/export_traits_csv">
                     <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
                     <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-ok"></span> Invert</button>
-                    <button class="btn btn-success" id="add" disabled="disabled" type="button"><i class="icon-plus-sign"></i> Copy</button>
+                    <button class="btn btn-success" id="add" type="button" disabled><i class="icon-plus-sign"></i> Copy</button>
                     <input type="hidden" name="database_name" id="database_name" value="None">
                     <input type="hidden" name="export_data" id="export_data" value="">
                     <input type="hidden" name="file_name" id="file_name" value="collection_table">
@@ -81,7 +81,7 @@
                     <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
                     <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
                     <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
-                    <button id="remove" class="btn btn-danger" data-url="/collections/remove" disabled="disabled" type="button"><i class="icon-minus-sign"></i> Delete Rows</button>
+                    <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Delete Rows</button>
                     <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
                 </form>
             </div>
@@ -109,10 +109,7 @@
                     <tbody>
                     {% for this_trait in trait_obs %}
                         <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                            <TD align="center" style="padding: 0px;">
-                                <INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox"
-                                       VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}">
-                            </TD>
+                            <TD align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
                             <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
                             <TD title="{{ this_trait.dataset.fullname }}" data-export="{{ this_trait.dataset.fullname }}">{{ this_trait.dataset.fullname }}</TD>
                             <TD data-export="{{ this_trait.name }}">
@@ -178,15 +175,21 @@
 
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
-
-            $('#trait_table tr').click(function(event) {
-                if (event.target.type !== 'checkbox') {
-                    $(':checkbox', this).trigger('click');
-                }
-            });
-
-            console.time("Creating table");
             $('#trait_table').dataTable( {
+                'drawCallback': function( settings ) {
+                      $('#trait_table tr').off().on("click", function(event) {
+                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                          var obj =$(this).find('input');
+                          obj.prop('checked', !obj.is(':checked'));
+                        }
+                        if ($(this).hasClass("selected")){
+                          $(this).removeClass("selected")
+                        } else {
+                          $(this).addClass("selected")
+                        }
+                        change_buttons()
+                      });
+                },
                 "columns": [
                     {
                         "orderDataType": "dom-checkbox",
@@ -220,7 +223,7 @@
                 "paging": false,
                 "orderClasses": true
             } );
-            console.timeEnd("Creating table");
+
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
