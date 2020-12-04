@@ -57,6 +57,45 @@
     word-spacing: 0.2em;
 }
 
+.graph-legend h1 {
+    text-align: center;
+}
+
+.graph-legend,
+#guix-graph {
+    width: 90%;
+    margin: 10px auto;
+}
+
+#guix-graph {
+    border: solid 2px black;
+}
+
+#markdown table {
+    width: 100%;
+}
+
+#markdown td {
+    padding: 1em;
+    text-align: left;
+}
+
+#markdown th {
+    text-align: center;
+}
+
+#markdown table,
+#markdown td,
+#markdown th {
+    border: solid 2px black;
+}
+
+#markdown td,
+#markdown th {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 @media(max-width:650px) {
     .container {
         width: 100vw;
