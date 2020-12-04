@@ -11,18 +11,49 @@
         {% if start_vars.tool_used == "Mapping" %}
         <h1>Computing the Maps</h1>
         <br>
-        <i>n</i> = {{ start_vars.n_samples }}
-        <br>
         Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
         <br>
+        {% if start_vars.method == "gemma" and start_vars.use_loco == 'True' %}
+        Using LOCO (leave one chromosome out)
+        <br>
+        {% endif %}
+        <i>n</i> = {{ start_vars.n_samples }}
+        <br>
+        {% if start_vars.selected_chr != '-1' %}
+        Chromosome = {{ start_vars.selected_chr }}
+        <br>
+        {% endif %}
+        {% if start_vars.num_perm != '0' %}
+        # Permutations = {{ start_vars.num_perm }}
+        <br>
+        {% endif %}
+        {% if start_vars.method == "reaper" and start_vars.num_bootstrap != '0' %}
+        # Bootstrap = {{ start_vars.num_bootstrap }}
+        <br>
+        {% endif %}
+        {% if start_vars.do_control == 'True' and start_vars.control_marker != '' %}
+        Controlling for marker {{ start_vars.control_marker }}
+        <br>
+        {% endif %}
+        {% if start_vars.covariates != '' and (start_vars.method == "gemma" or start_vars.method == "rqtl_geno") %}
+        {% set covariates_list = start_vars.covariates.split(',') %}
+        Using {% if covariates_list|length > 2 %}{% for covariate in covariates_list[:-1] %}{{ covariate.split(':')[0] }}, {% endfor %}{% else %}{{ covariates_list[0].split(':')[0] }} {% endif %}and {{ covariates_list[-1].split(':')[0] }} as cofactors
+        <br>
+        {% endif %}
         {% if start_vars.transform != "" %}
         transform = {{ start_vars.transform }}
         <br>
         {% endif %}
-        MAF >= {{ start_vars.maf }}
+        MAF ≥ {{ start_vars.maf }}
         {% else %}
         <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
         {% endif %}
+        <br><br>
+        Genotypes: {{ start_vars.genofile.split(":")[1] }}
+        <br>
+        Filename: {{ start_vars.genofile.split(":")[0]}}
+        <br><br>
+        {{ start_vars.current_datetime }}
         <br><br>
         <img align="center" src="/static/gif/89.gif">
         </div>

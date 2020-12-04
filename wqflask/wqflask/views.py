@@ -642,12 +642,15 @@ def loading_page():
                         samples = genofile_samples
 
             for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
-                    n_samples += 1
+                if sample not in start_vars['par_f1_samples']:
+                    value = start_vars.get('value:' + sample)
+                    if value != "x":
+                        n_samples += 1
 
         start_vars['n_samples'] = n_samples
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
+
+        start_vars['current_datetime'] = datetime.datetime.now().strftime("%m/%d/%Y - %I:%M:%S %p")
 
         start_vars_container['start_vars'] = start_vars
     else:
