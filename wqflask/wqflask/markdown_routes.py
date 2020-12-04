@@ -64,7 +64,7 @@ def links():
 @policies_blueprint.route("/")
 def policies():
     return render_template(
-        "links.html",
+        "policies.html",
         rendered_markdown=render_markdown("general/policies/policies.md")), 200
 
 
