@@ -498,7 +498,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             if bool(trait.description_display):
                 results_dict['description'] = trait.description_display
             if bool(trait.mean):
-                results_dict['mean'] = float(trait.mean)
+                results_dict['mean'] = f"{float(trait.mean):.3f}"
             if trait.LRS_score_repr != "N/A":
                 results_dict['lrs_score'] = f"{float(trait.LRS_score_repr):.1f}"
             results_dict['lrs_location'] = trait.LRS_location_repr
