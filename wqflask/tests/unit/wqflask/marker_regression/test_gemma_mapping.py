@@ -53,12 +53,12 @@ class TestGemmaMapping(unittest.TestCase):
         this_chromosomes={}
         for i in range(1, 5):
             this_chromosomes[f'CH{i}']=(AttributeSetter({"name": f"CH{i}"}))
-        chromo = AttributeSetter({"chromosomes": this_chromosomes})
+        chromosomes = AttributeSetter({"chromosomes": this_chromosomes})
 
         dataset_group = MockGroup(
             {"name": "GP1", "genofile": "file_geno"})
         dataset = AttributeSetter({"group": dataset_group, "name": "dataset1_name",
-                                   "species": AttributeSetter({"chromosomes": chromo})})
+                                   "species": AttributeSetter({"chromosomes": chromosomes})})
         trait = AttributeSetter({"name": "trait1"})
         samples = []
         mock_gen_pheno_txt.return_value = None
