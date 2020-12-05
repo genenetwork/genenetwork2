@@ -43,18 +43,18 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMA_WRAPPER_COMMAND", "ghc")
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data/")
     @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.logger")
     @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_covariates_file")
     @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_firstrun_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files, mock_logger, mock_parse_loco):
+    def test_run_gemma_firstrun_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files,mock_parse_loco):
         """add tests for run_gemma where first run is set to true"""
-        chromosomes = []
+        this_chromosomes={}
         for i in range(1, 5):
-            chromosomes.append(AttributeSetter({"name": f"CH{i}"}))
-        chromo = AttributeSetter({"chromosomes": chromosomes})
+            this_chromosomes[f'CH{i}']=(AttributeSetter({"name": f"CH{i}"}))
+        chromo = AttributeSetter({"chromosomes": this_chromosomes})
+
         dataset_group = MockGroup(
             {"name": "GP1", "genofile": "file_geno"})
         dataset = AttributeSetter({"group": dataset_group, "name": "dataset1_name",
@@ -76,7 +76,6 @@ class TestGemmaMapping(unittest.TestCase):
         mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR")
         mock_os.path.isfile.assert_called_once_with(
             ('/home/user/imgfile_output.assoc.txt'))
-        self.assertEqual(mock_logger.debug.call_count, 2)
         self.assertEqual(mock_flat_files.call_count, 4)
         self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
 
