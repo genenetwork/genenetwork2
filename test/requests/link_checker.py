@@ -116,6 +116,11 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
+        "/js/cytoscape/cytoscape.min.js",
+        "/js/cytoscape-panzoom/cytoscape-panzoom.js",
+        "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
+        "/js/cytoscape-qtip/cytoscape-qtip.js",
+
     ]
 
     print("Checking links")
