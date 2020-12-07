@@ -1,5 +1,6 @@
 <title>Loading {{ start_vars.tool_used }} Results</title>
-<link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
+<link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
+<link REL="stylesheet" TYPE="text/css" href="/static/new/css/bootstrap-custom.css" />
 <form method="post" action="" name="loading_form" id="loading_form" class="form-horizontal">
   {% for key, value in start_vars.items() %}
   <input type="hidden" name="{{ key }}" value="{{ value }}">
