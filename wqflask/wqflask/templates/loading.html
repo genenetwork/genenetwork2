@@ -40,7 +40,7 @@
   </div>
 </form>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
+ <script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
 <script  type="text/javascript">
 
 $("#loading_form").attr("action", "{{ start_vars.form_url }}");
