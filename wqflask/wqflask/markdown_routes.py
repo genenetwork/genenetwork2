@@ -9,6 +9,7 @@ import sys
 
 from bs4 import BeautifulSoup
 
+from flask import send_from_directory
 from flask import Blueprint
 from flask import render_template
 
@@ -99,6 +100,13 @@ def environments():
             200)
 
 
+@environments_blueprint.route('/svg-dependency-graph')
+def svg_graph():
+    directory, file_name, _ = get_file_from_python_search_path(
+            "wqflask/dependency-graph.svg").partition("dependency-graph.svg")
+    return send_from_directory(directory, file_name)
+
+
 @links_blueprint.route("/")
 def links():
     return render_template(
@@ -109,7 +117,7 @@ def links():
 @policies_blueprint.route("/")
 def policies():
     return render_template(
-        "links.html",
+        "policies.html",
         rendered_markdown=render_markdown("general/policies/policies.md")), 200
 
 

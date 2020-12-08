@@ -120,7 +120,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/cytoscape-panzoom/cytoscape-panzoom.js",
         "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
         "/js/cytoscape-qtip/cytoscape-qtip.js",
-
+        "/css/d3-tip/d3-tip.css",
     ]
 
     print("Checking links")
