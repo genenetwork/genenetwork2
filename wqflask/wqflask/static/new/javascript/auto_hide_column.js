@@ -1,28 +1,23 @@
-function filterDatable(datatable){
-        let visitedColumns=[]
-        let columnCount=datatable.columns().header().length;
-        let numberOfRows=datatable.data().length;
-        for (let i=0;i<numberOfRows;i++){
-            if (visitedColumns.length==columnCount){
+function filterDatatable(datatable){
+    let visitedFoundColumns=[]
+    let columnCount=datatable.columns().header().length;
+    let numberOfRows=datatable.data().length;
+    for (let i=0;i<numberOfRows;i++){
+        if (visitedFoundColumns.length==columnCount){
+            break;
+        }
+        let rowObj=datatable.rows(i).data()[0]
+        for(let col=0;col<rowObj.length;col++){
+            if (visitedFoundColumns.length==columnCount){
                 break;
             }
-            let rowObj=datatable.rows(i).data()
-            rowObj.data().each(function(rowData,v){
-                if (visitedColumns.length==columnCount){
-                    return false;
-                }
-                for (let j=0;j<rowData.length;j++){
-                    if (j in visitedColumns||visitedColumns.length==columnCount){
-                        break;
-                    }
-                    if (rowData[j]!="N/A" && rowData[j]!=""){
-
-                        visitedColumns.push(j)
-                    }
-                }
-            })
+            if (visitedFoundColumns.includes(col) || rowObj[col]=="N/A"||rowObj[col]==""){
+                continue;
+            }
+            visitedFoundColumns.push(col)
         }
-        emptyColumns=Array.from(Array(columnCount).keys()).filter((item)=>visitedColumns.indexOf(item)<0);
-        return datatable.columns(emptyColumns).visible(false);
+    }
+    emptyColumns=Array.from(Array(columnCount).keys()).filter((item)=>visitedFoundColumns.indexOf(item)<0);
+    return datatable.columns(emptyColumns).visible(false);
 
 }
