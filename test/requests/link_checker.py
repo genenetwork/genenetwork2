@@ -117,6 +117,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
         "/js/bootstrap/js/bootstrap.min.js",
+        "/css/bootstrap/css/bootstrap.css",
 
     ]
 
