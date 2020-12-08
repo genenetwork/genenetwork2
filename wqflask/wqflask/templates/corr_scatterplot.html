@@ -118,17 +118,17 @@
   {% endif %}
 
   <ul class="nav nav-tabs">
-    <li class="active">
+    <li {% if method == 'pearson' %}class="active"{% endif %}>
       <a href="#tp1" data-toggle="tab">Pearson</a>
     </li>
-    <li>
+    <li {% if method == 'spearman' %}class="active"{% endif %}>
       <a href="#tp2" data-toggle="tab">Spearman Rank</a>
     </li>
   </ul>
 
   <div class="tab-content" style="min-width: 800px;">
 
-    <div class="tab-pane active" id="tp1">
+    <div class="tab-pane {% if method == 'pearson' %}active{% endif %}" id="tp1">
       <br>
       <div id="scatterplot2"></div>
       <br>
@@ -243,7 +243,7 @@
       </div>
     </div>
 
-    <div class="tab-pane" id="tp2">
+    <div class="tab-pane {% if method == 'spearman' %}active{% endif %}" id="tp2">
       <br>
       <div id="srscatterplot2"></div>
       <br>
