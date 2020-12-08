@@ -118,6 +118,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
         "/js/DataTables/js/jquery.js",
+        "/css/DataTables/css/jquery.dataTables.css",
     ]
 
     print("Checking links")
