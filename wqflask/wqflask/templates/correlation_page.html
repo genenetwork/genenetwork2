@@ -349,7 +349,7 @@
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
                         if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                         } else {
                           return data.sample_r
                         }
@@ -470,7 +470,7 @@
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
                         if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                         } else {
                           return data.sample_r
                         }
@@ -524,7 +524,7 @@
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
                         if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                         } else {
                           return data.sample_r
                         }
