@@ -17,7 +17,7 @@ function filterDatatable(datatable){
             visitedFoundColumns.push(col)
         }
     }
-    emptyColumns=Array.from(Array(columnCount).keys()).filter((item)=>visitedFoundColumns.indexOf(item)<0);
+    emptyColumns=Array.from(Array(columnCount).keys()).filter((column)=>visitedFoundColumns.indexOf(column)<0);
     return datatable.columns(emptyColumns).visible(false);
 
 }
