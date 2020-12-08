@@ -169,9 +169,8 @@ class DisplayMappingResults(object):
     # ** GENES **********
     BAND_SPACING = 4
 
-    BAND_HEIGHT = 10
-    BAND_HEIGHT = 10
-    BAND_HEIGHT = 10
+    BAND_HEIGHT = 14
+    ZOOM_BAND_HEIGHT = 20
 
     NUM_GENE_ROWS = 10
     EACH_GENE_HEIGHT = 6  # number of pixels tall, for each gene to display
@@ -230,7 +229,7 @@ class DisplayMappingResults(object):
 
     CLICKABLE_PHENOGEN_REGION_COLOR = ImageColor.getrgb("#A2FB94")
     CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR = ImageColor.getrgb("#CEFEC7")
-    CLICKABLE_PHENOGEN_TEXT_COLOR = ImageColor.getrgb("#1FD504")
+    CLICKABLE_PHENOGEN_TEXT_COLOR = ImageColor.getrgb("#148F01")
 
     CLICKABLE_UCSC_REGION_COLOR = ImageColor.getrgb("#DDDDEE")
     CLICKABLE_UCSC_REGION_OUTLINE_COLOR = ImageColor.getrgb("#EDEDFF")
@@ -671,9 +670,9 @@ class DisplayMappingResults(object):
         drawAreaHeight = plotHeight
         if self.plotScale == 'physic' and self.selectedChr > -1:
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
-                drawAreaHeight -= 4*self.BAND_HEIGHT + 4*self.BAND_SPACING+ 10*zoom
+                drawAreaHeight -= 3*self.BAND_HEIGHT + self.ZOOM_BAND_HEIGHT + 4*self.BAND_SPACING+ 10*zoom
             else:
-                drawAreaHeight -= 3*self.BAND_HEIGHT + 3*self.BAND_SPACING+ 10*zoom
+                drawAreaHeight -= 2*self.BAND_HEIGHT + self.ZOOM_BAND_HEIGHT + 3*self.BAND_SPACING+ 10*zoom
             if self.geneChecked:
                 drawAreaHeight -= self.NUM_GENE_ROWS*self.EACH_GENE_HEIGHT + 3*self.BAND_SPACING + 10*zoom
         else:
@@ -1323,9 +1322,9 @@ class DisplayMappingResults(object):
             #Draw Genes
             geneYLocation = yPaddingTop + (gIndex % self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT*zoom
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
-                geneYLocation += 4*self.BAND_HEIGHT + 4*self.BAND_SPACING
+                geneYLocation += 3*self.BAND_HEIGHT + self.ZOOM_BAND_HEIGHT + 4*self.BAND_SPACING
             else:
-                geneYLocation += 3*self.BAND_HEIGHT + 3*self.BAND_SPACING
+                geneYLocation += 2*self.BAND_HEIGHT + self.ZOOM_BAND_HEIGHT + 3*self.BAND_SPACING
 
             #draw the detail view
             if self.endMb - self.startMb <= self.DRAW_DETAIL_MB and geneEndPix - geneStartPix > self.EACH_GENE_ARROW_SPACING * 3:
@@ -1562,9 +1561,9 @@ class DisplayMappingResults(object):
 
                         geneYLocation = yPaddingTop + self.NUM_GENE_ROWS * (self.EACH_GENE_HEIGHT)*zoom
                         if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
-                            geneYLocation += 4*self.BAND_HEIGHT + 4*self.BAND_SPACING
+                            geneYLocation += 3*self.BAND_HEIGHT + self.ZOOM_BAND_HEIGHT + 4*self.BAND_SPACING
                         else:
-                            geneYLocation += 3*self.BAND_HEIGHT + 3*self.BAND_SPACING
+                            geneYLocation += 2*self.BAND_HEIGHT + self.ZOOM_BAND_HEIGHT + 3*self.BAND_SPACING
 
                         if _chr[j].name != " - " :
 
@@ -1707,7 +1706,8 @@ class DisplayMappingResults(object):
         # but it makes the HTML huge, and takes forever to render the page in the first place)
         # Draw the bands that you can click on to go to UCSC / Ensembl
         MAX_CLICKABLE_REGION_DIVISIONS = 100
-        clickableRegionLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=9)
+        zoomRegionLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=12)
+        clickableRegionLabelFont=ImageFont.truetype(font=VERDANA_FILE, size=11)
         pixelStep = max(5, int(float(plotWidth)/MAX_CLICKABLE_REGION_DIVISIONS))
         # pixelStep: every N pixels, we make a new clickable area for the user to go to that area of the genome.
 
@@ -1736,7 +1736,7 @@ class DisplayMappingResults(object):
                 xBrowse1 = pixel
                 xBrowse2 = min(xLeftOffset + plotWidth, (pixel + pixelStep - 1))
 
-                WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.BAND_HEIGHT))
+                WEBQTL_COORDS = "%d, %d, %d, %d" % (xBrowse1, paddingTop, xBrowse2, (paddingTop+self.ZOOM_BAND_HEIGHT))
                 WEBQTL_HREF = "javascript:rangeView('%s', %f, %f)" % (self.selectedChr - 1, max(0, (calBase-webqtlZoomWidth))/1000000.0, (calBase+webqtlZoomWidth)/1000000.0)
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
@@ -1748,11 +1748,11 @@ class DisplayMappingResults(object):
                         title=WEBQTL_TITLE))
                 im_drawer.rectangle(
                     xy=((xBrowse1, paddingTop),
-                        (xBrowse2, (paddingTop + self.BAND_HEIGHT))),
+                        (xBrowse2, (paddingTop + self.ZOOM_BAND_HEIGHT))),
                     outline=self.CLICKABLE_WEBQTL_REGION_COLOR,
                     fill=self.CLICKABLE_WEBQTL_REGION_COLOR)
                 im_drawer.line(
-                    xy=((xBrowse1, paddingTop), ( xBrowse1, (paddingTop + self.BAND_HEIGHT))),
+                    xy=((xBrowse1, paddingTop), ( xBrowse1, (paddingTop + self.ZOOM_BAND_HEIGHT))),
                     fill=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
 
                 if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
@@ -1822,9 +1822,9 @@ class DisplayMappingResults(object):
             # end for
 
             im_drawer.text(
-                text="Click to view the corresponding section of the genome in an 8x expanded WebQTL map",
+                text="Click to view the corresponding section of the genome in an 8x expanded map",
                 xy=((xLeftOffset + 10), paddingTop),# + self.BAND_HEIGHT/2),
-                font=clickableRegionLabelFont,
+                font=zoomRegionLabelFont,
                 fill=self.CLICKABLE_WEBQTL_TEXT_COLOR)
             if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
                 im_drawer.text(
