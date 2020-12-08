@@ -354,6 +354,6 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <!--<script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>-->
-    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot.js"></script>
 {% endblock %}
