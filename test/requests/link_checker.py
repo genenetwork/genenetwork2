@@ -118,6 +118,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/js_alt/md5.min.js",
         "/js/js_alt/jstat.min.js",
         "/js/js_alt/parsley.min.js",
+        "/js/js_alt/timeago.min.js",
     ]
 
     print("Checking links")
