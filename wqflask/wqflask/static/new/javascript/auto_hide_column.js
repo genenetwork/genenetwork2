@@ -1,23 +1,21 @@
-function filterDatatable(datatable){
-    let visitedFoundColumns=[]
-    let columnCount=datatable.columns().header().length;
-    let numberOfRows=datatable.data().length;
-    for (let i=0;i<numberOfRows;i++){
-        if (visitedFoundColumns.length==columnCount){
-            break;
-        }
-        let rowObj=datatable.rows(i).data()[0]
-        for(let col=0;col<rowObj.length;col++){
-            if (visitedFoundColumns.length==columnCount){
-                break;
+    function filterDatatable(datatable){
+        let invalidColumns=[]
+        let columnCount=datatable.columns().header().length;
+        let numberOfRows=datatable.rows().count();
+        for (let col=0; col<columnCount; col++){
+            colObj = datatable.column(col).nodes().to$();
+            allNAs = true;
+            for (let i=0;i<numberOfRows;i++){
+                cellContent = colObj[i].childNodes[0].data
+                if (cellContent != "N/A" && cellContent != ""){
+                    allNAs = false;
+                    break;
+                }
             }
-            if (visitedFoundColumns.includes(col) || rowObj[col]=="N/A"||rowObj[col]==""){
-                continue;
+            if (allNAs){
+                invalidColumns.push(col)
             }
-            visitedFoundColumns.push(col)
         }
-    }
-    emptyColumns=Array.from(Array(columnCount).keys()).filter((column)=>visitedFoundColumns.indexOf(column)<0);
-    return datatable.columns(emptyColumns).visible(false);
+        return datatable.columns(invalidColumns).visible(false);
 
-}
+    }
