@@ -426,6 +426,8 @@ class RunMapping(object):
                               marker['display_pos'] = "N/A"
                           self.qtl_results.append(marker)
 
+              total_markers = len(self.qtl_results)
+
               with Bench("Exporting Results"):
                   export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
 
@@ -489,13 +491,15 @@ class RunMapping(object):
                       perm_results = self.perm_output,
                       significant = significant_for_browser,
                       browser_files = browser_files,
-                      selected_chr = this_chr
+                      selected_chr = this_chr,
+                      total_markers = total_markers
                   )
               else:
                 self.js_data = dict(
                     chr_lengths = chr_lengths,
                     browser_files = browser_files,
-                    selected_chr = this_chr
+                    selected_chr = this_chr,
+                    total_markers = total_markers
                 )
 
     def run_rqtl_plink(self):
