@@ -103,6 +103,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/DataTablesExtensions/colResize/dataTables.colResize.js",
         "/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js",
         "/js/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
+        "/js/DataTablesExtensions/scroller/js/scroller.dataTables.min.js",
         "/js/DataTables/js/jquery.dataTables.js",
         "/css/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
         # Datatables plugins:
@@ -116,7 +117,22 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
-        #img
+        "/js/plotly/plotly.min.js",
+        "/js/ckeditor/ckeditor.js",
+        "/js/jszip/jszip.min.js",
+        "/js/jscolor/jscolor.js",
+        "/js/DataTables/js/jquery.js",
+        "/css/DataTables/css/jquery.dataTables.css",
+        "/js/colorbox/jquery.colorbox-min.js",
+        "/css/nouislider/nouislider.min.css",
+        "/js/nouislider/nouislider.js",
+        "/js/purescript-genome-browser/js/purescript-genetics-browser.js",
+        "/js/purescript-genome-browser/css/purescript-genetics-browser.css",
+        "/js/cytoscape/cytoscape.min.js",
+        "/js/cytoscape-panzoom/cytoscape-panzoom.js",
+        "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
+        "/js/cytoscape-qtip/cytoscape-qtip.js",
+        "/css/d3-tip/d3-tip.css",
         "/js/DataTables/images/sort_asc_disabled.png",
         "/js/DataTables/images/sort_desc_disabled.png"
     ]
