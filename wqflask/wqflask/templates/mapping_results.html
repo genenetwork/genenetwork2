@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/static/packages/purescript_genome_browser/css/purescript-genetics-browser.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='purescript-genome-browser/css/purescript-genetics-browser.css') }}" />
 
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
 
@@ -359,7 +359,7 @@
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/purescript_genome_browser/js/purescript-genetics-browser.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='purescript-genome-browser/js/purescript-genetics-browser.js') }}"></script>
 
     <script>
         js_data = {{ js_data | safe }}
@@ -388,8 +388,11 @@
                     "targets": 0,
                     "orderable": false
                 } ],
+                "language": {
+                  "info": "Showing1 from _START_ to _END_ of " + js_data.total_markers + " records",
+                },
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                "sDom": "iRZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
