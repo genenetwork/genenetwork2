@@ -119,6 +119,16 @@ def check_packaged_js_files(args_obj, parser):
         "/js/js_alt/md5.min.js",
         "/js/DataTables/js/jquery.js",
         "/css/DataTables/css/jquery.dataTables.css",
+        "/js/colorbox/jquery.colorbox-min.js",
+        "/css/nouislider/nouislider.min.css",
+        "/js/nouislider/nouislider.js",
+        "/js/purescript-genome-browser/js/purescript-genetics-browser.js",
+        "/js/purescript-genome-browser/css/purescript-genetics-browser.css",
+        "/js/cytoscape/cytoscape.min.js",
+        "/js/cytoscape-panzoom/cytoscape-panzoom.js",
+        "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
+        "/js/cytoscape-qtip/cytoscape-qtip.js",
+        "/css/d3-tip/d3-tip.css",
     ]
 
     print("Checking links")
