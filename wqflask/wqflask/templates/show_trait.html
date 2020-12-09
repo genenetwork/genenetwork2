@@ -5,10 +5,9 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/noUiSlider/nouislider.pips.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='nouislider/nouislider.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 {% endblock %}
@@ -148,7 +147,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/noUiSlider/nouislider.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='nouislider/nouislider.js') }}"></script>
 
     <script type="text/javascript" src="/static/new/javascript/initialize_show_trait_tables.js"></script>
     <script type="text/javascript" src="/static/new/javascript/show_trait_mapping_tools.js"></script>
@@ -219,6 +218,33 @@
 
                 $('#primary_searchbox').on( 'keyup', function () {
                   primary_table.search($(this).val()).draw();
+                } );
+
+                $('.toggle-vis').on('click', function (e) {
+                    e.preventDefault();
+
+                    function toggle_column(column) {
+                        //ZS: Toggle column visibility
+                        column.visible( ! column.visible() );
+                        if (column.visible()){
+                            $(this).removeClass("active");
+                        } else {
+                            $(this).addClass("active");
+                        }
+                    }
+
+                    // Get the column API object
+                    var target_cols = $(this).attr('data-column').split(",")
+                    for (let i = 0; i < target_cols.length; i++){
+                        console.log("THE COL:", target_cols[i])
+                        var column = primary_table.column( target_cols[i] );
+                        toggle_column(column);
+
+                        {% if sample_groups|length != 1 %}
+                        var column2 = other_table.column( target_cols[i] );
+                        toggle_column(column2);
+                        {% endif %}
+                    }
                 } );
 
                 {% if sample_groups|length != 1 %}
