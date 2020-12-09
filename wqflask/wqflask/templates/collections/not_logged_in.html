@@ -5,7 +5,7 @@
     {{ header("Not logged in") }}
 
 
-    <div id "collections_holder" class="container">
+    <div id="collections_holder" class="container">
         <div class="page-header">
             <h1>Please log in in order to use this feature.</h1>
         </div>
@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/timeago.min.js') }}"></script>
     <script>
         $('body').timeago();
     </script>
