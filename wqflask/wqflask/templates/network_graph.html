@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="/static/new/css/network_graph.css" />
-    <link rel="stylesheet" type="text/css" href="/js/cytoscape-panzoom/cytoscape.js-panzoom.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='cytoscape-panzoom/cytoscape.js-panzoom.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='qtip2/jquery.qtip.min.css') }}">
     <style>
         /* The Cytoscape Web container must have its dimensions set. */
@@ -139,15 +139,14 @@
         elements_list = {{ elements | safe }}
         gn2_url       = "{{ gn2_url | safe }}"
     </script>
-
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='qtip2/jquery.qtip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
 
-    <script language="javascript" type="text/javascript" src="/js/cytoscape/cytoscape.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/js/cytoscape-panzoom/cytoscape-panzoom.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='cytoscape/cytoscape.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='cytoscape-panzoom/cytoscape-panzoom.js') }}"></script>
     <!-- should be using cytoscape-popper for tips, see docs -->
-    <script language="javascript" type="text/javascript" src="/js/cytoscape-qtip/cytoscape-qtip.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='cytoscape-qtip/cytoscape-qtip.js') }}"></script>
 
     <!--
         Loads flash - who wants that?
