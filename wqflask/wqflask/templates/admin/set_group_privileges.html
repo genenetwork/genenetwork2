@@ -2,7 +2,7 @@
 {% block title %}Set Group Privileges{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.dataTables.css">
+     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
