@@ -350,7 +350,7 @@
     <script type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='underscore-string/underscore.string.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
-    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
     {% if manhattan_plot == True and selectedChr == -1 %}
     <script type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
     {% endif %}
