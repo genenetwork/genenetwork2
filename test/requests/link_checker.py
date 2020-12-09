@@ -134,7 +134,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         "/css/d3-tip/d3-tip.css",
         "/js/DataTables/images/sort_asc_disabled.png",
-        "/js/DataTables/images/sort_desc_disabled.png"
+        "/js/DataTables/images/sort_desc_disabled.png",
     ]
 
     print("Checking links")
