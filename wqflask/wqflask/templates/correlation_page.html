@@ -49,7 +49,7 @@
               GeneWeaver
             </button>
 
-            <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
+            <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian network software for causal modeling and reasoning, with an intuitive interface to incorporate biological knowledge and a complete pipeline from data to model to prediction" >
               BNW
            </button>
 
@@ -171,7 +171,7 @@
     <script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
@@ -345,8 +345,15 @@
                       'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
                       'type': "natural-minus-na",
                       'width': "40px",
-                      'data': "sample_r",
-                      'orderSequence': [ "desc", "asc"]
+                      'data': null,
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        if (data.sample_r != "N/A") {
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                        } else {
+                          return data.sample_r
+                        }
+                      }
                     },
                     {
                       'title': "N",
@@ -357,7 +364,7 @@
                     },
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
+                      'type': "scientific",
                       'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
@@ -459,8 +466,15 @@
                       'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
                       'type': "natural-minus-na",
                       'width': "40px",
-                      'data': "sample_r",
-                      'orderSequence': [ "desc", "asc"]
+                      'data': null,
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        if (data.sample_r != "N/A") {
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                        } else {
+                          return data.sample_r
+                        }
+                      }
                     },
                     {
                       'title': "N",
@@ -471,7 +485,7 @@
                     },
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
+                      'type': "scientific",
                       'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
@@ -506,8 +520,15 @@
                       'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
                       'type': "natural-minus-na",
                       'width': "40px",
-                      'data': "sample_r",
-                      'orderSequence': [ "desc", "asc"]
+                      'data': null,
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        if (data.sample_r != "N/A") {
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                        } else {
+                          return data.sample_r
+                        }
+                      }
                     },
                     {
                       'title': "N",
@@ -518,7 +539,7 @@
                     },
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
+                      'type': "scientific",
                       'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
