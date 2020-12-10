@@ -799,6 +799,17 @@ def export_mapping_results():
 
     return response
 
+@app.route("/export_corr_matrix", methods = ('POST',))
+def export_corr_matrix():
+    file_path = request.form.get("export_filepath")
+    file_name = request.form.get("export_filename")
+    results_csv = open(file_path, "r").read()
+    response = Response(results_csv,
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
+
+    return response
+
 @app.route("/export", methods = ('POST',))
 def export():
     logger.info("request.form:", request.form)
