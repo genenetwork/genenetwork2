@@ -657,27 +657,6 @@ def loading_page():
 
     return rendered_template
 
-
-@app.route("/run_gemma",methods=("POST",))
-def gemma_results_page():
-    gemma_results=get_mapping_results(initial_start_vars=request.form)
-    return gemma_results
-@app.route("/run_qtl",methods=("POST",))
-def qtl_results_page():
-    qtl_mapping_results=get_mapping_results(initial_start_vars=request.form)
-    return qtl_mapping_results
-
-@app.route("/run_reaper",methods=("POST",))
-def reaper_results_page():
-    reaper_mapping_results=get_mapping_results(initial_start_vars=request.form)
-    return reaper_mapping_results
-
-@app.route("/run_plink",methods=("POST",))
-def plink_results_page():
-    plink_mapping_results=get_mapping_results(initial_start_vars=request.form)
-    return plink_mapping_results
-
-
 @app.route("/export_mapping_results", methods = ('POST',))
 def export_mapping_results():
     logger.info("request.form:", request.form)
@@ -833,6 +812,24 @@ def json_default_handler(obj):
             type(obj), repr(obj)))
 
 
+@app.route("/run_gemma",methods=("POST",))
+def gemma_results_page():
+    gemma_results=get_mapping_results(initial_start_vars=request.form)
+    return gemma_results
+@app.route("/run_qtl",methods=("POST",))
+def qtl_results_page():
+    qtl_mapping_results=get_mapping_results(initial_start_vars=request.form)
+    return qtl_mapping_results
+
+@app.route("/run_reaper",methods=("POST",))
+def reaper_results_page():
+    reaper_mapping_results=get_mapping_results(initial_start_vars=request.form)
+    return reaper_mapping_results
+
+@app.route("/run_plink",methods=("POST",))
+def plink_results_page():
+    plink_mapping_results=get_mapping_results(initial_start_vars=request.form)
+    return plink_mapping_results
 
 def get_wanted_mapping_values():
     wanted=(
