@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% block title %}Correlation Matrix{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/corr_matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
-     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
 {% endblock %}
 {% block content %}
 
@@ -62,6 +63,12 @@
     {% endfor %}
   </tbody>
 </table>
+<br>
+<form method="post" target="_blank" action="/export_corr_matrix" id="matrix_export_form">
+  <input type="hidden" name="export_filepath" value="{{ export_filepath }}">
+  <input type="hidden" name="export_filename" value="{{ export_filename }}">
+  <button class="btn btn-default" id="export">Download <span class="glyphicon glyphicon-download"></span></button>
+</form>
 <br>
 {% if pca_works == "True" %}
 <h2>PCA Traits</h2>
@@ -172,6 +179,14 @@
         "paging": false,
         "orderClasses": true
       } );
+
+      export_corr_matrix = function() {
+            $('#matrix_export_form').attr('action', '/export_corr_matrix');
+            return $('#matrix_export_form').submit();
+      }
+
+      $('#export').click(export_corr_matrix);
+
     </script>
 
 {% endblock %}
