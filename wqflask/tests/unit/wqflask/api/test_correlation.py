@@ -1,16 +1,29 @@
 import unittest
 from unittest import mock
 from wqflask import app
+from collections import OrderedDict 
 from wqflask.api.correlation import init_corr_params
 from wqflask.api.correlation import convert_to_mouse_gene_id
 from wqflask.api.correlation import do_literature_correlation_for_all_traits
 from wqflask.api.correlation import get_sample_r_and_p_values
+from wqflask.api.correlation import calculate_results
 
 
 class AttributeSetter:
     def __init__(self, obj):
         for k, v in obj.items():
             setattr(self, k, v)
+
+class MockDataset(AttributeSetter):
+    def get_trait_data(self):
+        return None
+    def retrieve_genes(self,id=None):
+        return {
+         "TT-1":"GH-1",
+         "TT-2":"GH-2",
+         "TT-3":"GH-3"
+
+        }
 
 
 class TestCorrelations(unittest.TestCase):
@@ -101,19 +114,24 @@ class TestCorrelations(unittest.TestCase):
         self.assertEqual(results_spearmanr,[-0.11595420713048969, 0.826848213385815, 6])
         self.assertEqual(results_num_overlap,None)
 
-    def test_calculate_results(self):
-        corr_params={
-        "type":"pearson"
-        }
-        trait_data={
-         "T1":3.4,
-         "T2":6.2,
-         "T3":4.1,
-         "T4":3.4,
-         "T5":1.2,
-         "T6":5.6
-        }
-        target_vals=[3.4, 6.2, 4.1,3.4,1.2,5.6]
+    @mock.patch("wqflask.api.correlation.do_literature_correlation_for_all_traits")
+    def test_calculate_results(self,literature_correlation):
+ 
+        literature_correlation.return_value={'TT-1': ['GH-1', 0], 'TT-2': ['GH-2', 3], 'TT-3': ['GH-3', 1]}
+
+
+
+        this_dataset=MockDataset({"group":AttributeSetter({"species":"rat"})})
+        target_dataset=MockDataset({"group":AttributeSetter({"species":"rat"})})
+        this_trait=AttributeSetter({"geneid":"GH-1"})
+        corr_params={"type":"literature"}
+        sorted_results=calculate_results(this_trait=this_trait,this_dataset=this_dataset,target_dataset=target_dataset,corr_params=corr_params)
+        expected_results={'TT-2': ['GH-2', 3], 'TT-3': ['GH-3', 1], 'TT-1': ['GH-1', 0]}
+
+        self.assertTrue(isinstance(sorted_results,OrderedDict))
+        self.assertEqual(type(sorted_results),OrderedDict)
+
+
 
 
             
