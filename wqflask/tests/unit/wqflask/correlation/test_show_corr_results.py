@@ -12,8 +12,6 @@ class Trait:
 
 class TestShowCorrResults(unittest.TestCase):
 
-	def test_process_samples(self):
-		pass
 	def test_get_header_fields(self):
 		expected=[
 		                    ['Index',
