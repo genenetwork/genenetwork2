@@ -4,6 +4,7 @@ from wqflask import app
 from wqflask.api.correlation import init_corr_params
 from wqflask.api.correlation import convert_to_mouse_gene_id
 from wqflask.api.correlation import do_literature_correlation_for_all_traits
+from wqflask.api.correlation import get_sample_r_and_p_values
 
 
 class AttributeSetter:
@@ -79,5 +80,42 @@ class TestCorrelations(unittest.TestCase):
     	expected_results={'TT-1': ['GH-1', 0], 'TT-2': ['GH-2', 'V1'], 'TT-3': ['GH-3', 'V2']}
     	self.assertEqual(results,expected_results)
 
+    @mock.patch("wqflask.api.correlation.corr_result_helpers.normalize_values")
+    def test_get_sample_r_and_p_values(self,mock_normalize):
+
+        group=AttributeSetter({"samplelist":["S1","S2","S3","S4","S5","S6","S7"]})
+        target_dataset=AttributeSetter({"group":group})
+
+        target_vals=[3.4, 6.2, 4.1,3.4,1.2,5.6]
+        trait_data={"S1":AttributeSetter({"value":2.3}),"S2":AttributeSetter({"value":1.1}),"S3":AttributeSetter({"value":6.3}),"S4":AttributeSetter({"value":3.6}),"S5":AttributeSetter({"value":4.1}),"S6":AttributeSetter({"value":5.0})}
+        this_trait=AttributeSetter({"data":trait_data})
+        mock_normalize.return_value=([2.3,1.1,6.3,3.6,4.1,5.0], [3.4,6.2,4.1,3.4,1.2,5.6], 6)
+        mock_normalize.side_effect=[([2.3,1.1,6.3,3.6,4.1,5.0], [3.4,6.2,4.1,3.4,1.2,5.6], 6),([2.3,1.1,6.3,3.6,4.1,5.0], [3.4,6.2,4.1,3.4,1.2,5.6], 6),([2.3,1.1,1.4], [3.4,6.2,4.1], 3)]
+
+        results_pearsonr=get_sample_r_and_p_values(this_trait=this_trait,this_dataset={},target_vals=target_vals,target_dataset=target_dataset,type="pearson")
+        results_spearmanr=get_sample_r_and_p_values(this_trait=this_trait,this_dataset={},target_vals=target_vals,target_dataset=target_dataset,type="spearman")
+        results_num_overlap=get_sample_r_and_p_values(this_trait=this_trait,this_dataset={},target_vals=target_vals,target_dataset=target_dataset,type="pearson")
+        self.assertEqual(mock_normalize.call_count,3)
+        
+        self.assertEqual(results_pearsonr,[-0.21618688834430866, 0.680771605997119, 6])
+        self.assertEqual(results_spearmanr,[-0.11595420713048969, 0.826848213385815, 6])
+        self.assertEqual(results_num_overlap,None)
+
+    def test_calculate_results(self):
+        corr_params={
+        "type":"pearson"
+        }
+        trait_data={
+         "T1":3.4,
+         "T2":6.2,
+         "T3":4.1,
+         "T4":3.4,
+         "T5":1.2,
+         "T6":5.6
+        }
+        target_vals=[3.4, 6.2, 4.1,3.4,1.2,5.6]
+
+
+            
 
 
