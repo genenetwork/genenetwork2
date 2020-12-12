@@ -487,6 +487,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_dict['index'] = i + 1
         results_dict['trait_id'] = trait.name
         results_dict['dataset'] = trait.dataset.name
+        results_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait.name, trait.dataset.name))
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
             results_dict['description'] = "N/A"
@@ -497,7 +498,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             if bool(trait.description_display):
                 results_dict['description'] = trait.description_display
             if bool(trait.mean):
-                results_dict['mean'] = float(trait.mean)
+                results_dict['mean'] = f"{float(trait.mean):.3f}"
             if trait.LRS_score_repr != "N/A":
                 results_dict['lrs_score'] = f"{float(trait.LRS_score_repr):.1f}"
             results_dict['lrs_location'] = trait.LRS_location_repr

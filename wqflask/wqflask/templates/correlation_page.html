@@ -49,7 +49,7 @@
               GeneWeaver
             </button>
 
-            <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian Network" >
+            <button id="send_to_bnw" class="btn btn-primary submit_special" data-url="/bnw_page" title="Bayesian network software for causal modeling and reasoning, with an intuitive interface to incorporate biological knowledge and a complete pipeline from data to model to prediction" >
               BNW
            </button>
 
@@ -75,23 +75,26 @@
         <div>
             <form id="export_form" method="POST" action="/export_traits_csv">
                 <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+                <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
                 <button class="btn btn-success" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
                 <input type="hidden" name="database_name" id="database_name" value="None">
                 <input type="hidden" name="export_data" id="export_data" value="">
                 <input type="hidden" name="file_name" id="file_name" value="{{ this_trait.name }}_{{ dataset.name }}_correlation">
-                <button class="btn btn-default" id="export_traits">Download CSV</button>
                 <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search Table For ...">
                 <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
                 <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
                 <button id="redraw" class="btn btn-default" type="button">Reset Columns</button>
             </form>
             <br />
+            <div id="export_options"></div>
             {% if target_dataset.type != "Publish" %}
             <br />
-            <button id="more_options" class="btn btn-primary">More Options...</button>
+            <div style="float: left; clear: left; margin-top: 10px; margin-bottom: 20px;">
+              <button id="more_options" class="btn btn-primary">More Options...</button>
+            </div>
             <br />
             <br />
-            <div id="filter_options" style="display: none;">
+            <div id="filter_options" style="display: none; float: left; clear: left;">
             <span style="border: 1px dashed #999999; padding: 8px; background-color: #ddf; font-size: 12px;">
                 <button id="select_traits" class="btn btn-primary" style="font-size: 12px; padding: 2px 3px;">Select Traits</button> with r >
                 <input type="text" name="r_greater_select" value="-1.0" size="6" maxlength="10">
@@ -114,7 +117,7 @@
             </div>
             {% endif %}
         </div>
-        <div class="show-hide-container">
+        <div class="show-hide-container" style="float: left; clear: left;">
           <b>Show/Hide Columns:</b>
           <br>
           <button class="toggle-vis" data-column="1">Index</button>
@@ -168,12 +171,12 @@
     <script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.html5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
@@ -256,55 +259,31 @@
         {% endif %}
 
         $(document).ready( function () {
-
-            $('#trait_table tr').click(function(event) {
-                if (event.target.type !== 'checkbox') {
-                    $(':checkbox', this).trigger('click');
-                }
-            });
-
-            function change_buttons() {
-                buttons = ["#add", "#remove"];
-                num_checked = $('.trait_checkbox:checked').length;
-                if (num_checked === 0) {
-                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-                        button = buttons[_i];
-                        $(button).prop("disabled", true);
-                    }
-                } else {
-                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
-                        button = buttons[_j];
-                        $(button).prop("disabled", false);
-                    }
-                }
-                if ($(this).is(":checked")) {
-                    if (!$(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').addClass('selected')
-                    }
-                }
-                else {
-                    if ($(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').removeClass('selected')
-                    }
-                }
-            }
-
-            console.time("Creating table");
-
             table_conf = {
                 buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: function( idx, data, node ) {
-                          if (idx != 0) {
-                            return true;
-                          } else {
-                            return false;
-                          }
-                        },
-                        postfixButtons: [ 'colvisRestore' ]
+                  {
+                    extend: 'csvHtml5',
+                    text: 'Download <span class="glyphicon glyphicon-download"></span>',
+                    className: 'btn btn-default',
+                    exportOptions: {
+                      columns: 'th:not(:first-child)'
                     }
+                  }
                 ],
+                'drawCallback': function( settings ) {
+                      $('#trait_table tr').off().on("click", function(event) {
+                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                          var obj =$(this).find('input');
+                          obj.prop('checked', !obj.is(':checked'));
+                        }
+                        if ($(this).hasClass("selected")){
+                          $(this).removeClass("selected")
+                        } else {
+                          $(this).addClass("selected")
+                        }
+                      });
+                      $('.trait_checkbox:checkbox').on("change", change_buttons);
+                },
                 "data": table_json,
                 "columns": [
                     {
@@ -366,8 +345,15 @@
                       'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
                       'type': "natural-minus-na",
                       'width': "40px",
-                      'data': "sample_r",
-                      'orderSequence': [ "desc", "asc"]
+                      'data': null,
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        if (data.sample_r != "N/A") {
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                        } else {
+                          return data.sample_r
+                        }
+                      }
                     },
                     {
                       'title': "N",
@@ -378,7 +364,7 @@
                     },
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
+                      'type': "scientific",
                       'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
@@ -480,8 +466,15 @@
                       'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
                       'type': "natural-minus-na",
                       'width': "40px",
-                      'data': "sample_r",
-                      'orderSequence': [ "desc", "asc"]
+                      'data': null,
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        if (data.sample_r != "N/A") {
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                        } else {
+                          return data.sample_r
+                        }
+                      }
                     },
                     {
                       'title': "N",
@@ -492,7 +485,7 @@
                     },
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
+                      'type': "scientific",
                       'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
@@ -527,8 +520,15 @@
                       'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
                       'type': "natural-minus-na",
                       'width': "40px",
-                      'data': "sample_r",
-                      'orderSequence': [ "desc", "asc"]
+                      'data': null,
+                      'orderSequence': [ "desc", "asc"],
+                      'render': function(data, type, row, meta) {
+                        if (data.sample_r != "N/A") {
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                        } else {
+                          return data.sample_r
+                        }
+                      }
                     },
                     {
                       'title': "N",
@@ -539,7 +539,7 @@
                     },
                     {
                       'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
+                      'type': "scientific",
                       'width': "65px",
                       'data': "sample_p",
                       'orderSequence': [ "desc", "asc"]
@@ -557,20 +557,22 @@
                 "sDom": "itir",
                 "autoWidth": true,
                 "bSortClasses": false,
-                "scrollY": "50vh",
+                "scrollY": "100vh",
                 "scroller":  true,
                 "scrollCollapse": true
             }
 
             trait_table = $('#trait_table').DataTable(table_conf);
 
+            trait_table.buttons().container().appendTo('#export_options')
+
+            $('.buttons-csv').removeClass('dt-button')
+
             trait_table.on( 'order.dt search.dt draw.dt', function () {
                 trait_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
                 cell.innerHTML = i+1;
                 } );
             } ).draw();
-
-            console.timeEnd("Creating table");
 
             $('.toggle-vis').on('click', function (e) {
               e.preventDefault();

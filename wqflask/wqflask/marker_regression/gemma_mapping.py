@@ -31,7 +31,8 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
       gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
       this_chromosomes = this_dataset.species.chromosomes.chromosomes
-      this_chromosomes_name=[chromosome.name for chromosome in this_chromosomes]
+      this_chromosomes_name=[this_chromosomes[chromosome].name for chromosome in this_chromosomes]
+
 
       chr_list_string=",".join(this_chromosomes_name)
       if covariates != "":
@@ -45,7 +46,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                           genofile_name,
                                                                                           TEMPDIR,
                                                                                           k_output_filename)
-          logger.debug("k_command:" + generate_k_command)
+
           os.system(generate_k_command)
 
           gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
@@ -77,7 +78,6 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                          TEMPDIR,
                                                                                          k_output_filename)
 
-          logger.debug("k_command:" + generate_k_command)
           os.system(generate_k_command)
 
           gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -a %s/%s_snps.txt -lmm 2 -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
@@ -93,8 +93,6 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
           else:
               gemma_command += ' > %s/gn2/%s.json' % (TEMPDIR, gwa_output_filename)
 
-
-      logger.debug("gemma_command:" + gemma_command)
       os.system(gemma_command)
     else:
       gwa_output_filename = output_files
