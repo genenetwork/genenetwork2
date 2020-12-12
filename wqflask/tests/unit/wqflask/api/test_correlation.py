@@ -108,10 +108,12 @@ class TestCorrelations(unittest.TestCase):
         results_pearsonr=get_sample_r_and_p_values(this_trait=this_trait,this_dataset={},target_vals=target_vals,target_dataset=target_dataset,type="pearson")
         results_spearmanr=get_sample_r_and_p_values(this_trait=this_trait,this_dataset={},target_vals=target_vals,target_dataset=target_dataset,type="spearman")
         results_num_overlap=get_sample_r_and_p_values(this_trait=this_trait,this_dataset={},target_vals=target_vals,target_dataset=target_dataset,type="pearson")
-        self.assertEqual(mock_normalize.call_count,3)
-        
-        self.assertEqual(results_pearsonr,[-0.21618688834430866, 0.680771605997119, 6])
-        self.assertEqual(results_spearmanr,[-0.11595420713048969, 0.826848213385815, 6])
+        expected_pearsonr=[-0.21618688834430866, 0.680771605997119, 6]
+        expected_spearmanr=[-0.11595420713048969, 0.826848213385815, 6]
+        for i,val in enumerate(expected_pearsonr):
+            self.assertAlmostEqual(val,results_pearsonr[i])
+        for i,val in enumerate(expected_spearmanr):
+            self.assertAlmostEqual(val,results_spearmanr[i])
         self.assertEqual(results_num_overlap,None)
 
     @mock.patch("wqflask.api.correlation.do_literature_correlation_for_all_traits")
@@ -130,7 +132,6 @@ class TestCorrelations(unittest.TestCase):
 
         self.assertTrue(isinstance(sorted_results,OrderedDict))
         self.assertEqual(type(sorted_results),OrderedDict)
-
 
 
 
