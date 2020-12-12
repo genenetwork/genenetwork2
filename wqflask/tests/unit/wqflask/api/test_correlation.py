@@ -131,7 +131,7 @@ class TestCorrelations(unittest.TestCase):
         expected_results={'TT-2': ['GH-2', 3], 'TT-3': ['GH-3', 1], 'TT-1': ['GH-1', 0]}
 
         self.assertTrue(isinstance(sorted_results,OrderedDict))
-        self.assertEqual(type(sorted_results),OrderedDict)
+        self.assertEqual(dict(sorted_results),expected_results)
 
 
 
