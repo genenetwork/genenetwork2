@@ -23,20 +23,20 @@ def is_str(value):
     except:
         return False
 
-def get_float(vars,name,default=None):
-    if name in vars:
-        if is_float(vars[name]):
-            return float(vars[name])
+def get_float(vars_obj,name,default=None):
+    if name in vars_obj:
+        if is_float(vars_obj[name]):
+            return float(vars_obj[name])
     return default
 
-def get_int(vars,name,default=None):
-    if name in vars:
-        if is_int(vars[name]):
-            return float(vars[name])
+def get_int(vars_obj,name,default=None):
+    if name in vars_obj:
+        if is_int(vars_obj[name]):
+            return float(vars_obj[name])
     return default
 
-def get_string(vars,name,default=None):
-    if name in vars:
-        if not vars[name] is None:
-            return str(vars[name])
+def get_string(vars_obj,name,default=None):
+    if name in vars_obj:
+        if not vars_obj[name] is None:
+            return str(vars_obj[name])
     return default
