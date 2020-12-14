@@ -15,6 +15,18 @@ class TestSnpBrowser(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()
 
+    def test_get_header_list(self):
+        empty_columns={"snp_source":"false","conservation_score":"true","gene_name":"false","transcript":"false","exon":"false","domain_2":"true","function":"false","function_details":"true"}
+        strains={"mouse":["S1","S2","S3","S4","S5"],"rat":[]}
+        expected_results=([['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'ConScore', 'Domain 1', 'Domain 2', 'Details'], ['S1', 'S2', 'S3', 'S4', 'S5']], 5)
+
+        results_with_snp=get_header_list(variant_type="SNP",strains=strains,species="Mouse",empty_columns=empty_columns)
+        results_with_indel=get_header_list(variant_type="InDel",strains=strains,species="rat",empty_columns=[])
+        expected_results_with_indel=(['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source'],0)
+
+        self.assertEqual(expected_results,results_with_snp)
+        self.assertEqual(results_with_indel,expected_results_with_indel)
+
 
     @mock.patch("wqflask.snp_browser.snp_browser.g")
     def test_get_gene_id(self, mock_db):
@@ -56,17 +68,6 @@ class TestSnpBrowser(unittest.TestCase):
     	results=get_browser_sample_lists(species_id="12")
     	self.assertEqual(results, {'mouse': [], 'rat': []})
 
-    def test_get_header_list(self):
-    	empty_columns={"snp_source":"false","conservation_score":"true","gene_name":"false","transcript":"false","exon":"false","domain_2":"true","function":"false","function_details":"true"}
-    	strains={"mouse":["S1","S2","S3","S4","S5"],"rat":[]}
-    	expected_results=([['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'ConScore', 'Domain 1', 'Domain 2', 'Details'], ['S1', 'S2', 'S3', 'S4', 'S5']], 5)
-
-    	results_with_snp=get_header_list(variant_type="SNP",strains=strains,species="Mouse",empty_columns=empty_columns)
-    	results_with_indel=get_header_list(variant_type="InDel",strains=strains,species="rat",empty_columns=[])
-    	expected_results_with_indel=(['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source'],0)
-
-    	self.assertEqual(expected_results,results_with_snp)
-    	self.assertEqual(results_with_indel,expected_results_with_indel)
 
 
 
