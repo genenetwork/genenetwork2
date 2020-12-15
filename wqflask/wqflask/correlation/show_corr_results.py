@@ -499,9 +499,9 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             if bool(trait.mean):
                 results_dict['mean'] = f"{float(trait.mean):.3f}"
             try:
-                trait_dict['lod_score'] = f"{float(this_trait.LRS_score_repr) / 4.61:.1f}"
+                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
             except:
-                trait_dict['lod_score'] = "N/A"
+                results_dict['lod_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
             if bool(trait.additive):
                 results_dict['additive'] = f"{float(trait.additive):.3f}"
@@ -546,9 +546,9 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                     results_dict['pubmed_link'] = trait.pubmed_link
                     results_dict['pubmed_text'] = trait.pubmed_text
             try:
-                trait_dict['lod_score'] = f"{float(this_trait.LRS_score_repr) / 4.61:.1f}"
+                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
             except:
-                trait_dict['lod_score'] = "N/A"
+                results_dict['lod_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
             if bool(trait.additive):
                 results_dict['additive'] = f"{float(trait.additive):.3f}"
