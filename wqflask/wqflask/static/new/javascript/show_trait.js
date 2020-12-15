@@ -741,7 +741,6 @@ hide_no_value_filter = function( settings, data, dataIndex ) {
 }
 
 hide_no_value = function() {
-
   tables = ['samples_primary', 'samples_other'];
   filter_active = $(this).data("active");
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
@@ -749,9 +748,11 @@ hide_no_value = function() {
     if ($('#' + table).length) {
       table_api = $('#' + table).DataTable();
       if (filter_active == "true"){
+        $(this).val("Hide No Value")
         table_api.draw();
         $(this).data("active", "false");
       } else {
+        $(this).val("Show No Value")
         $.fn.dataTable.ext.search.push(hide_no_value_filter);
         table_api.search();
         table_api.draw();
@@ -775,6 +776,7 @@ $('#block_outliers').click(block_outliers);
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
+  $('#hide_no_value').val("Hide No Value")
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
@@ -792,6 +794,7 @@ reset_samples_table = function() {
           this_node.value = this_node.attributes["data-value"].value;
         }
       }
+      table_api.draw();
     }
   }
 };
