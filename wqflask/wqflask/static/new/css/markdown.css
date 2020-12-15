@@ -62,13 +62,18 @@
 }
 
 .graph-legend,
-#guix-graph {
+#guix-graph,
+#guix-svg-graph{
     width: 90%;
     margin: 10px auto;
 }
 
 #guix-graph {
     border: solid 2px black;
+}
+
+#guix-svg-graph img {
+    width: 100%;
 }
 
 #markdown table {

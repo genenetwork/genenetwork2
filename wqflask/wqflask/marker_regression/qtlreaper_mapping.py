@@ -33,8 +33,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
                 )
 
             opt_list.append("-b")
-            opt_list.append(f"--n_bootstrap{str(num_bootstrap)}")
-            opt_list.append(f"--bootstrap_output{webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
+            opt_list.append(f"--n_bootstrap {str(num_bootstrap)}")
+            opt_list.append(f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
             permu_filename =("{this_dataset.group.name}_PERM_" + 
             ''.join(random.choice(string.ascii_uppercase + 
