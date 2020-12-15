@@ -117,6 +117,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
+        "/js/typeahead/typeahead.bundle.js",
         "/js/underscore-string/underscore.string.min.js",
         "/js/js_alt/jstat.min.js",
         "/js/js_alt/parsley.min.js",
