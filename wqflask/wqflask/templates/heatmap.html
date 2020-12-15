@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Heatmap{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
