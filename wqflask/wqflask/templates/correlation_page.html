@@ -91,7 +91,7 @@
           <button class="toggle-vis" data-column="4">Description</button>
           <button class="toggle-vis" data-column="5">Location</button>
           <button class="toggle-vis" data-column="6">Mean</button>
-          <button class="toggle-vis" data-column="7">High P</button>
+          <button class="toggle-vis" data-column="7">Peak LOD</button>
           <button class="toggle-vis" data-column="8">Peak Location</button>
           <button class="toggle-vis" data-column="9">Effect Size</button>
           {% elif target_dataset.type == 'Publish' %}
@@ -102,7 +102,7 @@
           <button class="toggle-vis" data-column="7">Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}</button>
           <button class="toggle-vis" data-column="8">N</button>
           <button class="toggle-vis" data-column="9">Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})</button>
-          <button class="toggle-vis" data-column="10">High P</button>
+          <button class="toggle-vis" data-column="10">Peak LOD</button>
           <button class="toggle-vis" data-column="11">Peak Location</button>
           <button class="toggle-vis" data-column="12">Effect Size</button>
           {% else %}
@@ -355,7 +355,7 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "High P<a href=\"http://gn1.genenetwork.org/glossary.html#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "Peak LOD<a href=\"http://gn1.genenetwork.org/glossary.html#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "60px",
@@ -455,7 +455,7 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "High P<a href=\"http://gn1.genenetwork.org/glossary.html#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
                       'width': "60px",

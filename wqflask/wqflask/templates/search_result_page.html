@@ -111,7 +111,7 @@
             <button class="toggle-vis" data-column="4">Description</button>
             <button class="toggle-vis" data-column="5">Location</button>
             <button class="toggle-vis" data-column="6">Mean</button>
-            <button class="toggle-vis" data-column="7">High P</button>
+            <button class="toggle-vis" data-column="7">Peak LOD</button>
             <button class="toggle-vis" data-column="8">Peak Location</button>
             <button class="toggle-vis" data-column="9">Effect Size</button>
             {% elif dataset.type == 'Publish' %}
@@ -119,7 +119,7 @@
             <button class="toggle-vis" data-column="4">Mean</button>
             <button class="toggle-vis" data-column="5">Authors</button>
             <button class="toggle-vis" data-column="6">Year</button>
-            <button class="toggle-vis" data-column="7">High P</button>
+            <button class="toggle-vis" data-column="7">Peak LOD</button>
             <button class="toggle-vis" data-column="8">Peak Location</button>
             <button class="toggle-vis" data-column="9">Effect Size</button>
             {% endif %}
@@ -277,10 +277,10 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "High P<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
-                      'width': "65px",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
@@ -346,10 +346,10 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "High P<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
                       'type': "natural-minus-na",
                       'data': "lrs_score",
-                      'width': "80px",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
