@@ -5,7 +5,6 @@ from unittest import mock
 from wqflask.marker_regression.gemma_mapping import run_gemma
 from wqflask.marker_regression.gemma_mapping import gen_pheno_txt_file
 from wqflask.marker_regression.gemma_mapping import gen_covariates_file
-from wqflask.marker_regression.gemma_mapping import parse_gemma_output
 from wqflask.marker_regression.gemma_mapping import parse_loco_output
 
 
@@ -69,11 +68,9 @@ class TestGemmaMapping(unittest.TestCase):
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
         ], vals=[], covariates="", use_loco=True)
-        system_calls = [mock.call('ghc --json -- -debug -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt -a /home/genotype/bimbam/file_snps.txt -gk > /home/user/data//gn2/GP1_K_RRRRRR.json'),
-                        mock.call('ghc --json --input /home/user/data//gn2/GP1_K_RRRRRR.json -- -debug -a /home/genotype/bimbam/file_snps.txt -lmm 2 -g /home/genotype/bimbam/file_geno.txt -p /home/user/data//gn2/trait1_dataset1_name_pheno.txt > /home/user/data//gn2/GP1_GWA_RRRRRR.json')]
-        mock_os.system.assert_has_calls(system_calls)
+        self.assertEqual(mock_os.system.call_count,2)
         mock_gen_pheno_txt.assert_called_once()
-        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR")
+        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR",True)
         mock_os.path.isfile.assert_called_once_with(
             ('/home/user/imgfile_output.assoc.txt'))
         self.assertEqual(mock_flat_files.call_count, 4)
@@ -137,31 +134,6 @@ class TestGemmaMapping(unittest.TestCase):
             filehandler = mock_open()
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
-
-    @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img/")
-    def test_parse_gemma_output(self):
-        """add test for generating gemma output with obj returned"""
-        file = """X/Y\t gn2\t21\tQ\tE\tA\tP\tMMB\tCDE\t0.5
-X/Y\tgn2\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5
-chr\tgn1\t12312\tQ\tE\tA\tP\tMMB\tCDE\t0.7
-X\tgn7\t2324424\tQ\tE\tA\tP\tMMB\tCDE\t0.4
-125\tgn9\t433575\tQ\tE\tA\tP\tMMB\tCDE\t0.67
-"""
-        with mock.patch("builtins.open", mock.mock_open(read_data=file)) as mock_open:
-            results = parse_gemma_output(genofile_name="gema_file")
-            expected = [{'name': ' gn2', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {'name': 'gn2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812},
-                        {'name': 'gn7', 'chr': 'X', 'Mb': 2.324424, 'p_value': 0.4, 'lod_score': 0.3979400086720376}, {'name': 'gn9', 'chr': 125, 'Mb': 0.433575, 'p_value': 0.67, 'lod_score': 0.17392519729917352}]
-            mock_open.assert_called_once_with(
-                "/home/user/img/gema_file_output.assoc.txt")
-            self.assertEqual(results, expected)
-
-    @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
-    def test_parse_gemma_output_with_empty_return(self):
-        """add tests for parse gemma output where nothing returned"""
-        output_file_results = """chr\t today"""
-        with mock.patch("builtins.open", mock.mock_open(read_data=output_file_results)) as mock_open:
-            results = parse_gemma_output(genofile_name="gema_file")
-            self.assertEqual(results, [])
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
