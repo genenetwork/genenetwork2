@@ -93,7 +93,7 @@ build_columns = function() {
     );
   }
 
-  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].name > js_data.attributes[b].name) ? 1 : -1)
+  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].name.toLowerCase() > js_data.attributes[b].name.toLowerCase()) ? 1 : -1)
   for (i = 0; i < attr_keys.length; i++){
     column_list.push(
       {

@@ -571,7 +571,7 @@ populate_sample_attributes_values_dropdown = function() {
   sample_attributes = [];
 
   var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
-    return [key, js_data.attributes[key].name];
+    return [key, js_data.attributes[key].name.toLowerCase()];
   });
 
   attributes_as_list.sort(function(first, second) {
