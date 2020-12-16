@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Heatmap{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
 {% endblock %}
 {% block content %} <!-- Start of body -->
@@ -39,6 +39,6 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/lod_chart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/curvechart.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/iplotMScanone_noeff.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
 
 {% endblock %}
