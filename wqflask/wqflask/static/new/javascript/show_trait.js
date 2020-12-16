@@ -731,14 +731,36 @@ filter_by_value = function() {
   }
 };
 
+hide_no_value_filter = function( settings, data, dataIndex ) {
+  this_value = table_api.column(3).nodes().to$()[dataIndex].childNodes[0].value;
+  if (this_value == "x"){
+    return false
+  } else {
+    return true
+  }
+}
+
 hide_no_value = function() {
-  return $('.value_se').each((function(_this) {
-    return function(_index, element) {
-      if ($(element).find('.trait-value-input').val() === 'x') {
-        return $(element).hide();
+  tables = ['samples_primary', 'samples_other'];
+  filter_active = $(this).data("active");
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      if (filter_active == "true"){
+        $(this).val("Hide No Value")
+        table_api.draw();
+        $(this).data("active", "false");
+      } else {
+        $(this).val("Show No Value")
+        $.fn.dataTable.ext.search.push(hide_no_value_filter);
+        table_api.search();
+        table_api.draw();
+        $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(hide_no_value_filter, 1));
+        $(this).data("active", "true");
       }
-    };
-  })(this));
+    }
+  }
 };
 $('#hide_no_value').click(hide_no_value);
 
@@ -754,6 +776,7 @@ $('#block_outliers').click(block_outliers);
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
+  $('#hide_no_value').val("Hide No Value")
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
@@ -771,6 +794,7 @@ reset_samples_table = function() {
           this_node.value = this_node.attributes["data-value"].value;
         }
       }
+      table_api.draw();
     }
   }
 };
