@@ -5,8 +5,7 @@ from wqflask.correlation.correlation_functions import cal_zero_order_corr_for_ti
 
 
 class TestCorrelationFunctions(unittest.TestCase):
-
-
+    
     @mock.patch("wqflask.correlation.correlation_functions.MrnaAssayTissueData")
     def test_get_trait_symbol_and_tissue_values(self, mock_class):
         """test for getting trait symbol and tissue_values"""
