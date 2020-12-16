@@ -144,6 +144,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
         "/js/DataTables/images/sort_asc_disabled.png",
         "/js/DataTables/images/sort_desc_disabled.png",
+        "/js/shapiro-wilk/shapiro-wilk.js",
     ]
 
     print("Checking links")
