@@ -100,15 +100,7 @@ d3.select("#select_compare_trait").on("click", (function(_this) {
     return open_trait_selection();
   };
 })(this));
-d3.select("#select_covariates").on("click", (function(_this) {
-  return function() {
-    return open_covariate_selection();
-  };
-})(this));
-$("#remove_covariates").click(function () {
-    $("input[name=covariates]").val("")
-    $(".selected-covariates").val("")
-});
+
 $(".select_covariates").click(function () {
   open_covariate_selection();
 });
