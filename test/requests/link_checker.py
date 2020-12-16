@@ -117,6 +117,8 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
+        "/js/typeahead/typeahead.bundle.js",
+        "/js/underscore-string/underscore.string.min.js",
         "/js/js_alt/jstat.min.js",
         "/js/js_alt/parsley.min.js",
         "/js/js_alt/timeago.min.js",
@@ -136,6 +138,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         "/css/d3-tip/d3-tip.css",
+        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
         "/js/DataTables/images/sort_asc_disabled.png",
         "/js/DataTables/images/sort_desc_disabled.png",
     ]
