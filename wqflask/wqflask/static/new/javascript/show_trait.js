@@ -516,6 +516,24 @@ on_corr_method_change = function() {
 };
 $('select[name=corr_type]').change(on_corr_method_change);
 
+on_dataset_change = function() {
+  let dataset_type = $('select[name=corr_dataset] option:selected').data('type');
+
+  if (dataset_type == "mrna_assay"){
+    $('#min_expr_filter').show();
+    $('#location_filter').show();
+  }
+  else if (dataset_type == "pheno"){
+    $('#min_expr_filter').show();
+    $('#location_filter').hide();
+  }
+  else {
+    $('#min_expr_filter').hide();
+    $('#location_filter').show();
+  }
+}
+$('select[name=corr_dataset]').change(on_dataset_change);
+
 submit_special = function(url) {
   get_table_contents_for_form_submit("trait_data_form");
   $("#trait_data_form").attr("action", url);

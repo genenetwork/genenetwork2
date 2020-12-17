@@ -19,18 +19,18 @@
                   <select name="corr_dataset" class="form-control">
                       {% for tissue in corr_tools.dataset_menu %}
                           {% if tissue.tissue %}
-                              <optgroup label="{{ tissue.tissue }} ------">
+                            <optgroup label="{{ tissue.tissue }} ------">
                           {% endif %}
                           {% for dataset in tissue.datasets %}
-                              <option value="{{ dataset[1] }}"
-                              {% if corr_tools.dataset_menu_selected == dataset[1] %}
-                                  selected
-                              {% endif %}>
-                                {{ dataset[0] }}
-                              </option>
+                            <option data-type="{% if tissue.tissue %}mrna_assay{% elif dataset[1][-4:] == 'Geno' %}geno{% else %}pheno{% endif %}" value="{{ dataset[1] }}"
+                            {% if corr_tools.dataset_menu_selected == dataset[1] %}
+                                selected
+                            {% endif %}>
+                            {{ dataset[0] }}
+                            </option>
                           {% endfor %}
                           {% if tissue.tissue %}
-                              </optgroup>
+                            </optgroup>
                           {% endif %}
                       {% endfor %}
                   </select>
@@ -74,14 +74,16 @@
                   </select>
               </div>
           </div>
-          {% if dataset.type != "Publish" %}
-          <div class="form-group">
+          {% if dataset.type != "Geno" %}
+          <div id="min_expr_filter" class="form-group">
               <label class="col-xs-2 control-label">Min Expr</label>
               <div class="col-xs-4 controls">
                   <input name="min_expr" value="" type="text" class="form-control min-expr-field">
               </div>
           </div>
-          <div class="form-group">
+          {% endif %}
+          {% if dataset.type != "Pheno" %}
+          <div id="location_filter" class="form-group">
               <label class="col-xs-2 control-label">Location</label>
               <div class="col-xs-6 controls">
                   <span>
