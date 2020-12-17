@@ -103,9 +103,9 @@ def check_packaged_js_files(args_obj, parser):
         "/js/DataTablesExtensions/colResize/dataTables.colResize.js",
         "/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js",
         "/js/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
-        "/js/DataTablesExtensions/scroller/js/scroller.dataTables.min.js",
+        "/js/DataTablesExtensions/scroller/js/dataTables.scroller.min.js",
         "/js/DataTables/js/jquery.dataTables.js",
-        "/css/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
+        "/js/DataTablesExtensions/scrollerStyle/css/scroller.dataTables.min.css",
         # Datatables plugins:
         "/js/DataTablesExtensions/plugins/sorting/natural.js",
         "/js/DataTablesExtensions/plugins/sorting/scientific.js",
