@@ -2,88 +2,85 @@
     <div class="col-xs-3 correlation-options">
       <div class="form-horizontal section-form-div">
 
-          <div class="form-group">
-              <label for="corr_type" class="col-xs-2 control-label">Method</label>
-              <div class="col-xs-3 controls">
-                  <select name="corr_type" class="form-control">
-                      <option value="sample">Sample r</option>
-                      <option value="lit">Literature r</option>
-                      <option value="tissue">Tissue r</option>
-                  </select>
-              </div>
-          </div>
+        <div class="form-group">
+            <label for="corr_type" class="col-xs-2 control-label">Method</label>
+            <div class="col-xs-3 controls">
+                <select name="corr_type" class="form-control">
+                    <option value="sample">Sample r</option>
+                    <option value="lit">Literature r</option>
+                    <option value="tissue">Tissue r</option>
+                </select>
+            </div>
+        </div>
 
-          <div class="form-group">
-              <label for="corr_dataset" class="col-xs-2 control-label">Database</label>
-              <div class="col-xs-10 controls">
-                  <select name="corr_dataset" class="form-control">
-                      {% for tissue in corr_tools.dataset_menu %}
-                          {% if tissue.tissue %}
-                            <optgroup label="{{ tissue.tissue }} ------">
-                          {% endif %}
-                          {% for dataset in tissue.datasets %}
-                            <option data-type="{% if tissue.tissue %}mrna_assay{% elif dataset[1][-4:] == 'Geno' %}geno{% else %}pheno{% endif %}" value="{{ dataset[1] }}"
-                            {% if corr_tools.dataset_menu_selected == dataset[1] %}
-                                selected
-                            {% endif %}>
-                            {{ dataset[0] }}
-                            </option>
-                          {% endfor %}
-                          {% if tissue.tissue %}
-                            </optgroup>
-                          {% endif %}
-                      {% endfor %}
-                  </select>
-              </div>
-          </div>
+        <div class="form-group">
+            <label for="corr_dataset" class="col-xs-2 control-label">Database</label>
+            <div class="col-xs-10 controls">
+                <select name="corr_dataset" class="form-control">
+                    {% for tissue in corr_tools.dataset_menu %}
+                        {% if tissue.tissue %}
+                        <optgroup label="{{ tissue.tissue }} ------">
+                        {% endif %}
+                        {% for dataset in tissue.datasets %}
+                        <option data-type="{% if tissue.tissue %}mrna_assay{% elif dataset[1][-4:] == 'Geno' %}geno{% else %}pheno{% endif %}" value="{{ dataset[1] }}"
+                        {% if corr_tools.dataset_menu_selected == dataset[1] %}
+                            selected
+                        {% endif %}>
+                        {{ dataset[0] }}
+                        </option>
+                        {% endfor %}
+                        {% if tissue.tissue %}
+                        </optgroup>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
-          <div class="form-group">
-              <label for="corr_return_results" class="col-xs-2 control-label">Limit to</label>
-              <div class="col-xs-4 controls">
-                  <select name="corr_return_results" class="form-control">
-                      {% for return_result in corr_tools.return_results_menu %}
-                          <option value="{{ return_result }}"
-                          {% if corr_tools.return_results_menu_selected == return_result %}
-                              selected
-                          {% endif %}>
-                          Top {{ return_result }}
-                          </option>
-                      {% endfor %}
-                  </select>
-              </div>
-          </div>
+        <div class="form-group">
+            <label for="corr_return_results" class="col-xs-2 control-label">Limit to</label>
+            <div class="col-xs-4 controls">
+                <select name="corr_return_results" class="form-control">
+                    {% for return_result in corr_tools.return_results_menu %}
+                        <option value="{{ return_result }}"
+                        {% if corr_tools.return_results_menu_selected == return_result %}
+                            selected
+                        {% endif %}>
+                        Top {{ return_result }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
-          <div class="form-group">
-              <label for="corr_samples_group" class="col-xs-2 control-label">Samples</label>
-              <div class="col-xs-4 controls">
-                  <select name="corr_samples_group" class="form-control">
-                      {% for group, pretty_group in sample_group_types.items() %}
-                          <option value="{{ group }}">{{ pretty_group }}</option>
-                      {% endfor %}
-                  </select>
-              </div>
-          </div>
+        <div class="form-group">
+            <label for="corr_samples_group" class="col-xs-2 control-label">Samples</label>
+            <div class="col-xs-4 controls">
+                <select name="corr_samples_group" class="form-control">
+                    {% for group, pretty_group in sample_group_types.items() %}
+                        <option value="{{ group }}">{{ pretty_group }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
-          <div id="corr_sample_method" class="form-group">
-              <label for="corr_sample_method" class="col-xs-2 control-label">Type</label>
-              <div class="col-xs-4 controls">
-                  <select name="corr_sample_method" class="form-control">
-                      <option value="pearson">Pearson</option>
-                      <option value="spearman">Spearman Rank</option>
-                      <option value="bicor">Biweight Midcorrelation</option>
-                  </select>
-              </div>
-          </div>
-          {% if dataset.type != "Geno" %}
-          <div id="min_expr_filter" class="form-group">
-              <label class="col-xs-2 control-label">Min Expr</label>
-              <div class="col-xs-4 controls">
-                  <input name="min_expr" value="" type="text" class="form-control min-expr-field">
-              </div>
-          </div>
-          {% endif %}
-          {% if dataset.type != "Publish" %}
-          <div id="location_filter" class="form-group">
+        <div id="corr_sample_method" class="form-group">
+            <label for="corr_sample_method" class="col-xs-2 control-label">Type</label>
+            <div class="col-xs-4 controls">
+                <select name="corr_sample_method" class="form-control">
+                    <option value="pearson">Pearson</option>
+                    <option value="spearman">Spearman Rank</option>
+                    <option value="bicor">Biweight Midcorrelation</option>
+                </select>
+            </div>
+        </div>
+        <div id="min_expr_filter" class="form-group" style="display: {% if dataset.type != 'Geno' %}block{% else %}none{% endif %};">
+            <label class="col-xs-2 control-label">Min Expr</label>
+            <div class="col-xs-4 controls">
+                <input name="min_expr" value="" type="text" class="form-control min-expr-field">
+            </div>
+        </div>
+        <div id="location_filter" class="form-group" style="display: {% if dataset.type != 'Publish' %}block{% else %}none{% endif %};">
               <label class="col-xs-2 control-label">Location</label>
               <div class="col-xs-6 controls">
                   <span>
@@ -93,7 +90,6 @@
                   <br>
               </div>
           </div>
-          {% endif %}
           <div class="form-group">
               <label class="col-xs-2 control-label">Range</label>
               <div class="col-xs-5 controls">
