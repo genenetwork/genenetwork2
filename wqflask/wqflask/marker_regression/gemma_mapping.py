@@ -80,7 +80,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
 
           os.system(generate_k_command)
 
-          gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -a %s/%s_snps.txt -lmm 2 -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
+          gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -a %s/%s_snps.txt -lmm 9 -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
                                                                                          genofile_name,
                                                                                          flat_files('genotype/bimbam'),
                                                                                          genofile_name,
@@ -101,7 +101,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
         marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
         return marker_obs, gwa_output_filename
     else:
-        marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
+        marker_obs = parse_loco_output(this_dataset, gwa_output_filename, use_loco)
         return marker_obs, gwa_output_filename
 
 def gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename):
@@ -145,41 +145,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
                 outfile.write(str(this_covariate[i]) + "\t")
             outfile.write("\n")
 
-def parse_gemma_output(genofile_name):
-    included_markers = []
-    p_values = []
-    marker_obs = []
-
-    with open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)) as output_file:
-        for line in output_file:
-            if line.startswith("chr\t"):
-                continue
-            else:
-                marker = {}
-                marker['name'] = line.split("\t")[1]
-                if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y":
-                    if "chr" in line.split("\t")[0]:
-                        marker['chr'] = int(line.split("\t")[0][3:])
-                    else:
-                        marker['chr'] = int(line.split("\t")[0])
-                else:
-                    marker['chr'] = line.split("\t")[0]
-                marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                marker['p_value'] = float(line.split("\t")[9])
-                if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
-                    marker['lod_score'] = 0
-                    #marker['lrs_value'] = 0
-                else:
-                    marker['lod_score'] = -math.log10(marker['p_value'])
-                    #marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-                marker_obs.append(marker)
-
-                included_markers.append(line.split("\t")[1])
-                p_values.append(float(line.split("\t")[9]))
-
-    return marker_obs
-
-def parse_loco_output(this_dataset, gwa_output_filename):
+def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
 
     output_filelist = []
     with open("{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json") as data_file:
@@ -218,7 +184,11 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                     else:
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                    marker['p_value'] = float(line.split("\t")[9])
+                    if loco == "True":
+                        marker['p_value'] = float(line.split("\t")[9])
+                    else:
+                        marker['p_value'] = float(line.split("\t")[10])
+                        marker['additive'] = float(line.split("\t")[7])
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
                         #marker['lrs_value'] = 0

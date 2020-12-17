@@ -48,10 +48,10 @@ table.dataTable thead th{
 }
 
 table.dataTable thead .sorting_asc {
-  background-image: url("../packages/DataTables/images/sort_asc_disabled.png");
+  background-image: url("/js/DataTables/images/sort_asc_disabled.png");
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("../packages/DataTables/images/sort_desc_disabled.png");
+  background-image: url("/js/DataTables/images/sort_desc_disabled.png");
 }
 
 table.dataTable thead th {
