@@ -71,7 +71,6 @@ class CorrelationResults(object):
         assert('corr_sample_method' in start_vars)
         assert('corr_samples_group' in start_vars)
         assert('corr_dataset' in start_vars)
-        #assert('min_expr' in start_vars)
         assert('corr_return_results' in start_vars)
         if 'loc_chr' in start_vars:
             assert('min_loc_mb' in start_vars)
@@ -197,15 +196,15 @@ class CorrelationResults(object):
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
                     float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-                    if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-
+                    if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
                             continue
-                        elif range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                    if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
+                        if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
                             continue
-                        elif (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                        if (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
                             continue
-                        elif (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
+                        if (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
                             continue
 
                     (trait_object.sample_r,
@@ -519,6 +518,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         elif target_dataset.type == "Publish":
             results_dict['abbreviation_display'] = "N/A"
             results_dict['description'] = "N/A"
+            results_dict['mean'] = "N/A"
             results_dict['authors_display'] = "N/A"
             results_dict['additive'] = "N/A"
             if for_api:
@@ -532,6 +532,8 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                 results_dict['abbreviation_display'] = trait.abbreviation
             if bool(trait.description_display):
                 results_dict['description'] = trait.description_display
+            if bool(trait.mean):
+                results_dict['mean'] = f"{float(trait.mean):.3f}"
             if bool(trait.authors):
                 authors_list = trait.authors.split(',')
                 if len(authors_list) > 6:
@@ -605,6 +607,7 @@ def get_header_fields(data_type, corr_method):
                             'Record',
                             'Abbreviation',
                             'Description',
+                            'Mean',
                             'Authors',
                             'Year',
                             'Sample rho',
@@ -618,6 +621,7 @@ def get_header_fields(data_type, corr_method):
                             'Record',
                             'Abbreviation',
                             'Description',
+                            'Mean',
                             'Authors',
                             'Year',
                             'Sample r',
