@@ -25,7 +25,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY, GN2_BRANCH_URL
 
 THREE_DAYS = 60 * 60 * 24 * 3
 
@@ -277,9 +277,11 @@ def orcid_oauth2():
         data = {
             "client_id": ORCID_CLIENT_ID, 
             "client_secret": ORCID_CLIENT_SECRET, 
-            "grant_type": "authorization_code", 
+            "grant_type": "authorization_code",
+            "redirect_uri": GN2_BRANCH_URL + "n/login/orcid_oauth2",
             "code": code
         }
+
         result = requests.post(ORCID_TOKEN_URL, data=data)
         result_dict = json.loads(result.text.encode("utf-8"))
 

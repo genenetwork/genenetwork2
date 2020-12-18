@@ -267,7 +267,7 @@ ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
 ORCID_AUTH_URL = None
 if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
     ORCID_AUTH_URL = "https://orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
-                      ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET
+                      ORCID_CLIENT_ID+"&client_secret="+ORCID_CLIENT_SECRET + "&redirect_uri=" + GN2_BRANCH_URL + "n/login/orcid_oauth2"
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
 ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
