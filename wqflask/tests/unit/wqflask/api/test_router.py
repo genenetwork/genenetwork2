@@ -1,6 +1,7 @@
 import unittest
 import json
 import csv
+from flask import request
 from unittest import mock
 from wqflask.api.router import app
 from wqflask.api.router import get_group_id
@@ -9,15 +10,17 @@ from wqflask.api.router import get_species_info
 from wqflask.api.router import return_error
 from wqflask.api.router import get_group_id_from_dataset
 from wqflask.api.router import get_dataset_trait_ids
+from wqflask.api.router import get_trait_info
 
 
 app.testing = True
-app.debug=False
+app.debug = False
+
+
 class TestRouter(unittest.TestCase):
     def setUp(self):
         self.app_context = app.app_context()
         self.app_context.push()
-
 
     def tearDown(self):
         self.app_context.pop()
@@ -26,14 +29,13 @@ class TestRouter(unittest.TestCase):
     def test_get_species_list(self, mock_db):
         species = [["sdadhj343", "HM1", "Human", "TX1"]]
         mock_db.db.execute.return_value.fetchall.return_value = species
-        with app.test_client() as client:
-            response = app.test_client().get('/api/v_pre1/species')
-            response_data = json.loads(response.data)
-            expected_results = [
-                {'FullName': 'Human', 'Id': 'sdadhj343', 'Name': 'HM1', 'TaxonomyId': 'TX1'}]
+        response = app.test_client().get('/api/v_pre1/species')
+        response_data = json.loads(response.data)
+        expected_results = [
+            {'FullName': 'Human', 'Id': 'sdadhj343', 'Name': 'HM1', 'TaxonomyId': 'TX1'}]
 
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response_data, expected_results)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data, expected_results)
 
     @mock.patch("wqflask.api.router.g")
     def test_get_species_info(self, mock_db):
@@ -231,8 +233,8 @@ class TestRouter(unittest.TestCase):
             self.assertEqual(expected_results, csv_data)
 
     @mock.patch("wqflask.api.router.g")
-    def test_get_group_id_from_dataset(self,mock_db):
-        mock_db.db.execute.return_value.fetchone.side_effect=[[22],[]]
+    def test_get_group_id_from_dataset(self, mock_db):
+        mock_db.db.execute.return_value.fetchone.side_effect = [[22], []]
         query = """
                     SELECT
                             InbredSet.Id
@@ -243,20 +245,21 @@ class TestRouter(unittest.TestCase):
                             PublishFreeze.Name = "BXDPublish"
                 """
 
-        results=get_group_id_from_dataset(dataset_name="BXDPublish")
+        results = get_group_id_from_dataset(dataset_name="BXDPublish")
         mock_db.db.execute.assert_called_once_with(query)
-        empty_db=get_group_id_from_dataset(dataset_name="Other")
-        self.assertEqual(results,22)
-        self.assertEqual(empty_db,None)
+        empty_db = get_group_id_from_dataset(dataset_name="Other")
+        self.assertEqual(results, 22)
+        self.assertEqual(empty_db, None)
 
     @mock.patch("wqflask.api.router.g")
-    def  test_get_dataset_traits_ids(self,mock_db):
-        start_vars={
-        "limit_to":"L1",
+    def test_get_dataset_traits_ids(self, mock_db):
+        start_vars = {
+            "limit_to": "L1",
         }
-        mock_db.db.execute.return_value.fetchall.return_value=[(1,"T1",1001),(5,"T5",101)]
+        mock_db.db.execute.return_value.fetchall.return_value = [
+            (1, "T1", 1001), (5, "T5", 101)]
 
-        query =    """
+        query = """
                             SELECT
                                 GenoXRef.GenoId, Geno.Name, GenoXRef.GenoFreezeId
                             FROM
@@ -268,7 +271,25 @@ class TestRouter(unittest.TestCase):
                             LIMIT L1
                         """
 
-        results=get_dataset_trait_ids(dataset_name="BXDGeno",start_vars=start_vars)
+        results = get_dataset_trait_ids(
+            dataset_name="BXDGeno", start_vars=start_vars)
 
         mock_db.db.execute.assert_called_once_with(query)
-        self.assertEqual(results,([1,5],["T1","T5"],"Geno",1001))
+        self.assertEqual(results, ([1, 5], ["T1", "T5"], "Geno", 1001))
+
+    @mock.patch("wqflask.api.router.get_group_id")
+    @mock.patch("wqflask.api.router.g")
+    def test_get_trait_info(self, mock_db, mock_get_group_id):
+        dataset_name = "BXDPublish"
+        trait_name = "14_at"
+        pheno_result = (6, "rs48756159", 13.4974911471087, 5.6343)
+        mock_get_group_id.return_value = 3
+        mock_db.db.execute.return_value.fetchone.side_effect = [
+            "", pheno_result]
+
+        expected_results = {'additive': 5.6343,
+                            'id': 6, 'locus': 'rs48756159',
+                            'lrs': 13.4974911471087}
+        response = app.test_client().get('/api/v_pre1/trait/BXDPublish/14_at')
+        results = json.loads(response.data)
+        self.assertEqual(results, expected_results)
