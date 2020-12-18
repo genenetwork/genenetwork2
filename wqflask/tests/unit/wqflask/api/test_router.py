@@ -293,10 +293,10 @@ class TestRouter(unittest.TestCase):
         response = app.test_client().get('/api/v_pre1/trait/BXDPublish/14_at')
         results = json.loads(response.data)
         self.assertEqual(results, expected_results)
- 
+
     @mock.patch("wqflask.api.router.g")
     @mock.patch("wqflask.api.router.get_dataset_trait_ids")
-    def test_fetch_traits(self, mock_dataset_trait_id,mock_db):
+    def test_fetch_traits(self, mock_dataset_trait_id, mock_db):
         mock_dataset_trait_id.return_value = ([1], ["T5"], "Geno", 1001)
         with app.test_client() as client:
             rv = client.get("api/v_pre1/traits/BXDGeno.json?ids_only=true")
@@ -306,16 +306,38 @@ class TestRouter(unittest.TestCase):
             rv_data = json.loads(rv.data)
             self.assertEqual(rv_data, ["T5"])
 
-        with app.test_client() as client:    
-            mock_db.db.execute.return_value.fetchall.return_value=[(1,"GH1","G1","This is the description","5", 28.457155,1,"Source1")]
-            rv=client.get("api/v_pre1/traits/BXDGeno.json?limit_to?12.3")
+        with app.test_client() as client:
+            mock_db.db.execute.return_value.fetchall.return_value = [
+                (1, "GH1", "G1", "This is the description", "5", 28.457155, 1, "Source1")]
+            rv = client.get("api/v_pre1/traits/BXDGeno.json?limit_to?12.3")
 
-            expected_results=[{'Chr': 'This is the description',
-            'Id': 1, 'Marker_Name': 'G1',
-            'Mb': '5', 'Name': 'GH1', 
-            'Sequence': 28.457155, 'Source': 1}]
+            expected_results = [{'Chr': 'This is the description',
+                                 'Id': 1, 'Marker_Name': 'G1',
+                                 'Mb': '5', 'Name': 'GH1',
+                                 'Sequence': 28.457155, 'Source': 1}]
 
-            rv_data=json.loads(rv.data)
-            mock_db.db.execute.assert_called_once_with(query)
+            rv_data = json.loads(rv.data)
             self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv_data, expected_results)
+
+    @mock.patch("wqflask.api.router.g")
+    def test_get_dataset_info(self,mock_db):
+        with app.test_client() as client:
+            mock_db.db.execute.return_value.fetchone.side_effect=[(1,"BXD","BXD-FULLNAME","BXD","log2",5,"T1",1,0),('4',"CBLWT2","This is pheno description","","",'11438585',"Title",'2017')]
+            expected_results=[
+            {'confidential': 0, 'data_scale': 'log2', 'dataset_type': 'mRNA expression',
+            'full_name': 'BXD-FULLNAME', 'id': 1, 'name': 'BXD',
+            'public': 1, 'short_name': 'BXD', 
+            'tissue': 'T1', 'tissue_id': 5},
+            {'dataset_type': 'phenotype', 'description': 'This is pheno description', 
+            'id': '4', 'name': 'CBLWT2', 
+            'pubmed_id': '11438585', 
+            'title': 'Title', 'year': '2017'}]
+
+            rv=client.get("/api/v_pre1/dataset/GH1/bxd")
+            rv_data=json.loads(rv.data)
             self.assertEqual(rv_data,expected_results)
+            self.assertEqual(rv.status_code,200)
+
+
+
