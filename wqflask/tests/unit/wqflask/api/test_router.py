@@ -233,7 +233,18 @@ class TestRouter(unittest.TestCase):
     @mock.patch("wqflask.api.router.g")
     def test_get_group_id_from_dataset(self,mock_db):
         mock_db.db.execute.return_value.fetchone.side_effect=[[22],[]]
+        query = """
+                    SELECT
+                            InbredSet.Id
+                    FROM
+                            InbredSet, PublishFreeze
+                    WHERE
+                            PublishFreeze.InbredSetId = InbredSet.Id AND
+                            PublishFreeze.Name = "BXDPublish"
+                """
+
         results=get_group_id_from_dataset(dataset_name="BXDPublish")
+        mock_db.db.execute.assert_called_once_with(query)
         empty_db=get_group_id_from_dataset(dataset_name="Other")
         self.assertEqual(results,22)
         self.assertEqual(empty_db,None)
