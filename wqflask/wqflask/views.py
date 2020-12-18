@@ -787,26 +787,26 @@ def plink_results_page():
 
 @app.route("/gemma_loading", methods=["POST"])
 def gemma_loading_page():
-    gemma_loading_data = get_loading_page_data(initial_start_vars=request.form)
+    start_vars_container = get_loading_page_data(initial_start_vars=request.form)
     return render_template("loading.html", **start_vars_container)
 
 
 @app.route("/qtl_loading", methods=["POST"])
 def qtl_loading_page():
-    qtl_loading_data = get_loading_page_data(initial_start_vars=request.form)
+    start_vars_container = get_loading_page_data(initial_start_vars=request.form)
     return render_template("loading.html", **start_vars_container)
 
 
 @app.route("/reaper_loading", methods=["POST"])
 def reaper_loading_page():
-    reaper_loading_data = get_loading_page_data(
+    start_vars_container = get_loading_page_data(
         initial_start_vars=request.form)
     return render_template("loading.html", **start_vars_container)
 
 
 @app.route("/plink_loading", methods=["POST"])
 def plink_loading_page():
-    plink_loading_data = get_loading_page_data(initial_start_vars=request.form)
+    start_vars_container = get_loading_page_data(initial_start_vars=request.form)
     return render_template("loading.html", **start_vars_container)
 
 def get_wanted_mapping_keys():
