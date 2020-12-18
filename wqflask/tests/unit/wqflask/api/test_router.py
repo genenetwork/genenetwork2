@@ -7,13 +7,17 @@ from wqflask.api.router import get_group_id
 from wqflask.api.router import get_samplelist
 from wqflask.api.router import get_species_info
 from wqflask.api.router import return_error
+from wqflask.api.router import get_group_id_from_dataset
+from wqflask.api.router import get_dataset_trait_ids
 
 
 app.testing = True
+app.debug=False
 class TestRouter(unittest.TestCase):
     def setUp(self):
         self.app_context = app.app_context()
         self.app_context.push()
+
 
     def tearDown(self):
         self.app_context.pop()
@@ -225,3 +229,35 @@ class TestRouter(unittest.TestCase):
             expected_results = [['foo', 'bar', 'spam'], [
                 'oof', 'rab', 'maps'], ['writerow', "isn't", 'writerows']]
             self.assertEqual(expected_results, csv_data)
+
+    @mock.patch("wqflask.api.router.g")
+    def test_get_group_id_from_dataset(self,mock_db):
+        mock_db.db.execute.return_value.fetchone.side_effect=[[22],[]]
+        results=get_group_id_from_dataset(dataset_name="BXDPublish")
+        empty_db=get_group_id_from_dataset(dataset_name="Other")
+        self.assertEqual(results,22)
+        self.assertEqual(empty_db,None)
+
+    @mock.patch("wqflask.api.router.g")
+    def  test_get_dataset_traits_ids(self,mock_db):
+        start_vars={
+        "limit_to":"L1",
+        }
+        mock_db.db.execute.return_value.fetchall.return_value=[(1,"T1",1001),(5,"T5",101)]
+
+        query =    """
+                            SELECT
+                                GenoXRef.GenoId, Geno.Name, GenoXRef.GenoFreezeId
+                            FROM
+                                Geno, GenoXRef, GenoFreeze
+                            WHERE
+                                Geno.Id = GenoXRef.GenoId AND
+                                GenoXRef.GenoFreezeId = GenoFreeze.Id AND
+                                GenoFreeze.Name = "BXDGeno"
+                            LIMIT L1
+                        """
+
+        results=get_dataset_trait_ids(dataset_name="BXDGeno",start_vars=start_vars)
+
+        mock_db.db.execute.assert_called_once_with(query)
+        self.assertEqual(results,([1,5],["T1","T5"],"Geno",1001))
