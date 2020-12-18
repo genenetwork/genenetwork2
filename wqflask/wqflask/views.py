@@ -611,52 +611,6 @@ def comp_bar_chart_page():
 def mapping_results_container_page():
     return render_template("mapping_results_container.html")
 
-@app.route("/loading", methods=('POST',))
-def loading_page():
-    logger.info(request.url)
-    initial_start_vars = request.form
-    start_vars_container = {}
-    n_samples = 0 #ZS: So it can be displayed on loading page
-    if 'wanted_inputs' in initial_start_vars:
-        wanted = initial_start_vars['wanted_inputs'].split(",")
-        start_vars = {}
-        for key, value in list(initial_start_vars.items()):
-            if key in wanted or key.startswith(('value:')):
-                start_vars[key] = value
-
-        if 'n_samples' in start_vars:
-            n_samples = int(start_vars['n_samples'])
-        else:
-            if 'group' in start_vars:
-                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
-            else:
-                dataset = create_dataset(start_vars['dataset'])
-            genofile_samplelist = []
-            samples = start_vars['primary_samples'].split(",")
-            if 'genofile' in start_vars:
-                if start_vars['genofile'] != "":
-                    genofile_string = start_vars['genofile']
-                    dataset.group.genofile = genofile_string.split(":")[0]
-                    genofile_samples = run_mapping.get_genofile_samplelist(dataset)
-                    if len(genofile_samples) > 1:
-                        samples = genofile_samples
-
-            for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
-                    n_samples += 1
-
-        start_vars['n_samples'] = n_samples
-        start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
-
-        start_vars_container['start_vars'] = start_vars
-    else:
-        start_vars_container['start_vars'] = initial_start_vars
-
-    rendered_template = render_template("loading.html", **start_vars_container)
-
-    return rendered_template
-
 @app.route("/export_mapping_results", methods = ('POST',))
 def export_mapping_results():
     logger.info("request.form:", request.form)
