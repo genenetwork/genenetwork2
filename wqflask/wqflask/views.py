@@ -611,182 +611,6 @@ def comp_bar_chart_page():
 def mapping_results_container_page():
     return render_template("mapping_results_container.html")
 
-@app.route("/loading", methods=('POST',))
-def loading_page():
-    logger.info(request.url)
-    initial_start_vars = request.form
-    start_vars_container = {}
-    n_samples = 0 #ZS: So it can be displayed on loading page
-    if 'wanted_inputs' in initial_start_vars:
-        wanted = initial_start_vars['wanted_inputs'].split(",")
-        start_vars = {}
-        for key, value in list(initial_start_vars.items()):
-            if key in wanted or key.startswith(('value:')):
-                start_vars[key] = value
-
-        if 'n_samples' in start_vars:
-            n_samples = int(start_vars['n_samples'])
-        else:
-            if 'group' in start_vars:
-                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
-            else:
-                dataset = create_dataset(start_vars['dataset'])
-            genofile_samplelist = []
-            samples = start_vars['primary_samples'].split(",")
-            if 'genofile' in start_vars:
-                if start_vars['genofile'] != "":
-                    genofile_string = start_vars['genofile']
-                    dataset.group.genofile = genofile_string.split(":")[0]
-                    genofile_samples = run_mapping.get_genofile_samplelist(dataset)
-                    if len(genofile_samples) > 1:
-                        samples = genofile_samples
-
-            for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
-                    n_samples += 1
-
-        start_vars['n_samples'] = n_samples
-        start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
-
-        start_vars_container['start_vars'] = start_vars
-    else:
-        start_vars_container['start_vars'] = initial_start_vars
-
-    rendered_template = render_template("loading.html", **start_vars_container)
-
-    return rendered_template
-
-@app.route("/run_mapping", methods=('POST',))
-def mapping_results_page():
-    initial_start_vars = request.form
-    #logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
-    logger.info(request.url)
-    temp_uuid = initial_start_vars['temp_uuid']
-    wanted = (
-        'trait_id',
-        'dataset',
-        'group',
-        'species',
-        'samples',
-        'vals',
-        'first_run',
-        'output_files',
-        'geno_db_exists',
-        'method',
-        'mapping_results_path',
-        'trimmed_markers',
-        'selected_chr',
-        'chromosomes',
-        'mapping_scale',
-        'plotScale',
-        'score_type',
-        'suggestive',
-        'significant',
-        'num_perm',
-        'permCheck',
-        'perm_strata',
-        'strat_var',
-        'categorical_vars',
-        'perm_output',
-        'num_bootstrap',
-        'bootCheck',
-        'bootstrap_results',
-        'LRSCheck',
-        'covariates',
-        'maf',
-        'use_loco',
-        'manhattan_plot',
-        'color_scheme',
-        'manhattan_single_color',
-        'control_marker',
-        'control_marker_db',
-        'do_control',
-        'genofile',
-        'genofile_string',
-        'pair_scan',
-        'startMb',
-        'endMb',
-        'graphWidth',
-        'lrsMax',
-        'additiveCheck',
-        'showSNP',
-        'showGenes',
-        'viewLegend',
-        'haplotypeAnalystCheck',
-        'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno',
-        'temp_trait',
-        'reaper_version',
-        'n_samples',
-        'transform'
-    )
-    start_vars = {}
-    for key, value in list(initial_start_vars.items()):
-        if key in wanted or key.startswith(('value:')):
-            start_vars[key] = value
-    #logger.debug("Mapping called with start_vars:", start_vars)
-
-    version = "v3"
-    key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    #logger.info("key is:", pf(key))
-    with Bench("Loading cache"):
-        result = None # Just for testing
-        #result = Redis.get(key)
-
-    #logger.info("************************ Starting result *****************")
-    #logger.info("result is [{}]: {}".format(type(result), result))
-    #logger.info("************************ Ending result ********************")
-
-    if result:
-        logger.info("Cache hit!!!")
-        with Bench("Loading results"):
-            result = pickle.loads(result)
-    else:
-        logger.info("Cache miss!!!")
-        with Bench("Total time in RunMapping"):
-            try:
-                template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
-                if template_vars.no_results:
-                    rendered_template = render_template("mapping_error.html")
-                    return rendered_template
-            except:
-                rendered_template = render_template("mapping_error.html")
-                return rendered_template
-
-            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
-            template_vars.js_data = json.dumps(template_vars.js_data,
-                                                    default=json_default_handler,
-                                                    indent="   ")
-
-            result = template_vars.__dict__
-
-            if result['pair_scan']:
-                with Bench("Rendering template"):
-                    img_path = result['pair_scan_filename']
-                    logger.info("img_path:", img_path)
-                    initial_start_vars = request.form
-                    logger.info("initial_start_vars:", initial_start_vars)
-                    imgfile = open(TEMPDIR + img_path, 'rb')
-                    imgdata = imgfile.read()
-                    imgB64 = base64.b64encode(imgdata)
-                    bytesarray = array.array('B', imgB64)
-                    result['pair_scan_array'] = bytesarray
-                    rendered_template = render_template("pair_scan_results.html", **result)
-            else:
-                gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-                #logger.info("pickled result length:", len(pickled_result))
-                #Redis.set(key, pickled_result)
-                #Redis.expire(key, 1*60)
-
-                with Bench("Rendering template"):
-                    #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                    #gn1_template_vars.pop('qtlresults', None)
-                    rendered_template = render_template("mapping_results.html", **gn1_template_vars)
-
-    return rendered_template
-
 @app.route("/export_mapping_results", methods = ('POST',))
 def export_mapping_results():
     logger.info("request.form:", request.form)
@@ -951,3 +775,203 @@ def json_default_handler(obj):
     else:
         raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj)))
+
+
+@app.route("/run_gemma",methods=["POST"])
+def gemma_results_page():
+    gemma_results=get_mapping_results(initial_start_vars=request.form)
+    return gemma_results
+@app.route("/run_qtl",methods=["POST"])
+def qtl_results_page():
+    qtl_mapping_results=get_mapping_results(initial_start_vars=request.form)
+    return qtl_mapping_results
+
+@app.route("/run_reaper",methods=["POST"])
+def reaper_results_page():
+    reaper_mapping_results=get_mapping_results(initial_start_vars=request.form)
+    return reaper_mapping_results
+
+@app.route("/run_plink",methods=["POST"])
+def plink_results_page():
+    plink_mapping_results = get_mapping_results(initial_start_vars=request.form)
+    return plink_mapping_results
+
+@app.route("/gemma_loading", methods=["POST"])
+def gemma_loading_page():
+    start_vars_container = get_loading_page_data(initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+
+@app.route("/qtl_loading", methods=["POST"])
+def qtl_loading_page():
+    start_vars_container = get_loading_page_data(initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+
+@app.route("/reaper_loading", methods=["POST"])
+def reaper_loading_page():
+    start_vars_container = get_loading_page_data(
+        initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+
+@app.route("/plink_loading", methods=["POST"])
+def plink_loading_page():
+    start_vars_container = get_loading_page_data(initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+def get_wanted_mapping_keys():
+    wanted = (
+        'trait_id',
+        'dataset',
+        'group',
+        'species',
+        'samples',
+        'vals',
+        'first_run',
+        'output_files',
+        'geno_db_exists',
+        'method',
+        'mapping_results_path',
+        'trimmed_markers',
+        'selected_chr',
+        'chromosomes',
+        'mapping_scale',
+        'plotScale',
+        'score_type',
+        'suggestive',
+        'significant',
+        'num_perm',
+        'permCheck',
+        'perm_strata',
+        'strat_var',
+        'categorical_vars',
+        'perm_output',
+        'num_bootstrap',
+        'bootCheck',
+        'bootstrap_results',
+        'LRSCheck',
+        'covariates',
+        'maf',
+        'use_loco',
+        'manhattan_plot',
+        'color_scheme',
+        'manhattan_single_color',
+        'control_marker',
+        'control_marker_db',
+        'do_control',
+        'genofile',
+        'genofile_string',
+        'pair_scan',
+        'startMb',
+        'endMb',
+        'graphWidth',
+        'lrsMax',
+        'additiveCheck',
+        'showSNP',
+        'showGenes',
+        'viewLegend',
+        'haplotypeAnalystCheck',
+        'mapmethod_rqtl_geno',
+        'mapmodel_rqtl_geno',
+        'temp_trait',
+        'reaper_version',
+        'n_samples',
+        'transform'
+    )
+
+    return wanted
+def get_mapping_results(initial_start_vars):
+    temp_uuid=initial_start_vars['temp_uuid']
+    wanted=get_wanted_mapping_values()
+    start_vars={}
+    for key, value in list(initial_start_vars.items()):
+        if key in wanted or key.startswith(('value:')):
+            start_vars[key] = value
+
+    version = "v3"
+    key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    with Bench("Loading cache"):
+        result = None
+    if result:
+        logger.info("Cache hit!!!")
+        with Bench("Loading results"):
+            result = pickle.loads(result)
+    else:
+        logger.info("Cache miss!!!")
+        with Bench("Total time in RunMapping"):
+            try:
+                template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+                if template_vars.no_results:
+                    rendered_template = render_template("mapping_error.html")
+                    return rendered_template
+            except:
+                rendered_template = render_template("mapping_error.html")
+                return rendered_template
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                                    default=json_default_handler,
+                                                    indent="   ")
+
+            result = template_vars.__dict__
+
+            if result['pair_scan']:
+                with Bench("Rendering template"):
+                    img_path = result['pair_scan_filename']
+                    logger.info("img_path:", img_path)
+                    initial_start_vars = request.form
+                    logger.info("initial_start_vars:", initial_start_vars)
+                    imgfile = open(TEMPDIR + img_path, 'rb')
+                    imgdata = imgfile.read()
+                    imgB64 = base64.b64encode(imgdata)
+                    bytesarray = array.array('B', imgB64)
+                    result['pair_scan_array'] = bytesarray
+                    rendered_template = render_template("pair_scan_results.html", **result)
+            else:
+                gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+
+                with Bench("Rendering template"):
+                    rendered_template = render_template("mapping_results.html", **gn1_template_vars)
+
+    return rendered_template
+
+def get_loading_page_data(initial_start_vars):
+    initial_start_vars = request.form
+    start_vars_container = {}
+    n_samples = 0 #ZS: So it can be displayed on loading page
+    if 'wanted_inputs' in initial_start_vars:
+        wanted = initial_start_vars['wanted_inputs'].split(",")
+        start_vars = {}
+        for key, value in list(initial_start_vars.items()):
+            if key in wanted or key.startswith(('value:')):
+                start_vars[key] = value
+
+        if 'n_samples' in start_vars:
+            n_samples = int(start_vars['n_samples'])
+        else:
+            if 'group' in start_vars:
+                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
+            else:
+                dataset = create_dataset(start_vars['dataset'])
+            genofile_samplelist = []
+            samples = start_vars['primary_samples'].split(",")
+            if 'genofile' in start_vars:
+                if start_vars['genofile'] != "":
+                    genofile_string = start_vars['genofile']
+                    dataset.group.genofile = genofile_string.split(":")[0]
+                    genofile_samples = run_mapping.get_genofile_samplelist(dataset)
+                    if len(genofile_samples) > 1:
+                        samples = genofile_samples
+
+            for sample in samples:
+                value = start_vars.get('value:' + sample)
+                if value != "x":
+                    n_samples += 1
+
+        start_vars['n_samples'] = n_samples
+        start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
+
+        start_vars_container['start_vars'] = start_vars
+    else:
+        start_vars_container['start_vars'] = initial_start_vars
+
+    return start_vars_container
