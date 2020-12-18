@@ -321,23 +321,21 @@ class TestRouter(unittest.TestCase):
             self.assertEqual(rv_data, expected_results)
 
     @mock.patch("wqflask.api.router.g")
-    def test_get_dataset_info(self,mock_db):
+    def test_get_dataset_info(self, mock_db):
         with app.test_client() as client:
-            mock_db.db.execute.return_value.fetchone.side_effect=[(1,"BXD","BXD-FULLNAME","BXD","log2",5,"T1",1,0),('4',"CBLWT2","This is pheno description","","",'11438585',"Title",'2017')]
-            expected_results=[
-            {'confidential': 0, 'data_scale': 'log2', 'dataset_type': 'mRNA expression',
-            'full_name': 'BXD-FULLNAME', 'id': 1, 'name': 'BXD',
-            'public': 1, 'short_name': 'BXD', 
-            'tissue': 'T1', 'tissue_id': 5},
-            {'dataset_type': 'phenotype', 'description': 'This is pheno description', 
-            'id': '4', 'name': 'CBLWT2', 
-            'pubmed_id': '11438585', 
-            'title': 'Title', 'year': '2017'}]
+            mock_db.db.execute.return_value.fetchone.side_effect = [
+                (1, "BXD", "BXD-FULLNAME", "BXD", "log2", 5, "T1", 1, 0), ('4', "CBLWT2", "This is pheno description", "", "", '11438585', "Title", '2017')]
+            expected_results = [
+                {'confidential': 0, 'data_scale': 'log2', 'dataset_type': 'mRNA expression',
+                 'full_name': 'BXD-FULLNAME', 'id': 1, 'name': 'BXD',
+                 'public': 1, 'short_name': 'BXD',
+                 'tissue': 'T1', 'tissue_id': 5},
+                {'dataset_type': 'phenotype', 'description': 'This is pheno description',
+                 'id': '4', 'name': 'CBLWT2',
+                 'pubmed_id': '11438585',
+                    'title': 'Title', 'year': '2017'}]
 
-            rv=client.get("/api/v_pre1/dataset/GH1/bxd")
-            rv_data=json.loads(rv.data)
-            self.assertEqual(rv_data,expected_results)
-            self.assertEqual(rv.status_code,200)
-
-
-
+            rv = client.get("/api/v_pre1/dataset/GH1/bxd")
+            rv_data = json.loads(rv.data)
+            self.assertEqual(rv_data, expected_results)
+            self.assertEqual(rv.status_code, 200)
