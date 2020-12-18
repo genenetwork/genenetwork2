@@ -44,7 +44,9 @@ lodheatmap = function() {
       _ref = data.chrnames;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         chr = _ref[_i];
-        xLR[chr[0]] = getLeftRight(data.posByChr[chr[0]]);
+        if (data.posByChr[chr[0]].length > 0){
+          xLR[chr[0]] = getLeftRight(data.posByChr[chr[0]]);
+        }
       }
       zmin = 0;
       zmax = 0;
@@ -144,7 +146,7 @@ lodheatmap = function() {
       }).attr("stroke", "none").attr("stroke-width", "1").on("mouseover.paneltip", function(d) {
         yaxis.select("text#yaxis" + d.lodindex).attr("opacity", 1);
         d3.select(this).attr("stroke", "black");
-        return celltip.show(d);
+        return celltip.show(d, this);
       }).on("mouseout.paneltip", function(d) {
         yaxis.select("text#yaxis" + d.lodindex).attr("opacity", 0);
         d3.select(this).attr("stroke", "none");

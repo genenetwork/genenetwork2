@@ -4,7 +4,7 @@
         <strong>Reset</strong> option as
         needed.
     </p>
-    <div id="blockMenuSpan" class="input-append block-by-index-div">
+    <div id="blockMenuSpan" class="input-append block-div">
         <label for="remove_samples_field">Block samples by index:</label>
         <input type="text" id="remove_samples_field" placeholder="Example: 3, 5-10, 12">
         <select id="block_group" size="1">
@@ -21,21 +21,66 @@
           Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
     </div>
     {% if sample_groups[0].attributes %}
-    <div class="input-append block-by-attribute-div">
-        <label for="exclude_menu">Block samples by group:</label>
-        <select id="exclude_menu" size=1>
+    <div class="input-append block-div-2">
+        <label for="exclude_column">Block samples by group:</label>
+        <select id="exclude_column" size=1>
           {% for attribute in sample_groups[0].attributes %}
-          <option value="{{ sample_groups[0].attributes[attribute].name.replace(' ', '_') }}">
-              {{ sample_groups[0].attributes[attribute].name }}</option>
+          {% if sample_groups[0].attributes[attribute].distinct_values|length <= 10 %}
+          <option value="{{ loop.index }}">
+              {{ sample_groups[0].attributes[attribute].name }}
+          </option>
+          {% endif %}
           {% endfor %}
         </select>
         <select id="attribute_values" size=1>
         </select>
-        <input type="button" id="exclude_group" class="btn" value="Block">
+        <select id="exclude_by_attr_group" size="1">
+          <option value="primary">
+            {{ sample_group_types['samples_primary'] }}
+          </option>
+          <option value="other">
+            {{ sample_group_types['samples_other'] }}
+          </option>
+        </select>
+        <input type="button" id="exclude_by_attr" class="btn btn-danger" value="Block">
     </div>
     {% endif %}
+    <div id="filterMenuSpan" class="input-append block-div-2">
+      <label for="filter_samples_field">Filter samples by {% if not sample_groups[0].attributes %}value{% endif %} </label>
+      {% if sample_groups[0].attributes %}
+      <select id="filter_column">
+        <option value="value">Value</option>
+        {% if js_data.se_exists %}
+        <option value="stderr">SE</option>
+        {% endif %}
+        {% for attribute in sample_groups[0].attributes %}
+
+        <option value="{{ loop.index }}">
+          {{ sample_groups[0].attributes[attribute].name }}
+        </option>
+
+        {% endfor %}
+      </select>
+      {% endif %}
+      <select id="filter_logic" size="1">
+        <option value="greater_than">></option>
+        <option value="less_than"><</option>
+        <option value="greater_or_equal">≥</option>
+        <option value="less_or_equal">≤</option>
+      </select>
+      <input type="text" id="filter_value" placeholder="Example: 3, 10, 15">
+      <select id="filter_group" size="1">
+        <option value="primary">
+          {{ sample_group_types['samples_primary'] }}
+        </option>
+        <option value="other">
+          {{ sample_group_types['samples_other'] }}
+        </option>
+      </select>
+      <input type="button" id="filter_by_value" class="btn btn-danger" value="Filter">
+    </div>
     <div>
-      <input type="button" id="hide_no_value" class="btn btn-default" value="Hide No Value">
+      <input data-active="false" type="button" id="hide_no_value" class="btn btn-default" value="Hide No Value">
       <input type="button" id="block_outliers" class="btn btn-default" value="Block Outliers">
       <input type="button" class="btn btn-success reset" value="Reset">
       <span class="input-append">

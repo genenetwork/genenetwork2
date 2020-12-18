@@ -22,6 +22,6 @@
 
 {% block js %}
     {% include "new_security/_scripts.html" %}
-    <script type="text/javascript" src="/static/new/js_external/zxcvbn/zxcvbn-async.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='zxcvbn-async/zxcvbn-async.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/password_strength.js"></script>
 {% endblock %}

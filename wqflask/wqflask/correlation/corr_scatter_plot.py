@@ -29,6 +29,8 @@ class CorrScatterPlot(object):
         self.trait_2 = create_trait(name=params['trait_2'], dataset=self.dataset_2)
         #self.trait_3 = create_trait(name=params['trait_3'], dataset=self.dataset_3)
 
+        self.method = params['method']
+
         primary_samples = self.dataset_1.group.samplelist
         if self.dataset_1.group.parlist != None:
             primary_samples += self.dataset_1.group.parlist

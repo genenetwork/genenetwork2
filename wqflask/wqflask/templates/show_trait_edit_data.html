@@ -1,6 +1,33 @@
 <div>
     {% for sample_type in sample_groups %}
       <div class="sample-table-container">
+        {% if loop.index == 1 and (sample_groups[0].se_exists or has_num_cases or sample_groups[0].attributes|length > 0) %}
+        <b>Show/Hide Columns:</b>
+        <br>
+        {% if sample_groups[0].se_exists %}
+        <button class="toggle-vis" data-column="4,5">SE</button>
+        {% if has_num_cases %}
+        <button class="toggle-vis" data-column="6">N</button>
+        {% set attr_start_pos = 7 %}
+        {% else %}
+        {% set attr_start_pos = 6 %}
+        {% endif %}
+        {% else %}
+        {% if has_num_cases %}
+        <button class="toggle-vis" data-column="4">N</button>
+        {% set attr_start_pos = 5 %}
+        {% else %}
+        {% set attr_start_pos = 4 %}
+        {% endif %}
+        {% endif %}
+        {% if sample_groups[0].attributes %}
+        {% for attribute in sample_groups[0].attributes %}
+        <button class="toggle-vis" data-column="{{ loop.index + attr_start_pos - 1 }}">{{ sample_groups[0].attributes[attribute].name }}</button>
+        {% endfor %}
+        {% endif %}
+        <br>
+        <br>
+        {% endif %}
         <div class="sample-table-search-container">
           <input type="text" id="{{ sample_type.sample_group_type }}_searchbox" class="form-control sample-table-search" placeholder="Search This Table For ...">
         </div>

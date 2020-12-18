@@ -20,23 +20,22 @@
 
 import datetime
 import math
+import random
+import string
+
 import numpy as np
 import scipy
 import rpy2.robjects as robjects
-import utility.webqtlUtil  # this is for parallel computing only.
-import utility.logger
-
-from base import data_set
-from functools import reduce
-from functools import cmp_to_key
 from rpy2.robjects.packages import importr
 
+from base import data_set
+from base.webqtlConfig import GENERATED_TEXT_DIR
+from functools import reduce
+from functools import cmp_to_key
 from utility import webqtlUtil
 from utility import helper_functions
 from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
-
-logger = utility.logger.getLogger(__name__)
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -135,6 +134,8 @@ class CorrelationMatrix(object):
             self.corr_results.append(corr_result_row)
             self.pca_corr_results.append(pca_corr_result_row)
 
+        self.export_filename, self.export_filepath = export_corr_matrix(self.corr_results)
+
         self.trait_data_array = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]
@@ -231,6 +232,36 @@ class CorrelationMatrix(object):
                 loadings_row.append(self.loadings[0][position])
             loadings_array.append(loadings_row)
         return loadings_array
+
+def export_corr_matrix(corr_results):
+    corr_matrix_filename = "corr_matrix_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+    matrix_export_path = "{}{}.csv".format(GENERATED_TEXT_DIR, corr_matrix_filename)
+    with open(matrix_export_path, "w+") as output_file:
+        output_file.write("Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
+        output_file.write("\n")
+        output_file.write("Correlation ")
+        for i, item in enumerate(corr_results[0]):
+            output_file.write("Trait" + str(i + 1) + ": " + str(item[0].dataset.name) + "::" + str(item[0].name) + "\t")
+        output_file.write("\n")
+        for i, row in enumerate(corr_results):
+            output_file.write("Trait" + str(i + 1) + ": " + str(row[0][0].dataset.name) + "::" + str(row[0][0].name) + "\t")
+            for item in row:
+                output_file.write(str(item[1]) + "\t")
+            output_file.write("\n")
+
+        output_file.write("\n")
+        output_file.write("\n")
+        output_file.write("N ")
+        for i, item in enumerate(corr_results[0]):
+            output_file.write("Trait" + str(i) + ": " + str(item[0].dataset.name) + "::" + str(item[0].name) + "\t")
+        output_file.write("\n")
+        for i, row in enumerate(corr_results):
+            output_file.write("Trait" + str(i) + ": " + str(row[0][0].dataset.name) + "::" + str(row[0][0].name) + "\t")
+            for item in row:
+                output_file.write(str(item[2]) + "\t")
+            output_file.write("\n")
+
+    return corr_matrix_filename, matrix_export_path
 
 def zScore(trait_data_array):
     NN = len(trait_data_array[0])
