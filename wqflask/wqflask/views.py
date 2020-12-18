@@ -812,27 +812,51 @@ def json_default_handler(obj):
             type(obj), repr(obj)))
 
 
-@app.route("/run_gemma",methods=("POST",))
+@app.route("/run_gemma",methods=["POST"])
 def gemma_results_page():
     gemma_results=get_mapping_results(initial_start_vars=request.form)
     return gemma_results
-@app.route("/run_qtl",methods=("POST",))
+@app.route("/run_qtl",methods=["POST"])
 def qtl_results_page():
     qtl_mapping_results=get_mapping_results(initial_start_vars=request.form)
     return qtl_mapping_results
 
-@app.route("/run_reaper",methods=("POST",))
+@app.route("/run_reaper",methods=["POST"])
 def reaper_results_page():
     reaper_mapping_results=get_mapping_results(initial_start_vars=request.form)
     return reaper_mapping_results
 
-@app.route("/run_plink",methods=("POST",))
+@app.route("/run_plink",methods=["POST"])
 def plink_results_page():
-    plink_mapping_results=get_mapping_results(initial_start_vars=request.form)
+    plink_mapping_results = get_mapping_results(initial_start_vars=request.form)
     return plink_mapping_results
 
-def get_wanted_mapping_values():
-    wanted=(
+@app.route("/gemma_loading", methods=["POST"])
+def gemma_loading_page():
+    gemma_loading_data = get_loading_page_data(initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+
+@app.route("/qtl_loading", methods=["POST"])
+def qtl_loading_page():
+    qtl_loading_data = get_loading_page_data(initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+
+@app.route("/reaper_loading", methods=["POST"])
+def reaper_loading_page():
+    reaper_loading_data = get_loading_page_data(
+        initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+
+@app.route("/plink_loading", methods=["POST"])
+def plink_loading_page():
+    plink_loading_data = get_loading_page_data(initial_start_vars=request.form)
+    return render_template("loading.html", **start_vars_container)
+
+def get_wanted_mapping_keys():
+    wanted = (
         'trait_id',
         'dataset',
         'group',
@@ -944,3 +968,45 @@ def get_mapping_results(initial_start_vars):
                     rendered_template = render_template("mapping_results.html", **gn1_template_vars)
 
     return rendered_template
+
+def get_loading_page_data(initial_start_vars):
+    initial_start_vars = request.form
+    start_vars_container = {}
+    n_samples = 0 #ZS: So it can be displayed on loading page
+    if 'wanted_inputs' in initial_start_vars:
+        wanted = initial_start_vars['wanted_inputs'].split(",")
+        start_vars = {}
+        for key, value in list(initial_start_vars.items()):
+            if key in wanted or key.startswith(('value:')):
+                start_vars[key] = value
+
+        if 'n_samples' in start_vars:
+            n_samples = int(start_vars['n_samples'])
+        else:
+            if 'group' in start_vars:
+                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
+            else:
+                dataset = create_dataset(start_vars['dataset'])
+            genofile_samplelist = []
+            samples = start_vars['primary_samples'].split(",")
+            if 'genofile' in start_vars:
+                if start_vars['genofile'] != "":
+                    genofile_string = start_vars['genofile']
+                    dataset.group.genofile = genofile_string.split(":")[0]
+                    genofile_samples = run_mapping.get_genofile_samplelist(dataset)
+                    if len(genofile_samples) > 1:
+                        samples = genofile_samples
+
+            for sample in samples:
+                value = start_vars.get('value:' + sample)
+                if value != "x":
+                    n_samples += 1
+
+        start_vars['n_samples'] = n_samples
+        start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
+
+        start_vars_container['start_vars'] = start_vars
+    else:
+        start_vars_container['start_vars'] = initial_start_vars
+
+    return start_vars_container
