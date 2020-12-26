@@ -641,6 +641,8 @@ block_by_attribute_value = function() {
       this_val_node.value = "x";
     }
   }
+
+  edit_data_change();
 };
 $('#exclude_by_attr').click(block_by_attribute_value);
 
