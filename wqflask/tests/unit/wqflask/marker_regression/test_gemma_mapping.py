@@ -144,21 +144,26 @@ class TestGemmaMapping(unittest.TestCase):
             "files": [["file_name", "user", "~/file1"],
                       ["file_name", "user", "~/file2"]]
         }
-        return_file_1 = """X/Y\t L1\t21\tQ\tE\tA\tP\tMMB\tCDE\t0.5
-X/Y\tL2\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5
-chr\tL3\t12312\tQ\tE\tA\tP\tMMB\tCDE\t0.7"""
-        return_file_2 = """chr\tother\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5"""
+        return_file="""X/Y\tM1\t28.457155\tQ\tE\tA\tMMB\t23.3\tW\t0.9\t0.85\t
+chr4\tM2\t12\tQ\tE\tMMB\tR\t24\tW\t0.87\t0.5
+Y\tM4\t12\tQ\tE\tMMB\tR\t11.6\tW\t0.21\t0.7
+X\tM5\t12\tQ\tE\tMMB\tR\t21.1\tW\t0.65\t0.6"""
+
+        return_file_2 = """chr\tother\t21322\tQ\tE\tA\tP\tMMB\tCDE\t0.5\t0.4"""
         mock_os.path.isfile.return_value = True
         file_to_write = """{"files":["file_1","file_2"]}"""
         with mock.patch("builtins.open") as mock_open:
 
             handles = (mock.mock_open(read_data="gwas").return_value, mock.mock_open(
-                read_data=return_file_1).return_value, mock.mock_open(read_data=return_file_2).return_value)
+                read_data=return_file).return_value, mock.mock_open(read_data=return_file_2).return_value)
             mock_open.side_effect = handles
             results = parse_loco_output(
                 this_dataset={}, gwa_output_filename=".xw/")
-            expected_results = [{'name': ' L1', 'chr': 'X/Y', 'Mb': 2.1e-05, 'p_value': 0.5, 'lod_score': 0.3010299956639812}, {
-                'name': 'L2', 'chr': 'X/Y', 'Mb': 0.021322, 'p_value': 0.5, 'lod_score': 0.3010299956639812}]
+            expected_results= [
+            {'name': 'M1', 'chr': 'X/Y', 'Mb': 2.8457155e-05, 'p_value': 0.85, 'additive': 23.3, 'lod_score': 0.07058107428570727},
+            {'name': 'M2', 'chr': 4, 'Mb': 1.2e-05, 'p_value': 0.5, 'additive': 24.0, 'lod_score': 0.3010299956639812},
+            {'name': 'M4', 'chr': 'Y', 'Mb': 1.2e-05, 'p_value': 0.7, 'additive': 11.6, 'lod_score': 0.1549019599857432},
+            {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': 21.1, 'lod_score': 0.22184874961635637}]
 
             self.assertEqual(expected_results, results)
 
