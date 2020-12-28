@@ -448,7 +448,7 @@ edit_data_change = function() {
         if (is_number(sample_val) && sample_val !== "") {
           sample_val = parseFloat(sample_val);
           sample_sets[table].add_value(sample_val);
-          if (typeof var_nodes !== 'undefined'){
+          if (typeof var_nodes === 'undefined'){
             sample_var = null;
           } else {
             sample_var = var_nodes[_j].childNodes[0].value
@@ -471,6 +471,7 @@ edit_data_change = function() {
         }
       }
     }
+
   }
 
   update_stat_values(sample_sets);
