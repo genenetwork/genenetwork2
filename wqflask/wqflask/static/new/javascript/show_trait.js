@@ -519,21 +519,26 @@ $('select[name=corr_type]').change(on_corr_method_change);
 
 on_dataset_change = function() {
   let dataset_type = $('select[name=corr_dataset] option:selected').data('type');
+  let location_type = $('select[name=location_type] option:selected').val();
 
   if (dataset_type == "mrna_assay"){
     $('#min_expr_filter').show();
-    $('#location_filter').show();
+    $('select[name=location_type] option:disabled').prop('disabled', false)
   }
   else if (dataset_type == "pheno"){
     $('#min_expr_filter').show();
-    $('#location_filter').hide();
+    $('select[name=location_type]>option:eq(0)').prop('disabled', true).attr('selected', false);
+    $('select[name=location_type]>option:eq(1)').prop('disabled', false).attr('selected', true);
   }
   else {
     $('#min_expr_filter').hide();
-    $('#location_filter').show();
+    $('select[name=location_type]>option:eq(0)').prop('disabled', false).attr('selected', true);
+    $('select[name=location_type]>option:eq(1)').prop('disabled', true).attr('selected', false);
   }
 }
+
 $('select[name=corr_dataset]').change(on_dataset_change);
+$('select[name=location_type]').change(on_dataset_change);
 
 submit_special = function(url) {
   get_table_contents_for_form_submit("trait_data_form");
