@@ -95,14 +95,15 @@
           {% elif target_dataset.type == 'Publish' %}
           <button class="toggle-vis" data-column="3">Abbreviation</button>
           <button class="toggle-vis" data-column="4">Description</button>
-          <button class="toggle-vis" data-column="5">Authors</button>
-          <button class="toggle-vis" data-column="6">Year</button>
-          <button class="toggle-vis" data-column="7">Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}</button>
-          <button class="toggle-vis" data-column="8">N</button>
-          <button class="toggle-vis" data-column="9">Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})</button>
-          <button class="toggle-vis" data-column="10">Peak LOD</button>
-          <button class="toggle-vis" data-column="11">Peak Location</button>
-          <button class="toggle-vis" data-column="12">Effect Size</button>
+          <button class="toggle-vis" data-column="5">Mean</button>
+          <button class="toggle-vis" data-column="6">Authors</button>
+          <button class="toggle-vis" data-column="7">Year</button>
+          <button class="toggle-vis" data-column="8">Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}</button>
+          <button class="toggle-vis" data-column="9">N</button>
+          <button class="toggle-vis" data-column="10">Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})</button>
+          <button class="toggle-vis" data-column="11">Peak LOD</button>
+          <button class="toggle-vis" data-column="12">Peak Location</button>
+          <button class="toggle-vis" data-column="13">Effect Size</button>
           {% else %}
           <button class="toggle-vis" data-column="3">Location</button>
           <button class="toggle-vis" data-column="4">Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}</button>
@@ -399,6 +400,13 @@
                       }
                     },
                     {
+                      'title': "Mean",
+                      'type': "natural-minus-na",
+                      'width': "40px",
+                      'data': "mean",
+                      'orderSequence': [ "desc", "asc"]
+                    },
+                    {
                       'title': "Authors",
                       'type': "natural",
                       'width': "400px",
@@ -514,6 +522,8 @@
                 } ],
                 {% if target_dataset.type == 'Geno' %}
                 "order": [[6, "asc" ]],
+                {% elif target_dataset.type == 'Publish' %}
+                "order": [[10, "asc" ]],
                 {% else %}
                 "order": [[9, "asc" ]],
                 {% endif %}

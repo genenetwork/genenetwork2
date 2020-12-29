@@ -54,7 +54,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                           TEMPDIR,
                                                                                           trait_filename)
           if covariates != "":
-              gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
+              gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 9 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
                                                                                                                 this_dataset.group.name,
                                                                                                                 flat_files('genotype/bimbam'),
                                                                                                                 genofile_name,
@@ -62,7 +62,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                                                 TEMPDIR,
                                                                                                                 gwa_output_filename)
           else:
-              gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+              gemma_command += ' -a %s/%s_snps.txt -lmm 9 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                                                genofile_name,
                                                                                                                maf,
                                                                                                                TEMPDIR,
@@ -184,11 +184,8 @@ def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
                     else:
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                    if loco == "True":
-                        marker['p_value'] = float(line.split("\t")[9])
-                    else:
-                        marker['p_value'] = float(line.split("\t")[10])
-                        marker['additive'] = float(line.split("\t")[7])
+                    marker['p_value'] = float(line.split("\t")[10])
+                    marker['additive'] = float(line.split("\t")[7])
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
                         #marker['lrs_value'] = 0
