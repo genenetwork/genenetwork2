@@ -448,15 +448,15 @@ edit_data_change = function() {
         if (is_number(sample_val) && sample_val !== "") {
           sample_val = parseFloat(sample_val);
           sample_sets[table].add_value(sample_val);
-          if (typeof var_nodes === 'undefined'){
-            sample_var = null;
-          } else {
+          try {
             sample_var = var_nodes[_j].childNodes[0].value
             if (is_number(sample_var)) {
               sample_var = parseFloat(sample_var)
             } else {
               sample_var = null;
             }
+          } catch {
+            sample_var = null;
           }
           sample_dict = {
             value: sample_val,
