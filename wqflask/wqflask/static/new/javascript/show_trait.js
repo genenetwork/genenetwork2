@@ -100,15 +100,7 @@ d3.select("#select_compare_trait").on("click", (function(_this) {
     return open_trait_selection();
   };
 })(this));
-d3.select("#select_covariates").on("click", (function(_this) {
-  return function() {
-    return open_covariate_selection();
-  };
-})(this));
-$("#remove_covariates").click(function () {
-    $("input[name=covariates]").val("")
-    $(".selected-covariates").val("")
-});
+
 $(".select_covariates").click(function () {
   open_covariate_selection();
 });
@@ -456,15 +448,15 @@ edit_data_change = function() {
         if (is_number(sample_val) && sample_val !== "") {
           sample_val = parseFloat(sample_val);
           sample_sets[table].add_value(sample_val);
-          if (typeof var_nodes !== 'undefined'){
-            sample_var = null;
-          } else {
+          try {
             sample_var = var_nodes[_j].childNodes[0].value
             if (is_number(sample_var)) {
               sample_var = parseFloat(sample_var)
             } else {
               sample_var = null;
             }
+          } catch {
+            sample_var = null;
           }
           sample_dict = {
             value: sample_val,
@@ -479,6 +471,7 @@ edit_data_change = function() {
         }
       }
     }
+
   }
 
   update_stat_values(sample_sets);
@@ -523,6 +516,24 @@ on_corr_method_change = function() {
   }
 };
 $('select[name=corr_type]').change(on_corr_method_change);
+
+on_dataset_change = function() {
+  let dataset_type = $('select[name=corr_dataset] option:selected').data('type');
+
+  if (dataset_type == "mrna_assay"){
+    $('#min_expr_filter').show();
+    $('#location_filter').show();
+  }
+  else if (dataset_type == "pheno"){
+    $('#min_expr_filter').show();
+    $('#location_filter').hide();
+  }
+  else {
+    $('#min_expr_filter').hide();
+    $('#location_filter').show();
+  }
+}
+$('select[name=corr_dataset]').change(on_dataset_change);
 
 submit_special = function(url) {
   get_table_contents_for_form_submit("trait_data_form");
@@ -631,6 +642,8 @@ block_by_attribute_value = function() {
       this_val_node.value = "x";
     }
   }
+
+  edit_data_change();
 };
 $('#exclude_by_attr').click(block_by_attribute_value);
 
