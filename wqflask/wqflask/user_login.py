@@ -25,7 +25,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY, GN2_BRANCH_URL
 
 THREE_DAYS = 60 * 60 * 24 * 3
 
@@ -239,7 +239,7 @@ def github_oauth2():
     }
 
     result = requests.post("https://github.com/login/oauth/access_token", json=data)
-    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
+    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in result.text.split("&")]}
 
     github_user = get_github_user_details(result_dict["access_token"])
 
@@ -277,9 +277,11 @@ def orcid_oauth2():
         data = {
             "client_id": ORCID_CLIENT_ID, 
             "client_secret": ORCID_CLIENT_SECRET, 
-            "grant_type": "authorization_code", 
+            "grant_type": "authorization_code",
+            "redirect_uri": GN2_BRANCH_URL + "n/login/orcid_oauth2",
             "code": code
         }
+
         result = requests.post(ORCID_TOKEN_URL, data=data)
         result_dict = json.loads(result.text.encode("utf-8"))
 
