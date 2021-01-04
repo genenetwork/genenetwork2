@@ -1,5 +1,3 @@
-console.log("THE FILES:", js_data.browser_files)
-
 snps_filename = "/browser_input?filename=" + js_data.browser_files[0]
 annot_filename = "/browser_input?filename=" + js_data.browser_files[1]
 
