@@ -248,7 +248,7 @@
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
@@ -375,6 +375,20 @@
             console.time("Creating table");
             {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                  $('#trait_table tr').off().on("click", function(event) {
+                    if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                      var obj =$(this).find('input');
+                      obj.prop('checked', !obj.is(':checked'));
+                    }
+                    if ($(this).hasClass("selected")){
+                      $(this).removeClass("selected")
+                    } else {
+                      $(this).addClass("selected")
+                    }
+                    {% if geno_db_exists == "True" %}change_buttons(check_node=1){% endif %}
+                  });
+                },
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
