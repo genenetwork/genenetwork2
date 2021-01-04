@@ -375,6 +375,20 @@
             console.time("Creating table");
             {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                  $('#trait_table tr').off().on("click", function(event) {
+                    if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                      var obj =$(this).find('input');
+                      obj.prop('checked', !obj.is(':checked'));
+                    }
+                    if ($(this).hasClass("selected")){
+                      $(this).removeClass("selected")
+                    } else {
+                      $(this).addClass("selected")
+                    }
+                    change_buttons(check_node=1)
+                  });
+                },
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
