@@ -1302,7 +1302,7 @@ if (js_data.num_values < 256) {
     margin: {
         l: left_margin,
         r: 30,
-        t: 30,
+        t: 100,
         b: bottom_margin
     }
   };
