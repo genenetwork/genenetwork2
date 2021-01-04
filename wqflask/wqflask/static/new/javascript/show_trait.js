@@ -94,25 +94,7 @@ add = function() {
 $('#add_to_collection').click(add);
 sample_lists = js_data.sample_lists;
 sample_group_types = js_data.sample_group_types;
-d3.select("#select_compare_trait").on("click", (function(_this) {
-  return function() {
-    $('.scatter-matrix-container').remove();
-    return open_trait_selection();
-  };
-})(this));
 
-$(".select_covariates").click(function () {
-  open_covariate_selection();
-});
-$(".remove_covariates").click(function () {
-  $("input[name=covariates]").val("")
-  $(".selected-covariates").val("")
-});
-d3.select("#clear_compare_trait").on("click", (function(_this) {
-  return function() {
-    return $('.scatter-matrix-container').remove();
-  };
-})(this));
 open_trait_selection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
     return function() {
