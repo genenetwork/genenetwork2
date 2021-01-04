@@ -14,7 +14,10 @@ import io  # Todo: Use cStringIO?
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from redis.exceptions import ConnectionError
+
 import gc
+import itertools
 import numpy as np
 import pickle as pickle
 import uuid
@@ -137,6 +140,21 @@ def no_access_page():
 
 @app.route("/")
 def index_page():
+
+    def get_feed_items(name, start=0, stop=9):
+        feed_items = []
+        try:
+            for el in Redis.zrevrange(name, start, stop):
+                feed_dict = Redis.hgetall(el)
+                if feed_dict and int(feed_dict.get(b"score", "0")) > 0:
+                    feed_items.append(
+                        {k.decode("utf-8"): v.decode("utf-8")
+                         for k, v in feed_dict.items()}
+                    )
+            return feed_items
+        except ConnectionError:
+            pass
+
     logger.info("Sending index_page")
     logger.info(request.url)
     params = request.args
@@ -144,7 +162,26 @@ def index_page():
         import_collections = params['import_collections']
         if import_collections == "true":
             g.user_session.import_traits_to_user(params['anon_id'])
-    return render_template("index_page_orig.html", version=GN_VERSION)
+
+    (tweets,
+     commits,
+     pubmed_articles,
+     arxiv_articles) = [get_feed_items(x) for x in ["gn2-tweet-score:",
+                                                    "gn2-commit-score:",
+                                                    "gn2-pubmed-score:",
+                                                    "gn2-arxiv-score:"]]
+    return render_template(
+        "index_page_orig.html",
+        version=GN_VERSION,
+        all_items=list(itertools.chain(
+            tweets,
+            commits,
+            pubmed_articles,
+            arxiv_articles)),
+        tweets=tweets,
+        commits=commits,
+        pubmed_articles=pubmed_articles,
+        arxiv_articles=arxiv_articles)
 
 
 @app.route("/tmp/<img_path>")
