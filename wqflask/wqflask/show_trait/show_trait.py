@@ -186,8 +186,6 @@ class ShowTrait(object):
 
         self.has_num_cases = has_num_cases(self.this_trait)
 
-        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, self.has_num_cases)
-
         #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
         self.binary = "true" #ZS: So it knows whether to display the Binary R/qtl mapping method, which doesn't work unless all values are 0 or 1
@@ -205,6 +203,8 @@ class ShowTrait(object):
                         self.negative_vals_exist = "true"
 
         sample_column_width = max_samplename_width * 8
+
+        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, sample_column_width, self.has_num_cases)
 
         if self.num_values >= 5000:
             self.maf = 0.01
@@ -228,8 +228,8 @@ class ShowTrait(object):
         hddn = OrderedDict()
 
         if self.dataset.group.allsamples:
-            hddn['allsamples'] = ''.join(self.dataset.group.allsamples)
-        hddn['primary_samples'] = ''.join(self.primary_sample_names)
+            hddn['allsamples'] = ','.join(self.dataset.group.allsamples)
+        hddn['primary_samples'] = ','.join(self.primary_sample_names)
         hddn['trait_id'] = self.trait_id
         hddn['trait_display_name'] = self.this_trait.display_name
         hddn['dataset'] = self.dataset.name
@@ -372,7 +372,7 @@ class ShowTrait(object):
 
         # We're checking a string here!
         assert isinstance(this_group, str), "We need a string type thing here"
-        if this_group[:3] == 'BXD' and this_group != "BXD-Harvested":
+        if this_group[:3] == 'BXD' and this_group != "BXD-Longevity":
             this_group = 'BXD'
 
         if this_group:
@@ -547,12 +547,12 @@ def get_nearest_marker(this_trait, this_db):
         return result[0][0]
 
 
-def get_table_widths(sample_groups, has_num_cases=False):
+def get_table_widths(sample_groups, sample_column_width, has_num_cases=False):
     stats_table_width = 250
     if len(sample_groups) > 1:
         stats_table_width = 450
 
-    trait_table_width = 380
+    trait_table_width = 300 + sample_column_width
     if sample_groups[0].se_exists:
         trait_table_width += 80
     if has_num_cases:

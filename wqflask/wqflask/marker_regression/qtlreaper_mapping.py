@@ -17,22 +17,29 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         else:
             genofile_name = this_dataset.group.name
 
-        trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
+        trait_filename =f"{str(this_trait.name)}_{str(this_dataset.name)}_pheno"
         gen_pheno_txt_file(samples, vals, trait_filename)
 
-        output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        output_filename = (f"{this_dataset.group.name}_GWA_"+
+            ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            )
         bootstrap_filename = None
         permu_filename = None
 
         opt_list = []
         if boot_check and num_bootstrap > 0:
-            bootstrap_filename = this_dataset.group.name + "_BOOTSTRAP_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_" + 
+                ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+                )
 
             opt_list.append("-b")
-            opt_list.append("--n_bootstrap " + str(num_bootstrap))
-            opt_list.append("--bootstrap_output " + webqtlConfig.GENERATED_IMAGE_DIR + bootstrap_filename + ".txt")
+            opt_list.append(f"--n_bootstrap {str(num_bootstrap)}")
+            opt_list.append(f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
-            permu_filename = this_dataset.group.name + "_PERM_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            permu_filename =("{this_dataset.group.name}_PERM_" + 
+            ''.join(random.choice(string.ascii_uppercase + 
+                string.digits) for _ in range(6))
+            )
             opt_list.append("-n " + str(num_perm))
             opt_list.append("--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
         if control_marker != "" and do_control == "true":
@@ -40,13 +47,15 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         if manhattan_plot != True:
             opt_list.append("--interval 1")
 
-        reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
-                                                                                                                genofile_name,
-                                                                                                                TEMPDIR,
-                                                                                                                trait_filename,
-                                                                                                                " ".join(opt_list),
-                                                                                                                webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                                                                output_filename)
+        reaper_command = (REAPER_COMMAND + 
+        ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
+
+                                                                              genofile_name,
+                                                                              TEMPDIR,
+                                                                              trait_filename,
+                                                                              " ".join(opt_list),
+                                                                              webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                            output_filename))
 
         logger.debug("reaper_command:" + reaper_command)
         os.system(reaper_command)
@@ -61,12 +70,13 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         suggestive = permu_vals[int(num_perm*0.37-1)]
         significant = permu_vals[int(num_perm*0.95-1)]
 
-    return marker_obs, permu_vals, suggestive, significant, bootstrap_vals, [output_filename, permu_filename, bootstrap_filename]
+    return (marker_obs, permu_vals, suggestive, significant, bootstrap_vals, 
+        [output_filename, permu_filename, bootstrap_filename])
 
 def gen_pheno_txt_file(samples, vals, trait_filename):
     """Generates phenotype file for GEMMA"""
 
-    with open("{}/gn2/{}.txt".format(TEMPDIR, trait_filename), "w") as outfile:
+    with open(f"{TEMPDIR}/gn2/{trait_filename}.txt","w") as outfile:
         outfile.write("Trait\t")
 
         filtered_sample_list = []
@@ -90,7 +100,7 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
     only_cm = False
     only_mb = False
 
-    with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, gwa_filename)) as output_file:
+    with open(f"{webqtlConfig.GENERATED_IMAGE_DIR}{gwa_filename}.txt") as output_file:
         for line in output_file:
             if line.startswith("ID\t"):
                 if len(line.split("\t")) < 8:
@@ -137,13 +147,13 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
 
     permu_vals = []
     if permu_filename:
-        with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, permu_filename)) as permu_file:
+        with open(f"{webqtlConfig.GENERATED_IMAGE_DIR}{permu_filename}.txt") as permu_file:
             for line in permu_file:
                 permu_vals.append(float(line))
 
     bootstrap_vals = []
     if bootstrap_filename:
-        with open("{}{}.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, bootstrap_filename)) as bootstrap_file:
+        with open(f"{webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt") as bootstrap_file:
             for line in bootstrap_file:
                 bootstrap_vals.append(int(line))
 

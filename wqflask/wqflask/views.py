@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Main routing table for GN2
+"""Main routing table for GN2"""
 
 import traceback # for error page
 import os        # for error gifs
@@ -332,28 +330,13 @@ def news():
     doc = Docs("news", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/references")
-def references():
-    doc = Docs("references", request.args)
-    return render_template("docs.html", **doc.__dict__)
-    #return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
     doc = Docs("intro", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/policies")
-def policies():
-    doc = Docs("policies", request.args)
-    #return render_template("policies.html")
-    return render_template("docs.html", **doc.__dict__)
 
-@app.route("/links")
-def links():
-    #doc = Docs("links", request.args)
-    #return render_template("docs.html", **doc.__dict__)
-    return render_template("links.html")
 
 @app.route("/tutorials")
 def tutorials():
@@ -366,12 +349,6 @@ def credits():
     #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("credits.html")
-
-@app.route("/environments")
-def environments():
-    doc = Docs("environments", request.args)
-    return render_template("docs.html", **doc.__dict__)
-    #return render_template("environments.html", **doc.__dict__)
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
@@ -749,6 +726,8 @@ def mapping_results_page():
         'maf',
         'use_loco',
         'manhattan_plot',
+        'color_scheme',
+        'manhattan_single_color',
         'control_marker',
         'control_marker_db',
         'do_control',
@@ -846,6 +825,17 @@ def export_mapping_results():
     response = Response(results_csv,
                         mimetype='text/csv',
                         headers={"Content-Disposition":"attachment;filename=mapping_results.csv"})
+
+    return response
+
+@app.route("/export_corr_matrix", methods = ('POST',))
+def export_corr_matrix():
+    file_path = request.form.get("export_filepath")
+    file_name = request.form.get("export_filename")
+    results_csv = open(file_path, "r").read()
+    response = Response(results_csv,
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
     return response
 

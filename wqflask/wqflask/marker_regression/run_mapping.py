@@ -138,7 +138,12 @@ class RunMapping(object):
             mapping_results_filename = self.dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             self.mapping_results_path = "{}{}.csv".format(webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
-        if start_vars['manhattan_plot'] == "true":
+        if start_vars['manhattan_plot']:
+            self.color_scheme = "alternating"
+            if "color_scheme" in start_vars:
+                self.color_scheme = start_vars['color_scheme']
+                if self.color_scheme == "single":
+                    self.manhattan_single_color = start_vars['manhattan_single_color']
             self.manhattan_plot = True
         else:
             self.manhattan_plot = False
@@ -228,7 +233,7 @@ class RunMapping(object):
                 self.output_files = start_vars['output_files']
             if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
                 self.first_run = False
-            self.score_type = "-log(p)"
+            self.score_type = "-logP"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 if self.use_loco == "True":
@@ -327,7 +332,7 @@ class RunMapping(object):
                                                                                                                                                              self.control_marker,
                                                                                                                                                              self.manhattan_plot)
         elif self.mapping_method == "plink":
-            self.score_type = "-log(p)"
+            self.score_type = "-logP"
             self.manhattan_plot = True
             results = plink_mapping.run_plink(self.this_trait, self.dataset, self.species, self.vals, self.maf)
             #results = self.run_plink()
@@ -414,12 +419,14 @@ class RunMapping(object):
                           highest_chr = marker['chr']
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
                           if 'Mb' in marker.keys():
-                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['Mb'])
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.6f}".format(marker['Mb'])
                           elif 'cM' in marker.keys():
                               marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['cM'])
                           else:
                               marker['display_pos'] = "N/A"
                           self.qtl_results.append(marker)
+
+              total_markers = len(self.qtl_results)
 
               with Bench("Exporting Results"):
                   export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
@@ -484,13 +491,15 @@ class RunMapping(object):
                       perm_results = self.perm_output,
                       significant = significant_for_browser,
                       browser_files = browser_files,
-                      selected_chr = this_chr
+                      selected_chr = this_chr,
+                      total_markers = total_markers
                   )
               else:
                 self.js_data = dict(
                     chr_lengths = chr_lengths,
                     browser_files = browser_files,
-                    selected_chr = this_chr
+                    selected_chr = this_chr,
+                    total_markers = total_markers
                 )
 
     def run_rqtl_plink(self):
@@ -539,8 +548,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
             output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
         output_file.write("\n")
         output_file.write("Name,Chr,")
-        if score_type.lower() == "-log(p)":
-            score_type = "-log(p)"
+        if score_type.lower() == "-logP":
+            score_type = "-logP"
         if 'Mb' in markers[0]:
             output_file.write("Mb," + score_type)
         if 'cM' in markers[0]:

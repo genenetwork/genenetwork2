@@ -81,9 +81,9 @@
   <div id="cofactor_color_selector" style="margin-bottom: 10px; display:none;">
     <hr>
     <b>Cofactor Color Range:</b>
-    <input class="chartupdatedata" name="color2" type="hidden" id="cocolorfrom" value="#D9D9D9">
+    <input class="chartupdatedata" name="color2" type="hidden" id="cocolorfrom" value="#0000FF">
     <button class="chartupdatedata jscolor {valueElement: 'cocolorfrom'}">Low</button>
-    <input class="chartupdatedata" name="color1" type="hidden" id="cocolorto" value="#000000">
+    <input class="chartupdatedata" name="color1" type="hidden" id="cocolorto" value="#FF0000">
     <button class="chartupdatedata jscolor {valueElement: 'cocolorto'}">High</button>
     <hr>
   </div>
@@ -118,17 +118,17 @@
   {% endif %}
 
   <ul class="nav nav-tabs">
-    <li class="active">
+    <li {% if method == 'pearson' %}class="active"{% endif %}>
       <a href="#tp1" data-toggle="tab">Pearson</a>
     </li>
-    <li>
+    <li {% if method == 'spearman' %}class="active"{% endif %}>
       <a href="#tp2" data-toggle="tab">Spearman Rank</a>
     </li>
   </ul>
 
   <div class="tab-content" style="min-width: 800px;">
 
-    <div class="tab-pane active" id="tp1">
+    <div class="tab-pane {% if method == 'pearson' %}active{% endif %}" id="tp1">
       <br>
       <div id="scatterplot2"></div>
       <br>
@@ -243,7 +243,7 @@
       </div>
     </div>
 
-    <div class="tab-pane" id="tp2">
+    <div class="tab-pane {% if method == 'spearman' %}active{% endif %}" id="tp2">
       <br>
       <div id="srscatterplot2"></div>
       <br>
@@ -349,11 +349,11 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='d3js/d3.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jscolor/jscolor.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <!--<script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>-->
-    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot.js"></script>
 {% endblock %}

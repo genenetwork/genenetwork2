@@ -25,19 +25,19 @@ def create_trait(**kw):
     assert bool(kw.get('dataset')) != bool(
         kw.get('dataset_name')), "Needs dataset ob. or name"
 
-    if kw.get('name'):
-        if kw.get('dataset_name'):
-            if kw.get('dataset_name') != "Temp":
-                dataset = create_dataset(kw.get('dataset_name'))
-        else:
-            dataset = kw.get('dataset')
+    assert bool(kw.get('name')), "Needs trait name"
 
+    if kw.get('dataset_name'):
         if kw.get('dataset_name') != "Temp":
-            if dataset.type == 'Publish':
-                permissions = check_resource_availability(
-                    dataset, kw.get('name'))
-            else:
-                permissions = check_resource_availability(dataset)
+            dataset = create_dataset(kw.get('dataset_name'))
+    else:
+        dataset = kw.get('dataset')
+
+    if dataset.type == 'Publish':
+        permissions = check_resource_availability(
+            dataset, kw.get('name'))
+    else:
+        permissions = check_resource_availability(dataset)
 
     if "view" in permissions['data']:
         the_trait = GeneralTrait(**kw)
@@ -265,14 +265,17 @@ def get_sample_data():
         trait_dict['species'] = trait_ob.dataset.group.species
         trait_dict['url'] = url_for(
             'show_trait_page', trait_id=trait, dataset=dataset)
-        trait_dict['description'] = trait_ob.description_display
         if trait_ob.dataset.type == "ProbeSet":
             trait_dict['symbol'] = trait_ob.symbol
             trait_dict['location'] = trait_ob.location_repr
+            trait_dict['description'] = trait_ob.description_display
         elif trait_ob.dataset.type == "Publish":
+            trait_dict['description'] = trait_ob.description_display
             if trait_ob.pubmed_id:
                 trait_dict['pubmed_link'] = trait_ob.pubmed_link
             trait_dict['pubmed_text'] = trait_ob.pubmed_text
+        else:
+            trait_dict['location'] = trait_ob.location_repr
 
         return json.dumps([trait_dict, {key: value.value for
                                         key, value in list(
@@ -513,7 +516,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             # If the dataset is confidential and the user has access to confidential
             # phenotype traits, then display the pre-publication description instead
             # of the post-publication description
-            if trait.confidential:
+            if not trait.pubmed_id:
                 trait.abbreviation = trait.pre_publication_abbreviation
                 trait.description_display = trait.pre_publication_description
             else:

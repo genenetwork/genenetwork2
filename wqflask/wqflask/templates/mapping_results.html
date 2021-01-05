@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/packages/DT_bootstrap/DT_bootstrap.css" />
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/static/packages/purescript_genome_browser/css/purescript-genetics-browser.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='purescript-genome-browser/css/purescript-genetics-browser.css') }}" />
 
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
 
@@ -40,6 +40,9 @@
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
         <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
+        {% if manhattan_plot == True %}
+        <input type="hidden" name="color_scheme" value="alternating">
+        {% endif %}
         <input type="hidden" name="num_perm" value="{{ nperm }}">
         <input type="hidden" name="perm_info" value="">
         <input type="hidden" name="perm_strata" value="{{ perm_strata }}">
@@ -55,7 +58,7 @@
         <input type="hidden" name="wanted_inputs" value="">
         <input type="hidden" name="form_url" value="/run_mapping">
         
-        <div class="container">
+        <div class="container" style="min-width: 1400px;">
           <div class="col-xs-5">
               <h2>Map Viewer: Whole Genome</h2><br>
               <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
@@ -77,7 +80,7 @@
               <table>
                 <tr>
                   <td><b>Chr:&nbsp;</b></td>
-                  <td>
+                  <td style="padding: 5px;">
                     <select name="chromosomes" size="1">
                         {% for chr in ChrList %}
                         <option value="{{ chr[1] }}" {% if (chr[1] + 1) == selectedChr %}selected{% endif %}>{{ chr[0] }}</option>
@@ -87,7 +90,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td><b>View:&nbsp;</b></td>
+                  <td ><b>View:&nbsp;</b></td>
                   <td style="padding: 5px;">
                     <input type="text" name="startMb" size="7" value="{% if startMb != -1 %}{{ startMb }}{% endif %}"> to <input type="text" name="endMb" size="7" value="{% if endMb != -1 %}{{ endMb }}{% endif %}">
                   </td>
@@ -99,7 +102,7 @@
                       <input type="radio" name="LRSCheck" value="LRS" {% if LRS_LOD == "LRS" %}checked{% endif %}>LRS
                     </label>
                     <label class="radio-inline">
-                      <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-log(p)" %}-log(p){% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}checked{% endif %}>{% if LRS_LOD == "-log(p)" %}-log(p){% else %}LOD{% endif %}
+                      <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}checked{% endif %}>{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}
                     </label>
                     <a href="http://genenetwork.org/glossary.html#LOD" target="_blank">
                       <sup style="color:#f00"> ?</sup>
@@ -114,11 +117,31 @@
                 </tr>
                 <tr>
                   <td><b>Width:&nbsp;</b></td>
-                  <td>
+                  <td style="padding: 5px;">
                     <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 12px;"> pixels (minimum=900)</span>
                   </td>
                 </tr>
               </table>
+              {% if manhattan_plot == True and selectedChr == -1 %}
+              <table style="margin-top: 10px;">
+                <tr>
+                  <td>
+                    <b>Manhattan Plot Color Scheme:&nbsp;</b>
+                  </td>
+                  <td>
+                    <select id="color_scheme">
+                      <option value="alternating" {% if color_scheme == "alternating" %}selected{% endif %}>Alternating</option>
+                      <option value="varied" {% if color_scheme == "varied" %}selected{% endif %}>Varied by Chr</option>
+                      <option value="single" {% if color_scheme == "single" %}selected{% endif %}>Single Color</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input name="manhattan_single_color" type="hidden" id="point_color" value={% if manhattan_single_color %}{{ manhattan_single_color }}{% else %}"#D9D9D9"{% endif %}>
+                    <button style="display: none; margin-left: 5px;" id="point_color_picker" class="jscolor {valueElement: 'point_color'}">Choose Color</button>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
             </div>
             <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
@@ -225,7 +248,7 @@
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
@@ -235,8 +258,8 @@
                   <th></th>
                   <th>Row</th>
                   <th>Marker</th>
-                  {% if LRS_LOD == "-log(p)" %}
-                  <th><div style="text-align: right;">–log(p)</div></th>
+                  {% if LRS_LOD == "-logP" %}
+                  <th><div style="text-align: right;">–logP</div></th>
                   {% else %}
                   <th><div style="text-align: right;">{{ LRS_LOD }}</div></th>
                   {% endif %}
@@ -259,7 +282,7 @@
                   </td>
                   <td align="right">{{ loop.index }}</td>
                   <td>{% if geno_db_exists == "True" %}<a href="/show_trait?trait_id={{ marker.name }}&dataset={{ dataset.group.name }}Geno">{{ marker.name }}</a>{% else %}{{ marker.name }}{% endif %}</td>
-                  {% if LRS_LOD == "LOD" or LRS_LOD == "-log(p)" %}
+                  {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}
                   {% if 'lod_score' in marker %}
                   <td align="right">{{ '%0.2f' | format(marker.lod_score|float) }}</td>
                   {% else %}
@@ -327,13 +350,16 @@
     <script type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='underscore-string/underscore.string.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
-    <script type="text/javascript" src="/static/new/js_external/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
+    {% if manhattan_plot == True and selectedChr == -1 %}
+    <script type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
+    {% endif %}
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/purescript_genome_browser/js/purescript-genetics-browser.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='purescript-genome-browser/js/purescript-genetics-browser.js') }}"></script>
 
     <script>
         js_data = {{ js_data | safe }}
@@ -349,6 +375,20 @@
             console.time("Creating table");
             {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                  $('#trait_table tr').off().on("click", function(event) {
+                    if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                      var obj =$(this).find('input');
+                      obj.prop('checked', !obj.is(':checked'));
+                    }
+                    if ($(this).hasClass("selected")){
+                      $(this).removeClass("selected")
+                    } else {
+                      $(this).addClass("selected")
+                    }
+                    {% if geno_db_exists == "True" %}change_buttons(check_node=1){% endif %}
+                  });
+                },
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
@@ -362,8 +402,11 @@
                     "targets": 0,
                     "orderable": false
                 } ],
+                "language": {
+                  "info": "Showing from _START_ to _END_ of " + js_data.total_markers + " records",
+                },
                 "order": [[1, "asc" ]],
-                "sDom": "RZtir",
+                "sDom": "iRZtir",
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
@@ -423,7 +466,7 @@
 
         var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
-                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
+                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'control_marker_db', 'do_control', 'genofile',
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                             'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'n_samples']
 
@@ -449,9 +492,20 @@
 
         remap = function() { 
             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
+            $('input[name=color_scheme]').val($('select#color_scheme').val());
             $('#marker_regression_form').attr('action', '/loading');
             return $('#marker_regression_form').submit(); 
         };
+
+        {% if manhattan_plot == True and selectedChr == -1 %}
+        $('#color_scheme').change(function(){
+          if ($(this).val() == "single"){
+            $('#point_color_picker').show();
+          } else {
+            $('#point_color_picker').hide();
+          }
+        });
+        {% endif %}
 
         {% if mapping_method != "gemma" and mapping_method != "plink" %}
         $('#download_perm').click(function(){

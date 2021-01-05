@@ -31,16 +31,12 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
       gwa_output_filename = this_dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
 
       this_chromosomes = this_dataset.species.chromosomes.chromosomes
-      chr_list_string = ""
-      for i in range(len(this_chromosomes)):
-          if i < (len(this_chromosomes) - 1):
-              chr_list_string += this_chromosomes[i+1].name + ","
-          else:
-              chr_list_string += this_chromosomes[i+1].name
+      this_chromosomes_name=[this_chromosomes[chromosome].name for chromosome in this_chromosomes]
 
+
+      chr_list_string=",".join(this_chromosomes_name)
       if covariates != "":
           gen_covariates_file(this_dataset, covariates, samples)
-
       if use_loco == "True":
           generate_k_command = GEMMA_WRAPPER_COMMAND + ' --json --loco ' + chr_list_string + ' -- ' + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt -a %s/%s_snps.txt -gk > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                           genofile_name,
@@ -50,7 +46,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                           genofile_name,
                                                                                           TEMPDIR,
                                                                                           k_output_filename)
-          logger.debug("k_command:" + generate_k_command)
+
           os.system(generate_k_command)
 
           gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --loco --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
@@ -58,7 +54,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                           TEMPDIR,
                                                                                           trait_filename)
           if covariates != "":
-              gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
+              gemma_command += ' -c %s/%s_covariates.txt -a %s/%s_snps.txt -lmm 9 -maf %s > %s/gn2/%s.json' % (flat_files('mapping'),
                                                                                                                 this_dataset.group.name,
                                                                                                                 flat_files('genotype/bimbam'),
                                                                                                                 genofile_name,
@@ -66,7 +62,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                                                 TEMPDIR,
                                                                                                                 gwa_output_filename)
           else:
-              gemma_command += ' -a %s/%s_snps.txt -lmm 2 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
+              gemma_command += ' -a %s/%s_snps.txt -lmm 9 -maf %s > %s/gn2/%s.json' % (flat_files('genotype/bimbam'),
                                                                                                                genofile_name,
                                                                                                                maf,
                                                                                                                TEMPDIR,
@@ -82,10 +78,9 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
                                                                                          TEMPDIR,
                                                                                          k_output_filename)
 
-          logger.debug("k_command:" + generate_k_command)
           os.system(generate_k_command)
 
-          gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -a %s/%s_snps.txt -lmm 2 -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
+          gemma_command = GEMMA_WRAPPER_COMMAND + ' --json --input %s/gn2/%s.json -- ' % (TEMPDIR, k_output_filename) + GEMMAOPTS + ' -a %s/%s_snps.txt -lmm 9 -g %s/%s_geno.txt -p %s/gn2/%s.txt' % (flat_files('genotype/bimbam'),
                                                                                          genofile_name,
                                                                                          flat_files('genotype/bimbam'),
                                                                                          genofile_name,
@@ -98,8 +93,6 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
           else:
               gemma_command += ' > %s/gn2/%s.json' % (TEMPDIR, gwa_output_filename)
 
-
-      logger.debug("gemma_command:" + gemma_command)
       os.system(gemma_command)
     else:
       gwa_output_filename = output_files
@@ -108,7 +101,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
         marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
         return marker_obs, gwa_output_filename
     else:
-        marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
+        marker_obs = parse_loco_output(this_dataset, gwa_output_filename, use_loco)
         return marker_obs, gwa_output_filename
 
 def gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename):
@@ -152,41 +145,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
                 outfile.write(str(this_covariate[i]) + "\t")
             outfile.write("\n")
 
-def parse_gemma_output(genofile_name):
-    included_markers = []
-    p_values = []
-    marker_obs = []
-
-    with open("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)) as output_file:
-        for line in output_file:
-            if line.startswith("chr\t"):
-                continue
-            else:
-                marker = {}
-                marker['name'] = line.split("\t")[1]
-                if line.split("\t")[0] != "X" and line.split("\t")[0] != "X/Y":
-                    if "chr" in line.split("\t")[0]:
-                        marker['chr'] = int(line.split("\t")[0][3:])
-                    else:
-                        marker['chr'] = int(line.split("\t")[0])
-                else:
-                    marker['chr'] = line.split("\t")[0]
-                marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                marker['p_value'] = float(line.split("\t")[9])
-                if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
-                    marker['lod_score'] = 0
-                    #marker['lrs_value'] = 0
-                else:
-                    marker['lod_score'] = -math.log10(marker['p_value'])
-                    #marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
-                marker_obs.append(marker)
-
-                included_markers.append(line.split("\t")[1])
-                p_values.append(float(line.split("\t")[9]))
-
-    return marker_obs
-
-def parse_loco_output(this_dataset, gwa_output_filename):
+def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
 
     output_filelist = []
     with open("{}/gn2/".format(TEMPDIR) + gwa_output_filename + ".json") as data_file:
@@ -225,7 +184,8 @@ def parse_loco_output(this_dataset, gwa_output_filename):
                     else:
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
-                    marker['p_value'] = float(line.split("\t")[9])
+                    marker['p_value'] = float(line.split("\t")[10])
+                    marker['additive'] = float(line.split("\t")[7])
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
                         #marker['lrs_value'] = 0

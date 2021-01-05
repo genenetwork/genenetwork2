@@ -11,7 +11,7 @@ on:
 jobs:
   unittest:
     runs-on: ubuntu-latest
-    container: bonfacekilz/python3-genenetwork2:latest
+    container: bonfacekilz/python3-genenetwork2:ad741c1
 
     steps:
     # First start with mariadb set then checkout. The checkout gives

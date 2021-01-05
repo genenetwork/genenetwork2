@@ -48,7 +48,7 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
@@ -215,7 +215,7 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     { 
-                      'title': "Max<br>LRS<a href=\"http://genenetwork.org//glossary.html#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Max<br>LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "LRS_score_repr",
                       'orderSequence': [ "desc", "asc"]
@@ -227,7 +227,7 @@
                       'data': "max_lrs_text"
                     },
                     { 
-                      'title': "Additive<br>Effect<a href=\"http://genenetwork.org//glossary.html#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                      'title': "Additive<br>Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural-minus-na",
                       'width': "50px",
                       'data': "additive",
@@ -262,9 +262,9 @@
                   '<th>Description</th>' + 
                   '<th>Location</th>' +
                   '<th>Mean</th>' +
-                  '<th>Max LRS <a href="http://genenetwork.org//glossary.html#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
+                  '<th>Max LRS <a href="{{ url_for('glossary_blueprint.glossary') }}#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
                   '<th>Max LRS Location</th>' + 
-                  '<th>Additive Effect <a href="http://genenetwork.org//glossary.html#A" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
+                  '<th>Additive Effect <a href="{{ url_for('glossary_blueprint.glossary') }}#A" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
                 '</tr>' + 
               '</tfoot>'
             );

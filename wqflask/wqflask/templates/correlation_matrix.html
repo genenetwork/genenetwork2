@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% block title %}Correlation Matrix{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/corr_matrix.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/d3-tip.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
 {% endblock %}
 {% block content %}
 
@@ -32,6 +33,7 @@
       {% endfor %}
     </tr>
     {% for trait in traits %}
+    {% set outer_loop = loop.index %}
     <tr>
       <td align="center"><input type="checkbox" class="checkbox" style="margin-left: 3px; margin-right: 1px;"></td>
       <td align="right" style="padding-right: 4px;" >
@@ -51,13 +53,23 @@
       {% if result[0].name == trait.name and result[0].dataset == trait.dataset %}
       <td nowrap="ON" align="center" bgcolor="#cccccc" style="padding: 3px; line-height: 1.1;"><a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><em>n</em><br>{{ result[2] }}</font></a></td>
       {% else %}
-      <td nowrap="ON" align="middle" class="corr_cell" style="padding: 3px; line-height: 1.1;"><a href="/corr_scatter_plot?dataset_1={% if trait.dataset.name == 'Temp' %}Temp_{{ trait.dataset.group.name }}{% else %}{{ trait.dataset.name }}{% endif %}&dataset_2={% if result[0].dataset.name == 'Temp' %}Temp_{{ result[0].dataset.group.name }}{% else %}{{ result[0].dataset.name }}{% endif %}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><span class="corr_value">{{ '%0.2f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
+      {% if result[1] == 0 %}
+      <td nowrap="ON" align="middle" bgcolor="#eeeeee" style="padding: 3px; line-height: 1.1;">N/A</td>
+      {% else %}
+      <td nowrap="ON" align="middle" class="corr_cell" style="padding: 3px; line-height: 1.1;"><a href="/corr_scatter_plot?method={% if loop.index > outer_loop %}spearman{% else %}pearson{% endif %}&dataset_1={% if trait.dataset.name == 'Temp' %}Temp_{{ trait.dataset.group.name }}{% else %}{{ trait.dataset.name }}{% endif %}&dataset_2={% if result[0].dataset.name == 'Temp' %}Temp_{{ result[0].dataset.group.name }}{% else %}{{ result[0].dataset.name }}{% endif %}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><span class="corr_value">{{ '%0.2f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
+      {% endif %}
       {% endif %}
       {% endfor %}
     </tr>
     {% endfor %}
   </tbody>
 </table>
+<br>
+<form method="post" target="_blank" action="/export_corr_matrix" id="matrix_export_form">
+  <input type="hidden" name="export_filepath" value="{{ export_filepath }}">
+  <input type="hidden" name="export_filename" value="{{ export_filename }}">
+  <button class="btn btn-default" id="export">Download <span class="glyphicon glyphicon-download"></span></button>
+</form>
 <br>
 {% if pca_works == "True" %}
 <h2>PCA Traits</h2>
@@ -129,7 +141,7 @@
 
     <script type="text/javascript" src="{{ url_for('js', filename='d3js/d3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/packages/underscore/underscore-min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/panelutil.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='chroma/chroma.min.js') }}"></script>
@@ -168,6 +180,14 @@
         "paging": false,
         "orderClasses": true
       } );
+
+      export_corr_matrix = function() {
+            $('#matrix_export_form').attr('action', '/export_corr_matrix');
+            return $('#matrix_export_form').submit();
+      }
+
+      $('#export').click(export_corr_matrix);
+
     </script>
 
 {% endblock %}

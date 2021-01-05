@@ -8,6 +8,7 @@ from pprint import pformat as pf
 from utility import Plot
 from utility import Bunch
 
+
 class SampleList(object):
     def __init__(self,
                  dataset,
@@ -34,13 +35,18 @@ class SampleList(object):
 
             # ZS: self.this_trait will be a list if it is a Temp trait
             if isinstance(self.this_trait, list):
-                if (counter <= len(self.this_trait) and
-                        str(self.this_trait[counter-1]).upper() != 'X'):
-                    sample = webqtlCaseData.webqtlCaseData(
-                        name=sample_name,
-                        value=float(self.this_trait[counter-1]))
-                else:
-                    sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+                sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+                if counter <= len(self.this_trait):
+                    if isinstance(self.this_trait[counter-1], (bytes, bytearray)):
+                        if (self.this_trait[counter-1].decode("utf-8").lower() != 'x'):
+                            sample = webqtlCaseData.webqtlCaseData(
+                                name=sample_name,
+                                value=float(self.this_trait[counter-1]))
+                    else:
+                        if (self.this_trait[counter-1].lower() != 'x'):
+                            sample = webqtlCaseData.webqtlCaseData(
+                                name=sample_name,
+                                value=float(self.this_trait[counter-1]))
             else:
                 # ZS - If there's no value for the sample/strain,
                 # create the sample object (so samples with no value
@@ -67,7 +73,8 @@ class SampleList(object):
             self.sample_list.append(sample)
 
         self.se_exists = any(sample.variance for sample in self.sample_list)
-        self.num_cases_exists = any(sample.num_cases for sample in self.sample_list)
+        self.num_cases_exists = any(
+            sample.num_cases for sample in self.sample_list)
 
         first_attr_col = self.get_first_attr_col()
         for sample in self.sample_list:
@@ -101,7 +108,7 @@ class SampleList(object):
                         FROM CaseAttribute, CaseAttributeXRefNew
                         WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
                         AND CaseAttributeXRefNew.InbredSetId = %s
-                        ORDER BY CaseAttribute.Name''', (str(self.dataset.group.id),))
+                        ORDER BY lower(CaseAttribute.Name)''', (str(self.dataset.group.id),))
 
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
@@ -110,7 +117,7 @@ class SampleList(object):
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
-            natural_sort(self.attributes[key].distinct_values)
+            self.attributes[key].distinct_values=natural_sort(self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:
@@ -150,7 +157,7 @@ class SampleList(object):
                     except ValueError:
                         pass
 
-                    attribute_values[self.attributes[item.Id].name] = attribute_value
+                    attribute_values[self.attributes[item.Id].name.lower()] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
 
     def get_first_attr_col(self):
@@ -162,7 +169,8 @@ class SampleList(object):
 
         return first_attr_col
 
-def natural_sort(list, key=lambda s: s):
+
+def natural_sort(a_list, key=lambda s: s):
     """
     Sort the list into natural alphanumeric order.
     """
@@ -170,4 +178,5 @@ def natural_sort(list, key=lambda s: s):
         def convert(text): return int(text) if text.isdigit() else text
         return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
     sort_key = get_alphanum_key_func(key)
-    list.sort(key=sort_key)
+    sorted_list = sorted(a_list, key=sort_key)
+    return sorted_list

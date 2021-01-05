@@ -25,10 +25,10 @@ table.dataTable thead th, table.dataTable tfoot th{
 }
 
 table.dataTable thead .sorting_asc {
-  background-image: url("../packages/DataTables/images/sort_asc_disabled.png");
+  background-image: url("/js/DataTables/images/sort_asc_disabled.png");
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("../packages/DataTables/images/sort_desc_disabled.png");
+  background-image: url("/js/DataTables/images/sort_desc_disabled.png");
 }
 
 table.dataTable thead th, table.dataTable tfoot {
@@ -67,7 +67,7 @@ table.dataTable.cell-border tbody tr td:first-child {
 }
 
 .showtrait-main-div {
-  min-width: 700px;
+  min-width: 1100px;
 }
 
 table.dataTable tbody td.column_name-Checkbox {
@@ -145,11 +145,11 @@ input.corr-location {
   display: inline;
 }
 
-div.block-by-index-div {
+div.block-div {
   margin-bottom: 10px;
 }
 
-div.block-by-attribute-div {
+div.block-div-2 {
   margin-top:10px;
   margin-bottom:10px;
 }
