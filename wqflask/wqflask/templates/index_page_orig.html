@@ -8,13 +8,56 @@
      height: 300px;
      overflow: scroll;
      overflow-x: hidden;
-     font-family: "Helvetica Neue", Helvetica, Arial, "sans-serif";
+     font-family: Helvetica, Arial, "sans-serif";
  }
 
- #feed-items .feed-item {
-     border-bottom: solid 1px #808080;
-     margin-bottom: 1em;
+ #feed-items ul {
+     list-style-type: None;
  }
+
+ #feed-items ul li {
+     border-bottom: 1px solid #999;
+     margin-bottom: 20px;
+ }
+
+ /** Tabbed feed **/
+ input[name="feed-tabs"] {
+     display: none;
+ }
+
+ input[name="feed-tabs"] + label {
+     display: inline-block;
+ }
+
+ input[name="feed-tabs"] ~ .tab {
+     display: none;
+ }
+
+ #tab-all-items:checked ~ .tab.content-all-items,
+ #tab-pubmed-articles:checked ~ .tab.content-pubmed-articles,
+ #tab-arxiv-articles:checked ~ .tab.content-arxiv-articles,
+ #tab-tweets:checked ~ .tab.content-tweets,
+ #tab-commits:checked ~ .tab.content-commits {
+     display: block;
+ }
+
+ input[name="feed-tabs"] + label {
+     background: #EEE;
+     padding: 4px 12px;
+     border-radius: 4px 4px 0 0;
+     position: relative;
+     top: 1px;
+ }
+
+ input[name="feed-tabs"]:checked + label {
+     background: #FFF;
+     border-bottom: 1px solid transparent;
+ }
+ input[name="feed-tabs"] ~ .tab {          /* grey line between tab and contents */
+     border-top: 1px solid #999;
+     padding: 12px;
+ }
+
 </style>
 {% endblock %}
 {% block content %}
@@ -205,70 +248,156 @@
                     <div class="page-header">
                         <h1>News</h1>
                         <div id="feed-items">
+                            <input name="feed-tabs" type="radio" id="tab-all-items" checked/>
+                            <label for="tab-all-items">All Items</label>
+                            <input name="feed-tabs" type="radio" id="tab-arxiv-articles"/>
+                            <label for="tab-arxiv-articles">Arxiv</label>
+                            <input name="feed-tabs" type="radio" id="tab-pubmed-articles"/>
+                            <label for="tab-pubmed-articles">Pubmed</label>
+                            <input name="feed-tabs" type="radio" id="tab-tweets"/>
+                            <label for="tab-tweets">Tweets</label>
+                            <input name="feed-tabs" type="radio" id="tab-commits"/>
+                            <label for="tab-commits">Commits</label>
+                            <ul class="tab content-all-items">
+                              <!-- Begin News -->
+                                  {% if all_items %}
+                                  {% for item in all_items|sort(reverse=true, attribute="score")%}
+                                  <li>
+                                      {% if item['authors'] %}
+                                      <!-- Arxiv article -->
+                                      <p>
+                                          <b>[arxiv]</b>
+                                          <a href="{{ item['url'] }}" target="_blank">
+                                              {{item['title']}}
+                                          </a>
+                                          <br/>
+                                          <b>Authors:</b> {{ item['authors'] }}
+                                          <br/>
+                                          <b>Abstract:</b> {{ item['abstract']}}...
+                                          <br/>
+                                          <b>Submitted:</b> {{ item['submission']}}
+                                      </p>
 
-                            {% if news_items %}
+                                      {% elif item['full-authors'] %}
+                                      <!-- Pubmed Article -->
+                                      <p><b>[Pubmed]:</b>
+                                          <a href="https://pubmed.ncbi.nlm.nih.gov/{{ item['docsum-pmid'] }}" target="_blank"><b>Summary:</b>
+                                              {{ item['summary'] }}
+                                          </a> <br/>
+                                          <b>Full Authors:</b> {{ item['full-authors'] }} <br/>
+                                          <b>Short Authors:</b> {{ item['short-authors'] }} <br/>
+                                          <b>Citation:</b> {{ item['citation'] }} <br/>
+                                          <b>Short Journal Citation:</b> {{ item['short-journal-citation'] }} <br/>
+                                      </p>
 
-                            {% for item in news_items|sort(reverse=true, attribute="score")%}
-                            <div class="feed-item">
+                                      {% elif item['tweet'] %}
+                                      <!-- Tweets -->
+                                      <p>
+                                          <b>[Tweet]:</b>
+                                          {{ item['tweet']|urlize(40, target="_blank")}}
+                                          <small>
+                                              <a href="{{ item['url'] }}" target="_blank">source</a></small>
+                                          <br/>
+                                          by {{ item['author'] }}
+                                          <br/>
+                                          <small>{{ item['timeposted'] }}</small>
+                                      </p>
 
-                           {% if item['authors'] %}
-                                <!-- Arxiv article -->
-                            <p>
-                                <b>[arxiv]</b>
-                                <a href="{{ item['url'] }}" target="_blank">
-                                    {{item['title']}}
-                                </a>
-                                <br/>
-                                <b>Authors:</b> {{ item['authors'] }}
-                                <br/>
-                                <b>Abstract:</b> {{ item['abstract']}}...
-                                <br/>
-                                <b>Submitted:</b> {{ item['submission']}}
-                            </p>
+                                      {% elif item['repository-url'] %}
+                                      <!-- Commits -->
+                                      <p>
+                                          <b>[Commit]:</b>
+                                          <a href="{{ item.url }}" target="_blank">
+                                              {{ item.hash.split(":")[-1][:7] }}: {{ item.content }}
+                                          </a>
+                                          <br/>
+                                          <small>
+                                              <a href="{{ item['repository-url'] }}" target="_blank"> {{ item.author }}/{{ item.repository }}</a>
+                                              on {{ item.timeposted }}
+                                          </small>
+                                      </p>
+                                      {% endif %}
+                                  </li>
+                                  {%endfor%}
 
-                            {% elif item['full-authors'] %}
-                            <!-- Pubmed Article -->
-                            <p><b>[Pubmed]:</b>
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/{{ item['docsum-pmid'] }}" target="_blank"><b>Summary:</b>
-                                    {{ item['summary'] }}
-                                </a> <br/>
-                                <b>Full Authors:</b> {{ item['full-authors'] }} <br/>
-                                <b>Short Authors:</b> {{ item['short-authors'] }} <br/>
-                                <b>Citation:</b> {{ item['citation'] }} <br/>
-                                <b>Short Journal Citation:</b> {{ item['short-journal-citation'] }} <br/>
-                            </p>
+                                  {% else %}
+                                  There are no items to display :(
+                                  {% endif %}
+                              <!-- End News -->
+                            </ul>
+                            <ul class="tab content-arxiv-articles">
+                              {% if arxiv_articles %}
+                              {% for article in arxiv_articles|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p><a href="{{article['url']}}">{{ article['title'] }}</a></p>
+                                  <p><b>Authors:</b> {{ article['authors'] }}</p>
+                                  <p><b>Abstract:</b> {{ article['abstract']}}...</p>
+                                  <p><b>Submitted:</b> {{ article['submission']}}</p>
+                              </li>
+                              {% endfor %}
+                              {% else %}
 
-                            {% elif item['tweet'] %}
-                            <!-- Tweets -->
-                            <p>
-                                <b>[Tweet]:</b>
-                                {{ item['tweet']|urlize(40, target="_blank")}}
-                                <small>
-                                    <a href="{{ item['url'] }}" target="_blank">source</a></small>
-                                <br/>
-                                by {{ item['author'] }}
-                                <br/>
-                                <small>{{ item['timeposted'] }}</small>
-                            </p>
+                              There are no articles to display :(
 
-                            {% elif item['repository-url'] %}
-                            <!-- Commits -->
-                            <p>
-                                <b>[Commit]:</b>
-                                <a href="{{ item.url }}" target="_blank">
-                                    {{ item.hash.split(":")[-1][:7] }}: {{ item.content }}
-                                </a>
-                                <br/>
-                                <small>
-                                    <a href="{{ item['repository-url'] }}" target="_blank"> {{ item.author }}/{{ item.repository }}</a>
-                                    on {{ item.timeposted }}
-                                </small>
-                            </p>
-                            {% endif %}
-                            </div>
-                            {%endfor%}
+                              {% endif %}
+                            </ul>
+                            <ul class="tab content-pubmed-articles">
+                              {% if pubmed_articles %}
+                              {% for article in pubmed_articles|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p><a href="https://pubmed.ncbi.nlm.nih.gov/{{article['docsum-pmid']}}"><b>Summary:</b> {{ article['summary'] }}</a></p>
+                                  <p><b>Full Authors:</b> {{ article['full-authors'] }}</p>
+                                  <p><b>Short Authors:</b> {{ article['short-authors'] }}</p>
+                                  <p><b>Citation:</b> {{ article['citation'] }}</p>
+                                  <p><b>Short Journal Citation:</b> {{ article['short-journal-citation'] }}</p>
+                              </li>
+                              {% endfor %}
+                              {% else %}
 
-                            {% endif %}
+                              There are no articles to display :(
+
+                              {% endif %}
+                            </ul>
+                            <ul class="tab content-tweets">
+                              {% if tweets %}
+                              {% for tweet in tweets|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p class="tweet">
+                                      {{ tweet.tweet|urlize(40, target="_blank") }} <br/>
+                                      by {{ tweet.author }}
+                                  </p>
+                                  <small class="timeposted">
+                                      {{ tweet.timeposted }}
+                                  </small>
+                              </li>
+                              {% endfor %}
+
+                              {% else %}
+
+                              There are no tweets to display :(
+
+                              {% endif %}
+                            </ul>
+                            <ul class="tab content-commits">
+                              {% if commits %}
+                              {% for commit in commits|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p class="commit">
+                                      <a href="{{commit.url}}" target="_blank">
+                                          {{ commit.hash.split(":")[-1][:7] }}:{{ commit.content}}
+                                      </a>
+                                  </p>
+                                  <small class="timeposted">
+                                      <a href="{{ commit['repository-url']}}" target="_blank">{{ commit.author }}/{{ commit.repository }}</a>
+                                      on {{ commit.timeposted}}
+                                  </small>
+                              </li>
+                              {% endfor %}
+                              {% else %}
+                              There are no commits to be displayed.
+                              {%  endif %}
+                            </ul>
+
                         </div>
                     </div>
 		</section>
