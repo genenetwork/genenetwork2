@@ -3,7 +3,7 @@
 
 
 class ServerSideTable(object):
-    '''
+    """
         This class is used to do server-side processing
         on the DataTables table such as paginating, sorting,
         filtering(not implemented) etc. This takes the load off
@@ -22,7 +22,7 @@ class ServerSideTable(object):
 
         Have a look at snp_browser_table() function in 
         wqflask/wqflask/views.py for reference use.
-    '''
+    """
 
     def __init__(self, rows_count, table_rows, header_data_names, request_values):
         self.request_values = request_values
@@ -36,12 +36,12 @@ class ServerSideTable(object):
         self.paginate_rows()
 
     def sort_rows(self):
-        '''
+        """
         Sorts the rows taking in to account the column (or columns) that the
         user has selected.
-        '''
+        """
         def is_reverse(str_direction):
-            ''' Maps the 'desc' and 'asc' words to True or False. '''
+            """ Maps the 'desc' and 'asc' words to True or False. """
             return True if str_direction == 'desc' else False
 
         if (self.request_values['iSortCol_0'] != "") and (int(self.request_values['iSortingCols']) > 0):
@@ -54,12 +54,12 @@ class ServerSideTable(object):
                               reverse=is_reverse(sort_direction))
 
     def paginate_rows(self):
-        '''
+        """
         Selects a subset of the filtered and sorted data based on if the table
         has pagination, the current page and the size of each page.
-        '''
+        """
         def requires_pagination():
-            ''' Check if the table is going to be paginated '''
+            """ Check if the table is going to be paginated """
             if self.request_values['iDisplayStart'] != "":
                 if int(self.request_values['iDisplayLength']) != -1:
                     return True
