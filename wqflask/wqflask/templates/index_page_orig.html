@@ -1,8 +1,20 @@
 {% extends "base.html" %}
 {% block title %}GeneNetwork{% endblock %}
 {% block css %}
-<style TYPE="text/css">
-  p.interact { display: none; }
+<style type="text/css">
+ p.interact { display: none; }
+
+ #feed-items {
+     height: 300px;
+     overflow: scroll;
+     overflow-x: hidden;
+     font-family: "Helvetica Neue", Helvetica, Arial, "sans-serif";
+ }
+
+ #feed-items .feed-item {
+     border-bottom: solid 1px #808080;
+     margin-bottom: 1em;
+ }
 </style>
 {% endblock %}
 {% block content %}
@@ -192,12 +204,12 @@
                 <section id="news-section">
                     <div class="page-header">
                         <h1>News</h1>
-                        <div id="feed-items" style="height: 300px; overflow: scroll; overflow-x: hidden;">
+                        <div id="feed-items">
 
                             {% if news_items %}
 
                             {% for item in news_items|sort(reverse=true, attribute="score")%}
-                            <div style="border-bottom: solid 1px #808080; margin-bottom: 1em">
+                            <div class="feed-item">
 
                            {% if item['authors'] %}
                                 <!-- Arxiv article -->
