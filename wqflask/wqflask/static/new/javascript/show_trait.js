@@ -207,6 +207,8 @@ update_histogram = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('histogram', root.histogram_data, root.histogram_layout, root.modebar_options);
@@ -255,6 +257,8 @@ update_bar_chart = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   root.bar_data[0]['y'] = trait_vals
@@ -296,6 +300,8 @@ update_box_plot = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
@@ -327,6 +333,8 @@ update_violin_plot = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('violin_plot', root.violin_data, root.violin_layout, root.modebar_options)
@@ -795,6 +803,7 @@ reset_samples_table = function() {
 };
 $('.reset').click(function() {
   reset_samples_table();
+  $('input[name="transform"]').val("");
   edit_data_change();
 });
 
