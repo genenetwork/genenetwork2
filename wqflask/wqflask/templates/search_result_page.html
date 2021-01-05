@@ -160,6 +160,16 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+
+            var getParams = function(url) {
+                let parser = document.createElement('a');
+                parser.href = url;
+                let params = parser.search.substring(1);
+                if(params.length > 0) {
+                    return ('?'+params);
+                }
+                return params;
+            };
             
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
@@ -225,7 +235,7 @@
                       'data': null,
                       'width': "25px",
                       'orderDataType': "dom-checkbox",
-                      'orderSequence': [ "desc", "asc"],
+                      'orderable': false,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
                       }
@@ -373,15 +383,33 @@
                     }{% endif %}
                 ],
                 "order": [[1, "asc" ]],
-                'sDom': "itirp",
+                {% if dataset.type != 'Geno' %}
+                buttons: [
+                    {
+                        extend: 'columnsToggle',
+                        columns: function( idx, data, node ) {
+                          if (idx != 0) {
+                            return true;
+                          } else {
+                            return false;
+                          }
+                        },
+                        postfixButtons: [ 'colvisRestore' ]
+                    }
+                ],
+                'sDom': "Bpitirp",
+                {% else %}
+                'sDom': "pitirp",
+                {% endif %}
                 'iDisplayLength': 500,
                 'deferRender': true,
                 'paging': true,
                 'orderClasses': true,
                 'processing': true,
-                'language': {
-                  'loadingRecords': '&nbsp;',
-                  'processing': 'Loading...'
+                'bServerSide': true,
+                'sAjaxSource': '/search_table'+getParams(window.location.href),
+                'infoCallback': function(settings, start, end, max, total, pre) {
+                  return "Showing " + start + " to " + (start + this.api().data().length - 1) + " of " + total + " entries";
                 }
             } );
             
