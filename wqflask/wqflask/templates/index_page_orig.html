@@ -192,9 +192,71 @@
                 <section id="news-section">
                     <div class="page-header">
                         <h1>News</h1>
-                        <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
-                        <div align="right">
-                          <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                        <div id="feed-items" style="height: 300px; overflow: scroll; overflow-x: hidden;">
+
+                            {% if news_items %}
+
+                            {% for item in news_items|sort(reverse=true, attribute="score")%}
+                            <div style="border-bottom: solid 1px #808080; margin-bottom: 1em">
+
+                           {% if item['authors'] %}
+                                <!-- Arxiv article -->
+                            <p>
+                                <b>[arxiv]</b>
+                                <a href="{{ item['url'] }}" target="_blank">
+                                    {{item['title']}}
+                                </a>
+                                <br/>
+                                <b>Authors:</b> {{ item['authors'] }}
+                                <br/>
+                                <b>Abstract:</b> {{ item['abstract']}}...
+                                <br/>
+                                <b>Submitted:</b> {{ item['submission']}}
+                            </p>
+
+                            {% elif item['full-authors'] %}
+                            <!-- Pubmed Article -->
+                            <p><b>[Pubmed]:</b>
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/{{ item['docsum-pmid'] }}" target="_blank"><b>Summary:</b>
+                                    {{ item['summary'] }}
+                                </a> <br/>
+                                <b>Full Authors:</b> {{ item['full-authors'] }} <br/>
+                                <b>Short Authors:</b> {{ item['short-authors'] }} <br/>
+                                <b>Citation:</b> {{ item['citation'] }} <br/>
+                                <b>Short Journal Citation:</b> {{ item['short-journal-citation'] }} <br/>
+                            </p>
+
+                            {% elif item['tweet'] %}
+                            <!-- Tweets -->
+                            <p>
+                                <b>[Tweet]:</b>
+                                {{ item['tweet']|urlize(40, target="_blank")}}
+                                <small>
+                                    <a href="{{ item['url'] }}" target="_blank">source</a></small>
+                                <br/>
+                                by {{ item['author'] }}
+                                <br/>
+                                <small>{{ item['timeposted'] }}</small>
+                            </p>
+
+                            {% elif item['repository-url'] %}
+                            <!-- Commits -->
+                            <p>
+                                <b>[Commit]:</b>
+                                <a href="{{ item.url }}" target="_blank">
+                                    {{ item.hash.split(":")[-1][:7] }}: {{ item.content }}
+                                </a>
+                                <br/>
+                                <small>
+                                    <a href="{{ item['repository-url'] }}" target="_blank"> {{ item.author }}/{{ item.repository }}</a>
+                                    on {{ item.timeposted }}
+                                </small>
+                            </p>
+                            {% endif %}
+                            </div>
+                            {%endfor%}
+
+                            {% endif %}
                         </div>
                     </div>
 		</section>
