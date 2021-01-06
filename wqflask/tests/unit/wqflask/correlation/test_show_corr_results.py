@@ -61,6 +61,7 @@ class TestShowCorrResults(unittest.TestCase):
             "pubmed_text": "2016",
             "pubmed_link": "https://www.load",
             "lod_score": "",
+            "mean": "",
             "LRS_location_repr": "BXBS",
             "additive": "",
             "sample_r": 10.5,
@@ -80,7 +81,7 @@ class TestShowCorrResults(unittest.TestCase):
             "sample_p": 10.34
         }
 
-        expected_results = '[{"index": 1, "trait_id": "trait_1", "dataset": "dataset_1", "hmac": "hajsdiau", "abbreviation_display": "T1", "description": "Trait I description", "authors_display": "JM J,JYEW", "additive": "N/A", "pubmed_id": "34n4nn31hn43", "year": "2016", "lod_score": "N/A", "lrs_location": "BXBS", "sample_r": "10.500", "num_overlap": 2, "sample_p": "5.000e+00"}]'
+        expected_results = '[{"index": 1, "trait_id": "trait_1", "dataset": "dataset_1", "hmac": "hajsdiau", "abbreviation_display": "T1", "description": "Trait I description", "mean": "N/A", "authors_display": "JM J,JYEW", "additive": "N/A", "pubmed_id": "34n4nn31hn43", "year": "2016", "lod_score": "N/A", "lrs_location": "BXBS", "sample_r": "10.500", "num_overlap": 2, "sample_p": "5.000e+00"}]'
 
         results1 = generate_corr_json(corr_results=corr_results, this_trait=this_trait,
                                       dataset=dataset, target_dataset=target_dataset, for_api=True)
