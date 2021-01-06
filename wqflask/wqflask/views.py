@@ -643,8 +643,9 @@ def loading_page():
                         samples = genofile_samples
 
             for sample in samples:
-                if sample_vals_dict[sample] != "x":
-                    n_samples += 1
+                if sample in sample_vals_dict:
+                    if sample_vals_dict[sample] != "x":
+                        n_samples += 1
 
         start_vars['n_samples'] = n_samples
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
@@ -749,10 +750,9 @@ def mapping_results_page():
                     rendered_template = render_template("mapping_error.html")
                     return rendered_template
             except:
-                rendered_template = render_template("mapping_error.html")
-                return rendered_template
+               rendered_template = render_template("mapping_error.html")
+               return rendered_template
 
-            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                     default=json_default_handler,
                                                     indent="   ")
