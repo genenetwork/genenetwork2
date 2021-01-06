@@ -270,8 +270,9 @@ class DisplayMappingResults(object):
 
         # Needing for form submission when doing single chr
         # mapping or remapping after changing options
-        self.samples = start_vars['samples']
-        self.vals = start_vars['vals']
+        self.sample_vals = start_vars['sample_vals']
+        self.sample_vals_dict = json.loads(self.sample_vals)
+
         self.transform = start_vars['transform']
         self.mapping_method = start_vars['mapping_method']
         self.mapping_results_path = start_vars['mapping_results_path']
@@ -492,11 +493,10 @@ class DisplayMappingResults(object):
 ## count the amount of individuals to be plotted, and increase self.graphHeight
         if self.haplotypeAnalystChecked and self.selectedChr > -1:
             thisTrait = self.this_trait
-            _strains, _vals, _vars, _aliases = thisTrait.export_informative()
             smd=[]
-            for ii, _val in enumerate(self.vals):
-                if _val != "x":
-                    temp = GeneralObject(name=self.samples[ii], value=float(_val))
+            for sample in self.sample_vals_dict.keys():
+                if self.sample_vals_dict[sample] != "x":
+                    temp = GeneralObject(name=sample, value=float(self.sample_vals_dict[sample]))
                     smd.append(temp)
                 else:
                     continue
@@ -1464,12 +1464,11 @@ class DisplayMappingResults(object):
         yPaddingTop = yTopOffset
 
         thisTrait = self.this_trait
-        _strains, _vals, _vars, _aliases = thisTrait.export_informative()
 
         smd=[]
-        for ii, _val in enumerate(self.vals):
-            if _val != "x":
-                temp = GeneralObject(name=self.samples[ii], value=float(_val))
+        for sample in self.sample_vals_dict.keys():
+            if self.sample_vals_dict[sample] != "x":
+                temp = GeneralObject(name=sample, value=float(self.sample_vals_dict[sample]))
                 smd.append(temp)
             else:
                 continue

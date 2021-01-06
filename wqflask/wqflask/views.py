@@ -650,12 +650,13 @@ def loading_page():
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
         for key, value in list(initial_start_vars.items()):
-            if key in wanted or key.startswith(('value:')):
+            if key in wanted:
                 start_vars[key] = value
 
         if 'n_samples' in start_vars:
             n_samples = int(start_vars['n_samples'])
         else:
+            sample_vals_dict = json.loads(start_vars['sample_vals'])
             if 'group' in start_vars:
                 dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
             else:
@@ -671,8 +672,7 @@ def loading_page():
                         samples = genofile_samples
 
             for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
+                if sample_vals_dict[sample] != "x":
                     n_samples += 1
 
         start_vars['n_samples'] = n_samples
@@ -689,7 +689,6 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
     initial_start_vars = request.form
-    #logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
     logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
@@ -699,6 +698,7 @@ def mapping_results_page():
         'species',
         'samples',
         'vals',
+        'sample_vals',
         'first_run',
         'output_files',
         'geno_db_exists',
@@ -752,13 +752,11 @@ def mapping_results_page():
     )
     start_vars = {}
     for key, value in list(initial_start_vars.items()):
-        if key in wanted or key.startswith(('value:')):
+        if key in wanted:
             start_vars[key] = value
-    #logger.debug("Mapping called with start_vars:", start_vars)
 
     version = "v3"
     key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    #logger.info("key is:", pf(key))
     with Bench("Loading cache"):
         result = None # Just for testing
         #result = Redis.get(key)
@@ -804,10 +802,6 @@ def mapping_results_page():
                     rendered_template = render_template("pair_scan_results.html", **result)
             else:
                 gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-                #logger.info("pickled result length:", len(pickled_result))
-                #Redis.set(key, pickled_result)
-                #Redis.expire(key, 1*60)
 
                 with Bench("Rendering template"):
                     #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):

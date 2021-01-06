@@ -409,6 +409,25 @@ process_id = function() {
   }
   return processed;
 };
+
+fetch_sample_values = function() {
+  // This is meant to fetch all sample values using DataTables API, since they can't all be submitted with the form when using Scroller (and this should also be faster)
+  sample_val_dict = {};
+
+  table = 'samples_primary';
+  if ($('#' + table).length){
+    table_api = $('#' + table).DataTable();
+    val_nodes = table_api.column(3).nodes().to$();
+    for (_j = 0; _j < val_nodes.length; _j++){
+      sample_name = val_nodes[_j].childNodes[0].name.split(":")[1]
+      sample_val = val_nodes[_j].childNodes[0].value
+      sample_val_dict[sample_name] = sample_val
+    }
+  }
+
+  return sample_val_dict;
+}
+
 edit_data_change = function() {
   var already_seen, checkbox, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
   already_seen = {};
@@ -526,7 +545,7 @@ on_dataset_change = function() {
 $('select[name=corr_dataset]').change(on_dataset_change);
 
 submit_special = function(url) {
-  get_table_contents_for_form_submit("trait_data_form");
+  $("input[name=sample_vals]").val(JSON.stringify(fetch_sample_values()))
   $("#trait_data_form").attr("action", url);
   $("#trait_data_form").submit();
 };
@@ -550,7 +569,7 @@ get_table_contents_for_form_submit = function(form_id) {
  });
 }
 
-var corr_input_list = ['corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
+var corr_input_list = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
 $(".corr_compute").on("click", (function(_this) {

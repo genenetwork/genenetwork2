@@ -86,8 +86,6 @@ class CorrelationResults(object):
             else:
                 helper_functions.get_species_dataset_trait(self, start_vars)
 
-            #self.dataset.group.read_genotype_file()
-
             corr_samples_group = start_vars['corr_samples_group']
 
             self.sample_data = {}
@@ -453,13 +451,13 @@ class CorrelationResults(object):
         if not excluded_samples:
             excluded_samples = ()
 
+        sample_val_dict = json.loads(start_vars['sample_vals'])
         for sample in sample_names:
             if sample not in excluded_samples:
-                # print("Looking for",sample,"in",start_vars)
-                value = start_vars.get('value:' + sample)
-                if value:
-                    if not value.strip().lower() == 'x':
-                        self.sample_data[str(sample)] = float(value)
+                value = sample_val_dict[sample]
+                if not value.strip().lower() == 'x':
+                    self.sample_data[str(sample)] = float(value)
+
 
 def do_bicor(this_trait_vals, target_trait_vals):
     r_library = ro.r["library"]             # Map the library function
