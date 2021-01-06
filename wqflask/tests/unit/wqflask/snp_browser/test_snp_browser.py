@@ -21,18 +21,25 @@ class TestSnpBrowser(unittest.TestCase):
                          "transcript": "false", "exon": "false", "domain_2": "true", "function": "false", "function_details": "true"}
         strains = {"mouse": ["S1", "S2", "S3", "S4", "S5"], "rat": []}
         expected_results = ([['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'ConScore',
-                              'Domain 1', 'Domain 2', 'Details'], ['S1', 'S2', 'S3', 'S4', 'S5']], 5)
+                              'Domain 1', 'Domain 2', 'Details'], 
+                              ['S1', 'S2', 'S3', 'S4', 'S5']], 5, 
+                              ['index', 'snp_name', 'chr', 'mb_formatted', 'alleles', 
+                              'conservation_score', 'domain_1', 'domain_2',
+                              'function_details', 'S1', 'S2', 'S3', 'S4', 'S5'])
 
         results_with_snp = get_header_list(
             variant_type="SNP", strains=strains, species="Mouse", empty_columns=empty_columns)
         results_with_indel = get_header_list(
             variant_type="InDel", strains=strains, species="rat", empty_columns=[])
         expected_results_with_indel = (
-            ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 
-            'Mb End', 'Strand', 'Size', 'Sequence', 'Source'], 0)
+            ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start',
+             'Mb End', 'Strand', 'Size', 'Sequence', 'Source'], 0, 
+             ['index', 'indel_name', 'indel_type', 'indel_chr', 'indel_mb_s',
+            'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name'])
 
         self.assertEqual(expected_results, results_with_snp)
-        self.assertEqual(results_with_indel, expected_results_with_indel)
+        # self.assertEqual(results_with_indel, expected_results_with_indel)
+        self.assertEqual(expected_results_with_indel, results_with_indel)
 
     @mock.patch("wqflask.snp_browser.snp_browser.g")
     def test_get_gene_id(self, mock_db):
