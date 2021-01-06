@@ -38,7 +38,6 @@ class TestSnpBrowser(unittest.TestCase):
             'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name'])
 
         self.assertEqual(expected_results, results_with_snp)
-        # self.assertEqual(results_with_indel, expected_results_with_indel)
         self.assertEqual(expected_results_with_indel, results_with_indel)
 
     @mock.patch("wqflask.snp_browser.snp_browser.g")
