@@ -26,6 +26,15 @@ import sqlalchemy
 from wqflask import app
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
 
+from wqflask import group_manager
+from wqflask import resource_manager
+from wqflask import search_results
+from wqflask import export_traits
+from wqflask import gsearch
+from wqflask import update_search_results
+from wqflask import docs
+from wqflask import news
+from wqflask import server_side
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
@@ -219,6 +228,26 @@ def search_page():
         return render_template("search_result_page.html", **result)
     else:
         return render_template("search_error.html")
+
+@app.route("/search_table", methods=('GET',))
+def search_page_table():
+    logger.info("in search_page table")
+    logger.info(request.url)
+
+    logger.info("request.args is", request.args)
+    the_search = search_results.SearchResultPage(request.args)
+
+    logger.info(type(the_search.trait_list))
+    logger.info(the_search.trait_list)
+    
+    current_page = server_side.ServerSideTable(
+        len(the_search.trait_list),
+        the_search.trait_list,
+        the_search.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
@@ -889,6 +918,19 @@ def db_info_page():
     template_vars = InfoPage(request.args)
 
     return render_template("info_page.html", **template_vars.__dict__)
+
+@app.route("/snp_browser_table", methods=('GET',))
+def snp_browser_table():
+    logger.info(request.url)
+    snp_table_data = snp_browser.SnpBrowser(request.args)
+    current_page = server_side.ServerSideTable(
+        snp_table_data.rows_count,
+        snp_table_data.table_rows,
+        snp_table_data.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
 
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():

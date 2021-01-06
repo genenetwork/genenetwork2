@@ -1,4 +1,4 @@
-change_buttons = function() {
+change_buttons = function(check_node = 0) {
   var button, buttons, item, num_checked, text, _i, _j, _k, _l, _len, _len2, _len3, _len4, _results, _results2;
   buttons = ["#add", "#remove"];
 
@@ -6,7 +6,7 @@ change_buttons = function() {
   table_api = $('#trait_table').DataTable();
   check_cells = table_api.column(0).nodes().to$();
   for (let i = 0; i < check_cells.length; i++) {
-    if (check_cells[i].childNodes[0].checked){
+    if (check_cells[i].childNodes[check_node].checked){
       num_checked += 1
     }
   }

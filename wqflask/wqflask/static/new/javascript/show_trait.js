@@ -94,25 +94,7 @@ add = function() {
 $('#add_to_collection').click(add);
 sample_lists = js_data.sample_lists;
 sample_group_types = js_data.sample_group_types;
-d3.select("#select_compare_trait").on("click", (function(_this) {
-  return function() {
-    $('.scatter-matrix-container').remove();
-    return open_trait_selection();
-  };
-})(this));
 
-$(".select_covariates").click(function () {
-  open_covariate_selection();
-});
-$(".remove_covariates").click(function () {
-  $("input[name=covariates]").val("")
-  $(".selected-covariates").val("")
-});
-d3.select("#clear_compare_trait").on("click", (function(_this) {
-  return function() {
-    return $('.scatter-matrix-container').remove();
-  };
-})(this));
 open_trait_selection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
     return function() {
@@ -225,6 +207,8 @@ update_histogram = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('histogram', root.histogram_data, root.histogram_layout, root.modebar_options);
@@ -273,6 +257,8 @@ update_bar_chart = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   root.bar_data[0]['y'] = trait_vals
@@ -314,6 +300,8 @@ update_box_plot = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
@@ -345,6 +333,8 @@ update_violin_plot = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('violin_plot', root.violin_data, root.violin_layout, root.modebar_options)
@@ -467,15 +457,15 @@ edit_data_change = function() {
         if (is_number(sample_val) && sample_val !== "") {
           sample_val = parseFloat(sample_val);
           sample_sets[table].add_value(sample_val);
-          if (typeof var_nodes === 'undefined'){
-            sample_var = null;
-          } else {
+          try {
             sample_var = var_nodes[_j].childNodes[0].value
             if (is_number(sample_var)) {
               sample_var = parseFloat(sample_var)
             } else {
               sample_var = null;
             }
+          } catch {
+            sample_var = null;
           }
           sample_dict = {
             value: sample_val,
@@ -832,6 +822,7 @@ reset_samples_table = function() {
 };
 $('.reset').click(function() {
   reset_samples_table();
+  $('input[name="transform"]').val("");
   edit_data_change();
 });
 
@@ -1321,7 +1312,7 @@ if (js_data.num_values < 256) {
     margin: {
         l: left_margin,
         r: 30,
-        t: 30,
+        t: 100,
         b: bottom_margin
     }
   };
