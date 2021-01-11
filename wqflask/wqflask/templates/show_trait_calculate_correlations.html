@@ -80,7 +80,16 @@
                 <input name="min_expr" value="" type="text" class="form-control min-expr-field">
             </div>
         </div>
-        <div id="location_filter" class="form-group" style="display: {% if dataset.type != 'Publish' %}block{% else %}none{% endif %};">
+        <div class="form-group">
+            <label for="location_type" class="col-xs-2 control-label">Location Type</label>
+            <div class="col-xs-4 controls">
+                <select name="location_type" class="form-control">
+                    <option value="gene" {% if dataset.type == 'Publish' %}disabled{% endif %}>Gene</option>
+                    <option value="highest_lod">Highest LOD</option>
+                </select>
+            </div>
+        </div>
+        <div id="location_filter" class="form-group">
               <label class="col-xs-2 control-label">Location</label>
               <div class="col-xs-6 controls">
                   <span>
