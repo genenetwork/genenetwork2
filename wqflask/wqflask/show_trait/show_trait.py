@@ -372,7 +372,7 @@ class ShowTrait(object):
 
         # We're checking a string here!
         assert isinstance(this_group, str), "We need a string type thing here"
-        if this_group[:3] == 'BXD' and this_group != "BXD-Longevity":
+        if this_group[:3] == 'BXD' and this_group != "BXD-Longevity" and this_group != "BXD-AE":
             this_group = 'BXD'
 
         if this_group:
