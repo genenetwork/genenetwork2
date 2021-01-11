@@ -528,21 +528,26 @@ $('select[name=corr_type]').change(on_corr_method_change);
 
 on_dataset_change = function() {
   let dataset_type = $('select[name=corr_dataset] option:selected').data('type');
+  let location_type = $('select[name=location_type] option:selected').val();
 
   if (dataset_type == "mrna_assay"){
     $('#min_expr_filter').show();
-    $('#location_filter').show();
+    $('select[name=location_type] option:disabled').prop('disabled', false)
   }
   else if (dataset_type == "pheno"){
     $('#min_expr_filter').show();
-    $('#location_filter').hide();
+    $('select[name=location_type]>option:eq(0)').prop('disabled', true).attr('selected', false);
+    $('select[name=location_type]>option:eq(1)').prop('disabled', false).attr('selected', true);
   }
   else {
     $('#min_expr_filter').hide();
-    $('#location_filter').show();
+    $('select[name=location_type]>option:eq(0)').prop('disabled', false).attr('selected', true);
+    $('select[name=location_type]>option:eq(1)').prop('disabled', true).attr('selected', false);
   }
 }
+
 $('select[name=corr_dataset]').change(on_dataset_change);
+$('select[name=location_type]').change(on_dataset_change);
 
 submit_special = function(url) {
   $("input[name=sample_vals]").val(JSON.stringify(fetch_sample_values()))
@@ -570,7 +575,7 @@ get_table_contents_for_form_submit = function(form_id) {
 }
 
 var corr_input_list = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
-                        'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
+                        'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
 $(".corr_compute").on("click", (function(_this) {
   return function() {

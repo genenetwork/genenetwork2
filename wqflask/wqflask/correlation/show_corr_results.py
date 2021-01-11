@@ -99,11 +99,12 @@ class CorrelationResults(object):
                 'min_loc_mb' in start_vars and
                 'max_loc_mb' in start_vars):
 
+                self.location_type = get_string(start_vars, 'location_type')
                 self.location_chr = get_string(start_vars, 'loc_chr')
                 self.min_location_mb = get_int(start_vars, 'min_loc_mb')
                 self.max_location_mb = get_int(start_vars, 'max_loc_mb')
             else:
-                self.location_chr = self.min_location_mb = self.max_location_mb = None
+                self.location_type = self.location_chr = self.min_location_mb = self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -171,23 +172,25 @@ class CorrelationResults(object):
             self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
                                                                    key=lambda t: -abs(t[1][0])))
 
-            if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                #ZS: Convert min/max chromosome to an int for the location range option
-                range_chr_as_int = None
-                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
-                    if 'loc_chr' in start_vars:
-                        if chr_info.name == self.location_chr:
-                            range_chr_as_int = order_id
+
+            #ZS: Convert min/max chromosome to an int for the location range option
+            range_chr_as_int = None
+            for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                if 'loc_chr' in start_vars:
+                    if chr_info.name == self.location_chr:
+                        range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
                 trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
                 if not trait_object:
                     continue
 
-                if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                    #ZS: Convert trait chromosome to an int for the location range option
-                    chr_as_int = 0
-                    for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                chr_as_int = 0
+                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                    if self.location_type == "highest_lod":
+                        if chr_info.name == trait_object.locus_chr:
+                            chr_as_int = order_id
+                    else:
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
 
@@ -197,9 +200,15 @@ class CorrelationResults(object):
                     if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
                             continue
-                    if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                        if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+
+                    if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                        continue
+                    if self.location_type == "highest_lod":
+                        if (self.min_location_mb != None) and (float(trait_object.locus_mb) < float(self.min_location_mb)):
                             continue
+                        if (self.max_location_mb != None) and (float(trait_object.locus_mb) > float(self.max_location_mb)):
+                            continue
+                    else:
                         if (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
                             continue
                         if (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
