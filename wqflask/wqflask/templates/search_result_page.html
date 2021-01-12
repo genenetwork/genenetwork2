@@ -146,6 +146,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
@@ -383,36 +384,16 @@
                     }{% endif %}
                 ],
                 "order": [[1, "asc" ]],
-                {% if dataset.type != 'Geno' %}
-                buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: function( idx, data, node ) {
-                          if (idx != 0) {
-                            return true;
-                          } else {
-                            return false;
-                          }
-                        },
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                'sDom': "Bpitirp",
-                {% else %}
-                'sDom': "pitirp",
-                {% endif %}
-                'iDisplayLength': 500,
-                'deferRender': true,
-                'paging': true,
-                'orderClasses': true,
-                'processing': true,
-                'bServerSide': true,
-                'sAjaxSource': '/search_table'+getParams(window.location.href),
-                'infoCallback': function(settings, start, end, max, total, pre) {
-                  return "Showing " + start + " to " + (start + this.api().data().length - 1) + " of " + total + " entries";
-                }
+                'sDom': "itir",
+                "autoWidth": true,
+                "bSortClasses": false,
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
             } );
             
+            trait_table.draw(); //ZS: This makes the table adjust its height properly on initial load
+
             $('.toggle-vis').on( 'click', function (e) {
               e.preventDefault();
 
