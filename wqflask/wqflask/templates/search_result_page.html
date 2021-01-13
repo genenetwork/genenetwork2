@@ -3,7 +3,6 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/scrollerStyle/css/scroller.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
@@ -125,7 +124,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px;"{% endif %}>
+          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px; max-width:100%;"{% endif %}>
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: {% if dataset.type == 'Geno' %}380px{% else %}100%{% endif %};">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -310,7 +309,6 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
