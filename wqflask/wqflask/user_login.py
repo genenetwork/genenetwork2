@@ -39,8 +39,12 @@ def basic_info():
 
 
 def encode_password(pass_gen_fields, unencrypted_password):
+    if isinstance(pass_gen_fields['salt'], bytes):
+        salt = pass_gen_fields['salt']
+    else:
+        salt = bytes(pass_gen_fields['salt'], "utf-8")
     encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password), 
-                                           pass_gen_fields['salt'], 
+                                           salt,
                                            pass_gen_fields['iterations'], 
                                            pass_gen_fields['keylength'], 
                                            pass_gen_fields['hashfunc'])
