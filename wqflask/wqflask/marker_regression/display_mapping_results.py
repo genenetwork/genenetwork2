@@ -1223,7 +1223,7 @@ class DisplayMappingResults(object):
                 transform_text += "Invert +/-"
 
             im_drawer.text(
-                text=transform_text, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+                text=transform_text, xy=(xLeftOffset, y_constant*fontZoom),
                 font=labelFont, fill=labelColor)
             y_constant += 15
         im_drawer.text(
