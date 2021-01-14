@@ -94,9 +94,6 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
         ro.r('all_covars <- marker_covars')
-    #logger.info("Saving");
-    #ro.r('save.image(file = "/home/dannya/gn2-danny/cross.RData")')
-    #logger.info("Saving Done");
     covars = ro.r['all_covars']
     #DEBUG to save the session object to file
     if pair_scan:
@@ -159,7 +156,7 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
          toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
          type <- getGenoCode(header, 'type')
          if(type == '4-way'){
-            genocodes <- c('1','2','3','4')
+            genocodes <- NULL
          } else {
             genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))             # Get the genotype codes
          }
@@ -174,7 +171,7 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
          require(qtl)
          if(type == '4-way'){
            cat('Loading in as 4-WAY\n')
-           cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
+           cross = read.cross(file=out, 'csvr', genotypes=NULL, crosstype="4way")                                         # Load the created cross file using R/qtl read.cross
          }else if(type == 'f2'){
            cat('Loading in as F2\n')
            cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="f2")                                       # Load the created cross file using R/qtl read.cross
@@ -332,8 +329,6 @@ def add_cofactors(cross, this_dataset, covariates, samples):
                         covar_name_string += '"' + col_name + '", '
                     else:
                         covar_name_string += '"' + col_name + '"'
-
-                logger.info("covar_name_string:" + covar_name_string)
         else:
             col_name = "covar_" + str(i)
             cross = add_phenotype(cross, covar_as_string, col_name)
@@ -343,7 +338,6 @@ def add_cofactors(cross, this_dataset, covariates, samples):
                 covar_name_string += '"' + col_name + '"'
 
     covar_name_string += ")"
-    logger.info("covar_name_string:" + covar_name_string); 
     covars_ob = pull_var("trait_covars", cross, covar_name_string)
     return cross, covars_ob
 

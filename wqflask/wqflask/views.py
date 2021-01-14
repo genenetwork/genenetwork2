@@ -26,6 +26,15 @@ import sqlalchemy
 from wqflask import app
 from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
 
+from wqflask import group_manager
+from wqflask import resource_manager
+from wqflask import search_results
+from wqflask import export_traits
+from wqflask import gsearch
+from wqflask import update_search_results
+from wqflask import docs
+from wqflask import news
+from wqflask import server_side
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
@@ -219,6 +228,26 @@ def search_page():
         return render_template("search_result_page.html", **result)
     else:
         return render_template("search_error.html")
+
+@app.route("/search_table", methods=('GET',))
+def search_page_table():
+    logger.info("in search_page table")
+    logger.info(request.url)
+
+    logger.info("request.args is", request.args)
+    the_search = search_results.SearchResultPage(request.args)
+
+    logger.info(type(the_search.trait_list))
+    logger.info(the_search.trait_list)
+    
+    current_page = server_side.ServerSideTable(
+        len(the_search.trait_list),
+        the_search.trait_list,
+        the_search.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
@@ -621,12 +650,13 @@ def loading_page():
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
         for key, value in list(initial_start_vars.items()):
-            if key in wanted or key.startswith(('value:')):
+            if key in wanted:
                 start_vars[key] = value
 
         if 'n_samples' in start_vars:
             n_samples = int(start_vars['n_samples'])
         else:
+            sample_vals_dict = json.loads(start_vars['sample_vals'])
             if 'group' in start_vars:
                 dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
             else:
@@ -642,9 +672,9 @@ def loading_page():
                         samples = genofile_samples
 
             for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
-                    n_samples += 1
+                if sample in sample_vals_dict:
+                    if sample_vals_dict[sample] != "x":
+                        n_samples += 1
 
         start_vars['n_samples'] = n_samples
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
@@ -660,7 +690,6 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
     initial_start_vars = request.form
-    #logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
     logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
@@ -670,6 +699,7 @@ def mapping_results_page():
         'species',
         'samples',
         'vals',
+        'sample_vals',
         'first_run',
         'output_files',
         'geno_db_exists',
@@ -723,13 +753,11 @@ def mapping_results_page():
     )
     start_vars = {}
     for key, value in list(initial_start_vars.items()):
-        if key in wanted or key.startswith(('value:')):
+        if key in wanted:
             start_vars[key] = value
-    #logger.debug("Mapping called with start_vars:", start_vars)
 
     version = "v3"
     key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    #logger.info("key is:", pf(key))
     with Bench("Loading cache"):
         result = None # Just for testing
         #result = Redis.get(key)
@@ -751,10 +779,9 @@ def mapping_results_page():
                     rendered_template = render_template("mapping_error.html")
                     return rendered_template
             except:
-                rendered_template = render_template("mapping_error.html")
-                return rendered_template
+               rendered_template = render_template("mapping_error.html")
+               return rendered_template
 
-            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                     default=json_default_handler,
                                                     indent="   ")
@@ -775,10 +802,6 @@ def mapping_results_page():
                     rendered_template = render_template("pair_scan_results.html", **result)
             else:
                 gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-                #logger.info("pickled result length:", len(pickled_result))
-                #Redis.set(key, pickled_result)
-                #Redis.expire(key, 1*60)
 
                 with Bench("Rendering template"):
                     #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
@@ -796,6 +819,17 @@ def export_mapping_results():
     response = Response(results_csv,
                         mimetype='text/csv',
                         headers={"Content-Disposition":"attachment;filename=mapping_results.csv"})
+
+    return response
+
+@app.route("/export_corr_matrix", methods = ('POST',))
+def export_corr_matrix():
+    file_path = request.form.get("export_filepath")
+    file_name = request.form.get("export_filename")
+    results_csv = open(file_path, "r").read()
+    response = Response(results_csv,
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
     return response
 
@@ -884,6 +918,19 @@ def db_info_page():
     template_vars = InfoPage(request.args)
 
     return render_template("info_page.html", **template_vars.__dict__)
+
+@app.route("/snp_browser_table", methods=('GET',))
+def snp_browser_table():
+    logger.info(request.url)
+    snp_table_data = snp_browser.SnpBrowser(request.args)
+    current_page = server_side.ServerSideTable(
+        snp_table_data.rows_count,
+        snp_table_data.table_rows,
+        snp_table_data.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
 
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():

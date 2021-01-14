@@ -103,9 +103,9 @@ def check_packaged_js_files(args_obj, parser):
         "/js/DataTablesExtensions/colResize/dataTables.colResize.js",
         "/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js",
         "/js/DataTablesExtensions/buttons/js/buttons.colVis.min.js",
-        "/js/DataTablesExtensions/scroller/js/scroller.dataTables.min.js",
+        "/js/DataTablesExtensions/scroller/js/dataTables.scroller.min.js",
         "/js/DataTables/js/jquery.dataTables.js",
-        "/css/DataTablesExtensions/scroller/css/scroller.dataTables.min.css",
+        "/js/DataTablesExtensions/scrollerStyle/css/scroller.dataTables.min.css",
         # Datatables plugins:
         "/js/DataTablesExtensions/plugins/sorting/natural.js",
         "/js/DataTablesExtensions/plugins/sorting/scientific.js",
@@ -117,6 +117,11 @@ def check_packaged_js_files(args_obj, parser):
         "/js/nvd3/nv.d3.min.css",
         "/js/qtip2/jquery.qtip.min.js",
         "/js/js_alt/md5.min.js",
+        "/js/jquery-ui/jquery-ui.min.js",
+        "/js/jquery-cookie/jquery.cookie.js",
+        "/js/jquery/jquery.min.js",
+        "/js/typeahead/typeahead.bundle.js",
+        "/js/underscore-string/underscore.string.min.js",
         "/js/js_alt/jstat.min.js",
         "/js/js_alt/parsley.min.js",
         "/js/js_alt/timeago.min.js",
@@ -136,8 +141,11 @@ def check_packaged_js_files(args_obj, parser):
         "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         "/css/d3-tip/d3-tip.css",
+        "/js/zxcvbn-async/zxcvbn-async.min.js",
+        "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
         "/js/DataTables/images/sort_asc_disabled.png",
         "/js/DataTables/images/sort_desc_disabled.png",
+        "/js/shapiro-wilk/shapiro-wilk.js",
     ]
 
     print("Checking links")

@@ -108,7 +108,7 @@ class SampleList(object):
                         FROM CaseAttribute, CaseAttributeXRefNew
                         WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
                         AND CaseAttributeXRefNew.InbredSetId = %s
-                        ORDER BY CaseAttribute.Name''', (str(self.dataset.group.id),))
+                        ORDER BY lower(CaseAttribute.Name)''', (str(self.dataset.group.id),))
 
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
@@ -157,7 +157,7 @@ class SampleList(object):
                     except ValueError:
                         pass
 
-                    attribute_values[self.attributes[item.Id].name] = attribute_value
+                    attribute_values[self.attributes[item.Id].name.lower()] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
 
     def get_first_attr_col(self):

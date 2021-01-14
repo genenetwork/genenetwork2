@@ -71,56 +71,22 @@ class RunMapping(object):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         self.vals = []
-        if 'samples' in start_vars:
-            self.samples = start_vars['samples'].split(",")
-            if (len(genofile_samplelist) != 0):
-                for sample in genofile_samplelist:
-                    if sample in self.samples:
-                        value = start_vars.get('value:' + sample)
-                        if value:
-                            self.vals.append(value)
-                    else:
-                        self.vals.append("x")
-            else:
-                for sample in self.samples:
-                    value = start_vars.get('value:' + sample)
-                    if value:
-                        self.vals.append(value)
+        self.samples = []
+        self.sample_vals = start_vars['sample_vals']
+        sample_val_dict = json.loads(self.sample_vals)
+        samples = sample_val_dict.keys()
+        if (len(genofile_samplelist) != 0):
+            for sample in genofile_samplelist:
+                self.samples.append(sample)
+                if sample in samples:
+                    self.vals.append(sample_val_dict[sample])
+                else:
+                    self.vals.append("x")
         else:
-            self.samples = []
-            if (len(genofile_samplelist) != 0):
-                for sample in genofile_samplelist:
-                    if sample in self.dataset.group.samplelist:
-                        in_trait_data = False
-                        for item in self.this_trait.data:
-                            if self.this_trait.data[item].name == sample:
-                                value = start_vars['value:' + self.this_trait.data[item].name]
-                                self.samples.append(self.this_trait.data[item].name)
-                                self.vals.append(value)
-                                in_trait_data = True
-                                break
-                        if not in_trait_data:
-                            value = start_vars.get('value:' + sample)
-                            if value:
-                                self.samples.append(sample)
-                                self.vals.append(value)
-                    else:
-                        self.vals.append("x")
-            else:
-                for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
-                    in_trait_data = False
-                    for item in self.this_trait.data:
-                        if self.this_trait.data[item].name == sample:
-                            value = start_vars['value:' + self.this_trait.data[item].name]
-                            self.samples.append(self.this_trait.data[item].name)
-                            self.vals.append(value)
-                            in_trait_data = True
-                            break
-                    if not in_trait_data:
-                        value = start_vars.get('value:' + sample)
-                        if value:
-                            self.samples.append(sample)
-                            self.vals.append(value)
+            for sample in self.dataset.group.samplelist:
+                if sample in samples:
+                    self.vals.append(sample_val_dict[sample])
+                    self.samples.append(sample)
 
         if 'n_samples' in start_vars:
             self.n_samples = start_vars['n_samples']

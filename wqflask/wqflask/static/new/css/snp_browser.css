@@ -6,6 +6,10 @@ table.dataTable thead th {
   vertical-align: bottom;
 }
 
+table.dataTable tbody tr.selected {
+  background-color: #ffee99;
+}
+
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc,
@@ -18,7 +22,7 @@ table.dataTable thead .sorting_desc_disabled {
 table.dataTable thead th{
   border-right: 1px solid white;
   color: white;
-  background-color: royalblue;
+  background-color: #369;
 }
 
 table.dataTable tbody td {

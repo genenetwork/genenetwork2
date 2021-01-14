@@ -238,7 +238,7 @@
       <!--</div>-->
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
     <script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
     <script>
             //http://stackoverflow.com/questions/11521763/bootstrap-scrollspy-not-working
@@ -250,9 +250,9 @@
               }
             })
     </script>
-    <script src="/static/new/js_external/jquery.cookie.js"></script>
+    <script src="{{ url_for('js', filename='jquery-cookie/jquery.cookie.js') }}" type="text/javascript"></script>
     <script type="text/javascript" src="/static/new/js_external/json2.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='colorbox/jquery.colorbox-min.js') }}"></script>
     <!--<script type="text/javascript" src="/static/new/javascript/login.js"></script>-->
@@ -264,7 +264,7 @@
     {% endblock %}
 
     <script type="text/javascript">
-     $(window).load(function() {
+     document.addEventListener('DOMContentLoaded', function() {
          let timeToLoad = document.createElement("p");
          timeToLoad.innerHTML = "It took your browser " + ((Date.now() - pageLoadStart)/1000) + " second(s) to render this page";
          document.querySelector("footer .row .col-xs-6").appendChild(timeToLoad);

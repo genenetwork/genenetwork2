@@ -71,7 +71,6 @@ class CorrelationResults(object):
         assert('corr_sample_method' in start_vars)
         assert('corr_samples_group' in start_vars)
         assert('corr_dataset' in start_vars)
-        #assert('min_expr' in start_vars)
         assert('corr_return_results' in start_vars)
         if 'loc_chr' in start_vars:
             assert('min_loc_mb' in start_vars)
@@ -87,8 +86,6 @@ class CorrelationResults(object):
             else:
                 helper_functions.get_species_dataset_trait(self, start_vars)
 
-            #self.dataset.group.read_genotype_file()
-
             corr_samples_group = start_vars['corr_samples_group']
 
             self.sample_data = {}
@@ -102,11 +99,12 @@ class CorrelationResults(object):
                 'min_loc_mb' in start_vars and
                 'max_loc_mb' in start_vars):
 
+                self.location_type = get_string(start_vars, 'location_type')
                 self.location_chr = get_string(start_vars, 'loc_chr')
                 self.min_location_mb = get_int(start_vars, 'min_loc_mb')
                 self.max_location_mb = get_int(start_vars, 'max_loc_mb')
             else:
-                self.location_chr = self.min_location_mb = self.max_location_mb = None
+                self.location_type = self.location_chr = self.min_location_mb = self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -174,38 +172,46 @@ class CorrelationResults(object):
             self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
                                                                    key=lambda t: -abs(t[1][0])))
 
-            if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                #ZS: Convert min/max chromosome to an int for the location range option
-                range_chr_as_int = None
-                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
-                    if 'loc_chr' in start_vars:
-                        if chr_info.name == self.location_chr:
-                            range_chr_as_int = order_id
+
+            #ZS: Convert min/max chromosome to an int for the location range option
+            range_chr_as_int = None
+            for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                if 'loc_chr' in start_vars:
+                    if chr_info.name == self.location_chr:
+                        range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
                 trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
                 if not trait_object:
                     continue
 
-                if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                    #ZS: Convert trait chromosome to an int for the location range option
-                    chr_as_int = 0
-                    for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                chr_as_int = 0
+                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                    if self.location_type == "highest_lod":
+                        if chr_info.name == trait_object.locus_chr:
+                            chr_as_int = order_id
+                    else:
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
 
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
                     float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-                    if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-
+                    if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
                             continue
-                        elif range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+
+                    if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                        continue
+                    if self.location_type == "highest_lod":
+                        if (self.min_location_mb != None) and (float(trait_object.locus_mb) < float(self.min_location_mb)):
                             continue
-                        elif (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                        if (self.max_location_mb != None) and (float(trait_object.locus_mb) > float(self.max_location_mb)):
                             continue
-                        elif (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
+                    else:
+                        if (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                            continue
+                        if (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
                             continue
 
                     (trait_object.sample_r,
@@ -454,13 +460,13 @@ class CorrelationResults(object):
         if not excluded_samples:
             excluded_samples = ()
 
+        sample_val_dict = json.loads(start_vars['sample_vals'])
         for sample in sample_names:
             if sample not in excluded_samples:
-                # print("Looking for",sample,"in",start_vars)
-                value = start_vars.get('value:' + sample)
-                if value:
-                    if not value.strip().lower() == 'x':
-                        self.sample_data[str(sample)] = float(value)
+                value = sample_val_dict[sample]
+                if not value.strip().lower() == 'x':
+                    self.sample_data[str(sample)] = float(value)
+
 
 def do_bicor(this_trait_vals, target_trait_vals):
     r_library = ro.r["library"]             # Map the library function
@@ -493,14 +499,15 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             results_dict['description'] = "N/A"
             results_dict['location'] = trait.location_repr
             results_dict['mean'] = "N/A"
-            results_dict['lrs_score'] = "N/A"
             results_dict['additive'] = "N/A"
             if bool(trait.description_display):
                 results_dict['description'] = trait.description_display
             if bool(trait.mean):
                 results_dict['mean'] = f"{float(trait.mean):.3f}"
-            if trait.LRS_score_repr != "N/A":
-                results_dict['lrs_score'] = f"{float(trait.LRS_score_repr):.1f}"
+            try:
+                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
+            except:
+                results_dict['lod_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
             if bool(trait.additive):
                 results_dict['additive'] = f"{float(trait.additive):.3f}"
@@ -518,6 +525,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         elif target_dataset.type == "Publish":
             results_dict['abbreviation_display'] = "N/A"
             results_dict['description'] = "N/A"
+            results_dict['mean'] = "N/A"
             results_dict['authors_display'] = "N/A"
             results_dict['additive'] = "N/A"
             if for_api:
@@ -531,6 +539,8 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                 results_dict['abbreviation_display'] = trait.abbreviation
             if bool(trait.description_display):
                 results_dict['description'] = trait.description_display
+            if bool(trait.mean):
+                results_dict['mean'] = f"{float(trait.mean):.3f}"
             if bool(trait.authors):
                 authors_list = trait.authors.split(',')
                 if len(authors_list) > 6:
@@ -544,8 +554,10 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
                 else:
                     results_dict['pubmed_link'] = trait.pubmed_link
                     results_dict['pubmed_text'] = trait.pubmed_text
-
-            results_dict['lrs_score'] = trait.LRS_score_repr
+            try:
+                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
+            except:
+                results_dict['lod_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
             if bool(trait.additive):
                 results_dict['additive'] = f"{float(trait.additive):.3f}"
@@ -602,6 +614,7 @@ def get_header_fields(data_type, corr_method):
                             'Record',
                             'Abbreviation',
                             'Description',
+                            'Mean',
                             'Authors',
                             'Year',
                             'Sample rho',
@@ -615,6 +628,7 @@ def get_header_fields(data_type, corr_method):
                             'Record',
                             'Abbreviation',
                             'Description',
+                            'Mean',
                             'Authors',
                             'Year',
                             'Sample r',

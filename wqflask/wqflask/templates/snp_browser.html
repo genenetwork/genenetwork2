@@ -15,7 +15,7 @@
         <input type="hidden" name="first_run" value="{{ first_run }}">
         <input type="hidden" name="chosen_strains_mouse" value="{{ chosen_strains_mouse|join(",") }}">
         <input type="hidden" name="chosen_strains_rat" value="{{ chosen_strains_rat|join(",") }}">
-        <div class="col-xs-4" style="padding-left: 0px;">
+        <div class="col-xs-4" style="width: 260px; padding-left: 30px; padding-right: 0px;">
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="snp_or_indel" style="text-align: right;" class="col-xs-4 col-form-label"><b>Type:</b></label>
             <div class="col-xs-8">
@@ -74,7 +74,7 @@
             </div>
           </div>
         </div>
-        <div class="col-xs-4" style="padding-left: 0px;">
+        <div class="col-xs-4" style="width: 310px; padding-left: 0px; padding-right: 20px;">
           <div class="form-group row" style="margin-bottom: 10px;">
             <label for="strains" style="text-align: right;" class="col-xs-4 col-form-label"><b>Strains:</b></label>
             <div class="col-xs-8">
@@ -107,8 +107,14 @@
               </div>
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-xs-4 col-form-label"></label>
+            <div class="col-xs-8" style="margin-top: 65px;">
+              <input class="btn btn-primary" type="button" name="export_csv" value="Export to CSV">
+            </div>
+          </div>
         </div>
-        <div class="col-xs-4" style="padding-left: 20px;">
+        <div class="col-xs-4" style="width: 310px; padding-left: 20px;">
           <div class="form-group row" style="margin-bottom: 5px;">
             <label for="domain" style="text-align: right;" class="col-xs-4 col-form-label"><b>Domain:</b></label>
             <div class="col-xs-8">
@@ -182,24 +188,21 @@
     </div>
 
     <div style="margin-top: 20px;">
-    {% if filtered_results is defined %}
-    {% if filtered_results|length > limit_number %}
-    There are more than 10000 results. Consider limiting your search to a smaller range.
-    {% else %}
+    {% if table_rows is defined %}
     <table class="dataTable cell-border nowrap" id="results_table" style="float: left;">
       <thead>
         <tr>
           <th></th>
           {% if header_fields|length == 2 %}
           {% for header in header_fields[0] %}
-          <th data-export="{{ header }}">{{ header }}</th>
+          <th data-export="{{ header }}" name="{{ header }}">{{ header }}</th>
           {% endfor %}
           {% for strain in header_fields[1] %}
-          <th data-export="{{ strain }}" style="align: center; text-align: center; line-height: 15px;">{% for letter in strain %}<div style="transform: rotate(90deg);">{{ letter }}</div>{% endfor %}</th>
+          <th data-export="{{ strain }}" name="{{ strain }}" style="align: center; text-align: center; line-height: 12px;">{% for letter in strain|reverse %}<div style="transform: rotate(270deg);">{{ letter }}</div>{% endfor %}</th>
           {% endfor %}
           {% else %}
           {% for header in header_fields %}
-          <th data-export="{{ header }}">{{ header }}</th>
+          <th data-export="{{ header }}" name="{{ header }}">{{ header }}</th>
           {% endfor %}
           {% endif %}
         </tr>
@@ -208,7 +211,6 @@
       <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
       </tbody>
     </table>
-    {% endif %}
     {% endif %}     
     </div>
   </div>
@@ -217,16 +219,28 @@
 {% block js %}
   <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.js') }}"></script>
   <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-  <script language="javascript" type="text/javascript" src="/static/new/js_external/typeahead.bundle.js"></script>
+ <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='typeahead/typeahead.bundle.js') }}"></script>
 
   <script language="javascript" type="text/javascript" src="/static/new/javascript/typeahead_rn6.json"></script>
 
   <script type='text/javascript'>
-      var json_rows = {{ table_rows|safe }};
       var empty_columns = {{ empty_columns|safe }};
+
+      var remain_field_count = 15 - {{ empty_field_count|safe }};
+      var total_field_count = 15 - {{ empty_field_count|safe }} + {{ allele_list|safe|length }};
   </script>
 
   <script language="javascript">
+
+    var getParams = function(url) {
+      let parser = document.createElement('a');
+      parser.href = url;
+      let params = parser.search.substring(1);
+      if(params.length > 0) {
+        return ('?'+params);
+      }
+      return params;
+    };
 
     var substringMatcher = function(strs) {
       return function findMatches(q, cb) {
@@ -260,19 +274,20 @@
       source: substringMatcher(rat_genes)
     });
 
-    {% if filtered_results is defined %}
+    {% if table_rows is defined %}
     $("#results_table").DataTable( {
-      'data': json_rows,
       {% if variant_type == "SNP" %}
       'columns': [
         {
           'data': null,
+          'className': 'dt-body-center',
           'orderable': false,
           'render': function(data, type, row, meta) {
-            return '<input type="checkbox" name="trait_check">'
+            return '<input type="checkbox" class="checkbox" id="variant_checkbox" onchange="onVarinatCheck(this)" name="trait_check">'
           }
         }, {
-          'data': 'index'
+          'data': 'index',
+          'className': 'dt-body-right'
         }, {
           'data': null,
           'render': function(data, type, row, meta) {
@@ -283,27 +298,30 @@
             }
           }
         }, {
-          'data': 'chr'
+          'data': 'chr',
+          'className': 'dt-body-center'
         }, {
-          'data': 'mb_formatted'
+          'data': 'mb_formatted',
+          'className': 'dt-body-right'
         }, {
           'data': 'alleles'
         }, {% if empty_columns['snp_source'] == "true" %}{
           'data': null,
           'render': function(data, type, row, meta) {
             if (data.snp_source == "Sanger/UCLA") {
-              return '<a href="' + data.source_urls[0] + '">Sanger</a><a href="' + data.source_urls[1] + '">UCLA</a>'
+              return '<a href="' + data.source_urls[0] + '">Sanger</a>, <a href="' + data.source_urls[1] + '">UCLA</a>'
             } else {
               return data.snp_source
             }
           }
         }, {% endif %} {% if empty_columns['conservation_score'] == "true" %}{
-          'data': 'conservation_score'
+          'data': 'conservation_score',
+          'className': 'dt-body-right'
         }, {% endif %} {% if empty_columns['gene_name'] == "true" %}{
           'data': null,
           'render': function(data, type, row, meta) {
             if (data.gene_name != "") {
-              return '<i>' + data.gene_name + '</i><br><a href="' + data.gene_link + '">NCBI</a>'
+              return '<i>' + data.gene_name + '</i>, <a href="' + data.gene_link + '">NCBI</a>'
             } else {
               return data.gene_name
             }
@@ -330,6 +348,7 @@
         }, {% endif %} {% for item in allele_list %} {
           'data': null,
           'orderable': false,
+          'className': 'dt-body-center',
           'render': function(data, type, row, meta) {
             if (typeof data.allele_value_list[{{ loop.index - 1 }}][0] !== "undefined") {
               return data.allele_value_list[{{ loop.index - 1 }}][0]
@@ -339,12 +358,9 @@
           }
         }{% if loop.index < allele_list|length %},{% endif %}{% endfor %}
       ],
-      'createdRow': function( row, data, dataIndex) {
-        $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
-        $('td', row).eq(1).attr("align", "right");
-        for (i = {{ 15 - empty_field_count }}; i < ({{ 15 - empty_field_count }} + {{ allele_list|length }}); i++) {
+      'createdRow': function(row, data, dataIndex) {
+        for (i = remain_field_count; i < total_field_count; i++) {
           var this_allele = $('td', row).eq(i).text();
-          $('td', row).eq(i).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
           switch (this_allele) {
             case "A":
               $('td', row).eq(i).addClass('A_allele_color');
@@ -380,24 +396,29 @@
         {
           'data': null,
           'render': function(data, type, row, meta) {
-            return '<input type="checkbox" name="trait_check">'
+            return '<input type="checkbox" class="checkbox" id="variant_checkbox" onchange="onVarinatCheck(this)" name="trait_check">'
           }
         }, {
-          'data': 'index'
+          'data': 'index',
+          'className': 'dt-body-right'
         }, {
           'data': 'indel_name'
         }, {
           'data': 'indel_type'
         }, {
-          'data': 'indel_chr'
+          'data': 'indel_chr',
+          'className': 'dt-body-center'
         }, {
-          'data': 'indel_mb_s'
+          'data': 'indel_mb_s',
+          'className': 'dt-body-right'
         }, {
-          'data': 'indel_mb_e'
+          'data': 'indel_mb_e',
+          'className': 'dt-body-right'
         }, {
           'data': 'indel_strand'
         }, {
-          'data': 'indel_size'
+          'data': 'indel_size',
+          'className': 'dt-body-right'
         }, {
           'data': 'indel_sequence'
         }, {
@@ -407,14 +428,27 @@
       {% endif %}
       'order': [[1, "asc" ]],
       'sDom': "rtip",
-      'iDisplayLength': 500,
-      'processing': true,
-      'language': {
-        'loadingRecords': '&nbsp;',
-        'processing': 'Loading...'
+      'iDisplayLength': 100,
+      'bServerSide': true,
+      'sAjaxSource': '/snp_browser_table'+getParams(window.location.href),
+      'infoCallback': function(settings, start, end, max, total, pre) {
+        return "Showing " + start + " to " + (start + this.api().data().length - 1) + " of " + total + " entries";
       }
     });
     {% endif %}
+
+    function onVarinatCheck(checkboxElem) {
+        if (checkboxElem.checked) {
+            if (!checkboxElem.parentElement.parentElement.classList.contains('selected')) {
+                checkboxElem.parentElement.parentElement.classList.add('selected')
+            }
+        }
+        else {
+            if (checkboxElem.parentElement.parentElement.classList.contains('selected')) {
+                checkboxElem.parentElement.parentElement.classList.remove('selected')
+            }
+        }
+    }
 
     $("#species_select").change(function() {
         this_species = $(this).val();
@@ -508,6 +542,40 @@
         strain_list.push($(this).val());
       });
       $("input[name=chosen_strains]").val(strain_list.join(","));
+    });
+
+    
+
+    $("input[name=export_csv]").click(function() {
+      var csv = [];
+      var rows = document.querySelectorAll("table tr");
+
+      var headers = [];
+      var col_header = rows[0].querySelectorAll("th");
+      for(let i = 1; i < col_header.length; i++) {
+        headers.push(col_header[i].getAttribute("name"));
+      }
+      csv.push(headers.join(","));
+
+      for (let i = 1; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td");
+        var checkBox = rows[i].querySelector("input");
+
+        if(checkBox.checked == true) {
+          for (let j = 1; j < cols.length; j++)
+            row.push(cols[j].innerText);
+
+            csv.push(row.join(","));
+        }
+      }
+
+      var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+      var downloadLink = document.createElement("a");
+      downloadLink.download = "variant_data.csv";
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
     });
   </script>
 {% endblock %}
