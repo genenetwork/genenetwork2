@@ -95,6 +95,14 @@ $('#add_to_collection').click(add);
 sample_lists = js_data.sample_lists;
 sample_group_types = js_data.sample_group_types;
 
+$(".select_covariates").click(function () {
+  open_covariate_selection();
+});
+$(".remove_covariates").click(function () {
+  $("input[name=covariates]").val("")
+  $(".selected-covariates").val("")
+});
+
 open_trait_selection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
     return function() {
