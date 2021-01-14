@@ -636,7 +636,7 @@ class DisplayMappingResults(object):
             btminfo.append(HtmlGenWrapper.create_br_tag())
             btminfo.append('Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
-    def plotIntMapping(self, canvas, offset= (80, 120, 20, 100), zoom = 1, startMb = None, endMb = None, showLocusForm = ""):
+    def plotIntMapping(self, canvas, offset= (80, 120, 90, 100), zoom = 1, startMb = None, endMb = None, showLocusForm = ""):
         im_drawer = ImageDraw.Draw(canvas)
         #calculating margins
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
@@ -644,10 +644,11 @@ class DisplayMappingResults(object):
             yTopOffset = max(90, yTopOffset)
         else:
             if self.legendChecked:
+                yTopOffset += 10
                 if self.covariates != "" and self.controlLocus and self.doControl != "false":
-                    yTopOffset = max(120, yTopOffset)
-                else:
-                    yTopOffset = max(100, yTopOffset)
+                    yTopOffset += 20
+                if len(self.transform) > 0:
+                    yTopOffset += 5
             else:
                 pass
 
@@ -1131,6 +1132,7 @@ class DisplayMappingResults(object):
 
         labelFont = ImageFont.truetype(font=VERDANA_FILE, size=12*fontZoom)
         labelColor = BLACK
+
         if self.dataset.type == "Publish" or self.dataset.type == "Geno":
             dataset_label = self.dataset.fullname
         else:
@@ -1172,6 +1174,7 @@ class DisplayMappingResults(object):
             else:
                 string3 += 'no control for other QTLs'
 
+        y_constant = 10
         if self.this_trait.name:
             if self.selectedChr == -1:
                 identification = "Mapping on All Chromosomes for "
@@ -1197,23 +1200,48 @@ class DisplayMappingResults(object):
                 im_drawer.textsize(string2, font=labelFont)[0])
             im_drawer.text(
                 text=identification,
-                xy=(canvas.size[0] - xRightOffset-d, 20*fontZoom), font=labelFont,
+                xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom), font=labelFont,
                 fill=labelColor)
+            y_constant += 15
         else:
             d = 4+ max(
                 im_drawer.textsize(string1, font=labelFont)[0],
                 im_drawer.textsize(string2, font=labelFont)[0])
+
+        if len(self.transform) > 0:
+            transform_text = "Transform - "
+            if self.transform == "qnorm":
+                transform_text += "Quantile Normalized"
+            elif self.transform == "log2" or self.transform == "log10":
+                transform_text += self.transform.capitalize()
+            elif self.transform == "sqrt":
+                transform_text += "Square Root"
+            elif self.transform == "zscore":
+                transform_text += "Z-Score"
+            elif self.transform == "invert":
+                transform_text += "Invert +/-"
+
+            im_drawer.text(
+                text=transform_text, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+                font=labelFont, fill=labelColor)
+            y_constant += 15
         im_drawer.text(
-            text=string1, xy=(canvas.size[0] - xRightOffset-d, 35*fontZoom),
+            text=string1, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
             font=labelFont, fill=labelColor)
+        y_constant += 15
         im_drawer.text(
-            text=string2, xy=(canvas.size[0] - xRightOffset-d, 50*fontZoom),
+            text=string2, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
             font=labelFont, fill=labelColor)
+        y_constant += 15
         if string3 != '':
             im_drawer.text(
-                text=string3, xy=(canvas.size[0] - xRightOffset-d, 65*fontZoom),
+                text=string3, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
                 font=labelFont, fill=labelColor)
-
+            y_constant += 15
+            if string4 != '':
+                im_drawer.text(
+                    text=string4, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+                    font=labelFont, fill=labelColor)
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
         im_drawer = ImageDraw.Draw(canvas)
