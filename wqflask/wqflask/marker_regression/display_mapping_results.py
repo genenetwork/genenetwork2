@@ -859,14 +859,16 @@ class DisplayMappingResults(object):
                            text='%2.1f'%item, font=bootScaleFont, fill=BLACK)
 
         if self.legendChecked:
-            startPosY = 30
-            nCol = 2
+            if hasattr(self.traitList[0], 'chr') and hasattr(self.traitList[0], 'mb'):
+                startPosY = 30
+            else:
+                startPosY = 15
             smallLabelFont = ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
-            leftOffset = xLeftOffset+(nCol-1)*200
+            leftOffset = canvas.size[0] - xRightOffset - 190
             im_drawer.rectangle(
                 xy=((leftOffset, startPosY-6), (leftOffset+12, startPosY+6)),
                 fill=YELLOW, outline=BLACK)
-            im_drawer.text(xy=(leftOffset+ 20, startPosY+TEXT_Y_DISPLACEMENT),
+            im_drawer.text(xy=(canvas.size[0] - xRightOffset - 170, startPosY+TEXT_Y_DISPLACEMENT),
                            text='Frequency of the Peak LRS',
                            font=smallLabelFont, fill=BLACK)
 
@@ -941,28 +943,6 @@ class DisplayMappingResults(object):
             traitPixel = ((locPixel, yZero), (locPixel-7, yZero+14), (locPixel+7, yZero+14))
             draw_open_polygon(canvas, xy=traitPixel, outline=BLACK,
                               fill=self.TRANSCRIPT_LOCATION_COLOR)
-
-        if self.legendChecked:
-            startPosY = 15
-            nCol = 2
-            smallLabelFont = ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
-            if self.manhattan_plot:
-                leftOffset = xLeftOffset
-            else:
-                leftOffset = xLeftOffset+(nCol-1)*200*fontZoom
-            draw_open_polygon(
-                canvas,
-                xy=(
-                    (leftOffset+7, startPosY-7),
-                    (leftOffset, startPosY+7),
-                    (leftOffset+14, startPosY+7)),
-                outline=BLACK, fill=self.TRANSCRIPT_LOCATION_COLOR
-            )
-            TEXT_Y_DISPLACEMENT = -8
-            im_drawer.text(
-                text="Sequence Site",
-                xy=(leftOffset+15, startPosY+TEXT_Y_DISPLACEMENT), font=smallLabelFont,
-                fill=self.TOP_RIGHT_INFO_COLOR)
 
     def drawSNPTrackNew(self, canvas, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
         im_drawer = ImageDraw.Draw(canvas)
@@ -1060,17 +1040,38 @@ class DisplayMappingResults(object):
         labelFont=ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
         startPosY = 15
         stepPosY = 12*fontZoom
+
+        startPosX = canvas.size[0] - xRightOffset - 415
+        if hasattr(self.traitList[0], 'chr') and hasattr(self.traitList[0], 'mb'):
+            startPosY = 15
+            nCol = 2
+            smallLabelFont = ImageFont.truetype(font=TREBUC_FILE, size=12*fontZoom)
+
+            leftOffset = canvas.size[0] - xRightOffset - 190
+            draw_open_polygon(
+                canvas,
+                xy=(
+                    (leftOffset + 6, startPosY-7),
+                    (leftOffset - 1, startPosY+7),
+                    (leftOffset + 13, startPosY+7)),
+                outline=BLACK, fill=self.TRANSCRIPT_LOCATION_COLOR
+            )
+            TEXT_Y_DISPLACEMENT = -8
+            im_drawer.text(
+                text="Sequence Site",
+                xy=(leftOffset + 20, startPosY+TEXT_Y_DISPLACEMENT), font=smallLabelFont,
+                fill=self.TOP_RIGHT_INFO_COLOR)
+
         if self.manhattan_plot != True:
             im_drawer.line(
-                xy=((xLeftOffset, startPosY), (xLeftOffset+32, startPosY)),
+                xy=((startPosX, startPosY), (startPosX+32, startPosY)),
                 fill=self.LRS_COLOR, width=2)
             im_drawer.text(
-                text=self.LRS_LOD, xy=(xLeftOffset+40, startPosY+TEXT_Y_DISPLACEMENT),
+                text=self.LRS_LOD, xy=(startPosX+40, startPosY+TEXT_Y_DISPLACEMENT),
                 font=labelFont, fill=BLACK)
             startPosY += stepPosY
 
         if self.additiveChecked:
-            startPosX = xLeftOffset
             im_drawer.line(
                 xy=((startPosX, startPosY), (startPosX+17, startPosY)),
                 fill=self.ADDITIVE_COLOR_POSITIVE, width=2)
@@ -1080,10 +1081,9 @@ class DisplayMappingResults(object):
             im_drawer.text(
                 text='Additive Effect', xy=(startPosX+40, startPosY+TEXT_Y_DISPLACEMENT),
                 font=labelFont, fill=BLACK)
+            startPosY += stepPosY
 
         if self.genotype.type == 'intercross' and self.dominanceChecked:
-            startPosX = xLeftOffset
-            startPosY += stepPosY
             im_drawer.line(
                 xy=((startPosX, startPosY), (startPosX+17, startPosY)),
                 fill=self.DOMINANCE_COLOR_POSITIVE, width=4)
@@ -1093,41 +1093,42 @@ class DisplayMappingResults(object):
             im_drawer.text(
                 text='Dominance Effect', xy=(startPosX+42, startPosY+5),
                 font=labelFont, fill=BLACK)
+            startPosY += stepPosY
 
         if self.haplotypeAnalystChecked:
-            startPosY += stepPosY
-            startPosX = xLeftOffset
             im_drawer.line(
-                xy=((startPosX, startPosY), (startPosX+17, startPosY)),
+                xy=((startPosX-34, startPosY), (startPosX-17, startPosY)),
                 fill=self.HAPLOTYPE_POSITIVE, width=4)
             im_drawer.line(
-                xy=((startPosX+18, startPosY), (startPosX+35, startPosY)),
+                xy=((startPosX-17, startPosY), (startPosX, startPosY)),
                 fill=self.HAPLOTYPE_NEGATIVE, width=4)
             im_drawer.line(
-                xy=((startPosX+36, startPosY), (startPosX+53, startPosY)),
+                xy=((startPosX, startPosY), (startPosX+17, startPosY)),
                 fill=self.HAPLOTYPE_HETEROZYGOUS, width=4)
             im_drawer.line(
-                xy=((startPosX+54, startPosY), (startPosX+67, startPosY)),
+                xy=((startPosX+17, startPosY), (startPosX+34, startPosY)),
                 fill=self.HAPLOTYPE_RECOMBINATION, width=4)
             im_drawer.text(
                 text='Haplotypes (Pat, Mat, Het, Unk)',
-                xy=(startPosX+76, startPosY+5), font=labelFont, fill=BLACK)
+                xy=(startPosX+41, startPosY+TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
+            startPosY += stepPosY
 
         if self.permChecked and self.nperm > 0:
-            startPosY += stepPosY
-            startPosX = xLeftOffset
+            thisStartX = startPosX
+            if self.multipleInterval and not self.bootChecked:
+                thisStartX = canvas.size[0] - xRightOffset - 205
             im_drawer.line(
-                xy=((startPosX, startPosY), ( startPosX + 32, startPosY)),
+                xy=((thisStartX, startPosY), ( startPosX + 32, startPosY)),
                 fill=self.SIGNIFICANT_COLOR, width=self.SIGNIFICANT_WIDTH)
             im_drawer.line(
-                xy=((startPosX, startPosY + stepPosY), ( startPosX + 32, startPosY + stepPosY)),
+                xy=((thisStartX, startPosY + stepPosY), ( startPosX + 32, startPosY + stepPosY)),
                 fill=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
             im_drawer.text(
                 text='Significant %s = %2.2f' % (self.LRS_LOD, self.significant),
-                xy=(xLeftOffset+42, startPosY+TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
+                xy=(thisStartX+40, startPosY+TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
             im_drawer.text(
                 text='Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),
-                xy=(xLeftOffset+42, startPosY + TEXT_Y_DISPLACEMENT +stepPosY), font=labelFont,
+                xy=(thisStartX+40, startPosY + TEXT_Y_DISPLACEMENT +stepPosY), font=labelFont,
                 fill=BLACK)
 
         labelFont = ImageFont.truetype(font=VERDANA_FILE, size=12*fontZoom)
@@ -1200,7 +1201,7 @@ class DisplayMappingResults(object):
                 im_drawer.textsize(string2, font=labelFont)[0])
             im_drawer.text(
                 text=identification,
-                xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom), font=labelFont,
+                xy=(xLeftOffset, y_constant*fontZoom), font=labelFont,
                 fill=labelColor)
             y_constant += 15
         else:
@@ -1226,21 +1227,21 @@ class DisplayMappingResults(object):
                 font=labelFont, fill=labelColor)
             y_constant += 15
         im_drawer.text(
-            text=string1, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+            text=string1, xy=(xLeftOffset, y_constant*fontZoom),
             font=labelFont, fill=labelColor)
         y_constant += 15
         im_drawer.text(
-            text=string2, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+            text=string2, xy=(xLeftOffset, y_constant*fontZoom),
             font=labelFont, fill=labelColor)
         y_constant += 15
         if string3 != '':
             im_drawer.text(
-                text=string3, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+                text=string3, xy=(xLeftOffset, y_constant*fontZoom),
                 font=labelFont, fill=labelColor)
             y_constant += 15
             if string4 != '':
                 im_drawer.text(
-                    text=string4, xy=(canvas.size[0] - xRightOffset-d, y_constant*fontZoom),
+                    text=string4, xy=(xLeftOffset, y_constant*fontZoom),
                     font=labelFont, fill=labelColor)
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset= (40, 120, 80, 10), zoom = 1, startMb = None, endMb = None):
@@ -2271,6 +2272,7 @@ class DisplayMappingResults(object):
                 )
                 sugg_coords = "%d, %d, %d, %d" % (start_pos_x, suggestiveY-2, rightEdge + 2*zoom, suggestiveY+2)
                 sig_coords = "%d, %d, %d, %d" % (start_pos_x, significantY-2, rightEdge + 2*zoom, significantY+2)
+
                 if self.LRS_LOD == 'LRS':
                     sugg_title = "Suggestive LRS = %0.2f" % self.suggestive
                     sig_title = "Significant LRS = %0.2f" % self.significant
