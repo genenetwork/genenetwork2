@@ -120,7 +120,9 @@ class SearchResultPage(object):
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
                 if this_trait.dataset.type == "ProbeSet":
                     trait_dict['symbol'] = this_trait.symbol
-                    trait_dict['description'] = this_trait.description_display
+                    trait_dict['description'] = "N/A"
+                    if this_trait.description_display:
+                        trait_dict['description'] = this_trait.description_display
                     trait_dict['location'] = this_trait.location_repr
                     trait_dict['mean'] = "N/A"
                     trait_dict['additive'] = "N/A"
@@ -136,7 +138,9 @@ class SearchResultPage(object):
                 elif this_trait.dataset.type == "Geno":
                     trait_dict['location'] = this_trait.location_repr
                 elif this_trait.dataset.type == "Publish":
-                    trait_dict['description'] = this_trait.description_display
+                    trait_dict['description'] = "N/A"
+                    if this_trait.description_display:
+                        trait_dict['description'] = this_trait.description_display
                     trait_dict['authors'] = this_trait.authors
                     trait_dict['pubmed_id'] = "N/A"
                     if this_trait.pubmed_id:
