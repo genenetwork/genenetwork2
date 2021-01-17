@@ -68,6 +68,7 @@ class GSearch(object):
                 re = g.db.execute(sql).fetchall()
 
             trait_list = []
+            dataset_to_permissions = {}
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
                     this_trait = {}
@@ -101,9 +102,15 @@ class GSearch(object):
                     this_trait['locus_chr'] = line[16]
                     this_trait['locus_mb'] = line[17]
 
-                    #dataset = create_dataset(line[3], "ProbeSet", get_samplelist=False)
-                    #trait_id = line[4]
-                    #with Bench("Building trait object"):
+                    dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="ProbeSet",species=this_trait["species"])
+                    if dataset_ob.id not in dataset_to_permissions:
+                        permissions = check_resource_availability(dataset_ob)
+                        dataset_to_permissions[dataset_ob.id] = permissions
+                    else:
+                        pemissions = dataset_to_permissions[dataset_ob.id]
+                    if "view" not in permissions['data']:
+                        continue
+
                     max_lrs_text = "N/A"
                     if this_trait['locus_chr'] != None and this_trait['locus_mb'] != None:
                         max_lrs_text = "Chr" + str(this_trait['locus_chr']) + ": " + str(this_trait['locus_mb'])
