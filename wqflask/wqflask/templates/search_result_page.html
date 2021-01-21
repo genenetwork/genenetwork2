@@ -274,41 +274,42 @@
                       }
                     },
                     {
-                      'title': "Location",
+                      'title': "<div style='text-align: right;'>Location</div>",
                       'type': "natural-minus-na",
                       'width': "125px",
                       'data': "location"
                     },
                     {
-                      'title': "Mean",
+                      'title': "<div style='text-align: right;'>Mean</div>",
                       'type': "natural-minus-na",
-                      'width': "40px",
+                      'width': "30px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
+                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
                       'data': "lod_score",
                       'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak Location",
+                      'title': "<div style='text-align: right;'>Peak Location</div>",
                       'type': "natural-minus-na",
                       'width': "125px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Effect Size<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
                       'data': "additive",
-                      'width': "90px",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Publish' %},
                     {
                       'title': "Description",
                       'type': "natural",
+                      'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
@@ -319,16 +320,16 @@
                       }
                     },
                     {
-                      'title': "Mean",
+                      'title': "<div style='text-align: right;'>Mean</div>",
                       'type': "natural-minus-na",
-                      'width': "110px",
+                      'width': "30px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Authors",
                       'type': "natural",
-                      'width': "500px",
+                      'width': "400px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         author_list = data.authors.split(",")
@@ -341,10 +342,10 @@
                       }
                     },
                     {
-                      'title': "Year",
+                      'title': "<div style='text-align: right;'>Year</div>",
                       'type': "natural-minus-na",
                       'data': null,
-                      'width': "80px",
+                      'width': "25px",
                       'render': function(data, type, row, meta) {
                         if (data.pubmed_id != "N/A"){
                           return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -355,34 +356,34 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
+                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
                       'data': "lod_score",
                       'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak Location",
+                      'title': "<div style='text-align: right;'>Peak Location</div>",
                       'type': "natural-minus-na",
                       'width': "120px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Effect Size<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
-                      'width': "120px",
+                      'width': "60px",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Geno' %},
                     {
-                      'title': "Location",
+                      'title': "<div style='text-align: right;'>Location</div>",
                       'type': "natural-minus-na",
                       'width': "120px",
                       'data': "location"
                     }{% endif %}
                 ],
                 "order": [[1, "asc" ]],
-                'sDom': "itir",
+                'sDom': "iti",
                 "autoWidth": true,
                 "bSortClasses": false,
                 "scrollY": "100vh",
