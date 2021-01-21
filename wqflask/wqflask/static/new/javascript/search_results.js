@@ -95,29 +95,37 @@ $(function() {
 
   $('#select_top').keyup(function(){
       num_rows = $(this).val()
+
       if (num_rows = parseInt(num_rows)){
-          i = 0
-          $('#trait_table > tbody > tr').each(function(){
-              if (i < num_rows) {
-                  $(this).find('.trait_checkbox').prop("checked", true)
-                  if (!$(this).closest('tr').hasClass('selected')) {
-                      $(this).closest('tr').addClass('selected')
-                  }
-              }
-              else {
-                  if ($(this).closest('tr').hasClass('selected')) {
-                      $(this).closest('tr').removeClass('selected')
-                      $(this).find('.trait_checkbox').prop("checked", false)
-                  }
-              }
-              i += 1
-          });
+          table_api = $('#trait_table').DataTable();
+
+          check_cells = table_api.column(0).nodes().to$();
+          for (let i = 0; i < num_rows; i++) {
+            check_cells[i].childNodes[0].checked = true;
+          }
+
+          check_rows = table_api.rows().nodes();
+          for (let i=0; i < num_rows; i++) {
+            if (check_rows[i].classList.contains("selected")){
+              continue
+            } else {
+              check_rows[i].classList.add("selected")
+            }
+          }
+          for (let i = num_rows; i < check_rows.length; i++){
+            check_cells[i].childNodes[0].checked = false;
+            if (check_rows[i].classList.contains("selected")){
+              check_rows[i].classList.remove("selected")
+            }
+          }
       }
       else {
-          $('#trait_table > tbody > tr').each(function(){
-              $(this).closest('tr').removeClass('selected')
-              $(this).find('.trait_checkbox').prop("checked", false)
-          });
+        for (let i = 0; i < check_rows.length; i++){
+          check_cells[i].childNodes[0].checked = false;
+          if (check_rows[i].classList.contains("selected")){
+            check_rows[i].classList.remove("selected")
+          }
+        }
       }
       change_buttons();
   });
