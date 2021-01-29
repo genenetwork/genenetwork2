@@ -31,10 +31,7 @@
         {% endif %}
         <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
-        <input type="hidden" name="samples" value="{{ samples|join(",") }}">
-        {% for sample in samples %}
-        <input type="hidden" name="value:{{ sample }}" value="{{ vals[loop.index - 1] }}">
-        {% endfor %}
+        <input type="hidden" name="sample_vals" value="{{ sample_vals }}">
         <input type="hidden" name="n_samples" value="{{ n_samples }}">
         <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
@@ -248,7 +245,7 @@
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+        {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
@@ -375,6 +372,20 @@
             console.time("Creating table");
             {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
+                "drawCallback": function( settings ) {
+                  $('#trait_table tr').off().on("click", function(event) {
+                    if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                      var obj =$(this).find('input');
+                      obj.prop('checked', !obj.is(':checked'));
+                    }
+                    if ($(this).hasClass("selected")){
+                      $(this).removeClass("selected")
+                    } else {
+                      $(this).addClass("selected")
+                    }
+                    {% if geno_db_exists == "True" %}change_buttons(check_node=1){% endif %}
+                  });
+                },
                 "columns": [
                     { "type": "natural", "width": "5%" },
                     { "type": "natural", "width": "8%" },
@@ -389,7 +400,7 @@
                     "orderable": false
                 } ],
                 "language": {
-                  "info": "Showing1 from _START_ to _END_ of " + js_data.total_markers + " records",
+                  "info": "Showing from _START_ to _END_ of " + js_data.total_markers + " records",
                 },
                 "order": [[1, "asc" ]],
                 "sDom": "iRZtir",
@@ -450,7 +461,7 @@
 
         });
 
-        var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
+        var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'control_marker_db', 'do_control', 'genofile',
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 

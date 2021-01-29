@@ -71,34 +71,6 @@ def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pears
     return corr_result
 
 
-###########################################################################
-#Input: cursor, symbolList (list), dataIdDict(Dict)
-#output: symbolValuepairDict (dictionary):one dictionary of Symbol and Value Pair,
-#        key is symbol, value is one list of expression values of one probeSet;
-#function: get one dictionary whose key is gene symbol and value is tissue expression data (list type).
-#Attention! All keys are lower case!
-###########################################################################
-def get_symbol_value_pairs(tissue_data):
-    id_list = [tissue_data[symbol.lower()].data_id for item in tissue_data]
-
-    symbol_value_pairs = {}
-    value_list=[]
-
-    query = """SELECT value, id
-               FROM TissueProbeSetData
-               WHERE Id IN {}""".format(create_in_clause(id_list))
-
-    try :
-        results = g.db.execute(query).fetchall()
-        for result in results:
-            value_list.append(result.value)
-        symbol_value_pairs[symbol] = value_list
-    except:
-        symbol_value_pairs[symbol] = None
-
-    return symbol_value_pairs
-
-
 ########################################################################################################
 #input: cursor, symbolList (list), dataIdDict(Dict): key is symbol
 #output: SymbolValuePairDict(dictionary):one dictionary of Symbol and Value Pair.

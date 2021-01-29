@@ -28,9 +28,9 @@ class SearchResultPage(object):
     #maxReturn = 3000
 
     def __init__(self, kw):
-        """This class gets invoked after hitting submit on the main menu (in
-views.py).
-
+        """
+            This class gets invoked after hitting submit on the main menu (in
+            views.py).
         """
 
         ###########################################
@@ -86,7 +86,6 @@ views.py).
             else:
                 self.gen_search_result()
 
-
     def gen_search_result(self):
         """
         Get the info displayed in the search result table from the set of results computed in
@@ -121,7 +120,9 @@ views.py).
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
                 if this_trait.dataset.type == "ProbeSet":
                     trait_dict['symbol'] = this_trait.symbol
-                    trait_dict['description'] = this_trait.description_display
+                    trait_dict['description'] = "N/A"
+                    if this_trait.description_display:
+                        trait_dict['description'] = this_trait.description_display
                     trait_dict['location'] = this_trait.location_repr
                     trait_dict['mean'] = "N/A"
                     trait_dict['additive'] = "N/A"
@@ -137,7 +138,9 @@ views.py).
                 elif this_trait.dataset.type == "Geno":
                     trait_dict['location'] = this_trait.location_repr
                 elif this_trait.dataset.type == "Publish":
-                    trait_dict['description'] = this_trait.description_display
+                    trait_dict['description'] = "N/A"
+                    if this_trait.description_display:
+                        trait_dict['description'] = this_trait.description_display
                     trait_dict['authors'] = this_trait.authors
                     trait_dict['pubmed_id'] = "N/A"
                     if this_trait.pubmed_id:
@@ -161,7 +164,14 @@ views.py).
                         trait_dict[key] = trait_dict[key].decode('utf-8')
                 trait_list.append(trait_dict)
 
-        self.trait_list = json.dumps(trait_list)
+        self.trait_list = trait_list
+
+        if this_trait.dataset.type == "ProbeSet":
+            self.header_data_names = ['index', 'display_name', 'symbol', 'description', 'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
+        elif this_trait.dataset.type == "Publish":
+            self.header_data_names = ['index', 'display_name', 'description', 'mean', 'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
+        elif this_trait.dataset.type == "Geno":
+            self.header_data_names = ['index', 'display_name', 'location']
 
     def search(self):
         """

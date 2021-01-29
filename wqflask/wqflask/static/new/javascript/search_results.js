@@ -1,4 +1,4 @@
-change_buttons = function() {
+change_buttons = function(check_node = 0) {
   var button, buttons, item, num_checked, text, _i, _j, _k, _l, _len, _len2, _len3, _len4, _results, _results2;
   buttons = ["#add", "#remove"];
 
@@ -6,7 +6,7 @@ change_buttons = function() {
   table_api = $('#trait_table').DataTable();
   check_cells = table_api.column(0).nodes().to$();
   for (let i = 0; i < check_cells.length; i++) {
-    if (check_cells[i].childNodes[0].checked){
+    if (check_cells[i].childNodes[check_node].checked){
       num_checked += 1
     }
   }
@@ -95,29 +95,37 @@ $(function() {
 
   $('#select_top').keyup(function(){
       num_rows = $(this).val()
+
       if (num_rows = parseInt(num_rows)){
-          i = 0
-          $('#trait_table > tbody > tr').each(function(){
-              if (i < num_rows) {
-                  $(this).find('.trait_checkbox').prop("checked", true)
-                  if (!$(this).closest('tr').hasClass('selected')) {
-                      $(this).closest('tr').addClass('selected')
-                  }
-              }
-              else {
-                  if ($(this).closest('tr').hasClass('selected')) {
-                      $(this).closest('tr').removeClass('selected')
-                      $(this).find('.trait_checkbox').prop("checked", false)
-                  }
-              }
-              i += 1
-          });
+          table_api = $('#trait_table').DataTable();
+
+          check_cells = table_api.column(0).nodes().to$();
+          for (let i = 0; i < num_rows; i++) {
+            check_cells[i].childNodes[0].checked = true;
+          }
+
+          check_rows = table_api.rows().nodes();
+          for (let i=0; i < num_rows; i++) {
+            if (check_rows[i].classList.contains("selected")){
+              continue
+            } else {
+              check_rows[i].classList.add("selected")
+            }
+          }
+          for (let i = num_rows; i < check_rows.length; i++){
+            check_cells[i].childNodes[0].checked = false;
+            if (check_rows[i].classList.contains("selected")){
+              check_rows[i].classList.remove("selected")
+            }
+          }
       }
       else {
-          $('#trait_table > tbody > tr').each(function(){
-              $(this).closest('tr').removeClass('selected')
-              $(this).find('.trait_checkbox').prop("checked", false)
-          });
+        for (let i = 0; i < check_rows.length; i++){
+          check_cells[i].childNodes[0].checked = false;
+          if (check_rows[i].classList.contains("selected")){
+            check_rows[i].classList.remove("selected")
+          }
+        }
       }
       change_buttons();
   });

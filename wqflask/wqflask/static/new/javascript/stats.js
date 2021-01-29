@@ -91,8 +91,6 @@ Stats = (function() {
   Stats.prototype.interquartile = function() {
     var iq, length, q1, q3;
     length = this.the_values.length;
-    console.log("in interquartile the_values are:", this.the_values);
-    console.log("length is:", length);
     if (js_data.dataset_type == "ProbeSet" && js_data.data_scale == "linear_positive") {
       q1 = Math.log2(this.the_values[Math.floor(length * .25)]);
       q3 = Math.log2(this.the_values[Math.floor(length * .75)]);

@@ -4,7 +4,7 @@ import string
 from PIL import (Image)
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 from base import species
 from base import webqtlConfig
@@ -14,21 +14,21 @@ class SnpBrowser(object):
     def __init__(self, start_vars):
         self.strain_lists = get_browser_sample_lists()
         self.initialize_parameters(start_vars)
-        self.limit_number = 10000
 
         if self.first_run == "false":
             self.filtered_results = self.get_browser_results()
+            self.table_rows = self.get_table_rows()
+            self.rows_count = len(self.table_rows)
 
-            if len(self.filtered_results) <= self.limit_number:
-                self.table_rows = self.get_table_rows()
-            else:
-                self.empty_columns = None
+            del self.filtered_results
+
+            if 'sEcho' not in start_vars:
                 self.table_rows = []
 
             if self.limit_strains == "true":
-                self.header_fields, self.empty_field_count = get_header_list(variant_type = self.variant_type, strains = self.chosen_strains, empty_columns = self.empty_columns)
+                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type = self.variant_type, strains = self.chosen_strains, empty_columns = self.empty_columns)
             else:
-                self.header_fields, self.empty_field_count = get_header_list(variant_type = self.variant_type, strains = self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
+                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type = self.variant_type, strains = self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
 
     def initialize_parameters(self, start_vars):
         if 'first_run' in start_vars:
@@ -368,19 +368,19 @@ class SnpBrowser(object):
 
         #ZS: list of booleans representing which columns are entirely empty, so they aren't displayed on the page; only including ones that are sometimes empty (since there's always a location, etc)
         self.empty_columns = {
-                    "snp_source": "false",
-                    "conservation_score": "false",
-                    "gene_name": "false",
-                    "transcript": "false",
-                    "exon": "false",
-                    "domain_2": "false",
-                    "function": "false", 
-                    "function_details": "false"
-            }
+            "snp_source": "false",
+            "conservation_score": "false",
+            "gene_name": "false",
+            "transcript": "false",
+            "exon": "false",
+            "domain_2": "false",
+            "function": "false",
+            "function_details": "false"
+        }
 
         the_rows = []
         for i, result in enumerate(self.filtered_results):
-            this_row = []
+            this_row = {}
             if self.variant_type == "SNP":
                 snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain, function, function_details, snp_source, conservation_score, snp_id = result[:14]
                 allele_value_list = result[14:]
@@ -520,13 +520,10 @@ class SnpBrowser(object):
                     "source_name": str(source_name)
                 }
                 #this_row = [indel_name, indel_chr, indel_mb_s, indel_mb_e, indel_strand, indel_type, indel_size, indel_sequence, source_name]
-            else:
-                this_row = {}
 
             the_rows.append(this_row)
 
         return the_rows
-                
 
     def include_record(self, domain, function, snp_source, conservation_score):
         """ Decide whether to add this record """
@@ -674,9 +671,13 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
     empty_field_count = 0 #ZS: This is an awkward way of letting the javascript know the index where the allele value columns start; there's probably a better way of doing this
 
     header_fields = []
+    header_data_names = []
     if variant_type == "SNP":
         header_fields.append(['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'Source', 'ConScore', 'Gene', 'Transcript', 'Exon', 'Domain 1', 'Domain 2', 'Function', 'Details'])
+        header_data_names = ['index', 'snp_name', 'chr', 'mb_formatted', 'alleles', 'snp_source', 'conservation_score', 'gene_name', 'transcript', 'exon', 'domain_1', 'domain_2', 'function', 'function_details']
+
         header_fields.append(strain_list)
+        header_data_names += strain_list
 
         if empty_columns != None:
             if empty_columns['snp_source'] == "false":
@@ -703,11 +704,16 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
             if empty_columns['function_details'] == "false":
                 empty_field_count += 1
                 header_fields[0].remove('Details')
+        
+        for col in empty_columns.keys():
+            if empty_columns[col] == "false":
+                header_data_names.remove(col)
 
     elif variant_type == "InDel":
         header_fields = ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source']
+        header_data_names = ['index', 'indel_name', 'indel_type', 'indel_chr', 'indel_mb_s', 'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name']
 
-    return header_fields, empty_field_count
+    return header_fields, empty_field_count, header_data_names
 
 def get_effect_details_by_category(effect_name = None, effect_value = None):
     gene_list = []
@@ -868,8 +874,6 @@ def get_gene_id_name_dict(species_id, gene_name_list):
     if len(results) > 0:
         for item in results:
             gene_id_name_dict[item[1]] = item[0]
-    else:
-        pass
 
     return gene_id_name_dict
 
@@ -883,7 +887,7 @@ def check_if_in_gene(species_id, chr, mb):
         query = """SELECT geneId,geneSymbol
                    FROM GeneList
                    WHERE chromosome = '{0}' AND
-                        (txStart < {1} AND txEnd > {1}); """.format(species_id, chr, mb)
+                        (txStart < {1} AND txEnd > {1}); """.format(chr, mb)
 
     result = g.db.execute(query).fetchone()
 

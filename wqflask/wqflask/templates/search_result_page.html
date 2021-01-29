@@ -3,7 +3,6 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/scroller/css/scroller.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
@@ -125,7 +124,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px;"{% endif %}>
+          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px; max-width:100%;"{% endif %}>
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: {% if dataset.type == 'Geno' %}380px{% else %}100%{% endif %};">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -146,6 +145,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
@@ -160,6 +160,16 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+
+            var getParams = function(url) {
+                let parser = document.createElement('a');
+                parser.href = url;
+                let params = parser.search.substring(1);
+                if(params.length > 0) {
+                    return ('?'+params);
+                }
+                return params;
+            };
             
             $('#trait_table tr').click(function(event) {
                 if (event.target.type !== 'checkbox') {
@@ -225,7 +235,7 @@
                       'data': null,
                       'width': "25px",
                       'orderDataType': "dom-checkbox",
-                      'orderSequence': [ "desc", "asc"],
+                      'orderable': false,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
                       }
@@ -264,36 +274,36 @@
                       }
                     },
                     {
-                      'title': "Location",
+                      'title': "<div style='text-align: right;'>Location</div>",
                       'type': "natural-minus-na",
                       'width': "125px",
                       'data': "location"
                     },
                     {
-                      'title': "Mean",
+                      'title': "<div style='text-align: right;'>Mean</div>",
                       'type': "natural-minus-na",
-                      'width': "40px",
+                      'width': "30px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
+                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
                       'data': "lod_score",
                       'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak Location",
+                      'title': "<div style='text-align: right;'>Peak Location</div>",
                       'type': "natural-minus-na",
                       'width': "125px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Effect Size<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
                       'data': "additive",
-                      'width': "90px",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Publish' %},
                     {
@@ -310,16 +320,16 @@
                       }
                     },
                     {
-                      'title': "Mean",
+                      'title': "<div style='text-align: right;'>Mean</div>",
                       'type': "natural-minus-na",
-                      'width': "110px",
+                      'width': "30px",
                       'data': "mean",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Authors",
                       'type': "natural",
-                      'width': "500px",
+                      'width': "300px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         author_list = data.authors.split(",")
@@ -332,10 +342,10 @@
                       }
                     },
                     {
-                      'title': "Year",
+                      'title': "<div style='text-align: right;'>Year</div>",
                       'type': "natural-minus-na",
                       'data': null,
-                      'width': "80px",
+                      'width': "25px",
                       'render': function(data, type, row, meta) {
                         if (data.pubmed_id != "N/A"){
                           return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -346,45 +356,43 @@
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
+                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
                       'data': "lod_score",
                       'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
-                      'title': "Peak Location",
+                      'title': "<div style='text-align: right;'>Peak Location</div>",
                       'type': "natural-minus-na",
                       'width': "120px",
                       'data': "lrs_location"
                     },
                     {
-                      'title': "Effect Size<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
                       'type': "natural-minus-na",
-                      'width': "120px",
+                      'width': "60px",
                       'data': "additive",
                       'orderSequence': [ "desc", "asc"]
                     }{% elif dataset.type == 'Geno' %},
                     {
-                      'title': "Location",
+                      'title': "<div style='text-align: right;'>Location</div>",
                       'type': "natural-minus-na",
                       'width': "120px",
                       'data': "location"
                     }{% endif %}
                 ],
                 "order": [[1, "asc" ]],
-                'sDom': "itirp",
-                'iDisplayLength': 500,
-                'deferRender': true,
-                'paging': true,
-                'orderClasses': true,
-                'processing': true,
-                'language': {
-                  'loadingRecords': '&nbsp;',
-                  'processing': 'Loading...'
-                }
+                'sDom': "iti",
+                "autoWidth": true,
+                "bSortClasses": false,
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
             } );
             
+            trait_table.draw(); //ZS: This makes the table adjust its height properly on initial load
+
             $('.toggle-vis').on( 'click', function (e) {
               e.preventDefault();
 
