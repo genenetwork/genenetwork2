@@ -6,7 +6,6 @@ import csv
 import json
 import datetime
 import requests
-
 import tarfile
 import hashlib
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -26,7 +25,9 @@ from wqflask.api import correlation, mapping, gen_menu
 from utility.tools import flat_files
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+
+
+logger = utility.logger.getLogger(__name__)
 
 version = "pre1"
 
