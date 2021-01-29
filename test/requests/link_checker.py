@@ -143,7 +143,7 @@ def check_packaged_js_files(args_obj, parser):
         "/js/cytoscape-panzoom/cytoscape.js-panzoom.css",
         "/js/cytoscape-qtip/cytoscape-qtip.js",
         "/css/d3-tip/d3-tip.css",
-        "/js/zxcvbn-async/zxcvbn-async.min.js",
+        "/js/zxcvbn/zxcvbn.js",
         "/js/javascript-twitter-post-fetcher/js/twitterFetcher_min.js",
         "/js/DataTables/images/sort_asc_disabled.png",
         "/js/DataTables/images/sort_desc_disabled.png",
