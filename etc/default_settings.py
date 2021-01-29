@@ -105,3 +105,5 @@ JS_GN_PATH = os.environ['HOME']+"/genenetwork/javascript"
 # GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
 REAPER_COMMAND = os.environ['GN2_PROFILE'] + "/bin/qtlreaper"
 # GEMMA_WRAPPER_COMMAND = str.strip(os.popen("which gemma-wrapper").read())
+
+GENENETWORK_UPLOAD_DIR = "/tmp/testing"
