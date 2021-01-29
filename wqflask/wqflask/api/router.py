@@ -7,6 +7,7 @@ import json
 import datetime
 import requests
 
+import tarfile
 import hashlib
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -16,6 +17,7 @@ from flask import g
 from flask import request
 from flask import make_response
 from flask import send_file
+from werkzeug.utils import secure_filename
 
 from wqflask import app
 
@@ -61,6 +63,40 @@ def get_hash_of_dirs(directory, verbose=0):
         return -2
 
     return SHAhash.hexdigest()
+
+
+@app.route(f"/api/v_{version}/metadata/upload", methods=['POST'])
+def upload_metadata():
+    f = request.files['file']
+
+    if f:
+        f_name = secure_filename(f.filename)
+        tar_location = os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
+                                    f_name)
+
+        # Save file to a temp directory
+        f.save(tar_location)
+
+        try:
+            # Extract to tempdir
+            tar = tarfile.open(tar_location)
+            tar.extractall(
+                path=os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
+                                  "tempdir"))
+            tar.close()
+        except:
+            return flask.jsonify({"status": 128},
+                                 {"error": "gzip failed to unpack file"})
+        dir_hash = get_hash_of_dirs(tar_location)
+        os.rename(os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
+                               "tempdir"),
+                  os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
+                               dir_hash),)
+        return flask.jsonify({"status": 0},
+                             {"token": dir_hash})
+
+    return flask.jsonify({"status": 0},
+                         {"error": "Failed to upload files"})
 
 
 @app.route("/api/v_{}/".format(version))
