@@ -208,7 +208,7 @@ def build_datasets(species, group, type_name):
              "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
              "and Tissue.Name = '{2}' AND ProbeFreeze.TissueId = "
              "Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id "
-             "ORDER BY ProbeSetFreeze.CreateTime "
+             "ORDER BY ProbeSetFreeze.OrderList "
              "DESC").format(species, group, type_name)).fetchall()
 
         datasets = []
