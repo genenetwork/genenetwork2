@@ -98,6 +98,7 @@ class ShowTrait(object):
 
             #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
             blatsequence = '%3E' + self.this_trait.name + '%0A' + blatsequence + '%0A'
+
             #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
             query2 = """SELECT Probe.Sequence, Probe.Name
                         FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
@@ -110,7 +111,7 @@ class ShowTrait(object):
             seqs = g.db.execute(query2).fetchall()
             for seqt in seqs:
                 if int(seqt[1][-1]) %2 == 1:
-                    blatsequence += '%3EProbe_' + string.strip(seqt[1]) + '%0A' + string.strip(seqt[0]) + '%0A'
+                    blatsequence += '%3EProbe_' + seqt[1].strip() + '%0A' + seqt[0].strip() + '%0A'
 
             if self.dataset.group.species == "rat":
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn6', blatsequence)
