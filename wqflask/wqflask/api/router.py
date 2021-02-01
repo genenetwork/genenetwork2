@@ -7,11 +7,11 @@ import json
 import datetime
 import requests
 import tarfile
-import hashlib
+import flask
+
 from zipfile import ZipFile, ZIP_DEFLATED
 
 
-import flask
 from flask import g
 from flask import request
 from flask import make_response
@@ -20,7 +20,9 @@ from werkzeug.utils import secure_filename
 
 from wqflask import app
 
-from wqflask.api import correlation, mapping, gen_menu
+from wqflask.api import correlation
+from wqflask.api import mapping
+from wqflask.api import gen_menu
 
 from utility.tools import flat_files
 
