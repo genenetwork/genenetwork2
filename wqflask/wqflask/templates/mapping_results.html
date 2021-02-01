@@ -349,7 +349,8 @@
     <script type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
     {% if manhattan_plot == True and selectedChr == -1 %}
-    <script type="text/javascript" src="/static/new/js_external/jscolor.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jscolor/jscolor.js') }}"></script>
+
     {% endif %}
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
