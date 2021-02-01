@@ -11,6 +11,7 @@ import flask
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from base.webqtlConfig import TEMPDIR
 
 from flask import g
 from flask import request
@@ -41,8 +42,7 @@ def upload_metadata():
 
     if f:
         f_name = secure_filename(f.filename)
-        tar_location = os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
-                                    f_name)
+        tar_location = os.path.join(TEMPDIR, f_name)
 
         # Save file to a temp directory
         f.save(tar_location)
@@ -51,17 +51,14 @@ def upload_metadata():
             # Extract to tempdir
             tar = tarfile.open(tar_location)
             tar.extractall(
-                path=os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
-                                  "tempdir"))
+                path=os.path.join(TEMPDIR, "tempdir"))
             tar.close()
         except:
             return flask.jsonify({"status": 128},
                                  {"error": "gzip failed to unpack file"})
         dir_hash = get_hash_of_dirs(tar_location)
-        os.rename(os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
-                               "tempdir"),
-                  os.path.join(app.config['GENENETWORK_UPLOAD_DIR'],
-                               dir_hash),)
+        os.rename(os.path.join(TEMPDIR, "tempdir"),
+                  os.path.join(TEMPDIR, dir_hash),)
         return flask.jsonify({"status": 0},
                              {"token": dir_hash})
 
