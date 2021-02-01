@@ -247,7 +247,7 @@ class TestGenMenu(unittest.TestCase):
             "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and " +
             "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = " +
             "Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id " +
-            "ORDER BY ProbeSetFreeze.CreateTime DESC")
+            "ORDER BY ProbeSetFreeze.OrderList DESC")
 
     @mock.patch('wqflask.api.gen_menu.build_datasets')
     @mock.patch('wqflask.api.gen_menu.g')
