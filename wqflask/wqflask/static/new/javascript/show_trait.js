@@ -1028,6 +1028,7 @@ switch_qnorm_data = function() {
   })(this));
 };
 $('#qnorm').click(switch_qnorm_data);
+
 get_sample_table_data = function(table_name) {
   var samples;
   samples = [];
@@ -1036,7 +1037,7 @@ get_sample_table_data = function(table_name) {
   var n_exists = false;
 
   if ($('#' + table_name).length){
-    table_api = $('#' + table).DataTable();
+    table_api = $('#' + table_name).DataTable();
     sample_vals = [];
 
     name_nodes = table_api.column(2).nodes().to$();

@@ -21,7 +21,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco, maf
         genofile_name = this_dataset.group.name
 
     if first_run:
-      trait_filename = str(this_trait.name) + "_" + str(this_dataset.name) + "_pheno"
+      trait_filename = str(this_dataset.group.name) + "_" + str(this_trait.name) + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
       gen_pheno_txt_file(this_dataset, genofile_name, vals, trait_filename)
 
       if not os.path.isfile("{}{}_output.assoc.txt".format(webqtlConfig.GENERATED_IMAGE_DIR, genofile_name)):
