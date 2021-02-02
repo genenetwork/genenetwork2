@@ -386,11 +386,13 @@
                 'sDom': "iti",
                 "autoWidth": true,
                 "bSortClasses": false,
+                {% if trait_list|length > 20 %}
                 "scrollY": "100vh",
                 "scroller":  true,
                 "scrollCollapse": true
+                {% endif %}
             } );
-            
+
             trait_table.draw(); //ZS: This makes the table adjust its height properly on initial load
 
             $('.toggle-vis').on( 'click', function (e) {
