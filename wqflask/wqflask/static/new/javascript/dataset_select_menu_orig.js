@@ -179,7 +179,7 @@ group_info = function() {
   var group, species, url;
   species = $('#species').val();
   group = $('#group').val();
-  url = "/" + species + "Cross.html#" + group;
+  url = "http://gn1.genenetwork.org/" + species + "Cross.html#" + group;
   return open_window(url, "Group Info");
 };
 $('#group_info').click(group_info);
