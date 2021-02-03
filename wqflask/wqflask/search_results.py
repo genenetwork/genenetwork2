@@ -166,11 +166,11 @@ class SearchResultPage(object):
 
         self.trait_list = trait_list
 
-        if this_trait.dataset.type == "ProbeSet":
+        if self.dataset.type == "ProbeSet":
             self.header_data_names = ['index', 'display_name', 'symbol', 'description', 'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
-        elif this_trait.dataset.type == "Publish":
+        elif self.dataset.type == "Publish":
             self.header_data_names = ['index', 'display_name', 'description', 'mean', 'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
-        elif this_trait.dataset.type == "Geno":
+        elif self.dataset.type == "Geno":
             self.header_data_names = ['index', 'display_name', 'location']
 
     def search(self):
