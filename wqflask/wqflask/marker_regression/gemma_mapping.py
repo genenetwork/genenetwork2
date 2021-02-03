@@ -148,8 +148,6 @@ def gen_covariates_file(this_dataset, covariates, samples):
         trait_ob = create_trait(dataset=dataset_ob,
                                 name=trait_name,
                                 cellid=None)
-
-        #trait_samples = this_dataset.group.all_samples_ordered()
         this_dataset.group.get_samplelist()
         trait_samples = this_dataset.group.samplelist
         trait_sample_data = trait_ob.data
@@ -184,10 +182,8 @@ def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
     marker_obs = []
     previous_chr = 0
 
-    no_results = False
     for this_file in output_filelist:
         if not os.path.isfile(this_file):
-            no_results = True
             break
         with open(this_file) as output_file:
             for line in output_file:
@@ -212,10 +208,8 @@ def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
                     marker['additive'] = float(line.split("\t")[7])
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
-                        #marker['lrs_value'] = 0
                     else:
                         marker['lod_score'] = -math.log10(marker['p_value'])
-                        #marker['lrs_value'] = -math.log10(marker['p_value']) * 4.61
                     marker_obs.append(marker)
 
                     included_markers.append(line.split("\t")[1])
