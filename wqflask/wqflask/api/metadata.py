@@ -39,3 +39,13 @@ def get_hash_of_dirs(directory: str, verbose: int = 0) -> Union[str, int]:
 
     return md5hash.hexdigest()
 
+
+def lookup_genotype_file(file_name: str) -> Union[str, int]:
+    """Look for FILE_NAME in the local path. If it exists, return the full
+file path, otherwise signal an error"""
+    gn_files = os.environ.get("GENENETWORK_FILES")
+    if gn_files:
+        genotype_file = os.path.join(gn_files, "genotype_files", file_name)
+        if os.path.isfile(genotype_file):
+            return genotype_file
+    return -1
