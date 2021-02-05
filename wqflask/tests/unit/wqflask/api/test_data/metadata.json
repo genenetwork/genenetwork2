@@ -1,6 +1,6 @@
 {
     "title": "This is my dataset for testing the REST API",
-    "description": "Longer description"
+    "description": "Longer description",
     "date": "20210127",
     "authors": [
         "R. W. Williams"

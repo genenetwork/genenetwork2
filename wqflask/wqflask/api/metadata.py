@@ -1,6 +1,11 @@
 import hashlib
+import json
 import os
 
+from utility.tools import GEMMA_WRAPPER_COMMAND
+
+from typing import Dict
+from typing import Optional
 from typing import Union
 
 
@@ -17,7 +22,7 @@ def get_hash_of_dirs(directory: str, verbose: int = 0) -> Union[str, int]:
                 filepath = os.path.join(root, names)
                 try:
                     f1 = open(filepath, 'r', encoding="utf-8")
-                except Exception as e:
+                except Exception:
                     # You can't open the file for some reason
                     f1.close()
                     continue
@@ -53,4 +58,43 @@ does not exist, return -1
         _file = os.path.join(_dir, file_home_dir, file_name)
         if os.path.isfile(_file):
             return _file
+    return -1
+
+
+def compose_gemma_command(
+        token: str,
+        metadata_filename: str,
+        gemma_wrapper_kwargs: Optional[Dict] = None,
+        gemma_kwargs: Optional[Dict] = None,
+        *args: str) -> Union[str, int]:
+    """Compose a valid GEMMA command to run given the correct values.
+TOKEN is the hash returned after a successful user upload;
+METADATA_FILENAME is the file that contains the metadata;
+GEMMA_WRAPPER_KWARGS is a key value pair that contains extra opts for
+the gemma_wrapper command; GEMMA_KWARGS are the key value pairs that
+are passed to Gemma; and *ARGS are any other argsuments passed to
+GEMMA.
+
+    """
+    metadata_filepath = lookup_file("TMPDIR", token, metadata_filename)
+    if metadata_filepath != -1:
+        with open(metadata_filepath) as _file:
+            data = json.load(_file)
+            geno_file = lookup_file("TMPDIR",
+                                    "genotype_files", data.get("geno"))
+            pheno_file = lookup_file("TMPDIR", token, data.get("pheno"))
+            cmd = f"{GEMMA_WRAPPER_COMMAND} --json"
+            if gemma_wrapper_kwargs:
+                cmd += (" "  # Add extra space between commands
+                        " ".join([f"--{key} {val}" for key, val
+                                  in gemma_wrapper_kwargs.items()]))
+            cmd += f" -- -g {geno_file} -p {pheno_file}"
+            if gemma_kwargs:
+                cmd += (" "
+                        " ".join([f"-{key} {val}"
+                                  for key, val in gemma_kwargs.items()]))
+            if args:
+                cmd += (" "
+                        " ".join([f"-{arg}" for arg in args]))
+            return cmd
     return -1
