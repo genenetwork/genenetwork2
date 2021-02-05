@@ -1,8 +1,10 @@
 import hashlib
 import os
 
+from typing import Union
 
-def get_hash_of_dirs(directory: str, verbose: int = 0) -> str:
+
+def get_hash_of_dirs(directory: str, verbose: int = 0) -> Union[str, int]:
     """Return the hash of a DIRECTORY"""
     md5hash = hashlib.md5()
     if not os.path.exists(directory):
@@ -33,7 +35,7 @@ def get_hash_of_dirs(directory: str, verbose: int = 0) -> str:
         import traceback
         # Print the stack traceback
         traceback.print_exc(e)
-        return "-2"
+        return -1
 
     return md5hash.hexdigest()
 
