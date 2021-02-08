@@ -156,7 +156,7 @@ var primary_table = $('#samples_primary').DataTable( {
     'sDom': "Ztr",
     'autoWidth': true,
     'orderClasses': true,
-    "scrollY": "50vh",
+    "scrollY": "100vh",
     'scroller':  true,
     'scrollCollapse': true
 } );
@@ -215,7 +215,7 @@ if (js_data.sample_lists.length > 1){
       'sDom': "Ztr",
       'autoWidth': true,
       'orderClasses': true,
-      "scrollY": "50vh",
+      "scrollY": "100vh",
       'scroller':  true,
       'scrollCollapse': true
   } );
