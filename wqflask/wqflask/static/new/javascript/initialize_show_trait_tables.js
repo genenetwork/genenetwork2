@@ -161,6 +161,8 @@ var primary_table = $('#samples_primary').DataTable( {
     'scrollCollapse': true
 } );
 
+primary_table.draw(); //ZS: This makes the table adjust its height properly on initial load
+
 primary_table.on( 'order.dt search.dt draw.dt', function () {
     primary_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
     cell.innerHTML = i+1;
@@ -217,4 +219,6 @@ if (js_data.sample_lists.length > 1){
       'scroller':  true,
       'scrollCollapse': true
   } );
+
+  other_table.draw(); //ZS: This makes the table adjust its height properly on initial load
 }
