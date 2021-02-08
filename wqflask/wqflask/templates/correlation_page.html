@@ -240,13 +240,13 @@
                           var obj =$(this).find('input');
                           obj.prop('checked', !obj.is(':checked'));
                         }
-                        if ($(this).hasClass("selected")){
+                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
                           $(this).removeClass("selected")
-                        } else {
+                        } else if (event.target.tagName.toLowerCase() !== 'a') {
                           $(this).addClass("selected")
                         }
+                        change_buttons()
                       });
-                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
                 "data": table_json,
                 "columns": [

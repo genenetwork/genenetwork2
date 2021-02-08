@@ -76,9 +76,15 @@
             $('#trait_table').dataTable( {
                 "drawCallback": function( settings ) {
                      $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
-                             $(':checkbox', this).trigger('click');
-                         }
+                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                          var obj =$(this).find('input');
+                          obj.prop('checked', !obj.is(':checked'));
+                        }
+                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                          $(this).removeClass("selected")
+                        } else if (event.target.tagName.toLowerCase() !== 'a') {
+                          $(this).addClass("selected")
+                        }
                      });
                 },
                 "buttons": [ 'copy', 'csv', 'excel' ],
