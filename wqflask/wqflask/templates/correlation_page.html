@@ -9,22 +9,22 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
-    <div class="container" style="min-width: 1250px;">
+    <div class="container">
         <div class="page-header">
             <h1>Correlation Table</h1>
             <h2>Trait: {{ this_trait.name }}
 
             <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
-
-        <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
-        dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id != 'None' %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
-        dataset. The top {{ return_number }} correlations ranked by the {{ formatted_corr_type }} are displayed.
-        You can resort this list by clicking the headers. Select the Record ID to open the trait data
-        and analysis page.
-        </p>    
-
-        <div>
+        <div style="max-width: 100%;">
+          <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
+          dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id != 'None' %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
+          dataset. The top {{ return_number }} correlations ranked by the {{ formatted_corr_type }} are displayed.
+          You can resort this list by clicking the headers. Select the Record ID to open the trait data
+          and analysis page.
+          </p>
+        </div>
+        <div style="min-width: 950px;">
           <form id="correlation_form" target="_blank" action="/corr_matrix" method="post">
             <input type="hidden" name="tool_used" value="" />
             <input type="hidden" name="form_url" value="" />
@@ -36,7 +36,7 @@
           </form>
         </div>
         <br />
-        <div>
+        <div style="min-width: 900px;">
             <form id="export_form" method="POST" action="/export_traits_csv">
                 <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
                 <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
@@ -50,7 +50,7 @@
                 <button id="redraw" class="btn btn-default" type="button">Reset Columns</button>
             </form>
             <br />
-            <div id="export_options"></div>
+            <div id="export_options" style="float: left;"></div>
             {% if target_dataset.type != "Publish" %}
             <br />
             <div style="float: left; clear: left; margin-top: 10px; margin-bottom: 20px;">
