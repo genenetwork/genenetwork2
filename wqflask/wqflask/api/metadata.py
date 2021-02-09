@@ -98,7 +98,7 @@ GEMMA.
                                   for key, val in gemma_kwargs.items()]))
             if args:
                 cmd += (" "
-                        " ".join([f"{arg}" for arg in args]))
+                        " ".join([f" {arg}" for arg in args]))
             return cmd
     return -1
 

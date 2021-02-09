@@ -65,6 +65,21 @@ class TestMetadata(unittest.TestCase):
 
     @mock.patch("wqflask.api.metadata.GEMMA_WRAPPER_COMMAND", "gemma-wrapper")
     @mock.patch("wqflask.api.metadata.lookup_file")
+    def test_compose_gemma_cmd_no_extra_args(self, mock_lookup_file):
+        mock_lookup_file.side_effect = [
+            os.path.join(os.path.dirname(__file__),
+                         "test_data", "metadata.json"),
+            "/tmp/genofile.txt", "/tmp/gf13Ad0tRX/phenofile.txt"]
+        self.assertEqual(compose_gemma_cmd("gf13Ad0t",
+                                           "metadata.json",
+                                           None, None, "-gk"),
+                         ("gemma-wrapper --json -- "
+                          "-g /tmp/genofile.txt "
+                          "-p /tmp/gf13Ad0tRX/phenofile.txt"
+                          " -gk"))
+
+    @mock.patch("wqflask.api.metadata.GEMMA_WRAPPER_COMMAND", "gemma-wrapper")
+    @mock.patch("wqflask.api.metadata.lookup_file")
     def test_compose_gemma_cmd_with_opt_args(self, mock_lookup_file):
         mock_lookup_file.side_effect = [
             os.path.join(os.path.dirname(__file__),
