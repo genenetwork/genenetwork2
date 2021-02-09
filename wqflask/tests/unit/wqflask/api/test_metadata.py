@@ -89,10 +89,13 @@ class TestMetadata(unittest.TestCase):
         # Rewind to the beginning of the file for the next reading
         self.stdout_mock.seek(0)
         mock_popen.return_value.stdout = self.stdout_mock
-        self.assertEqual(run_gemma_cmd("some_cmd"),
-                         ("/tmp/"
-                          "494288a0f785a5ab5fe9ccfdfedb540d9971fe10"
-                          ".cXX.txt"))
+        self.assertEqual(set(run_gemma_cmd("some_cmd")),
+                         set(["/tmp/"
+                              "494288a0f785a5ab5fe9ccfdfedb540d9971fe10"
+                              ".cXX.txt",
+                              "/tmp/"
+                              "494288a0f785a5ab5fe9ccfdfedb540d9971fe10"
+                              ".log.txt"]))
 
     @mock.patch("wqflask.api.metadata.subprocess.Popen")
     def test_run_gemma_cmd_with_no_output(self, mock_popen):

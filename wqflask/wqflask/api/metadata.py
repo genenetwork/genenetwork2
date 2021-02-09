@@ -110,7 +110,7 @@ signal an error.
     """
     proc = subprocess.Popen(cmd.rstrip().split(" "), stdout=subprocess.PIPE)
     result = {}
-    file_ = []
+    files_ = []
     while True:
         line = proc.stdout.readline().rstrip()
         if not line:  # End of STDOUT
@@ -122,10 +122,10 @@ signal an error.
         # passed.
         except ValueError:
             pass
-    file_ = list(
-        filter(lambda xs: not ((xs is None) or ("log" in xs)),
+    files_ = list(
+        filter(lambda xs: (xs is not None),
                list(chain(*result.get("files", [])))))
-    if len(file_) > 0:
-        return file_[0]
+    if len(files_) > 0:
+        return files_
     else:
         return -1
