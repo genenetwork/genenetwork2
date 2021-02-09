@@ -86,6 +86,10 @@ an endpoint.
         if files_ == -1:
             return flask.jsonify({"status": 128},
                                  {"error": "Check for missing files"})
+        files_ = list(map(lambda x:
+                          x.replace(f"{TEMPDIR}/",
+                                    "") if (TEMPDIR in x) else x,
+                          files_))
         return flask.jsonify({"status": 0, "files": files_})
     except Exception:
         return flask.jsonify({"status": 128,
