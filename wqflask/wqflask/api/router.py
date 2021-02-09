@@ -61,11 +61,10 @@ def upload_metadata():
         dir_hash = get_hash_of_dirs(tar_location)
         os.rename(os.path.join(TEMPDIR, "tempdir"),
                   os.path.join(TEMPDIR, dir_hash),)
-        return flask.jsonify({"status": 0},
-                             {"token": dir_hash})
-
-    return flask.jsonify({"status": 0},
-                         {"error": "Failed to upload files"})
+        return flask.jsonify({"status": 0,
+                              "token": dir_hash})
+    return flask.jsonify({"status": 0,
+                          "error": "Failed to upload files"})
 
 
 @app.route(f"/api/v_{version}/gemma/k-compute/<token>")
@@ -87,11 +86,10 @@ an endpoint.
         if files_ == -1:
             return flask.jsonify({"status": 128},
                                  {"error": "Check for missing files"})
-        return flask.jsonify({"status": 0},
-                             {"files": files_})
+        return flask.jsonify({"status": 0, "files": files_})
     except Exception:
-        return flask.jsonify({"status": 128},
-                             {"error": "Failed to compute K"})
+        return flask.jsonify({"status": 128,
+                              "error": "Failed to compute K"})
 def hello_world():
     return flask.jsonify({"hello":"world"})
 
