@@ -24,7 +24,9 @@ from wqflask import app
 from wqflask.api import correlation
 from wqflask.api import mapping
 from wqflask.api import gen_menu
+
 from wqflask.api.metadata import get_hash_of_dirs
+from wqflask.api.metadata import compose_gemma_cmd
 
 from utility.tools import flat_files
 
@@ -66,7 +68,30 @@ def upload_metadata():
                          {"error": "Failed to upload files"})
 
 
-@app.route("/api/v_{}/".format(version))
+@app.route(f"/api/v_{version}/gemma/k-compute/<token>")
+def run_gemma_k_compute(token):
+    """Compute K according to:
+
+gemma-wrapper -p $TMPDIR/token/<pheno> -g \
+    $GENOTYPE_FILES/genotypes/<geno> -gk
+
+<pheno> and <geno> should be defined in $TMPDIR/token/metadata.json.
+
+Returns a list of files that can be served from IPFS or fetched from
+an endpoint.
+
+    """
+    try:
+        files_ = run_gemma_cmd(
+            compose_gemma_cmd(token, "metadata.json", None, None, "-gk"))
+        if files_ == -1:
+            return flask.jsonify({"status": 128},
+                                 {"error": "Check for missing files"})
+        return flask.jsonify({"status": 0},
+                             {"files": files_})
+    except Exception:
+        return flask.jsonify({"status": 128},
+                             {"error": "Failed to compute K"})
 def hello_world():
     return flask.jsonify({"hello":"world"})
 
