@@ -27,6 +27,9 @@ from wqflask.api import gen_menu
 
 from wqflask.api.metadata import get_hash_of_dirs
 from wqflask.api.metadata import compose_gemma_cmd
+from wqflask.api.metadata import lookup_file
+from wqflask.api.metadata import run_gemma_cmd
+from wqflask.api.metadata import jsonfile_to_dict
 
 from utility.tools import flat_files
 
@@ -94,6 +97,58 @@ an endpoint.
     except Exception:
         return flask.jsonify({"status": 128,
                               "error": "Failed to compute K"})
+
+
+@app.route(f"/api/v_{version}/gemma/lmm/gwa/<path:token>/<path:k_file>")
+def run_gemma_gwa(token, k_file):
+    """Run the LMM using the K's captured in K.json using the --input
+    switch; similar to:
+
+gemma-wrapper --json -loco --input K.json -- \
+        -g $GENOTYPE_FILES/genotypes/<geno> \
+        -p $TMPDIR/token/<pheno> -g \
+        -c $GENOTYPE_FILES/genotype/<covar> \
+        -a $TMPDIR/token/<snps> \
+        -lmm N \
+        -maf 0.1
+        """
+    try:
+        data = jsonfile_to_dict(lookup_file("TMPDIR", token, "metadata.json"))
+        if data == -1:
+            return flask.jsonify({"status": 128,
+                                  "error": "Invalid metadata json provided"})
+        k_file = os.path.join(TEMPDIR, k_file)
+        gemma_kwargs = {}
+        if data.get("covariate"):
+            gemma_kwargs["c"] = data.get("covariate")
+        if data.get("snps"):
+            gemma_kwargs["a"] = data.get("snps")
+        if data.get("lmm"):
+            gemma_kwargs["lmm"] = data.get("lmm", 2)
+        if data.get("maf"):
+            gemma_kwargs["maf"] = data.get("maf", 0.1)
+        files_ = run_gemma_cmd(
+            compose_gemma_cmd(token, "metadata.json",
+                              {"loco": f"--input {k_file}"},
+                              gemma_kwargs))
+        if files_ == -1:
+            return flask.jsonify({"status": 128},
+                                 {"cmd": compose_gemma_cmd(
+                                     token,
+                                     "metadata.json",
+                                     {"loco": f"--input {k_file}"},
+                                     gemma_kwargs)},
+                                 {"error": "Check for missing files"})
+        files_ = list(map(lambda x:
+                          x.replace(f"{TEMPDIR}/",
+                                    "") if (TEMPDIR in x) else x,
+                          files_))
+        return flask.jsonify({"status": 0, "files": files_})
+    except Exception:
+        return flask.jsonify({"status": 128,
+                              "error": "Failed to compute GWA"})
+
+
 def hello_world():
     return flask.jsonify({"hello":"world"})
 
