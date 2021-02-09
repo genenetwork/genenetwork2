@@ -64,6 +64,15 @@ does not exist, return -1
     return -1
 
 
+def jsonfile_to_dict(metadata_file: str) -> Union[str, int]:
+    try:
+        with open(metadata_file) as _file:
+            data = json.load(_file)
+            return data
+    except Exception:
+        return -1
+
+
 def compose_gemma_cmd(
         token: str,
         metadata_filename: str,
@@ -81,8 +90,8 @@ GEMMA.
     """
     metadata_filepath = lookup_file("TMPDIR", token, metadata_filename)
     if metadata_filepath != -1:
-        with open(metadata_filepath) as _file:
-            data = json.load(_file)
+        data = jsonfile_to_dict(metadata_filepath)
+        if data != -1:
             geno_file = lookup_file("GENENETWORK_FILES",
                                     "genotype", data.get("geno"))
             pheno_file = lookup_file("TMPDIR", token, data.get("pheno"))
