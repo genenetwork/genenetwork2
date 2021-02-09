@@ -1,6 +1,9 @@
 import hashlib
 import json
 import os
+import subprocess
+
+from itertools import chain
 
 from utility.tools import GEMMA_WRAPPER_COMMAND
 
@@ -98,3 +101,31 @@ GEMMA.
                         " ".join([f"-{arg}" for arg in args]))
             return cmd
     return -1
+
+
+def run_gemma_cmd(cmd: str) -> Union[str, int]:
+    """Run CMD and return a str that contains the file name, otherwise
+signal an error.
+
+    """
+    proc = subprocess.Popen(cmd.rstrip().split(" "), stdout=subprocess.PIPE)
+    result = {}
+    file_ = []
+    while True:
+        line = proc.stdout.readline().rstrip()
+        if not line:  # End of STDOUT
+            break
+        try:
+            result = json.loads(line)
+            break
+        # Exception is thrown is thrown when an invalid json file is
+        # passed.
+        except ValueError:
+            pass
+    file_ = list(
+        filter(lambda xs: not ((xs is None) or ("log" in xs)),
+               list(chain(*result.get("files", [])))))
+    if len(file_) > 0:
+        return file_[0]
+    else:
+        return -1
