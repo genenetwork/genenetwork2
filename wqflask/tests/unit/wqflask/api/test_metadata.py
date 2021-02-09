@@ -1,15 +1,24 @@
 """Test cases for methods for metadata module"""
 import os
 import unittest
+import tempfile
 
 from unittest import mock
 
 from wqflask.api.metadata import compose_gemma_command
 from wqflask.api.metadata import get_hash_of_dirs
 from wqflask.api.metadata import lookup_file
+from wqflask.api.metadata import run_gemma_cmd
 
 
 class TestMetadata(unittest.TestCase):
+    def setUp(self):
+        self.stdout_mock = tempfile.NamedTemporaryFile(delete=False)
+
+    def tearDown(self):
+        self.stdout_mock.close()
+        os.remove(self.stdout_mock.name)
+
     def test_get_get_hash_of_dirs(self):
         """Test that a directory is hashed correctly"""
         self.assertEqual("928a0e2e4846b4b3c2881d9c1d6cfce4",
@@ -65,3 +74,30 @@ class TestMetadata(unittest.TestCase):
                          ("gemma-wrapper --json -- "
                           "-g /tmp/genofile.txt "
                           "-p /tmp/gf13Ad0tRX/phenofile.txt"))
+
+    @mock.patch("wqflask.api.metadata.subprocess.Popen")
+    def test_run_gemma_cmd_with_output(self, mock_popen):
+        self.stdout_mock.write(
+            (b'{"warnings": [], '
+             b'"errno": 0, '
+             b'"debug": [], '
+             b'"type": "K", '
+             b'"files": [[ null, '
+             b'"/tmp/494288a0f785a5ab5fe9ccfdfedb540d9971fe10.log.txt", '
+             b'"/tmp/494288a0f785a5ab5fe9ccfdfedb540d9971fe10.cXX.txt"]], '
+             b'"cache_hit": "True"}'))
+        # Rewind to the beginning of the file for the next reading
+        self.stdout_mock.seek(0)
+        mock_popen.return_value.stdout = self.stdout_mock
+        self.assertEqual(run_gemma_cmd("some_cmd"),
+                         ("/tmp/"
+                          "494288a0f785a5ab5fe9ccfdfedb540d9971fe10"
+                          ".cXX.txt"))
+
+    @mock.patch("wqflask.api.metadata.subprocess.Popen")
+    def test_run_gemma_cmd_with_no_output(self, mock_popen):
+        self.stdout_mock.write(b"Error")
+        # Rewind to the beginning of the file for the next reading
+        self.stdout_mock.seek(0)
+        mock_popen.return_value.stdout = self.stdout_mock
+        self.assertEqual(run_gemma_cmd("some_cmd"), -1)
