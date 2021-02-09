@@ -83,8 +83,8 @@ GEMMA.
     if metadata_filepath != -1:
         with open(metadata_filepath) as _file:
             data = json.load(_file)
-            geno_file = lookup_file("TMPDIR",
-                                    "genotype_files", data.get("geno"))
+            geno_file = lookup_file("GENENETWORK_FILES",
+                                    "genotype", data.get("geno"))
             pheno_file = lookup_file("TMPDIR", token, data.get("pheno"))
             cmd = f"{GEMMA_WRAPPER_COMMAND} --json"
             if gemma_wrapper_kwargs:
@@ -98,7 +98,7 @@ GEMMA.
                                   for key, val in gemma_kwargs.items()]))
             if args:
                 cmd += (" "
-                        " ".join([f"-{arg}" for arg in args]))
+                        " ".join([f"{arg}" for arg in args]))
             return cmd
     return -1
 
