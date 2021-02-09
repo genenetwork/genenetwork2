@@ -64,7 +64,7 @@ does not exist, return -1
     return -1
 
 
-def compose_gemma_command(
+def compose_gemma_cmd(
         token: str,
         metadata_filename: str,
         gemma_wrapper_kwargs: Optional[Dict] = None,
