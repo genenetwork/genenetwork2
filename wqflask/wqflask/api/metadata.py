@@ -95,6 +95,9 @@ GEMMA.
             geno_file = lookup_file("GENENETWORK_FILES",
                                     "genotype", data.get("geno"))
             pheno_file = lookup_file("TMPDIR", token, data.get("pheno"))
+            # Return in the event the geno or pheno files don't exist!
+            if -1 in [geno_file, pheno_file]:
+                return -1
             cmd = f"{GEMMA_WRAPPER_COMMAND} --json"
             if gemma_wrapper_kwargs:
                 cmd += (" "  # Add extra space between commands
@@ -112,11 +115,13 @@ GEMMA.
     return -1
 
 
-def run_gemma_cmd(cmd: str) -> Union[str, int]:
+def run_gemma_cmd(cmd: Union[str, int]) -> Union[str, int]:
     """Run CMD and return a str that contains the file name, otherwise
 signal an error.
 
     """
+    if cmd == -1:  # Command passed in wasn't composed properly
+        return -1
     proc = subprocess.Popen(cmd.rstrip().split(" "), stdout=subprocess.PIPE)
     result = {}
     files_ = []
