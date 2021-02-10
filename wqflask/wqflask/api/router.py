@@ -58,7 +58,7 @@ def upload_metadata():
             tar.extractall(
                 path=os.path.join(TEMPDIR, "tempdir"))
             tar.close()
-        except:
+        except Exception:
             return flask.jsonify({"status": 128},
                                  {"error": "gzip failed to unpack file"})
         dir_hash = get_hash_of_dirs(tar_location)
