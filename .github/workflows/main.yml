@@ -62,6 +62,5 @@ jobs:
         TMPDIR=/tmp\
         WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
-        etc/default_settings.py -c -m\
-        /__w/genenetwork/genenetwork/test/requests/links_scraper/genelinks.py 
+        etc/default_settings.py -c -m  /__w/genenetwork/genenetwork/test/requests/links_scraper/genelinks.py 
 
