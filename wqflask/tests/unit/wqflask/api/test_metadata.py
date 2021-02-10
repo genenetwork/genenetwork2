@@ -8,7 +8,6 @@ from unittest import mock
 from wqflask.api.metadata import compose_gemma_cmd
 from wqflask.api.metadata import get_hash_of_dirs
 from wqflask.api.metadata import lookup_file
-from wqflask.api.metadata import run_gemma_cmd
 
 
 class TestMetadata(unittest.TestCase):
@@ -41,19 +40,23 @@ class TestMetadata(unittest.TestCase):
     def test_lookup_genotype_file_does_not_exist(self, mock_isfile):
         """Test whether genotype file exists if file is absent"""
         mock_isfile.return_value = False
-        self.assertEqual(lookup_file("GENENETWORK_FILES",
-                                     "genotype_files", "genotype.txt"),
-                         -1)
+        self.assertRaises(FileNotFoundError,
+                          lookup_file,
+                          "GENENETWORK_FILES",
+                          "genotype_files",
+                          "genotype.txt")
 
     def test_lookup_genotype_file_env_does_not_exist(self):
         """Test whether genotype file exists if GENENETWORK_FILES is absent"""
-        self.assertEqual(lookup_file("GENENETWORK_FILES",
-                                     "genotype_files", "genotype.txt"),
-                         -1)
+        self.assertRaises(FileNotFoundError,
+                          lookup_file,
+                          "GENENETWORK_FILES",
+                          "genotype_files",
+                          "genotype.txt")
 
-    @mock.patch("wqflask.api.metadata.GEMMA_WRAPPER_COMMAND", "gemma-wrapper")
     @mock.patch("wqflask.api.metadata.lookup_file")
-    def test_compose_gemma_cmd_no_extra_args(self, mock_lookup_file):
+    @mock.patch.dict(os.environ, {"GEMMA_WRAPPER_COMMAND": "gemma-wrapper"})
+    def test_compose_gemma_cmd_with_extra_args(self, mock_lookup_file):
         mock_lookup_file.side_effect = [
             os.path.join(os.path.dirname(__file__),
                          "test_data", "metadata.json"),
@@ -63,8 +66,8 @@ class TestMetadata(unittest.TestCase):
                           "-g /tmp/genofile.txt "
                           "-p /tmp/gf13Ad0tRX/phenofile.txt"))
 
-    @mock.patch("wqflask.api.metadata.GEMMA_WRAPPER_COMMAND", "gemma-wrapper")
     @mock.patch("wqflask.api.metadata.lookup_file")
+    @mock.patch.dict(os.environ, {"GEMMA_WRAPPER_COMMAND": "gemma-wrapper"})
     def test_compose_gemma_cmd_no_extra_args(self, mock_lookup_file):
         mock_lookup_file.side_effect = [
             os.path.join(os.path.dirname(__file__),
@@ -78,8 +81,8 @@ class TestMetadata(unittest.TestCase):
                           "-p /tmp/gf13Ad0tRX/phenofile.txt"
                           " -gk"))
 
-    @mock.patch("wqflask.api.metadata.GEMMA_WRAPPER_COMMAND", "gemma-wrapper")
     @mock.patch("wqflask.api.metadata.lookup_file")
+    @mock.patch.dict(os.environ, {"GEMMA_WRAPPER_COMMAND": "gemma-wrapper"})
     def test_compose_gemma_cmd_with_opt_args(self, mock_lookup_file):
         mock_lookup_file.side_effect = [
             os.path.join(os.path.dirname(__file__),
@@ -89,33 +92,3 @@ class TestMetadata(unittest.TestCase):
                          ("gemma-wrapper --json -- "
                           "-g /tmp/genofile.txt "
                           "-p /tmp/gf13Ad0tRX/phenofile.txt"))
-
-    @mock.patch("wqflask.api.metadata.subprocess.Popen")
-    def test_run_gemma_cmd_with_output(self, mock_popen):
-        self.stdout_mock.write(
-            (b'{"warnings": [], '
-             b'"errno": 0, '
-             b'"debug": [], '
-             b'"type": "K", '
-             b'"files": [[ null, '
-             b'"/tmp/494288a0f785a5ab5fe9ccfdfedb540d9971fe10.log.txt", '
-             b'"/tmp/494288a0f785a5ab5fe9ccfdfedb540d9971fe10.cXX.txt"]], '
-             b'"cache_hit": "True"}'))
-        # Rewind to the beginning of the file for the next reading
-        self.stdout_mock.seek(0)
-        mock_popen.return_value.stdout = self.stdout_mock
-        self.assertEqual(set(run_gemma_cmd("some_cmd")),
-                         set(["/tmp/"
-                              "494288a0f785a5ab5fe9ccfdfedb540d9971fe10"
-                              ".cXX.txt",
-                              "/tmp/"
-                              "494288a0f785a5ab5fe9ccfdfedb540d9971fe10"
-                              ".log.txt"]))
-
-    @mock.patch("wqflask.api.metadata.subprocess.Popen")
-    def test_run_gemma_cmd_with_no_output(self, mock_popen):
-        self.stdout_mock.write(b"Error")
-        # Rewind to the beginning of the file for the next reading
-        self.stdout_mock.seek(0)
-        mock_popen.return_value.stdout = self.stdout_mock
-        self.assertEqual(run_gemma_cmd("some_cmd"), -1)

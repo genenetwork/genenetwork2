@@ -28,10 +28,11 @@ from wqflask.api import gen_menu
 from wqflask.api.metadata import get_hash_of_dirs
 from wqflask.api.metadata import compose_gemma_cmd
 from wqflask.api.metadata import lookup_file
-from wqflask.api.metadata import run_gemma_cmd
+from wqflask.api.metadata import queue_command
 from wqflask.api.metadata import jsonfile_to_dict
 
 from utility.tools import flat_files
+from utility.redis_tools import get_redis_conn
 
 import utility.logger
 
@@ -79,21 +80,14 @@ gemma-wrapper -p $TMPDIR/token/<pheno> -g \
 
 <pheno> and <geno> should be defined in $TMPDIR/token/metadata.json.
 
-Returns a list of files that can be served from IPFS or fetched from
-an endpoint.
+Returns a job id from which you can check the status of the command.
 
     """
     try:
-        files_ = run_gemma_cmd(
-            compose_gemma_cmd(token, "metadata.json", None, None, "-gk"))
-        if files_ == -1:
-            return flask.jsonify({"status": 128},
-                                 {"error": "Check for missing files"})
-        files_ = list(map(lambda x:
-                          x.replace(f"{TEMPDIR}/",
-                                    "") if (TEMPDIR in x) else x,
-                          files_))
-        return flask.jsonify({"status": 0, "files": files_})
+        unique_id = queue_command(
+            compose_gemma_cmd(token, "metadata.json", None, None, "-gk"),
+            get_redis_conn())
+        return flask.jsonify({"status": 0, "unique_id": unique_id})
     except Exception:
         return flask.jsonify({"status": 128,
                               "error": "Failed to compute K"})
@@ -114,9 +108,6 @@ gemma-wrapper --json -loco --input K.json -- \
         """
     try:
         data = jsonfile_to_dict(lookup_file("TMPDIR", token, "metadata.json"))
-        if data == -1:
-            return flask.jsonify({"status": 128,
-                                  "error": "Invalid metadata json provided"})
         k_file = os.path.join(TEMPDIR, k_file)
         gemma_kwargs = {}
         if data.get("covariate"):
@@ -127,23 +118,16 @@ gemma-wrapper --json -loco --input K.json -- \
             gemma_kwargs["lmm"] = data.get("lmm", 2)
         if data.get("maf"):
             gemma_kwargs["maf"] = data.get("maf", 0.1)
-        files_ = run_gemma_cmd(
+        unique_id = queue_command(
             compose_gemma_cmd(token, "metadata.json",
                               {"loco": f"--input {k_file}"},
-                              gemma_kwargs))
-        if files_ == -1:
-            return flask.jsonify({"status": 128},
-                                 {"cmd": compose_gemma_cmd(
-                                     token,
-                                     "metadata.json",
-                                     {"loco": f"--input {k_file}"},
-                                     gemma_kwargs)},
-                                 {"error": "Check for missing files"})
-        files_ = list(map(lambda x:
-                          x.replace(f"{TEMPDIR}/",
-                                    "") if (TEMPDIR in x) else x,
-                          files_))
-        return flask.jsonify({"status": 0, "files": files_})
+                              gemma_kwargs),
+            get_redis_conn())
+        return flask.jsonify({"status": 0,
+                              "unique_id": unique_id})
+    except ValueError:
+        return flask.jsonify({"status": 128,
+                              "error": "Invalid metadata json provided"})
     except Exception:
         return flask.jsonify({"status": 128,
                               "error": "Failed to compute GWA"})

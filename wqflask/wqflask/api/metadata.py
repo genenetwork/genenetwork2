@@ -1,12 +1,12 @@
 import hashlib
 import json
 import os
-import subprocess
 
-from itertools import chain
-
-from utility.tools import GEMMA_WRAPPER_COMMAND
-
+from datetime import datetime
+from datetime import timedelta
+from math import floor
+from redis.client import Redis  # Used only in type hinting
+from uuid import uuid4
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -115,31 +115,31 @@ GEMMA.
     return -1
 
 
-def run_gemma_cmd(cmd: Union[str, int]) -> Union[str, int]:
-    """Run CMD and return a str that contains the file name, otherwise
-signal an error.
+
+def queue_command(cmd: str, redis_conn: Redis) -> Union[int, str]:
+    """Given a command, queue it in redis with an initial status of 1.
+The following status codes-- in the hash-- are used:
+
+    queued:  Yet to be running
+    running: Still running
+    success: Successful completion
+    error:   Erroneous completion
+
+A UNIQUE_ID is returned which can be used by the redis worker to check
+the status of the background command.
 
     """
-    if cmd == -1:  # Command passed in wasn't composed properly
-        return -1
-    proc = subprocess.Popen(cmd.rstrip().split(" "), stdout=subprocess.PIPE)
-    result = {}
-    files_ = []
-    while True:
-        line = proc.stdout.readline().rstrip()
-        if not line:  # End of STDOUT
-            break
-        try:
-            result = json.loads(line)
-            break
-        # Exception is thrown is thrown when an invalid json file is
-        # passed.
-        except ValueError:
-            pass
-    files_ = list(
-        filter(lambda xs: (xs is not None),
-               list(chain(*result.get("files", [])))))
-    if len(files_) > 0:
-        return files_
-    else:
+    unique_id = ("cmd::"
+                 f"{datetime.now().strftime('%Y-%m-%d%H-%M%S-%M%S-')}"
+                 f"{str(uuid4())}")
+    try:
+        ttl = datetime.today() + timedelta(minutes=30)
+        for key, value in {"cmd": cmd,
+                           "result": "", "status": "queued"}.items():
+            redis_conn.hset(key, value, unique_id)
+            redis_conn.rpush("GN2::job-queue",
+                             unique_id)
+            redis_conn.expire(key, floor(ttl.timestamp()))
+        return unique_id
+    except Exception:
         return -1
