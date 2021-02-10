@@ -7,12 +7,13 @@ from datetime import timedelta
 from math import floor
 from redis.client import Redis  # Used only in type hinting
 from uuid import uuid4
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
 
 
-def get_hash_of_dirs(directory: str, verbose: int = 0) -> Union[str, int]:
+def get_hash_of_dirs(directory: str, verbose: int = 0) -> str:
     """Return the hash of a DIRECTORY"""
     md5hash = hashlib.md5()
     if not os.path.exists(directory):
@@ -39,18 +40,17 @@ def get_hash_of_dirs(directory: str, verbose: int = 0) -> Union[str, int]:
                             bytearray(buf, "utf-8")).hexdigest(),
                                   "utf-8"))
                 f1.close()
-    except Exception as e:
+    except Exception:
         import traceback
         # Print the stack traceback
-        traceback.print_exc(e)
-        return -1
-
+        traceback.print_exc()
+        raise FileNotFoundError
     return md5hash.hexdigest()
 
 
 def lookup_file(environ_var: str,
                 file_home_dir: str,
-                file_name: str) -> Union[str, int]:
+                file_name: str) -> str:
     """Look up FILE_NAME in the path defined by
 ENVIRON_VAR/FILE_HOME_DIR/; If ENVIRON_VAR/FILE_HOME_DIR/FILE_NAME
 does not exist, return -1
@@ -61,24 +61,21 @@ does not exist, return -1
         _file = os.path.join(_dir, file_home_dir, file_name)
         if os.path.isfile(_file):
             return _file
-    return -1
+    raise FileNotFoundError
 
 
-def jsonfile_to_dict(metadata_file: str) -> Union[str, int]:
-    try:
-        with open(metadata_file) as _file:
-            data = json.load(_file)
-            return data
-    except Exception:
-        return -1
-
+def jsonfile_to_dict(metadata_file: Union[str, int]) -> Dict:
+    with open(metadata_file) as _file:
+        data = json.load(_file)
+        return data
+    raise ValueError
 
 def compose_gemma_cmd(
         token: str,
         metadata_filename: str,
         gemma_wrapper_kwargs: Optional[Dict] = None,
         gemma_kwargs: Optional[Dict] = None,
-        *args: str) -> Union[str, int]:
+        *args: str) -> str:
     """Compose a valid GEMMA command to run given the correct values.
 TOKEN is the hash returned after a successful user upload;
 METADATA_FILENAME is the file that contains the metadata;
@@ -89,31 +86,29 @@ GEMMA.
 
     """
     metadata_filepath = lookup_file("TMPDIR", token, metadata_filename)
-    if metadata_filepath != -1:
+    try:
         data = jsonfile_to_dict(metadata_filepath)
-        if data != -1:
-            geno_file = lookup_file("GENENETWORK_FILES",
-                                    "genotype", data.get("geno"))
-            pheno_file = lookup_file("TMPDIR", token, data.get("pheno"))
-            # Return in the event the geno or pheno files don't exist!
-            if -1 in [geno_file, pheno_file]:
-                return -1
-            cmd = f"{GEMMA_WRAPPER_COMMAND} --json"
-            if gemma_wrapper_kwargs:
-                cmd += (" "  # Add extra space between commands
-                        " ".join([f" --{key} {val}" for key, val
-                                  in gemma_wrapper_kwargs.items()]))
-            cmd += f" -- -g {geno_file} -p {pheno_file}"
-            if gemma_kwargs:
-                cmd += (" "
-                        " ".join([f" -{key} {val}"
-                                  for key, val in gemma_kwargs.items()]))
-            if args:
-                cmd += (" "
-                        " ".join([f" {arg}" for arg in args]))
-            return cmd
-    return -1
-
+        geno_file = lookup_file("GENENETWORK_FILES",
+                                "genotype", data.get("geno", ""))
+        pheno_file = lookup_file("TMPDIR", token, data.get("pheno", ""))
+        cmd = f"{os.environ.get('GEMMA_WRAPPER_COMMAND')} --json"
+        if gemma_wrapper_kwargs:
+            cmd += (" "  # Add extra space between commands
+                    " ".join([f" --{key} {val}" for key, val
+                              in gemma_wrapper_kwargs.items()]))
+        cmd += f" -- -g {geno_file} -p {pheno_file}"
+        if gemma_kwargs:
+            cmd += (" "
+                    " ".join([f" -{key} {val}"
+                              for key, val in gemma_kwargs.items()]))
+        if args:
+            cmd += (" "
+                    " ".join([f" {arg}" for arg in args]))
+    except FileNotFoundError:
+        raise FileNotFoundError
+    except Exception:  # More general exception!
+        raise Exception
+    return cmd
 
 
 def queue_command(cmd: str, redis_conn: Redis) -> Union[int, str]:
