@@ -869,18 +869,20 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         
         query = """
                          SELECT
-                             PublishXRef.PhenotypeId
+                             PublishXRef.PhenotypeId, PublishXRef.Id, InbredSet.InbredSetCode
                          FROM
-                             PublishXRef
+                             PublishXRef, InbredSet
                          WHERE
-                             PublishXRef.InbredSetId = "{0}"
+                             PublishXRef.InbredSetId = "{0}" AND
+                             InbredSet.Id = PublishXRef.InbredSetId
                          {1}
                       """.format(dataset_id, limit_string)
 
         results = g.db.execute(query).fetchall()
 
         trait_ids = [result[0] for result in results]
-        trait_names = trait_ids
+        trait_names = [str(result[2]) + "_" + str(result[1]) for result in results]
+
         return trait_ids, trait_names, data_type, dataset_id
 
     else:
