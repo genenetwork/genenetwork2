@@ -98,12 +98,12 @@ GEMMA.
             cmd = f"{GEMMA_WRAPPER_COMMAND} --json"
             if gemma_wrapper_kwargs:
                 cmd += (" "  # Add extra space between commands
-                        " ".join([f"--{key} {val}" for key, val
+                        " ".join([f" --{key} {val}" for key, val
                                   in gemma_wrapper_kwargs.items()]))
             cmd += f" -- -g {geno_file} -p {pheno_file}"
             if gemma_kwargs:
                 cmd += (" "
-                        " ".join([f"-{key} {val}"
+                        " ".join([f" -{key} {val}"
                                   for key, val in gemma_kwargs.items()]))
             if args:
                 cmd += (" "
