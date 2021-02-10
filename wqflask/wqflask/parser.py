@@ -32,11 +32,10 @@ def parse(pstring):
     pstring = re.split(r"""(?:(\w+\s*=\s*[\('"\[][^)'"]*[\)\]'"])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
                        (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
                        (".*?") | ('.*?') | # terms in quotes, i.e. "brain weight"
-                       ([\w\*]+))  # shh, brain, etc """, pstring,
+                       ([\w\*\?]+))  # shh, brain, etc """, pstring,
                                                     flags=re.VERBOSE)
 
     pstring = [item.strip() for item in pstring if item and item.strip()]
-    logger.debug("pstring:", pstring)
 
     items = []
 
