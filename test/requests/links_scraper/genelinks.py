@@ -11,8 +11,23 @@ from urllib.parse import urlparse
 
 
 PORT = os.environ.get("PORT", "5004")
+TEMPLATE_PATH = "../wqflask/wqflask/templates"
 
 BROKEN_LINKS = set()
+
+
+def search_templates():
+    """searches for broken links in templates"""
+    html_parsed_pages = []
+    for subdir, dirs, files in os.walk(TEMPLATE_PATH):
+        for file in files:
+            file_path = os.path.join(subdir, file)
+            if file_path.endswith(".html"):
+                parsed_page = soup(
+                    open(file_path, encoding="utf8"), "html.parser")
+                html_parsed_pages.append(parsed_page)
+
+    return html_parsed_pages
 
 
 def is_valid_link(url_link):
@@ -107,6 +122,8 @@ def webpages_to_check():
 
 
 if __name__ == '__main__':
+    # results = search_templates()
+
     for page in webpages_to_check():
         fetch_page_links(page)
         if len(BROKEN_LINKS) > 0:
