@@ -101,23 +101,14 @@ def fetch_page_links(page_url):
 
 
 def webpages_to_check():
-    pages = [
-
-        "http://localhost:/5004",
-
-
-
-
-
-
-    ]
+    pages = [f"http://localhost:{PORT}/"]
 
     return pages
 
 
 if __name__ == '__main__':
     for page in webpages_to_check():
-        fetch_page_links(f"http://localhost:{PORT}/")
+        fetch_page_links(page)
         if BROKEN_LINKS is not None:
             print("THE LINKS BELOW ARE BROKEN>>>>>>>>>>>>>")
             for link in BROKEN_LINKS:
