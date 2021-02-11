@@ -109,10 +109,11 @@ def webpages_to_check():
 if __name__ == '__main__':
     for page in webpages_to_check():
         fetch_page_links(page)
-        if BROKEN_LINKS is not None:
+        if len(BROKEN_LINKS) > 0:
             print("THE LINKS BELOW ARE BROKEN>>>>>>>>>>>>>")
             for link in BROKEN_LINKS:
                 print(link)
 
-            raise SystemExit(
-                "The links Above are broken.Please contact genenetwork.org<<<<<<<<")
+    if len(BROKEN_LINKS) > 0:
+        raise SystemExit(
+            "The links Above are broken.Please contact genenetwork.org<<<<<<<<")
