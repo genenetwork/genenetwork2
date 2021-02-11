@@ -7,9 +7,18 @@ import logging
 from urllib.request import urlopen as uReq
 from bs4 import BeautifulSoup as soup
 from urllib.parse import urljoin
+from urllib.parse import urlparse
 
 
 PORT = os.environ.get("PORT", "5004")
+
+
+def is_valid_link(url_link):
+    try:
+        result = urlparse(url_link)
+        return all([result.scheme, result.netloc, result.path])
+    except Exception as e:
+        return False
 
 
 def test_link(link, strict=True):
@@ -57,7 +66,8 @@ def fetch_html_links(parsed_page):
         if re.match(r"^/", link_url):
             full_path = urljoin('http://localhost:5004/', link_url)
 
-        elif re.match(r'^http://', link_url):
+        elif is_valid_link(link_url):
+            print(link_url)
             full_path = link_url
 
         if full_path is not None:
