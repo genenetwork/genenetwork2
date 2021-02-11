@@ -12,6 +12,8 @@ from urllib.parse import urlparse
 
 PORT = os.environ.get("PORT", "5004")
 
+BROKEN_LINKS = set()
+
 
 def is_valid_link(url_link):
     try:
@@ -21,23 +23,21 @@ def is_valid_link(url_link):
         return False
 
 
-def test_link(link, strict=True):
-    print(f"link testing {link}")
+def test_link(link):
+    print(f'Checking -->{link}')
     results = None
     try:
 
         results = requests.get(link, verify=False, timeout=10)
+        status_code = results.status_code
 
     except Exception as e:
-        if strict:
-            raise SystemExit(
-                "The link does not exists or is wrongly formatted")
-        else:
-            logging.error(f"FAILED:{link} does not exists or is wrongly formatted")
+        status_code = 408
 
-    status_code = results.status_code if results is not None else "404"
+    if int(status_code) > 403:
+        return True
 
-    print(f'the link {link} ---> {status_code}')
+    return False
 
 
 def fetch_css_links(parsed_page):
@@ -46,15 +46,15 @@ def fetch_css_links(parsed_page):
         full_path = None
 
         link_url = link.attrs.get("href")
-        if re.match(r"^http://", link_url):
-            pass
-            # not sure whether to raise an error here for external css links
+        if is_valid_link(link_url):
+            full_path = link_url
 
         elif re.match(r"^/css", link_url) or re.match(r"^/js", link_url):
             full_path = urljoin('http://localhost:5004/', link_url)
 
         if full_path is not None:
-            test_link(full_path)
+            if test_link(full_path):
+                BROKEN_LINKS.add(full_path)
 
 
 def fetch_html_links(parsed_page):
@@ -67,11 +67,11 @@ def fetch_html_links(parsed_page):
             full_path = urljoin('http://localhost:5004/', link_url)
 
         elif is_valid_link(link_url):
-            print(link_url)
             full_path = link_url
 
         if full_path is not None:
-            test_link(full_path)
+            if test_link(full_path):
+                BROKEN_LINKS.add(full_path)
 
 
 def fetch_script_tags(parsed_page):
@@ -79,13 +79,14 @@ def fetch_script_tags(parsed_page):
     for link in parsed_page.findAll("script"):
         js_link = link.attrs.get("src")
         if js_link is not None:
-            if re.match(r'^http://', js_link):
+            if is_valid_link(js_link):
                 raise SystemExit("Failed,the library should be packaged in guix.\
                                 Please contact,http://genenetwork.org/ for more details")
 
             elif re.match(r"^/css", js_link) or re.match(r"^/js", js_link):
                 full_path = urljoin('http://localhost:5004/', js_link)
-                test_link(full_path)
+                if test_link(full_path):
+                    BROKEN_LINKS.add(full_path)
 
 
 def fetch_page_links(page_url):
@@ -99,4 +100,28 @@ def fetch_page_links(page_url):
     fetch_html_links(parsed_page=parsed_page)
 
 
-fetch_page_links(f"http://localhost:{PORT}/")
+def webpages_to_check():
+    pages = [
+
+        "http://localhost:/5004",
+
+
+
+
+
+
+    ]
+
+    return pages
+
+
+if __name__ == '__main__':
+    for page in webpages_to_check():
+        fetch_page_links(f"http://localhost:{PORT}/")
+        if BROKEN_LINKS is not None:
+            print("THE LINKS BELOW ARE BROKEN>>>>>>>>>>>>>")
+            for link in BROKEN_LINKS:
+                print(link)
+
+            raise SystemExit(
+                "The links Above are broken.Please contact genenetwork.org<<<<<<<<")
