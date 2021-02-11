@@ -716,11 +716,7 @@ class DataSet(object):
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                             self.name, dataset_type, self.type, self.type, dataset_type))
 
-            #logger.debug("trait data query: ", query)
-
-            logger.sql(query)
             results = g.db.execute(query).fetchall()
-            #logger.debug("query results:", results)
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])
