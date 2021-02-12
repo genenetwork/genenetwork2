@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='purescript-genome-browser/css/purescript-genetics-browser.css') }}" />
 
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
+    <link rel="stylesheet" type="text/css" href="static/new/css/show_trait.css" />
 
 {% endblock %}
 {% from "base_macro.html" import header %}
@@ -415,6 +416,19 @@
             } );
             {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
             $('#trait_table').dataTable( {
+              "drawCallback": function( settings ) {
+                  $('#trait_table tr').off().on("click", function(event) {
+                    if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                      var obj =$(this).find('input');
+                      obj.prop('checked', !obj.is(':checked'));
+                    }
+                    if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                      $(this).removeClass("selected")
+                    } else if (event.target.tagName.toLowerCase() !== 'a') {
+                      $(this).addClass("selected")
+                    }
+                  });
+                },
                 "createdRow": function ( row, data, index ) {
                   $('td', row).eq(1).attr("align", "right");
                   $('td', row).eq(3).attr("align", "right");
