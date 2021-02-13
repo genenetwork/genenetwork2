@@ -49,10 +49,7 @@ def test_link(link):
     except Exception as e:
         status_code = 408
 
-    if int(status_code) > 403:
-        return True
-
-    return False
+    return int(status_code) > 403
 
 
 def fetch_css_links(parsed_page):
