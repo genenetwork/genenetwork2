@@ -1603,9 +1603,8 @@ class DisplayMappingResults(object):
 
                             for k, _geno in enumerate (_chr[j].genotype):
                                 plotbxd=0
-                                for item in smd:
-                                    if item.name == samplelist[k]:
-                                        plotbxd=1
+                                if samplelist[k] in [item.name for item in smd]:
+                                    plotbxd=1
 
                                 if (plotbxd == 1):
                                     ind = 0
@@ -1614,6 +1613,7 @@ class DisplayMappingResults(object):
                                         counter = counter + 1
                                         if item.name == samplelist[k]:
                                             ind = counter
+
                                     maxind=max(ind, maxind)
 
                                     # lines
@@ -1687,9 +1687,8 @@ class DisplayMappingResults(object):
                 for j, _geno in enumerate(_chr[1].genotype):
 
                     plotbxd=0
-                    for item in smd:
-                        if item.name == samplelist[j]:
-                            plotbxd=1
+                    if samplelist[j] in [item.name for item in smd]:
+                        plotbxd=1
 
                     if (plotbxd == 1):
 
