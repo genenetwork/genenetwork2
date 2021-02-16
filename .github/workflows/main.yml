@@ -46,3 +46,21 @@ jobs:
         WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
         etc/default_settings.py -c -m unittest discover -v
+
+    - name: Start Genenetwork as a  Background Task
+      run: |
+        env GN2_PROFILE=/gn2-profile \
+        TMPDIR=/tmp SERVER_PORT=5004 \
+        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
+        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
+        etc/default_settings.py&
+
+    - name: Test for Broken Links
+      run: |
+
+        env GN2_PROFILE=/gn2-profile \
+        TMPDIR=/tmp\
+        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
+        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
+        etc/default_settings.py -c  /__w/genenetwork2/genenetwork2/test/requests/links_scraper/genelinks.py 
+
