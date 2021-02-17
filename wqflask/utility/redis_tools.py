@@ -26,7 +26,7 @@ def is_redis_available():
 
 
 def load_json_from_redis(item_list, column_value):
-    return json.loads(item_list[str.encode(column_value)])
+    return json.loads(item_list[str.encode(column_value.decode("utf-8"))])
 
 
 def get_user_id(column_name, column_value):
