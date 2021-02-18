@@ -103,9 +103,12 @@ def check_access_permissions():
             elif dataset.type != "Publish":
                 permissions = check_resource_availability(dataset)
 
-
-        if permissions['data'] == 'no-access':
-            return redirect(url_for("no_access_page"))
+        if type(permissions['data']) is list:
+            if 'view' not in permissions['data']:
+                return redirect(url_for("no_access_page"))
+        else:
+            if permissions['data'] == 'no-access':
+                return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
