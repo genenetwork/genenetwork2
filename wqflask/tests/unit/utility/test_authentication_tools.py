@@ -89,7 +89,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
             requests_mock):
         """Test the resource availability if the user is the super user"""
         resource_id_mock.return_value = 1
-        redis_mock.smembers.return_value = ["Jane"]
+        redis_mock.smembers.return_value = [b"Jane"]
         add_new_resource_mock.return_value = {"default_mask": 2}
         requests_mock.return_value = TestResponse()
         test_dataset = mock.MagicMock()
