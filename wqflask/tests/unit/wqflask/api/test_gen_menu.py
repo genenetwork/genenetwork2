@@ -244,10 +244,11 @@ class TestGenMenu(unittest.TestCase):
             "ProbeFreeze, InbredSet, Tissue, Species WHERE " +
             "Species.Name = 'Mouse' AND Species.Id = " +
             "InbredSet.SpeciesId AND InbredSet.Name = 'HLC' AND " +
-            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and " +
+            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND " +
             "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = " +
-            "Tissue.Id and ProbeFreeze.InbredSetId = InbredSet.Id " +
-            "ORDER BY ProbeSetFreeze.OrderList DESC")
+            "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id AND " +
+            "ProbeSetFreeze.public > 0 " +
+            "ORDER BY -ProbeSetFreeze.OrderList DESC, ProbeSetFreeze.CreateTime DESC")
 
     @mock.patch('wqflask.api.gen_menu.build_datasets')
     @mock.patch('wqflask.api.gen_menu.g')
