@@ -18,8 +18,8 @@ DEBUG = 1
 USERDICT = {'guest':1,'user':2, 'admin':3, 'root':4}
 
 #Set privileges
-SUPER_PRIVILEGES = {'data': ['edit'], 'metadata': ['edit'], 'admin': ['edit-admins']}
-DEFAULT_PRIVILEGES = {'data': ['view'], 'metadata': ['view'], 'admin': ['not-admin']}
+SUPER_PRIVILEGES = {'data': 'edit', 'metadata': 'edit', 'admin': 'edit-admins'}
+DEFAULT_PRIVILEGES = {'data': 'view', 'metadata': 'view', 'admin': 'not-admin'}
 
 #minimum number of informative strains
 KMININFORMATIVE = 5
