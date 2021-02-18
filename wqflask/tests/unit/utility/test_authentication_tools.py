@@ -5,7 +5,6 @@ from unittest import mock
 from utility.authentication_tools import check_resource_availability
 from utility.authentication_tools import add_new_resource
 
-
 class TestResponse:
     """Mock Test Response after a request"""
     @property
@@ -38,7 +37,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
     """Test methods related to checking the resource availability"""
     @mock.patch('utility.authentication_tools.add_new_resource')
     @mock.patch('utility.authentication_tools.Redis')
-    @mock.patch('utility.authentication_tools.g', mock.Mock())
+    @mock.patch('utility.authentication_tools.g', TestUserSession())
     @mock.patch('utility.authentication_tools.get_resource_id')
     def test_check_resource_availability_default_mask(
             self,
@@ -46,6 +45,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
             redis_mock,
             add_new_resource_mock):
         """Test the resource availability with default mask"""
+
         resource_id_mock.return_value = 1
         redis_mock.smembers.return_value = []
         test_dataset = mock.MagicMock()
@@ -64,7 +64,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
             redis_mock,
             add_new_resource_mock,
             requests_mock):
-        """Test the resource availability with default mask"""
+        """Test the resource availability with non-default mask"""
         resource_id_mock.return_value = 1
         redis_mock.smembers.return_value = []
         add_new_resource_mock.return_value = {"default_mask": 2}
