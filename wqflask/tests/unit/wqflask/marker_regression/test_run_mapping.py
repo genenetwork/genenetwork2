@@ -180,14 +180,19 @@ class TestRunMapping(unittest.TestCase):
 
             with mock.patch("wqflask.marker_regression.run_mapping.datetime.datetime", new=datetime_mock):
                 export_mapping_results(dataset=self.dataset, trait=self.trait, markers=markers,
-                                       results_path="~/results", mapping_scale="physic", score_type="-log(p)")
+                                       results_path="~/results", mapping_scale="physic", score_type="-log(p)",
+                                       transform="qnorm", covariates="Dataset1:Trait1,Dataset2:Trait2", n_samples="100")
 
                 write_calls = [
                     mock.call('Time/Date: 09/01/19 / 10:12:12\n'),
                     mock.call('Population: Human GP1_\n'), mock.call(
                         'Data Set: dataser_1\n'),
+                    mock.call('N Samples: 100\n'), mock.call('Transform - Quantile Normalized\n'),
                     mock.call('Gene Symbol: IGFI\n'), mock.call(
                         'Location: X1 @ 123313 Mb\n'),
+                    mock.call('Cofactors (dataset - trait):\n'),
+                    mock.call('Trait1 - Dataset1\n'),
+                    mock.call('Trait2 - Dataset2\n'),
                     mock.call('\n'), mock.call('Name,Chr,'),
                     mock.call('Mb,-log(p)'), mock.call('Cm,-log(p)'),
                     mock.call(',Additive'), mock.call(',Dominance'),
