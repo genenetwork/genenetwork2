@@ -39,7 +39,7 @@ def create_trait(**kw):
     else:
         permissions = check_resource_availability(dataset)
 
-    if permissions['data'] != "no-access"
+    if permissions['data'] != "no-access":
         the_trait = GeneralTrait(**kw)
         if the_trait.dataset.type != "Temp":
             the_trait = retrieve_trait_info(
