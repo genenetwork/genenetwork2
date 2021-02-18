@@ -84,7 +84,6 @@ def connect_db():
     logger.info("@app.before_request connect_db")
     db = getattr(g, '_database', None)
     if db is None:
-        logger.debug("Get new database connector")
         g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
         logger.debug(g.db)
 
@@ -104,7 +103,8 @@ def check_access_permissions():
             elif dataset.type != "Publish":
                 permissions = check_resource_availability(dataset)
 
-        if 'view' not in permissions['data']:
+
+        if permissions['data'] == 'no-access':
             return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext
