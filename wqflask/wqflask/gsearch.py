@@ -108,8 +108,12 @@ class GSearch(object):
                         dataset_to_permissions[dataset_ob.id] = permissions
                     else:
                         pemissions = dataset_to_permissions[dataset_ob.id]
-                    if "view" not in permissions['data']:
-                        continue
+                    if type(permissions['data']) is list:
+                        if "view" not in permissions['data']:
+                            continue
+                    else:
+                        if permissions['data'] == 'no-access':
+                            continue
 
                     max_lrs_text = "N/A"
                     if this_trait['locus_chr'] != None and this_trait['locus_mb'] != None:
