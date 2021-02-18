@@ -11,7 +11,6 @@ from utility.redis_tools import (get_redis_conn,
                                  add_resource)
 Redis = get_redis_conn()
 
-
 def check_resource_availability(dataset, trait_id=None):
     # At least for now assume temporary entered traits are accessible
     if type(dataset) == str or dataset.type == "Temp":
@@ -32,13 +31,14 @@ def check_resource_availability(dataset, trait_id=None):
 
     # ZS: Check if super-user - we should probably come up with some
     # way to integrate this into the proxy
-    if g.user_session.user_id in Redis.smembers("super_users"):
+    if str.encode(g.user_session.user_id) in Redis.smembers("super_users"):
         return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
 
     the_url = "http://localhost:8080/available?resource={}&user={}".format(
         resource_id, g.user_session.user_id)
+
     try:
         response = json.loads(requests.get(the_url).content)
     except:
@@ -101,12 +101,13 @@ def check_admin(resource_id=None):
         resource_info = get_resource_info(resource_id)
         response = resource_info['default_mask']['admin']
 
-    if 'edit-admins' in response:
-        return "edit-admins"
-    elif 'edit-access' in response:
-        return "edit-access"
-    else:
-        return "not-admin"
+    if type(response) is list:
+        if 'edit-admins' in response:
+            return 'edit_admins'
+        elif 'edit-access' in response:
+            return 'edit-access'
+
+    return response
 
 
 def check_owner(dataset=None, trait_id=None, resource_id=None):
@@ -131,7 +132,7 @@ def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
         else:
             resource_id = get_resource_id(dataset, trait_id)
 
-    if g.user_session.user_id in Redis.smembers("super_users"):
+    if str.encode(g.user_session.user_id) in Redis.smembers("super_users"):
         return "owner"
 
     resource_info = get_resource_info(resource_id)
