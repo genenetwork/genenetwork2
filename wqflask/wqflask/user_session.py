@@ -121,7 +121,6 @@ class UserSession(object):
 
         if Redis.ttl(self.redis_key) < session_time:
             # (Almost) everytime the user does something we extend the session_id in Redis...
-            logger.debug("Extending ttl...")
             Redis.expire(self.redis_key, session_time)
 
     @property
@@ -130,7 +129,7 @@ class UserSession(object):
         if b'user_id' not in self.record:
             self.record[b'user_id'] = str(uuid.uuid4())
 
-        return self.record[b'user_id']
+        return self.record[b'user_id'].decode("utf-8")
 
     @property
     def redis_user_id(self):
