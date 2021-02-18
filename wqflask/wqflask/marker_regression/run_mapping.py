@@ -395,7 +395,7 @@ class RunMapping(object):
               total_markers = len(self.qtl_results)
 
               with Bench("Exporting Results"):
-                  export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
+                  export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type, self.transform, self.covariates, self.n_samples)
 
               with Bench("Trimming Markers for Figure"):
                   if len(self.qtl_results) > 30000:
@@ -504,14 +504,36 @@ class RunMapping(object):
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
 
-def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type):
+def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples):
     with open(results_path, "w+") as output_file:
         output_file.write("Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
         output_file.write("Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
         output_file.write("Data Set: " + dataset.fullname + "\n")
+        output_file.write("N Samples: " + str(n_samples) + "\n")
+        if len(transform) > 0:
+            transform_text = "Transform - "
+            if transform == "qnorm":
+                transform_text += "Quantile Normalized"
+            elif transform == "log2" or transform == "log10":
+                transform_text += transform.capitalize()
+            elif transform == "sqrt":
+                transform_text += "Square Root"
+            elif transform == "zscore":
+                transform_text += "Z-Score"
+            elif transform == "invert":
+                transform_text += "Invert +/-"
+            else:
+                transform_text = ""
+            output_file.write(transform_text + "\n")
         if dataset.type == "ProbeSet":
             output_file.write("Gene Symbol: " + trait.symbol + "\n")
             output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
+        if len(covariates) > 0:
+            output_file.write("Cofactors (dataset - trait):\n")
+            for covariate in covariates.split(","):
+                trait_name = covariate.split(":")[0]
+                dataset_name = covariate.split(":")[1]
+                output_file.write(dataset_name + " - " + trait_name + "\n")
         output_file.write("\n")
         output_file.write("Name,Chr,")
         if score_type.lower() == "-logP":
