@@ -1494,9 +1494,11 @@ class DisplayMappingResults(object):
 
         thisTrait = self.this_trait
 
+        samplelist = list(self.genotype.prgy)
+
         smd=[]
         for sample in self.sample_vals_dict.keys():
-            if self.sample_vals_dict[sample] != "x":
+            if self.sample_vals_dict[sample] != "x" and sample in samplelist:
                 temp = GeneralObject(name=sample, value=float(self.sample_vals_dict[sample]))
                 smd.append(temp)
             else:
@@ -1504,8 +1506,6 @@ class DisplayMappingResults(object):
 
         smd.sort(key = lambda A: A.value)
         smd.reverse()
-
-        samplelist = list(self.genotype.prgy)
 
         oldgeneEndPix = -1
         #Initializing plotRight, error before
@@ -1608,11 +1608,8 @@ class DisplayMappingResults(object):
 
                                 if (plotbxd == 1):
                                     ind = 0
-                                    counter = 0
-                                    for item in smd:
-                                        counter = counter + 1
-                                        if item.name == samplelist[k]:
-                                            ind = counter
+                                    if samplelist[k] in [item.name for item in smd]:
+                                        ind = [item.name for item in smd].index(samplelist[k])
 
                                     maxind=max(ind, maxind)
 
@@ -1691,27 +1688,20 @@ class DisplayMappingResults(object):
                         plotbxd=1
 
                     if (plotbxd == 1):
-
-                        ind = 0
-                        counter = 0
-                        expr = 0
-                        for item in smd:
-                            counter = counter + 1
-                            if item.name == samplelist[j]:
-                                ind = counter
-                                expr = item.value
+                        ind = [item.name for item in smd].index(samplelist[j]) - 1
+                        expr = smd[ind].value
 
                         # Place where font is hardcoded
                         im_drawer.text(
                             text="%s" % (samplelist[j]),
                             xy=((xLeftOffset + plotWidth + 10),
-                                geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                geneYLocation+11+2*ind*self.EACH_GENE_HEIGHT*zoom),
                             font=ImageFont.truetype(font=VERDANA_FILE, size=12),
                             fill=BLACK)
                         im_drawer.text(
                             text="%2.2f" % (expr),
                             xy=((xLeftOffset + plotWidth + 60),
-                                geneYLocation+8+2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                geneYLocation+11+2*ind*self.EACH_GENE_HEIGHT*zoom),
                             font=ImageFont.truetype(font=VERDANA_FILE, size=12),
                             fill=BLACK)
 
