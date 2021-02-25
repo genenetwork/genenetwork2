@@ -124,8 +124,8 @@ class SearchResultPage(object):
 
             trait_dict['display_name'] = result[0]
             if self.dataset.type == "Publish":
-                if self.dataset.group_code:
-                    trait_dict['display_name'] = self.dataset.group_code + "_" + result[0]
+                if self.dataset.group.code:
+                    trait_dict['display_name'] = self.dataset.group.code + "_" + str(result[0])
 
             trait_dict['dataset'] = self.dataset.name
             trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
@@ -173,35 +173,34 @@ class SearchResultPage(object):
                 trait_dict['pubmed_text'] = "N/A"
                 trait_dict['mean'] = "N/A"
                 trait_dict['additive'] = "N/A"
-                pre_pub_description = result[2].strip()
-                post_pub_description = result[3].strip()
-                if result[1] != "NULL" and result[1] != None:
-                    trait_dict['pubmed_id'] = result[1]
+                pre_pub_description = "N/A" if result[1] is None else result[1].strip()
+                post_pub_description = "N/A" if result[2] is None else result[2].strip()
+                if result[5] != "NULL" and result[5] != None:
+                    trait_dict['pubmed_id'] = result[5]
                     trait_dict['pubmed_link'] = PUBMEDLINK_URL % trait_dict['pubmed_id']
                     trait_dict['description'] = post_pub_description
                 else:
                     trait_dict['description'] = pre_pub_description
 
-                if result[6].isdigit():
-                    trait_dict['pubmed_text'] = result[6]
+                if result[4].isdigit():
+                    trait_dict['pubmed_text'] = result[4]
 
-                trait_dict['authors'] = result[5]
+                trait_dict['authors'] = result[3]
 
-                if result[4] != "" and result[4] != None:
-                    trait_dict['mean'] = f"{result[4]:.3f}"
+                if result[6] != "" and result[6] != None:
+                    trait_dict['mean'] = f"{result[6]:.3f}"
 
                 try:
-                    trait_dict['lod_score'] = f"{float(result[5]) / 4.61:.1f}"
+                    trait_dict['lod_score'] = f"{float(result[7]) / 4.61:.1f}"
                 except:
                     trait_dict['lod_score'] = "N/A"
 
                 try:
-                    trait_dict['lrs_location'] = f"Chr{result[9]}: {float(result[10]):.6f}"
+                    trait_dict['lrs_location'] = f"Chr{result[11]}: {float(result[12]):.6f}"
                 except:
                     trait_dict['lrs_location'] = "N/A"
 
-                if result[5] != "":
-                    trait_dict['additive'] = f"{result[6]:.3f}"
+                trait_dict['additive'] = "N/A" if not result[8] else f"{result[8]:.3f}"
 
             # Convert any bytes in dict to a normal utf-8 string
             for key in trait_dict.keys():

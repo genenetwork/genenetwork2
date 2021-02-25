@@ -189,10 +189,25 @@ class PhenotypeSearch(DoSearch):
     DoSearch.search_types['Publish'] = "PhenotypeSearch"
 
     base_query = """SELECT PublishXRef.Id,
-                PublishFreeze.createtime as thistable,
-                Publication.PubMed_ID as Publication_PubMed_ID,
-                Phenotype.Post_publication_description as Phenotype_Name
-                FROM Phenotype, PublishFreeze, Publication, PublishXRef """
+                CAST(Phenotype.`Pre_publication_description` AS BINARY),
+                CAST(Phenotype.`Post_publication_description` AS BINARY),
+                Publication.`Authors`,
+                Publication.`Year`,
+                Publication.`PubMed_ID`,
+                PublishXRef.`mean`,
+                PublishXRef.`LRS`,
+                PublishXRef.`additive`,
+                PublishXRef.`Locus`,
+                InbredSet.`InbredSetCode`,
+                Geno.`Chr`,
+                Geno.`Mb`
+                FROM Species
+                INNER JOIN InbredSet ON InbredSet.`SpeciesId` = Species.`Id`
+                INNER JOIN PublishXRef ON PublishXRef.`InbredSetId` = InbredSet.`Id`
+                INNER JOIN PublishFreeze ON PublishFreeze.`InbredSetId` = InbredSet.`Id`
+                INNER JOIN Publication ON Publication.`Id` = PublishXRef.`PublicationId`
+                INNER JOIN Phenotype ON Phenotype.`Id` = PublishXRef.`PhenotypeId`
+                LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id """
 
     search_fields = ('Phenotype.Post_publication_description',
                     'Phenotype.Pre_publication_description',
