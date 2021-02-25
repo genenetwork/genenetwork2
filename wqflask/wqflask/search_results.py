@@ -130,38 +130,21 @@ class SearchResultPage(object):
             trait_dict['dataset'] = self.dataset.name
             trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
             if self.dataset.type == "ProbeSet":
-                trait_dict['symbol'] = "N/A"
-                if result[10]:
-                    trait_dict['symbol'] = result[10]
-                trait_dict['description'] = "N/A"
-                description_string = result[2]
-                if str(description_string) != "" and description_string != None:
-                    description_display = description_string
-                else:
-                    description_display = trait_dict['symbol']
+                trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
+                description_text = "N/A" if result[4] is None or str(result[4]) == "" else trait_dict['symbol']
 
-                target_string = result[3]
-                if str(target_string) != "" and target_string != None:
-                    description_display = description_display + "; " + target_string.strip()
+                target_string = result[5]
+                description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
                 trait_dict['description'] = description_display
 
                 trait_dict['location'] = "N/A"
-                if (result[8] != "NULL" and result[8] != "") and (result[9] != 0):
-                    trait_dict['location'] = f"Chr{result[8]}: {float(result[9]):.6f}"
-                trait_dict['mean'] = "N/A"
-                trait_dict['additive'] = "N/A"
-                if result[4] != "" and result[4] != None:
-                    trait_dict['mean'] = f"{result[4]:.3f}"
-                try:
-                    trait_dict['lod_score'] = f"{float(result[5]) / 4.61:.1f}"
-                except:
-                    trait_dict['lod_score'] = "N/A"
-                try:
-                    trait_dict['lrs_location'] = f"Chr{result[12]}: {float(result[13]):.6f}"
-                except:
-                    trait_dict['lrs_location'] = "N/A"
-                if result[5] != "":
-                    trait_dict['additive'] = f"{result[7]:.3f}"
+                if (result[6] is not None) and (result[6] != "") and (result[7] is not None) and (result[7] != 0):
+                    trait_dict['location'] = f"Chr{result[6]}: {float(result[7]):.6f}"
+
+                trait_dict['mean'] = "N/A" if result[8] is None or result[8] == "" else f"{result[8]:.3f}"
+                trait_dict['additive'] = "N/A" if result[12] is None or result[12] == "" else f"{result[12]:.3f}"
+                trait_dict['lod_score'] = "N/A" if result[9] is None or result[9] == "" else f"{float(result[9]) / 4.61:.1f}"
+                trait_dict['lrs_location'] = "N/A" if result[13] is None or result[13] == "" or result[14] is None else f"Chr{result[13]}: {float(result[14]):.6f}"
             elif self.dataset.type == "Geno":
                 trait_dict['location'] = "N/A"
                 if (result[4] != "NULL" and result[4] != "") and (result[5] != 0):

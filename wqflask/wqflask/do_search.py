@@ -78,16 +78,31 @@ class MrnaAssaySearch(DoSearch):
 
     DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
-    base_query = """SELECT distinct ProbeSet.Name as TNAME,
-                0 as thistable,
-                ProbeSetXRef.Mean as TMEAN,
-                ProbeSetXRef.LRS as TLRS,
-                ProbeSetXRef.PVALUE as TPVALUE,
-                ProbeSet.Chr_num as TCHR_NUM,
-                ProbeSet.Mb as TMB,
-                ProbeSet.Symbol as TSYMBOL,
-                ProbeSet.name_num as TNAME_NUM
-                FROM ProbeSetXRef, ProbeSet """
+    base_query = """
+                SELECT
+                ProbeSetFreeze.`Name`,
+                ProbeSetFreeze.`FullName`,
+                ProbeSet.`Name`,
+                ProbeSet.`Symbol`,
+                CAST(ProbeSet.`description` AS BINARY),
+                CAST(ProbeSet.`Probe_Target_Description` AS BINARY),
+                ProbeSet.`Chr`,
+                ProbeSet.`Mb`,
+                ProbeSetXRef.`Mean`,
+                ProbeSetXRef.`LRS`,
+                ProbeSetXRef.`Locus`,
+                ProbeSetXRef.`pValue`,
+                ProbeSetXRef.`additive`,
+                Geno.`Chr` as geno_chr,
+                Geno.`Mb` as geno_mb
+                FROM Species
+                INNER JOIN InbredSet ON InbredSet.`SpeciesId`= Species.`Id`
+                INNER JOIN ProbeFreeze ON ProbeFreeze.`InbredSetId` = InbredSet.`Id`
+                INNER JOIN Tissue ON ProbeFreeze.`TissueId` = Tissue.`Id`
+                INNER JOIN ProbeSetFreeze ON ProbeSetFreeze.`ProbeFreezeId` = ProbeFreeze.`Id`
+                INNER JOIN ProbeSetXRef ON ProbeSetXRef.`ProbeSetFreezeId` = ProbeSetFreeze.`Id`
+                INNER JOIN ProbeSet ON ProbeSet.`Id` = ProbeSetXRef.`ProbeSetId`
+                LEFT JOIN Geno ON ProbeSetXRef.`Locus` = Geno.`Name` AND Geno.`SpeciesId` = Species.`Id` """
 
     header_fields = ['Index',
                      'Record',
