@@ -403,12 +403,10 @@ class RifSearch(MrnaAssaySearch):
     DoSearch.search_types['ProbeSet_RIF'] = "RifSearch"
 
     def get_from_clause(self):
-        return ", GeneRIF_BASIC "
+        return f" INNER JOIN GeneRIF_BASIC ON GeneRIF_BASIC.`symbol` = { self.dataset.type }.`symbol` "
 
     def get_where_clause(self):
-        where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
-            MATCH (GeneRIF_BASIC.comment)
-            AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term[0])
+        where_clause = f"(MATCH (GeneRIF_BASIC.comment) AGAINST ('+{ self.search_term[0] }' IN BOOLEAN MODE)) "
 
         return where_clause
 
