@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="static/new/css/trait_list.css" />
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -171,225 +172,311 @@
                 return params;
             };
 
-            //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
-            trait_table = $('#trait_table').DataTable( {
-                'drawCallback': function( settings ) {
-                      $('#trait_table tr').off().on("click", function(event) {
-                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                          var obj =$(this).find('input');
-                          obj.prop('checked', !obj.is(':checked'));
-                        }
-                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                          $(this).removeClass("selected")
-                        } else if (event.target.tagName.toLowerCase() !== 'a') {
-                          $(this).addClass("selected")
-                        }
-                        change_buttons()
-                      });
-                },
-                'createdRow': function ( row, data, index ) {
-                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
-                    $('td', row).eq(1).attr("align", "right");
-                    $('td', row).eq(1).attr('data-export', index+1);
-                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
-                    {% if dataset.type == 'ProbeSet' %}
-                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
-                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
-                    if ($('td', row).eq(3).text().length > 20) {
-                        $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 20));
-                        $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
-                    }
-                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    $('td', row).slice(5,10).attr("align", "right");
-                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
-                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
-                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
-                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
-                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
-                    {% elif dataset.type == 'Publish' %}
-                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
-                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
-                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    $('td', row).eq(4).attr('align', 'right');
-                    $('td', row).slice(6,10).attr("align", "right");
-                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
-                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
-                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
-                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
-                    $('td', row).eq(9).attr('data-export', $('td', row).eq(8).text());
-                    {% elif dataset.type == 'Geno' %}
-                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
-                    {% endif %}
-                },
-                'data': trait_list,
-                'columns': [
-                    {
-                      'data': null,
-                      'width': "25px",
-                      'orderDataType': "dom-checkbox",
-                      'orderable': false,
-                      'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
-                      }
-                    },
-                    {
-                      'title': "Index",
-                      'type': "natural",
-                      'width': "30px",
-                      'data': "index"
-                    },
-                    {
-                      'title': "Record",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'width': "60px",
-                      'render': function(data, type, row, meta) {
-                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
-                      }
-                    }{% if dataset.type == 'ProbeSet' %},
-                    {
-                      'title': "Symbol",
-                      'type': "natural",
-                      'width': "120px",
-                      'data': "symbol"
-                    },
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        try {
-                          return decodeURIComponent(escape(data.description))
-                        } catch(err){
-                          return escape(data.description)
-                        }
-                      }
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "location"
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Mean</div>",
-                      'type': "natural-minus-na",
-                      'width': "30px",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'data': "lod_score",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "lrs_location"
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'data': "additive",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% elif dataset.type == 'Publish' %},
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'width': "500px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-			                  try {
-                            return decodeURIComponent(escape(data.description))
-			                  } catch(err){
-			                      return data.description
-                        }
-                      }
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Mean</div>",
-                      'type': "natural-minus-na",
-                      'width': "30px",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Authors",
-                      'type': "natural",
-                      'width': "300px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        author_list = data.authors.split(",")
-                        if (author_list.length >= 6) {
-                          author_string = author_list.slice(0, 6).join(",") + ", et al."
-                        } else{
-                          author_string = data.authors
-                        }
-                        return author_string
-                      }
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Year</div>",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'width': "25px",
-                      'render': function(data, type, row, meta) {
-                        if (data.pubmed_id != "N/A"){
-                          return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
-                        } else {
-                          return data.pubmed_text
-                        }
-                      },
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'data': "lod_score",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "120px",
-                      'data': "lrs_location"
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'width': "60px",
-                      'data': "additive",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% elif dataset.type == 'Geno' %},
-                    {
-                      'title': "<div style='text-align: right;'>Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "120px",
-                      'data': "location"
-                    }{% endif %}
-                ],
-                "order": [[1, "asc" ]],
-                'sDom': "iti",
-                "autoWidth": true,
-                "bSortClasses": false,
-                {% if trait_list|length > 20 %}
-                "scrollY": "100vh",
-                "scroller":  true,
-                "scrollCollapse": true
-                {% else %}
-                "iDisplayLength": -1
-                {% endif %}
-            } );
+            var tableId = "trait_table";
 
-            trait_table.draw(); //ZS: This makes the table adjust its height properly on initial load
+            columnDefs = [
+              {
+                'data': null,
+                'width': "25px",
+                'orderDataType': "dom-checkbox",
+                'orderable': false,
+                'render': function(data, type, row, meta) {
+                  return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
+                }
+              },
+              {
+                'title': "Index",
+                'type': "natural",
+                'width': "30px",
+                'data': "index"
+              },
+              {
+                'title': "Record",
+                'type': "natural-minus-na",
+                'data': null,
+                'width': "60px",
+                'render': function(data, type, row, meta) {
+                  return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+                }
+              }{% if dataset.type == 'ProbeSet' %},
+              {
+                'title': "Symbol",
+                'type': "natural",
+                'width': "120px",
+                'data': "symbol"
+              },
+              {
+                'title': "Description",
+                'type': "natural",
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  try {
+                    return decodeURIComponent(escape(data.description))
+                  } catch(err){
+                    return escape(data.description)
+                  }
+                }
+              },
+              {
+                'title': "<div style='text-align: right;'>Location</div>",
+                'type': "natural-minus-na",
+                'width': "125px",
+                'data': "location"
+              },
+              {
+                'title': "<div style='text-align: right;'>Mean</div>",
+                'type': "natural-minus-na",
+                'width': "30px",
+                'data': "mean",
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
+                'type': "natural-minus-na",
+                'data': "lod_score",
+                'width': "60px",
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "<div style='text-align: right;'>Peak Location</div>",
+                'type': "natural-minus-na",
+                'width': "125px",
+                'data': "lrs_location"
+              },
+              {
+                'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
+                'type': "natural-minus-na",
+                'data': "additive",
+                'width': "60px",
+                'orderSequence': [ "desc", "asc"]
+              }{% elif dataset.type == 'Publish' %},
+              {
+                'title': "Description",
+                'type': "natural",
+                'width': "500px",
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  try {
+                      return decodeURIComponent(escape(data.description))
+                  } catch(err){
+                      return data.description
+                  }
+                }
+              },
+              {
+                'title': "<div style='text-align: right;'>Mean</div>",
+                'type': "natural-minus-na",
+                'width': "30px",
+                'data': "mean",
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "Authors",
+                'type': "natural",
+                'width': "300px",
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  author_list = data.authors.split(",")
+                  if (author_list.length >= 6) {
+                    author_string = author_list.slice(0, 6).join(",") + ", et al."
+                  } else{
+                    author_string = data.authors
+                  }
+                  return author_string
+                }
+              },
+              {
+                'title': "<div style='text-align: right;'>Year</div>",
+                'type': "natural-minus-na",
+                'data': null,
+                'width': "25px",
+                'render': function(data, type, row, meta) {
+                  if (data.pubmed_id != "N/A"){
+                    return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
+                  } else {
+                    return data.pubmed_text
+                  }
+                },
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
+                'type': "natural-minus-na",
+                'data': "lod_score",
+                'width': "60px",
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "<div style='text-align: right;'>Peak Location</div>",
+                'type': "natural-minus-na",
+                'width': "120px",
+                'data': "lrs_location"
+              },
+              {
+                'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
+                'type': "natural-minus-na",
+                'width': "60px",
+                'data': "additive",
+                'orderSequence': [ "desc", "asc"]
+              }{% elif dataset.type == 'Geno' %},
+              {
+                'title': "<div style='text-align: right;'>Location</div>",
+                'type': "natural-minus-na",
+                'width': "120px",
+                'data': "location"
+              }{% endif %}
+            ];
+
+            loadDataTable();
+
+            function loadDataTable(){
+              //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
+              trait_table = $('#' + tableId).DataTable( {
+                  'drawCallback': function( settings ) {
+                        $('#' + tableId + ' tr').off().on("click", function(event) {
+                          if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                            var obj =$(this).find('input');
+                            obj.prop('checked', !obj.is(':checked'));
+                          }
+                          if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                            $(this).removeClass("selected")
+                          } else if (event.target.tagName.toLowerCase() !== 'a') {
+                            $(this).addClass("selected")
+                          }
+                          change_buttons()
+                        });
+                  },
+                  'createdRow': function ( row, data, index ) {
+                      $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
+                      $('td', row).eq(1).attr("align", "right");
+                      $('td', row).eq(1).attr('data-export', index+1);
+                      $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                      {% if dataset.type == 'ProbeSet' %}
+                      $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                      $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                      if ($('td', row).eq(3).text().length > 20) {
+                          $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 20));
+                          $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
+                      }
+                      $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                      $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                      $('td', row).slice(5,10).attr("align", "right");
+                      $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                      $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                      $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                      $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                      $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                      {% elif dataset.type == 'Publish' %}
+                      $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                      $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                      $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                      $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                      $('td', row).eq(4).attr('align', 'right');
+                      $('td', row).slice(6,10).attr("align", "right");
+                      $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                      $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                      $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                      $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                      $('td', row).eq(9).attr('data-export', $('td', row).eq(8).text());
+                      {% elif dataset.type == 'Geno' %}
+                      $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                      {% endif %}
+                  },
+                  "data": trait_list,
+                  "columns": columnDefs,
+                  "order": [[1, "asc" ]],
+                  "sDom": "iti",
+                  "destroy": true,
+                  "autoWidth": false,
+                  "deferRender": true,
+                  "bSortClasses": false,
+                  {% if trait_list|length > 20 %}
+                  "scrollY": "100vh",
+                  "scroller":  true,
+                  "scrollCollapse": true,
+                  {% else %}
+                  "iDisplayLength": -1,
+                  {% endif %}
+                  "initComplete": function (settings) {
+                    //Add JQueryUI resizable functionality to each th in the ScrollHead table
+                    $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
+                      handles: "e",
+                      alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
+                      stop: function () {
+                        saveColumnSettings();
+                        loadDataTable();
+                      }
+                    });
+                  },
+              } );
+            }
+
+            function setUserColumnsDefWidths() {
+
+              var userColumnDef;
+
+              // Get the settings for this table from localStorage
+              var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
+
+              if (userColumnDefs.length === 0 ) return;
+
+              columnDefs.forEach( function(columnDef) {
+
+                // Check if there is a width specified for this column
+                userColumnDef = userColumnDefs.find( function(column) {
+                  return column.targets === columnDef.targets;
+                });
+
+                // If there is, set the width of this columnDef in px
+                if ( userColumnDef ) {
+
+                  columnDef.width = userColumnDef.width + 'px';
+
+                }
+
+              });
+
+            }
+
+
+            function saveColumnSettings() {
+
+              var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
+
+              var width, header, existingSetting; 
+
+              trait_table.columns().every( function ( targets ) {
+
+                // Check if there is a setting for this column in localStorage
+                existingSetting = userColumnDefs.findIndex( function(column) { return column.targets === targets;});
+
+                // Get the width of this column
+                header = this.header();
+                width = $(header).width();
+
+                if ( existingSetting !== -1 ) {
+
+                  // Update the width
+                  userColumnDefs[existingSetting].width = width;
+
+                } else {
+
+                  // Add the width for this column
+                  userColumnDefs.push({
+                    targets: targets,
+                    width:  width,
+                  });
+
+                }
+
+              });
+
+              // Save (or update) the settings in localStorage
+              localStorage.setItem(tableId, JSON.stringify(userColumnDefs));
+
+            }
+
+            //trait_table.draw(); //ZS: This makes the table adjust its height properly on initial load
 
             $('.toggle-vis').on( 'click', function (e) {
               e.preventDefault();
@@ -409,7 +496,7 @@
 
 
             $('#redraw').click(function() {
-                var table = $('#trait_table').DataTable();
+                var table = $('#' + tableId).DataTable();
                 table.colReorder.reset()
             });
 
