@@ -372,6 +372,7 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
+
             {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
                 "drawCallback": function( settings ) {
@@ -526,7 +527,7 @@
             perm_data: js_data.perm_results,
             num_perm: "{{ nperm }}",
             trait_name: "{{ this_trait.display_name }}",
-            trait_description: "{{ this_trait.description_display }}",
+            trait_description: `{{ this_trait.description_display }}`,
             cofactors: "{{ covariates }}",
             n_samples: {{ n_samples }},
             n_genotypes: {{ qtl_results|length }},
