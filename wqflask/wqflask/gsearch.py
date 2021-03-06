@@ -177,16 +177,8 @@ class GSearch:
                 {0}
                 AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
                 AND PublishXRef.`PublicationId`=Publication.`Id`
-                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Lab_code REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.PubMed_ID REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.Abstract REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.Title REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.Authors REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR PublishXRef.Id REGEXP "[[:<:]]{1}[[:>:]]")
+                AND	(MATCH (Phenotype.Post_publication_description, Phenotype.Pre_publication_description, Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, Phenotype.Lab_code) AGAINST ('{1}' IN BOOLEAN MODE) )
+                AND	(MATCH (Publication.Abstract, Publication.Title, Publication.Authors) AGAINST ('{1}' IN BOOLEAN MODE) )
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000
                 """.format(group_clause, search_term)
