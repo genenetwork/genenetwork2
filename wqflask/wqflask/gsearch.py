@@ -206,7 +206,7 @@ class GSearch(object):
                     else:
                         this_trait['description'] = "N/A"
                     if line[13] != None and line[13] != "":
-                        this_trait['mean'] = line[13]
+                        this_trait['mean'] = f"{line[13]:.3f}"
                     else:
                         this_trait['mean'] = "N/A"
                     this_trait['authors'] = line[7]
