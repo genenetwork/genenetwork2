@@ -125,8 +125,8 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}{% endif %}>
-            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+          <div id="table_container">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; max-width: 100%;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -337,11 +337,13 @@
             }{% endif %}
             ];
 
-            loadDataTable();
+            loadDataTable(true);
 
-            function loadDataTable(){
+            function loadDataTable(first_run=false){
 
-              setUserColumnsDefWidths();
+              if (!first_run){
+                setUserColumnsDefWidths();
+              }
 
               //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
               trait_table = $('#' + tableId).DataTable( {
