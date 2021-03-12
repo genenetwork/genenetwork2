@@ -334,8 +334,8 @@ def forgot_password():
     return render_template("new_security/forgot_password.html", errors=errors)
 
 def send_forgot_password_email(verification_email):
-    from email.MIMEMultipart import MIMEMultipart
-    from email.MIMEText import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
 
     template_name  = "email/forgot_password.txt"
     key_prefix = "forgot_password_code"
