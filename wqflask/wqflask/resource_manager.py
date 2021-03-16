@@ -26,6 +26,10 @@ def manage_resource():
 
         owner_display_name = None
         if owner_id != "none":
+            try: #ZS: User IDs are sometimes stored in Redis as bytes and sometimes as strings, so this is just to avoid any errors for the time being
+                owner_id = str.encode(owner_id)
+            except:
+                pass
             owner_info = get_user_by_unique_column("user_id", owner_id)
             if 'name' in owner_info:
                 owner_display_name = owner_info['full_name']
