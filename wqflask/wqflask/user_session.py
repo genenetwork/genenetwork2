@@ -129,7 +129,7 @@ class UserSession(object):
         if b'user_id' not in self.record:
             self.record[b'user_id'] = str(uuid.uuid4())
 
-        return self.record[b'user_id'].decode("utf-8")
+        return self.record[b'user_id']
 
     @property
     def redis_user_id(self):
