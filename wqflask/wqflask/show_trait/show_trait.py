@@ -269,6 +269,7 @@ class ShowTrait(object):
                        short_description = short_description,
                        unit_type = trait_units,
                        dataset_type = self.dataset.type,
+                       species = self.dataset.group.species,
                        scales_in_geno = self.scales_in_geno,
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,

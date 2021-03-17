@@ -2,12 +2,11 @@ import re
 import itertools
 
 from flask import g
-from base import webqtlCaseData
+from base import webqtlCaseData, webqtlConfig
 from pprint import pformat as pf
 
 from utility import Plot
 from utility import Bunch
-
 
 class SampleList(object):
     def __init__(self,
@@ -69,6 +68,16 @@ class SampleList(object):
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(
                     sample_name, {})
+
+                #ZS: Add a url so RRID case attributes can be displayed as links
+                if 'rrid' in sample.extra_attributes:
+                    if len(sample.extra_attributes['rrid'].split(":")) > 1:
+                        the_rrid = sample.extra_attributes['rrid'].split(":")[1]
+                        sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
+                        if self.dataset.group.species == "mouse":
+                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_MOUSE_URL % the_rrid)
+                        elif self.dataset.group.species == "rat":
+                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_RAT_URL % the_rrid)
 
             self.sample_list.append(sample)
 
