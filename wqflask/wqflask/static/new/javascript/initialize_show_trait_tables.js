@@ -104,7 +104,11 @@ build_columns = function() {
           attr_name = Object.keys(data.extra_attributes).sort()[meta.col - data.first_attr_col]
 
           if (attr_name != null && attr_name != undefined){
+            if (Array.isArray(data.extra_attributes[attr_name])){
+              return '<a href="' + data.extra_attributes[attr_name][1] + '">' + data.extra_attributes[attr_name][0] + '</a>'
+            } else {
               return data.extra_attributes[attr_name]
+            }
           } else {
               return ""
           }
