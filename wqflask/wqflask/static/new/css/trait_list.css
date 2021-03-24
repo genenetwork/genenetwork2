@@ -52,3 +52,21 @@ div.dts div.dataTables_paginate,div.dts div.dataTables_length{
     display:none
 }
 
+/* This is the important CSS */
+table.dataTable {
+    table-layout: fixed;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+table.dataTable th {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+table.dataTable td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
