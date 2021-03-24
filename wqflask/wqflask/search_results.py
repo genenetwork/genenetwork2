@@ -101,7 +101,6 @@ class SearchResultPage:
             self.dataset.group.name)
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
-        logger.debug("self.results is:", pf(self.results))
 
         for index, result in enumerate(self.results):
             if not result:
@@ -168,6 +167,19 @@ class SearchResultPage:
                     if isinstance(trait_dict[key], bytes):
                         trait_dict[key] = trait_dict[key].decode('utf-8')
                 trait_list.append(trait_dict)
+
+        self.max_widths = {}
+        for i, trait in enumerate(trait_list):
+            for key in trait.keys():
+                self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+
+        self.wide_columns_exist = False
+        if this_trait.dataset.type == "Publish":
+            if (self.max_widths['display_name'] > 25 or self.max_widths['description'] > 100 or self.max_widths['authors']> 80):
+                self.wide_columns_exist = True
+        if this_trait.dataset.type == "ProbeSet":
+            if (self.max_widths['display_name'] > 25 or self.max_widths['symbol'] > 25 or self.max_widths['description'] > 100):
+                self.wide_columns_exist = True
 
         self.trait_list = trait_list
 
