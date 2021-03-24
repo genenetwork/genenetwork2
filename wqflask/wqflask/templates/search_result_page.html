@@ -126,7 +126,7 @@
           </div>
           {% endif %}
           <div id="table_container">
-            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; max-width: 100%;">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -174,6 +174,8 @@
 
             var tableId = "trait_table";
 
+            var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
+
             columnDefs = [
             {
               'data': null,
@@ -196,7 +198,6 @@
               'title': "Record",
               'type': "natural-minus-na",
               'data': null,
-              'width': "60px",
               'targets': 2,
               'render': function(data, type, row, meta) {
                 return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
@@ -232,7 +233,7 @@
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
-              'width': "30px",
+              'width': "40px",
               'data': "mean",
               'targets': 6,
               'orderSequence': [ "desc", "asc"]
@@ -346,7 +347,7 @@
               }
 
               //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
-              trait_table = $('#' + tableId).DataTable( {
+              table_settings = {
                   'drawCallback': function( settings ) {
                         $('#' + tableId + ' tr').off().on("click", function(event) {
                           if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
@@ -402,7 +403,7 @@
                   "order": [[1, "asc" ]],
                   "sDom": "iti",
                   "destroy": true,
-                  "autoWidth": false,
+                  "autoWidth": true,
                   "deferRender": true,
                   "bSortClasses": false,
                   "scrollX": true,
@@ -418,13 +419,22 @@
                     $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
                       handles: "e",
                       alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
+                      resize: function( event, ui ) {
+                        width_change = ui.size.width - ui.originalSize.width;
+                      },
                       stop: function () {
                         saveColumnSettings();
                         loadDataTable();
                       }
                     });
                   },
-              } );
+              }
+
+              if (!first_run){
+                table_settings['autoWidth'] = false;
+                $('#table_container').css("width", String($('#trait_table').width() + width_change) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+              }
+              trait_table = $('#' + tableId).DataTable(table_settings);
             }
 
             window.addEventListener('resize', function(){
@@ -488,7 +498,6 @@
                   });
 
                 }
-
               });
 
               // Save (or update) the settings in localStorage
