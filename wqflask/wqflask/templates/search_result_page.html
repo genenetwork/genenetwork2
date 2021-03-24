@@ -125,7 +125,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container">
+          <div id="table_container" {% if wide_columns_exist == true %}style="width: 2000px;"{% endif %}>
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -190,23 +190,29 @@
             {
               'title': "Index",
               'type': "natural",
-              'width': "30px",
+              'width': "35px",
               'targets': 1,
               'data': "index"
-            },
+            }
+            {% if dataset.type == 'ProbeSet' %},
             {
               'title': "Record",
               'type': "natural-minus-na",
               'data': null,
+              {% if wide_columns_exist == true %}
+              'width': "{{ max_widths.display_name * 5 }}px",
+              {% endif %}
               'targets': 2,
               'render': function(data, type, row, meta) {
                 return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
               }
-            }{% if dataset.type == 'ProbeSet' %},
+            },
             {
               'title': "Symbol",
               'type': "natural",
-              'width': "120px",
+              {% if wide_columns_exist == true %}
+              'width': "200px",
+              {% endif %}
               'targets': 3,
               'data': "symbol"
             },
@@ -214,6 +220,9 @@
               'title': "Description",
               'type': "natural",
               'data': null,
+              {% if wide_columns_exist == true %}
+              'width': "600px",
+              {% endif %}
               'targets': 4,
               'render': function(data, type, row, meta) {
                 try {
@@ -262,9 +271,20 @@
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Publish' %},
             {
+              'title': "Record",
+              'type': "natural-minus-na",
+              'data': null,
+              {% if wide_columns_exist == true %}
+              'width': "100px",
+              {% endif %}
+              'targets': 2,
+              'render': function(data, type, row, meta) {
+                return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+              }
+            },
+            {
               'title': "Description",
               'type': "natural",
-              'width': "500px",
               'data': null,
               'render': function(data, type, row, meta) {
                 try {
@@ -277,14 +297,16 @@
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
-              'width': "30px",
+              'width': "60px",
               'data': "mean",
               'orderSequence': [ "desc", "asc"]
             },
             {
               'title': "Authors",
               'type': "natural",
-              'width': "300px",
+              {% if wide_columns_exist == true %}
+              'width': "400px",
+              {% endif %}
               'data': null,
               'render': function(data, type, row, meta) {
                 author_list = data.authors.split(",")
@@ -300,7 +322,7 @@
               'title': "<div style='text-align: right;'>Year</div>",
               'type': "natural-minus-na",
               'data': null,
-              'width': "25px",
+              'width': "50px",
               'render': function(data, type, row, meta) {
                 if (data.pubmed_id != "N/A"){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -403,7 +425,11 @@
                   "order": [[1, "asc" ]],
                   "sDom": "iti",
                   "destroy": true,
+                  {% if wide_columns_exist != true %}
                   "autoWidth": true,
+                  {% else %}
+                  "autoWidth": false,
+                  {% endif %}
                   "deferRender": true,
                   "bSortClasses": false,
                   "scrollX": true,
@@ -432,9 +458,15 @@
 
               if (!first_run){
                 table_settings['autoWidth'] = false;
-                $('#table_container').css("width", String($('#trait_table').width() + width_change) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+                $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
               }
               trait_table = $('#' + tableId).DataTable(table_settings);
+
+              {% if trait_list|length > 20 %}
+              if (first_run){
+                $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+              }
+              {% endif %}
             }
 
             window.addEventListener('resize', function(){
@@ -442,7 +474,6 @@
             });
 
             function setUserColumnsDefWidths() {
-
               var userColumnDef;
 
               // Get the settings for this table from localStorage
@@ -468,9 +499,7 @@
               });
             }
 
-
             function saveColumnSettings() {
-
               var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
 
               var width, header, existingSetting; 
