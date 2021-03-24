@@ -46,6 +46,7 @@ from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation import show_corr_results
+from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
@@ -880,8 +881,8 @@ def network_graph_page():
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
     logger.info(request.url)
-    template_vars = show_corr_results.CorrelationResults(request.form)
-    return render_template("correlation_page.html", **template_vars.__dict__)
+    correlation_results = compute_correlation(request.form)
+    return render_template("demo_correlation_page.html",correlation_results=correlation_results)
 
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():

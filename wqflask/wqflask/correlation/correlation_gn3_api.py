@@ -1,20 +1,17 @@
 """module that calls the gn3 api's to do the correlation """
-from base import data_set
-from base.trait import create_trait
-from base.trait import retrieve_sample_data
+import json
+import requests
+from wqflask.wqflask.correlation import correlation_functions
+
+from wqflask.base import data_set
+from wqflask.base.trait import create_trait
+from wqflask.base.trait import retrieve_sample_data
+
+GN3_CORRELATION_API = "http://127.0.0.1:8080/api/correlation"
 
 
-
-
-
-
-
-def compute_sample_r(start_vars,target_dataset, trait_data, target_samplelist, method="pearson"):
-    import requests
-    from wqflask.correlation.correlation_gn3_api import compute_correlation
-
-    cor_results = compute_correlation(start_vars)
-
+def compute_sample(target_dataset, trait_data, target_samplelist, method="pearson"):
+    """integration for integrating sample_r  api correlation"""
     data = {
         "target_dataset": target_dataset,
         "target_samplelist": target_samplelist,
@@ -29,31 +26,58 @@ def compute_sample_r(start_vars,target_dataset, trait_data, target_samplelist, m
 
     data = results.json()
 
-    print(data)
-
     return data
 
 
-def process_samples(start_vars,sample_names,excluded_samples=None):
+def get_tissue_correlation_input(this_trait, trait_symbol_dict):
+    """Gets tissue expression values for the primary trait and target tissues values"""
+    primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+        symbol_list=[this_trait.symbol])
+
+    if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
+        primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
+        )]
+
+        corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+            symbol_list=list(trait_symbol_dict.values()))
+
+        target_tissue_data = []
+        for trait, symbol in list(trait_symbol_dict.items()):
+            if symbol and symbol.lower() in corr_result_tissue_vals_dict:
+                this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower(
+                )]
+
+                this_trait_data = {"trait_id": trait,
+                                   "tissue_values": this_trait_tissue_values}
+
+                target_tissue_data.append(this_trait_data)
+
+        primary_tissue_data = {
+            "this_id": "TT",
+            "tissue_values": primary_trait_tissue_values
+
+        }
+
+        return (primary_tissue_data, target_tissue_data)
+
+    return None
+
+
+def process_samples(start_vars, sample_names, excluded_samples=None):
+    """process samples method"""
     sample_data = {}
     if not excluded_samples:
         excluded_samples = ()
 
-        sample_vals_dict  = json.loads(start_vars["sample_vals"])
+        sample_vals_dict = json.loads(start_vars["sample_vals"])
 
         for sample in sample_names:
             if sample not in excluded_samples:
-                val = sample_val_dict[sample]
+                val = sample_vals_dict[sample]
                 if not val.strip().lower() == "x":
-                    sample_data[str(sample)]=float(value)
+                    sample_data[str(sample)] = float(val)
 
     return sample_data
-
-
-def create_fetch_dataset_data(dataset_name):
-    this_dataset  = data_set.create_dataset(dataset_name=dataset_name)
-
-    this_dataset.get_trait_data()
 
 
 def create_target_this_trait(start_vars):
@@ -66,12 +90,61 @@ def create_target_this_trait(start_vars):
     this_trait = create_trait(dataset=this_dataset,
                               name=start_vars['trait_id'])
 
+    sample_data = process_samples(start_vars, this_dataset.group.samplelist)
+    # target_dataset.get_trait_data(list(self.sample_data.keys()))
+
     this_trait = retrieve_sample_data(this_trait, this_dataset)
 
-    target_dataset.get_trait_data()
+    target_dataset.get_trait_data(list(sample_data.keys()))
 
-    return (this_dataset,this_trait,target_dataset)
-def compute_correlation(start_vars):
+    return (this_dataset, this_trait, target_dataset, sample_data)
 
-    this_dataset, this_trait, target_dataset = create_target_this_trait(
-        start_vars=start_vars)
+
+def compute_correlation(start_vars, method="pearson"):
+    """compute correlation for to call gn3  api"""
+
+    corr_type = start_vars['corr_type']
+
+    (this_dataset, this_trait, target_dataset,
+     sample_data) = create_target_this_trait(start_vars)
+
+    # cor_results = compute_correlation(start_vars)
+
+    method = start_vars['corr_sample_method']
+
+    corr_input_data = {}
+
+    if corr_type == "sample":
+        corr_input_data = {
+            "target_dataset": target_dataset.trait_data,
+            "target_samplelist": target_dataset.samplelist,
+            "trait_data": {
+                "trait_sample_data": sample_data,
+                "trait_id": start_vars["trait_id"]
+            }
+        }
+
+        requests_url = f"{GN3_CORRELATION_API}/sample_x/{method}"
+
+    elif corr_type == "tissue":
+        trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
+        primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
+            this_trait, trait_symbol_dict)
+
+        corr_input_data = {
+            "primary_tissue": primary_tissue_data,
+            "target_tissues": target_tissue_data
+        }
+
+        requests_url = f"{GN3_CORRELATION_API}/tissue_corr/{method}"
+
+    else:
+        pass
+        # lit correlation/literature
+        # can fetch values in  gn3 not set up in gn3
+
+    corr_results = requests.post(requests_url, json=corr_input_data)
+
+    data = corr_results.json()
+
+    return data

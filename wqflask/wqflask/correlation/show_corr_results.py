@@ -57,32 +57,6 @@ TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
 
 TISSUE_MOUSE_DB = 1
 
-
-def compute_sample_r(start_vars,target_dataset, trait_data, target_samplelist, method="pearson"):
-    import requests
-    from wqflask.correlation.correlation_gn3_api import compute_correlation
-
-    # cor_results = compute_correlation(start_vars)
-
-    data = {
-        "target_dataset": target_dataset,
-        "target_samplelist": target_samplelist,
-        "trait_data": {
-            "trait_sample_data": trait_data,
-            "trait_id": "HC_Q"
-        }
-    }
-    requests_url = f"http://127.0.0.1:8080/api/correlation/sample_x/{method}"
-
-    results = requests.post(requests_url, json=data)
-
-    data = results.json()
-
-    print(data)
-
-    return data
-
-
 class CorrelationResults(object):
     def __init__(self, start_vars):
         # get trait list from db (database name)
@@ -197,81 +171,78 @@ class CorrelationResults(object):
                         trait, self.target_dataset.trait_data[trait])
 
             elif self.corr_type == "sample":
+                for trait, values in list(self.target_dataset.trait_data.items()):
+                    self.get_sample_r_and_p_values(trait, values)
 
-                compute_sample_r(start_vars,
-                    self.target_dataset.trait_data, self.sample_data, self.target_dataset.samplelist)
-                # for trait, values in list(self.target_dataset.trait_data.items()):
-                #     self.get_sample_r_and_p_values(trait, values)
+            self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
+                                                                   key=lambda t: -abs(t[1][0])))
 
-        #     self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
-        #                                                            key=lambda t: -abs(t[1][0])))
+            # ZS: Convert min/max chromosome to an int for the location range option
+            range_chr_as_int = None
+            for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                if 'loc_chr' in start_vars:
+                    if chr_info.name == self.location_chr:
+                        range_chr_as_int = order_id
 
-        #     # ZS: Convert min/max chromosome to an int for the location range option
-        #     range_chr_as_int = None
-        #     for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
-        #         if 'loc_chr' in start_vars:
-        #             if chr_info.name == self.location_chr:
-        #                 range_chr_as_int = order_id
+            for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
+                trait_object = create_trait(
+                    dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+                if not trait_object:
+                    continue
 
-        #     for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
-        #         trait_object = create_trait(
-        #             dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
-        #         if not trait_object:
-        #             continue
+                chr_as_int = 0
+                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                    if self.location_type == "highest_lod":
+                        if chr_info.name == trait_object.locus_chr:
+                            chr_as_int = order_id
+                    else:
+                        if chr_info.name == trait_object.chr:
+                            chr_as_int = order_id
 
-        #         chr_as_int = 0
-        #         for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
-        #             if self.location_type == "highest_lod":
-        #                 if chr_info.name == trait_object.locus_chr:
-        #                     chr_as_int = order_id
-        #             else:
-        #                 if chr_info.name == trait_object.chr:
-        #                     chr_as_int = order_id
+                if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
+                        float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-        #         if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
-        #                 float(self.correlation_data[trait][0]) <= self.p_range_upper):
+                    if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
+                        if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
+                            continue
 
-        #             if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
-        #                 if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
-        #                     continue
+                    if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                        continue
+                    if self.location_type == "highest_lod":
+                        if (self.min_location_mb != None) and (float(trait_object.locus_mb) < float(self.min_location_mb)):
+                            continue
+                        if (self.max_location_mb != None) and (float(trait_object.locus_mb) > float(self.max_location_mb)):
+                            continue
+                    else:
+                        if (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                            continue
+                        if (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
+                            continue
 
-        #             if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
-        #                 continue
-        #             if self.location_type == "highest_lod":
-        #                 if (self.min_location_mb != None) and (float(trait_object.locus_mb) < float(self.min_location_mb)):
-        #                     continue
-        #                 if (self.max_location_mb != None) and (float(trait_object.locus_mb) > float(self.max_location_mb)):
-        #                     continue
-        #             else:
-        #                 if (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
-        #                     continue
-        #                 if (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
-        #                     continue
+                    (trait_object.sample_r,
+                     trait_object.sample_p,
+                     trait_object.num_overlap) = self.correlation_data[trait]
 
-        #             (trait_object.sample_r,
-        #              trait_object.sample_p,
-        #              trait_object.num_overlap) = self.correlation_data[trait]
+                    # Set some sane defaults
+                    trait_object.tissue_corr = 0
+                    trait_object.tissue_pvalue = 0
+                    trait_object.lit_corr = 0
+                    if self.corr_type == "tissue" and tissue_corr_data != None:
+                        trait_object.tissue_corr = tissue_corr_data[trait][1]
+                        trait_object.tissue_pvalue = tissue_corr_data[trait][2]
+                    elif self.corr_type == "lit":
+                        trait_object.lit_corr = lit_corr_data[trait][1]
 
-        #             # Set some sane defaults
-        #             trait_object.tissue_corr = 0
-        #             trait_object.tissue_pvalue = 0
-        #             trait_object.lit_corr = 0
-        #             if self.corr_type == "tissue" and tissue_corr_data != None:
-        #                 trait_object.tissue_corr = tissue_corr_data[trait][1]
-        #                 trait_object.tissue_pvalue = tissue_corr_data[trait][2]
-        #             elif self.corr_type == "lit":
-        #                 trait_object.lit_corr = lit_corr_data[trait][1]
+                    self.correlation_results.append(trait_object)
 
-        #             self.correlation_results.append(trait_object)
+            if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
+                self.do_lit_correlation_for_trait_list()
 
-        #     if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
-        #         self.do_lit_correlation_for_trait_list()
+            if self.corr_type != "tissue" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
+                self.do_tissue_correlation_for_trait_list()
 
-        #     if self.corr_type != "tissue" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
-        #         self.do_tissue_correlation_for_trait_list()
-
-        # self.json_results = generate_corr_json(
-        #     self.correlation_results, self.this_trait, self.dataset, self.target_dataset)
+        self.json_results = generate_corr_json(
+            self.correlation_results, self.this_trait, self.dataset, self.target_dataset)
 
 ############################################################################################################################################
 
@@ -464,7 +435,6 @@ class CorrelationResults(object):
                 mouse_gene_id = result.mouse
 
         return mouse_gene_id
-
 
     def get_sample_r_and_p_values(self, trait, target_samples):
         """Calculates the sample r (or rho) and p-value
