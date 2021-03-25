@@ -88,7 +88,7 @@ def compute_correlation(start_vars, method="pearson"):
     else:
         pass
         # lit correlation/literature
-        # can fetch values in  gn3 not set up in gn3
+        # to fetch values from the database
 
     corr_results = requests.post(requests_url, json=corr_input_data)
 
