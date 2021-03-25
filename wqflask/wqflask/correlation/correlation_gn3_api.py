@@ -1,11 +1,11 @@
 """module that calls the gn3 api's to do the correlation """
 import json
 import requests
-from wqflask.wqflask.correlation import correlation_functions
+from wqflask.correlation import correlation_functions
 
-from wqflask.base import data_set
-from wqflask.base.trait import create_trait
-from wqflask.base.trait import retrieve_sample_data
+from base import data_set
+from base.trait import create_trait
+from base.trait import retrieve_sample_data
 
 GN3_CORRELATION_API = "http://127.0.0.1:8080/api/correlation"
 
