@@ -10,59 +10,6 @@ from wqflask.base.trait import retrieve_sample_data
 GN3_CORRELATION_API = "http://127.0.0.1:8080/api/correlation"
 
 
-def compute_sample(target_dataset, trait_data, target_samplelist, method="pearson"):
-    """integration for integrating sample_r  api correlation"""
-    data = {
-        "target_dataset": target_dataset,
-        "target_samplelist": target_samplelist,
-        "trait_data": {
-            "trait_sample_data": trait_data,
-            "trait_id": "HC_Q"
-        }
-    }
-    requests_url = f"http://127.0.0.1:8080/api/correlation/sample_x/{method}"
-
-    results = requests.post(requests_url, json=data)
-
-    data = results.json()
-
-    return data
-
-
-def get_tissue_correlation_input(this_trait, trait_symbol_dict):
-    """Gets tissue expression values for the primary trait and target tissues values"""
-    primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-        symbol_list=[this_trait.symbol])
-
-    if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
-        primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
-        )]
-
-        corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-            symbol_list=list(trait_symbol_dict.values()))
-
-        target_tissue_data = []
-        for trait, symbol in list(trait_symbol_dict.items()):
-            if symbol and symbol.lower() in corr_result_tissue_vals_dict:
-                this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower(
-                )]
-
-                this_trait_data = {"trait_id": trait,
-                                   "tissue_values": this_trait_tissue_values}
-
-                target_tissue_data.append(this_trait_data)
-
-        primary_tissue_data = {
-            "this_id": "TT",
-            "tissue_values": primary_trait_tissue_values
-
-        }
-
-        return (primary_tissue_data, target_tissue_data)
-
-    return None
-
-
 def process_samples(start_vars, sample_names, excluded_samples=None):
     """process samples method"""
     sample_data = {}
@@ -81,7 +28,7 @@ def process_samples(start_vars, sample_names, excluded_samples=None):
 
 
 def create_target_this_trait(start_vars):
-    """this function prefetch required data for correlation"""
+    """this function creates the required trait and target dataset for correlation"""
 
     this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
     target_dataset = data_set.create_dataset(
@@ -148,3 +95,37 @@ def compute_correlation(start_vars, method="pearson"):
     data = corr_results.json()
 
     return data
+
+
+def get_tissue_correlation_input(this_trait, trait_symbol_dict):
+    """Gets tissue expression values for the primary trait and target tissues values"""
+    primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+        symbol_list=[this_trait.symbol])
+
+    if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
+        primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
+        )]
+
+        corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+            symbol_list=list(trait_symbol_dict.values()))
+
+        target_tissue_data = []
+        for trait, symbol in list(trait_symbol_dict.items()):
+            if symbol and symbol.lower() in corr_result_tissue_vals_dict:
+                this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower(
+                )]
+
+                this_trait_data = {"trait_id": trait,
+                                   "tissue_values": this_trait_tissue_values}
+
+                target_tissue_data.append(this_trait_data)
+
+        primary_tissue_data = {
+            "this_id": "TT",
+            "tissue_values": primary_trait_tissue_values
+
+        }
+
+        return (primary_tissue_data, target_tissue_data)
+
+    return None

@@ -10,27 +10,11 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-      {{correlation_results}}
+      <!-- {{correlation_results}} -->
 
- <!--    {% for corr in correlation_results %}
+    {% for corr in correlation_results %}
         <div>{{corr}}</div>
     {% endfor %}
- -->
+
     </div>
-{% endblock %}
-
-{% block js %}
-    <script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.html5.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
-    
 {% endblock %}
