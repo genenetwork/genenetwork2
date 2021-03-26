@@ -78,7 +78,7 @@ class SampleList(object):
                             sample.extra_attributes['rrid'].append(webqtlConfig.RRID_MOUSE_URL % the_rrid)
                     elif self.dataset.group.species == "rat":
                         if len(str(sample.extra_attributes['rrid'])):
-                            the_rrid = sample.extra_attributes['rrid']
+                            the_rrid = sample.extra_attributes['rrid'].split("_")[1]
                             sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
                             sample.extra_attributes['rrid'].append(webqtlConfig.RRID_RAT_URL % the_rrid)
 
