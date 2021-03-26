@@ -179,7 +179,9 @@
             columnDefs = [
             {
               'data': null,
+              {% if wide_columns_exist == true %}
               'width': "25px",
+              {% endif %}
               'orderDataType': "dom-checkbox",
               'orderable': false,
               'targets': 0,
@@ -190,7 +192,9 @@
             {
               'title': "Index",
               'type': "natural",
+              {% if wide_columns_exist == true %}
               'width': "35px",
+              {% endif %}
               'targets': 1,
               'data': "index"
             }
@@ -235,14 +239,18 @@
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "125px",
+              {% endif %}
               'targets': 5,
               'data': "location"
             },
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "40px",
+              {% endif %}
               'data': "mean",
               'targets': 6,
               'orderSequence': [ "desc", "asc"]
@@ -251,14 +259,17 @@
               'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
               'type': "natural-minus-na",
               'data': "lod_score",
-              'width': "60px",
+              {% if wide_columns_exist == true %}
+              'width': "60px", {% endif %}
               'targets': 7,
               'orderSequence': [ "desc", "asc"]
             },
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "125px",
+              {% endif %}
               'targets': 8,
               'data': "lrs_location"
             },
@@ -266,7 +277,9 @@
               'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
               'type': "natural-minus-na",
               'data': "additive",
+              {% if wide_columns_exist == true %}
               'width': "60px",
+              {% endif %}
               'targets': 9,
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Publish' %},
