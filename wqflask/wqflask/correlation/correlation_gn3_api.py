@@ -63,6 +63,7 @@ def compute_correlation(start_vars, method="pearson"):
 
     if corr_type == "sample":
         corr_input_data = {
+            "target": target_dataset,
             "target_dataset": target_dataset.trait_data,
             "target_samplelist": target_dataset.samplelist,
             "trait_data": {
@@ -80,21 +81,34 @@ def compute_correlation(start_vars, method="pearson"):
 
         corr_input_data = {
             "primary_tissue": primary_tissue_data,
-            "target_tissues": target_tissue_data
+            "target_tissues_dict": target_tissue_data
         }
 
         requests_url = f"{GN3_CORRELATION_API}/tissue_corr/{method}"
 
-    else:
-        pass
-        # lit correlation/literature
-        # to fetch values from the database
+    elif corr_type == "lit":
+        (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
+            this_trait, this_dataset, target_dataset)
 
+        requests_url = f"{GN3_CORRELATION_API}/lit_corr/{species}/{this_trait_geneid}"
+        corr_input_data = geneid_dict
     corr_results = requests.post(requests_url, json=corr_input_data)
 
     data = corr_results.json()
 
     return data
+
+
+def do_lit_correlation(this_trait, this_dataset, target_dataset):
+    geneid_dict = this_dataset.retrieve_genes("GeneId")
+    species = this_dataset.group.species.lower()
+
+    this_trait_geneid = this_trait.geneid
+    this_trait_gene_data = {
+        this_trait.name: this_trait_geneid
+    }
+
+    return (this_trait_geneid, geneid_dict, species)
 
 
 def get_tissue_correlation_input(this_trait, trait_symbol_dict):
@@ -108,22 +122,14 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
 
         corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
             symbol_list=list(trait_symbol_dict.values()))
-
-        target_tissue_data = []
-        for trait, symbol in list(trait_symbol_dict.items()):
-            if symbol and symbol.lower() in corr_result_tissue_vals_dict:
-                this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower(
-                )]
-
-                this_trait_data = {"trait_id": trait,
-                                   "tissue_values": this_trait_tissue_values}
-
-                target_tissue_data.append(this_trait_data)
-
         primary_tissue_data = {
-            "this_id": "TT",
+            "this_id": this_trait.name,
             "tissue_values": primary_trait_tissue_values
 
+        }
+        target_tissue_data = {
+            "trait_symbol_dict": trait_symbol_dict,
+            "symbol_tissue_vals_dict": corr_result_tissue_vals_dict
         }
 
         return (primary_tissue_data, target_tissue_data)
