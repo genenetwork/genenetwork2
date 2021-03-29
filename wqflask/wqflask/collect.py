@@ -191,6 +191,8 @@ def view_collection():
     json_version = []
 
     for atrait in traits:
+        if ':' not in atrait:
+            continue
         name, dataset_name = atrait.split(':')
         if dataset_name == "Temp":
             group = name.split("_")[2]
