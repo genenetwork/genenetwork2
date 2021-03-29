@@ -99,7 +99,7 @@ class NetworkGraph(object):
 
                 if num_overlap < self.lowest_overlap:
                     self.lowest_overlap = num_overlap
-                if num_overlap == 0:
+                if num_overlap < 2:
                     continue
                 else:
                     pearson_r, pearson_p = scipy.stats.pearsonr(
