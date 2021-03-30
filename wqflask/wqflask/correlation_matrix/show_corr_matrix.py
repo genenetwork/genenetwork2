@@ -150,13 +150,13 @@ class CorrelationMatrix(object):
                     this_trait_vals.append(sample_value)
             self.trait_data_array.append(this_trait_vals)
 
+        groups = []
+        for sample in self.all_sample_list:
+            groups.append(1)
+
         try:
             corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
             corr_eigen_value, corr_eigen_vectors = sortEigenVectors(corr_result_eigen)
-
-            groups = []
-            for sample in self.all_sample_list:
-                groups.append(1)
 
             if self.do_PCA == True:
                 self.pca_works = "True"
