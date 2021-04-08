@@ -63,7 +63,6 @@ def compute_correlation(start_vars, method="pearson"):
 
     if corr_type == "sample":
         corr_input_data = {
-            "target": target_dataset,
             "target_dataset": target_dataset.trait_data,
             "target_samplelist": target_dataset.samplelist,
             "trait_data": {
