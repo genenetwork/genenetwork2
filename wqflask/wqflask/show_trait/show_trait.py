@@ -204,10 +204,10 @@ class ShowTrait(object):
                         self.negative_vals_exist = "true"
 
         #ZS: Check whether any attributes have few enough distinct values to show the "Block samples by group" option
-        self.categorical_attr_exists = False
+        self.categorical_attr_exists = "false"
         for attribute in self.sample_groups[0].attributes:
             if len(self.sample_groups[0].attributes[attribute].distinct_values) <= 10:
-                self.categorical_attr_exists = True
+                self.categorical_attr_exists = "true"
                 break
 
         sample_column_width = max_samplename_width * 8
