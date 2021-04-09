@@ -203,6 +203,13 @@ class ShowTrait(object):
                     if sample.value < 0:
                         self.negative_vals_exist = "true"
 
+        #ZS: Check whether any attributes have few enough distinct values to show the "Block samples by group" option
+        self.categorical_attr_exists = False
+        for attribute in self.sample_groups[0].attributes:
+            if len(self.sample_groups[0].attributes[attribute].distinct_values) <= 10:
+                self.categorical_attr_exists = True
+                break
+
         sample_column_width = max_samplename_width * 8
 
         self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, sample_column_width, self.has_num_cases)
@@ -277,6 +284,7 @@ class ShowTrait(object):
                        se_exists = self.sample_groups[0].se_exists,
                        has_num_cases = self.has_num_cases,
                        attributes = self.sample_groups[0].attributes,
+                       categorical_attr_exists = self.categorical_attr_exists,
                        categorical_vars = ",".join(categorical_var_list),
                        num_values = self.num_values,
                        qnorm_values = self.qnorm_vals,
