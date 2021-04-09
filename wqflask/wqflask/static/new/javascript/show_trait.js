@@ -634,7 +634,7 @@ populate_sample_attributes_values_dropdown = function() {
   return _results;
 };
 
-if (Object.keys(js_data.attributes).length){
+if (js_data.categorical_attr_exists == "true"){
   populate_sample_attributes_values_dropdown();
 }
 
