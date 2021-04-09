@@ -6,7 +6,7 @@ import json
 from flask import g
 
 from base.webqtlConfig import TMPDIR
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base.data_set import create_dataset
 from utility import webqtlUtil
 from utility.tools import locate, TEMPDIR
@@ -42,7 +42,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     png           = ro.r["png"]                     # Map the png function
     dev_off       = ro.r["dev.off"]                 # Map the device off function
 
-    print(r_library("qtl"))                         # Load R/qtl
+    print((r_library("qtl")))                         # Load R/qtl
 
     logger.info("QTL library loaded");
 
@@ -86,7 +86,6 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     cross_object = add_phenotype(cross_object, pheno_string, "the_pheno")                 # Add the phenotype
     cross_object = add_names(cross_object, names_string, "the_names")                 # Add the phenotype
     logger.info("Added pheno and names");
-    # Scan for QTLs
     marker_covars = create_marker_covariates(control_marker, cross_object)  # Create the additive covariate markers
     logger.info("Marker covars done");
     if cofactors != "":
@@ -95,9 +94,6 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         ro.r('all_covars <- cbind(marker_covars, trait_covars)')
     else:
         ro.r('all_covars <- marker_covars')
-    #logger.info("Saving");
-    #ro.r('save.image(file = "/home/dannya/gn2-danny/cross.RData")')
-    #logger.info("Saving Done");
     covars = ro.r['all_covars']
     #DEBUG to save the session object to file
     if pair_scan:
@@ -115,6 +111,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     else:
         if do_control == "true" or cofactors != "":
             logger.info("Using covariate"); result_data_frame = scanone(cross_object, pheno = "the_pheno", addcovar = covars, model=model, method=method)
+            ro.r('save.image(file = "/home/zas1024/gn2-zach/itp_cofactor_test.RData")')
         else:
             logger.info("No covariates"); result_data_frame = scanone(cross_object, pheno = "the_pheno", model=model, method=method)
 
@@ -159,7 +156,7 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
          toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
          type <- getGenoCode(header, 'type')
          if(type == '4-way'){
-            genocodes <- c('1','2','3','4')
+            genocodes <- NULL
          } else {
             genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))             # Get the genotype codes
          }
@@ -174,7 +171,7 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
          require(qtl)
          if(type == '4-way'){
            cat('Loading in as 4-WAY\n')
-           cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="4way", convertXdata=FALSE)                 # Load the created cross file using R/qtl read.cross
+           cross = read.cross(file=out, 'csvr', genotypes=NULL, crosstype="4way")                                         # Load the created cross file using R/qtl read.cross
          }else if(type == 'f2'){
            cat('Loading in as F2\n')
            cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="f2")                                       # Load the created cross file using R/qtl read.cross
@@ -295,7 +292,7 @@ def add_cofactors(cross, this_dataset, covariates, samples):
         covar_as_string = "c("
         trait_name = covariate.split(":")[0]
         dataset_ob = create_dataset(covariate.split(":")[1])
-        trait_ob = GeneralTrait(dataset=dataset_ob,
+        trait_ob = create_trait(dataset=dataset_ob,
                                 name=trait_name,
                                 cellid=None)
 
@@ -321,38 +318,39 @@ def add_cofactors(cross, this_dataset, covariates, samples):
         datatype = get_trait_data_type(covariate)
         logger.info("Covariate: " + covariate + " is of type: " + datatype);
         if(datatype == "categorical"): # Cat variable
-          logger.info("call of add_categorical_covar");
-          cross, col_names = add_categorical_covar(cross, covar_as_string, i) # Expand and add it to the cross
-          logger.info("add_categorical_covar returned");
-          for z, col_name in enumerate(col_names): # Go through the additional covar names
+            logger.info("call of add_categorical_covar");
+            cross, col_names = add_categorical_covar(cross, covar_as_string, i) # Expand and add it to the cross
+            logger.info("add_categorical_covar returned");
+            for z, col_name in enumerate(col_names): # Go through the additional covar names
+                if i < (len(covariate_list) - 1):
+                    covar_name_string += '"' + col_name + '", '
+                else:
+                    if(z < (len(col_names) -1)):
+                        covar_name_string += '"' + col_name + '", '
+                    else:
+                        covar_name_string += '"' + col_name + '"'
+        else:
+            col_name = "covar_" + str(i)
+            cross = add_phenotype(cross, covar_as_string, col_name)
             if i < (len(covariate_list) - 1):
-              covar_name_string += '"' + col_name + '", '
-            else:
-              if(z < (len(col_names) -1)):
                 covar_name_string += '"' + col_name + '", '
-              else:
+            else:
                 covar_name_string += '"' + col_name + '"'
 
-          logger.info("covar_name_string:" + covar_name_string); 
-        else:
-          col_name = "covar_" + str(i)
-          cross = add_phenotype(cross, covar_as_string, col_name)
-          if i < (len(covariate_list) - 1):
-            covar_name_string += '"' + col_name + '", '
-          else:
-            covar_name_string += '"' + col_name + '"'
-
     covar_name_string += ")"
-    logger.info("covar_name_string:" + covar_name_string); 
     covars_ob = pull_var("trait_covars", cross, covar_name_string)
     return cross, covars_ob
 
 def create_marker_covariates(control_marker, cross):
     ro.globalenv["the_cross"] = cross
     ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
-    userinputS = control_marker.replace(" ", "").split(",")               # TODO: sanitize user input, Never Ever trust a user
-    covariate_names = ', '.join('"{0}"'.format(w) for w in userinputS)
-    ro.r('covnames <- c(' + covariate_names + ')')
+    userinput_sanitized = control_marker.replace(" ", "").split(",")               # TODO: sanitize user input, Never Ever trust a user
+    logger.debug(userinput_sanitized)
+    if len(userinput_sanitized) > 0:
+        covariate_names = ', '.join('"{0}"'.format(w) for w in userinput_sanitized)
+        ro.r('covnames <- c(' + covariate_names + ')')
+    else:
+        ro.r('covnames <- c()')
     ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
     ro.r('covnames <- covnames[covInGeno]')
     ro.r("cat('covnames (purged): ', covnames,'\n')")
@@ -405,15 +403,3 @@ def process_rqtl_results(result, species_name):        # TODO: how to make this 
         qtl_results.append(marker)
 
     return qtl_results
-
-def get_trait_data_type(trait_db_string):
-    # Get a trait's type (numeric, categorical, etc) from the DB
-    the_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
-    results_json = g.db.execute(the_query).fetchone()
-
-    results_ob = json.loads(results_json[0])
-
-    if trait_db_string in results_ob:
-        return results_ob[trait_db_string]
-    else:
-        return "numeric"

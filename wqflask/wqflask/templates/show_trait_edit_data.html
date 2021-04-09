@@ -1,44 +1,71 @@
 <div>
     {% for sample_type in sample_groups %}
-      <div style="padding-bottom: 10px;">
-        <div style="display: inline; height: 40px;">
-          <input type="text" id="{{ sample_type.sample_group_type }}_searchbox" class="form-control" style="width: 200px; display: inline; float: left; vertical-align: top;" placeholder="Search This Table For ...">
+      <div class="sample-table-container">
+        {% if loop.index == 1 and (sample_groups[0].se_exists or has_num_cases or sample_groups[0].attributes|length > 0) %}
+        <b>Show/Hide Columns:</b>
+        <br>
+        {% if sample_groups[0].se_exists %}
+        <button class="toggle-vis" data-column="4,5">SE</button>
+        {% if has_num_cases %}
+        <button class="toggle-vis" data-column="6">N</button>
+        {% set attr_start_pos = 7 %}
+        {% else %}
+        {% set attr_start_pos = 6 %}
+        {% endif %}
+        {% else %}
+        {% if has_num_cases %}
+        <button class="toggle-vis" data-column="4">N</button>
+        {% set attr_start_pos = 5 %}
+        {% else %}
+        {% set attr_start_pos = 4 %}
+        {% endif %}
+        {% endif %}
+        {% if sample_groups[0].attributes %}
+        {% for attribute in sample_groups[0].attributes %}
+        <button class="toggle-vis" data-column="{{ loop.index + attr_start_pos - 1 }}">{{ sample_groups[0].attributes[attribute].name }}</button>
+        {% endfor %}
+        {% endif %}
+        <br>
+        <br>
+        {% endif %}
+        <div class="sample-table-search-container">
+          <input type="text" id="{{ sample_type.sample_group_type }}_searchbox" class="form-control sample-table-search" placeholder="Search This Table For ...">
         </div>
-        <div style="padding-left: 10px; display: inline;">
-          <input type="button" class="btn btn-default export" value="Export">
+        <div class="sample-table-export-container">
+          <button class="btn btn-default export">Export <span class="glyphicon glyphicon-download-alt"></span></button>
           <select class="select optional span2 export_format">
             <option value="excel">Excel</option>
             <option value="csv">CSV</option>
           </select>
           <input type="button" class="btn btn-success reset" value="Reset">
         </div>
-      </div>
-      <div id="export_code" style="width: 600px; display: none;">
-        <pre style="padding-top: 0px; padding-bottom: 0px; height: 150px;">
-          <code>
-# read into R
-trait <- read.csv("{{ this_trait.display_name}}.csv", header = TRUE, comment.char = "#")
+        <div id="export_code" class="export-code-container">
+          <pre class="export-code_field">
+            <code>
+  # read into R
+  trait <- read.csv("{{ this_trait.display_name}}.csv", header = TRUE, comment.char = "#")
 
-# read into python
-import pandas as pd
-trait = pd.read_csv("{{ this_trait.display_name}}.csv", header = 0, comment = "#")
-          </code>
-        </pre>
-      </div>
-        {% set outer_loop = loop %}
-        <div class="sample_group" style="width:{{ trait_table_width }};">
-          <div style="position: relative;">
-            <div style="display: inline;"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3>
-          </div>
-          <div id="table_container">
-          <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}" style="float: left; width:100%;">
-              <tbody>
-                <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
-              </tbody>
-          </table>
-          </div>
+  # read into python
+  import pandas as pd
+  trait = pd.read_csv("{{ this_trait.display_name}}.csv", header = 0, comment = "#")
+            </code>
+          </pre>
         </div>
-        <br>
+      </div>
+      {% set outer_loop = loop %}
+      <div class="sample_group" style="width:{{ trait_table_width }};">
+        <div style="position: relative;">
+          <div class="inline-div"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3></div>
+        </div>
+        <div id="table_container">
+        <table class="table-hover table-striped cell-border sample-table" id="samples_{{ sample_type.sample_group_type }}">
+            <tbody>
+              <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+            </tbody>
+        </table>
+        </div>
+      </div>
+      <br>
     {% endfor %}
     <input type="hidden" name="Default_Name">
 </div>

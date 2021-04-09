@@ -1,16 +1,13 @@
-from __future__ import print_function, division
-
 import string
 import requests
 import json
 
 from flask import Flask, g
 
-from MySQLdb import escape_string as escape
+from utility.db_tools import escape
 from pprint import pformat as pf
 
 import sys
-# sys.path.append("..") Never in a running webserver
 
 from db import webqtlDatabaseFunction
 from utility.tools import GN2_BASE_URL
@@ -18,6 +15,7 @@ from utility.tools import GN2_BASE_URL
 import logging
 from utility.logger import getLogger
 logger = getLogger(__name__)
+
 
 class DoSearch(object):
     """Parent class containing parameters/functions used for all searches"""
@@ -34,10 +32,7 @@ class DoSearch(object):
         self.search_type = search_type
 
         if self.dataset:
-            logger.debug("self.dataset is boo: ", type(self.dataset), pf(self.dataset))
-            logger.debug("self.dataset.group is: ", pf(self.dataset.group))
             #Get group information for dataset and the species id
-
             self.species_id = webqtlDatabaseFunction.retrieve_species_id(self.dataset.group.name)
 
     def execute(self, query):
@@ -49,14 +44,10 @@ class DoSearch(object):
 
     def handle_wildcard(self, str):
         keyword = str.strip()
-        keyword = keyword.replace("*",".*")
-        keyword = keyword.replace("?",".")
+        keyword = keyword.replace("*", ".*")
+        keyword = keyword.replace("?", ".")
 
         return keyword
-
-    #def escape(self, stringy):
-    #    """Shorter name than self.db_conn.escape_string"""
-    #    return escape(str(stringy))
 
     def mescape(self, *items):
         """Multiple escape"""
@@ -71,8 +62,6 @@ class DoSearch(object):
 
     @classmethod
     def get_search(cls, search_type):
-        logger.debug("search_types are:", pf(cls.search_types))
-
         search_type_string = search_type['dataset_type']
         if 'key' in search_type and search_type['key'] != None:
             search_type_string += '_' + search_type['key']
@@ -648,7 +637,7 @@ class CisTransLrsSearch(DoSearch):
                                                                                                                                                   escape(self.dataset.type),
                                                                                                                                                   chromosome)
             else:
-                location_clause = "(ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or (%s.Chr != Geno.Chr)" % (escape(self.dataset.type), the_operator, escape(str(self.mb_buffer)), escape(self.dataset.type))
+                location_clause = "(ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or (%s.Chr != Geno.Chr)" % (escape(self.dataset.type), the_operator, escape(str(self.mb_buffer)), escape(self.dataset.type), escape(self.dataset.type))
             where_clause = sub_clause + """
                     %sXRef.Locus = Geno.name and
                     Geno.SpeciesId = %s and

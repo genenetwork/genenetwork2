@@ -24,4 +24,4 @@ for row in csv_data:
 #close the connection to the database.
 mydb.commit()
 cursor.close()
-print "Done"
+print("Done")

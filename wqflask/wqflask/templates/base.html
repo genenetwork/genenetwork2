@@ -4,27 +4,43 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock %}</title>
+
+    <title>{% block title %}{% endblock %} GeneNetwork 2</title>
+
     <meta name="description" content="">
     <meta name="author" content="">
+    <script type="text/javascript">
+     var pageLoadStart = Date.now();
+    </script>
     <link rel="icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
     <link rel="apple-touch-icon" type="image/png" sizes="64x64" href="/static/new/images/CITGLogo.png">
-    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
-    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/non-responsive.css" />
-    <link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/docs.css" />
-    <link rel="stylesheet" type="text/css" href="/static/packages/colorbox/example4/colorbox.css"  />
+    <link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
+    <link REL="stylesheet" TYPE="text/css" href="/static/new/css/bootstrap-custom.css" />
+    <link REL="stylesheet" TYPE="text/css" href="/static/new/css/non-responsive.css" />
+    <link REL="stylesheet" TYPE="text/css" href="/static/new/css/docs.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/colorbox.css"  />
     <!--<link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />-->
     <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css"  />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/broken_links.css"  />
+
 
     {% block css %}
     {% endblock %}
 
+    <style>
+        table.dataTable thead .sorting_asc {
+            background-image: url({{ url_for("js", filename="DataTables/images/sort_asc_disabled.png") }});
+        }
+        table.dataTable thead .sorting_desc {
+            background-image: url({{ url_for("js", filename="DataTables/images/sort_desc_disabled.png") }});
+        }
+    </style>
 </head>
 
 <body style="width: 100%">
     <!-- Navbar ================================================== -->
 
-    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%; min-width: 770px; white-space: nowrap;">
+    <div class="navbar navbar-inverse navbar-static-top pull-left" role="navigation" style="width: 100%; min-width: 850px; white-space: nowrap;">
     <!--<div class="navbar navbar-default" style="width: 100%; white-space: nowrap;">-->
             <div class="container-fluid" style="width: 100%;">
                 <!-- Brand and toggle get grouped for better mobile display -->
@@ -51,13 +67,14 @@
                         <li class="">
                             <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></a>
                             <ul class="dropdown-menu">
-                              <li><a href="/references">References</a></li>
+                              <li><a href="{{ url_for('references_blueprint.references') }}">References</a></li>
                               <li><a href="/tutorials">Tutorials/Primers</a></li>
-                              <li><a href="http://gn1.genenetwork.org/glossary.html">Glossary of Term</a></li>
+                              <li><a href="{{ url_for('glossary_blueprint.glossary') }}">Glossary of Term</a></li>
                               <li><a href="http://gn1.genenetwork.org/faq.html">FAQ</a></li>
-                              <li><a href="/policies">Policies</a></li>
-                              <li><a href="/links">Links</a></li>
-                              <li><a href="/environments">Environments</a></li>
+                              <li><a href="{{ url_for('policies_blueprint.policies') }}">Policies</a></li>
+                              <li><a href="{{ url_for('links_blueprint.links') }}">Links</a></li>
+                              <li><a href="{{ url_for('facilities_blueprint.facilities') }}">Facilities</a></li>
+                              <li><a href="{{ url_for('environments_blueprint.environments') }}">Environments</a></li>
                               <li><a href="/news">GN1 News</a></li>
                             </ul>
                         </li>
@@ -65,11 +82,11 @@
                                 <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"></a>
                                 <ul class="dropdown-menu">
                                   <li><a href="/snp_browser">Variant Browser</a></li>
-                                  <li><a href="http://bnw.genenetwork.org/BNW/sourcecodes/home.php">Bayesian Network Webserver</a></li>
+                                  <li><a href="http://bnw.genenetwork.org/sourcecodes/home.php">Bayesian Network Webserver</a></li>
                                   <li><a href="https://systems-genetics.org/">Systems Genetics PheWAS</a></li>
-                                  <li><a href="http://ucscbrowser.genenetwork.org/">Genome Browser</a></li>
+                                  <li><span class="broken_link" href="http://ucscbrowser.genenetwork.org/">Genome Browser</span></li>
                                   <li><a href="http://power.genenetwork.org">BXD Power Calculator</a></li>
-                                  <li><a href="httP://datafiles.genenetwork.org">Interplanetary File System</a></li>
+                                  <li><a href="http://datafiles.genenetwork.org">Interplanetary File System</a></li>
                                 </ul>
                         </li>
                         {% if g.user_session %}
@@ -94,6 +111,15 @@
                             <a id="login_in" href="/n/login">Sign in</a>
                             {% endif %}
                         </li>
+                        {% if g.user_session.logged_in %}
+                        <li class="">
+                            <a href="/edit_account_settings" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User Account Settings<span class="caret"></a>
+                            <ul class="dropdown-menu">
+                                <li><a id="manage_user" title="User Options" href="/user/manage">User Options</a></li>
+                                <li><a id="manage_groups" title="Manage Groups" href="/groups/manage">Manage Groups</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
                         {% endif %}
                         <!--
                         <li style="margin-left: 20px;">
@@ -137,9 +163,10 @@
                 <a href="http://www.senresearch.org">Saunak Sen</a>,
                 <a href="mailto:zachary.a.sloan@gmail.com">Zachary Sloan</a>,
                 <a href="mailto:acenteno@uthsc.edu">Arthur Centeno</a>,
-                and <a href="mailto:cfische7@uthsc.edu">Christian Fischer</a>.
+                <a href="mailto:cfische7@uthsc.edu">Christian Fischer</a>
+                and <a href="mailto:bonfacemunyoki@gmail.com">Bonface Munyoki</a>.
             </p>
-            <p>Design and code by Pjotr Prins, Zach Sloan, Arthur Centeno, Christan Fischer, Danny Arends, Sam Ockman, Lei Yan, Xiaodong Zhou, Christian Fernandez, 
+            <p>Design and code by Pjotr Prins, Zach Sloan, Arthur Centeno, Christan Fischer, Bonface Munyoki, Danny Arends, Sam Ockman, Lei Yan, Xiaodong Zhou, Christian Fernandez,
             Ning Liu, Rudi Alberts, Elissa Chesler, Sujoy Roy, Evan G. Williams, Alexander G. Williams, Kenneth Manly, Jintao Wang, Robert W. Williams, and 
             <!--<a href="http://genenetwork.org/credit.html">colleagues</a>.</p>-->
             <a href="/credits">colleagues</a>.</p>
@@ -172,7 +199,7 @@
                     (P20-DA 21131, 2001-2012)
                 </li>
                 <li>
-                    NCI <a href="http://emice.nci.nih.gov/">MMHCC</a> (U01CA105417), NCRR, <a href="http://www.birncommunity.org/">BIRN</a>, (U24 RR021760)
+                    NCI <a href="http://emice.nci.nih.gov/">MMHCC</a> (U01CA105417), NCRR, <span  class="broken_link test" href="http://www.birncommunity.org/">BIRN</span>, (U24 RR021760)
                 </li>
             </UL>
             <!--</p>-->
@@ -180,10 +207,11 @@
                     <a href="http://joss.theoj.org/papers/10.21105/joss.00025"><img src="https://camo.githubusercontent.com/846b750f582ae8f1d0b4f7e8fee78bed705c88ba/687474703a2f2f6a6f73732e7468656f6a2e6f72672f7061706572732f31302e32313130352f6a6f73732e30303032352f7374617475732e737667" alt="JOSS" data-canonical-src="http://joss.theoj.org/papers/10.21105/joss.00025/status.svg" style="max-width:100%;"></a>
             </p>
             <p>
-            Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <a href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</a> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
+            Development and source code on <a href="https://github.com/genenetwork/">github</a> with <a href="https://github.com/genenetwork/genenetwork2/issues">issue tracker</a> and <a href="https://github.com/genenetwork/genenetwork2/blob/master/README.md">documentation</a>. Join the <span class="broken_link" href="http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev">mailing list</span> and find us on <a href="https://webchat.freenode.net/">IRC</a> (#genenetwork channel).
             {% if version: %}
             <p><small>GeneNetwork {{ version }}</small></p>
             {% endif %}
+            <p> It took the server {{ g.request_time() }} seconds to process this page.</p>
 
         </div>
         <div class="col-xs-2">
@@ -213,8 +241,8 @@
       <!--</div>-->
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
     <script>
             //http://stackoverflow.com/questions/11521763/bootstrap-scrollspy-not-working
             var $window = $(window)
@@ -225,18 +253,24 @@
               }
             })
     </script>
-    <script src="/static/new/js_external/jquery.cookie.js"></script>
-    <script type="text/javascript" src="/static/new/js_external/json2.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="{{ url_for('js', filename='jquery-cookie/jquery.cookie.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
 
-    <script language="javascript" type="text/javascript" src="/static/packages/colorbox/jquery.colorbox.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='colorbox/jquery.colorbox-min.js') }}"></script>
     <!--<script type="text/javascript" src="/static/new/javascript/login.js"></script>-->
 
-    <script type="text/javascript" src="/static/new/js_external/parsley.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/parsley.min.js') }}"></script>
+
 
     {% block js %}
     {% endblock %}
 
-
+    <script type="text/javascript">
+     document.addEventListener('DOMContentLoaded', function() {
+         let timeToLoad = document.createElement("p");
+         timeToLoad.innerHTML = "It took your browser " + ((Date.now() - pageLoadStart)/1000) + " second(s) to render this page";
+         document.querySelector("footer .row .col-xs-6").appendChild(timeToLoad);
+     });
+    </script>
 </body>
 </html>

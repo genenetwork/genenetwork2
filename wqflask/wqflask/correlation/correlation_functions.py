@@ -24,8 +24,6 @@
 #
 # Last updated by NL 2011/03/23
 
-from __future__ import absolute_import, print_function, division
-
 import math
 import rpy2.robjects
 import string
@@ -50,12 +48,12 @@ from flask import Flask, g
 
 def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pearson'):
 
-    R_primary = rpy2.robjects.FloatVector(range(len(primaryValue)))
+    R_primary = rpy2.robjects.FloatVector(list(range(len(primaryValue))))
     N = len(primaryValue)
     for i in range(len(primaryValue)):
         R_primary[i] = primaryValue[i]
 
-    R_target = rpy2.robjects.FloatVector(range(len(targetValue)))
+    R_target = rpy2.robjects.FloatVector(list(range(len(targetValue))))
     for i in range(len(targetValue)):
         R_target[i]=targetValue[i]
 
@@ -71,34 +69,6 @@ def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pears
     corr_result.append( R_result[2][0])
 
     return corr_result
-
-
-###########################################################################
-#Input: cursor, symbolList (list), dataIdDict(Dict)
-#output: symbolValuepairDict (dictionary):one dictionary of Symbol and Value Pair,
-#        key is symbol, value is one list of expression values of one probeSet;
-#function: get one dictionary whose key is gene symbol and value is tissue expression data (list type).
-#Attention! All keys are lower case!
-###########################################################################
-def get_symbol_value_pairs(tissue_data):
-    id_list = [tissue_data[symbol.lower()].data_id for item in tissue_data]
-
-    symbol_value_pairs = {}
-    value_list=[]
-
-    query = """SELECT value, id
-               FROM TissueProbeSetData
-               WHERE Id IN {}""".format(create_in_clause(id_list))
-
-    try :
-        results = g.db.execute(query).fetchall()
-        for result in results:
-            value_list.append(result.value)
-        symbol_value_pairs[symbol] = value_list
-    except:
-        symbol_value_pairs[symbol] = None
-
-    return symbol_value_pairs
 
 
 ########################################################################################################

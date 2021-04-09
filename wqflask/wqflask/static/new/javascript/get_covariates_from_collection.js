@@ -37,29 +37,31 @@ $('#trait_table').dataTable( {
     "orderClasses": true
 } );
 
-$('#collection_table').dataTable( {
-    "createdRow": function ( row, data, index ) {
-        if ($('td', row).eq(2).text().length > 40) {
-            $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
-            $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
-        }
-        if ($('td', row).eq(4).text().length > 50) {
-            $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
-            $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
-        }
-    },
-    "columnDefs": [ {
-        "targets": 0,
-        "orderable": false
-    } ],
-    "order": [[1, "asc" ]],
-    "sDom": "ZRtr",
-    "iDisplayLength": -1,
-    "autoWidth": true,
-    "bSortClasses": false,
-    "paging": false,
-    "orderClasses": true
-} );
+if ( ! $.fn.DataTable.isDataTable( '#collection_table' ) ) {
+  $('#collection_table').dataTable( {
+      "createdRow": function ( row, data, index ) {
+          if ($('td', row).eq(2).text().length > 40) {
+              $('td', row).eq(2).text($('td', row).eq(2).text().substring(0, 40));
+              $('td', row).eq(2).text($('td', row).eq(2).text() + '...')
+          }
+          if ($('td', row).eq(4).text().length > 50) {
+              $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 50));
+              $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+          }
+      },
+      "columnDefs": [ {
+          "targets": 0,
+          "orderable": false
+      } ],
+      "order": [[1, "asc" ]],
+      "sDom": "ZRtr",
+      "iDisplayLength": -1,
+      "autoWidth": true,
+      "bSortClasses": false,
+      "paging": false,
+      "orderClasses": true
+  } );
+}
 
 collection_click = function() {
   var this_collection_url;
@@ -102,7 +104,7 @@ submit_click = function() {
   //covariates_display_string = covariates_display_string.substring(0, covariates_display_string.length - 2)
 
   $("input[name=covariates]").val(covariates_string)
-  $(".selected_covariates").val(covariates_display_string)
+  $(".selected-covariates").val(covariates_display_string)
 
   return $.colorbox.close();
 };
@@ -110,9 +112,9 @@ submit_click = function() {
 trait_click = function() {
   var dataset, this_trait_url, trait;
   trait = $(this).parent().find('.trait').text();
-  dataset = $(this).parent().find('.dataset').text();
+  dataset = $(this).parent().find('.dataset').data("dataset");
   $("input[name=covariates]").val(trait + ":" + dataset)
-  $(".selected_covariates").text(trait)
+  $(".selected-covariates").text(trait)
   return $.colorbox.close();
 };
 

@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Main routing table for GN2
-
-from __future__ import absolute_import, division, print_function
+"""Main routing table for GN2"""
 
 import traceback # for error page
 import os        # for error gifs
@@ -11,34 +7,34 @@ import datetime  # for errors
 import time      # for errors
 import sys
 import csv
+import simplejson as json
+import yaml
 import xlsxwriter
-import StringIO  # Todo: Use cStringIO?
+import io  # Todo: Use cStringIO?
+
+from zipfile import ZipFile, ZIP_DEFLATED
 
 import gc
 import numpy as np
-
-import cPickle as pickle
+import pickle as pickle
 import uuid
-
-import simplejson as json
-import yaml
-
-#Switching from Redis to StrictRedis; might cause some issues
-import redis
-Redis = redis.StrictRedis()
 
 import flask
 import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect
+from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
+
+from wqflask import group_manager
+from wqflask import resource_manager
 from wqflask import search_results
 from wqflask import export_traits
 from wqflask import gsearch
 from wqflask import update_search_results
 from wqflask import docs
 from wqflask import news
+from wqflask import server_side
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
@@ -55,19 +51,24 @@ from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl import ctl_analysis
 from wqflask.snp_browser import snp_browser
-#from wqflask.trait_submission import submit_trait
+from wqflask.search_results import SearchResultPage
+from wqflask.export_traits import export_search_results_csv
+from wqflask.gsearch import GSearch
+from wqflask.update_search_results import GSearch as UpdateGSearch
+from wqflask.docs import Docs, update_text
+from wqflask.db_info import InfoPage
 
 from utility import temp_data
-from utility.tools import SQL_URI,TEMPDIR,USE_REDIS,USE_GN_SERVER,GN_SERVER_URL,GN_VERSION,JS_TWITTER_POST_FETCHER_PATH,JS_GUIX_PATH, CSS_PATH
+from utility.tools import SQL_URI, TEMPDIR, USE_REDIS, USE_GN_SERVER, GN_SERVER_URL, GN_VERSION, JS_TWITTER_POST_FETCHER_PATH, JS_GUIX_PATH, CSS_PATH
 from utility.helper_functions import get_species_groups
+from utility.authentication_tools import check_resource_availability
+from utility.redis_tools import get_redis_conn
+Redis = get_redis_conn()
 
-from base.webqtlConfig import GENERATED_IMAGE_DIR
+from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
-
-from wqflask import user_login
-from wqflask import user_session
 
 from wqflask import collect
 from wqflask.database import db_session
@@ -83,9 +84,31 @@ def connect_db():
     logger.info("@app.before_request connect_db")
     db = getattr(g, '_database', None)
     if db is None:
-        logger.debug("Get new database connector")
         g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
         logger.debug(g.db)
+
+@app.before_request
+def check_access_permissions():
+    logger.debug("@app.before_request check_access_permissions")
+    available = True
+    if 'dataset' in request.args:
+        permissions = DEFAULT_PRIVILEGES
+        if request.args['dataset'] != "Temp":
+            dataset = create_dataset(request.args['dataset'])
+
+            if dataset.type == "Temp":
+                permissions = DEFAULT_PRIVILEGES
+            elif 'trait_id' in request.args:
+                permissions = check_resource_availability(dataset, request.args['trait_id'])
+            elif dataset.type != "Publish":
+                permissions = check_resource_availability(dataset)
+
+        if type(permissions['data']) is list:
+            if 'view' not in permissions['data']:
+                return redirect(url_for("no_access_page"))
+        else:
+            if permissions['data'] == 'no-access':
+                return redirect(url_for("no_access_page"))
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -114,11 +137,15 @@ def handle_bad_request(e):
         list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
         animation = random.choice(list)
 
-    resp = make_response(render_template("error.html",message=err_msg,stack=formatted_lines,error_image=animation,version=GN_VERSION))
+    resp = make_response(render_template("error.html", message=err_msg, stack=formatted_lines, error_image=animation, version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
-    resp.set_cookie(err_msg[:32],animation)
+    resp.set_cookie(err_msg[:32], animation)
     return resp
+
+@app.route("/authentication_needed")
+def no_access_page():
+    return render_template("new_security/not_authenticated.html")
 
 @app.route("/")
 def index_page():
@@ -147,18 +174,29 @@ def tmp_page(img_path):
     logger.info("initial_start_vars:", initial_start_vars)
     imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
-    imgB64 = imgdata.encode("base64")
+    imgB64 = base64.b64encode(imgdata)
     bytesarray = array.array('B', imgB64)
     return render_template("show_image.html",
                             img_base64 = bytesarray )
 
+
 @app.route("/js/<path:filename>")
 def js(filename):
-    return send_from_directory(JS_GUIX_PATH, filename)
+    js_path = JS_GUIX_PATH
+    name = filename
+    if 'js_alt/' in filename:
+        js_path = js_path.replace('genenetwork2/javascript', 'javascript')
+        name = name.replace('js_alt/', '')
+    return send_from_directory(js_path, name)
 
 @app.route("/css/<path:filename>")
 def css(filename):
-    return send_from_directory(CSS_PATH, filename)
+    js_path = JS_GUIX_PATH
+    name = filename
+    if 'js_alt/' in filename:
+        js_path = js_path.replace('genenetwork2/javascript', 'javascript')
+        name = name.replace('js_alt/', '')
+    return send_from_directory(js_path, name)
 
 @app.route("/twitter/<path:filename>")
 def twitter(filename):
@@ -181,11 +219,9 @@ def search_page():
         logger.info("Skipping Redis cache (USE_REDIS=False)")
 
     logger.info("request.args is", request.args)
-    the_search = search_results.SearchResultPage(request.args)
+    the_search = SearchResultPage(request.args)
     result = the_search.__dict__
     valid_search = result['search_term_exists']
-
-    logger.debugf("result", result)
 
     if USE_REDIS and valid_search:
         Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
@@ -196,10 +232,30 @@ def search_page():
     else:
         return render_template("search_error.html")
 
+@app.route("/search_table", methods=('GET',))
+def search_page_table():
+    logger.info("in search_page table")
+    logger.info(request.url)
+
+    logger.info("request.args is", request.args)
+    the_search = search_results.SearchResultPage(request.args)
+
+    logger.info(type(the_search.trait_list))
+    logger.info(the_search.trait_list)
+    
+    current_page = server_side.ServerSideTable(
+        len(the_search.trait_list),
+        the_search.trait_list,
+        the_search.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
+
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
     logger.info(request.url)
-    result = gsearch.GSearch(request.args).__dict__
+    result = GSearch(request.args).__dict__
     type = request.args['type']
     if type == "gene":
         return render_template("gsearch_gene.html", **result)
@@ -210,7 +266,7 @@ def gsearchact():
 def gsearch_updating():
     logger.info("REQUEST ARGS:", request.values)
     logger.info(request.url)
-    result = update_search_results.GSearch(request.args).__dict__
+    result = UpdateGSearch(request.args).__dict__
     return result['results']
     # type = request.args['type']
     # if type == "gene":
@@ -223,7 +279,7 @@ def docedit():
     logger.info(request.url)
     try:
         if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
-            doc = docs.Docs(request.args['entry'], request.args)
+            doc = Docs(request.args['entry'], request.args)
             return render_template("docedit.html", **doc.__dict__)
         else:
             return "You shouldn't be here!"
@@ -234,12 +290,12 @@ def docedit():
 @app.route('/generated/<filename>')
 def generated_file(filename):
     logger.info(request.url)
-    return send_from_directory(GENERATED_IMAGE_DIR,filename)
+    return send_from_directory(GENERATED_IMAGE_DIR, filename)
 
 @app.route("/help")
 def help():
     logger.info(request.url)
-    doc = docs.Docs("help", request.args)
+    doc = Docs("help", request.args)
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/wgcna_setup", methods=('POST',))
@@ -274,54 +330,33 @@ def ctl_results():
 
 @app.route("/news")
 def news():
-    doc = docs.Docs("news", request.args)
+    doc = Docs("news", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/references")
-def references():
-    doc = docs.Docs("references", request.args)
-    return render_template("docs.html", **doc.__dict__)
-    #return render_template("reference.html")
 
 @app.route("/intro")
 def intro():
-    doc = docs.Docs("intro", request.args)
+    doc = Docs("intro", request.args)
     return render_template("docs.html", **doc.__dict__)
 
-@app.route("/policies")
-def policies():
-    doc = docs.Docs("policies", request.args)
-    #return render_template("policies.html")
-    return render_template("docs.html", **doc.__dict__)
 
-@app.route("/links")
-def links():
-    #doc = docs.Docs("links", request.args)
-    #return render_template("docs.html", **doc.__dict__)
-    return render_template("links.html")
 
 @app.route("/tutorials")
 def tutorials():
-    #doc = docs.Docs("links", request.args)
+    #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("tutorials.html")
 
 @app.route("/credits")
 def credits():
-    #doc = docs.Docs("links", request.args)
+    #doc = Docs("links", request.args)
     #return render_template("docs.html", **doc.__dict__)
     return render_template("credits.html")
 
-@app.route("/environments")
-def environments():
-    doc = docs.Docs("environments", request.args)
-    return render_template("docs.html", **doc.__dict__)
-    #return render_template("environments.html", **doc.__dict__)
-
 @app.route("/update_text", methods=('POST',))
 def update_page():
-    docs.update_text(request.form)
-    doc = docs.Docs(request.form['entry_type'], request.form)
+    update_text(request.form)
+    doc = Docs(request.form['entry_type'], request.form)
     return render_template("docs.html", **doc.__dict__)
 
 @app.route("/submit_trait")
@@ -336,7 +371,7 @@ def create_temp_trait():
 
     #template_vars = submit_trait.SubmitTrait(request.form)
 
-    doc = docs.Docs("links")
+    doc = Docs("links")
     return render_template("links.html", **doc.__dict__)
     #return render_template("show_trait.html", **template_vars.__dict__)
 
@@ -350,7 +385,7 @@ def export_trait_excel():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = StringIO.StringIO()
+    buff = io.BytesIO()
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     for i, row in enumerate(sample_data):
@@ -374,7 +409,7 @@ def export_trait_csv():
 
     logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
 
-    buff = StringIO.StringIO()
+    buff = io.StringIO()
     writer = csv.writer(buff)
     for row in sample_data:
         writer.writerow(row)
@@ -391,35 +426,66 @@ def export_traits_csv():
     logger.info("In export_traits_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    csv_data, file_name = export_traits.export_search_results_csv(request.form)
+    file_list = export_search_results_csv(request.form)
 
-    return Response(csv_data,
-                    mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
+    if len(file_list) > 1:
+        now = datetime.datetime.now()
+        time_str = now.strftime('%H:%M_%d%B%Y')
+        filename = "export_{}".format(time_str)
+        memory_file = io.StringIO()
+        with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
+            for the_file in file_list:
+                zf.writestr(the_file[0], the_file[1])
+
+        memory_file.seek(0)
+
+        return send_file(memory_file, attachment_filename=filename + ".zip", as_attachment=True)
+    else:
+        return Response(file_list[0][1],
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=" + file_list[0][0]})
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
     """CSV file consisting of the permutation data for the mapping results"""
     logger.info(request.url)
-    num_perm = float(request.form['num_perm'])
-    perm_data = json.loads(request.form['perm_results'])
+    perm_info = json.loads(request.form['perm_info'])
 
-    buff = StringIO.StringIO()
+    now = datetime.datetime.now()
+    time_str = now.strftime('%H:%M_%d%B%Y')
+
+    file_name = "Permutation_" + perm_info['num_perm'] + "_" + perm_info['trait_name'] + "_" + time_str
+
+    the_rows = [
+        ["#Permutation Test"],
+        ["#File_name: " + file_name],
+        ["#Metadata: From GeneNetwork.org"],
+        ["#Trait_ID: " + perm_info['trait_name']],
+        ["#Trait_description: " + perm_info['trait_description']],
+        ["#N_permutations: " + str(perm_info['num_perm'])],
+        ["#Cofactors: " + perm_info['cofactors']],
+        ["#N_cases: " + str(perm_info['n_samples'])],
+        ["#N_genotypes: " + str(perm_info['n_genotypes'])],
+        ["#Genotype_file: " + perm_info['genofile']],
+        ["#Units_linkage: " + perm_info['units_linkage']],
+        ["#Permutation_stratified_by: " + ", ".join([ str(cofactor) for cofactor in perm_info['strat_cofactors']])],
+        ["#RESULTS_1: Suggestive LRS(p=0.63) = " + str(np.percentile(np.array(perm_info['perm_data']), 67))],
+        ["#RESULTS_2: Significant LRS(p=0.05) = " + str(np.percentile(np.array(perm_info['perm_data']), 95))],
+        ["#RESULTS_3: Highly Significant LRS(p=0.01) = " + str(np.percentile(np.array(perm_info['perm_data']), 99))],
+        ["#Comment: Results sorted from low to high peak linkage"]
+    ]
+
+    buff = io.StringIO()
     writer = csv.writer(buff)
-    writer.writerow(["Suggestive LRS (p=0.63) = " + str(np.percentile(np.array(perm_data), 67))])
-    writer.writerow(["Significant LRS (p=0.05) = " + str(np.percentile(np.array(perm_data), 95))])
-    writer.writerow(["Highly Significant LRS (p=0.01) = " + str(np.percentile(np.array(perm_data), 99))])
-    writer.writerow("")
-    writer.writerow([str(num_perm) + " Permutations"])
-    writer.writerow("")
-    for item in perm_data:
+    writer.writerows(the_rows)
+    for item in perm_info['perm_data']:
         writer.writerow([item])
     csv_data = buff.getvalue()
     buff.close()
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=perm_data.csv"})
+                    headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
@@ -482,7 +548,7 @@ def heatmap_page():
 
             result = template_vars.__dict__
 
-            for item in template_vars.__dict__.keys():
+            for item in list(template_vars.__dict__.keys()):
                 logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
@@ -582,18 +648,22 @@ def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
-    num_vals = 0 #ZS: So it can be displayed on loading page
+    n_samples = 0 #ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
-        for key, value in initial_start_vars.iteritems():
-            if key in wanted or key.startswith(('value:')):
+        for key, value in list(initial_start_vars.items()):
+            if key in wanted:
                 start_vars[key] = value
 
-        if 'num_vals' in start_vars:
-            num_vals = int(start_vars['num_vals'])
+        if 'n_samples' in start_vars:
+            n_samples = int(start_vars['n_samples'])
         else:
-            dataset = create_dataset(start_vars['dataset'])
+            sample_vals_dict = json.loads(start_vars['sample_vals'])
+            if 'group' in start_vars:
+                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
+            else:
+                dataset = create_dataset(start_vars['dataset'])
             genofile_samplelist = []
             samples = start_vars['primary_samples'].split(",")
             if 'genofile' in start_vars:
@@ -605,11 +675,11 @@ def loading_page():
                         samples = genofile_samples
 
             for sample in samples:
-                value = start_vars.get('value:' + sample)
-                if value != "x":
-                    num_vals += 1
+                if sample in sample_vals_dict:
+                    if sample_vals_dict[sample] != "x":
+                        n_samples += 1
 
-        start_vars['num_vals'] = num_vals
+        start_vars['n_samples'] = n_samples
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
         start_vars_container['start_vars'] = start_vars
@@ -623,7 +693,6 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
     initial_start_vars = request.form
-    #logger.debug("Mapping called with initial_start_vars:", initial_start_vars.items())
     logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
@@ -633,6 +702,7 @@ def mapping_results_page():
         'species',
         'samples',
         'vals',
+        'sample_vals',
         'first_run',
         'output_files',
         'geno_db_exists',
@@ -660,6 +730,8 @@ def mapping_results_page():
         'maf',
         'use_loco',
         'manhattan_plot',
+        'color_scheme',
+        'manhattan_single_color',
         'control_marker',
         'control_marker_db',
         'do_control',
@@ -679,18 +751,16 @@ def mapping_results_page():
         'mapmodel_rqtl_geno',
         'temp_trait',
         'reaper_version',
-        'num_vals',
+        'n_samples',
         'transform'
     )
     start_vars = {}
-    for key, value in initial_start_vars.iteritems():
-        if key in wanted or key.startswith(('value:')):
+    for key, value in list(initial_start_vars.items()):
+        if key in wanted:
             start_vars[key] = value
-    #logger.debug("Mapping called with start_vars:", start_vars)
 
     version = "v3"
     key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
-    #logger.info("key is:", pf(key))
     with Bench("Loading cache"):
         result = None # Just for testing
         #result = Redis.get(key)
@@ -712,10 +782,9 @@ def mapping_results_page():
                     rendered_template = render_template("mapping_error.html")
                     return rendered_template
             except:
-                rendered_template = render_template("mapping_error.html")
-                return rendered_template
+               rendered_template = render_template("mapping_error.html")
+               return rendered_template
 
-            #if template_vars.mapping_method != "gemma" and template_vars.mapping_method != "plink":
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                     default=json_default_handler,
                                                     indent="   ")
@@ -730,16 +799,12 @@ def mapping_results_page():
                     logger.info("initial_start_vars:", initial_start_vars)
                     imgfile = open(TEMPDIR + img_path, 'rb')
                     imgdata = imgfile.read()
-                    imgB64 = imgdata.encode("base64")
+                    imgB64 = base64.b64encode(imgdata)
                     bytesarray = array.array('B', imgB64)
                     result['pair_scan_array'] = bytesarray
                     rendered_template = render_template("pair_scan_results.html", **result)
             else:
                 gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
-                #pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-                #logger.info("pickled result length:", len(pickled_result))
-                #Redis.set(key, pickled_result)
-                #Redis.expire(key, 1*60)
 
                 with Bench("Rendering template"):
                     #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
@@ -757,6 +822,17 @@ def export_mapping_results():
     response = Response(results_csv,
                         mimetype='text/csv',
                         headers={"Content-Disposition":"attachment;filename=mapping_results.csv"})
+
+    return response
+
+@app.route("/export_corr_matrix", methods = ('POST',))
+def export_corr_matrix():
+    file_path = request.form.get("export_filepath")
+    file_name = request.form.get("export_filename")
+    results_csv = open(file_path, "r").read()
+    response = Response(results_csv,
+                        mimetype='text/csv',
+                        headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
     return response
 
@@ -840,11 +916,36 @@ def snp_browser_page():
 
     return render_template("snp_browser.html", **template_vars.__dict__)
 
+@app.route("/db_info", methods=('GET',))
+def db_info_page():
+    template_vars = InfoPage(request.args)
+
+    return render_template("info_page.html", **template_vars.__dict__)
+
+@app.route("/snp_browser_table", methods=('GET',))
+def snp_browser_table():
+    logger.info(request.url)
+    snp_table_data = snp_browser.SnpBrowser(request.args)
+    current_page = server_side.ServerSideTable(
+        snp_table_data.rows_count,
+        snp_table_data.table_rows,
+        snp_table_data.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
+
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():
     #ZS: Currently just links to GN1
     logger.info(request.url)
     return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
+
+@app.route("/tutorial/security", methods=('GET',))
+def security_tutorial_page():
+    #ZS: Currently just links to GN1
+    logger.info(request.url)
+    return render_template("admin/security_help.html")
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
@@ -870,8 +971,6 @@ def browser_inputs():
 
     return flask.jsonify(file_contents)
 
-
-
 ##########################################################################
 
 def json_default_handler(obj):
@@ -880,8 +979,8 @@ def json_default_handler(obj):
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
     # Handle integer keys for dictionaries
-    elif isinstance(obj, int):
-        return str(int)
+    elif isinstance(obj, int) or isinstance(obj, uuid.UUID):
+        return str(obj)
     # Handle custom objects
     if hasattr(obj, '__dict__'):
         return obj.__dict__
@@ -889,5 +988,5 @@ def json_default_handler(obj):
     #     logger.info("Not going to serialize Dataset")
     #    return None
     else:
-        raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (
-            type(obj), repr(obj))
+        raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
+            type(obj), repr(obj)))

@@ -1,0 +1,89 @@
+#+TITLE: Genenetwork2 Dockerized
+
+* Table of Contents                                                     :TOC:
+- [[#introduction][Introduction]]
+- [[#creating-the-docker-images][Creating the Docker Images]]
+- [[#pushing-to-dockerhub][Pushing to DockerHub]]
+
+* Introduction
+
+The CI(Continuous Integration) system for Genenetwork2 uses [[https://github.com/features/actions][Github
+Actions]]. As such, it's important to have a way to run tests using
+facilities provided by GUIX in a reproducible way. This project
+leverages GUIX to generate a docker container from which the unittests
+are ran from.
+
+Find instructions on how to set docker up inside GUIX [[https://github.com/pjotrp/guix-notes/blob/master/CONTAINERS.org#run-docker][here]]. This
+document will not get into that. It's assumed that you have a working
+docker setup.
+
+The rest of this document outlines how the docker container used in
+the CI builds was created.
+
+* Creating the Docker Images
+
+The general idea is that GUIX is used to generate a set of binaries,
+which will be added to a base mariaDB image.
+
+First create the gn2 tar archive by running:
+
+#+begin_src sh
+# For the Python 2 version:
+env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
+    ./pre-inst-env guix pack --no-grafts\
+    -S /gn2-profile=/ \
+    screen genenetwork2
+
+# For the Python 3 version:
+env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
+    ./pre-inst-env guix pack --no-grafts\
+    -S /gn2-profile=/ \
+    screen python3-genenetwork2
+  #+end_src
+
+The output will look something similar to:
+
+: /gnu/store/x3m77vwaqcwba24p5s4lrb7w2ii16lj9-tarball-pack.tar.gz
+
+Now create a folder from which will host the following dockerfile. You
+can name this file Dockerfile. Note that mariadb is the base image
+since it already has mariadb installed for us.
+
+#+begin_src conf :mkdirp yes :tangle ~/docker/Dockerfile
+FROM mariadb:latest
+
+COPY ./gn2.tar.gz /tmp/gn2.tar.gz
+RUN tar -xzf /tmp/gn2.tar.gz -C / && rm -f /tmp/gn2.tar.gz && \
+    mkdir -p /usr/local/mysql /genotype_files/genotype/json
+#+end_src
+
+Build the image(Note the fullstop at the end):
+
+: sudo docker build -t python2-genenetwork2:latest -f Dockerfile .
+
+To load the image interactively you've just created:
+
+: docker run -ti "python2-genenetwork2:latest" bash
+
+Assuming you have a docker instance running, you could always run
+commands in it e.g:
+
+: docker run "python2-genenetwork2:latest" python --version 
+
+* Pushing to DockerHub
+
+We use DockerHub to store the docker images from which we use on our
+CI environment using Github Actions.
+
+To push to dockerhub, first get the image name by running =docker
+images=. Push to dockerhub using a command similar to:
+
+: docker push bonfacekilz/python2-genenetwork2:latest
+
+Right now, we have 2 images on DockerHub:
+
+- https://hub.docker.com/repository/docker/bonfacekilz/python2-genenetwork2:
+  Contains the python2 version of gn2. Don't use this. Please use the
+  python3 image!
+- https://hub.docker.com/repository/docker/bonfacekilz/python3-genenetwork2:
+  Contains the python3 version of gn2.

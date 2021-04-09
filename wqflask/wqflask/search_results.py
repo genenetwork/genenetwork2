@@ -1,15 +1,7 @@
-# from __future__ import absolute_import, print_function, division
-
-
-import os
-import cPickle
 import re
 import uuid
 from math import *
 import time
-import math
-import datetime
-import collections
 import re
 import requests
 
@@ -18,18 +10,16 @@ from pprint import pformat as pf
 import json
 
 from base.data_set import create_dataset
-from base import trait
+from base.trait import create_trait
 from wqflask import parser
 from wqflask import do_search
-from utility import webqtlUtil,tools
 from db import webqtlDatabaseFunction
 
-from flask import render_template, Flask, g
+from flask import Flask, g
 
-from utility import formatting
-from utility import hmac
+from utility import hmac, helper_functions
 from utility.tools import GN2_BASE_URL
-from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
+from utility.type_checking import is_str
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
@@ -38,9 +28,9 @@ class SearchResultPage(object):
     #maxReturn = 3000
 
     def __init__(self, kw):
-        """This class gets invoked after hitting submit on the main menu (in
-views.py).
-
+        """
+            This class gets invoked after hitting submit on the main menu (in
+            views.py).
         """
 
         ###########################################
@@ -61,7 +51,7 @@ views.py).
         search = self.search_terms
         self.original_search_string = self.search_terms
         # check for dodgy search terms
-        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*',re.IGNORECASE)
+        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
             logger.info("Regex failed search")
             self.search_term_exists = False
@@ -86,10 +76,15 @@ views.py).
         try:
             self.search()
         except:
-            self.search_term_exists = False
-        if self.search_term_exists:
-            self.gen_search_result()
+           self.search_term_exists = False
 
+        self.too_many_results = False
+        if self.search_term_exists:
+            if len(self.results) > 50000:
+                self.trait_list = []
+                self.too_many_results = True
+            else:
+                self.gen_search_result()
 
     def gen_search_result(self):
         """
@@ -113,50 +108,70 @@ views.py).
 
             trait_dict = {}
             trait_id = result[0]
-            trait_dict['index'] = index + 1
-            this_trait = trait.GeneralTrait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
-            trait_dict['name'] = this_trait.name
-            if this_trait.dataset.type == "Publish":
-                trait_dict['display_name'] = this_trait.display_name
-            else:
-                trait_dict['display_name'] = this_trait.name
-            trait_dict['dataset'] = this_trait.dataset.name
-            trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
-            if this_trait.dataset.type == "ProbeSet":
-                trait_dict['symbol'] = this_trait.symbol
-                trait_dict['description'] = this_trait.description_display.decode('utf-8', 'replace')
-                trait_dict['location'] = this_trait.location_repr
-                trait_dict['mean'] = "N/A"
-                trait_dict['additive'] = "N/A"
-                if this_trait.mean != "" and this_trait.mean != None:
-                    trait_dict['mean'] = '%.3f' % this_trait.mean
-                trait_dict['lrs_score'] = this_trait.LRS_score_repr
-                trait_dict['lrs_location'] = this_trait.LRS_location_repr
-                if this_trait.additive != "":
-                    trait_dict['additive'] = '%.3f' % this_trait.additive
-            elif this_trait.dataset.type == "Geno":
-                trait_dict['location'] = this_trait.location_repr
-            elif this_trait.dataset.type == "Publish":
-                trait_dict['description'] = this_trait.description_display
-                trait_dict['authors'] = this_trait.authors
-                trait_dict['pubmed_id'] = "N/A"
-                if this_trait.pubmed_id:
-                    trait_dict['pubmed_id'] = this_trait.pubmed_id
-                    trait_dict['pubmed_link'] = this_trait.pubmed_link
-                trait_dict['pubmed_text'] = this_trait.pubmed_text
-                trait_dict['mean'] = "N/A"
-                if this_trait.mean != "" and this_trait.mean != None:
-                    trait_dict['mean'] = '%.3f' % this_trait.mean
-                trait_dict['lrs_score'] = this_trait.LRS_score_repr
-                trait_dict['lrs_location'] = this_trait.LRS_location_repr
-                trait_dict['additive'] = "N/A"
-                if this_trait.additive != "":
-                    trait_dict['additive'] = '%.3f' % this_trait.additive
-            trait_list.append(trait_dict)
-            #json_trait_list.append(trait.jsonable_table_row(this_trait, self.dataset.name, index + 1))
+            this_trait = create_trait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+            if this_trait:
+                trait_dict['index'] = index + 1
+                trait_dict['name'] = this_trait.name
+                if this_trait.dataset.type == "Publish":
+                    trait_dict['display_name'] = this_trait.display_name
+                else:
+                    trait_dict['display_name'] = this_trait.name
+                trait_dict['dataset'] = this_trait.dataset.name
+                trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
+                if this_trait.dataset.type == "ProbeSet":
+                    trait_dict['symbol'] = this_trait.symbol
+                    trait_dict['description'] = "N/A"
+                    if this_trait.description_display:
+                        trait_dict['description'] = this_trait.description_display
+                    trait_dict['location'] = this_trait.location_repr
+                    trait_dict['mean'] = "N/A"
+                    trait_dict['additive'] = "N/A"
+                    if this_trait.mean != "" and this_trait.mean != None:
+                        trait_dict['mean'] = f"{this_trait.mean:.3f}"
+                    try:
+                        trait_dict['lod_score'] = f"{float(this_trait.LRS_score_repr) / 4.61:.1f}"
+                    except:
+                        trait_dict['lod_score'] = "N/A"
+                    trait_dict['lrs_location'] = this_trait.LRS_location_repr
+                    if this_trait.additive != "":
+                        trait_dict['additive'] = f"{this_trait.additive:.3f}"
+                elif this_trait.dataset.type == "Geno":
+                    trait_dict['location'] = this_trait.location_repr
+                elif this_trait.dataset.type == "Publish":
+                    trait_dict['description'] = "N/A"
+                    if this_trait.description_display:
+                        trait_dict['description'] = this_trait.description_display
+                    trait_dict['authors'] = this_trait.authors
+                    trait_dict['pubmed_id'] = "N/A"
+                    if this_trait.pubmed_id:
+                        trait_dict['pubmed_id'] = this_trait.pubmed_id
+                        trait_dict['pubmed_link'] = this_trait.pubmed_link
+                    trait_dict['pubmed_text'] = this_trait.pubmed_text
+                    trait_dict['mean'] = "N/A"
+                    if this_trait.mean != "" and this_trait.mean != None:
+                        trait_dict['mean'] = f"{this_trait.mean:.3f}"
+                    try:
+                        trait_dict['lod_score'] = f"{float(this_trait.LRS_score_repr) / 4.61:.1f}"
+                    except:
+                        trait_dict['lod_score'] = "N/A"
+                    trait_dict['lrs_location'] = this_trait.LRS_location_repr
+                    trait_dict['additive'] = "N/A"
+                    if this_trait.additive != "":
+                        trait_dict['additive'] = f"{this_trait.additive:.3f}"
+                # Convert any bytes in dict to a normal utf-8 string
+                for key in trait_dict.keys():
+                    if isinstance(trait_dict[key], bytes):
+                        trait_dict[key] = trait_dict[key].decode('utf-8')
+                trait_list.append(trait_dict)
 
-        self.trait_list = json.dumps(trait_list)
-        #self.json_trait_list = json.dumps(json_trait_list)
+        self.trait_list = trait_list
+
+        if self.dataset.type == "ProbeSet":
+            self.header_data_names = ['index', 'display_name', 'symbol', 'description', 'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
+        elif self.dataset.type == "Publish":
+            self.header_data_names = ['index', 'display_name', 'description', 'mean', 'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
+        elif self.dataset.type == "Geno":
+            self.header_data_names = ['index', 'display_name', 'location']
 
     def search(self):
         """
@@ -234,7 +249,6 @@ views.py).
                 self.header_fields = the_search.header_fields
 
     def get_search_ob(self, a_search):
-        logger.debug("[kodak] item is:", pf(a_search))
         search_term = a_search['search_term']
         search_operator = a_search['separator']
         search_type = {}
@@ -243,12 +257,10 @@ views.py).
             search_type['key'] = a_search['key'].upper()
         else:
             search_type['key'] = None
-        logger.debug("search_type is:", pf(search_type))
 
         search_ob = do_search.DoSearch.get_search(search_type)
         if search_ob:
             search_class = getattr(do_search, search_ob)
-            logger.debug("search_class is: ", pf(search_class))
             the_search = search_class(search_term,
                                     search_operator,
                                     self.dataset,
@@ -278,7 +290,7 @@ def get_GO_symbols(a_search):
 def insert_newlines(string, every=64):
     """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
     lines = []
-    for i in xrange(0, len(string), every):
+    for i in range(0, len(string), every):
         lines.append(string[i:i+every])
     return '\n'.join(lines)
 

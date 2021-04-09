@@ -6,7 +6,6 @@ Convert data dryad files to a BIMBAM _geno and _snps file
 
 """
 
-from __future__ import print_function, division, absolute_import
 import sys
 sys.path.append("..")
 

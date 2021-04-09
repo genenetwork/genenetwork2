@@ -60,7 +60,7 @@ GN2_ID=$(cat /etc/hostname):$(basename $GN2_BASE_DIR)
 
 echo GN2_BASE_DIR=$GN2_BASE_DIR
 
-GUIX_SITE=$GN2_BASE_DIR/lib/python2.7/site-packages
+GUIX_SITE=$GN2_BASE_DIR/lib/python3.8/site-packages
 if [ -d $GUIX_SITE ]; then
     echo INFO: GN2 is running from GNU Guix
     GN2_BASE_DIR=$GUIX_SITE
@@ -105,7 +105,7 @@ echo GN2_SETTINGS=$settings
 # if [ -z $ELASTICSEARCH_PROFILE ]; then
 #     echo -e "WARNING: Elastic Search profile has not been set - use ELASTICSEARCH_PROFILE";
 # else
-#     PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python2.7/site-packages"
+#     PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python3.8/site-packages"
 # fi
 
 if [ -z $GN2_PROFILE ] ; then
@@ -121,7 +121,7 @@ if [ -z $GN2_PROFILE ]; then
     read -p "PRESS [ENTER] TO CONTINUE..."
 else
     export PATH=$GN2_PROFILE/bin:$PATH
-    export PYTHONPATH="$GN2_PROFILE/lib/python2.7/site-packages" # never inject another PYTHONPATH!!
+    export PYTHONPATH="$GN2_PROFILE/lib/python3.8/site-packages" # never inject another PYTHONPATH!!
     export R_LIBS_SITE=$GN2_PROFILE/site-library
     export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
     export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
@@ -154,7 +154,7 @@ if [ ! -d $R_LIBS_SITE ] ; then
 fi
 
 # We may change this one:
-export PYTHONPATH=$GN2_BASE_DIR/wqflask:$PYTHONPATH
+export PYTHONPATH=$PYTHON_GN_PATH:$GN2_BASE_DIR/wqflask:$PYTHONPATH
 
 # Our UNIX TMPDIR defaults to /tmp - change this on a shared server
 if [ -z $TMPDIR ]; then

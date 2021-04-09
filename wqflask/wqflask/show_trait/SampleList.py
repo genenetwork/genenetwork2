@@ -1,41 +1,30 @@
-from __future__ import absolute_import, print_function, division
-
-from flask import Flask, g
-
-from base import webqtlCaseData
-from utility import webqtlUtil, Plot, Bunch
-from base.trait import GeneralTrait
-
-import numpy as np
-from scipy import stats
-from pprint import pformat as pf
-
-import simplejson as json
-
+import re
 import itertools
 
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
+from flask import g
+from base import webqtlCaseData, webqtlConfig
+from pprint import pformat as pf
+
+from utility import Plot
+from utility import Bunch
 
 class SampleList(object):
     def __init__(self,
                  dataset,
                  sample_names,
                  this_trait,
-                 sample_group_type = "primary",
-                 header = "Samples"):
+                 sample_group_type="primary",
+                 header="Samples"):
 
         self.dataset = dataset
         self.this_trait = this_trait
         self.sample_group_type = sample_group_type    # primary or other
         self.header = header
 
-        self.sample_list = [] # The actual list
+        self.sample_list = []  # The actual list
         self.sample_attribute_values = {}
 
         self.get_attributes()
-
-        #self.sample_qnorm = get_transform_vals(self.dataset, this_trait)
 
         if self.this_trait and self.dataset:
             self.get_extra_attribute_values()
@@ -43,34 +32,65 @@ class SampleList(object):
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            if type(self.this_trait) is list: #ZS: self.this_trait will be a list if it is a Temp trait
-                if counter <= len(self.this_trait) and str(self.this_trait[counter-1]).upper() != 'X':
-                    sample = webqtlCaseData.webqtlCaseData(name=sample_name, value=float(self.this_trait[counter-1]))
-                else:
-                    sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+            # ZS: self.this_trait will be a list if it is a Temp trait
+            if isinstance(self.this_trait, list):
+                sample = webqtlCaseData.webqtlCaseData(name=sample_name)
+                if counter <= len(self.this_trait):
+                    if isinstance(self.this_trait[counter-1], (bytes, bytearray)):
+                        if (self.this_trait[counter-1].decode("utf-8").lower() != 'x'):
+                            sample = webqtlCaseData.webqtlCaseData(
+                                name=sample_name,
+                                value=float(self.this_trait[counter-1]))
+                    else:
+                        if (self.this_trait[counter-1].lower() != 'x'):
+                            sample = webqtlCaseData.webqtlCaseData(
+                                name=sample_name,
+                                value=float(self.this_trait[counter-1]))
             else:
-                #ZS - If there's no value for the sample/strain, create the sample object (so samples with no value are still displayed in the table)
+                # ZS - If there's no value for the sample/strain,
+                # create the sample object (so samples with no value
+                # are still displayed in the table)
                 try:
                     sample = self.this_trait.data[sample_name]
                 except KeyError:
-                    #logger.debug("No sample %s, let's create it now" % sample_name)
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
-            if self.dataset.group.name == 'AXBXA' and sample_name in ('AXB18/19/20','AXB13/14','BXA8/17'):
+            if (self.dataset.group.name == 'AXBXA' and
+                    sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17')):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
             sample.this_id = str(counter)
 
-            #### For extra attribute columns; currently only used by several datasets - Zach
+            # ZS: For extra attribute columns; currently only used by
+            # several datasets
             if self.sample_attribute_values:
-                sample.extra_attributes = self.sample_attribute_values.get(sample_name, {})
-                #logger.debug("sample.extra_attributes is", pf(sample.extra_attributes))
+                sample.extra_attributes = self.sample_attribute_values.get(
+                    sample_name, {})
+
+                #ZS: Add a url so RRID case attributes can be displayed as links
+                if 'rrid' in sample.extra_attributes:
+                    if self.dataset.group.species == "mouse":
+                        if len(sample.extra_attributes['rrid'].split(":")) > 1:
+                            the_rrid = sample.extra_attributes['rrid'].split(":")[1]
+                            sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
+                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_MOUSE_URL % the_rrid)
+                    elif self.dataset.group.species == "rat":
+                        if len(str(sample.extra_attributes['rrid'])):
+                            the_rrid = sample.extra_attributes['rrid'].split("_")[1]
+                            sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
+                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_RAT_URL % the_rrid)
 
             self.sample_list.append(sample)
 
-        #logger.debug("attribute vals are", pf(self.sample_attribute_values))
+        self.se_exists = any(sample.variance for sample in self.sample_list)
+        self.num_cases_exists = any(
+            sample.num_cases for sample in self.sample_list)
+
+        first_attr_col = self.get_first_attr_col()
+        for sample in self.sample_list:
+            sample.first_attr_col = first_attr_col
 
         self.do_outliers()
 
@@ -78,7 +98,8 @@ class SampleList(object):
         return "<SampleList> --> %s" % (pf(self.__dict__))
 
     def do_outliers(self):
-        values = [sample.value for sample in self.sample_list if sample.value != None]
+        values = [sample.value for sample in self.sample_list
+                  if sample.value is not None]
         upper_bound, lower_bound = Plot.find_outliers(values)
 
         for sample in self.sample_list:
@@ -99,17 +120,16 @@ class SampleList(object):
                         FROM CaseAttribute, CaseAttributeXRefNew
                         WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
                         AND CaseAttributeXRefNew.InbredSetId = %s
-                        ORDER BY CaseAttribute.Name''', (str(self.dataset.group.id),))
+                        ORDER BY lower(CaseAttribute.Name)''', (str(self.dataset.group.id),))
 
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
-            #logger.debug("radish: %s - %s" % (key, name))
             self.attributes[key] = Bunch()
             self.attributes[key].name = name
-            self.attributes[key].distinct_values = [item.Value for item in values]
-            self.attributes[key].distinct_values.sort(key=natural_sort_key)
-
+            self.attributes[key].distinct_values = [
+                item.Value for item in values]
+            self.attributes[key].distinct_values=natural_sort(self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:
@@ -141,68 +161,34 @@ class SampleList(object):
                 for item in items:
                     attribute_value = item.Value
 
-                    #ZS: If it's an int, turn it into one for sorting
-                    #(for example, 101 would be lower than 80 if they're strings instead of ints)
+                    # ZS: If it's an int, turn it into one for sorting
+                    # (for example, 101 would be lower than 80 if
+                    # they're strings instead of ints)
                     try:
                         attribute_value = int(attribute_value)
                     except ValueError:
                         pass
 
-                    attribute_values[self.attributes[item.Id].name] = attribute_value
+                    attribute_values[self.attributes[item.Id].name.lower()] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
 
-    def se_exists(self):
-        """Returns true if SE values exist for any samples, otherwise false"""
+    def get_first_attr_col(self):
+        first_attr_col = 4
+        if self.se_exists:
+            first_attr_col += 2
+        if self.num_cases_exists:
+            first_attr_col += 1
 
-        return any(sample.variance for sample in self.sample_list)
+        return first_attr_col
 
-# def get_transform_vals(dataset, trait):
-#     es = get_elasticsearch_connection(for_user=False)
 
-#     logger.info("DATASET NAME:", dataset.name)
-
-#     query = '{"bool": {"must": [{"match": {"name": "%s"}}, {"match": {"dataset": "%s"}}]}}' % (trait.name, dataset.name)
-
-#     es_body = {
-#           "query": {
-#             "bool": {
-#               "must": [
-#                 {
-#                   "match": {
-#                     "name": "%s" % (trait.name)
-#                   }
-#                 },
-#                 {
-#                   "match": {
-#                     "dataset": "%s" % (dataset.name)
-#                   }
-#                 }
-#               ]
-#             }
-#           }
-#     }
-
-#     response = es.search( index = "traits", doc_type = "trait", body = es_body )
-#     logger.info("THE RESPONSE:", response)
-#     results = response['hits']['hits']
-
-#     if len(results) > 0:
-#         samples = results[0]['_source']['samples']
-
-#         sample_dict = {}
-#         for sample in samples:
-#             sample_dict[sample['name']] = sample['qnorm']
-
-#         #logger.info("SAMPLE DICT:", sample_dict)
-#         return sample_dict
-#     else:
-#         return None
-
-def natural_sort_key(x):
-    """Get expected results when using as a key for sort - ints or strings are sorted properly"""
-
-    try:
-        x = int(x)
-    except ValueError:
-        pass
-    return x
+def natural_sort(a_list, key=lambda s: s):
+    """
+    Sort the list into natural alphanumeric order.
+    """
+    def get_alphanum_key_func(key):
+        def convert(text): return int(text) if text.isdigit() else text
+        return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
+    sort_key = get_alphanum_key_func(key)
+    sorted_list = sorted(a_list, key=sort_key)
+    return sorted_list

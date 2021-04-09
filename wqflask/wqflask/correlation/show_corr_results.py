@@ -18,53 +18,36 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
-import sys
-
-import string
-import cPickle
-import os
-import time
-import pp
-import math
 import collections
-import resource
 import json
-
 import scipy
 import numpy
 import rpy2.robjects as ro                    # R Objects
-import rpy2.rinterface as ri
+import utility.logger
+import utility.webqtlUtil
+
+from base.trait import create_trait
 
 from rpy2.robjects.packages import importr
-utils = importr("utils")
 
-from pprint import pformat as pf
-
-import reaper
-
-from base import webqtlConfig
-from utility.THCell import THCell
-from utility.TDCell import TDCell
-from base.trait import GeneralTrait
 from base import data_set
-from utility import webqtlUtil, helper_functions, corr_result_helpers, hmac
-from db import webqtlDatabaseFunction
-import utility.webqtlUtil #this is for parallel computing only.
+from utility import helper_functions
+from utility import corr_result_helpers
+from utility import hmac
+
 from wqflask.correlation import correlation_functions
 from utility.benchmark import Bench
-import utility.webqtlUtil
-from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
 
-from MySQLdb import escape_string as escape
+from utility.type_checking import is_str
+from utility.type_checking import get_float
+from utility.type_checking import get_int
+from utility.type_checking import get_string
+from utility.db_tools import escape
 
-from pprint import pformat as pf
+from flask import g
 
-from flask import Flask, g
-
-import utility.logger
-logger = utility.logger.getLogger(__name__ )
+utils = importr("utils")
+logger = utility.logger.getLogger(__name__)
 
 METHOD_LIT = "3"
 METHOD_TISSUE_PEARSON = "4"
@@ -73,6 +56,7 @@ METHOD_TISSUE_RANK = "5"
 TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
 
 TISSUE_MOUSE_DB = 1
+
 
 class CorrelationResults(object):
     def __init__(self, start_vars):
@@ -87,7 +71,6 @@ class CorrelationResults(object):
         assert('corr_sample_method' in start_vars)
         assert('corr_samples_group' in start_vars)
         assert('corr_dataset' in start_vars)
-        #assert('min_expr' in start_vars)
         assert('corr_return_results' in start_vars)
         if 'loc_chr' in start_vars:
             assert('min_loc_mb' in start_vars)
@@ -97,32 +80,31 @@ class CorrelationResults(object):
             if start_vars['dataset'] == "Temp":
                 self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
                 self.trait_id = start_vars['trait_id']
-                self.this_trait = GeneralTrait(dataset=self.dataset,
+                self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
             else:
                 helper_functions.get_species_dataset_trait(self, start_vars)
-
-            #self.dataset.group.read_genotype_file()
 
             corr_samples_group = start_vars['corr_samples_group']
 
             self.sample_data = {}
             self.corr_type = start_vars['corr_type']
             self.corr_method = start_vars['corr_sample_method']
-            self.min_expr = get_float(start_vars,'min_expr')
-            self.p_range_lower = get_float(start_vars,'p_range_lower',-1.0)
-            self.p_range_upper = get_float(start_vars,'p_range_upper',1.0)
+            self.min_expr = get_float(start_vars, 'min_expr')
+            self.p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
+            self.p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
 
             if ('loc_chr' in start_vars and
                 'min_loc_mb' in start_vars and
                 'max_loc_mb' in start_vars):
 
-                self.location_chr = get_string(start_vars,'loc_chr')
-                self.min_location_mb = get_int(start_vars,'min_loc_mb')
-                self.max_location_mb = get_int(start_vars,'max_loc_mb')
+                self.location_type = get_string(start_vars, 'location_type')
+                self.location_chr = get_string(start_vars, 'loc_chr')
+                self.min_location_mb = get_int(start_vars, 'min_loc_mb')
+                self.max_location_mb = get_int(start_vars, 'max_loc_mb')
             else:
-                self.location_chr = self.min_location_mb = self.max_location_mb = None
+                self.location_type = self.location_chr = self.min_location_mb = self.max_location_mb = None
 
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
@@ -147,10 +129,10 @@ class CorrelationResults(object):
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
                                     self.dataset.group.parlist + self.dataset.group.f1list)]
-                self.process_samples(start_vars, self.this_trait.data.keys(), primary_samples)
+                self.process_samples(start_vars, list(self.this_trait.data.keys()), primary_samples)
 
             self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
-            self.target_dataset.get_trait_data(self.sample_data.keys())
+            self.target_dataset.get_trait_data(list(self.sample_data.keys()))
 
             self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
 
@@ -170,56 +152,66 @@ class CorrelationResults(object):
 
                 tissue_corr_data = self.do_tissue_correlation_for_all_traits()
                 if tissue_corr_data != None:
-                    for trait in tissue_corr_data.keys()[:self.return_number]:
+                    for trait in list(tissue_corr_data.keys())[:self.return_number]:
                         self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
                 else:
-                    for trait, values in self.target_dataset.trait_data.iteritems():
+                    for trait, values in list(self.target_dataset.trait_data.items()):
                         self.get_sample_r_and_p_values(trait, values)
 
             elif self.corr_type == "lit":
                 self.trait_geneid_dict = self.dataset.retrieve_genes("GeneId")
                 lit_corr_data = self.do_lit_correlation_for_all_traits()
 
-                for trait in lit_corr_data.keys()[:self.return_number]:
+                for trait in list(lit_corr_data.keys())[:self.return_number]:
                     self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
 
             elif self.corr_type == "sample":
-                for trait, values in self.target_dataset.trait_data.iteritems():
+                for trait, values in list(self.target_dataset.trait_data.items()):
                     self.get_sample_r_and_p_values(trait, values)
 
-            self.correlation_data = collections.OrderedDict(sorted(self.correlation_data.items(),
+            self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
                                                                    key=lambda t: -abs(t[1][0])))
 
-            if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                #ZS: Convert min/max chromosome to an int for the location range option
-                range_chr_as_int = None
-                for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
-                    if 'loc_chr' in start_vars:
-                        if chr_info.name == self.location_chr:
-                            range_chr_as_int = order_id
 
-            for _trait_counter, trait in enumerate(self.correlation_data.keys()[:self.return_number]):
-                trait_object = GeneralTrait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+            #ZS: Convert min/max chromosome to an int for the location range option
+            range_chr_as_int = None
+            for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                if 'loc_chr' in start_vars:
+                    if chr_info.name == self.location_chr:
+                        range_chr_as_int = order_id
 
-                if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-                    #ZS: Convert trait chromosome to an int for the location range option
-                    chr_as_int = 0
-                    for order_id, chr_info in self.dataset.species.chromosomes.chromosomes.iteritems():
+            for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
+                trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+                if not trait_object:
+                    continue
+
+                chr_as_int = 0
+                for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
+                    if self.location_type == "highest_lod":
+                        if chr_info.name == trait_object.locus_chr:
+                            chr_as_int = order_id
+                    else:
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
 
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
                     float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
-                    if self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Geno":
-
+                    if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
                             continue
-                        elif range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+
+                    if range_chr_as_int != None and (chr_as_int != range_chr_as_int):
+                        continue
+                    if self.location_type == "highest_lod":
+                        if (self.min_location_mb != None) and (float(trait_object.locus_mb) < float(self.min_location_mb)):
                             continue
-                        elif (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                        if (self.max_location_mb != None) and (float(trait_object.locus_mb) > float(self.max_location_mb)):
                             continue
-                        elif (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
+                    else:
+                        if (self.min_location_mb != None) and (float(trait_object.mb) < float(self.min_location_mb)):
+                            continue
+                        if (self.max_location_mb != None) and (float(trait_object.mb) > float(self.max_location_mb)):
                             continue
 
                     (trait_object.sample_r,
@@ -235,9 +227,8 @@ class CorrelationResults(object):
                         trait_object.tissue_pvalue = tissue_corr_data[trait][2]
                     elif self.corr_type == "lit":
                         trait_object.lit_corr = lit_corr_data[trait][1]
-                    self.correlation_results.append(trait_object)
 
-            self.target_dataset.get_trait_info(self.correlation_results, self.target_dataset.group.species)
+                    self.correlation_results.append(trait_object)
 
             if self.corr_type != "lit" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_lit_correlation_for_trait_list()
@@ -300,14 +291,14 @@ class CorrelationResults(object):
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols.values()))
             corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=self.trait_symbol_dict.values())
+                                                    symbol_list=list(self.trait_symbol_dict.values()))
 
             #print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols))
 
             tissue_corr_data = {}
-            for trait, symbol in self.trait_symbol_dict.iteritems():
+            for trait, symbol in list(self.trait_symbol_dict.items()):
                 if symbol and symbol.lower() in corr_result_tissue_vals_dict:
                     this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower()]
 
@@ -317,7 +308,7 @@ class CorrelationResults(object):
 
                     tissue_corr_data[trait] = [symbol, result[0], result[2]]
 
-            tissue_corr_data = collections.OrderedDict(sorted(tissue_corr_data.items(),
+            tissue_corr_data = collections.OrderedDict(sorted(list(tissue_corr_data.items()),
                                                            key=lambda t: -abs(t[1][1])))
 
             return tissue_corr_data
@@ -362,7 +353,7 @@ class CorrelationResults(object):
         input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
 
         lit_corr_data = {}
-        for trait, gene_id in self.trait_geneid_dict.iteritems():
+        for trait, gene_id in list(self.trait_geneid_dict.items()):
             mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), gene_id)
 
             if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
@@ -390,7 +381,7 @@ class CorrelationResults(object):
             else:
                 lit_corr_data[trait] = [gene_id, 0]
 
-        lit_corr_data = collections.OrderedDict(sorted(lit_corr_data.items(),
+        lit_corr_data = collections.OrderedDict(sorted(list(lit_corr_data.items()),
                                                            key=lambda t: -abs(t[1][1])))
 
         return lit_corr_data
@@ -451,15 +442,15 @@ class CorrelationResults(object):
 
         self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
 
-        #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
-        if self.corr_method == 'bicor':
-            sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
-        elif self.corr_method == 'pearson':
-            sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
-        else:
-            sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
-
         if num_overlap > 5:
+            #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
+            if self.corr_method == 'bicor':
+                sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
+            elif self.corr_method == 'pearson':
+                sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
+            else:
+                sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
+
             if numpy.isnan(sample_r):
                 pass
             else:
@@ -469,13 +460,13 @@ class CorrelationResults(object):
         if not excluded_samples:
             excluded_samples = ()
 
+        sample_val_dict = json.loads(start_vars['sample_vals'])
         for sample in sample_names:
             if sample not in excluded_samples:
-                # print("Looking for",sample,"in",start_vars)
-                value = start_vars.get('value:' + sample)
-                if value:
-                    if not value.strip().lower() == 'x':
-                        self.sample_data[str(sample)] = float(value)
+                value = sample_val_dict[sample]
+                if not value.strip().lower() == 'x':
+                    self.sample_data[str(sample)] = float(value)
+
 
 def do_bicor(this_trait_vals, target_trait_vals):
     r_library = ro.r["library"]             # Map the library function
@@ -496,76 +487,88 @@ def do_bicor(this_trait_vals, target_trait_vals):
 def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
     results_list = []
     for i, trait in enumerate(corr_results):
+        if trait.view == False:
+            continue
         results_dict = {}
-        if not for_api:
-            results_dict['checkbox'] = "<INPUT TYPE='checkbox' NAME='searchResult' class='checkbox trait_checkbox' style='padding-right: 0px;' VALUE='" + hmac.hmac_creation('{}:{}'.format(trait.name, trait.dataset.name)) + "'>"
-            results_dict['index'] = i + 1
-            results_dict['trait_id'] = "<a href='/show_trait?trait_id="+str(trait.name)+"&dataset="+str(dataset.name)+"'>"+str(trait.name)+"</a>"
-        else:
-            results_dict['trait_id'] = trait.name
+        results_dict['index'] = i + 1
+        results_dict['trait_id'] = trait.name
+        results_dict['dataset'] = trait.dataset.name
+        results_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait.name, trait.dataset.name))
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
-            results_dict['description'] = trait.description_display
+            results_dict['description'] = "N/A"
             results_dict['location'] = trait.location_repr
-            results_dict['mean'] = float(trait.mean)
-            if trait.LRS_score_repr != "N/A":
-                results_dict['lrs_score'] = "%.1f" % float(trait.LRS_score_repr)
-            else:
-                results_dict['lrs_score'] = "N/A"
+            results_dict['mean'] = "N/A"
+            results_dict['additive'] = "N/A"
+            if bool(trait.description_display):
+                results_dict['description'] = trait.description_display
+            if bool(trait.mean):
+                results_dict['mean'] = f"{float(trait.mean):.3f}"
+            try:
+                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
+            except:
+                results_dict['lod_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if trait.additive != "":
-                results_dict['additive'] = "%0.3f" % float(trait.additive)
-            else:
-                results_dict['additive'] = "N/A"
-            if for_api:
-                results_dict['sample_r'] = "%0.3f" % float(trait.sample_r)
-            else:
-                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
+            if bool(trait.additive):
+                results_dict['additive'] = f"{float(trait.additive):.3f}"
+            results_dict['sample_r'] = f"{float(trait.sample_r):.3f}"
             results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
-            if trait.lit_corr == "" or trait.lit_corr == 0:
-                results_dict['lit_corr'] = "--"
-            else:
-                results_dict['lit_corr'] = "%0.3f" % float(trait.lit_corr)
-            if trait.tissue_corr == "" or trait.tissue_corr == 0:
-                results_dict['tissue_corr'] = "--"
-            else:
-                results_dict['tissue_corr'] = "%0.3f" % float(trait.tissue_corr)
+            results_dict['sample_p'] = f"{float(trait.sample_p):.3e}"
+            results_dict['lit_corr'] = "--"
+            results_dict['tissue_corr'] = "--"
+            results_dict['tissue_pvalue'] = "--"
+            if bool(trait.lit_corr):
+                results_dict['lit_corr'] = f"{float(trait.lit_corr):.3f}"
+            if bool(trait.tissue_corr):
+                results_dict['tissue_corr'] = f"{float(trait.tissue_corr):.3f}"
+                results_dict['tissue_pvalue'] = f"{float(trait.tissue_pvalue):.3e}"
         elif target_dataset.type == "Publish":
-            results_dict['description'] = trait.description_display
-            results_dict['authors'] = trait.authors
-            if trait.pubmed_id:
+            results_dict['abbreviation_display'] = "N/A"
+            results_dict['description'] = "N/A"
+            results_dict['mean'] = "N/A"
+            results_dict['authors_display'] = "N/A"
+            results_dict['additive'] = "N/A"
+            if for_api:
+                results_dict['pubmed_id'] = "N/A"
+                results_dict['year'] = "N/A"
+            else:
+                results_dict['pubmed_link'] = "N/A"
+                results_dict['pubmed_text'] = "N/A"
+
+            if bool(trait.abbreviation):
+                results_dict['abbreviation_display'] = trait.abbreviation
+            if bool(trait.description_display):
+                results_dict['description'] = trait.description_display
+            if bool(trait.mean):
+                results_dict['mean'] = f"{float(trait.mean):.3f}"
+            if bool(trait.authors):
+                authors_list = trait.authors.split(',')
+                if len(authors_list) > 6:
+                    results_dict['authors_display'] = ", ".join(authors_list[:6]) + ", et al."
+                else:
+                    results_dict['authors_display'] = trait.authors
+            if bool(trait.pubmed_id):
                 if for_api:
                     results_dict['pubmed_id'] = trait.pubmed_id
                     results_dict['year'] = trait.pubmed_text
                 else:
-                    results_dict['pubmed'] = "<a href='" + trait.pubmed_link + "'> " + trait.pubmed_text + "</a>"
-            else:
-                if for_api:
-                    results_dict['pubmed_id'] = "N/A"
-                    results_dict['year'] = "N/A"
-                else:
-                    results_dict['pubmed'] = "N/A"
-            results_dict['lrs_score'] = trait.LRS_score_repr
+                    results_dict['pubmed_link'] = trait.pubmed_link
+                    results_dict['pubmed_text'] = trait.pubmed_text
+            try:
+                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
+            except:
+                results_dict['lod_score'] = "N/A"
             results_dict['lrs_location'] = trait.LRS_location_repr
-            if trait.additive != "":
-                results_dict['additive'] = "%0.3f" % float(trait.additive)
-            else:
-                results_dict['additive'] = "N/A"
-            if for_api:
-                results_dict['sample_r'] = "%0.3f" % trait.sample_r
-            else:
-                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % trait.sample_r + "</a>"
+            if bool(trait.additive):
+                results_dict['additive'] = f"{float(trait.additive):.3f}"
+            results_dict['sample_r'] = f"{float(trait.sample_r):.3f}"
             results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
+            results_dict['sample_p'] = f"{float(trait.sample_p):.3e}"
         else:
-            results_dict['lrs_location'] = trait.LRS_location_repr
-            if for_api:
-                results_dict['sample_r'] = "%0.3f" % trait.sample_r
-            else:
-                results_dict['sample_r'] = "<a target='_blank' href='corr_scatter_plot?dataset_1=" + str(dataset.name) + "&dataset_2=" + str(trait.dataset.name) + "&trait_1=" + str(this_trait.name) + "&trait_2=" + str(trait.name) + "'>" + "%0.3f" % float(trait.sample_r) + "</a>"
+            results_dict['location'] = trait.location_repr
+            results_dict['sample_r'] = f"{float(trait.sample_r):.3f}"
             results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = "%0.3e" % float(trait.sample_p)
+            results_dict['sample_p'] = f"{float(trait.sample_p):.3e}"
 
         results_list.append(results_dict)
 
@@ -611,6 +614,7 @@ def get_header_fields(data_type, corr_method):
                             'Record',
                             'Abbreviation',
                             'Description',
+                            'Mean',
                             'Authors',
                             'Year',
                             'Sample rho',
@@ -624,6 +628,7 @@ def get_header_fields(data_type, corr_method):
                             'Record',
                             'Abbreviation',
                             'Description',
+                            'Mean',
                             'Authors',
                             'Year',
                             'Sample r',
@@ -650,3 +655,4 @@ def get_header_fields(data_type, corr_method):
                                 'Sample p(r)']
 
     return header_fields
+

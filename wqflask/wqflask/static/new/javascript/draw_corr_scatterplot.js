@@ -337,14 +337,13 @@ function getdata() {
           continue
         }
 
+        sizev = 10;
+        datav = 0;
         if (size_cofactor_vals.length > 0){
           if (cofactor_samples.indexOf(js_data.indIDs[j])) {
             datav = size_cofactor_vals[j]
             sizev = map1to2(datamin, datamax, sizemin, sizemax, datav);
           }
-        } else {
-            datav = 0;
-            sizev = 10;
         }
 
         x_values.push(js_data.data[0][j])

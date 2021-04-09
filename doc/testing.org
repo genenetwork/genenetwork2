@@ -1,43 +1,67 @@
 #+TITLE: Testing GN2
 
 * Table of Contents                                                     :TOC:
- - [[#introduction][Introduction]]
- - [[#run-tests][Run tests]]
-   - [[#setup][Setup]]
-   - [[#running][Running]]
+- [[#introduction][Introduction]]
+- [[#run-tests][Run tests]]
+  - [[#setup][Setup]]
+  - [[#running][Running]]
 
 * Introduction
 
-For integration testing we currently use the brilliant Ruby Mechanize
-gem against the small database; a setup we call mechanical Rob because
-it emulates someone clicking through the website and checking results.
+For integration testing, we currently use [[https://github.com/genenetwork/genenetwork2/tree/testing/test/requests][Mechanica Rob]] against the
+small [[https://github.com/genenetwork/genenetwork2/blob/testing/doc/database.org][database]]; a setup we call Mechanical Rob because it emulates
+someone clicking through the website and checking results.
 
-These scripts invoke calls to a running webserver and test the
-response.  If a page changes or is broken tests will break and we are
-informed.  In principle, Mechanical Rob is run before code merges are
-committed to the main server.
+These scripts invoke calls to a running webserver and test the response.
+If a page changes or breaks, tests will fail. In principle, Mechanical
+Rob runs before code merges get committed to the main server.
 
-In the future we may move to Python mechanize - it'll be easy to mix
-the Ruby and Python versions.
+For unit tests, we use python's =unittest= framework. Coverage reports
+get generated using [[https://coverage.readthedocs.io/en/coverage-5.2.1/][coverage.py]] which you could also use to run
+unit tests. When adding new functionality, it is advisable to add
+unit tests.
 
 * Run tests
 
 ** Setup
 
-Mechanize is not yet included in Guix deployment.
+Everything required for testing is already package with guix:
 
+: ./pre-ins-env guix package -i genenetwork2 -p ~/opt/genenetwork2
 
 ** Running
 
-Run the tests from the root of the genenetwork2 source tree as, for
-example,
+Run the tests from the root of the genenetwork2 source tree as. Ensure
+that Redis and Mariadb are running.
 
-:  ./bin/test-website http://localhost:5003/ (default)
+To run Mechanical Rob:
+: time env GN2_PROFILE=~/opt/genenetwork2 TMPDIR=~/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -c ~/projects/genenetwork2/test/requests/test-website.py -a http://localhost:5004
 
-If you are using the small deployment database you can use
+Use these aliases for the following examples.
 
-:  ./bin/test-website --skip -n
+#+begin_src sh
+alias runpython="env GN2_PROFILE=~/opt/gn-latest TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2
 
-To run individual tests on localhost you can do
+alias runcmd="time env GN2_PROFILE=~/opt/gn-latest TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -cli"
+#+end_src
 
-:  ruby -Itest -Itest/lib test/lib/mapping.rb --name="/Mapping/"
+You could use them in your =.bashrc= or =.zshrc= file.
+
+To run unit tests:
+
+: runpython -m unittest discover -v
+
+Or alternatively using the coverage tool:
+
+: runcmd coverage run -m unittest discover -v
+
+To generate a html coverage report in =wqflask/coverage_html_report/=
+
+: runcmd coverage html
+
+To output the report to =STDOUT=:
+
+: runcmd coverage report
+
+All the configs for running the coverage tool are in
+=wqflask/.coveragerc=

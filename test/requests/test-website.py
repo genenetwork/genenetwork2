@@ -3,9 +3,10 @@
 #   env GN2_PROFILE=/home/wrk/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py http://localhost:5003
 #
 # Mostly to pick up the Guix GN2_PROFILE and python modules
-from __future__ import print_function
+
 import argparse
 from link_checker import check_links
+from link_checker import check_packaged_js_files
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
 from main_web_functionality import check_main_web_functionality
@@ -30,6 +31,7 @@ def run_all(args_obj, parser):
     link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
+    check_packaged_js_files(args_obj, parser)
     check_mapping(args_obj, parser)
     # TODO: Add other functions as they are created.
 
@@ -104,16 +106,7 @@ parser.add_argument("-i", "--integration-tests", dest="accumulate"
                     , action="store_const", const=integration_tests, default=print_help
                     , help="Runs integration tests.")
 
-# Navigation tests deactivated since system relies on Javascript
-# parser.add_argument("-n", "--navigation", dest="accumulate"
-#                     , action="store_const", const=check_navigation, default=print_help
-#                     , help="Checks for navigation.")
-
-# parser.add_argument("-s", "--skip-broken", dest="accumulate"
-#                     , action="store_const", const=dummy, default=print_help
-#                     , help="Skip tests that are known to be broken.")
-
 args = parser.parse_args()
-# print("The arguments object: ", args)
+
 
 args.accumulate(args, parser)

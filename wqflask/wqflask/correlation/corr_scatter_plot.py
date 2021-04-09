@@ -1,10 +1,8 @@
-from __future__ import absolute_import, print_function, division
-
 import math
 
 from flask import g
 
-from base.trait import GeneralTrait
+from base.trait import create_trait, retrieve_sample_data
 from base import data_set
 from utility import corr_result_helpers
 from scipy import stats
@@ -17,23 +15,41 @@ class CorrScatterPlot(object):
     """Page that displays a correlation scatterplot with a line fitted to it"""
 
     def __init__(self, params):
-        self.data_set_1 = data_set.create_dataset(params['dataset_1'])
-        self.data_set_2 = data_set.create_dataset(params['dataset_2'])
-        #self.data_set_3 = data_set.create_dataset(params['dataset_3'])
-        self.trait_1 = GeneralTrait(name=params['trait_1'], dataset=self.data_set_1)
-        self.trait_2 = GeneralTrait(name=params['trait_2'], dataset=self.data_set_2)
-        #self.trait_3 = GeneralTrait(name=params['trait_3'], dataset=self.data_set_3)
+        if "Temp" in params['dataset_1']:
+            self.dataset_1 = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = params['dataset_1'].split("_")[1])
+        else:
+            self.dataset_1 = data_set.create_dataset(params['dataset_1'])
+        if "Temp" in params['dataset_2']:
+            self.dataset_2 = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = params['dataset_2'].split("_")[1])
+        else:
+            self.dataset_2 = data_set.create_dataset(params['dataset_2'])
+
+        #self.dataset_3 = data_set.create_dataset(params['dataset_3'])
+        self.trait_1 = create_trait(name=params['trait_1'], dataset=self.dataset_1)
+        self.trait_2 = create_trait(name=params['trait_2'], dataset=self.dataset_2)
+        #self.trait_3 = create_trait(name=params['trait_3'], dataset=self.dataset_3)
+
+        self.method = params['method']
+
+        primary_samples = self.dataset_1.group.samplelist
+        if self.dataset_1.group.parlist != None:
+            primary_samples += self.dataset_1.group.parlist
+        if self.dataset_1.group.f1list != None:
+            primary_samples += self.dataset_1.group.f1list
+
+        self.trait_1 = retrieve_sample_data(self.trait_1, self.dataset_1, primary_samples)
+        self.trait_2 = retrieve_sample_data(self.trait_2, self.dataset_2, primary_samples)
 
         samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
 
         self.data = []
-        self.indIDs = samples_1.keys()
+        self.indIDs = list(samples_1.keys())
         vals_1 = []
-        for sample in samples_1.keys():
+        for sample in list(samples_1.keys()):
             vals_1.append(samples_1[sample].value)
         self.data.append(vals_1)
         vals_2 = []
-        for sample in samples_2.keys():
+        for sample in list(samples_2.keys()):
             vals_2.append(samples_2[sample].value)
         self.data.append(vals_2)
 

@@ -1,10 +1,8 @@
-from __future__ import absolute_import, division, print_function
-
 import string
 
 from base import data_set
 from base import webqtlConfig
-from base.trait import GeneralTrait, retrieve_sample_data
+from base.trait import create_trait, retrieve_sample_data
 
 from utility import helper_functions
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
@@ -18,7 +16,7 @@ def do_mapping_for_api(start_vars):
 
     dataset = data_set.create_dataset(dataset_name = start_vars['db'])
     dataset.group.get_markers()
-    this_trait = GeneralTrait(dataset = dataset, name = start_vars['trait_id'])
+    this_trait = create_trait(dataset = dataset, name = start_vars['trait_id'])
     this_trait = retrieve_sample_data(this_trait, dataset)
 
     samples = []

@@ -1,17 +1,12 @@
-from __future__ import absolute_import, print_function, division
-
 import string
 import os
 import datetime
-import cPickle
+import pickle
 import uuid
 import requests
 import json as json
 
 from collections import OrderedDict
-
-import redis
-Redis = redis.StrictRedis()
 
 import numpy as np
 import scipy.stats as ss
@@ -21,11 +16,15 @@ from flask import Flask, g
 from base import webqtlConfig
 from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
-from utility import webqtlUtil, Plot, Bunch, helper_functions
-from utility.tools import locate_ignore_error
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from db import webqtlDatabaseFunction
+from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility.authentication_tools import check_owner_or_admin
+from utility.tools import locate_ignore_error
+from utility.redis_tools import get_redis_conn, get_resource_id
+Redis = get_redis_conn()
+ONE_YEAR = 60 * 60 * 24 * 365
 
 from pprint import pformat as pf
 
@@ -42,38 +41,43 @@ logger = getLogger(__name__ )
 class ShowTrait(object):
 
     def __init__(self, kw):
-        logger.debug("in ShowTrait, kw are:", kw)
-
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
             helper_functions.get_species_dataset_trait(self, kw)
+            self.resource_id = get_resource_id(self.dataset, self.trait_id)
+            self.admin_status = check_owner_or_admin(resource_id=self.resource_id)
         elif 'group' in kw:
             self.temp_trait = True
             self.trait_id = "Temp_"+kw['species']+ "_" + kw['group'] + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
             self.temp_species = kw['species']
             self.temp_group = kw['group']
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
+
             # Put values in Redis so they can be looked up later if added to a collection
-            Redis.set(self.trait_id, kw['trait_paste'])
+            Redis.set(self.trait_id, kw['trait_paste'], ex=ONE_YEAR)
             self.trait_vals = kw['trait_paste'].split()
-            self.this_trait = GeneralTrait(dataset=self.dataset,
+            self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+
+            self.admin_status = check_owner_or_admin(dataset=self.dataset, trait_id=self.trait_id)
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
             self.temp_species = self.trait_id.split("_")[1]
             self.temp_group = self.trait_id.split("_")[2]
             self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = self.temp_group)
-            self.this_trait = GeneralTrait(dataset=self.dataset,
+            self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+
             self.trait_vals = Redis.get(self.trait_id).split()
+            self.admin_status = check_owner_or_admin(dataset=self.dataset, trait_id=self.trait_id)
 
         #ZS: Get verify/rna-seq link URLs
         try:
-            blatsequence = self.this_trait.sequence
+            blatsequence = self.this_trait.blatseq
             if not blatsequence:
                 #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 query1 = """SELECT Probe.Sequence, Probe.Name
@@ -94,6 +98,7 @@ class ShowTrait(object):
 
             #--------Hongqiang add this part in order to not only blat ProbeSet, but also blat Probe
             blatsequence = '%3E' + self.this_trait.name + '%0A' + blatsequence + '%0A'
+
             #XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
             query2 = """SELECT Probe.Sequence, Probe.Name
                         FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
@@ -106,7 +111,7 @@ class ShowTrait(object):
             seqs = g.db.execute(query2).fetchall()
             for seqt in seqs:
                 if int(seqt[1][-1]) %2 == 1:
-                    blatsequence += '%3EProbe_' + string.strip(seqt[1]) + '%0A' + string.strip(seqt[0]) + '%0A'
+                    blatsequence += '%3EProbe_' + seqt[1].strip() + '%0A' + seqt[0].strip() + '%0A'
 
             if self.dataset.group.species == "rat":
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % ('rat', 'rn6', blatsequence)
@@ -143,6 +148,7 @@ class ShowTrait(object):
                 self.nearest_marker = ""
                 #self.nearest_marker1 = ""
                 #self.nearest_marker2 = ""
+
 
         self.make_sample_lists()
 
@@ -181,8 +187,6 @@ class ShowTrait(object):
 
         self.has_num_cases = has_num_cases(self.this_trait)
 
-        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, self.has_num_cases)
-
         #ZS: Needed to know whether to display bar chart + get max sample name length in order to set table column width
         self.num_values = 0
         self.binary = "true" #ZS: So it knows whether to display the Binary R/qtl mapping method, which doesn't work unless all values are 0 or 1
@@ -200,6 +204,8 @@ class ShowTrait(object):
                         self.negative_vals_exist = "true"
 
         sample_column_width = max_samplename_width * 8
+
+        self.stats_table_width, self.trait_table_width = get_table_widths(self.sample_groups, sample_column_width, self.has_num_cases)
 
         if self.num_values >= 5000:
             self.maf = 0.01
@@ -223,8 +229,8 @@ class ShowTrait(object):
         hddn = OrderedDict()
 
         if self.dataset.group.allsamples:
-            hddn['allsamples'] = string.join(self.dataset.group.allsamples, ' ')
-        hddn['primary_samples'] = string.join(self.primary_sample_names, ',')
+            hddn['allsamples'] = ','.join(self.dataset.group.allsamples)
+        hddn['primary_samples'] = ','.join(self.primary_sample_names)
         hddn['trait_id'] = self.trait_id
         hddn['trait_display_name'] = self.this_trait.display_name
         hddn['dataset'] = self.dataset.name
@@ -253,7 +259,7 @@ class ShowTrait(object):
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
         if len(self.scales_in_geno) < 2:
-            hddn['mapping_scale'] = self.scales_in_geno[self.scales_in_geno.keys()[0]][0]
+            hddn['mapping_scale'] = self.scales_in_geno[list(self.scales_in_geno.keys())[0]][0][0]
 
         # We'll need access to this_trait and hddn in the Jinja2 Template, so we put it inside self
         self.hddn = hddn
@@ -263,11 +269,14 @@ class ShowTrait(object):
                        short_description = short_description,
                        unit_type = trait_units,
                        dataset_type = self.dataset.type,
+                       species = self.dataset.group.species,
                        scales_in_geno = self.scales_in_geno,
                        data_scale = self.dataset.data_scale,
                        sample_group_types = self.sample_group_types,
                        sample_lists = sample_lists,
-                       attribute_names = self.sample_groups[0].attributes,
+                       se_exists = self.sample_groups[0].se_exists,
+                       has_num_cases = self.has_num_cases,
+                       attributes = self.sample_groups[0].attributes,
                        categorical_vars = ",".join(categorical_var_list),
                        num_values = self.num_values,
                        qnorm_values = self.qnorm_vals,
@@ -364,8 +373,8 @@ class ShowTrait(object):
             this_group = self.dataset.group.name
 
         # We're checking a string here!
-        assert isinstance(this_group, basestring), "We need a string type thing here"
-        if this_group[:3] == 'BXD' and this_group != "BXD-Harvested":
+        assert isinstance(this_group, str), "We need a string type thing here"
+        if this_group[:3] == 'BXD' and this_group != "BXD-Longevity" and this_group != "BXD-AE":
             this_group = 'BXD'
 
         if this_group:
@@ -387,6 +396,7 @@ class ShowTrait(object):
                                           return_results_menu_selected = return_results_menu_selected,)
 
     def make_sample_lists(self):
+
         all_samples_ordered = self.dataset.group.all_samples_ordered()
         
         parent_f1_samples = []
@@ -395,13 +405,19 @@ class ShowTrait(object):
 
         primary_sample_names = list(all_samples_ordered)
 
+
         if not self.temp_trait:
             other_sample_names = []
-            for sample in self.this_trait.data.keys():
-                if (self.this_trait.data[sample].name2 in primary_sample_names) and (self.this_trait.data[sample].name not in primary_sample_names):
-                    primary_sample_names.append(self.this_trait.data[sample].name)
-                    primary_sample_names.remove(self.this_trait.data[sample].name2)
-                elif sample not in all_samples_ordered:
+
+            for sample in list(self.this_trait.data.keys()):
+                if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
+                    if ((self.this_trait.data[sample].name2 in primary_sample_names) and
+                        (self.this_trait.data[sample].name not in primary_sample_names)):
+                        primary_sample_names.append(self.this_trait.data[sample].name)
+                        primary_sample_names.remove(self.this_trait.data[sample].name2)
+
+                all_samples_set = set(all_samples_ordered)
+                if sample not in all_samples_set:
                     all_samples_ordered.append(sample)
                     other_sample_names.append(sample)
 
@@ -414,6 +430,7 @@ class ShowTrait(object):
                 primary_header = "%s Only" % (self.dataset.group.name)
             else:
                 primary_header = "Samples"
+
             primary_samples = SampleList(dataset = self.dataset,
                                             sample_names=primary_sample_names,
                                             this_trait=self.this_trait,
@@ -445,6 +462,7 @@ class ShowTrait(object):
 
         self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
+
 
 def quantile_normalize_vals(sample_groups):
     def normf(trait_vals):
@@ -484,6 +502,7 @@ def quantile_normalize_vals(sample_groups):
 
     return qnorm_by_group
 
+
 def get_z_scores(sample_groups):
     zscore_by_group = []
     for sample_type in sample_groups:
@@ -508,11 +527,10 @@ def get_z_scores(sample_groups):
 
     return zscore_by_group
 
+
 def get_nearest_marker(this_trait, this_db):
     this_chr = this_trait.locus_chr
-    logger.debug("this_chr:", this_chr)
     this_mb = this_trait.locus_mb
-    logger.debug("this_mb:", this_mb)
     #One option is to take flanking markers, another is to take the two (or one) closest
     query = """SELECT Geno.Name
                FROM Geno, GenoXRef, GenoFreeze
@@ -523,7 +541,6 @@ def get_nearest_marker(this_trait, this_db):
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
     logger.sql(query)
     result = g.db.execute(query).fetchall()
-    logger.debug("result:", result)
 
     if result == []:
         return ""
@@ -531,31 +548,34 @@ def get_nearest_marker(this_trait, this_db):
     else:
         return result[0][0]
 
-def get_table_widths(sample_groups, has_num_cases=False):
+
+def get_table_widths(sample_groups, sample_column_width, has_num_cases=False):
     stats_table_width = 250
     if len(sample_groups) > 1:
         stats_table_width = 450
 
-    trait_table_width = 380
-    if sample_groups[0].se_exists():
-        trait_table_width += 70
+    trait_table_width = 300 + sample_column_width
+    if sample_groups[0].se_exists:
+        trait_table_width += 80
     if has_num_cases:
-        trait_table_width += 30
-    trait_table_width += len(sample_groups[0].attributes)*70
+        trait_table_width += 80
+    trait_table_width += len(sample_groups[0].attributes)*88
 
     trait_table_width = str(trait_table_width) + "px"
 
     return stats_table_width, trait_table_width
 
+
 def has_num_cases(this_trait):
     has_n = False
     if this_trait.dataset.type != "ProbeSet" and this_trait.dataset.type != "Geno":
-        for name, sample in this_trait.data.iteritems():
+        for name, sample in list(this_trait.data.items()):
             if sample.num_cases:
                 has_n = True
                 break
 
     return has_n
+
 
 def get_trait_units(this_trait):
     unit_type = ""
@@ -576,6 +596,7 @@ def get_trait_units(this_trait):
 
     return unit_type
 
+
 def check_if_attr_exists(the_trait, id_type):
     if hasattr(the_trait, id_type):
         if getattr(the_trait, id_type) == None or getattr(the_trait, id_type) == "":
@@ -584,6 +605,7 @@ def check_if_attr_exists(the_trait, id_type):
             return True
     else:
         return False
+
 
 def get_ncbi_summary(this_trait):
     if check_if_attr_exists(this_trait, 'geneid'):
@@ -597,13 +619,14 @@ def get_ncbi_summary(this_trait):
     else:
         return None
 
+
 def get_categorical_variables(this_trait, sample_list):
     categorical_var_list = []
 
     if len(sample_list.attributes) > 0:
         for attribute in sample_list.attributes:
             attribute_vals = []
-            for sample_name in this_trait.data.keys():
+            for sample_name in list(this_trait.data.keys()):
                 if sample_list.attributes[attribute].name in this_trait.data[sample_name].extra_attributes:
                     attribute_vals.append(this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
                 else:
@@ -615,9 +638,10 @@ def get_categorical_variables(this_trait, sample_list):
 
     return categorical_var_list
 
+
 def get_genotype_scales(genofiles):
     geno_scales = {}
-    if type(genofiles) is list:
+    if isinstance(genofiles, list):
         for the_file in genofiles:
             file_location = the_file['location']
             geno_scales[file_location] = get_scales_from_genofile(file_location)
@@ -625,6 +649,7 @@ def get_genotype_scales(genofiles):
         geno_scales[genofiles] = get_scales_from_genofile(genofiles)
 
     return geno_scales
+
 
 def get_scales_from_genofile(file_location):
     geno_path = locate_ignore_error(file_location, 'genotype')
@@ -677,6 +702,7 @@ def get_scales_from_genofile(file_location):
             else:
                 if i > first_marker_line + 10:
                     break
+
 
     #ZS: This assumes that both won't be all zero, since if that's the case mapping shouldn't be an option to begin with
     if mb_all_zero:

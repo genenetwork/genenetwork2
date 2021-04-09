@@ -1,7 +1,8 @@
 <title>Loading {{ start_vars.tool_used }} Results</title>
-<link REL="stylesheet" TYPE="text/css" href="/static/packages/bootstrap/css/bootstrap.css" />
+<link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
+<link REL="stylesheet" TYPE="text/css" href="/static/new/css/bootstrap-custom.css" />
 <form method="post" action="" name="loading_form" id="loading_form" class="form-horizontal">
-  {% for key, value in start_vars.iteritems() %}
+  {% for key, value in start_vars.items() %}
   <input type="hidden" name="{{ key }}" value="{{ value }}">
   {% endfor %}
   <div class="container">
@@ -11,7 +12,7 @@
         {% if start_vars.tool_used == "Mapping" %}
         <h1>Computing the Maps</h1>
         <br>
-        <i>n</i> = {{ start_vars.num_vals }}
+        <i>n</i> = {{ start_vars.n_samples }}
         <br>
         Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
         <br>
@@ -38,8 +39,8 @@
     </div>
   </div>
 </form>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="/static/packages/bootstrap/js/bootstrap.min.js"></script>
+<script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
+<script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
 <script  type="text/javascript">
 
 $("#loading_form").attr("action", "{{ start_vars.form_url }}");

@@ -1,17 +1,17 @@
 tr .outlier {
-    background-color: #ffff99;
+  background-color: #ffff99;
 }
 
 table.dataTable tbody tr.selected {
-    background-color: #ffee99;
+  background-color: #ffee99;
 }
 
 #bar_chart_container {
-    overflow-x:scroll;
+  overflow-x:scroll;
 }
 
 div.sample_group {
-    overflow: auto; # needed because it contains float dataTable wrapper
+  overflow: auto; # needed because it contains float dataTable wrapper
 }
 
 .js-plotly-plot .plotly .modebar {
@@ -25,18 +25,23 @@ table.dataTable thead th, table.dataTable tfoot th{
 }
 
 table.dataTable thead .sorting_asc {
-  background-image: url("../packages/DataTables/images/sort_asc_disabled.png");
+  background-image: url("/js/DataTables/images/sort_asc_disabled.png");
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("../packages/DataTables/images/sort_desc_disabled.png");
+  background-image: url("/js/DataTables/images/sort_desc_disabled.png");
 }
 
 table.dataTable thead th, table.dataTable tfoot {
   padding: 4px 18px 4px 10px;
 }
 
+/* Header for a column with a numeric value that should be right-aligned */
+table.dataTable thead th div.numeric_header {
+  text-align: right;
+}
+
 table.dataTable tbody td {
-  padding: 4px 20px 2px 10px;
+  padding: 2px 15px 0px 10px;
 }
 
 table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
@@ -46,4 +51,212 @@ table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
 table.dataTable.cell-border tbody tr th:first-child,
 table.dataTable.cell-border tbody tr td:first-child {
   border-left: 1px solid #ccc;
+}
+
+.checkbox {
+  min-height: 20px;
+}
+
+.trait_value_input {
+  text-align: right;
+}
+
+.glyphicon {
+  position: relative;
+  top: 2px;
+}
+
+.showtrait-main-div {
+  min-width: 1100px;
+}
+
+table.dataTable tbody td.column_name-Checkbox {
+  padding: 1px 0px 0px 9px; /* The left padding here is because text-align:center does not seem to be working properly. No idea why this is. */
+  text-align: center;
+  vertical-align: middle;
+}
+
+table.dataTable tbody td.column_name-Index {
+  padding: 2px 4px 0px 2px;
+  text-align: right;
+}
+
+/* the column with +/- in it that appears in the table when there's an SE column */
+table.dataTable tbody td.column_name-PlusMinus {
+  padding-left: 2px;
+  padding-right: 2px;
+  text-align: center;
+}
+
+table.dataTable tbody td.column_name-Value, table.dataTable tbody td.column_name-SE, table.dataTable tbody td.column_name-num_cases {
+  text-align: right;
+}
+
+div.btn-toolbar {
+  margin-bottom:15px;
+}
+
+/* div containing the form options for each segment of the trait page - correlations, statistics, mapping, etc */
+div.section-form-div {
+  padding: 20px;
+}
+
+table.left-float {
+  float: left;
+}
+
+div.scatterplot-btn-div {
+  margin-bottom:40px;
+}
+
+div.correlation-main {
+  min-width: 1200px;
+}
+
+div.correlation-options {
+  min-width: 700px;
+}
+
+.min-expr-field {
+  width: 70px;
+}
+
+div.p-range-slider {
+  width: 200px;
+  margin-left: 15px;
+}
+
+span.p-range-lower {
+  margin-top: 5px;
+  font: 400 12px Arial;
+  color: #888; 
+  display: inline-block;
+}
+
+span.p-range-upper {
+  font: 400 12px Arial;
+  color: #888;
+  display: inline-block;
+  margin: 5px 0px 0px 170px;
+}
+
+input.corr-location {
+  width: 50px;
+  display: inline;
+}
+
+div.block-div {
+  margin-bottom: 10px;
+}
+
+div.block-div-2 {
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+div.normalize-div {
+  margin-top:10px;
+}
+
+div.mapping-main {
+  min-width: 1200px;
+}
+div.mapping-options {
+  min-width: 500px;
+}
+
+div.covar-options {
+  padding-top: 7px;
+}
+
+.control-label {
+  text-align: right;
+}
+
+.chr-select, .maf-select, .scale-select, .reaper-ver-select {
+  width: 80px;
+}
+
+span.covar-text {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+div.select-covar-div {
+  margin-bottom: 10px;
+}
+
+.select-covar-button {
+  width: 80px;
+  padding-right: 10px;
+}
+
+.selected-covariates {
+  overflow-y: scroll;
+  resize: none;
+  width: 200px;
+}
+
+.cofactor-input {
+  width: 160px;
+  display: inline-block;
+}
+
+.no-control-radio {
+  margin-left: 10px;
+}
+
+.map-method-text {
+  margin-top: 20px;
+}
+
+.rqtl-description {
+  padding-top: 40px;
+  display: none;
+}
+
+div.sample-table-container {
+  padding-bottom: 10px;
+}
+
+div.sample-table-search-container {
+  display: inline;
+  height: 40px;
+}
+
+input.sample-table-search {
+  width: 200px;
+  display: inline;
+  float: left;
+  vertical-align: top;
+}
+
+div.sample-table-export-container {
+  padding-left: 10px;
+  display: inline;
+}
+
+div.export-code-container {
+  padding-top: 20px;
+  width: 600px;
+  display: none;
+}
+
+.export-code-field {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  height: 150px;
+}
+
+table.sample-table {
+  float: left;
+  width:100%;
+}
+
+input.trait-value-input {
+  text-align: right;
+}
+
+div.inline-div {
+  display: inline;
 }

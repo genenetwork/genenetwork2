@@ -4,9 +4,12 @@
  - [[#introduction][Introduction]]
  - [[#install][Install]]
  - [[#running-gn2][Running GN2]]
+ - [[#run-gn-proxy][Run gn-proxy]]
+ - [[#run-redis][Run Redis]]
  - [[#run-mariadb-server][Run MariaDB server]]
    - [[#install-mariadb-with-gnu-guix][Install MariaDB with GNU GUIx]]
    - [[#load-the-small-database-in-mysql][Load the small database in MySQL]]
+ - [[#get-genotype-files][Get genotype files]]
  - [[#gn2-dependency-graph][GN2 Dependency Graph]]
  - [[#working-with-the-gn2-source-code][Working with the GN2 source code]]
  - [[#read-more][Read more]]
@@ -16,7 +19,6 @@
    - [[#cant-run-a-module][Can't run a module]]
    - [[#rpy2-error-show-now-found][Rpy2 error 'show' now found]]
    - [[#mysql-cant-connect-server-through-socket-error][Mysql can't connect server through socket ERROR]]
- - [[#irc-session][IRC session]]
  - [[#notes][NOTES]]
    - [[#deploying-gn2-official][Deploying GN2 official]]
 
@@ -57,28 +59,39 @@ or you can set environment variables to override individual parameters, e.g.
 the debug and logging switches can be particularly useful when
 developing GN2.
 
-* Running Redis
+* Run gn-proxy
 
-Install redis. Make sure you add the setting:
+GeneNetwork requires a separate gn-proxy server which handles
+authorisation and access control. For instructions see the [[https://github.com/genenetwork/gn-proxy][README]].
 
-: appendonly yes
+* Run Redis
+
+Redis part of GN2 deployment and will be started by the ./bin/genenetwork2
+startup script.
 
 * Run MariaDB server
 ** Install MariaDB with GNU GUIx
 
-/Note: we moved to MariaDB/
-
 These are the steps you can take to install a fresh installation of
 mariadb (which comes as part of the GNU Guix genenetwork2 install).
 
-As root configure and run
+As root configure the Guix profile
+
+: . ~/opt/genenetwork2/etc/profile
+
+and run for example
 
 #+BEGIN_SRC bash
 adduser mariadb && addgroup mariadb
-mysqld --datadir=/home/mariadb/database --initialize-insecure
-mkdir -p /var/run/mariadbd
-chown mariadb.mariadb /var/run/mariadbd
-mysqld -u mariadb --datadir=/home/mariadb/database/mariadb --explicit_defaults_for_timestamp -P 12048"
+mkdir -p /export2/mariadb/database
+chown mariadb.mariadb -R /export2/mariadb/
+mkdir -p /var/run/mysqld
+chown mariadb.mariadb /var/run/mysqld
+su mariadb
+mysql --version
+  mysql  Ver 15.1 Distrib 10.1.45-MariaDB, for Linux (x86_64) using readline 5.1
+mysql_install_db --user=mariadb --datadir=/export2/mariadb/database
+mysqld -u mariadb --datadir=/exportdb/mariadb/database/mariadb --explicit_defaults_for_timestamp -P 12048"
 #+END_SRC
 
 If you want to run as root you may have to set
@@ -120,20 +133,21 @@ material.
 
 Download one database from
 
-[[http://files.genenetwork.org/raw_database/]]
+http://ipfs.genenetwork.org/ipfs/QmRUmYu6ogxEdzZeE8PuXMGCDa8M3y2uFcfo4zqQRbpxtk
 
-[[https://s3.amazonaws.com/genenetwork2/db_webqtl_s.zip]]
+After installation unzip the database binary in the MySQL directory
 
-Check the md5sum.
-
-After installation inflate the database binary in the MySQL directory
-
-: cd ~/mysql
-: chown -R mysql:mysql db_webqtl_s/
-: chmod 700 db_webqtl_s/
-: chmod 660 db_webqtl_s/*
+#+BEGIN_SRC sh
+cd ~/mysql
+p7zip -d db_webqtl_s.7z
+chown -R mysql:mysql db_webqtl_s/
+chmod 700 db_webqtl_s/
+chmod 660 db_webqtl_s/*
+#+END_SRC
 
 restart MySQL service (mysqld). Login as root
+
+: mysql_upgrade -u root --force
 
 : myslq -u root
 
@@ -151,7 +165,7 @@ and
 
 Set permissions and match password in your settings file below:
 
-: mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'mysql_password';
+: mysql> grant all privileges on db_webqtl_s.* to gn2@"localhost" identified by 'webqtl';
 
 You may need to change "localhost" to whatever domain you are
 connecting from (mysql will give an error).
@@ -162,6 +176,17 @@ configuration (see below).
 
 Note for the plant database you can rename it to db_webqtl_s, or
 change the settings in etc/default_settings.py to match your path.
+
+* Get genotype files
+
+The script looks for genotype files. You can find them in
+http://ipfs.genenetwork.org/ipfs/QmXQy3DAUWJuYxubLHLkPMNCEVq1oV7844xWG2d1GSPFPL
+
+#+BEGIN_SRC sh
+mkdir -p $HOME/genotype_files
+cd $HOME/genotype_files
+
+#+END_SRC
 
 * GN2 Dependency Graph
 
@@ -193,7 +218,7 @@ information given by guix:
 
 On one system:
 
-: export PYTHONPATH="$HOME/.guix-profile/lib/python2.7/site-packages"
+: export PYTHONPATH="$HOME/.guix-profile/lib/python3.8/site-packages"
 : export R_LIBS_SITE="$HOME/.guix-profile/site-library/"
 : export GEM_PATH="$HOME/.guix-profile/lib/ruby/gems/2.2.0"
 
@@ -249,439 +274,30 @@ if that works run genenetwork after setting SQL_URI to something like
 
 : export SQL_URI=mysql://gn2:mysql_password@127.0.0.1/db_webqtl_s
 
-
-* IRC session
-
-Here an IRC session where we installed GN2 from scratch using GNU Guix
-and a download of the test database.
-
-#+begin_src
-<pjotrp> time to get binary install sorted :)  [07:03]
-<pjotrp> Guix is designed for distributed installation servers
-<pjotrp> we have one on guix.genenetwork.org
-<pjotrp> it contains all the prebuild packages
-<pjotrp> for GN
-<user01> okay  [07:04]
-<pjotrp> let's step back however  [07:05]
-<pjotrp> I presume the environment is set with all guix package --search-paths
-<pjotrp> right?
-<user01> yep
-<user01> set to the ones in ~/.guix-profile/
-<pjotrp> good, and you are in gn-deploy-guix repo  [07:06]
-<user01> yep  [07:07]
-<pjotrp> git log shows
-
-Author: David Thompson <dthompson2@worcester.edu>
-Date:   Sun Mar 27 21:20:19 2016 -0400
-
-<user01> yes
-<pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
-         package -A genenetwork2  [07:08]
-<pjotrp> shows
-
-genenetwork2    2.0-a8fcff4     out ../guix-bioinformatics/gn/packages/genenetwork.scm:144:2
-genenetwork2-database-small     1.0     out ../guix-bioinformatics/gn/packages/genenetwork.scm:270:4
-genenetwork2-files-small        1.0     out ../guix-bioinformatics/gn/packages/genenetwork.scm:228:4
-
-<user01> yeah  [07:09]
-<pjotrp> OK, we are in sync. This means we should be able to install the exact
-         same software
-<pjotrp> I need to start up my guix daemon - I usually run it in a screen
-<pjotrp> screen -S guix-daemon
-<user01> hah, I don't have screen installed yet  [07:11]
-<pjotrp> comes with guix ;)  [07:12]
-<pjotrp> no worries, you can run it any way you want
-<pjotrp> $HOME/.guix-profile/bin/guix-daemon --build-users-group=guixbuild
-<user01> then something's weird, because it says I don't have it
-<pjotrp> oh, you need to install it first  [07:13]
-<pjotrp> guix package -A screen
-<pjotrp> screen  4.3.1   out     gnu/packages/screen.scm:34:2
-<pjotrp> but you can skip this install, for now
-<user01> alright  [07:14]
-<pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
-         package -i genenetwork2 --dry-run
-<pjotrp> substitute: updating list of substitutes from
-         'https://mirror.hydra.gnu.org'...  79.1%
-<pjotrp> you see that?
-<pjotrp> followed by  [07:15]
-substitute: updating list of substitutes from
-'https://hydra.gnu.org'... 100.0%
-The following derivations would be built:
-   /gnu/store/rk7nw0rjqqsha958m649wrykadx6mmhl-profile.drv
-
-/gnu/store/7b0qjybvfx8syzvfs7p5rdablwhbkbvs-module-import-compiled.drv
-   /gnu/store/cy9zahbbf23d3cqyy404lk9f50z192kp-module-import.drv
-   /gnu/store/ibdn603i8grf0jziy5gjsly34wx82lmk-gtk-icon-themes.drv
-
-<pjotrp> which should have the same HASH values /gnu/store/7b0qjybvf... etc.
-                                                                        [07:16]
-<user01> profile has a different hash
-<pjotrp> but the next ones?
-<user01> they're the same
-<pjotrp> not sure why profile differs. Do you see the contact with
-         mirror.hydra.org?  [07:17]
-<user01> yeah
-<pjotrp> OK, that means you set the key correctly for that one :)
-<pjotrp> alright we are at the same state now. You can see most packages need
-         to be rebuild because they are no longer cached as binaries on hydra
-                                                                        [07:18]
-<pjotrp> things move fast...
-<user01> hehe
-<pjotrp> let me also do the same on my laptop - which I have staged before
-                                                                        [07:19]
-<pjotrp> btw, to set the path I often do  [07:20]
-<pjotrp> export
-         PATH="/home/wrk/.guix-profile/bin:/home/wrk/.guix-profile/sbin":$PATH
-<pjotrp> to keep things like 'screen' from Debian
-<pjotrp> Once past building guix itself that is normally OK  [07:21]
-<user01> ah, okay
-<user01> will do that
-<pjotrp> the guix build requires certain versions of tools, so you don't want
-         to mix foreign tools in  [07:23]
-<user01> makes sense  [07:24]
-<pjotrp> On my laptop I am trying the main updating list of substitutes from
-         'http://hydra.gnu.org'...  10.5%  [07:27]
-<pjotrp> it is a bit slow, but let's see if there is a difference with the
-         mirror
-<pjotrp> you can see there are two servers here. Actually with recent daemons,
-         if the mirror fails it will try the main server  [07:28]
-<pjotrp> I documented the use of a caching server here  [07:29]
-<pjotrp> https://github.com/pjotrp/guix-notes/blob/master/REPRODUCIBLE.org
-<pjotrp> this is exactly what we are doing now
-<user01> alrighty  [07:35]
-<pjotrp> To see if a remote server has a guix server running it should respond
-                                                                        [07:36]
-<pjotrp> lynx http://guix.genenetwork.org:8080 --dump
-<pjotrp> Resource not found: /
-<pjotrp>
-<pjotrp> you see that?
-<user01> yes  [07:37]
-<pjotrp> good. The main hydra server is too slow. So on my laptop I forced
-         using the mirror with  [07:38]
-<pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix
-         package -i genenetwork2 --dry-run
-         --substitute-urls="http://mirror.hydra.gnu.org"
-<pjotrp>
-<pjotrp> the list looks the same to me  [07:40]
-<user01> me too
-<pjotrp> note that some packages will be built and some downloaded, right?
-                                                                        [07:41]
-<user01> yes
-<pjotrp> atlas is actually a binary on my system  [07:43]
-<pjotrp> I mean in that list
-<pjotrp> so, it should not build. Same as yours?
-<user01> yeah, atlas and r-gtable are the ones to be downloaded
-<pjotrp> You should not have seen that error ;)
-<pjotrp> we should try and install it this way, try  [07:44]
-<pjotrp>  env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
-         package -i genenetwork2 --cores=4 --max-jobs=4 --keep-going  [07:46]
-<pjotrp> set CPUs and max-jobs to something sensible
-<pjotrp> Does your VM have multiple cores?
-<pjotrp> note you can always press Ctrl-C during install
-<user01> it doesn't, I'll reboot it and give it another core  [07:47]
-<user02> Hey  [07:48]
-<user02> I'm here
-<user02> Will be stepping away for some breakfast
-<pjotrp> Can you do the same as us
-<pjotrp> Can you see the irc log
-<user02> Alright
-<user02> Yes, I can
-<user02> Please email me a copy in five minutes
-<pjotrp> user01: so when I use the GN server  [07:56]
-<pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
-         package -i genenetwork2 --dry-run
-         --substitute-urls=http://guix.genenetwork.org:8080
-<pjotrp> I don't need to build anything  [07:57]
-<pjotrp> (this won't work for you, yet)
-<pjotrp> to get it to work you need to 'trust' it   [07:58]
-<pjotrp> but, first get the build going
-<pjotrp> I'll have a coffee while you and get building
-<user01> yeah it's doing its thing now  [08:01]
-<pjotrp> cool  [08:02]
-<pjotrp> in a separate terminal you can try and install with the gn mirror
-                                                                        [08:05]
-<pjotrp> I'll  send you the public key and you can paste it as said
-         https://github.com/pjotrp/guix-notes/blob/master/REPRODUCIBLE.org
-                                                                        [08:06]
-<user01> alright
-<pjotrp> should be in the E-mail  [08:09]
-<pjotrp> getting it working it kinda nasty since the server gives no feedback
-<pjotrp> it works when you see no more in the build list ;)  [08:11]
-<pjotrp> btw, you can install software in parallel. Guix does that.
-<pjotrp> even the same packages
-<pjotrp> so keep building ;)
-<pjotrp> try and do this with Debian...
-<pjotrp> coffee for me  [08:12]
-<user01> the first build failed                                                                        [08:15]
-<pjotrp> OK, Dennis fixed that one yesterday  [08:27]
-<pjotrp> the problem is that sometime source tarballs disappear  [08:28]
-<pjotrp> R is notorious for that
-<user01> haha, that's inconvenient..
-<pjotrp> well, it is good that Guix catches them
-<pjotrp> but we do not cache sources
-<pjotrp> binaries are cached - to some degree - so we don't have to rebuild
-         those  [08:29]
-<pjotrp> time to use the guix cache at guix.genenetwork.org
-<pjotrp> try and install the key (it is in the E-mail)
-<pjotrp> and see what this lists  [08:31]
-<pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics ./pre-inst-env guix
-         package -i genenetwork2
-         --substitute-urls=http://guix.genenetwork.org --dry-run
-<pjotrp> should be all binary installs
-<user01> it's not..  [08:32]
-<user01> if I remove --substitute-urls, the list changes, does that mean I
-             have the key set up correctly at least?  [08:33]
-<pjotrp> dunno  [08:35]
-<pjotrp> how many packages does it want to build?
-<pjotrp> should be zero
-<user01> four
-<pjotrp> Ah, that is OK - those are default profile things
-<user01> genenetwork2 is among the ones to be downloaded so  [08:36]
-<pjotrp> remove --dry-run
-<pjotrp> yeah, good sign :)
-<pjotrp> we'll still hit a snag, but run it
-<pjotrp> should be fast
-<user01> doing it  [08:37]
-<user01> it worked!  [08:38]
-<user01> I think  [08:39]
-<pjotrp> heh  [08:40]
-<pjotrp> you mean it is finished?
-<user01> yep
-<pjotrp> type genenetwork2
-<user01> complains about not being able to connect to the database  [08:41]
-<pjotrp> last snag :)
-<pjotrp> no database
-<pjotrp> well, we succeeded in installing a same-byte install of a very
-         complex system :)  [08:42]
-<pjotrp> (always take time to congratulate yourself)
-<pjotrp> now we need to install mysql
-<user01> hehe :)
-<pjotrp> this can be done throug guix or through debian  [08:43]
-<pjotrp> the latter is a bit easier here, so let's do that
-<pjotrp> fun note: you can mix debian and guix
-<pjotrp> Follow instructions on   [08:44]
-<pjotrp>
-         https://github.com/genenetwork/genenetwork2/tree/staging/doc#run-mysql-server
-<pjotrp> apt-get install mysql-common  [08:45]
-<pjotrp> may do it
-<pjotrp> You can also install with guix, but I need to document that
-<pjotrp> btw your internet must be fast :)  [08:46]
-<user01> hehe it is ;)
-<pjotrp> when the database is installed  [08:48]
-<pjotrp> be sure to set the password as instructed  [08:50]
-<pjotrp> when mysql is set the genenetwork2 command should fire up the web
-         server on localhost:5003  [08:58]
-<pjotrp> btw my internet is way slower :)  [09:00]
-<user02> I'm back  [09:04]
-<user02> fixed router firmware upgrade problem
-<user02> unbricking
-<pjotrp> tssk  [09:07]
-<user02> I'll never leave routers to update themselves again  [09:08]
-<user02> self-brick highway
-<user02> Resuming  [09:09]
-<pjotrp> auto-updates are evil
-<pjotrp> always switch them off
-<pjotrp> user02: can you install genenetwork like user has done?  [09:10]
-<pjotrp> pretty well documented here now :)
-<user02> Yes I can  [09:11]
-<user02> Already installed key
-<pjotrp> user02: you are getting binary packages only now?  [09:13]
-<user02> That's the sanest way to go now
-<user02> seriously
-<pjotrp> everything should be pre-built from guix.genenetwork.org
-<pjotrp> you are downloading?
-<user02> yes  [09:15]
-<pjotrp> cool. Maybe an idea to set up a server
-<pjotrp> for your own use
-<user02> Stuck at downloading preprocesscore
-<pjotrp> should not  [09:24]
-<pjotrp> what does env GUIX_PACKAGE_PATH=../guix-bioinformatics/
-         ./pre-inst-env guix package -i genenetwork2
-         --substitute-urls="http://guix.genenetwork.org" --dry-run
-                                                                        [09:25]
-<pjotrp> say for r-prepocesscore
-<pjotrp> download or build?
-<pjotrp> mine says download  [09:26]
-<user02> it only lists the derivatives to be built
-<user02> nothing else happens  [09:27]
-<pjotrp> OK, so there is a problem
-<pjotrp> your key may not be working
-<pjotrp> everything should be listed as 'to be download'  [09:28]
-<user02> Hmm
-<user02> Ah
-<user02> I know where I messed up
-<pjotrp> where?
-<user02> I did add the key
-<user02> However
-<pjotrp> (I am documenting)
-<user02> I did not tell guix to trust it
-<pjotrp> yes
-<pjotrp> and there is another potential problem
-<user02> Remember the documentation on installing guix?
-<user02> You have to tell guix to trust the default key  [09:29]
-<user02> Right?
-<user02> So in this case
-<pjotrp> read the IRC log
-<user02> That step is mandatory
-<pjotrp> user01: how are you doing?
-<pjotrp> user02:
-         https://github.com/pjotrp/guix-notes/blob/master/REPRODUCIBLE.org#using-gnu-guix-archive
-                                                                        [09:30]
-<user01> a little bit left on the db download
-<pjotrp> user02: you should see no more building
-<pjotrp> user02: another issue may be that you updated r-preprocesscore
-         package in guix-buinformatics  [09:32]
-<pjotrp> all downstream packages will want to rebuild
-<user02> no, not really
-<user02> It's not even installed
-<pjotrp> checkout a branch of the the old version - make sure we are in synch
-<pjotrp> should be at
-         /gnu/store/y1f3r2xs3fhyadd46nd2aqbr2p9qv2ra-r-biocpreprocesscore-1.32.0
-                                                                        [09:33]
-<pjotrp>
-<user03> pjotrp: Possibly we should use the archive utility of Guix to do
-        deployment to avoid such out-of-sync differences :)  [09:34]
-<pjotrp> maybe. I did not get archive to update profiles properly  [09:37]
-<pjotrp> Also it is good that they get to understand guix
-         this way
-<pjotrp> carved in stone, eh  [09:38]
-<user02> Yeah, all good  [09:39]
-<user02> My mistake was skipping the guix archive part
-<user02> Can we begin with the install?
-<user02> It's telling me of derivatives that will be downloaded  [09:40]
-<user02> So we're good
-<user02> Here goes
-<pjotrp> yeeha  [09:42]
-<user02> pjotrp, where is this guix.genenetwork.org located at?
-<pjotrp> Tennessee
-<user02> It's...it's....sloooooooowwwwwwwwwwwwww
-<pjotrp> not from Europe
-<pjotrp> is it downloading at all?
-<user02> It should be extended
-<user02> Yes...like at 100KB/s  [09:43]
-<user02> tear-jerker
-<user02> Verizon problems
-<user02> who's the host?
-<pjotrp> I am getting 500Kb/s
-<pjotrp> UT
-<user02> Guix's servers can run off more than one server, right?
-<user02> I'd like to host that particular server here
-<user02> For speed
-<pjotrp> yes
-<user02> Sooner or later
-<user02> It will be a necessity  [09:45]
-<pjotrp> exactly what I am doing - this is our server
-<pjotrp> guix.genenetwork.org:8080
-<user02> All done installing  [09:46]
-<pjotrp> what?
-<user02> Now the databases
-<pjotrp> what do you mean by slow exactly?
-<user02> Yes, it's installed
-<pjotrp> can you run genenetwork2
-<user02> setting variables
-<user02> If I try running it now, it will fail as I don't have the DBs  [09:47]
-<pjotrp> cool - you had a lot of prebuilt packages already
-<pjotrp> OK, follow the instructions I wrote above
-<user01> now everything seems to be working for me :)
-<user02> OK
-<pjotrp> user01: excellent!
-<pjotrp> you see a webserver?
-<user01> yep, can connect to localhost:5003  [09:48]
-<pjotrp> So now you are running a guix copy of GN2
-<pjotrp> you can see where it lives with `which genenetwork2` or ls -l
-         ~/.guix-profile/bin/genenetwork2  [09:49]
-<pjotrp>
-         /gnu/store/1kma5xszvzsvmbb4k699h7gvdncw901i-genenetwork2-2.0-a8fcff4/bin/genenetwork2
-<pjotrp> it is a script
-<pjotrp> written by guix, open it  [09:50]
-<pjotrp> inside it points to paths and our script at
-<pjotrp>
-         /gnu/store/1kma5xszvzsvmbb4k699h7gvdncw901i-genenetwork2-2.0-a8fcff4/bin/.genenetwork2-real
-<pjotrp> if you open that you can see how the webserver is started  [09:51]
-<pjotrp> next step is to run a recent version of GN2
-<user01> okay  [09:52]
-<pjotrp> See
-         https://github.com/genenetwork/genenetwork2/tree/staging/doc#run-your-own-copy-of-gn2
-<pjotrp> but do not checkout that genetwork2_diet
-<pjotrp> we reverted to the main tree
-<pjotrp> clone git@github.com:genenetwork/genenetwork2.git  [09:53]
-<pjotrp> instead and checkout the staging branch
-<pjotrp> that is effectively my branch  [09:54]
-<pjotrp> when that is done you should be able to fire up the webserver from
-         there  [09:55]
-<pjotrp> using ./bin/genenetwork2
-<user02> now installing DBs
-<user02> Downloading
-<pjotrp> annoyingly the source tree is ~700Mb  [09:56]
-<user02> Can it also be done by installing the guix package
-         genenetwork2-database-small?
-<pjotrp> I changed it in the diet version to 8Mb, but I had to revert
-<user01> I need to make my VM bigger...
-<pjotrp> user02: not ready  [09:57]
-<user02> ok
-<pjotrp> user01: sorry
-<pjotrp> user01: you could mount a local dir inside the VM for development
-<pjotrp> that would allow you to use MAC tools for editing
-<pjotrp> just an idea
-<user01> yeah, I figure I'll do something like that
-<pjotrp> do you use emacs?  [09:58]
-<user01> yep
-<pjotrp> that can also run on remote files over ssh
-<pjotrp> that's an alternative
-<pjotrp> kudos for using emacs :), wdyt user03
-<user02> 79 minutes to go downloading the db
-<pjotrp> user02: sorry about that  [09:59]
-<pjotrp> it is 2GB
-<user02> user, you can also mount the directory via sshfs
-<user02> Mac OSX runs OpenSSH
-<pjotrp> user02: sopa
-<user02> You can therefore mount a directory outside the VM to the VM via
-         sshfs  [10:00]
-<pjotrp> yes, 3 options now
-<user02> That way, you can set up a VM only for it's logic
-<user02> Apps + the OS it runs  [10:01]
-<user02> For data, let it reside on physical host accessible via sshfs
-<user02> Use this Arch wiki reference:
-         https://wiki.archlinux.org/index.php/SSHFS
-<user02> I edited that last somewhere in 2015, may have been updated since
-         then
-<user01> alright, cool!  [10:04]
-<pjotrp> user01: you are almost done  [10:06]
-<pjotrp> I wrote an elixir package for guix :)
-<pjotrp> env GUIX_PACKAGE_PATH=../guix-bioinformatics/ ./pre-inst-env guix
-         package -A elixir
-         --substitute-urls="http://guix.genenetwork.org"   [10:08]
-<pjotrp> elixir  1.2.3   out
-         ../guix-bioinformatics/gn/packages/elixir.scm:31:2
-<pjotrp>
-<pjotrp> I am building it on guix.genenetwork.org right now  [10:09]
-<user01> nice  [10:10]
-#+end_src
-
 * NOTES
 
 ** Deploying GN2 official
 
 Let's see how fast we can deploy a second copy of GN2.
 
-- [-] Base install
-  + [X] First install a Debian server with GNU Guix on board
-  + [X] Get Guix build going
-    - [X] Build the correct version of Guix
-    - [X] Check out the correct gn-stable version of guix-bioinformatics http://git.genenetwork.org/pjotrp/guix-bioinformatics
-    - [X] guix package -i genenetwork2 -p /usr/local/guix-profiles/gn2-stable
-  + [X] Create a gn2 user and home with space
-  + [X] Install redis (currently debian)
-    - [X] add to systemd
-    - [X] update redis.cnf
-    - [X] update database
-  + [X] Install mariadb (currently debian mariadb-server)
-    - [X] add to systemd
-    - [X] system stop mysql
-    - [X] update mysql.cnf
-    - [X] update database (see gn-services/services/mariadb.md)
-    - [X] check tables
-  + [ ] run gn2 (rust-qtlreaper not working)
-  + [X] update nginx
+- [ ] Base install
+  + [ ] First install a Debian server with GNU Guix on board
+  + [ ] Get Guix build going
+    - [ ] Build the correct version of Guix
+    - [ ] Check out the correct gn-stable version of guix-bioinformatics http://git.genenetwork.org/pjotrp/guix-bioinformatics
+    - [ ] guix package -i genenetwork2 -p /usr/local/guix-profiles/gn2-stable
+  + [ ] Create a gn2 user and home with space
+  + [ ] Install redis
+    - [ ] add to systemd
+    - [ ] update redis.cnf
+    - [ ] update database
+  + [ ] Install mariadb (currently debian mariadb-server)
+    - [ ] add to systemd
+    - [ ] system stop mysql
+    - [ ] update mysql.cnf
+    - [ ] update database (see gn-services/services/mariadb.md)
+    - [ ] check tables
+  + [ ] run gn2
+  + [ ] update nginx
   + [ ] install genenetwork3
     - [ ] add to systemd

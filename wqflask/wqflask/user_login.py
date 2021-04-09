@@ -1,5 +1,3 @@
-from __future__ import print_function, division, absolute_import
-
 import os
 import hashlib
 import datetime
@@ -12,9 +10,6 @@ import requests
 
 import simplejson as json
 
-import redis # used for collections
-Redis = redis.StrictRedis()
-
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
 
@@ -23,13 +18,14 @@ from wqflask import pbkdf2
 from wqflask.user_session import UserSession
 
 from utility import hmac
-from utility.redis_tools import is_redis_available, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
+from utility.redis_tools import is_redis_available, get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
+Redis = get_redis_conn()
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY
+from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY, GN2_BRANCH_URL
 
 THREE_DAYS = 60 * 60 * 24 * 3
 
@@ -41,15 +37,17 @@ def basic_info():
                 ip_address = request.remote_addr,
                 user_agent = request.headers.get('User-Agent'))
 
-def encode_password(pass_gen_fields, unencrypted_password):
-    hashfunc = getattr(hashlib, pass_gen_fields['hashfunc'])
 
-    salt = base64.b64decode(pass_gen_fields['salt'])
+def encode_password(pass_gen_fields, unencrypted_password):
+    if isinstance(pass_gen_fields['salt'], bytes):
+        salt = pass_gen_fields['salt']
+    else:
+        salt = bytes(pass_gen_fields['salt'], "utf-8")
     encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password), 
-                                 pass_gen_fields['salt'], 
-                                 pass_gen_fields['iterations'], 
-                                 pass_gen_fields['keylength'], 
-                                 hashfunc)
+                                           salt,
+                                           pass_gen_fields['iterations'], 
+                                           pass_gen_fields['keylength'], 
+                                           pass_gen_fields['hashfunc'])
 
     pass_gen_fields.pop("unencrypted_password", None)
     pass_gen_fields["password"] = encrypted_password
@@ -127,7 +125,7 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
         server.quit()
     logger.info("Successfully sent email to "+toaddr)
 
-def send_verification_email(user_details, template_name = "email/verification.txt", key_prefix = "verification_code", subject = "GeneNetwork email verification"):
+def send_verification_email(user_details, template_name = "email/user_verification.txt", key_prefix = "verification_code", subject = "GeneNetwork e-mail verification"):
     verification_code = str(uuid.uuid4())
     key = key_prefix + ":" + verification_code
 
@@ -140,6 +138,27 @@ def send_verification_email(user_details, template_name = "email/verification.tx
     body = render_template(template_name, verification_code = verification_code)
     send_email(recipient, subject, body)
     return {"recipient": recipient, "subject": subject, "body": body}
+
+def send_invitation_email(user_email, temp_password, template_name = "email/user_invitation.txt",  subject = "You've been added to a GeneNetwork user group"):
+    recipient = user_email
+    body = render_template(template_name, temp_password)
+    send_email(recipient, subject, body)
+    return {"recipient": recipient, "subject": subject, "body": body}
+
+@app.route("/manage/verify_email")
+def verify_email():
+    if 'code' in request.args:
+        user_details = check_verification_code(request.args['code'])
+        if user_details:
+            # As long as they have access to the email account
+            # We might as well log them in
+            session_id_signed = get_signed_session_id(user_details)
+            flash("Thank you for logging in {}.".format(user_details['full_name']), "alert-success")
+            response = make_response(redirect(url_for('index_page', import_collections = import_col, anon_id = anon_id)))
+            response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
+            return response
+        else:
+            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
 
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
@@ -180,7 +199,7 @@ def login():
             if user_details:
                 submitted_password = params['password']
                 pwfields = user_details['password']
-                if type(pwfields) is str:
+                if isinstance(pwfields, str):
                     pwfields = json.loads(pwfields)
                 encrypted_pass_fields = encode_password(pwfields, submitted_password)
                 password_match = pbkdf2.safe_str_cmp(encrypted_pass_fields['password'], pwfields['password'])
@@ -204,7 +223,7 @@ def login():
                     response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
                     return response
                 else:
-                    email_ob = send_verification_email(user_details)
+                    email_ob = send_verification_email(user_details, template_name = "email/user_verification.txt")
                     return render_template("newsecurity/verification_still_needed.html", subject=email_ob['subject'])
             else: # Incorrect password
                 #ZS: It previously seemed to store that there was an incorrect log-in attempt here, but it did so in the MySQL DB so this might need to be reproduced with Redis
@@ -224,7 +243,7 @@ def github_oauth2():
     }
 
     result = requests.post("https://github.com/login/oauth/access_token", json=data)
-    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
+    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in result.text.split("&")]}
 
     github_user = get_github_user_details(result_dict["access_token"])
 
@@ -262,9 +281,11 @@ def orcid_oauth2():
         data = {
             "client_id": ORCID_CLIENT_ID, 
             "client_secret": ORCID_CLIENT_SECRET, 
-            "grant_type": "authorization_code", 
+            "grant_type": "authorization_code",
+            "redirect_uri": GN2_BRANCH_URL + "n/login/orcid_oauth2",
             "code": code
         }
+
         result = requests.post(ORCID_TOKEN_URL, data=data)
         result_dict = json.loads(result.text.encode("utf-8"))
 
@@ -313,8 +334,8 @@ def forgot_password():
     return render_template("new_security/forgot_password.html", errors=errors)
 
 def send_forgot_password_email(verification_email):
-    from email.MIMEMultipart import MIMEMultipart
-    from email.MIMEText import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
 
     template_name  = "email/forgot_password.txt"
     key_prefix = "forgot_password_code"
@@ -374,16 +395,13 @@ def password_reset():
     hmac = request.args.get('hm')
 
     if verification_code:
-        user_email = check_verification_code(verification_code)
-        if user_email:
-            user_details = get_user_by_unique_column('email_address', user_email)
-            if user_details:
-                return render_template(
-                    "new_security/password_reset.html", user_encode=user_details["email_address"])
-            else:
-                flash("Invalid code: User no longer exists!", "error")
+        user_details = check_verification_code(verification_code)
+        if user_details:
+            return render_template(
+                "new_security/password_reset.html", user_encode=user_details["email_address"])
         else:
             flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+            return redirect(url_for("login"))
     else:
         return redirect(url_for("login"))
 
@@ -394,6 +412,7 @@ def password_reset_step2():
 
     errors = []
     user_email = request.form['user_encode']
+    user_id = get_user_id("email_address", user_email)
 
     password = request.form['password']
     encoded_password = set_password(password)
@@ -401,9 +420,7 @@ def password_reset_step2():
     set_user_attribute(user_id, "password", encoded_password)
 
     flash("Password changed successfully. You can now sign in.", "alert-info")
-    response = make_response(redirect(url_for('login')))
-
-    return response
+    return redirect(url_for('login'))
 
 def register_user(params):
         thank_you_mode = False
@@ -438,7 +455,9 @@ def register_user(params):
         user_details['confirmed'] = 1
 
         user_details['registration_info'] = basic_info()
-        save_user(user_details, user_details['user_id'])
+
+        if len(errors) == 0:
+            save_user(user_details, user_details['user_id'])
 
         return errors
 

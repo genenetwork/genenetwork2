@@ -8,7 +8,6 @@ and uses GEMMA to generate their corresponding kinship/relatedness matrix file
 
 """
 
-from __future__ import print_function, division, absolute_import
 import sys
 sys.path.append("..")
 import os

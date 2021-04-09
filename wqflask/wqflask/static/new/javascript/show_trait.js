@@ -94,33 +94,15 @@ add = function() {
 $('#add_to_collection').click(add);
 sample_lists = js_data.sample_lists;
 sample_group_types = js_data.sample_group_types;
-d3.select("#select_compare_trait").on("click", (function(_this) {
-  return function() {
-    $('.scatter-matrix-container').remove();
-    return open_trait_selection();
-  };
-})(this));
-d3.select("#select_covariates").on("click", (function(_this) {
-  return function() {
-    return open_covariate_selection();
-  };
-})(this));
-$("#remove_covariates").click(function () {
-    $("input[name=covariates]").val("")
-    $(".selected_covariates").val("")
-});
+
 $(".select_covariates").click(function () {
   open_covariate_selection();
 });
 $(".remove_covariates").click(function () {
   $("input[name=covariates]").val("")
-  $(".selected_covariates").val("")
+  $(".selected-covariates").val("")
 });
-d3.select("#clear_compare_trait").on("click", (function(_this) {
-  return function() {
-    return $('.scatter-matrix-container').remove();
-  };
-})(this));
+
 open_trait_selection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
     return function() {
@@ -233,6 +215,8 @@ update_histogram = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.histogram_layout['xaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('histogram', root.histogram_data, root.histogram_layout, root.modebar_options);
@@ -281,6 +265,8 @@ update_bar_chart = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.bar_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   root.bar_data[0]['y'] = trait_vals
@@ -322,6 +308,8 @@ update_box_plot = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
@@ -353,6 +341,8 @@ update_violin_plot = function() {
 
   if ($('input[name="transform"]').val() != ""){
     root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
+  } else {
+    root.violin_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
   }
 
   Plotly.newPlot('violin_plot', root.violin_data, root.violin_layout, root.modebar_options)
@@ -427,6 +417,25 @@ process_id = function() {
   }
   return processed;
 };
+
+fetch_sample_values = function() {
+  // This is meant to fetch all sample values using DataTables API, since they can't all be submitted with the form when using Scroller (and this should also be faster)
+  sample_val_dict = {};
+
+  table = 'samples_primary';
+  if ($('#' + table).length){
+    table_api = $('#' + table).DataTable();
+    val_nodes = table_api.column(3).nodes().to$();
+    for (_j = 0; _j < val_nodes.length; _j++){
+      sample_name = val_nodes[_j].childNodes[0].name.split(":")[1]
+      sample_val = val_nodes[_j].childNodes[0].value
+      sample_val_dict[sample_name] = sample_val
+    }
+  }
+
+  return sample_val_dict;
+}
+
 edit_data_change = function() {
   var already_seen, checkbox, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
   already_seen = {};
@@ -440,38 +449,48 @@ edit_data_change = function() {
     samples_other: {},
     samples_all: {}
   };
+
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
-    rows = $("#" + table).find('tr');
-    for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
-      row = rows[_j];
-      name = $(row).find('.edit_sample_sample_name').html();
-      name = $.trim(name);
-      real_value = $(row).find('.edit_sample_value').val();
-      checkbox = $(row).find(".edit_sample_checkbox");
-      if (is_number(real_value) && real_value !== "") {
-        real_value = parseFloat(real_value);
-        sample_sets[table].add_value(real_value);
-        real_variance = $(row).find('.edit_sample_se').val();
-        if (is_number(real_variance)) {
-          real_variance = parseFloat(real_variance);
-        } else {
-          real_variance = null;
-        }
-        real_dict = {
-          value: real_value,
-          variance: real_variance
-        };
-        root.selected_samples[table][name] = real_dict;
-        if (!(name in already_seen)) {
-          sample_sets['samples_all'].add_value(real_value);
-          root.selected_samples['samples_all'][name] = real_dict;
-          already_seen[name] = true;
+    if ($('#' + table).length){
+      table_api = $('#' + table).DataTable();
+      sample_vals = [];
+      name_nodes = table_api.column(2).nodes().to$();
+      val_nodes = table_api.column(3).nodes().to$();
+      var_nodes = table_api.column(5).nodes().to$();
+      for (_j = 0; _j < val_nodes.length; _j++){
+        sample_val = val_nodes[_j].childNodes[0].value
+        sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
+        if (is_number(sample_val) && sample_val !== "") {
+          sample_val = parseFloat(sample_val);
+          sample_sets[table].add_value(sample_val);
+          try {
+            sample_var = var_nodes[_j].childNodes[0].value
+            if (is_number(sample_var)) {
+              sample_var = parseFloat(sample_var)
+            } else {
+              sample_var = null;
+            }
+          } catch {
+            sample_var = null;
+          }
+          sample_dict = {
+            value: sample_val,
+            variance: sample_var
+          }
+          root.selected_samples[table][sample_name] = sample_dict;
+          if (!(sample_name in already_seen)) {
+            sample_sets['samples_all'].add_value(sample_val);
+            root.selected_samples['samples_all'][sample_name] = sample_dict;
+            already_seen[sample_name] = true;
+          }
         }
       }
     }
+
   }
+
   update_stat_values(sample_sets);
 
   if ($('#histogram').hasClass('js-plotly-plot')){
@@ -490,6 +509,7 @@ edit_data_change = function() {
     return update_prob_plot();
   }
 };
+
 show_hide_outliers = function() {
   var label;
   label = $('#show_hide_outliers').val();
@@ -500,6 +520,7 @@ show_hide_outliers = function() {
     return console.log("Should be now Hide Outliers");
   }
 };
+
 on_corr_method_change = function() {
   var corr_method;
   corr_method = $('select[name=corr_type]').val();
@@ -513,13 +534,56 @@ on_corr_method_change = function() {
 };
 $('select[name=corr_type]').change(on_corr_method_change);
 
+on_dataset_change = function() {
+  let dataset_type = $('select[name=corr_dataset] option:selected').data('type');
+  let location_type = $('select[name=location_type] option:selected').val();
+
+  if (dataset_type == "mrna_assay"){
+    $('#min_expr_filter').show();
+    $('select[name=location_type] option:disabled').prop('disabled', false)
+  }
+  else if (dataset_type == "pheno"){
+    $('#min_expr_filter').show();
+    $('select[name=location_type]>option:eq(0)').prop('disabled', true).attr('selected', false);
+    $('select[name=location_type]>option:eq(1)').prop('disabled', false).attr('selected', true);
+  }
+  else {
+    $('#min_expr_filter').hide();
+    $('select[name=location_type]>option:eq(0)').prop('disabled', false).attr('selected', true);
+    $('select[name=location_type]>option:eq(1)').prop('disabled', true).attr('selected', false);
+  }
+}
+
+$('select[name=corr_dataset]').change(on_dataset_change);
+$('select[name=location_type]').change(on_dataset_change);
+
 submit_special = function(url) {
+  $("input[name=sample_vals]").val(JSON.stringify(fetch_sample_values()))
   $("#trait_data_form").attr("action", url);
-  return $("#trait_data_form").submit();
+  $("#trait_data_form").submit();
 };
 
-var corr_input_list = ['corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
-                        'corr_return_results', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
+get_table_contents_for_form_submit = function(form_id) {
+  // Borrowed code from - https://stackoverflow.com/questions/31418047/how-to-post-data-for-the-whole-table-using-jquery-datatables
+  let this_form = $("#" + form_id);
+  var params = primary_table.$('input').serializeArray();
+
+  $.each(params, function(){
+    // If element doesn't exist in DOM
+    if(!$.contains(document, this_form[this.name])){
+       // Create a hidden element
+       this_form.append(
+          $('<input>')
+             .attr('type', 'hidden')
+             .attr('name', this.name)
+             .val(this.value)
+       );
+    }
+ });
+}
+
+var corr_input_list = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
+                        'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
 $(".corr_compute").on("click", (function(_this) {
   return function() {
@@ -537,63 +601,81 @@ create_value_dropdown = function(value) {
 populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
-  sample_attributes = {};
-  _ref = js_data.attribute_names;
-  for (key in _ref) {
-    if (!__hasProp.call(_ref, key)) continue;
-    attribute_info = _ref[key];
-    sample_attributes[attribute_info.name] = attribute_info.distinct_values;
+  sample_attributes = [];
+
+  var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
+    return [key, js_data.attributes[key].name.toLowerCase()];
+  });
+
+  attributes_as_list.sort(function(first, second) {
+    if (second[1] > first[1]){
+      return -1
+    }
+    if (first[1] > second[1]){
+      return 1
+    }
+    return 0
+  });
+
+  for (i=0; i < attributes_as_list.length; i++) {
+    attribute_info = js_data.attributes[attributes_as_list[i][0]]
+    sample_attributes.push(attribute_info.distinct_values);
   }
-  selected_attribute = $('#exclude_menu').val().replace("_", " ");
-  _ref1 = sample_attributes[selected_attribute];
+
+  selected_attribute = $('#exclude_column').val()
+  _ref1 = sample_attributes[selected_attribute - 1];
   _results = [];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     value = _ref1[_i];
-    _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+    if (value != ""){
+      _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+    }
   }
   return _results;
 };
-if (Object.keys(js_data.attribute_names).length > 0) {
+
+if (Object.keys(js_data.attributes).length){
   populate_sample_attributes_values_dropdown();
 }
-$('#exclude_menu').change(populate_sample_attributes_values_dropdown);
+
+$('#exclude_column').change(populate_sample_attributes_values_dropdown);
 block_by_attribute_value = function() {
   var attribute_name, cell_class, exclude_by_value;
-  attribute_name = $('#exclude_menu').val();
+
+  let exclude_group = $('#exclude_by_attr_group').val();
+  let exclude_column = $('#exclude_column').val();
+
+  if (exclude_group === "other") {
+    var table_api = $('#samples_other').DataTable();
+  } else {
+    var table_api = $('#samples_primary').DataTable();
+  }
+
   exclude_by_value = $('#attribute_values').val();
-  cell_class = ".column_name-" + attribute_name;
-  return $(cell_class).each((function(_this) {
-    return function(index, element) {
-      var row;
-      if ($.trim($(element).text()) === exclude_by_value) {
-        row = $(element).parent('tr');
-        return $(row).find(".trait_value_input").val("x");
-      }
-    };
-  })(this));
+
+  let val_nodes = table_api.column(3).nodes().to$();
+  let exclude_val_nodes = table_api.column(attribute_start_pos + parseInt(exclude_column)).nodes().to$();
+
+  for (i = 0; i < exclude_val_nodes.length; i++) {
+    let this_col_value = exclude_val_nodes[i].childNodes[0].data;
+    let this_val_node = val_nodes[i].childNodes[0];
+
+    if (this_col_value == exclude_by_value){
+      this_val_node.value = "x";
+    }
+  }
+
+  edit_data_change();
 };
-$('#exclude_group').click(block_by_attribute_value);
+$('#exclude_by_attr').click(block_by_attribute_value);
+
 block_by_index = function() {
-  var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref, _results;
+  var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref;
   index_string = $('#remove_samples_field').val();
   index_list = [];
   _ref = index_string.split(",");
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     index_set = _ref[_i];
-    /*
-    if (index_set.indexOf('<') !== -1) {
-      try {
-        start_index = parseInt(index_set.split("<")[0]);
-        end_index = parseInt(index_set.split("<")[1]);
-        for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
-          index_list.push(index);
-        }
-      } catch (_error) {
-        error = _error;
-        alert("Syntax error");
-      }
-    }
-    */
     if (index_set.indexOf('-') !== -1) {
       try {
         start_index = parseInt(index_set.split("-")[0]);
@@ -610,210 +692,312 @@ block_by_index = function() {
       index_list.push(index);
     }
   }
-  _results = [];
+
+  let block_group = $('#block_group').val();
+  if (block_group === "other") {
+    table_api = $('#samples_other').DataTable();
+  } else {
+    table_api = $('#samples_primary').DataTable();
+  }
+  val_nodes = table_api.column(3).nodes().to$();
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
-    if ($('#block_group').val() === "primary") {
-      _results.push($('#samples_primary').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
-    } else if ($('#block_group').val() === "other") {
-      _results.push($('#samples_other').find('td.column_name-Index').filter(function() { return $(this).text() == index.toString()  }).closest('tr').find('.trait_value_input').val("x"));
+    val_nodes[index - 1].childNodes[0].value = "x";
+
+  }
+};
+
+filter_by_value = function() {
+  let filter_logic = $('#filter_logic').val();
+  let filter_column = $('#filter_column').val();
+  let filter_value = $('#filter_value').val();
+  let block_group = $('#filter_group').val();
+
+  if (block_group === "other") {
+    var table_api = $('#samples_other').DataTable();
+  } else {
+    var table_api = $('#samples_primary').DataTable();
+  }
+
+  let val_nodes = table_api.column(3).nodes().to$();
+  if (filter_column == "value"){
+    var filter_val_nodes = table_api.column(3).nodes().to$();
+  }
+  else if (filter_column == "stderr"){
+    var filter_val_nodes = table_api.column(5).nodes().to$();
+  }
+  else if (!isNaN(filter_column)){
+    var filter_val_nodes = table_api.column(attribute_start_pos + parseInt(filter_column)).nodes().to$();
+  }
+  else {
+    return false
+  }
+
+  for (i = 0; i < filter_val_nodes.length; i++) {
+    if (filter_column == "value" || filter_column == "stderr"){
+      var this_col_value = filter_val_nodes[i].childNodes[0].value;
     } else {
-      _results.push(void 0);
+      var this_col_value = filter_val_nodes[i].childNodes[0].data;
+    }
+    let this_val_node = val_nodes[i].childNodes[0];
+
+    if(!isNaN(this_col_value) && !isNaN(filter_value)) {
+      if (filter_logic == "greater_than"){
+        if (parseFloat(this_col_value) <= parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+      else if (filter_logic == "less_than"){
+        if (parseFloat(this_col_value) >= parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+      else if (filter_logic == "greater_or_equal"){
+        if (parseFloat(this_col_value) < parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
+      else if (filter_logic == "less_or_equal"){
+        if (parseFloat(this_col_value) > parseFloat(filter_value)){
+          this_val_node.value = "x";
+        }
+      }
     }
   }
-  return _results;
 };
-$('#block_by_index').click(block_by_index);
+
+hide_no_value_filter = function( settings, data, dataIndex ) {
+  this_value = table_api.column(3).nodes().to$()[dataIndex].childNodes[0].value;
+  if (this_value == "x"){
+    return false
+  } else {
+    return true
+  }
+}
 
 hide_no_value = function() {
-  return $('.value_se').each((function(_this) {
-    return function(_index, element) {
-      if ($(element).find('.trait_value_input').val() === 'x') {
-        return $(element).hide();
+  tables = ['samples_primary', 'samples_other'];
+  filter_active = $(this).data("active");
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      if (filter_active == "true"){
+        $(this).val("Hide No Value")
+        table_api.draw();
+        $(this).data("active", "false");
+      } else {
+        $(this).val("Show No Value")
+        $.fn.dataTable.ext.search.push(hide_no_value_filter);
+        table_api.search();
+        table_api.draw();
+        $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(hide_no_value_filter, 1));
+        $(this).data("active", "true");
       }
-    };
-  })(this));
+    }
+  }
 };
 $('#hide_no_value').click(hide_no_value);
+
 block_outliers = function() {
   return $('.outlier').each((function(_this) {
     return function(_index, element) {
-      return $(element).find('.trait_value_input').val('x');
+      return $(element).find('.trait-value-input').val('x');
     };
   })(this));
 };
 $('#block_outliers').click(block_outliers);
+
 reset_samples_table = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      $(element).val($(element).data('value'));
-      return $(element).parents('.value_se').show();
-    };
-  })(this));
+  $('#hide_no_value').val("Hide No Value")
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0];
+        this_node.value = this_node.attributes["data-value"].value;
+      }
+      if (js_data.se_exists){
+        se_nodes = table_api.column(5).nodes().to$();
+        for (i = 0; i < val_nodes.length; i++) {
+          this_node = val_nodes[i].childNodes[0];
+          this_node.value = this_node.attributes["data-value"].value;
+        }
+      }
+      table_api.draw();
+    }
+  }
 };
 $('.reset').click(function() {
   reset_samples_table();
+  $('input[name="transform"]').val("");
   edit_data_change();
 });
 
-log2_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      current_value = $(element).data("value")
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        if (zero_to_one_vals_exist){
-          current_value = parseFloat(current_value) + 1;
+check_for_zero_to_one_vals = function() {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0];
+        if(!isNaN(this_node.value)) {
+          if (0 <= this_node.value && this_node.value < 1){
+            return true
+          }
         }
-        $(element).val(Math.log2(current_value).toFixed(3));
-        return Math.log2(current_value).toFixed(3)
       }
-    };
-  })(this));
+    }
+  }
+  return false
+}
+
+log2_data = function(this_node) {
+  current_value = this_node.value;
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.log2(original_value).toFixed(3);
+  }
 };
 
-log10_normalize_data = function(zero_to_one_vals_exist) {
-  return $('.trait_value_input').each((function(_this) {
-    return function(_index, element) {
-      current_value = $(element).data("value")
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        if (zero_to_one_vals_exist){
-          current_value = parseFloat(current_value) + 1;
-        }
-        $(element).val(Math.log10(current_value).toFixed(3));
-        return Math.log10(current_value).toFixed(3)
-      }
-    };
-  })(this));
+log10_data = function() {
+  current_value = this_node.value;
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.log10(original_value).toFixed(3);
+  }
 };
 
-
-sqrt_normalize_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val(Math.sqrt(current_value).toFixed(3));
-        return Math.sqrt(current_value).toFixed(3)
-      }
-    };
-  })(this));
+sqrt_data = function() {
+  current_value = this_node.value;
+  original_value = this_node.attributes['data-value'].value;
+  if(!isNaN(current_value) && !isNaN(original_value)) {
+    if (zero_to_one_vals_exist){
+      original_value = parseFloat(original_value) + 1;
+    }
+    this_node.value = Math.sqrt(original_value).toFixed(3);
+  }
 };
 
 invert_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).val());
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val(-(current_value));
-        return -(current_value)
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  if(!isNaN(current_value)) {
+    this_node.value = parseFloat(-(current_value)).toFixed(3);
+  }
 };
 
-
 qnorm_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val($(element).data("qnorm"));
-        return $(element).data("qnorm");
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  qnorm_value = this_node.attributes['data-qnorm'].value;
+  if(!isNaN(current_value)) {
+    this_node.value = qnorm_value;
+  }
 };
 
 zscore_data = function() {
-  return $('.edit_sample_value').each((function(_this) {
-    return function(_index, element) {
-      current_value = parseFloat($(element).data("value")) + 1;
-      if(isNaN(current_value)) {
-        return current_value
-      } else {
-        $(element).val($(element).data("zscore"));
-        return $(element).data("zscore");
-      }
-    };
-  })(this));
+  current_value = this_node.value;
+  zscore_value = this_node.attributes['data-zscore'].value;
+  if(!isNaN(current_value)) {
+    this_node.value = zscore_value;
+  }
 };
 
-check_for_zero_to_one_vals = function() {
-  zero_to_one_vals_exist = false
-  $('.trait_value_input').each(function() {
-    current_value = $(this).data("value")
-    if(isNaN(current_value)) {
-      return true;
-    } else {
-      current_value = parseFloat(current_value)
-      if (0 <= current_value && current_value < 1){
-        zero_to_one_vals_exist = true
-        return false
+do_transform = function(transform_type) {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      table_api = $('#' + table).DataTable();
+      val_nodes = table_api.column(3).nodes().to$();
+      for (i = 0; i < val_nodes.length; i++) {
+        this_node = val_nodes[i].childNodes[0]
+        if (transform_type == "log2"){
+          log2_data(this_node)
+        }
+        if (transform_type == "log10"){
+          log10_data(this_node)
+        }
+        if (transform_type == "sqrt"){
+          sqrt_data(this_node)
+        }
+        if (transform_type == "invert"){
+          invert_data(this_node)
+        }
+        if (transform_type == "qnorm"){
+          qnorm_data(this_node)
+        }
+        if (transform_type == "zscore"){
+          zscore_data(this_node)
+        }
       }
     }
-  });
-  return zero_to_one_vals_exist
+  }
 }
 
 normalize_data = function() {
   if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
     if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
-      log2_normalize_data(zero_to_one_vals_exist)
+      do_transform("log2")
       $('input[name="transform"]').val("log2")
-      $('span[name="transform_text"]').text(" - log2 transformed")
+      $('span[name="transform_text"]').text(" - log2 Transformed")
     } else {
       if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
-        log10_normalize_data(zero_to_one_vals_exist)
+        do_transform("log10")
         $('input[name="transform"]').val("log10")
-        $('span[name="transform_text"]').text(" - log10 transformed")
+        $('span[name="transform_text"]').text(" - log10 Transformed")
       }
     }
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
     if ($('input[name="transform"]').val() != "sqrt") {
-      sqrt_normalize_data()
+      do_transform("sqrt")
       $('input[name="transform"]').val("sqrt")
-      $('span[name="transform_text"]').text(" - Square Root transformed")
+      $('span[name="transform_text"]').text(" - Square Root Transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'invert'){
-    invert_data()
+    do_transform("invert")
     $('input[name="transform"]').val("inverted")
-    $('span[name="transform_text"]').text(" - Inverted")
+    if ($('span[name="transform_text"]:eq(0)').text() != ""){
+      current_text = $('span[name="transform_text"]:eq(0)').text();
+      $('span[name="transform_text"]').text(current_text + " and Inverted");
+    } else {
+      $('span[name="transform_text"]').text(" - Inverted")
+    }
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
-      qnorm_data()
+      do_transform("qnorm")
       $('input[name="transform"]').val("qnorm")
       $('span[name="transform_text"]').text(" - Quantile Normalized")
     }
   }
   else if ($('#norm_method option:selected').val() == 'zscore'){
     if ($('input[name="transform"]').val() != "zscore") {
-      zscore_data()
+      do_transform("zscore")
       $('input[name="transform"]').val("zscore")
       $('span[name="transform_text"]').text(" - Z-Scores")
     }
   }
 }
 
-zero_to_one_vals_exist = false
+zero_to_one_vals_exist = check_for_zero_to_one_vals();
 
 show_transform_warning = function() {
   transform_type = $('#norm_method option:selected').val()
-  zero_to_one_vals_exist = check_for_zero_to_one_vals();
   if (transform_type == "log2" || transform_type == "log10"){
     if (zero_to_one_vals_exist){
       $('#transform_alert').css("display", "block")
@@ -833,7 +1017,7 @@ $('#normalize').hover(function(){
 $('#normalize').click(normalize_data)
 
 switch_qnorm_data = function() {
-  return $('.trait_value_input').each((function(_this) {
+  return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       transform_val = $(element).data('transform')
       if (transform_val != "") {
@@ -844,30 +1028,69 @@ switch_qnorm_data = function() {
   })(this));
 };
 $('#qnorm').click(switch_qnorm_data);
+
 get_sample_table_data = function(table_name) {
   var samples;
   samples = [];
-  $('#' + table_name).find('.value_se').each((function(_this) {
-    return function(_index, element) {
-      var attribute_info, key, row_data, _ref;
-      row_data = {};
-      row_data.name = $.trim($(element).find('.column_name-Sample').text());
-      row_data.value = $(element).find('.edit_sample_value:eq(0)').val();
-      if ($(element).find('.edit_sample_se').length > 0) {
-        row_data.se = $(element).find('.edit_sample_se').val();
+
+  var se_exists = false;
+  var n_exists = false;
+
+  if ($('#' + table_name).length){
+    table_api = $('#' + table_name).DataTable();
+    sample_vals = [];
+
+    name_nodes = table_api.column(2).nodes().to$();
+    val_nodes = table_api.column(3).nodes().to$();
+    if (js_data.se_exists){
+      var_nodes = table_api.column(5).nodes().to$();
+      if (js_data.has_num_cases) {
+        n_nodes = table_api.column(6).nodes().to$();
       }
-      if ($(element).find('.edit_sample_num_cases').length > 0) {
-        row_data.num_cases = $(element).find('.edit_sample_num_cases').val();
+    } else {
+      if (js_data.has_num_cases){
+        n_nodes = table_api.column(4).nodes().to$();
       }
-      _ref = js_data.attribute_names;
-      for (key in _ref) {
-        if (!__hasProp.call(_ref, key)) continue;
-        attribute_info = _ref[key];
-        row_data[attribute_info.name] = $.trim($(element).find('.column_name-' + attribute_info.name.replace(" ", "_").replace("/", "\\/")).text());
+    }
+
+    for (_j = 0; _j < val_nodes.length; _j++){
+      sample_val = val_nodes[_j].childNodes[0].value
+      sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
+      if (is_number(sample_val) && sample_val !== "") {
+        sample_val = parseFloat(sample_val);
+        if (typeof var_nodes == 'undefined'){
+          sample_var = null;
+        } else {
+          sample_var = var_nodes[_j].childNodes[0].value;
+          if (is_number(sample_var)) {
+            sample_var = parseFloat(sample_var);
+            se_exists = true;
+          } else {
+            sample_var = null;
+          }
+        }
+        if (typeof n_nodes == 'undefined'){
+          sample_n = null;
+        } else {
+          sample_n = n_nodes[_j].childNodes[0].value;
+          if (is_number(sample_n)) {
+            n_exists = true;
+            sample_n = parseInt(sample_n);
+          } else {
+            sample_n = null;
+          }
+        }
+        row_dict = {
+          name: sample_name,
+          value: sample_val,
+          se: sample_var,
+          num_cases: sample_n
+        }
+        samples.push(row_dict)
       }
-      return samples.push(row_data);
-    };
-  })(this));
+    }
+  }
+
   return samples;
 };
 export_sample_table_data = function() {
@@ -1103,7 +1326,7 @@ if (js_data.num_values < 256) {
     margin: {
         l: left_margin,
         r: 30,
-        t: 30,
+        t: 100,
         b: bottom_margin
     }
   };
@@ -1447,8 +1670,17 @@ $('.stats_panel').click(function() {
     edit_data_change();
   }
 });
-$('#edit_sample_lists').change(edit_data_change);
-$('#block_by_index').click(edit_data_change);
+
+$('#block_by_index').click(function(){
+  block_by_index();
+  edit_data_change();
+});
+
+$('#filter_by_value').click(function(){
+  filter_by_value();
+  edit_data_change();
+})
+
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
 $('#reset').click(edit_data_change);

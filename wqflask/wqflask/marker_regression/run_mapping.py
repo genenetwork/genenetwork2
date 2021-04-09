@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, division
-
 from base.trait import GeneralTrait
 from base import data_set  #import create_dataset
 
@@ -18,7 +16,7 @@ import uuid
 import rpy2.robjects as ro
 import numpy as np
 
-import cPickle as pickle
+import pickle as pickle
 import itertools
 
 import simplejson as json
@@ -73,58 +71,27 @@ class RunMapping(object):
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
         self.vals = []
-        if 'samples' in start_vars:
-            self.samples = start_vars['samples'].split(",")
-            if (len(genofile_samplelist) != 0):
-                for sample in genofile_samplelist:
-                    if sample in self.samples:
-                        value = start_vars.get('value:' + sample)
-                        if value:
-                            self.vals.append(value)
-                    else:
-                        self.vals.append("x")
-            else:
-                for sample in self.samples:
-                    value = start_vars.get('value:' + sample)
-                    if value:
-                        self.vals.append(value)
+        self.samples = []
+        self.sample_vals = start_vars['sample_vals']
+        sample_val_dict = json.loads(self.sample_vals)
+        samples = sample_val_dict.keys()
+        if (len(genofile_samplelist) != 0):
+            for sample in genofile_samplelist:
+                self.samples.append(sample)
+                if sample in samples:
+                    self.vals.append(sample_val_dict[sample])
+                else:
+                    self.vals.append("x")
         else:
-            self.samples = []
-            if (len(genofile_samplelist) != 0):
-                for sample in genofile_samplelist:
-                    if sample in self.dataset.group.samplelist:
-                        in_trait_data = False
-                        for item in self.this_trait.data:
-                            if self.this_trait.data[item].name == sample:
-                                value = start_vars['value:' + self.this_trait.data[item].name]
-                                self.samples.append(self.this_trait.data[item].name)
-                                self.vals.append(value)
-                                in_trait_data = True
-                                break
-                        if not in_trait_data:
-                            value = start_vars.get('value:' + sample)
-                            if value:
-                                self.samples.append(sample)
-                                self.vals.append(value)
-                    else:
-                        self.vals.append("x")
-            else:
-                for sample in self.dataset.group.samplelist: # sample is actually the name of an individual
-                    in_trait_data = False
-                    for item in self.this_trait.data:
-                        if self.this_trait.data[item].name == sample:
-                            value = start_vars['value:' + self.this_trait.data[item].name]
-                            self.samples.append(self.this_trait.data[item].name)
-                            self.vals.append(value)
-                            in_trait_data = True
-                            break
-                    if not in_trait_data:
-                        value = start_vars.get('value:' + sample)
-                        if value:
-                            self.samples.append(sample)
-                            self.vals.append(value)
+            for sample in self.dataset.group.samplelist:
+                if sample in samples:
+                    self.vals.append(sample_val_dict[sample])
+                    self.samples.append(sample)
 
-        self.num_vals = len(self.vals)
+        if 'n_samples' in start_vars:
+            self.n_samples = start_vars['n_samples']
+        else:
+            self.n_samples = len([val for val in self.vals if val != "x"])
 
         #ZS: Check if genotypes exist in the DB in order to create links for markers
 
@@ -137,10 +104,15 @@ class RunMapping(object):
             mapping_results_filename = self.dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             self.mapping_results_path = "{}{}.csv".format(webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
-        if start_vars['manhattan_plot'] == "True":
-            self.manhattan_plot = True
-        else:
-            self.manhattan_plot = False
+        self.manhattan_plot = False
+        if 'manhattan_plot' in start_vars:
+            if start_vars['manhattan_plot'].lower() != "false":
+                self.color_scheme = "alternating"
+                if "color_scheme" in start_vars:
+                    self.color_scheme = start_vars['color_scheme']
+                    if self.color_scheme == "single":
+                        self.manhattan_single_color = start_vars['manhattan_single_color']
+                self.manhattan_plot = True
 
         self.maf = start_vars['maf'] # Minor allele frequency
         if "use_loco" in start_vars:
@@ -161,7 +133,8 @@ class RunMapping(object):
         self.num_perm = 0
         self.perm_output = []
         self.bootstrap_results = []
-        self.covariates = start_vars['covariates'] if "covariates" in start_vars else None
+        self.covariates = start_vars['covariates'] if "covariates" in start_vars else ""
+        self.categorical_vars = []
 
         #ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
@@ -226,7 +199,7 @@ class RunMapping(object):
                 self.output_files = start_vars['output_files']
             if 'first_run' in start_vars: #ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
                 self.first_run = False
-            self.score_type = "-log(p)"
+            self.score_type = "-logP"
             self.manhattan_plot = True
             with Bench("Running GEMMA"):
                 if self.use_loco == "True":
@@ -325,7 +298,7 @@ class RunMapping(object):
                                                                                                                                                              self.control_marker,
                                                                                                                                                              self.manhattan_plot)
         elif self.mapping_method == "plink":
-            self.score_type = "-log(p)"
+            self.score_type = "-logP"
             self.manhattan_plot = True
             results = plink_mapping.run_plink(self.this_trait, self.dataset, self.species, self.vals, self.maf)
             #results = self.run_plink()
@@ -343,7 +316,7 @@ class RunMapping(object):
                   if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                       if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
                           highest_chr = marker['chr1']
-                      if 'lod_score' in marker.keys():
+                      if 'lod_score' in list(marker.keys()):
                           self.qtl_results.append(marker)
 
               self.trimmed_markers = results
@@ -370,10 +343,15 @@ class RunMapping(object):
               self.annotations_for_browser = []
               highest_chr = 1 #This is needed in order to convert the highest chr to X/Y
               for marker in results:
+                  if 'Mb' in marker:
+                      this_ps = marker['Mb']*1000000
+                  else:
+                      this_ps = marker['cM']*1000000
+
                   browser_marker = dict(
                       chr = str(marker['chr']),
                       rs  = marker['name'],
-                      ps  = marker['Mb']*1000000,
+                      ps  = this_ps,
                       url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
                   )
 
@@ -382,7 +360,7 @@ class RunMapping(object):
                           name = str(marker['name']),
                           chr = str(marker['chr']),
                           rs  = marker['name'],
-                          pos  = marker['Mb']*1000000,
+                          pos  = this_ps,
                           url = "/show_trait?trait_id=" + marker['name'] + "&dataset=" + self.dataset.group.name + "Geno"
                       )
                   else:
@@ -390,11 +368,9 @@ class RunMapping(object):
                           name = str(marker['name']),
                           chr = str(marker['chr']),
                           rs  = marker['name'],
-                          pos  = marker['Mb']*1000000
+                          pos  = this_ps
                       )
-                  #if 'p_value' in marker:
-                  #    logger.debug("P EXISTS:", marker['p_value'])
-                  #else:
+
                   if 'lrs_value' in marker and marker['lrs_value'] > 0:
                       browser_marker['p_wald'] = 10**-(marker['lrs_value']/4.61)
                   elif 'lod_score' in marker and marker['lod_score'] > 0:
@@ -404,14 +380,22 @@ class RunMapping(object):
 
                   self.results_for_browser.append(browser_marker)
                   self.annotations_for_browser.append(annot_marker)
-                  if marker['chr'] > 0 or marker['chr'] == "X" or marker['chr'] == "X/Y":
-                      if marker['chr'] > highest_chr or marker['chr'] == "X" or marker['chr'] == "X/Y":
+                  if str(marker['chr']) > '0' or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
+                      if str(marker['chr']) > str(highest_chr) or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
                           highest_chr = marker['chr']
                       if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
+                          if 'Mb' in marker.keys():
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.6f}".format(marker['Mb'])
+                          elif 'cM' in marker.keys():
+                              marker['display_pos'] = "Chr" + str(marker['chr']) + ": " + "{:.3f}".format(marker['cM'])
+                          else:
+                              marker['display_pos'] = "N/A"
                           self.qtl_results.append(marker)
 
+              total_markers = len(self.qtl_results)
+
               with Bench("Exporting Results"):
-                  export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type)
+                  export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path, self.mapping_scale, self.score_type, self.transform, self.covariates, self.n_samples)
 
               with Bench("Trimming Markers for Figure"):
                   if len(self.qtl_results) > 30000:
@@ -467,18 +451,21 @@ class RunMapping(object):
                       #mapping_scale = self.mapping_scale,
                       #chromosomes = chromosome_mb_lengths,
                       #qtl_results = self.qtl_results,
+                      categorical_vars = self.categorical_vars,
                       chr_lengths = chr_lengths,
                       num_perm = self.num_perm,
                       perm_results = self.perm_output,
                       significant = significant_for_browser,
                       browser_files = browser_files,
-                      selected_chr = this_chr
+                      selected_chr = this_chr,
+                      total_markers = total_markers
                   )
               else:
                 self.js_data = dict(
                     chr_lengths = chr_lengths,
                     browser_files = browser_files,
-                    selected_chr = this_chr
+                    selected_chr = this_chr,
+                    total_markers = total_markers
                 )
 
     def run_rqtl_plink(self):
@@ -517,44 +504,70 @@ class RunMapping(object):
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
 
-def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type):
+def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples):
     with open(results_path, "w+") as output_file:
         output_file.write("Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
         output_file.write("Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
         output_file.write("Data Set: " + dataset.fullname + "\n")
+        output_file.write("N Samples: " + str(n_samples) + "\n")
+        if len(transform) > 0:
+            transform_text = "Transform - "
+            if transform == "qnorm":
+                transform_text += "Quantile Normalized"
+            elif transform == "log2" or transform == "log10":
+                transform_text += transform.capitalize()
+            elif transform == "sqrt":
+                transform_text += "Square Root"
+            elif transform == "zscore":
+                transform_text += "Z-Score"
+            elif transform == "invert":
+                transform_text += "Invert +/-"
+            else:
+                transform_text = ""
+            output_file.write(transform_text + "\n")
         if dataset.type == "ProbeSet":
             output_file.write("Gene Symbol: " + trait.symbol + "\n")
             output_file.write("Location: " + str(trait.chr) + " @ " + str(trait.mb) + " Mb\n")
+        if len(covariates) > 0:
+            output_file.write("Cofactors (dataset - trait):\n")
+            for covariate in covariates.split(","):
+                trait_name = covariate.split(":")[0]
+                dataset_name = covariate.split(":")[1]
+                output_file.write(dataset_name + " - " + trait_name + "\n")
         output_file.write("\n")
         output_file.write("Name,Chr,")
-        if score_type.lower() == "-log(p)":
-            score_type = "'-log(p)"
-        if mapping_scale == "physic":
+        if score_type.lower() == "-logP":
+            score_type = "-logP"
+        if 'Mb' in markers[0]:
             output_file.write("Mb," + score_type)
-        else:
+        if 'cM' in markers[0]:
             output_file.write("Cm," + score_type)
-        if "additive" in markers[0].keys():
+        if "additive" in list(markers[0].keys()):
             output_file.write(",Additive")
-        if "dominance" in markers[0].keys():
+        if "dominance" in list(markers[0].keys()):
             output_file.write(",Dominance")
         output_file.write("\n")
         for i, marker in enumerate(markers):
-            output_file.write(marker['name'] + "," + str(marker['chr']) + "," + str(marker['Mb']) + ",")
+            output_file.write(marker['name'] + "," + str(marker['chr']) + ",")
+            if 'Mb' in marker:
+                output_file.write(str(marker['Mb']) + ",")
+            if 'cM' in marker:
+                output_file.write(str(marker['cM']) + ",")
             if "lod_score" in marker.keys():
                 output_file.write(str(marker['lod_score']))
             else:
                 output_file.write(str(marker['lrs_value']))
-            if "additive" in marker.keys():
+            if "additive" in list(marker.keys()):
                 output_file.write("," + str(marker['additive']))
-            if "dominance" in marker.keys():
+            if "dominance" in list(marker.keys()):
                 output_file.write("," + str(marker['dominance']))
             if i < (len(markers) - 1):
                 output_file.write("\n")
 
 def trim_markers_for_figure(markers):
-    if 'p_wald' in markers[0].keys():
+    if 'p_wald' in list(markers[0].keys()):
         score_type = 'p_wald'
-    elif 'lod_score' in markers[0].keys():
+    elif 'lod_score' in list(markers[0].keys()):
         score_type = 'lod_score'
     else:
         score_type = 'lrs_value'
@@ -612,7 +625,7 @@ def trim_markers_for_figure(markers):
     return filtered_markers
 
 def trim_markers_for_table(markers):
-    if 'lod_score' in markers[0].keys():
+    if 'lod_score' in list(markers[0].keys()):
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
     else:
         sorted_markers = sorted(markers, key=lambda k: k['lrs_value'], reverse=True)
@@ -664,16 +677,22 @@ def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
             except:
                 chr_as_num = 20
             if chr_as_num > this_chr or i == (len(qtl_results) - 1):
-                chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
-                this_chr = chr_as_num
-                highest_pos = 0
+                if i == (len(qtl_results) - 1):
+                    if mapping_method == "reaper":
+                        highest_pos = float(result['cM']) * 1000000
+                    else:
+                        highest_pos = float(result['Mb']) * 1000000
+                    chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
+                else:
+                    chr_lengths.append({ "chr": str(this_chr), "size": str(highest_pos)})
+                    this_chr = chr_as_num
             else:
                 if mapping_method == "reaper":
                     if float(result['cM']) > highest_pos:
-                        highest_pos = float(result['cM'])
+                        highest_pos = float(result['cM']) * 1000000
                 else:
                     if float(result['Mb']) > highest_pos:
-                        highest_pos = float(result['Mb'])
+                        highest_pos = float(result['Mb']) * 1000000
 
     return chr_lengths
 
@@ -690,10 +709,10 @@ def get_genofile_samplelist(dataset):
 def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
     perm_strata_strings = []
     for sample in used_samples:
-        if sample in sample_list.sample_attribute_values.keys():
+        if sample in list(sample_list.sample_attribute_values.keys()):
             combined_string = ""
             for var in categorical_vars:
-                if var in sample_list.sample_attribute_values[sample].keys():
+                if var in list(sample_list.sample_attribute_values[sample].keys()):
                     combined_string += str(sample_list.sample_attribute_values[sample][var])
                 else:
                     combined_string += "NA"
@@ -702,7 +721,7 @@ def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
 
         perm_strata_strings.append(combined_string)
 
-    d = dict([(y,x+1) for x,y in enumerate(sorted(set(perm_strata_strings)))])
+    d = dict([(y, x+1) for x, y in enumerate(sorted(set(perm_strata_strings)))])
     list_to_numbers = [d[x] for x in perm_strata_strings]
     perm_strata = list_to_numbers
 

@@ -1,7 +1,5 @@
-from __future__ import absolute_import, print_function, division
-
-from base.trait import GeneralTrait
 from base import data_set
+from base.trait import create_trait
 from base.species import TheSpecies
 
 from utility import hmac
@@ -11,10 +9,9 @@ from flask import Flask, g
 import logging
 logger = logging.getLogger(__name__ )
 
-
 def get_species_dataset_trait(self, start_vars):
     #assert type(read_genotype) == type(bool()), "Expecting boolean value for read_genotype"
-    if "temp_trait" in start_vars.keys():
+    if "temp_trait" in list(start_vars.keys()):
       if start_vars['temp_trait'] == "True":
         self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
       else:
@@ -24,7 +21,7 @@ def get_species_dataset_trait(self, start_vars):
     logger.debug("After creating dataset")
     self.species = TheSpecies(dataset=self.dataset)
     logger.debug("After creating species")
-    self.this_trait = GeneralTrait(dataset=self.dataset,
+    self.this_trait = create_trait(dataset=self.dataset,
                                    name=start_vars['trait_id'],
                                    cellid=None,
                                    get_qtl_info=True)
@@ -34,9 +31,8 @@ def get_species_dataset_trait(self, start_vars):
     #self.dataset.group.read_genotype_file()
     #self.genotype = self.dataset.group.genotype
 
-
 def get_trait_db_obs(self, trait_db_list):
-    if isinstance(trait_db_list, basestring):
+    if isinstance(trait_db_list, str):
         trait_db_list = trait_db_list.split(",")
 
     self.trait_list = []
@@ -49,10 +45,11 @@ def get_trait_db_obs(self, trait_db_list):
             dataset_ob = data_set.create_dataset(dataset_name=dataset_name, dataset_type="Temp", group_name=trait_name.split("_")[2])
         else:
             dataset_ob = data_set.create_dataset(dataset_name)
-        trait_ob = GeneralTrait(dataset=dataset_ob,
+        trait_ob = create_trait(dataset=dataset_ob,
                                name=trait_name,
                                cellid=None)
-        self.trait_list.append((trait_ob, dataset_ob))
+        if trait_ob:
+            self.trait_list.append((trait_ob, dataset_ob))
 
 def get_species_groups():
 

@@ -9,7 +9,7 @@ setup(name='genenetwork2',
       url = "https://github.com/genenetwork/genenetwork2/blob/master/README.md",
       description = 'Website and tools for genetics.',
       include_package_data=True,
-      packages=['wqflask','etc'],
+      packages=['wqflask', 'etc'],
       scripts=['bin/genenetwork2'],
       # package_data = {
       #   'etc': ['*.py']

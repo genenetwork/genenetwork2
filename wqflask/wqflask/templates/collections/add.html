@@ -5,7 +5,7 @@
         or add to an existing collection.</p>
     </div>
     <div class="modal-body" style="margin-left: 20px;">
-        <form action="/collections/new" data-validate="parsley" id="add_form">
+        <form action="/collections/new" target="_blank" data-validate="parsley" id="add_form">
             {% if traits is defined %}
             <input type="hidden" name="traits" value="{{ traits }}" />
             {% else %}
@@ -50,4 +50,7 @@
 
 <script>
     $('#add_form').parsley();
+    $('#add_form').on('submit', function(){
+      parent.jQuery.colorbox.close();
+    });
 </script>

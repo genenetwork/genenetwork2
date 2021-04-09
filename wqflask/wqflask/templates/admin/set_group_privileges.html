@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Set Group Privileges{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{% endblock %}
+{% block content %}
+<!-- Start of body -->
+    <div class="container">
+        <h1>Group Privileges</h1>
+        <br>
+        <form id="set_group_privileges" action="/resources/add_group" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+            <input type="hidden" name="group_id" value="{{ group_id }}">
+            <div style="min-width: 600px; max-width: 800px;">
+                <button type="submit" class="btn btn-primary" style="margin-bottom: 10px;">Add Group</button>
+                <hr>
+                <h2>Data and Metadata Privileges</h2>
+                <table id="data_privileges_table" class="table-hover table-striped cell-border" style="float: left;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>No-Access</th>
+                            <th>View</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Data:</td>
+                            {% if 'data' in default_privileges %}
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="no-access" {% if default_privileges.data == "no-access" %}checked{% endif %}></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="view" {% if default_privileges.data == "view" %}checked{% endif %}></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="edit" {% if default_privileges.data == "edit" %}checked{% endif %}></td>
+                            {% else %}
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="no-access" checked></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="view"></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="data_privilege" VALUE="edit"></td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td>Metadata:</td>
+                            {% if 'metadata' in default_privileges %}
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="no-access" {% if default_privileges.metadata == "no-access" %}checked{% endif %}></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="view" {% if default_privileges.metadata == "view" %}checked{% endif %}></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="edit" {% if default_privileges.metadata[-1] == "edit" %}checked{% endif %}></td>
+                            {% else %}
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="no-access" checked></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="view"></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="metadata_privilege" VALUE="edit"></td>
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                </table>
+                <hr>
+                <h2>Admin Privileges</h2>
+                <table id="admin_privileges_table" class="table-hover table-striped cell-border" style="float: left;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Not Admin</th>
+                            <th>Edit Access</th>
+                            <th>Edit Admins</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Admin:</td>
+                            {% if 'admin' in default_privileges %}
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="not-admin" {% if default_privileges.admin == "not-admin" %}checked{% endif %}></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="edit-access" {% if default_privileges.admin == "edit-access" %}checked{% endif %}></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="edit-admins" {% if default_privileges.admin == "edit-admins" %}checked{% endif %}></td>
+                            {% else %}
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="not-admin" checked></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="edit-access"></td>
+                            <td align="center" style="padding: 0px;"><input type="radio" name="admin_privilege" VALUE="edit-admins"></td>
+                            {% endif %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+
+<!-- End of body -->
+
+{% endblock %}
+
+{% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script>
+        $('#data_privileges_table').dataTable({
+            'sDom': 'tr',
+            'bSort': false
+        });
+        $('#admin_privileges_table').dataTable({
+            'sDom': 'tr',
+            'bSort': false
+        });
+    </script>
+{% endblock %}

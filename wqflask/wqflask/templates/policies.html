@@ -1,18 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Policies{% endblock %}
+
+{% block title %}Links{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
+
 {% block content %}
 
-<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
-<!-- Body Start from Here -->
-<TD valign="top" height="200" width="100%">
-	<P class="title">WebQTL Conditions of Use</P>
-	<UL>
-		<LI><A HREF="conditionsofUse.html">WebQTL Usage Conditions and Limitations</A><P></P>
-		<LI><A HREF="dataSharing.html">WebQTL Data Sharing Policy</A><P></P>
-		<LI><A HREF="statusandContact.html">Status and investigators to contact on data use and publication</A><P></P>
-	</UL>
-	<P></P>
-</TD>
-</TR></TABLE>
+ <div class="github-btn-container">
+    <div class="github-btn ">
+        <a href="https://github.com/genenetwork/gn-docs/blob/master/general/policies/policies.md">
+            Edit Text
+            <img src="/static/images/edit.png">
+        </a>
+    </div>
+</div>
+<div id="markdown" class="container">
+   {{ rendered_markdown|safe }}
 
+</div>
 {% endblock %}

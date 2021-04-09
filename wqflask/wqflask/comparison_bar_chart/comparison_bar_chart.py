@@ -18,36 +18,15 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from __future__ import absolute_import, print_function, division
-
-import sys
-# sys.path.append(".")   Never do this in a webserver!
-
-import string
-import cPickle
-import os
-import time
-import pp
-import math
-import collections
-import resource
-
-
 from pprint import pformat as pf
 
-import reaper
-
-from base.trait import GeneralTrait
+from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers
-from db import webqtlDatabaseFunction
 import utility.webqtlUtil #this is for parallel computing only.
 from wqflask.correlation import correlation_functions
-from utility.benchmark import Bench
 
 from MySQLdb import escape_string as escape
-
-from pprint import pformat as pf
 
 from flask import Flask, g
 
@@ -108,7 +87,7 @@ class ComparisonBarChart(object):
             trait_name, dataset_name = trait_db.split(":")
             #print("dataset_name:", dataset_name)
             dataset_ob = data_set.create_dataset(dataset_name)
-            trait_ob = GeneralTrait(dataset=dataset_ob,
+            trait_ob = create_trait(dataset=dataset_ob,
                                    name=trait_name,
                                    cellid=None)
             self.trait_list.append((trait_ob, dataset_ob))

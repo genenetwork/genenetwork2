@@ -17,8 +17,6 @@ be acceptable.]
 
 """
 
-from __future__ import print_function, division
-
 import re
 
 from pprint import pformat as pf
@@ -34,11 +32,10 @@ def parse(pstring):
     pstring = re.split(r"""(?:(\w+\s*=\s*[\('"\[][^)'"]*[\)\]'"])  |  # LRS=(1 2 3), cisLRS=[4 5 6], etc
                        (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
                        (".*?") | ('.*?') | # terms in quotes, i.e. "brain weight"
-                       ([\w\*]+))  # shh, brain, etc """, pstring,
+                       ([\w\*\?]+))  # shh, brain, etc """, pstring,
                                                     flags=re.VERBOSE)
 
     pstring = [item.strip() for item in pstring if item and item.strip()]
-    logger.debug("pstring:", pstring)
 
     items = []
 
@@ -77,22 +74,6 @@ def parse(pstring):
         items.append(term)
     logger.debug("* items are:", pf(items) + "\n")
     return(items)
-
-    #def encregexp(self,str):
-    #    if not str:
-    #        return []
-    #    else:
-    #        wildcardkeyword = str.strip()
-    #        wildcardkeyword = string.replace(wildcardkeyword,',',' ')
-    #        wildcardkeyword = string.replace(wildcardkeyword,';',' ')
-    #        wildcardkeyword = wildcardkeyword.split()
-    #    NNN = len(wildcardkeyword)
-    #    for i in range(NNN):
-    #        keyword = wildcardkeyword[i]
-    #        keyword = string.replace(keyword,"*",".*")
-    #        keyword = string.replace(keyword,"?",".")
-    #        wildcardkeyword[i] = keyword#'[[:<:]]'+ keyword+'[[:>:]]'
-    #    return wildcardkeyword
 
 
 if __name__ == '__main__':

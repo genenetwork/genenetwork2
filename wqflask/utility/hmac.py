@@ -1,16 +1,18 @@
-from __future__ import print_function, division, absolute_import
-
 import hmac
 import hashlib
 
+from flask import url_for
+
 from wqflask import app
+
 
 def hmac_creation(stringy):
     """Helper function to create the actual hmac"""
 
     secret = app.config['SECRET_HMAC_CODE']
-
-    hmaced = hmac.new(secret, stringy, hashlib.sha1)
+    hmaced = hmac.new(bytearray(secret, "latin-1"),
+                      bytearray(stringy, "utf-8"),
+                      hashlib.sha1)
     hm = hmaced.hexdigest()
     # ZS: Leaving the below comment here to ask Pjotr about
     # "Conventional wisdom is that you don't lose much in terms of security if you throw away up to half of the output."
@@ -18,9 +20,11 @@ def hmac_creation(stringy):
     hm = hm[:20]
     return hm
 
+
 def data_hmac(stringy):
-    """Takes arbitray data string and appends :hmac so we know data hasn't been tampered with"""
+    """Takes arbitrary data string and appends :hmac so we know data hasn't been tampered with"""
     return stringy + ":" + hmac_creation(stringy)
+
 
 def url_for_hmac(endpoint, **values):
     """Like url_for but adds an hmac at the end to insure the url hasn't been tampered with"""
@@ -33,6 +37,7 @@ def url_for_hmac(endpoint, **values):
     else:
         combiner = "?"
     return url + combiner + "hm=" + hm
+
 
 app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
                              data_hmac=data_hmac)

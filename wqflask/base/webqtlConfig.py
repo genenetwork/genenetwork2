@@ -17,6 +17,10 @@ DEBUG = 1
 #USER privilege
 USERDICT = {'guest':1,'user':2, 'admin':3, 'root':4}
 
+#Set privileges
+SUPER_PRIVILEGES = {'data': 'edit', 'metadata': 'edit', 'admin': 'edit-admins'}
+DEFAULT_PRIVILEGES = {'data': 'view', 'metadata': 'view', 'admin': 'not-admin'}
+
 #minimum number of informative strains
 KMININFORMATIVE = 5
 
@@ -59,6 +63,8 @@ OPEN_TARGETS_URL = "https://genetics.opentargets.org/gene/%s"
 UNIPROT_URL = "https://www.uniprot.org/uniprot/%s"
 RGD_URL = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term=%s&category=Gene&species=%s"
 PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&genomeVer=rn6&section=geneEQTL"
+RRID_MOUSE_URL = "https://www.jax.org/strain/%s"
+RRID_RAT_URL = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id=%s"
 
 # Temporary storage (note that this TMPDIR can be set as an
 # environment variable - use utility.tools.TEMPDIR when you
@@ -81,7 +87,7 @@ assert_writable_dir(GENERATED_TEXT_DIR)
 # Flat file directories
 GENODIR              = flat_files('genotype')+'/'
 assert_dir(GENODIR)
-assert_dir(GENODIR+'bimbam') # for gemma
+# assert_dir(GENODIR+'bimbam') # for gemma
 
 # JSON genotypes are OBSOLETE
 JSON_GENODIR         = flat_files('genotype/json')+'/'
