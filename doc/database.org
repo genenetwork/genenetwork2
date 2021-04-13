@@ -1339,7 +1339,8 @@ The SNP count info for the BXD is calculated like this
             startMb += stepMb
 #+end_src
 
-select * from BXDSnpPosition limit 5;
+: select * from BXDSnpPosition limit 5;
+
 +------+-----------+-----------+----------+
 | Chr  | StrainId1 | StrainId2 | Mb       |
 +------+-----------+-----------+----------+
@@ -1435,7 +1436,7 @@ Tux01 has less indexes than P2(!):
 | ProbeSetFreeze |          0 | Name      |            1 | Name        | A         |         911 |     NULL | NULL   | YES  | BTREE      |         |               |
 | ProbeSetFreeze |          1 | NameIndex |            1 | Name2       | A         |         911 |     NULL | NULL   |      | BTREE      |         |               |
 +----------------+------------+-----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
-4 rows in set (0.000 sec)
+: 4 rows in set (0.000 sec)
 
 +----------------+------------+-----------------+--------------+-----------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
 | Table          | Non_unique | Key_name        | Seq_in_index | Column_name     | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
@@ -1449,7 +1450,7 @@ Tux01 has less indexes than P2(!):
 | ProbeSetFreeze |          1 | conf_and_public |            1 | confidentiality | A         |           3 |     NULL | NULL   |      | BTREE      |         |               |
 | ProbeSetFreeze |          1 | conf_and_public |            2 | public          | A         |           4 |     NULL | NULL   |      | BTREE      |         |               |
 +----------------+------------+-----------------+--------------+-----------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
-8 rows in set (0.00 sec)
+: 8 rows in set (0.00 sec)
 
 *** ProbeSet
 
@@ -1459,7 +1460,7 @@ Identical indexes
 
 Tux01 has less indexes than P2(!):
 
-MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
+: MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
 +--------------+------------+------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
 | Table        | Non_unique | Key_name   | Seq_in_index | Column_name      | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
 +--------------+------------+------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
@@ -1468,10 +1469,10 @@ MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
 | ProbeSetXRef |          0 | DataId_IDX |            1 | DataId           | A         |    47713039 |     NULL | NULL   |      | BTREE      |         |               |
 | ProbeSetXRef |          1 | Locus_IDX  |            1 | Locus            | A         |    15904346 |     NULL | NULL   | YES  | BTREE      |         |               |
 +--------------+------------+------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
-4 rows in set (0.000 sec)
+: 4 rows in set (0.000 sec)
 
 
-MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
+: MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
 +--------------+------------+-------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
 | Table        | Non_unique | Key_name    | Seq_in_index | Column_name      | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
 +--------------+------------+-------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
@@ -1481,7 +1482,7 @@ MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
 | ProbeSetXRef |          1 | ProbeSetId1 |            1 | ProbeSetId       | A         |     5156905 |     NULL | NULL   |      | BTREE      |         |               |
 | ProbeSetXRef |          1 | Locus       |            1 | Locus            | A         |    23206072 |     NULL | NULL   | YES  | BTREE      |         |               |
 +--------------+------------+-------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
-5 rows in set (0.00 sec)
+: 5 rows in set (0.00 sec)
 
 ** Check storage
 
