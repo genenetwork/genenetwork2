@@ -7,7 +7,7 @@ from base import data_set
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
-GN3_CORRELATION_API = "http://127.0.0.1:8080/api/correlation"
+GN3_CORRELATION_API = "http://127.0.0.1:8202/api/correlation"
 
 
 def process_samples(start_vars, sample_names, excluded_samples=None):
@@ -30,6 +30,12 @@ def process_samples(start_vars, sample_names, excluded_samples=None):
 def create_target_this_trait(start_vars):
     """this function creates the required trait and target dataset for correlation"""
 
+
+    print("creating the dataset and trait")
+    import time
+
+    initial_time = time.time()
+
     this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
     target_dataset = data_set.create_dataset(
         dataset_name=start_vars['corr_dataset'])
@@ -43,6 +49,11 @@ def create_target_this_trait(start_vars):
     this_trait = retrieve_sample_data(this_trait, this_dataset)
 
     target_dataset.get_trait_data(list(sample_data.keys()))
+
+
+    time_taken = time.time() - initial_time
+
+    print(f"the time taken to create dataset abnd trait is",time_taken)
 
     return (this_dataset, this_trait, target_dataset, sample_data)
 
@@ -91,6 +102,8 @@ def compute_correlation(start_vars, method="pearson"):
 
         requests_url = f"{GN3_CORRELATION_API}/lit_corr/{species}/{this_trait_geneid}"
         corr_input_data = geneid_dict
+
+    print("Sending this request")
     corr_results = requests.post(requests_url, json=corr_input_data)
 
     data = corr_results.json()
