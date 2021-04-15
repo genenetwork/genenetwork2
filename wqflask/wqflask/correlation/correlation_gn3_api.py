@@ -47,11 +47,14 @@ def create_target_this_trait(start_vars):
     # target_dataset.get_trait_data(list(self.sample_data.keys()))
 
     this_trait = retrieve_sample_data(this_trait, this_dataset)
+    print(f"Starting to creat the target dataset ")
+    dataset_start_time = time.time()
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
 
     time_taken = time.time() - initial_time
+    print(f"the time taken to create dataset is",time.time()-dataset_start_time)
 
     print(f"the time taken to create dataset abnd trait is",time_taken)
 
