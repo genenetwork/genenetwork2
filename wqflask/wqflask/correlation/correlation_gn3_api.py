@@ -1,11 +1,17 @@
 """module that calls the gn3 api's to do the correlation """
 import json
 import requests
+import time
 from wqflask.correlation import correlation_functions
 
 from base import data_set
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
+# gn3 lib
+from gn3.computations.correlations import compute_all_sample_correlation
+from gn3.computations.correlations import benchmark_compute_all_sample
+from gn3.computations.correlations import map_shared_keys_to_values
+from gn3.computations.correlations import compute_all_tissue_correlation
 
 GN3_CORRELATION_API = "http://127.0.0.1:8202/api/correlation"
 
@@ -30,7 +36,6 @@ def process_samples(start_vars, sample_names, excluded_samples=None):
 def create_target_this_trait(start_vars):
     """this function creates the required trait and target dataset for correlation"""
 
-
     print("creating the dataset and trait")
     import time
 
@@ -52,11 +57,10 @@ def create_target_this_trait(start_vars):
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
-
     time_taken = time.time() - initial_time
-    print(f"the time taken to create dataset is",time.time()-dataset_start_time)
+    print(f"the time taken to create dataset is", time.time()-dataset_start_time)
 
-    print(f"the time taken to create dataset abnd trait is",time_taken)
+    print(f"the time taken to create dataset abnd trait is", time_taken)
 
     return (this_dataset, this_trait, target_dataset, sample_data)
 
@@ -76,16 +80,34 @@ def compute_correlation(start_vars, method="pearson"):
     corr_input_data = {}
 
     if corr_type == "sample":
-        corr_input_data = {
-            "target_dataset": target_dataset.trait_data,
-            "target_samplelist": target_dataset.samplelist,
-            "trait_data": {
-                "trait_sample_data": sample_data,
-                "trait_id": start_vars["trait_id"]
-            }
+        # corr_input_data = {
+        #     "target_dataset": target_dataset.trait_data,
+        #     "target_samplelist": target_dataset.samplelist,
+        #     "trait_data": {
+        #         "trait_sample_data": sample_data,
+        #         "trait_id": start_vars["trait_id"]
+        #     }
+        # }
+
+
+
+        this_trait_data = {
+            "trait_sample_data": sample_data,
+            "trait_id": start_vars["trait_id"]
         }
 
-        requests_url = f"{GN3_CORRELATION_API}/sample_x/{method}"
+        initial_time = time.time()
+        print("Calling sample correlation")
+        results = map_shared_keys_to_values(
+            target_dataset.samplelist, target_dataset.trait_data)
+        correlation_results = compute_all_sample_correlation(corr_method=method,
+                                                             this_trait=this_trait_data,
+                                                             target_dataset=results)
+
+        print("Time taken is>>>>",time.time()-initial_time)
+
+        # requests_url = f"{GN3_CORRELATION_API}/sample_x/{method}"
+        return correlation_results
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
@@ -96,8 +118,17 @@ def compute_correlation(start_vars, method="pearson"):
             "primary_tissue": primary_tissue_data,
             "target_tissues_dict": target_tissue_data
         }
+        print("Calling tissue correlation")
+        initial_time = time.time()
+        correlation_results = compute_all_tissue_correlation(primary_tissue_dict=corr_input_data["primary_tissue"],
+                                                             target_tissues_data=corr_input_data["target_tissues_dict"],
+                                                             corr_method=method)
 
-        requests_url = f"{GN3_CORRELATION_API}/tissue_corr/{method}"
+        time_taken = time.time()
+        print("Time taken is ??????",time_taken-initial_time)
+
+        # requests_url = f"{GN3_CORRELATION_API}/tissue_corr/{method}"
+        return correlation_results
 
     elif corr_type == "lit":
         (this_trait_geneid, geneid_dict, species) = do_lit_correlation(

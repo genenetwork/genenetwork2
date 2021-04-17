@@ -21,7 +21,7 @@
    {% for corr_result in correlation_results %}
    {% for key,value in corr_result.items()%}
       <div class="container-content">
-      <div><p>trait_name_here</p></div>
+      <div><p>{{key}}</p></div>
       {%for o_key,o_value in value.items()%}
      <div><p>{{o_value}}</p></div>
       {%endfor%}
