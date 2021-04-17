@@ -48,20 +48,17 @@ def create_target_this_trait(start_vars):
     this_trait = create_trait(dataset=this_dataset,
                               name=start_vars['trait_id'])
 
-    sample_data = process_samples(start_vars, this_dataset.group.samplelist)
+    
     # target_dataset.get_trait_data(list(self.sample_data.keys()))
 
-    this_trait = retrieve_sample_data(this_trait, this_dataset)
+    # this_trait = retrieve_sample_data(this_trait, this_dataset)
     print(f"Starting to creat the target dataset ")
     dataset_start_time = time.time()
+    sample_data = ()
 
-    target_dataset.get_trait_data(list(sample_data.keys()))
+    
 
     time_taken = time.time() - initial_time
-    print(f"the time taken to create dataset is", time.time()-dataset_start_time)
-
-    print(f"the time taken to create dataset abnd trait is", time_taken)
-
     return (this_dataset, this_trait, target_dataset, sample_data)
 
 
@@ -89,6 +86,10 @@ def compute_correlation(start_vars, method="pearson"):
         #     }
         # }
 
+        sample_data = process_samples(start_vars, this_dataset.group.samplelist)
+        target_dataset.get_trait_data(list(sample_data.keys()))
+        this_trait = retrieve_sample_data(this_trait, this_dataset)
+
 
 
         this_trait_data = {
@@ -111,8 +112,10 @@ def compute_correlation(start_vars, method="pearson"):
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
+        time_to_retrieve = time.time()
         primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
             this_trait, trait_symbol_dict)
+        print("Time taken to retrieve this is",time.time()-time_to_retrieve)
 
         corr_input_data = {
             "primary_tissue": primary_tissue_data,
