@@ -182,15 +182,3 @@ class NetworkGraph(object):
                             samples=self.all_sample_list,
                             sample_data=self.sample_data,
                             elements=self.elements,)
-
-    def get_trait_db_obs(self, trait_db_list):
-        self.trait_list = []
-        for i, trait_db in enumerate(trait_db_list):
-            if i == (len(trait_db_list) - 1):
-                break
-            trait_name, dataset_name = trait_db.split(":")
-            dataset_ob = data_set.create_dataset(dataset_name)
-            trait_ob = create_trait(dataset=dataset_ob,
-                                    name=trait_name,
-                                    cellid=None)
-            self.trait_list.append((trait_ob, dataset_ob))
