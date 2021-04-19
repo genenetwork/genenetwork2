@@ -40,7 +40,7 @@ def get_trait_db_obs(self, trait_db_list):
         data, _separator, hmac_string = trait.rpartition(':')
         data = data.strip()
         assert hmac_string==hmac.hmac_creation(data), "Data tampering?"
-        trait_name, dataset_name = data.split(":")
+        trait_name, dataset_name = data.split(":")[:2]
         if dataset_name == "Temp":
             dataset_ob = data_set.create_dataset(dataset_name=dataset_name, dataset_type="Temp", group_name=trait_name.split("_")[2])
         else:
