@@ -224,9 +224,6 @@
               'title': "Description",
               'type': "natural",
               'data': null,
-              {% if wide_columns_exist == true %}
-              'width': "600px",
-              {% endif %}
               'targets': 4,
               'render': function(data, type, row, meta) {
                 try {
@@ -260,7 +257,8 @@
               'type': "natural-minus-na",
               'data': "lod_score",
               {% if wide_columns_exist == true %}
-              'width': "60px", {% endif %}
+              'width': "60px",
+              {% endif %}
               'targets': 7,
               'orderSequence': [ "desc", "asc"]
             },
@@ -299,6 +297,7 @@
               'title': "Description",
               'type': "natural",
               'data': null,
+              'targets': 3,
               'render': function(data, type, row, meta) {
                 try {
                     return decodeURIComponent(escape(data.description))
@@ -310,8 +309,11 @@
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "60px",
+              {% endif %}
               'data': "mean",
+              'targets': 4,
               'orderSequence': [ "desc", "asc"]
             },
             {
@@ -321,6 +323,7 @@
               'width': "400px",
               {% endif %}
               'data': null,
+              'targets': 5,
               'render': function(data, type, row, meta) {
                 author_list = data.authors.split(",")
                 if (author_list.length >= 6) {
@@ -335,7 +338,10 @@
               'title': "<div style='text-align: right;'>Year</div>",
               'type': "natural-minus-na",
               'data': null,
+              {% if wide_columns_exist == true %}
               'width': "50px",
+              {% endif %}
+              'targets': 6,
               'render': function(data, type, row, meta) {
                 if (data.pubmed_id != "N/A"){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -349,29 +355,69 @@
               'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
               'type': "natural-minus-na",
               'data': "lod_score",
+              'targets': 7,
+              {% if wide_columns_exist == true %}
               'width': "60px",
+              {% endif %}
               'orderSequence': [ "desc", "asc"]
             },
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "120px",
+              {% endif %}
+              'targets': 8,
               'data': "lrs_location"
             },
             {
               'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "60px",
+              {% endif %}
               'data': "additive",
+              'targets': 9,
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Geno' %},
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
+              {% if wide_columns_exist == true %}
               'width': "120px",
+              {% endif %}
+              'targets': 2,
               'data': "location"
             }{% endif %}
             ];
+
+            recheck_rows = function(checked_rows){
+              //ZS: This is meant to recheck checkboxes after columns are resized
+              check_cells = trait_table.column(0).nodes().to$();
+              for (let i = 0; i < check_cells.length; i++) {
+                if (checked_rows.includes(i)){
+                  check_cells[i].childNodes[0].checked = true;
+                }
+              }
+
+              check_rows = trait_table.rows().nodes();
+              for (let i =0; i < check_rows.length; i++) {
+                if (checked_rows.includes(i)){
+                  check_rows[i].classList.add("selected")
+                }
+              }
+            }
+
+            get_checked_rows = function(trait_table){
+              let checked_rows = []
+              $("#trait_table input").each(function(index){
+                if ($(this).prop("checked") == true){
+                  checked_rows.push(index);
+                }
+              });
+
+              return checked_rows
+            }
 
             loadDataTable(true);
 
@@ -473,13 +519,22 @@
                 table_settings['autoWidth'] = false;
                 $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
               }
-              trait_table = $('#' + tableId).DataTable(table_settings);
 
-              {% if trait_list|length > 20 %}
-              if (first_run){
-                $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+              let checked_rows = get_checked_rows();
+              trait_table = $('#' + tableId).DataTable(table_settings);
+              if (checked_rows.length > 0){
+                recheck_rows(checked_rows);
               }
-              {% endif %}
+
+              if (first_run){
+                {% if trait_list|length > 20 %}
+                $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+                {% else %}
+                {% if wide_columns_exist != true %}
+                $('#table_container').css("width", String($('#trait_table').width()) + "px");
+                {% endif %}
+                {% endif %}
+              }
             }
 
             window.addEventListener('resize', function(){
@@ -507,8 +562,16 @@
                   columnDef.sWidth = userColumnDef.width + 'px';
                   columnDef.width = userColumnDef.width + 'px';
 
+                  $('.toggle-vis').each(function(){
+                    if ($(this).attr('data-column') == columnDef.targets){
+                      if ($(this).hasClass("active")){
+                        columnDef.bVisible = false
+                      } else {
+                        columnDef.bVisible = true
+                      }
+                    }
+                  })
                 }
-
               });
             }
 
@@ -527,10 +590,8 @@
                 width = $(header).width();
 
                 if ( existingSetting !== -1 ) {
-
                   // Update the width
                   userColumnDefs[existingSetting].width = width;
-
                 } else {
 
                   // Add the width for this column
