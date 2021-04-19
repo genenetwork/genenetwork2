@@ -156,12 +156,6 @@ def index_page():
         import_collections = params['import_collections']
         if import_collections == "true":
             g.user_session.import_traits_to_user(params['anon_id'])
-    #if USE_GN_SERVER:
-    #    # The menu is generated using GN_SERVER
-    #    return render_template("index_page.html", gn_server_url = GN_SERVER_URL, version=GN_VERSION)
-    #else:
-
-    # Old style static menu (OBSOLETE)
     return render_template("index_page_orig.html", version=GN_VERSION)
 
 
@@ -343,14 +337,10 @@ def intro():
 
 @app.route("/tutorials")
 def tutorials():
-    #doc = Docs("links", request.args)
-    #return render_template("docs.html", **doc.__dict__)
     return render_template("tutorials.html")
 
 @app.route("/credits")
 def credits():
-    #doc = Docs("links", request.args)
-    #return render_template("docs.html", **doc.__dict__)
     return render_template("credits.html")
 
 @app.route("/update_text", methods=('POST',))
@@ -368,12 +358,9 @@ def submit_trait_form():
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     logger.info(request.url)
-
-    #template_vars = submit_trait.SubmitTrait(request.form)
-
     doc = Docs("links")
     return render_template("links.html", **doc.__dict__)
-    #return render_template("show_trait.html", **template_vars.__dict__)
+
 
 @app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
@@ -487,20 +474,16 @@ def export_perm_data():
                     mimetype='text/csv',
                     headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
 
+
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
     logger.info(request.url)
     template_vars = show_trait.ShowTrait(request.form)
-    #logger.info("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
-    # Sorting the keys messes up the ordered dictionary, so don't do that
-                                       #sort_keys=True)
-
-    #logger.info("js_data after dump:", template_vars.js_data)
-    #logger.info("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
+
 
 @app.route("/show_trait")
 def show_trait_page():

@@ -262,8 +262,6 @@ class Markers(object):
         elif isinstance(p_values, dict):
             filtered_markers = []
             for marker in self.markers:
-                #logger.debug("marker[name]", marker['name'])
-                #logger.debug("p_values:", p_values)
                 if marker['name'] in p_values:
                     #logger.debug("marker {} IS in p_values".format(i))
                     marker['p_value'] = p_values[marker['name']]
@@ -276,10 +274,6 @@ class Markers(object):
                         marker['lrs_value'] = - \
                             math.log10(marker['p_value']) * 4.61
                     filtered_markers.append(marker)
-                # else:
-                    #logger.debug("marker {} NOT in p_values".format(i))
-                    # self.markers.remove(marker)
-                    #del self.markers[i]
             self.markers = filtered_markers
 
 
@@ -306,7 +300,6 @@ class HumanMarkers(Markers):
                 marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
 
-        #logger.debug("markers is: ", pf(self.markers))
 
     def add_pvalues(self, p_values):
         super(HumanMarkers, self).add_pvalues(p_values)
@@ -520,7 +513,6 @@ def datasets(group_name, this_group=None):
                     break
 
             if tissue_already_exists:
-                #logger.debug("dataset_menu:", dataset_menu[i]['datasets'])
                 dataset_menu[i]['datasets'].append((dataset, dataset_short))
             else:
                 dataset_menu.append(dict(tissue=tissue_name,
@@ -735,9 +727,6 @@ class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
 
     def setup(self):
-
-        #logger.debug("IS A PHENOTYPEDATASET")
-
         # Fields in the database table
         self.search_fields = ['Phenotype.Post_publication_description',
                               'Phenotype.Pre_publication_description',

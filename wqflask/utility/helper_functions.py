@@ -10,7 +10,6 @@ import logging
 logger = logging.getLogger(__name__ )
 
 def get_species_dataset_trait(self, start_vars):
-    #assert type(read_genotype) == type(bool()), "Expecting boolean value for read_genotype"
     if "temp_trait" in list(start_vars.keys()):
       if start_vars['temp_trait'] == "True":
         self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
@@ -27,9 +26,6 @@ def get_species_dataset_trait(self, start_vars):
                                    get_qtl_info=True)
     logger.debug("After creating trait")
 
-    #if read_genotype:
-    #self.dataset.group.read_genotype_file()
-    #self.genotype = self.dataset.group.genotype
 
 def get_trait_db_obs(self, trait_db_list):
     if isinstance(trait_db_list, str):
