@@ -12,6 +12,7 @@ from gn3.computations.correlations import compute_all_sample_correlation
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_tissue_correlation
 from gn3.computations.correlations import compute_all_lit_correlation
+from gn3.computations.correlations import experimental_compute_all_tissue_correlation
 from gn3.db_utils import database_connector
 
 GN3_CORRELATION_API = "http://127.0.0.1:8202/api/correlation"
@@ -36,7 +37,6 @@ def process_samples(start_vars, sample_names, excluded_samples=None):
 
 def create_target_this_trait(start_vars):
     """this function creates the required trait and target dataset for correlation"""
-
 
     this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
     target_dataset = data_set.create_dataset(
@@ -81,7 +81,7 @@ def compute_correlation(start_vars, method="pearson"):
         target_dataset.get_trait_data(list(sample_data.keys()))
         this_trait = retrieve_sample_data(this_trait, this_dataset)
 
-        print("Creating dataset and trait took",time.time()-initial_time)
+        print("Creating dataset and trait took", time.time()-initial_time)
 
         this_trait_data = {
             "trait_sample_data": sample_data,
@@ -94,7 +94,7 @@ def compute_correlation(start_vars, method="pearson"):
                                                              this_trait=this_trait_data,
                                                              target_dataset=results)
 
-        print("doing sample correlation took",time.time()-initial_time)
+        print("doing sample correlation took", time.time()-initial_time)
 
         # requests_url = f"{GN3_CORRELATION_API}/sample_x/{method}"
         return correlation_results
@@ -109,11 +109,16 @@ def compute_correlation(start_vars, method="pearson"):
             "target_tissues_dict": target_tissue_data
         }
         initial_time = time.time()
-        correlation_results = compute_all_tissue_correlation(primary_tissue_dict=corr_input_data["primary_tissue"],
-                                                             target_tissues_data=corr_input_data["target_tissues_dict"],
-                                                             corr_method=method)
-        print("time taken for compute tissue is",time.time()-initial_time)
-
+        correlation_results = experimental_compute_all_tissue_correlation(primary_tissue_dict=corr_input_data["primary_tissue"],
+                                                                          target_tissues_data=corr_input_data[
+            "target_tissues_dict"],
+            corr_method=method)
+        print("correlation y took", time.time()-initial_time)
+        # initial_time = time.time()
+        # correlation_results = compute_all_tissue_correlation(primary_tissue_dict=corr_input_data["primary_tissue"],
+        #                                                      target_tissues_data=corr_input_data["target_tissues_dict"],
+        #                                                      corr_method=method)
+        # print("time taken for compute tissue is", time.time()-initial_time)
 
         # requests_url = f"{GN3_CORRELATION_API}/tissue_corr/{method}"
         return correlation_results
@@ -131,7 +136,7 @@ def compute_correlation(start_vars, method="pearson"):
                 species=species, gene_id=this_trait_geneid)
 
         return lit_corr_results
-        print("the time taken is",time.time()-initial_time) 
+        print("the time taken is", time.time()-initial_time)
         # requests_url = f"{GN3_CORRELATION_API}/lit_corr/{species}/{this_trait_geneid}"
         # corr_input_data = geneid_dict
     # corr_results = requests.post(requests_url, json=corr_input_data)
@@ -161,7 +166,6 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
         primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
         )]
 
-        time_to_to_fetch_all = time.time()
         corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
             symbol_list=list(trait_symbol_dict.values()))
         primary_tissue_data = {
