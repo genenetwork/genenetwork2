@@ -156,7 +156,7 @@ def index_page():
         import_collections = params['import_collections']
         if import_collections == "true":
             g.user_session.import_traits_to_user(params['anon_id'])
-    return render_template("index_page_orig.html", version=GN_VERSION)
+    return render_template("index_page.html", version=GN_VERSION)
 
 
 @app.route("/tmp/<img_path>")
