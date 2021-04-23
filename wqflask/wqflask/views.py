@@ -496,16 +496,11 @@ def show_temp_trait_page():
 def show_trait_page():
     logger.info(request.url)
     template_vars = show_trait.ShowTrait(request.args)
-    #logger.info("js_data before dump:", template_vars.js_data)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
-    # Sorting the keys messes up the ordered dictionary, so don't do that
-                                       #sort_keys=True)
-
-    #logger.info("js_data after dump:", template_vars.js_data)
-    #logger.info("show_trait template_vars:", pf(template_vars.__dict__))
     return render_template("show_trait.html", **template_vars.__dict__)
+
 
 @app.route("/heatmap", methods=('POST',))
 def heatmap_page():
