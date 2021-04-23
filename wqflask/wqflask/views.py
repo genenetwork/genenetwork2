@@ -334,14 +334,15 @@ def intro():
     return render_template("docs.html", **doc.__dict__)
 
 
-
 @app.route("/tutorials")
 def tutorials():
     return render_template("tutorials.html")
 
+
 @app.route("/credits")
 def credits():
     return render_template("credits.html")
+
 
 @app.route("/update_text", methods=('POST',))
 def update_page():
@@ -349,11 +350,17 @@ def update_page():
     doc = Docs(request.form['entry_type'], request.form)
     return render_template("docs.html", **doc.__dict__)
 
+
 @app.route("/submit_trait")
 def submit_trait_form():
     logger.info(request.url)
     species_and_groups = get_species_groups()
-    return render_template("submit_trait.html", **{'species_and_groups' : species_and_groups, 'gn_server_url' : GN_SERVER_URL, 'version' : GN_VERSION})
+    return render_template(
+        "submit_trait.html",
+        **{'species_and_groups': species_and_groups,
+           'gn_server_url': GN_SERVER_URL,
+           'version': GN_VERSION})
+
 
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
