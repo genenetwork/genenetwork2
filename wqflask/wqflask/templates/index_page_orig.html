@@ -1,22 +1,67 @@
 {% extends "base.html" %}
 {% block title %}GeneNetwork{% endblock %}
 {% block css %}
-<style TYPE="text/css">
-  p.interact { display: none; }
+<style type="text/css">
+ p.interact { display: none; }
+
+ #feed-items {
+     height: 300px;
+     overflow: scroll;
+     overflow-x: hidden;
+     font-family: Helvetica, Arial, "sans-serif";
+ }
+
+ #feed-items ul {
+     list-style-type: None;
+ }
+
+ #feed-items ul li {
+     border-bottom: 1px solid #999;
+     margin-bottom: 20px;
+ }
+
+ /** Tabbed feed **/
+ input[name="feed-tabs"] {
+     display: none;
+ }
+
+ input[name="feed-tabs"] + label {
+     display: inline-block;
+ }
+
+ input[name="feed-tabs"] ~ .tab {
+     display: none;
+ }
+
+ #tab-all-items:checked ~ .tab.content-all-items,
+ #tab-pubmed-articles:checked ~ .tab.content-pubmed-articles,
+ #tab-arxiv-articles:checked ~ .tab.content-arxiv-articles,
+ #tab-tweets:checked ~ .tab.content-tweets,
+ #tab-commits:checked ~ .tab.content-commits {
+     display: block;
+ }
+
+ input[name="feed-tabs"] + label {
+     background: #EEE;
+     padding: 4px 12px;
+     border-radius: 4px 4px 0 0;
+     position: relative;
+     top: 1px;
+ }
+
+ input[name="feed-tabs"]:checked + label {
+     background: #FFF;
+     border-bottom: 1px solid transparent;
+ }
+ input[name="feed-tabs"] ~ .tab {          /* grey line between tab and contents */
+     border-top: 1px solid #999;
+     padding: 12px;
+ }
+
 </style>
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-
-<!--
-    <header class="jumbotron subhead" id="overview">
-        <div class="container">
-            <h1>GeneNetwork</h1>
-            <p class="lead">Open source bioinformatics for systems genetics</p>
-        </div>
-    </header>
--->
-
     <div class="container-fluid" style="min-width: 1210px;">
 
         {{ flash_me() }}
@@ -205,9 +250,157 @@
                 <section id="news-section">
                     <div class="page-header">
                         <h1>News</h1>
-                        <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
-                        <div align="right">
-                          <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                        <div id="feed-items">
+                            <input name="feed-tabs" type="radio" id="tab-all-items" checked/>
+                            <label for="tab-all-items">All Items</label>
+                            <input name="feed-tabs" type="radio" id="tab-arxiv-articles"/>
+                            <label for="tab-arxiv-articles">Arxiv</label>
+                            <input name="feed-tabs" type="radio" id="tab-pubmed-articles"/>
+                            <label for="tab-pubmed-articles">Pubmed</label>
+                            <input name="feed-tabs" type="radio" id="tab-tweets"/>
+                            <label for="tab-tweets">Tweets</label>
+                            <input name="feed-tabs" type="radio" id="tab-commits"/>
+                            <label for="tab-commits">Commits</label>
+                            <ul class="tab content-all-items">
+                              <!-- Begin News -->
+                                  {% if all_items %}
+                                  {% for item in all_items|sort(reverse=true, attribute="score")%}
+                                  <li>
+                                      {% if item['authors'] %}
+                                      <!-- Arxiv article -->
+                                      <p>
+                                          <b>[arxiv]</b>
+                                          <a href="{{ item['url'] }}" target="_blank">
+                                              {{item['title']}}
+                                          </a>
+                                          <br/>
+                                          <b>Authors:</b> {{ item['authors'] }}
+                                          <br/>
+                                          <b>Abstract:</b> {{ item['abstract']}}...
+                                          <br/>
+                                          <b>Submitted:</b> {{ item['submission']}}
+                                      </p>
+
+                                      {% elif item['full-authors'] %}
+                                      <!-- Pubmed Article -->
+                                      <p><b>[Pubmed]:</b>
+                                          <a href="https://pubmed.ncbi.nlm.nih.gov/{{ item['docsum-pmid'] }}" target="_blank"><b>Summary:</b>
+                                              {{ item['summary'] }}
+                                          </a> <br/>
+                                          <b>Full Authors:</b> {{ item['full-authors'] }} <br/>
+                                          <b>Short Authors:</b> {{ item['short-authors'] }} <br/>
+                                          <b>Citation:</b> {{ item['citation'] }} <br/>
+                                          <b>Short Journal Citation:</b> {{ item['short-journal-citation'] }} <br/>
+                                      </p>
+
+                                      {% elif item['tweet'] %}
+                                      <!-- Tweets -->
+                                      <p>
+                                          <b>[Tweet]:</b>
+                                          {{ item['tweet']|urlize(40, target="_blank")}}
+                                          <small>
+                                              <a href="{{ item['url'] }}" target="_blank">source</a></small>
+                                          <br/>
+                                          by {{ item['author'] }}
+                                          <br/>
+                                          <small>{{ item['timeposted'] }}</small>
+                                      </p>
+
+                                      {% elif item['repository-url'] %}
+                                      <!-- Commits -->
+                                      <p>
+                                          <b>[Commit]:</b>
+                                          <a href="{{ item.url }}" target="_blank">
+                                              {{ item.hash.split(":")[-1][:7] }}: {{ item.content }}
+                                          </a>
+                                          <br/>
+                                          <small>
+                                              <a href="{{ item['repository-url'] }}" target="_blank"> {{ item.author }}/{{ item.repository }}</a>
+                                              on {{ item.timeposted }}
+                                          </small>
+                                      </p>
+                                      {% endif %}
+                                  </li>
+                                  {%endfor%}
+
+                                  {% else %}
+                                  There are no items to display :(
+                                  {% endif %}
+                              <!-- End News -->
+                            </ul>
+                            <ul class="tab content-arxiv-articles">
+                              {% if arxiv_articles %}
+                              {% for article in arxiv_articles|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p><a href="{{article['url']}}">{{ article['title'] }}</a></p>
+                                  <p><b>Authors:</b> {{ article['authors'] }}</p>
+                                  <p><b>Abstract:</b> {{ article['abstract']}}...</p>
+                                  <p><b>Submitted:</b> {{ article['submission']}}</p>
+                              </li>
+                              {% endfor %}
+                              {% else %}
+
+                              There are no articles to display :(
+
+                              {% endif %}
+                            </ul>
+                            <ul class="tab content-pubmed-articles">
+                              {% if pubmed_articles %}
+                              {% for article in pubmed_articles|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p><a href="https://pubmed.ncbi.nlm.nih.gov/{{article['docsum-pmid']}}"><b>Summary:</b> {{ article['summary'] }}</a></p>
+                                  <p><b>Full Authors:</b> {{ article['full-authors'] }}</p>
+                                  <p><b>Short Authors:</b> {{ article['short-authors'] }}</p>
+                                  <p><b>Citation:</b> {{ article['citation'] }}</p>
+                                  <p><b>Short Journal Citation:</b> {{ article['short-journal-citation'] }}</p>
+                              </li>
+                              {% endfor %}
+                              {% else %}
+
+                              There are no articles to display :(
+
+                              {% endif %}
+                            </ul>
+                            <ul class="tab content-tweets">
+                              {% if tweets %}
+                              {% for tweet in tweets|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p class="tweet">
+                                      {{ tweet.tweet|urlize(40, target="_blank") }} <br/>
+                                      by {{ tweet.author }}
+                                  </p>
+                                  <small class="timeposted">
+                                      {{ tweet.timeposted }}
+                                  </small>
+                              </li>
+                              {% endfor %}
+
+                              {% else %}
+
+                              There are no tweets to display :(
+
+                              {% endif %}
+                            </ul>
+                            <ul class="tab content-commits">
+                              {% if commits %}
+                              {% for commit in commits|sort(reverse=true, attribute="score")%}
+                              <li>
+                                  <p class="commit">
+                                      <a href="{{commit.url}}" target="_blank">
+                                          {{ commit.hash.split(":")[-1][:7] }}:{{ commit.content}}
+                                      </a>
+                                  </p>
+                                  <small class="timeposted">
+                                      <a href="{{ commit['repository-url']}}" target="_blank">{{ commit.author }}/{{ commit.repository }}</a>
+                                      on {{ commit.timeposted}}
+                                  </small>
+                              </li>
+                              {% endfor %}
+                              {% else %}
+                              There are no commits to be displayed.
+                              {%  endif %}
+                            </ul>
+
                         </div>
                     </div>
 		</section>
@@ -217,40 +410,10 @@
                         <ul>
                           <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
                           <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
-                          <!--<li><a href="https://github.com/genenetwork/gn-docs/wiki">GN2 Document Wiki</a></li>-->
                           <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
                         </ul>
                     </div>
                </section>
-              <!--
-                <section id="tour-info">
-                    <div class="page-header">
-                        <h1>Tour and more info</h1>
-                    </div>
-
-                    <h3>Thirty minute tour</h3>
-                    <p>
-                      Take the 30 minute
-                      GeneNetwork <a href="http://www.genenetwork.org/tutorial/WebQTLTour/" class="fs14">tour</a> that includes screen shots and
-                      typical steps in the analysis.
-                    </p>
-
-                    <h3>Even more info</h3>
-                    <p>
-                      For information about
-                      resources and methods, select the Info buttons next to the Group
-                      and Database fields above.
-                    </p>
-
-                      <p>The <a href="/conditionsofUse.html">conditions</a>
-                      and <a href="/statusandContact.html">contact
-                      </a> pages have information on the status of data sets
-                      and advice on their use and citation.</p>
-
-                </section>
-
-                </section>
-                -->
                 <section id="websites">
                     <div class="page-header">
                         <h1>Links</h1>
@@ -258,7 +421,6 @@
                     <h3>GeneNetwork v2:</h3>
                       <ul>
                         <li><a href="http://genenetwork.org/">Main website</a> at UTHSC</li>
-                        <!--<li><a href="http://test-genenetwork.org/">Testing website</a> at UTHSC</li>-->
                       </ul>
                     <h3>GeneNetwork v1:</h3>
                     <ul>
@@ -268,44 +430,6 @@
                     </ul>
                     <script type="text/javascript" src="//rf.revolvermaps.com/0/0/8.js?i=526mdlpknyd&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=33" async="async"></script>
                </section>
-
-                <!--<section id="getting-started">
-                    <div class="page-header">
-                        <h1>Getting started</h1>
-                    </div>
-
-                <ol style="font-size:12px;font-family:verdana;color:black">
-                  <li>Select <b>Species</b> (or All)</li>
-
-                  <li>Select <b>Group</b> (a specific sample)</li>
-
-                  <li>Select <b>Type</b> of data:
-
-                    <ul>
-                      <li>Phenotype (traits)</li>
-
-                      <li>Genotype (markers)</li>
-
-                      <li>Expression (mRNAs)</li>
-                    </ul>
-                  </li>
-
-                  <li>Select a <b>Dataset</b></li>
-
-                  <li>Enter terms in the search field: words,
-                  genes, probes, advanced search commands</li>
-
-                  <li>Click the <b>Search</b> button</li>
-
-                  <li>Optional: Use the <b>Make Default</b> button to save your preferences</li>
-                </ol>
-
-                <h3>User Guide</h3>
-                <h5>Read the
-                <a href="http://gn1.genenetwork.org/index4.html">
-                    user guide</a>.</h5>
-
-                </section>-->
             </div>
         </div>
     </div>
@@ -328,22 +452,4 @@
             }
         }
     </script>
-
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='javascript-twitter-post-fetcher/js/twitterFetcher_min.js') }}"></script>
-
-    <script type="text/javascript">
-      var configProfile = {
-      "profile": {"screenName": 'GeneNetwork2'},
-      "domId": 'tweets',
-      "maxTweets": 5,
-      "enableLinks": true,
-      "showUser": false,
-      "showTime": true,
-      "showImages": true,
-      "lang": 'en'
-      };
-      twitterFetcher.fetch(configProfile);
-    </script>
-
-
 {% endblock %}
