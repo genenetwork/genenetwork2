@@ -78,7 +78,7 @@ def compute_correlation(start_vars, method="pearson"):
         # }
         sample_data = process_samples(
             start_vars, this_dataset.group.samplelist)
-        target_dataset.get_trait_data(list(sample_data.keys()))
+        target_dataset.fetch_probe_trait_data(list(sample_data.keys()))
         this_trait = retrieve_sample_data(this_trait, this_dataset)
 
         print("Creating dataset and trait took", time.time()-initial_time)

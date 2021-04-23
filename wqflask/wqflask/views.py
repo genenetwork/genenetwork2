@@ -881,7 +881,10 @@ def network_graph_page():
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
     logger.info(request.url)
+    import time
+    initial_time = time.time()
     correlation_results = compute_correlation(request.form)
+    print(">>>>Time taken by this endpoint",time.time()-initial_time)
     return render_template("demo_correlation_page.html",correlation_results=correlation_results[1:20])
 
 @app.route("/corr_matrix", methods=('POST',))
