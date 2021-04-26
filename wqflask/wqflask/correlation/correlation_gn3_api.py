@@ -63,9 +63,6 @@ def sample_for_trait_lists(corr_results, target_dataset, this_trait, this_datase
         "trait_sample_data": sample_data,
         "trait_id": start_vars["trait_id"]
     }
-    # trait_lists = dict([(list(corr_result)[0],True) for corr_result in corr_results])
-    # target_dataset.trait_data =list(filter(lambda dict_obj: dict_obj.keys()[
-    #                  0] in corr_results_traits, target_dataset_data))
     results = map_shared_keys_to_values(
         target_dataset.samplelist, target_dataset.trait_data)
     correlation_results = compute_all_sample_correlation(corr_method="pearson",
@@ -77,33 +74,15 @@ def sample_for_trait_lists(corr_results, target_dataset, this_trait, this_datase
 
 
 def tissue_for_trait_lists(corr_results, this_dataset, target_dataset, this_trait):
-    # # print(corr_results[0])--
-    # [{"awsdsd_at": {'corr_coeffient': 0.49714692782257336, 'p_value': 1.872077762359228e-05, 'num_overlap': 67}}]
-
-    print("creating trait_lists")
-    # corr_results = corr_results[0::]
     trait_lists = dict([(list(corr_result)[0], True)
                         for corr_result in corr_results])
-    print("finished creating trait_list")
-
     traits_symbol_dict = this_dataset.retrieve_genes("Symbol")
-    print("Retrieved symbol dict")
-    print("creating dict here>>>>>>>>>")
-    import time
-    init_time = time.time()
     traits_symbol_dict = dict({trait_name: symbol for (
         trait_name, symbol) in traits_symbol_dict.items() if trait_lists.get(trait_name)})
-    print("time taken to create this max dict is>>>>", time.time()-init_time)
-    print("finished creatinf the dict")
-    print("Fetching tissue datas")
     primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
         this_trait, traits_symbol_dict)
-    print("finihsed>>>>>>>>>>>>>>>>>>")
-    print("Calling experimental_compute_all_tissue_correlation")
     corr_results = experimental_compute_all_tissue_correlation(
         primary_tissue_dict=primary_tissue_data, target_tissues_data=target_tissue_data, corr_method="pearson")
-    # print('finished calling this tissue reuslts',corr_results)
-
     return corr_results
 
 
@@ -123,22 +102,14 @@ def compute_correlation(start_vars, method="pearson"):
     corr_input_data = {}
 
     if corr_type == "sample":
-        import time
-        initial_time = time.time()
-        # corr_input_data = {
-        #     "target_dataset": target_dataset.trait_data,
-        #     "target_samplelist": target_dataset.samplelist,
-        #     "trait_data": {
-        #         "trait_sample_data": sample_data,
-        #         "trait_id": start_vars["trait_id"]
-        #     }
-        # }
+        
         sample_data = process_samples(
             start_vars, this_dataset.group.samplelist)
+        initial_time = time.time()
         target_dataset.get_trait_data(list(sample_data.keys()))
         this_trait = retrieve_sample_data(this_trait, this_dataset)
+        print("Creating target dataset and trait took", time.time()-initial_time)
 
-        print("Creating dataset and trait took", time.time()-initial_time)
 
         this_trait_data = {
             "trait_sample_data": sample_data,
@@ -151,15 +122,9 @@ def compute_correlation(start_vars, method="pearson"):
                                                              this_trait=this_trait_data,
                                                              target_dataset=results)
 
-        print("computedd>>>>>>>>>>>>>")
-
         print("doing sample correlation took", time.time()-initial_time)
-
-        other_results_time = time.time()
-        other_results = tissue_for_trait_lists(
-            correlation_results, this_dataset, target_dataset, this_trait)
-        print(">>>time taken for this is", time.time()-other_results_time)
-
+        # other_results = tissue_for_trait_lists(
+        #     correlation_results, this_dataset, target_dataset, this_trait)
         # requests_url = f"{GN3_CORRELATION_API}/sample_x/{method}"
         return correlation_results
 
@@ -177,17 +142,9 @@ def compute_correlation(start_vars, method="pearson"):
                                                                           target_tissues_data=corr_input_data[
             "target_tissues_dict"],
             corr_method=method)
-        print("correlation y took", time.time()-initial_time)
-        # initial_time = time.time()
-        # correlation_results = compute_all_tissue_correlation(primary_tissue_dict=corr_input_data["primary_tissue"],
-        #                                                      target_tissues_data=corr_input_data["target_tissues_dict"],
-        #                                                      corr_method=method)
-        # print("time taken for compute tissue is", time.time()-initial_time)
-
-        # requests_url = f"{GN3_CORRELATION_API}/tissue_corr/{method}"
-
-        sample_results = sample_for_trait_lists(
-            correlation_results, target_dataset, this_trait, this_dataset, start_vars)
+        print("computing tissue took >>>>", time.time()-initial_time)
+        # sample_results = sample_for_trait_lists(
+        #     correlation_results, target_dataset, this_trait, this_dataset, start_vars)
         return correlation_results
 
     elif corr_type == "lit":
@@ -203,7 +160,6 @@ def compute_correlation(start_vars, method="pearson"):
                 species=species, gene_id=this_trait_geneid)
 
         return lit_corr_results
-        print("the time taken is", time.time()-initial_time)
         # requests_url = f"{GN3_CORRELATION_API}/lit_corr/{species}/{this_trait_geneid}"
         # corr_input_data = geneid_dict
     # corr_results = requests.post(requests_url, json=corr_input_data)

@@ -52,33 +52,9 @@ class MrnaAssayTissueData(object):
             # lower_symbols[gene_symbol.lower()] = True
             if gene_symbol != None:
                 lower_symbols[gene_symbol.lower()] = True
-
-        import time
-        # initial_time = time.time()
-        # conn,cursor = database_connector()
-        # cursor.execute(query)
-        # for result in cursor.fetchall():
-        #     symbol = result[0]
-        #     self.data[symbol].gene_id = result[1]
-        #     self.data[symbol].data_id = result[2]
-        #     self.data[symbol].chr = result[3]
-        #     self.data[symbol].mb = result[4]
-        #     self.data[symbol].description = result[5]
-        #     self.data[symbol].probe_target_description = result[6]
-
-
-        # print("my loop takes>>>>",time.time()-initial_time)
-        # conn.close()
-        # r
-
-        # takes 5 seconds
-        initial_time = time.time()
         results = list(g.db.execute(query).fetchall())
         for result in results:
             symbol = result[0]
-            # if  symbol  is not None
-            # exists = lower_symbols.get(symbol.lower())
-            # if symbol.lower() in lower_symbols:
             if symbol  is not None and lower_symbols.get(symbol.lower()):
 
                 symbol = symbol.lower()
@@ -89,7 +65,6 @@ class MrnaAssayTissueData(object):
                 self.data[symbol].mb = result.Mb
                 self.data[symbol].description = result.description
                 self.data[symbol].probe_target_description = result.Probe_Target_Description
-        print("time taken in the loop is",time.time()-initial_time)
 
     ###########################################################################
     #Input: cursor, symbolList (list), dataIdDict(Dict)
