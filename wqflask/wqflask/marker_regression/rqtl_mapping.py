@@ -116,7 +116,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
             result_data_frame = ro.r("qtl_results")
         else:
             ro.r(f"qtl_results = scanone(the_cross, pheno='the_pheno', model='{model}', method='{method}')")
-            result_data_frame = ro.r("qtl_results")
+            result_data_frame = np.asarray(ro.r("qtl_results")).T
 
         marker_names = np.asarray(ro.r("row.names(qtl_results)"))
         if num_perm > 0 and permCheck == "ON":                                                                   # Do permutation (if requested by user)
