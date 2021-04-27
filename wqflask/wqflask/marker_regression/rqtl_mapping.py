@@ -10,6 +10,7 @@ from base.trait import create_trait
 from base.data_set import create_dataset
 from utility import webqtlUtil
 from utility.tools import locate, TEMPDIR
+from wqflask.marker_regression.gemma_mapping import generate_random_n_string
 from flask import g
 
 import utility.logger
@@ -148,13 +149,17 @@ def generate_cross_from_rdata(dataset):
     """ % (rdata_location))
 
 def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
+
+    cross_filename = (f"{str(dataset.group.name)}_"
+                      f"{generate_random_n_string(6)}")
+
     ro.r("""
        trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
        getGenoCode <- function(header, name = 'unk'){
          mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
          return(trim(strsplit(header[mat],':')[[1]][2]))
        }
-       GENOtoCSVR <- function(genotypes = '%s', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
+       GENOtoCSVR <- function(genotypes = '%s', out = '%s.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
          header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
          toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
          type <- getGenoCode(header, 'type')
@@ -188,7 +193,7 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
          }
          return(cross)
       }
-    """ % (dataset.group.genofile, scale_units))
+    """ % (dataset.group.genofile, cross_filename, scale_units))
 
 def add_perm_strata(cross, perm_strata):
     col_string = 'c("the_strata")'
