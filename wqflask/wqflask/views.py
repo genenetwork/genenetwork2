@@ -285,11 +285,7 @@ def gsearch_updating():
     logger.info(request.url)
     result = UpdateGSearch(request.args).__dict__
     return result['results']
-    # type = request.args['type']
-    # if type == "gene":
-        # return render_template("gsearch_gene_updating.html", **result)
-    # elif type == "phenotype":
-        # return render_template("gsearch_pheno.html", **result)
+
 
 @app.route("/docedit")
 def docedit():
@@ -864,8 +860,6 @@ def mapping_results_page():
                     result).__dict__
 
                 with Bench("Rendering template"):
-                    #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
-                    #gn1_template_vars.pop('qtlresults', None)
                     rendered_template = render_template(
                         "mapping_results.html", **gn1_template_vars)
 
