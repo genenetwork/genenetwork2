@@ -155,7 +155,7 @@ fi
 
 # We may change this one:
 # export PYTHONPATH=$PYTHON_GN_PATH:$GN2_BASE_DIR/wqflask:$PYTHONPATH
-PYTHONPATH=$PYTHON_GN_PATH:$GN2_BASE_DIR/wqflask:$HOME/genenetwork3:$PYTHONPATH
+PYTHONPATH=$PYTHON_GN_PATH:$GN2_BASE_DIR/wqflask:$HOME/project/genenetwork3:$PYTHONPATH
 
 # Our UNIX TMPDIR defaults to /tmp - change this on a shared server
 if [ -z $TMPDIR ]; then
