@@ -91,8 +91,10 @@ def connect_db():
     logger.info("@app.before_request connect_db")
     db = getattr(g, '_database', None)
     if db is None:
-        g.db = g._database = sqlalchemy.create_engine(SQL_URI, encoding="latin1")
+        g.db = g._database = sqlalchemy.create_engine(
+            SQL_URI, encoding="latin1")
         logger.debug(g.db)
+
 
 @app.before_request
 def check_access_permissions():
@@ -105,7 +107,8 @@ def check_access_permissions():
             if dataset.type == "Temp":
                 permissions = DEFAULT_PRIVILEGES
             elif 'trait_id' in request.args:
-                permissions = check_resource_availability(dataset, request.args['trait_id'])
+                permissions = check_resource_availability(
+                    dataset, request.args['trait_id'])
             elif dataset.type != "Publish":
                 permissions = check_resource_availability(dataset)
 
@@ -116,6 +119,7 @@ def check_access_permissions():
             if permissions['data'] == 'no-access':
                 return redirect(url_for("no_access_page"))
 
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
@@ -123,6 +127,7 @@ def shutdown_session(exception=None):
         logger.debug("remove db_session")
         db_session.remove()
         g.db = None
+
 
 @app.errorhandler(Exception)
 def handle_bad_request(e):
@@ -134,24 +139,29 @@ def handle_bad_request(e):
     logger.error(traceback.format_exc())
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    formatted_lines = [request.url + " ("+time_str+")"]+traceback.format_exc().splitlines()
+    formatted_lines = [request.url +
+                       " ("+time_str+")"]+traceback.format_exc().splitlines()
 
     # Handle random animations
     # Use a cookie to have one animation on refresh
     animation = request.cookies.get(err_msg[:32])
     if not animation:
-        list = [fn for fn in os.listdir("./wqflask/static/gif/error") if fn.endswith(".gif") ]
+        list = [fn for fn in os.listdir(
+            "./wqflask/static/gif/error") if fn.endswith(".gif")]
         animation = random.choice(list)
 
-    resp = make_response(render_template("error.html", message=err_msg, stack=formatted_lines, error_image=animation, version=GN_VERSION))
+    resp = make_response(render_template("error.html", message=err_msg,
+                                         stack=formatted_lines, error_image=animation, version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32], animation)
     return resp
 
+
 @app.route("/authentication_needed")
 def no_access_page():
     return render_template("new_security/not_authenticated.html")
+
 
 @app.route("/")
 def index_page():
@@ -177,7 +187,7 @@ def tmp_page(img_path):
     imgB64 = base64.b64encode(imgdata)
     bytesarray = array.array('B', imgB64)
     return render_template("show_image.html",
-                            img_base64 = bytesarray )
+                           img_base64=bytesarray)
 
 
 @app.route("/js/<path:filename>")
@@ -189,6 +199,7 @@ def js(filename):
         name = name.replace('js_alt/', '')
     return send_from_directory(js_path, name)
 
+
 @app.route("/css/<path:filename>")
 def css(filename):
     js_path = JS_GUIX_PATH
@@ -198,9 +209,11 @@ def css(filename):
         name = name.replace('js_alt/', '')
     return send_from_directory(js_path, name)
 
+
 @app.route("/twitter/<path:filename>")
 def twitter(filename):
     return send_from_directory(JS_TWITTER_POST_FETCHER_PATH, filename)
+
 
 @app.route("/search", methods=('GET',))
 def search_page():
@@ -209,7 +222,8 @@ def search_page():
     result = None
     if USE_REDIS:
         with Bench("Trying Redis cache"):
-            key = "search_results:v1:" + json.dumps(request.args, sort_keys=True)
+            key = "search_results:v1:" + \
+                json.dumps(request.args, sort_keys=True)
             logger.debug("key is:", pf(key))
             result = Redis.get(key)
             if result:
@@ -232,6 +246,7 @@ def search_page():
     else:
         return render_template("search_error.html")
 
+
 @app.route("/search_table", methods=('GET',))
 def search_page_table():
     logger.info("in search_page table")
@@ -242,7 +257,7 @@ def search_page_table():
 
     logger.info(type(the_search.trait_list))
     logger.info(the_search.trait_list)
-    
+
     current_page = server_side.ServerSideTable(
         len(the_search.trait_list),
         the_search.trait_list,
@@ -251,6 +266,7 @@ def search_page_table():
     ).get_page()
 
     return flask.jsonify(current_page)
+
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
@@ -261,6 +277,7 @@ def gsearchact():
         return render_template("gsearch_gene.html", **result)
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
+
 
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
@@ -292,41 +309,59 @@ def generated_file(filename):
     logger.info(request.url)
     return send_from_directory(GENERATED_IMAGE_DIR, filename)
 
+
 @app.route("/help")
 def help():
     logger.info(request.url)
     doc = Docs("help", request.args)
     return render_template("docs.html", **doc.__dict__)
 
+
 @app.route("/wgcna_setup", methods=('POST',))
 def wcgna_setup():
-    logger.info("In wgcna, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    # We are going to get additional user input for the analysis
+    logger.info("In wgcna, request.form is:", request.form)
     logger.info(request.url)
-    return render_template("wgcna_setup.html", **request.form)          # Display them using the template
+    # Display them using the template
+    return render_template("wgcna_setup.html", **request.form)
+
 
 @app.route("/wgcna_results", methods=('POST',))
 def wcgna_results():
     logger.info("In wgcna, request.form is:", request.form)
     logger.info(request.url)
-    wgcna = wgcna_analysis.WGCNA()                                # Start R, load the package and pointers and create the analysis
-    wgcnaA = wgcna.run_analysis(request.form)                     # Start the analysis, a wgcnaA object should be a separate long running thread
-    result = wgcna.process_results(wgcnaA)                        # After the analysis is finished store the result
-    return render_template("wgcna_results.html", **result)        # Display them using the template
+    # Start R, load the package and pointers and create the analysis
+    wgcna = wgcna_analysis.WGCNA()
+    # Start the analysis, a wgcnaA object should be a separate long running thread
+    wgcnaA = wgcna.run_analysis(request.form)
+    # After the analysis is finished store the result
+    result = wgcna.process_results(wgcnaA)
+    # Display them using the template
+    return render_template("wgcna_results.html", **result)
+
 
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
-    logger.info("In ctl, request.form is:", request.form)             # We are going to get additional user input for the analysis
+    # We are going to get additional user input for the analysis
+    logger.info("In ctl, request.form is:", request.form)
     logger.info(request.url)
-    return render_template("ctl_setup.html", **request.form)          # Display them using the template
+    # Display them using the template
+    return render_template("ctl_setup.html", **request.form)
+
 
 @app.route("/ctl_results", methods=('POST',))
 def ctl_results():
     logger.info("In ctl, request.form is:", request.form)
     logger.info(request.url)
-    ctl = ctl_analysis.CTL()                                  # Start R, load the package and pointers and create the analysis
-    ctlA = ctl.run_analysis(request.form)                     # Start the analysis, a ctlA object should be a separate long running thread
-    result = ctl.process_results(ctlA)                        # After the analysis is finished store the result
-    return render_template("ctl_results.html", **result)      # Display them using the template
+    # Start R, load the package and pointers and create the analysis
+    ctl = ctl_analysis.CTL()
+    # Start the analysis, a ctlA object should be a separate long running thread
+    ctlA = ctl.run_analysis(request.form)
+    # After the analysis is finished store the result
+    result = ctl.process_results(ctlA)
+    # Display them using the template
+    return render_template("ctl_results.html", **result)
+
 
 @app.route("/news")
 def news():
@@ -381,9 +416,11 @@ def export_trait_excel():
     logger.info("In export_trait_excel")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    trait_name, sample_data = export_trait_data.export_sample_table(request.form)
+    trait_name, sample_data = export_trait_data.export_sample_table(
+        request.form)
 
-    logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
+    logger.info("sample_data - type: %s -- size: %s" %
+                (type(sample_data), len(sample_data)))
 
     buff = io.BytesIO()
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
@@ -397,7 +434,8 @@ def export_trait_excel():
 
     return Response(excel_data,
                     mimetype='application/vnd.ms-excel',
-                    headers={"Content-Disposition":"attachment;filename="+ trait_name + ".xlsx"})
+                    headers={"Content-Disposition": "attachment;filename=" + trait_name + ".xlsx"})
+
 
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
@@ -405,9 +443,11 @@ def export_trait_csv():
     logger.info("In export_trait_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    trait_name, sample_data = export_trait_data.export_sample_table(request.form)
+    trait_name, sample_data = export_trait_data.export_sample_table(
+        request.form)
 
-    logger.info("sample_data - type: %s -- size: %s" % (type(sample_data), len(sample_data)))
+    logger.info("sample_data - type: %s -- size: %s" %
+                (type(sample_data), len(sample_data)))
 
     buff = io.StringIO()
     writer = csv.writer(buff)
@@ -418,7 +458,8 @@ def export_trait_csv():
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename="+ trait_name + ".csv"})
+                    headers={"Content-Disposition": "attachment;filename=" + trait_name + ".csv"})
+
 
 @app.route('/export_traits_csv', methods=('POST',))
 def export_traits_csv():
@@ -443,7 +484,8 @@ def export_traits_csv():
     else:
         return Response(file_list[0][1],
                         mimetype='text/csv',
-                        headers={"Content-Disposition":"attachment;filename=" + file_list[0][0]})
+                        headers={"Content-Disposition": "attachment;filename=" + file_list[0][0]})
+
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
@@ -454,7 +496,8 @@ def export_perm_data():
     now = datetime.datetime.now()
     time_str = now.strftime('%H:%M_%d%B%Y')
 
-    file_name = "Permutation_" + perm_info['num_perm'] + "_" + perm_info['trait_name'] + "_" + time_str
+    file_name = "Permutation_" + \
+        perm_info['num_perm'] + "_" + perm_info['trait_name'] + "_" + time_str
 
     the_rows = [
         ["#Permutation Test"],
@@ -468,10 +511,14 @@ def export_perm_data():
         ["#N_genotypes: " + str(perm_info['n_genotypes'])],
         ["#Genotype_file: " + perm_info['genofile']],
         ["#Units_linkage: " + perm_info['units_linkage']],
-        ["#Permutation_stratified_by: " + ", ".join([ str(cofactor) for cofactor in perm_info['strat_cofactors']])],
-        ["#RESULTS_1: Suggestive LRS(p=0.63) = " + str(np.percentile(np.array(perm_info['perm_data']), 67))],
-        ["#RESULTS_2: Significant LRS(p=0.05) = " + str(np.percentile(np.array(perm_info['perm_data']), 95))],
-        ["#RESULTS_3: Highly Significant LRS(p=0.01) = " + str(np.percentile(np.array(perm_info['perm_data']), 99))],
+        ["#Permutation_stratified_by: " +
+            ", ".join([str(cofactor) for cofactor in perm_info['strat_cofactors']])],
+        ["#RESULTS_1: Suggestive LRS(p=0.63) = " +
+         str(np.percentile(np.array(perm_info['perm_data']), 67))],
+        ["#RESULTS_2: Significant LRS(p=0.05) = " + str(
+            np.percentile(np.array(perm_info['perm_data']), 95))],
+        ["#RESULTS_3: Highly Significant LRS(p=0.01) = " + str(
+            np.percentile(np.array(perm_info['perm_data']), 99))],
         ["#Comment: Results sorted from low to high peak linkage"]
     ]
 
@@ -485,7 +532,7 @@ def export_perm_data():
 
     return Response(csv_data,
                     mimetype='text/csv',
-                    headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
+                    headers={"Content-Disposition": "attachment;filename=" + file_name + ".csv"})
 
 
 @app.route("/show_temp_trait", methods=('POST',))
@@ -519,7 +566,8 @@ def heatmap_page():
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
     if traits[0] != "":
         version = "v5"
-        key = "heatmap:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+        key = "heatmap:{}:".format(
+            version) + json.dumps(start_vars, sort_keys=True)
         logger.info("key is:", pf(key))
         with Bench("Loading cache"):
             result = Redis.get(key)
@@ -540,7 +588,8 @@ def heatmap_page():
             result = template_vars.__dict__
 
             for item in list(template_vars.__dict__.keys()):
-                logger.info("  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
+                logger.info(
+                    "  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
 
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
@@ -551,9 +600,11 @@ def heatmap_page():
             rendered_template = render_template("heatmap.html", **result)
 
     else:
-        rendered_template = render_template("empty_collection.html", **{'tool':'Heatmap'})
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'Heatmap'})
 
     return rendered_template
+
 
 @app.route("/bnw_page", methods=('POST',))
 def bnw_page():
@@ -569,9 +620,11 @@ def bnw_page():
         result = template_vars.__dict__
         rendered_template = render_template("bnw_page.html", **result)
     else:
-        rendered_template = render_template("empty_collection.html", **{'tool':'BNW'})
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'BNW'})
 
     return rendered_template
+
 
 @app.route("/webgestalt_page", methods=('POST',))
 def webgestalt_page():
@@ -587,9 +640,11 @@ def webgestalt_page():
         result = template_vars.__dict__
         rendered_template = render_template("webgestalt_page.html", **result)
     else:
-        rendered_template = render_template("empty_collection.html", **{'tool':'WebGestalt'})
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'WebGestalt'})
 
     return rendered_template
+
 
 @app.route("/geneweaver_page", methods=('POST',))
 def geneweaver_page():
@@ -605,9 +660,11 @@ def geneweaver_page():
         result = template_vars.__dict__
         rendered_template = render_template("geneweaver_page.html", **result)
     else:
-        rendered_template = render_template("empty_collection.html", **{'tool':'GeneWeaver'})
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'GeneWeaver'})
 
     return rendered_template
+
 
 @app.route("/comparison_bar_chart", methods=('POST',))
 def comp_bar_chart_page():
@@ -620,26 +677,30 @@ def comp_bar_chart_page():
     if traits[0] != "":
         template_vars = comparison_bar_chart.ComparisonBarChart(request.form)
         template_vars.js_data = json.dumps(template_vars.js_data,
-                                               default=json_default_handler,
-                                               indent="   ")
+                                           default=json_default_handler,
+                                           indent="   ")
 
         result = template_vars.__dict__
-        rendered_template = render_template("comparison_bar_chart.html", **result)
+        rendered_template = render_template(
+            "comparison_bar_chart.html", **result)
     else:
-        rendered_template = render_template("empty_collection.html", **{'tool':'Comparison Bar Chart'})
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'Comparison Bar Chart'})
 
     return rendered_template
+
 
 @app.route("/mapping_results_container")
 def mapping_results_container_page():
     return render_template("mapping_results_container.html")
+
 
 @app.route("/loading", methods=('POST',))
 def loading_page():
     logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
-    n_samples = 0 #ZS: So it can be displayed on loading page
+    n_samples = 0  # ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
         start_vars = {}
@@ -652,7 +713,8 @@ def loading_page():
         else:
             sample_vals_dict = json.loads(start_vars['sample_vals'])
             if 'group' in start_vars:
-                dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
+                dataset = create_dataset(
+                    start_vars['dataset'], group_name=start_vars['group'])
             else:
                 dataset = create_dataset(start_vars['dataset'])
             samples = start_vars['primary_samples'].split(",")
@@ -660,7 +722,8 @@ def loading_page():
                 if start_vars['genofile'] != "":
                     genofile_string = start_vars['genofile']
                     dataset.group.genofile = genofile_string.split(":")[0]
-                    genofile_samples = run_mapping.get_genofile_samplelist(dataset)
+                    genofile_samples = run_mapping.get_genofile_samplelist(
+                        dataset)
                     if len(genofile_samples) > 1:
                         samples = genofile_samples
 
@@ -679,6 +742,7 @@ def loading_page():
     rendered_template = render_template("loading.html", **start_vars_container)
 
     return rendered_template
+
 
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
@@ -750,9 +814,10 @@ def mapping_results_page():
             start_vars[key] = value
 
     version = "v3"
-    key = "mapping_results:{}:".format(version) + json.dumps(start_vars, sort_keys=True)
+    key = "mapping_results:{}:".format(
+        version) + json.dumps(start_vars, sort_keys=True)
     with Bench("Loading cache"):
-        result = None # Just for testing
+        result = None  # Just for testing
         #result = Redis.get(key)
 
     #logger.info("************************ Starting result *****************")
@@ -772,12 +837,12 @@ def mapping_results_page():
                     rendered_template = render_template("mapping_error.html")
                     return rendered_template
             except:
-               rendered_template = render_template("mapping_error.html")
-               return rendered_template
+                rendered_template = render_template("mapping_error.html")
+                return rendered_template
 
             template_vars.js_data = json.dumps(template_vars.js_data,
-                                                    default=json_default_handler,
-                                                    indent="   ")
+                                               default=json_default_handler,
+                                               indent="   ")
 
             result = template_vars.__dict__
 
@@ -792,18 +857,22 @@ def mapping_results_page():
                     imgB64 = base64.b64encode(imgdata)
                     bytesarray = array.array('B', imgB64)
                     result['pair_scan_array'] = bytesarray
-                    rendered_template = render_template("pair_scan_results.html", **result)
+                    rendered_template = render_template(
+                        "pair_scan_results.html", **result)
             else:
-                gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+                gn1_template_vars = display_mapping_results.DisplayMappingResults(
+                    result).__dict__
 
                 with Bench("Rendering template"):
                     #if (gn1_template_vars['mapping_method'] == "gemma") or (gn1_template_vars['mapping_method'] == "plink"):
                     #gn1_template_vars.pop('qtlresults', None)
-                    rendered_template = render_template("mapping_results.html", **gn1_template_vars)
+                    rendered_template = render_template(
+                        "mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
-@app.route("/export_mapping_results", methods = ('POST',))
+
+@app.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
     logger.info("request.form:", request.form)
     logger.info(request.url)
@@ -811,32 +880,35 @@ def export_mapping_results():
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
                         mimetype='text/csv',
-                        headers={"Content-Disposition":"attachment;filename=mapping_results.csv"})
+                        headers={"Content-Disposition": "attachment;filename=mapping_results.csv"})
 
     return response
 
-@app.route("/export_corr_matrix", methods = ('POST',))
+
+@app.route("/export_corr_matrix", methods=('POST',))
 def export_corr_matrix():
     file_path = request.form.get("export_filepath")
     file_name = request.form.get("export_filename")
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
                         mimetype='text/csv',
-                        headers={"Content-Disposition":"attachment;filename=" + file_name + ".csv"})
+                        headers={"Content-Disposition": "attachment;filename=" + file_name + ".csv"})
 
     return response
 
-@app.route("/export", methods = ('POST',))
+
+@app.route("/export", methods=('POST',))
 def export():
     logger.info("request.form:", request.form)
     logger.info(request.url)
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
     response = Response(svg_xml, mimetype="image/svg+xml")
-    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s" % filename
     return response
 
-@app.route("/export_pdf", methods = ('POST',))
+
+@app.route("/export_pdf", methods=('POST',))
 def export_pdf():
     import cairosvg
     logger.info("request.form:", request.form)
@@ -846,8 +918,9 @@ def export_pdf():
     filename = request.form.get("filename", "interval_map_pdf")
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
-    response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
+    response.headers["Content-Disposition"] = "attachment; filename=%s" % filename
     return response
+
 
 @app.route("/network_graph", methods=('POST',))
 def network_graph_page():
@@ -863,7 +936,8 @@ def network_graph_page():
 
         return render_template("network_graph.html", **template_vars.__dict__)
     else:
-        return render_template("empty_collection.html", **{'tool':'Network Graph'})
+        return render_template("empty_collection.html", **{'tool': 'Network Graph'})
+
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
@@ -871,6 +945,7 @@ def corr_compute_page():
     logger.info(request.url)
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
+
 
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
@@ -887,7 +962,8 @@ def corr_matrix_page():
 
         return render_template("correlation_matrix.html", **template_vars.__dict__)
     else:
-        return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
+        return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
+
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
@@ -898,6 +974,7 @@ def corr_scatter_plot_page():
                                        indent="   ")
     return render_template("corr_scatterplot.html", **template_vars.__dict__)
 
+
 @app.route("/snp_browser", methods=('GET',))
 def snp_browser_page():
     logger.info(request.url)
@@ -905,11 +982,13 @@ def snp_browser_page():
 
     return render_template("snp_browser.html", **template_vars.__dict__)
 
+
 @app.route("/db_info", methods=('GET',))
 def db_info_page():
     template_vars = InfoPage(request.args)
 
     return render_template("info_page.html", **template_vars.__dict__)
+
 
 @app.route("/snp_browser_table", methods=('GET',))
 def snp_browser_table():
@@ -924,29 +1003,35 @@ def snp_browser_table():
 
     return flask.jsonify(current_page)
 
+
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():
-    #ZS: Currently just links to GN1
+    # ZS: Currently just links to GN1
     logger.info(request.url)
     return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
 
+
 @app.route("/tutorial/security", methods=('GET',))
 def security_tutorial_page():
-    #ZS: Currently just links to GN1
+    # ZS: Currently just links to GN1
     logger.info(request.url)
     return render_template("admin/security_help.html")
+
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
     logger.info(request.url)
-    return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
+    return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
 
 # Take this out or secure it before putting into production
+
+
 @app.route("/get_temp_data")
 def get_temp_data():
     logger.info(request.url)
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
+
 
 @app.route("/browser_input", methods=('GET',))
 def browser_inputs():
@@ -960,6 +1045,7 @@ def browser_inputs():
     return flask.jsonify(file_contents)
 
 ##########################################################################
+
 
 def json_default_handler(obj):
     """Based on http://stackoverflow.com/a/2680060/1175849"""
