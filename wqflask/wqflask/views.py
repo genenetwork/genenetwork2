@@ -32,7 +32,6 @@ from flask import url_for
 from flask import send_file
 
 from wqflask import search_results
-from wqflask import news
 from wqflask import server_side
 from wqflask.submit_bnw import get_bnw_input
 from base.data_set import create_dataset  # Used by YAML in marker_regression
