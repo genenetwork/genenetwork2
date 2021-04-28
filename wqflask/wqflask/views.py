@@ -1,20 +1,17 @@
 """Main routing table for GN2"""
 
-import traceback # for error page
+import traceback  # for error page
 import os        # for error gifs
 import random    # for random error gif
 import datetime  # for errors
-import time      # for errors
 import sys
 import csv
 import simplejson as json
-import yaml
 import xlsxwriter
 import io  # Todo: Use cStringIO?
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
-import gc
 import numpy as np
 import pickle as pickle
 import uuid
@@ -24,23 +21,27 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
-from flask import g, Response, request, make_response, render_template, send_from_directory, jsonify, redirect, url_for, send_file
+from flask import g
+from flask import Response
+from flask import request
+from flask import make_response
+from flask import render_template
+from flask import send_from_directory
+from flask import redirect
+from flask import url_for
+from flask import send_file
 
-from wqflask import group_manager
-from wqflask import resource_manager
 from wqflask import search_results
-from wqflask import export_traits
-from wqflask import gsearch
-from wqflask import update_search_results
-from wqflask import docs
 from wqflask import news
 from wqflask import server_side
 from wqflask.submit_bnw import get_bnw_input
-from base.data_set import create_dataset, DataSet    # Used by YAML in marker_regression
+from base.data_set import create_dataset  # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
 from wqflask.heatmap import heatmap
-from wqflask.external_tools import send_to_bnw, send_to_webgestalt, send_to_geneweaver
+from wqflask.external_tools import send_to_bnw
+from wqflask.external_tools import send_to_webgestalt
+from wqflask.external_tools import send_to_geneweaver
 from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
@@ -59,24 +60,31 @@ from wqflask.docs import Docs, update_text
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
-from utility.tools import SQL_URI, TEMPDIR, USE_REDIS, USE_GN_SERVER, GN_SERVER_URL, GN_VERSION, JS_TWITTER_POST_FETCHER_PATH, JS_GUIX_PATH, CSS_PATH
+from utility.tools import SQL_URI
+from utility.tools import TEMPDIR
+from utility.tools import USE_REDIS
+from utility.tools import GN_SERVER_URL
+from utility.tools import GN_VERSION
+from utility.tools import JS_TWITTER_POST_FETCHER_PATH
+from utility.tools import JS_GUIX_PATH
 from utility.helper_functions import get_species_groups
 from utility.authentication_tools import check_resource_availability
 from utility.redis_tools import get_redis_conn
-Redis = get_redis_conn()
+
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
 from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
-from wqflask import collect
 from wqflask.database import db_session
 
-import werkzeug
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+
+Redis = get_redis_conn()
+
+logger = utility.logger.getLogger(__name__)
 
 
 @app.before_request
