@@ -972,9 +972,6 @@ def json_default_handler(obj):
     # Handle custom objects
     if hasattr(obj, '__dict__'):
         return obj.__dict__
-    #elif type(obj) == "Dataset":
-    #     logger.info("Not going to serialize Dataset")
-    #    return None
     else:
         raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj)))
