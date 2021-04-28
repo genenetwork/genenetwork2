@@ -97,7 +97,6 @@ def connect_db():
 @app.before_request
 def check_access_permissions():
     logger.debug("@app.before_request check_access_permissions")
-    available = True
     if 'dataset' in request.args:
         permissions = DEFAULT_PRIVILEGES
         if request.args['dataset'] != "Temp":
@@ -656,7 +655,6 @@ def loading_page():
                 dataset = create_dataset(start_vars['dataset'], group_name = start_vars['group'])
             else:
                 dataset = create_dataset(start_vars['dataset'])
-            genofile_samplelist = []
             samples = start_vars['primary_samples'].split(",")
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
@@ -846,7 +844,6 @@ def export_pdf():
     svg_xml = request.form.get("data", "Invalid data")
     logger.info("svg_xml:", svg_xml)
     filename = request.form.get("filename", "interval_map_pdf")
-    filepath = GENERATED_IMAGE_DIR+filename
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
     response.headers["Content-Disposition"] = "attachment; filename=%s"%filename
@@ -942,7 +939,6 @@ def security_tutorial_page():
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
     logger.info(request.url)
-    template_vars = get_bnw_input(request.form)
     return render_template("empty_collection.html", **{'tool':'Correlation Matrix'})
 
 # Take this out or secure it before putting into production
