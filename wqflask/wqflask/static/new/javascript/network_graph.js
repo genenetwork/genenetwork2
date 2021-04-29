@@ -115,7 +115,7 @@ window.onload=function() {
                                 correlation_line = '<b>Sample r: ' + this.data().correlation + '</b><br>'
                                 p_value_line = 'Sample p(r): ' + this.data().p_value + '<br>'
                                 overlap_line = 'Overlap: ' + this.data().overlap + '<br>'
-                                scatter_plot = '<a href="' + gn2_url + '/corr_scatter_plot?dataset_1=' + this.data().source.split(":")[1] + '&dataset_2=' + this.data().target.split(":")[1] + '&trait_1=' + this.data().source.split(":")[0] + '&trait_2=' + this.data().target.split(":")[0] + '" >View Scatterplot</a>'
+                                scatter_plot = '<a href="' + gn2_url + '/corr_scatter_plot?method=pearson&dataset_1=' + this.data().source.split(":")[1] + '&dataset_2=' + this.data().target.split(":")[1] + '&trait_1=' + this.data().source.split(":")[0] + '&trait_2=' + this.data().target.split(":")[0] + '" >View Scatterplot</a>'
                                 return correlation_line + p_value_line + overlap_line + scatter_plot
                             },
                             position: {

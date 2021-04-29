@@ -27,7 +27,6 @@ from utility import helper_functions
 from utility import corr_result_helpers
 from utility.tools import GN2_BRANCH_URL
 
-
 class NetworkGraph:
 
     def __init__(self, start_vars):
@@ -69,7 +68,7 @@ class NetworkGraph:
             this_trait = trait_db[0]
             this_db = trait_db[1]
 
-            this_db_samples = this_db.group.samplelist
+            this_db_samples = this_db.group.all_samples_ordered()
             this_sample_data = this_trait.data
 
             corr_result_row = []
@@ -80,7 +79,11 @@ class NetworkGraph:
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
-                target_samples = target_db.group.samplelist
+
+                if str(this_trait) == str(target_trait) and str(this_db) == str(target_db):
+                    continue
+
+                target_samples = target_db.group.all_samples_ordered()
 
                 target_sample_data = target_trait.data
 
