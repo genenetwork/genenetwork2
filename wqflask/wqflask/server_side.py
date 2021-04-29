@@ -2,7 +2,7 @@
 
 
 
-class ServerSideTable(object):
+class ServerSideTable:
     """
         This class is used to do server-side processing
         on the DataTables table such as paginating, sorting,

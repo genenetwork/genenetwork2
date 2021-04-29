@@ -14,7 +14,7 @@ Redis = Redis()
 
 logger = getLogger(__name__ )
 
-class Heatmap(object):
+class Heatmap:
 
     def __init__(self, start_vars, temp_uuid):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]

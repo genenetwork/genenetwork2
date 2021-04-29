@@ -30,64 +30,39 @@
             <div style="padding-left:20px" class="col-xs-6" style="width: 600px !important;">
                 <section id="submission_form">
                     <div class="form-group">
-                        <h2 style="color: #5a5a5a;">Trait Submission Form</h2>
+                        <h2 style="color: #5a5a5a;">Edit Trait Form</h2>
                         <hr>
                         <div style="margin-bottom: 150px;" class="form-horizontal">
-                          <h3>1. Choose Species and Group:</h3>
+                          <h3>Choose Dataset to Edit:</h3>
                           <br>
-                          <div class="col-xs-2" style="min-height: 15vh; display: flex; align-items: center;">
-                            <img src="/static/new/images/step1.gif">
-                          </div>
                           <div class="col-xs-10">
+                            <!-- Species -->
                             <div class="form-group">
                               <label for="species" class="col-xs-2 control-label">Species: </label>
                               <div class="col-xs-4 controls">
                                 <select name="species" id="species" class="form-control span3" style="width: 280px !important;"></select>
                               </div>
                             </div>
+                            <!-- Group -->
                             <div class="form-group">
                               <label for="group" class="col-xs-2 control-label">Group: </label>
                               <div class="col-xs-4 controls">
                                 <select name="group" id="group" class="form-control span3" style="width: 280px !important;"></select>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                        <div style="padding-bottom: 50px; margin-bottom:400px" class="form-horizontal">
-                          <h3>2. Enter Trait Data:</h3>
-                          <h4 style="color:red;">File uploading isn't enabled yet, but is coming soon.</h4>
-                          <br>
-                          <div class="col-xs-2" style="min-height: 50vh; max-height: 100vh; display: flex; align-items: center;">
-                            <img src="/static/new/images/step2.gif">
-                          </div>
-                          <div class="col-xs-10">
-                            <div class="form-group" style="padding-left: 15px;">
-                              <p>
-                                 <b>Paste or Type Multiple Values:</b> You can enter data by pasting a series of numbers representing trait values into this area. 
-                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each individual 
-                                 or line. Use an "x" for missing values. If you have chosen a set of inbred strains, then your data will be displayed in a form in 
-                                 which you can confirm and/or edit. If you enter a file name in the previous section, 
-                                 any data that you paste here will be ignored. Check <a href="http://gn1.genenetwork.org/RIsample.html">sample data</a> for the correct format.
-                              </p>
-                              <textarea name="trait_paste" rows="6" cols="70"></textarea>
+                            <!-- Type -->
+                            <div class="form-group">
+                                <label for="group" class="col-xs-2 control-label">Type: </label>
+                                <div class="col-xs-4 controls">
+                                    <select name="type" id="type" class="form-control span3" style="width: 280px !important;"></select>
+                                </div>
                             </div>
-                          </div>
-                          <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
-                            <input type="submit" style="width: 110px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Trait">
-                            <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
-                          </div>
-                        </div>
-                        <div style="padding-bottom: 50px;" class="form-horizontal">
-                            <h3>3. Enable Use of Trait Variance:</h3>
-                            <div class="col-xs-2" style=""display: flex; align-items: center;">
-                                <img src="/static/new/images/step3.gif">
-                            </div>
-                                                      <div class="col-xs-10">
-                            <div class="form-group" style="padding-left: 15px;">
-                              <p>
-                                  <b>Name Your Trait:</b> <span style="color:red;">(optional)</span>
-                              </p>
-                              <textarea name="trait_name" rows="1" cols="30"></textarea>
+                            <!-- Dataset -->
+                            <div class="form-group">
+                                <label for="group" class="col-xs-2 control-label">DataSet: </label>
+                                <div class="col-xs-4 controls">
+                                    <select name="dataset" id="dataset" class="form-control span3" style="width: 280px !important;"></select>
+                                </div>
                             </div>
                           </div>
                           <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
@@ -103,8 +78,8 @@
 
 {%endblock%}
 
-{% block js %}
-    <script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
+  {% block js %}
+  <script src="/static/new/javascript/dataset_select_menu_edit_trait.js"></script>
     <script>
       gn_server_url = "{{ gn_server_url }}";
     </script>

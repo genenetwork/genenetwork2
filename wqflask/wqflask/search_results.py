@@ -24,7 +24,7 @@ from utility.type_checking import is_str
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
-class SearchResultPage(object):
+class SearchResultPage:
     #maxReturn = 3000
 
     def __init__(self, kw):

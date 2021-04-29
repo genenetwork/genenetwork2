@@ -9,7 +9,7 @@ logger = getLogger(__name__)
 from base import species
 from base import webqtlConfig
 
-class SnpBrowser(object):
+class SnpBrowser:
 
     def __init__(self, start_vars):
         self.strain_lists = get_browser_sample_lists()

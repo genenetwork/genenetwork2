@@ -5,7 +5,7 @@ from flask import g
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
-class Docs(object):
+class Docs:
 
     def __init__(self, entry, start_vars={}):
         sql = """

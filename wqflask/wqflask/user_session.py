@@ -63,7 +63,7 @@ def manage_user():
 
     return render_template("admin/manage_user.html", user_details = user_details)
 
-class UserSession(object):
+class UserSession:
     """Logged in user handling"""
 
     user_cookie_name = 'session_id_v2'

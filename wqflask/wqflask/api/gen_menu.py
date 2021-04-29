@@ -23,12 +23,7 @@ def get_species():
     """Build species list"""
     results = g.db.execute(
         "SELECT Name, MenuName FROM Species ORDER BY OrderId").fetchall()
-
-    species = []
-    for result in results:
-        species.append([str(result[0]), str(result[1])])
-
-    return species
+    return [[name, menu_name] for name, menu_name in results]
 
 
 def get_groups(species):

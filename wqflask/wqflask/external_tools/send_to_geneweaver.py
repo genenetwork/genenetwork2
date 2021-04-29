@@ -29,7 +29,7 @@ from utility import helper_functions, corr_result_helpers
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-class SendToGeneWeaver(object):
+class SendToGeneWeaver:
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)

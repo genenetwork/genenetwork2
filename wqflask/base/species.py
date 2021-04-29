@@ -6,7 +6,7 @@ from flask import Flask, g
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
-class TheSpecies(object):
+class TheSpecies:
     def __init__(self, dataset=None, species_name=None):
         if species_name != None:
             self.name = species_name
@@ -15,7 +15,7 @@ class TheSpecies(object):
             self.dataset = dataset
             self.chromosomes = Chromosomes(dataset=self.dataset)
 
-class IndChromosome(object):
+class IndChromosome:
     def __init__(self, name, length):
         self.name = name
         self.length = length
@@ -25,7 +25,7 @@ class IndChromosome(object):
         """Chromosome length in megabases"""
         return self.length / 1000000
 
-class Chromosomes(object):
+class Chromosomes:
     def __init__(self, dataset=None, species=None):
         self.chromosomes = collections.OrderedDict()
         if species != None:

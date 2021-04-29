@@ -12,7 +12,7 @@ import simplejson as json
 
 from pprint import pformat as pf
 
-class Marker(object):
+class Marker:
   def __init__(self):
     self.name = None
     self.chr = None
@@ -21,7 +21,7 @@ class Marker(object):
     self.genotypes = []
 
 
-class ConvertGenoFile(object):
+class ConvertGenoFile:
 
   def __init__(self, input_file):
     self.mb_exists = False

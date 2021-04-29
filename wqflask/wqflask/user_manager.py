@@ -58,7 +58,7 @@ def timestamp():
     return datetime.datetime.utcnow().isoformat()
 
 
-class AnonUser(object):
+class AnonUser:
     """Anonymous user handling"""
     cookie_name = 'anon_user_v1'
 
@@ -158,7 +158,7 @@ def create_signed_cookie():
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
 
-class UserSession(object):
+class UserSession:
     """Logged in user handling"""
 
     cookie_name = 'session_id_v1'
@@ -353,12 +353,12 @@ def set_cookie(response):
         response.set_cookie(g.cookie_session.cookie_name, g.cookie_session.cookie)
     return response
 
-class UsersManager(object):
+class UsersManager:
     def __init__(self):
         self.users = model.User.query.all()
         logger.debug("Users are:", self.users)
 
-class UserManager(object):
+class UserManager:
     def __init__(self, kw):
         self.user_id = kw['user_id']
         logger.debug("In UserManager locals are:", pf(locals()))
@@ -377,7 +377,7 @@ class UserManager(object):
         #logger.debug("   ---> self.datasets:", self.datasets)
 
 
-class RegisterUser(object):
+class RegisterUser:
     def __init__(self, kw):
         self.thank_you_mode = False
         self.errors = []
@@ -454,7 +454,7 @@ def set_password(password, user):
                                    )
 
 
-class VerificationEmail(object):
+class VerificationEmail:
     template_name =  "email/verification.txt"
     key_prefix = "verification_code"
     subject = "GeneNetwork email verification"
@@ -511,7 +511,7 @@ class ForgotPasswordEmail(VerificationEmail):
         send_email(toaddr, msg.as_string())
 
 
-class Password(object):
+class Password:
     def __init__(self, unencrypted_password, salt, iterations, keylength, hashfunc):
         hashfunc = getattr(hashlib, hashfunc)
         logger.debug("hashfunc is:", hashfunc)
@@ -589,7 +589,7 @@ def password_reset_step2():
 
     return response
 
-class DecodeUser(object):
+class DecodeUser:
 
     def __init__(self, code_prefix):
         verify_url_hmac(request.url)
@@ -695,7 +695,7 @@ def get_github_user_details(access_token):
     result = requests.get(GITHUB_API_URL, params={"access_token":access_token})
     return result.json()
 
-class LoginUser(object):
+class LoginUser:
     remember_time = 60 * 60 * 24 * 30 # One month in seconds
 
     def __init__(self):
@@ -1039,12 +1039,12 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
         server.quit()
     logger.info("Successfully sent email to "+toaddr)
 
-class GroupsManager(object):
+class GroupsManager:
     def __init__(self, kw):
         self.datasets = create_datasets_list()
 
 
-class RolesManager(object):
+class RolesManager:
     def __init__(self):
         self.roles = model.Role.query.all()
         logger.debug("Roles are:", self.roles)

@@ -31,14 +31,12 @@ class TestDataSetTypes(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()
 
-    @mock.patch('base.data_set.g')
-    def test_data_set_type(self, db_mock):
+    def test_data_set_type(self):
         """Test that DatasetType returns correctly if the Redis Instance is not empty
         and the name variable exists in the dictionary
 
         """
         with app.app_context():
-            db_mock.get = mock.Mock()
             redis_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             self.assertEqual(DatasetType(redis_mock)
@@ -89,8 +87,7 @@ class TestDataSetTypes(unittest.TestCase):
                  '"B139_K_1206_M": "ProbeSet", '
                  '"B139_K_1206_R": "ProbeSet", '
                  '"Test": "ProbeSet"}'))
-
-            db_mock.db.execute.assert_called_with(
+            db_mock.db.execute.assert_called_once_with(
                 ("SELECT ProbeSetFreeze.Id FROM ProbeSetFreeze " +
                  "WHERE ProbeSetFreeze.Name = \"Test\" ")
             )
