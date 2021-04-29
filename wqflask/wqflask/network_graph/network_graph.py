@@ -80,6 +80,9 @@ class NetworkGraph(object):
                 target_trait = target[0]
                 target_db = target[1]
 
+                if str(this_trait) == str(target_trait) and str(this_db) == str(target_db):
+                    continue
+
                 target_samples = target_db.group.all_samples_ordered()
 
                 target_sample_data = target_trait.data
