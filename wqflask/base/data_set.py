@@ -572,10 +572,6 @@ class DataSet(object):
             self.group.get_samplelist()
         self.species = species.TheSpecies(self)
 
-    def get_desc(self):
-        """Gets overridden later, at least for Temp...used by trait's get_given_name"""
-        return None
-
     def get_accession_id(self):
         if self.type == "Publish":
             results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
