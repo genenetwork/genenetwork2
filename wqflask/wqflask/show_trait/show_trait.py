@@ -1,7 +1,5 @@
 import string
-import os
 import datetime
-import pickle
 import uuid
 import requests
 import json as json
@@ -11,22 +9,19 @@ from collections import OrderedDict
 import numpy as np
 import scipy.stats as ss
 
-from flask import Flask, g
+from flask import g
 
 from base import webqtlConfig
-from base import webqtlCaseData
 from wqflask.show_trait.SampleList import SampleList
 from base.trait import create_trait
 from base import data_set
-from db import webqtlDatabaseFunction
-from utility import webqtlUtil, Plot, Bunch, helper_functions
+from utility import helper_functions
 from utility.authentication_tools import check_owner_or_admin
 from utility.tools import locate_ignore_error
 from utility.redis_tools import get_redis_conn, get_resource_id
 Redis = get_redis_conn()
 ONE_YEAR = 60 * 60 * 24 * 365
 
-from pprint import pformat as pf
 
 from utility.logger import getLogger
 logger = getLogger(__name__ )
