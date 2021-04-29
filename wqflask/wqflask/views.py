@@ -885,7 +885,7 @@ def corr_compute_page():
     initial_time = time.time()
     correlation_results = compute_correlation(request.form)
     print(">>>>Time taken by this endpoint",time.time()-initial_time)
-    return render_template("demo_correlation_page.html",correlation_results=correlation_results[1:20])
+    return render_template("test_correlation_page.html",correlation_results=correlation_results[0:50])
 
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():

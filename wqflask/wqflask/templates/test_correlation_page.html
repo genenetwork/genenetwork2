@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Correlation Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+    <style type="text/css">
+    	.td-styles{
+    		height: 40px;
+    		text-align: center;
+    	}
+    	.trait_col {
+    		font-weight:bolder;
+    		text-align: center;
+    	}
+    	table th {
+    		font-weight: bolder;
+    		text-transform: uppercase;
+    	}
+    	.correlation-title {
+    		padding:25px 10px;
+    	}
+    	.correlation-title h3 span {
+          font-weight: bolder;
+    	}
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="correlation-title">
+	<h3>Correlation Results for <span>Dataset_name</span> against <span><a href="">trait_name</a></span> for the top <span>all</span>Results</h3>
+</div>
+	<table id="example" class="display" width="100%">
+		        <thead>
+            <tr >
+                <th>index</th>
+                <th>trait_name</th>
+                <th>Sample r</th>
+                <th>Sample p(r)</th>
+                <th>N</th>
+            </tr>
+        </thead>
+	</table>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
+<script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.html5.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+<script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script type="text/javascript">
+	console.log("running this script")
+	let correlationResults = {{correlation_results|safe}}
+	// document.querySelector(".content").innerHTML =correlationResults
+	// parse the data
+	let  counter = 0;
+	correlationResults =correlationResults.map((trait_object)=>{
+		let trait_name = Object.keys(trait_object)[0]
+		let new_dict = {
+			"index":counter,
+			"trait_name":trait_name,
+			...trait_object[trait_name]
+		}
+		counter++;
+		return new_dict;
+	}) 
+	
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+    $('#example').DataTable( {
+        "data": correlationResults,
+        "columns": [
+            { "data": "index","width":"120px","title":"Index" },
+            { "data": "trait_name","title":"TraitName"},
+            { "data": "corr_coeffient"},
+            { "data": "p_value"},
+            { "data": "num_overlap"}
+        ],
+        "columnDefs": [ 
+
+           {className:"trait_col",targets:1},
+           {className: "td-styles", targets: "_all"},
+          {
+            orderable: false,
+            className: 'select-checkbox',
+            targets:   0
+          },
+           {
+           	"targets":1,
+           	"render":(data,type,row)=>{
+           		let urlLink = "/show_trait?trait_id=1453207_at&dataset=HC_M2_0606_P"
+           		let traitLink = `<a href=${urlLink}>${data}</a>`
+           		return traitLink
+           	},
+           }
+
+     ],
+    select: {
+	    style:'os',
+	    selector: 'td:first-child'
+    }
+    } );
+} );
+
+
+
+	    // console.log(corr_data)
+	    // $('#example').DataTable( {
+     //     "data": corr_data,
+     //     "columns": [
+     //      {"data":"other"},
+     //      {"data":"trait_name"}
+     //      ]
+        // "columns": [
+        //     { "data": "index" },
+        //     { "data": "trait_name"},
+        //     { "data": "corr_coeffient"},
+        //     { "data": "p_value"},
+        //     { "data": "num_overlap"}
+        // ]
+    // } );
+</script>
+
+{% endblock %}
