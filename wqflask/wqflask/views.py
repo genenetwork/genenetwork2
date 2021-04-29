@@ -399,6 +399,16 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
+@app.route("/edit_trait_form")
+def edit_trait_page():
+    species_and_groups = get_species_groups()
+    return render_template(
+        "edit_trait.html",
+        species_and_groups=species_and_groups,
+        gn_server_url=GN_SERVER_URL,
+        version=GN_VERSION)
+
+
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     logger.info(request.url)
