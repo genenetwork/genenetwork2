@@ -337,6 +337,10 @@ def jsonable(trait):
                     dataset_name=dataset.shortname,
                     location=trait.location_repr
                     )
+    elif dataset.name == "Temp":
+        return dict(name=trait.name,
+                    dataset="Temp",
+                    dataset_name="Temp")
     else:
         return dict()
 

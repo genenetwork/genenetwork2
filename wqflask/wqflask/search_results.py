@@ -119,7 +119,7 @@ class SearchResultPage:
                 trait_dict['dataset'] = this_trait.dataset.name
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
                 if this_trait.dataset.type == "ProbeSet":
-                    trait_dict['symbol'] = this_trait.symbol
+                    trait_dict['symbol'] = this_trait.symbol if this_trait.symbol else "N/A"
                     trait_dict['description'] = "N/A"
                     if this_trait.description_display:
                         trait_dict['description'] = this_trait.description_display
