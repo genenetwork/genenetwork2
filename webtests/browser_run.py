@@ -9,7 +9,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 from selenium.webdriver.common.keys import Keys
 
-class Test(object):
+class Test:
     def __init__(self):
         #self.browser = webdriver.Chrome('/home/gn2/gn2/webtests/chromedriver')
         self.browser = webdriver.Firefox()

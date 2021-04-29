@@ -13,7 +13,7 @@ sys.path.append("..")
 import os
 import glob
 
-class GenerateKinshipMatrices(object):
+class GenerateKinshipMatrices:
     def __init__(self, group_name, geno_file, pheno_file):
         self.group_name = group_name
         self.geno_file = geno_file

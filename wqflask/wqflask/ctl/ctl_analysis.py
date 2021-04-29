@@ -39,7 +39,7 @@ r_write_table   = ro.r["write.table"]         # Map the write.table function
 r_data_frame    = ro.r["data.frame"]         # Map the write.table function
 r_as_numeric    = ro.r["as.numeric"]         # Map the write.table function
 
-class CTL(object):
+class CTL:
     def __init__(self):
         logger.info("Initialization of CTL")
         #log = r_file("/tmp/genenetwork_ctl.log", open = "wt")

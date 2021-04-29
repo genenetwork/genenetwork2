@@ -2,7 +2,7 @@ from redis import Redis
 
 import simplejson as json
 
-class TempData(object):
+class TempData:
 
     def __init__(self, temp_uuid):
         self.temp_uuid = temp_uuid

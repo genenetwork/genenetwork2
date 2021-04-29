@@ -10,7 +10,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 
-class InfoPage(object):
+class InfoPage:
     def __init__(self, start_vars):
         self.info = None
         self.gn_accession_id = None

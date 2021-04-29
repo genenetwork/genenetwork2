@@ -45,7 +45,7 @@ from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 import utility.logger
 logger = utility.logger.getLogger(__name__ )
 
-class RunMapping(object):
+class RunMapping:
 
     def __init__(self, start_vars, temp_uuid):
         helper_functions.get_species_dataset_trait(self, start_vars)

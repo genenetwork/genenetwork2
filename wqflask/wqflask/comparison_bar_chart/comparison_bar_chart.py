@@ -31,7 +31,7 @@ from MySQLdb import escape_string as escape
 from flask import Flask, g
 
 
-class ComparisonBarChart(object):
+class ComparisonBarChart:
 
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]

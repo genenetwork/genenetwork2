@@ -58,7 +58,7 @@ TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
 TISSUE_MOUSE_DB = 1
 
 
-class CorrelationResults(object):
+class CorrelationResults:
     def __init__(self, start_vars):
         # get trait list from db (database name)
         # calculate correlation with Base vector and targets

@@ -146,7 +146,12 @@ def gen_covariates_file(this_dataset, covariates, samples):
     for covariate in covariate_list:
         this_covariate_data = []
         trait_name = covariate.split(":")[0]
-        dataset_ob = create_dataset(covariate.split(":")[1])
+        dataset_name = covariate.split(":")[1]
+        if dataset_name == "Temp":
+            temp_group = trait_name.split("_")[2]
+            dataset_ob = create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = temp_group)
+        else:
+            dataset_ob = create_dataset(covariate.split(":")[1])
         trait_ob = create_trait(dataset=dataset_ob,
                                 name=trait_name,
                                 cellid=None)

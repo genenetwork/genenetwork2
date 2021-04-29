@@ -51,7 +51,7 @@ def create_trait(**kw):
         return None
 
 
-class GeneralTrait(object):
+class GeneralTrait:
     """
     Trait class defines a trait in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input trait
@@ -337,74 +337,10 @@ def jsonable(trait):
                     dataset_name=dataset.shortname,
                     location=trait.location_repr
                     )
-    else:
-        return dict()
-
-
-def jsonable_table_row(trait, dataset_name, index):
-    """Return a list suitable for json and intended to be displayed in a table
-
-    Actual turning into json doesn't happen here though"""
-
-    dataset = create_dataset(dataset_name)
-
-    if dataset.type == "ProbeSet":
-        if trait.mean == "":
-            mean = "N/A"
-        else:
-            mean = "%.3f" % round(float(trait.mean), 2)
-        if trait.additive == "":
-            additive = "N/A"
-        else:
-            additive = "%.3f" % round(float(trait.additive), 2)
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                index,
-                '<a href="/show_trait?trait_id=' +
-                str(trait.name)+'&dataset='+dataset.name +
-                '">'+str(trait.name)+'</a>',
-                trait.symbol,
-                trait.description_display,
-                trait.location_repr,
-                mean,
-                trait.LRS_score_repr,
-                trait.LRS_location_repr,
-                additive]
-    elif dataset.type == "Publish":
-        if trait.additive == "":
-            additive = "N/A"
-        else:
-            additive = "%.2f" % round(float(trait.additive), 2)
-        if trait.pubmed_id:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                    index,
-                    '<a href="/show_trait?trait_id=' +
-                    str(trait.name)+'&dataset='+dataset.name +
-                    '">'+str(trait.name)+'</a>',
-                    trait.description_display,
-                    trait.authors,
-                    '<a href="' + trait.pubmed_link + '">' + trait.pubmed_text + '</href>',
-                    trait.LRS_score_repr,
-                    trait.LRS_location_repr,
-                    additive]
-        else:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                    index,
-                    '<a href="/show_trait?trait_id=' +
-                    str(trait.name)+'&dataset='+dataset.name +
-                    '">'+str(trait.name)+'</a>',
-                    trait.description_display,
-                    trait.authors,
-                    trait.pubmed_text,
-                    trait.LRS_score_repr,
-                    trait.LRS_location_repr,
-                    additive]
-    elif dataset.type == "Geno":
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                index,
-                '<a href="/show_trait?trait_id=' +
-                str(trait.name)+'&dataset='+dataset.name +
-                '">'+str(trait.name)+'</a>',
-                trait.location_repr]
+    elif dataset.name == "Temp":
+        return dict(name=trait.name,
+                    dataset="Temp",
+                    dataset_name="Temp")
     else:
         return dict()
 

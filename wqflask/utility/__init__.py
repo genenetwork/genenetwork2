@@ -2,7 +2,7 @@ from pprint import pformat as pf
 
 # Todo: Move these out of __init__
 
-class Bunch(object):
+class Bunch:
     """Like a dictionary but using object notation"""
     def __init__(self,  **kw):
             self.__dict__ = kw
@@ -11,7 +11,7 @@ class Bunch(object):
         return pf(self.__dict__)
 
 
-class Struct(object):
+class Struct:
     '''The recursive class for building and representing objects with.
 
     From http://stackoverflow.com/a/6573827/1175849
