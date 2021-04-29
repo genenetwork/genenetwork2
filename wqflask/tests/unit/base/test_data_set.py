@@ -87,8 +87,7 @@ class TestDataSetTypes(unittest.TestCase):
                  '"B139_K_1206_M": "ProbeSet", '
                  '"B139_K_1206_R": "ProbeSet", '
                  '"Test": "ProbeSet"}'))
-
-            db_mock.db.execute.assert_called_with(
+            db_mock.db.execute.assert_called_once_with(
                 ("SELECT ProbeSetFreeze.Id FROM ProbeSetFreeze " +
                  "WHERE ProbeSetFreeze.Name = \"Test\" ")
             )
