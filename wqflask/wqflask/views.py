@@ -31,6 +31,7 @@ from flask import redirect
 from flask import url_for
 from flask import send_file
 
+from wqflask import collect
 from wqflask import search_results
 from wqflask import server_side
 from wqflask.submit_bnw import get_bnw_input
