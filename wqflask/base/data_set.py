@@ -62,7 +62,8 @@ logger = getLogger(__name__)
 DS_NAME_MAP = {}
 
 
-def create_dataset(dataset_name, dataset_type=None, get_samplelist=True, group_name=None):
+def create_dataset(dataset_name, dataset_type=None,
+                   get_samplelist=True, group_name=None):
     if dataset_name == "Temp":
         dataset_type = "Temp"
 
