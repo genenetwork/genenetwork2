@@ -28,7 +28,7 @@ from utility import corr_result_helpers
 from utility.tools import GN2_BRANCH_URL
 
 
-class NetworkGraph(object):
+class NetworkGraph:
 
     def __init__(self, start_vars):
         trait_db_list = [trait.strip()

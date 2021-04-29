@@ -42,7 +42,7 @@ r_png = ro.r["png"]            # Map the png function for plotting
 r_dev_off = ro.r["dev.off"]    # Map the dev.off function
 
 
-class WGCNA(object):
+class WGCNA:
     def __init__(self):
         # To log output from stdout/stderr to a file add `r_sink(log)`
         print("Initialization of WGCNA")

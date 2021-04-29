@@ -41,7 +41,7 @@ Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
 
-class CorrelationMatrix(object):
+class CorrelationMatrix:
 
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]

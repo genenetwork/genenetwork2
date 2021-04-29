@@ -35,8 +35,7 @@ logger = getLogger(__name__)
 ##############################################
 
 
-class ShowTrait(object):
-
+class ShowTrait:
     def __init__(self, kw):
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
@@ -54,7 +53,8 @@ class ShowTrait(object):
             self.dataset = data_set.create_dataset(
                 dataset_name="Temp", dataset_type="Temp", group_name=self.temp_group)
 
-            # Put values in Redis so they can be looked up later if added to a collection
+            # Put values in Redis so they can be looked up later if
+            # added to a collection
             Redis.set(self.trait_id, kw['trait_paste'], ex=ONE_YEAR)
             self.trait_vals = kw['trait_paste'].split()
             self.this_trait = create_trait(dataset=self.dataset,

@@ -152,7 +152,7 @@ class HtmlGenWrapper:
         return map_
 
 
-class DisplayMappingResults(object):
+class DisplayMappingResults:
     """Inteval Mapping Plot Page"""
     cMGraphInterval = 5
     GRAPH_MIN_WIDTH = 900

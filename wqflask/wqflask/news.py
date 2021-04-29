@@ -1,6 +1,6 @@
 from flask import g
 
-class News(object):
+class News:
 
     def __init__(self):
         sql = """

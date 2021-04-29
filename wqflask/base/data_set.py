@@ -220,7 +220,7 @@ def create_datasets_list():
     return datasets
 
 
-class Markers(object):
+class Markers:
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
 
     def __init__(self, name):
@@ -316,7 +316,7 @@ class HumanMarkers(Markers):
         super(HumanMarkers, self).add_pvalues(p_values)
 
 
-class DatasetGroup(object):
+class DatasetGroup:
     """
     Each group has multiple datasets; each species has multiple groups.
 
@@ -540,7 +540,7 @@ def datasets(group_name, this_group=None):
         return dataset_menu
 
 
-class DataSet(object):
+class DataSet:
     """
     DataSet class defines a dataset in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input dataset(temp)

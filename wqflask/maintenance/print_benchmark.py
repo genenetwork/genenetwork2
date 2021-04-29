@@ -5,7 +5,7 @@ import time
 from pprint import pformat as pf
 
 
-class TheCounter(object):
+class TheCounter:
     Counters = {}
 
     def __init__(self):

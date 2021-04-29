@@ -17,7 +17,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 
-class DoSearch(object):
+class DoSearch:
     """Parent class containing parameters/functions used for all searches"""
 
     # Used to translate search phrases into classes

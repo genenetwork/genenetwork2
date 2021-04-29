@@ -51,7 +51,7 @@ def create_trait(**kw):
         return None
 
 
-class GeneralTrait(object):
+class GeneralTrait:
     """
     Trait class defines a trait in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input trait

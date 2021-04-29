@@ -10,7 +10,7 @@ from utility.benchmark import Bench
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
-class GSearch(object):
+class GSearch:
 
     def __init__(self, kw):
         self.type = kw['type']

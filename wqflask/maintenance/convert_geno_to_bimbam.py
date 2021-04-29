@@ -22,7 +22,7 @@ from pprint import pformat as pf
 
 class EmptyConfigurations(Exception): pass
 
-class Marker(object):
+class Marker:
     def __init__(self):
         self.name = None
         self.chr = None
@@ -30,7 +30,7 @@ class Marker(object):
         self.Mb = None
         self.genotypes = []
 
-class ConvertGenoFile(object):
+class ConvertGenoFile:
 
     def __init__(self, input_file, output_files):
         self.input_file = input_file

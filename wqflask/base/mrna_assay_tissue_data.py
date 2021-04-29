@@ -11,7 +11,7 @@ from utility.db_tools import escape
 from utility.logger import getLogger
 logger = getLogger(__name__ )
 
-class MrnaAssayTissueData(object):
+class MrnaAssayTissueData:
 
     def __init__(self, gene_symbols=None):
         self.gene_symbols = gene_symbols
