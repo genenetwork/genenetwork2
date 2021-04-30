@@ -48,7 +48,7 @@ class SendToWebGestalt:
 
             id_type = "entrezgene"
 
-            self.hidden_vars = { 
+            self.hidden_vars = {
                              'gene_list': "\n".join(gene_id_list),
                              'id_type': "entrezgene",
                              'ref_set': "genome",

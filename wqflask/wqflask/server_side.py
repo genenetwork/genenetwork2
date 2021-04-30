@@ -30,7 +30,7 @@ class ServerSideTable:
         self.rows_count = rows_count
         self.table_rows = table_rows
         self.header_data_names = header_data_names
-        
+
         self.sort_rows()
         self.paginate_rows()
 

@@ -34,7 +34,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
 
         opt_list = []
         if boot_check and num_bootstrap > 0:
-            bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_" + 
+            bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_" +
                 ''.join(random.choice(string.ascii_uppercase + string.digits)
                         for _ in range(6))
                 )
@@ -44,8 +44,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             opt_list.append(
                 f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
-            permu_filename = ("{this_dataset.group.name}_PERM_" + 
-            ''.join(random.choice(string.ascii_uppercase + 
+            permu_filename = ("{this_dataset.group.name}_PERM_" +
+            ''.join(random.choice(string.ascii_uppercase +
                 string.digits) for _ in range(6))
             )
             opt_list.append("-n " + str(num_perm))
@@ -56,7 +56,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         if manhattan_plot != True:
             opt_list.append("--interval 1")
 
-        reaper_command = (REAPER_COMMAND + 
+        reaper_command = (REAPER_COMMAND +
         ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
 
                                                                               genofile_name,
@@ -81,7 +81,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         suggestive = permu_vals[int(num_perm * 0.37 - 1)]
         significant = permu_vals[int(num_perm * 0.95 - 1)]
 
-    return (marker_obs, permu_vals, suggestive, significant, bootstrap_vals, 
+    return (marker_obs, permu_vals, suggestive, significant, bootstrap_vals,
         [output_filename, permu_filename, bootstrap_filename])
 
 

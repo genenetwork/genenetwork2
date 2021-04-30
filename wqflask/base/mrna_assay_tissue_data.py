@@ -74,7 +74,7 @@ class MrnaAssayTissueData:
 
     def get_symbol_values_pairs(self):
         id_list = [self.data[symbol].data_id for symbol in self.data]
-        
+
         symbol_values_dict = {}
 
         if len(id_list) > 0:

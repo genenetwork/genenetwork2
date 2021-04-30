@@ -91,7 +91,7 @@ class ConvertGenoFile:
 
             self.markers.append(this_marker.__dict__)
 
-        self.write_to_bimbam()    
+        self.write_to_bimbam()
 
     def write_to_bimbam(self):
         with open(self.output_files[0], "w") as geno_fh:
@@ -126,7 +126,7 @@ class ConvertGenoFile:
                 self.sample_list = row_contents[3:]
             else:
                 self.sample_list = row_contents[2:]
-    
+
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
             self.latest_row_value = row

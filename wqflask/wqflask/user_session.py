@@ -318,5 +318,3 @@ class UserSession:
         # And more importantly delete the redis record
         Redis.delete(self.redis_key)
         self.logged_in = False
-
-

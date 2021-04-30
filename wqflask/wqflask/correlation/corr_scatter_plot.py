@@ -68,7 +68,7 @@ class CorrScatterPlot:
             slope_string = '%.3E' % slope
         else:
             slope_string = '%.3f' % slope
-        
+
         x_buffer = (max(vals_1) - min(vals_1)) * 0.1
         y_buffer = (max(vals_2) - min(vals_2)) * 0.1
 
@@ -82,7 +82,7 @@ class CorrScatterPlot:
         ry = stats.rankdata(vals_2)
         self.rdata = []
         self.rdata.append(rx.tolist())
-        self.rdata.append(ry.tolist())        
+        self.rdata.append(ry.tolist())
         srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(
             rx, ry)
 

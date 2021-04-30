@@ -45,10 +45,10 @@ def encode_password(pass_gen_fields, unencrypted_password):
         salt = pass_gen_fields['salt']
     else:
         salt = bytes(pass_gen_fields['salt'], "utf-8")
-    encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password), 
+    encrypted_password = pbkdf2.pbkdf2_hex(str(unencrypted_password),
                                            salt,
-                                           pass_gen_fields['iterations'], 
-                                           pass_gen_fields['keylength'], 
+                                           pass_gen_fields['iterations'],
+                                           pass_gen_fields['keylength'],
                                            pass_gen_fields['hashfunc'])
 
     pass_gen_fields.pop("unencrypted_password", None)
@@ -111,7 +111,7 @@ def get_signed_session_id(user):
     key = UserSession.user_cookie_name + ":" + session_id
     Redis.hmset(key, session)
     Redis.expire(key, THREE_DAYS)
-    
+
     return session_id_signed
 
 
@@ -207,7 +207,7 @@ def login():
                     UserSession.user_cookie_name, session_id_signed, max_age=None)
             else:
                 flash("Something went unexpectedly wrong.", "alert-danger")
-                response = make_response(redirect(url_for('index_page')))  
+                response = make_response(redirect(url_for('index_page')))
             return response
         else:
             user_details = get_user_by_unique_column(
@@ -276,13 +276,13 @@ def github_oauth2():
     user_details = get_user_by_unique_column("github_id", github_user["id"])
     if user_details == None:
         user_details = {
-            "user_id": str(uuid.uuid4()), 
-            "name": github_user["name"].encode("utf-8") if github_user["name"] else "None", 
+            "user_id": str(uuid.uuid4()),
+            "name": github_user["name"].encode("utf-8") if github_user["name"] else "None",
             "github_id": github_user["id"],
-            "user_url": github_user["html_url"].encode("utf-8"), 
-            "login_type": "github", 
-            "organization": "", 
-            "active": 1, 
+            "user_url": github_user["html_url"].encode("utf-8"),
+            "login_type": "github",
+            "organization": "",
+            "active": 1,
             "confirmed": 1
         }
         save_user(user_details, user_details["user_id"])
@@ -308,8 +308,8 @@ def orcid_oauth2():
     url = "/n/login"
     if code:
         data = {
-            "client_id": ORCID_CLIENT_ID, 
-            "client_secret": ORCID_CLIENT_SECRET, 
+            "client_id": ORCID_CLIENT_ID,
+            "client_secret": ORCID_CLIENT_SECRET,
             "grant_type": "authorization_code",
             "redirect_uri": GN2_BRANCH_URL + "n/login/orcid_oauth2",
             "code": code
@@ -321,13 +321,13 @@ def orcid_oauth2():
         user_details = get_user_by_unique_column("orcid", result_dict["orcid"])
         if user_details == None:
             user_details = {
-                "user_id": str(uuid4()), 
-                "name": result_dict["name"], 
-                "orcid": result_dict["orcid"], 
-                "user_url": "%s/%s" % ("/".join(ORCID_AUTH_URL.split("/")[:-2]), result_dict["orcid"]), 
-                "login_type": "orcid", 
-                "organization": "", 
-                "active": 1, 
+                "user_id": str(uuid4()),
+                "name": result_dict["name"],
+                "orcid": result_dict["orcid"],
+                "user_url": "%s/%s" % ("/".join(ORCID_AUTH_URL.split("/")[:-2]), result_dict["orcid"]),
+                "login_type": "orcid",
+                "organization": "",
+                "active": 1,
                 "confirmed": 1
             }
             save_user(user_details, user_details["user_id"])
@@ -374,7 +374,7 @@ def send_forgot_password_email(verification_email):
     key_prefix = "forgot_password_code"
     subject = "GeneNetwork password reset"
     fromaddr = "no-reply@genenetwork.org"
-    
+
     verification_code = str(uuid.uuid4())
     key = key_prefix + ":" + verification_code
 

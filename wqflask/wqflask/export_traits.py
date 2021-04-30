@@ -1,6 +1,6 @@
 import csv
 import xlsxwriter
-import io 
+import io
 import datetime
 import itertools
 
@@ -20,7 +20,7 @@ def export_search_results_csv(targs):
 
     table_data = json.loads(targs['export_data'])
     table_rows = table_data['rows']
-    
+
     now = datetime.datetime.now()
     time_str = now.strftime('%H:%M_%d%B%Y')
     if 'file_name' in targs:

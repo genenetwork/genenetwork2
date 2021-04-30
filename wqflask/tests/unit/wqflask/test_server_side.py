@@ -17,8 +17,8 @@ class TestServerSideTableTests(unittest.TestCase):
     def test_get_page(self):
         rows_count = 3
         table_rows = [
-            {'first': 'd', 'second': 4, 'third': 'zz'}, 
-            {'first': 'b', 'second': 2, 'third': 'aa'}, 
+            {'first': 'd', 'second': 4, 'third': 'zz'},
+            {'first': 'b', 'second': 2, 'third': 'aa'},
             {'first': 'c', 'second': 1, 'third': 'ss'},
         ]
         headers = ['first', 'second', 'third']

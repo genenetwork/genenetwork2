@@ -324,7 +324,7 @@ def sortEigenVectors(vector):
             A.append(item[0])
             B.append(item[1])
         sum = reduce(lambda x, y: x + y, A, 0.0)
-        A = [x * 100.0 / sum for x in A] 
+        A = [x * 100.0 / sum for x in A]
         return [A, B]
     except:
         return []

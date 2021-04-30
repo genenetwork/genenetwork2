@@ -40,10 +40,3 @@ class TestRqtlMapping(unittest.TestCase):
 		expected_sanitized_name = "c('f',NA,'r',NA,NA)"
 		results = sanitize_rqtl_names(vals)
 		self.assertEqual(expected_sanitized_name, results)
-
-
-		
-		
-
-
-

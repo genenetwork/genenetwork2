@@ -142,5 +142,5 @@ def get_group_names(group_masks):
         group_name = get_group_info(group_id)['name']
         this_mask['name'] = group_name
         group_masks_with_names[group_id] = this_mask
-    
+
     return group_masks_with_names
