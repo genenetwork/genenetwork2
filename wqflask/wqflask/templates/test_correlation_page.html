@@ -45,6 +45,7 @@
 	<h3>Correlation Results for <span>Dataset_name</span> against <span><a href="">trait_name</a></span> for the top <span>all</span> Results</h3>
 </div>
 <div class="header-toggle-vis">
+	      <h4 style="font-weight: bolder;padding: 5px 3px;">Toggle Columns</h4>
 	      <button class="toggle-vis" data-column="1">Index</button>
           <button class="toggle-vis" data-column="2">Trait Name</button>
           <button class="toggle-vis" data-column="3">Sample r</button>
@@ -60,6 +61,8 @@
                 <th>Sample r</th>
                 <th>Sample p(r)</th>
                 <th>N</th>
+                <th>Tissue rho</th>
+                <th>Lit rho</th>
             </tr>
         </thead>
 	</table>
@@ -85,8 +88,10 @@
 	// document.querySelector(".content").innerHTML =correlationResults
 	// parse the data
 	let  counter = 0;
+	let corr_type = "tissue";
 	correlationResults =correlationResults.map((trait_object)=>{
 		let trait_name = Object.keys(trait_object)[0]
+		
 		let new_dict = {
 			"index":counter,
 			"trait_name":trait_name,
@@ -94,7 +99,9 @@
 		}
 		counter++;
 		return new_dict;
-	}) 
+	})
+
+console.log(correlationResults) 
 	
 </script>
 
@@ -102,13 +109,15 @@
 	$(document).ready(function() {
     let  table = $('#example').DataTable( {
         "data": correlationResults,
-        "columns": [
-            {"data":null,"width":"25px"},
+      "columns": [
+            {"data":corr_type=="sample"?null:"fd","width":"25px"},
             { "data": "index","width":"120px","title":"Index" },
             { "data": "trait_name","title":"TraitName"},
-            { "data": "corr_coeffient"},
-            { "data": "p_value"},
-            { "data": "num_overlap"}
+            { "data": "corr_coeffient","defaultContent": "--"},
+            { "data": "p_value","defaultContent":"--"},
+            { "data": "num_overlap","defaultContent":"--"},
+            {"data":"tissue_corr","defaultContent":"--","title":"Tissue rho"},
+            {"data":"lit_corr","defaultContent":"--","title":"Lit rho"}
         ],
         "columnDefs": [ 
            {
