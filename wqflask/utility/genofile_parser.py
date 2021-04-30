@@ -92,7 +92,8 @@ class ConvertGenoFile:
         genotypes = row_items[2:]
       for item_count, genotype in enumerate(genotypes):
         if genotype.upper().strip() in self.configurations:
-          this_marker.genotypes.append(self.configurations[genotype.upper().strip()])
+          this_marker.genotypes.append(
+            self.configurations[genotype.upper().strip()])
         else:
           print("WARNING:", genotype.upper())
           this_marker.genotypes.append("NA")

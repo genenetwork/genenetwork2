@@ -239,19 +239,23 @@ class pathdata:
 
     def smbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy absolut"""
-        self.path.append('S' + str(x2) + ',' + str(y2) + ' ' + str(x) + ',' + str(y))
+        self.path.append('S' + str(x2) + ',' + str(y2) + \
+                         ' ' + str(x) + ',' + str(y))
 
     def relsmbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy relative"""
-        self.path.append('s' + str(x2) + ',' + str(y2) + ' ' + str(x) + ',' + str(y))
+        self.path.append('s' + str(x2) + ',' + str(y2) + \
+                         ' ' + str(x) + ',' + str(y))
 
     def qbezier(self, x1, y1, x, y):
         """quadratic bezier with xy1 to xy absolut"""
-        self.path.append('Q' + str(x1) + ',' + str(y1) + ' ' + str(x) + ',' + str(y))
+        self.path.append('Q' + str(x1) + ',' + str(y1) + \
+                         ' ' + str(x) + ',' + str(y))
 
     def relqbezier(self, x1, y1, x, y):
         """quadratic bezier with xy1 to xy relative"""
-        self.path.append('q' + str(x1) + ',' + str(y1) + ' ' + str(x) + ',' + str(y))
+        self.path.append('q' + str(x1) + ',' + str(y1) + \
+                         ' ' + str(x) + ',' + str(y))
 
     def smqbezier(self, x, y):
         """smooth quadratic bezier to xy absolut"""
@@ -447,7 +451,8 @@ class rect(SVGelement):
         if width == None or height == None:
             raise ValueError('both height and width are required')
 
-        SVGelement.__init__(self, 'rect', {'width': width, 'height': height}, **args)
+        SVGelement.__init__(
+            self, 'rect', {'width': width, 'height': height}, **args)
         if x != None:
             self.attributes['x'] = x
         if y != None:
@@ -545,7 +550,8 @@ class polyline(SVGelement):
     """
 
     def __init__(self, points, fill=None, stroke=None, stroke_width=None,**args):
-        SVGelement.__init__(self, 'polyline', {'points': _xypointlist(points)}, **args)
+        SVGelement.__init__(self, 'polyline', {
+                            'points': _xypointlist(points)}, **args)
         if fill != None:
             self.attributes['fill'] = fill
         if stroke_width != None:
@@ -561,7 +567,8 @@ class polygon(SVGelement):
     """
 
     def __init__(self, points, fill=None, stroke=None, stroke_width=None,**args):
-        SVGelement.__init__(self, 'polygon', {'points': _xypointlist(points)}, **args)
+        SVGelement.__init__(
+            self, 'polygon', {'points': _xypointlist(points)}, **args)
         if fill != None:
             self.attributes['fill'] = fill
         if stroke_width != None:
@@ -745,7 +752,8 @@ class image(SVGelement):
     def __init__(self, url, x=None, y=None, width=None,height=None,**args):
         if width == None or height == None:
             raise ValueError('both height and width are required')
-        SVGelement.__init__(self, 'image', {'xlink:href': url, 'width': width, 'height':height}, **args)
+        SVGelement.__init__(
+            self, 'image', {'xlink:href': url, 'width': width, 'height':height}, **args)
         if x != None:
             self.attributes['x'] = x
         if y != None:
@@ -886,7 +894,8 @@ class script(SVGelement):
     """
 
     def __init__(self, type, cdata=None, **args):
-        SVGelement.__init__(self, 'script', {'type': type}, cdata=cdata, **args)
+        SVGelement.__init__(
+            self, 'script', {'type': type}, cdata=cdata, **args)
 
 
 class animate(SVGelement):
@@ -896,7 +905,8 @@ class animate(SVGelement):
     """
 
     def __init__(self, attribute, fr=None, to=None, dur=None,**args):
-        SVGelement.__init__(self, 'animate', {'attributeName': attribute}, **args)
+        SVGelement.__init__(
+            self, 'animate', {'attributeName': attribute}, **args)
         if fr != None:
             self.attributes['from'] = fr
         if to != None:
@@ -926,7 +936,8 @@ class animateTransform(SVGelement):
     """
 
     def __init__(self, type=None, fr=None, to=None, dur=None,**args):
-        SVGelement.__init__(self, 'animateTransform', {'attributeName': 'transform'}, **args)
+        SVGelement.__init__(self, 'animateTransform', {
+                            'attributeName': 'transform'}, **args)
         # As far as I know the attributeName is always transform
         if type != None:
             self.attributes['type'] = type
@@ -945,7 +956,8 @@ class animateColor(SVGelement):
     """
 
     def __init__(self, attribute, type=None, fr=None, to=None,dur=None,**args):
-        SVGelement.__init__(self, 'animateColor', {'attributeName': attribute}, **args)
+        SVGelement.__init__(self, 'animateColor', {
+                            'attributeName': attribute}, **args)
         if type != None:
             self.attributes['type'] = type
         if fr != None:
@@ -1020,11 +1032,13 @@ class drawing:
             import io
             xml = io.StringIO()
             xml.write("<?xml version='1.0' encoding='UTF-8'?>\n")
-            xml.write("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
+            xml.write(
+                "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
             if self.entity:
                 xml.write(" [\n")
                 for item in list(self.entity.keys()):
-                    xml.write("<!ENTITY %s \"%s\">\n" % (item, self.entity[item]))
+                    xml.write("<!ENTITY %s \"%s\">\n" %
+                              (item, self.entity[item]))
                 xml.write("]")
             xml.write(">\n")
             self.svg.toXml(0, xml)
@@ -1042,7 +1056,8 @@ class drawing:
             else:
                 if filename[-4:] == 'svgz':
                     import gzip
-                    f = gzip.GzipFile(filename=filename, mode="wb", compresslevel=9)
+                    f = gzip.GzipFile(filename=filename,
+                                      mode="wb", compresslevel=9)
                     f.write(xml.getvalue())
                     f.close()
                 else:
@@ -1057,7 +1072,8 @@ class drawing:
             writes a svg drawing to the screen or to a file
             compresses if filename ends with svgz or if compress is true
             """
-            doctype = implementation.createDocumentType('svg', "-//W3C//DTD SVG 1.0//EN""", 'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd ')
+            doctype = implementation.createDocumentType(
+                'svg', "-//W3C//DTD SVG 1.0//EN""", 'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd ')
 
             global root
             # root is defined global so it can be used by the appender. Its also possible to use it as an arugument but
@@ -1076,8 +1092,10 @@ class drawing:
                 if element.text:
                     textnode = root.createTextNode(element.text)
                     e.appendChild(textnode)
-                for attribute in list(element.attributes.keys()):  # in element.attributes is supported from python 2.2
-                    e.setAttribute(attribute, str(element.attributes[attribute]))
+                # in element.attributes is supported from python 2.2
+                for attribute in list(element.attributes.keys()):
+                    e.setAttribute(attribute, str(
+                        element.attributes[attribute]))
                 if element.elements:
                     for el in element.elements:
                         e = appender(el, e)
@@ -1105,7 +1123,8 @@ class drawing:
                         import io
                         xml = io.StringIO()
                         PrettyPrint(root, xml)
-                        f = gzip.GzipFile(filename=filename, mode='wb', compresslevel=9)
+                        f = gzip.GzipFile(filename=filename,
+                                          mode='wb', compresslevel=9)
                         f.write(xml.getvalue())
                         f.close()
                     else:
@@ -1119,7 +1138,8 @@ class drawing:
         try:
             import xml.parsers.xmlproc.xmlval
         except:
-            raise exceptions.ImportError('PyXml is required for validating SVG')
+            raise exceptions.ImportError(
+                'PyXml is required for validating SVG')
         svg = self.toXml()
         xv = xml.parsers.xmlproc.xmlval.XMLValidator()
         try:

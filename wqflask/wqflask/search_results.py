@@ -52,7 +52,8 @@ class SearchResultPage:
         search = self.search_terms
         self.original_search_string = self.search_terms
         # check for dodgy search terms
-        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
+        rx = re.compile(
+            r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
             logger.info("Regex failed search")
             self.search_term_exists = False
@@ -96,7 +97,8 @@ class SearchResultPage:
         trait_list = []
         json_trait_list = []
 
-        species = webqtlDatabaseFunction.retrieve_species(self.dataset.group.name)
+        species = webqtlDatabaseFunction.retrieve_species(
+            self.dataset.group.name)
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
         logger.debug("self.results is:", pf(self.results))
@@ -109,7 +111,8 @@ class SearchResultPage:
 
             trait_dict = {}
             trait_id = result[0]
-            this_trait = create_trait(dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+            this_trait = create_trait(
+                dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
             if this_trait:
                 trait_dict['index'] = index + 1
                 trait_dict['name'] = this_trait.name
@@ -118,7 +121,8 @@ class SearchResultPage:
                 else:
                     trait_dict['display_name'] = this_trait.name
                 trait_dict['dataset'] = this_trait.dataset.name
-                trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))
+                trait_dict['hmac'] = hmac.data_hmac(
+                    '{}:{}'.format(this_trait.name, this_trait.dataset.name))
                 if this_trait.dataset.type == "ProbeSet":
                     trait_dict['symbol'] = this_trait.symbol if this_trait.symbol else "N/A"
                     trait_dict['description'] = "N/A"
@@ -168,9 +172,11 @@ class SearchResultPage:
         self.trait_list = trait_list
 
         if self.dataset.type == "ProbeSet":
-            self.header_data_names = ['index', 'display_name', 'symbol', 'description', 'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
+            self.header_data_names = ['index', 'display_name', 'symbol', 'description',
+                'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
         elif self.dataset.type == "Publish":
-            self.header_data_names = ['index', 'display_name', 'description', 'mean', 'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
+            self.header_data_names = ['index', 'display_name', 'description', 'mean',
+                'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
         elif self.dataset.type == "Geno":
             self.header_data_names = ['index', 'display_name', 'location']
 
@@ -184,7 +190,8 @@ class SearchResultPage:
 
         combined_from_clause = ""
         combined_where_clause = ""
-        previous_from_clauses = []  # The same table can't be referenced twice in the from clause
+        # The same table can't be referenced twice in the from clause
+        previous_from_clauses = []
 
         logger.debug("len(search_terms)>1")
         symbol_list = []
@@ -198,7 +205,8 @@ class SearchResultPage:
             for i, a_search in enumerate(alias_terms):
                 the_search = self.get_search_ob(a_search)
                 if the_search != None:
-                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    get_from_clause = getattr(
+                        the_search, "get_from_clause", None)
                     if callable(get_from_clause):
                         from_clause = the_search.get_from_clause()
                         if from_clause in previous_from_clauses:
@@ -222,7 +230,8 @@ class SearchResultPage:
             else:
                 the_search = self.get_search_ob(a_search)
                 if the_search != None:
-                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    get_from_clause = getattr(
+                        the_search, "get_from_clause", None)
                     if callable(get_from_clause):
                         from_clause = the_search.get_from_clause()
                         if from_clause in previous_from_clauses:
@@ -241,7 +250,8 @@ class SearchResultPage:
                     self.search_term_exists = False
         if self.search_term_exists:
             combined_where_clause = "(" + combined_where_clause + ")"
-            final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+            final_query = the_search.compile_final_query(
+                combined_from_clause, combined_where_clause)
             results = the_search.execute(final_query)
             self.results.extend(results)
 
@@ -312,7 +322,8 @@ def get_aliases(symbol_list, species):
     symbols_string = ",".join(updated_symbols)
 
     filtered_aliases = []
-    response = requests.get(GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
+    response = requests.get(
+        GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
     if response:
         alias_lists = json.loads(response.content)
         seen = set()

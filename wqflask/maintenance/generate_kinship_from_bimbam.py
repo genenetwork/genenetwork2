@@ -21,7 +21,9 @@ class GenerateKinshipMatrices:
         self.pheno_file = pheno_file
     
     def generate_kinship(self):
-        gemma_command = "/gnu/store/xhzgjr0jvakxv6h3blj8z496xjig69b0-profile/bin/gemma -g " + self.geno_file + " -p " + self.pheno_file + " -gk 1 -outdir /home/zas1024/genotype_files/genotype/bimbam/ -o " + self.group_name
+        gemma_command = "/gnu/store/xhzgjr0jvakxv6h3blj8z496xjig69b0-profile/bin/gemma -g " + self.geno_file + \
+            " -p " + self.pheno_file + \
+                " -gk 1 -outdir /home/zas1024/genotype_files/genotype/bimbam/ -o " + self.group_name
         print("command:", gemma_command)
         os.system(gemma_command)
 
@@ -34,9 +36,12 @@ class GenerateKinshipMatrices:
             group_name = ".".join(input_file.split('.')[:-1])
             if group_name == "HSNIH-Palmer":
                 continue
-            geno_input_file = os.path.join(bimbam_dir, group_name + "_geno.txt")
-            pheno_input_file = os.path.join(bimbam_dir, group_name + "_pheno.txt")
-            convertob = GenerateKinshipMatrices(group_name, geno_input_file, pheno_input_file)
+            geno_input_file = os.path.join(
+                bimbam_dir, group_name + "_geno.txt")
+            pheno_input_file = os.path.join(
+                bimbam_dir, group_name + "_pheno.txt")
+            convertob = GenerateKinshipMatrices(
+                group_name, geno_input_file, pheno_input_file)
             try:
                 convertob.generate_kinship()
             except EmptyConfigurations as why:

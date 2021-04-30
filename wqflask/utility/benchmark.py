@@ -19,7 +19,8 @@ class Bench:
             if self.name:
                 logger.debug("Starting benchmark: %s" % (self.name))
             else:
-                logger.debug("Starting benchmark at: %s [%i]" % (inspect.stack()[1][3], inspect.stack()[1][2]))
+                logger.debug("Starting benchmark at: %s [%i]" % (
+                    inspect.stack()[1][3], inspect.stack()[1][2]))
         self.start_time = time.time()
 
     def __exit__(self, type, value, traceback):
@@ -33,11 +34,13 @@ class Bench:
             logger.info("  %s took: %f seconds" % (name, (time_taken)))
 
         if self.name:
-            Bench.entries[self.name] = Bench.entries.get(self.name, 0) + time_taken
+            Bench.entries[self.name] = Bench.entries.get(
+                self.name, 0) + time_taken
 
     @classmethod
     def report(cls):
-        total_time = sum((time_taken for time_taken in list(cls.entries.values())))
+        total_time = sum(
+            (time_taken for time_taken in list(cls.entries.values())))
         print("\nTiming report\n")
         for name, time_taken in list(cls.entries.items()):
             percent = int(round((time_taken / total_time) * 100))

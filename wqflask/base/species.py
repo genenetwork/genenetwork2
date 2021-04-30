@@ -55,4 +55,5 @@ class Chromosomes:
         results = g.db.execute(query).fetchall()
 
         for item in results:
-            self.chromosomes[item.OrderId] = IndChromosome(item.Name, item.Length)
+            self.chromosomes[item.OrderId] = IndChromosome(
+                item.Name, item.Length)

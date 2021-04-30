@@ -70,7 +70,8 @@ def set_password(password):
 
     assert len(password) >= 6, "Password shouldn't be shorter than 6 characters"
 
-    encoded_password = encode_password(pass_gen_fields, pass_gen_fields['unencrypted_password'])
+    encoded_password = encode_password(
+        pass_gen_fields, pass_gen_fields['unencrypted_password'])
 
     return encoded_password
 
@@ -161,12 +162,16 @@ def verify_email():
             # As long as they have access to the email account
             # We might as well log them in
             session_id_signed = get_signed_session_id(user_details)
-            flash("Thank you for logging in {}.".format(user_details['full_name']), "alert-success")
-            response = make_response(redirect(url_for('index_page', import_collections=import_col, anon_id=anon_id)))
-            response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
+            flash("Thank you for logging in {}.".format(
+                user_details['full_name']), "alert-success")
+            response = make_response(redirect(
+                url_for('index_page', import_collections=import_col, anon_id=anon_id)))
+            response.set_cookie(UserSession.user_cookie_name,
+                                session_id_signed, max_age=None)
             return response
         else:
-            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+            flash(
+                "Invalid code: Password reset code does not exist or might have expired!", "error")
 
 
 @app.route("/n/login", methods=('GET', 'POST'))
@@ -195,23 +200,28 @@ def login():
                     display_id = user_details['orcid']
                 else:
                     display_id = ""
-                flash("Thank you for logging in {}.".format(display_id), "alert-success")
+                flash("Thank you for logging in {}.".format(
+                    display_id), "alert-success")
                 response = make_response(redirect(url_for('index_page')))
-                response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
+                response.set_cookie(
+                    UserSession.user_cookie_name, session_id_signed, max_age=None)
             else:
                 flash("Something went unexpectedly wrong.", "alert-danger")
                 response = make_response(redirect(url_for('index_page')))  
             return response
         else:
-            user_details = get_user_by_unique_column("email_address", params['email_address'])
+            user_details = get_user_by_unique_column(
+                "email_address", params['email_address'])
             password_match = False
             if user_details:
                 submitted_password = params['password']
                 pwfields = user_details['password']
                 if isinstance(pwfields, str):
                     pwfields = json.loads(pwfields)
-                encrypted_pass_fields = encode_password(pwfields, submitted_password)
-                password_match = pbkdf2.safe_str_cmp(encrypted_pass_fields['password'], pwfields['password'])
+                encrypted_pass_fields = encode_password(
+                    pwfields, submitted_password)
+                password_match = pbkdf2.safe_str_cmp(
+                    encrypted_pass_fields['password'], pwfields['password'])
 
             else:  # Invalid e-mail
                 flash("Invalid e-mail address. Please try again.", "alert-danger")
@@ -227,12 +237,16 @@ def login():
                         anon_id = params['anon_id']
 
                     session_id_signed = get_signed_session_id(user_details)
-                    flash("Thank you for logging in {}.".format(user_details['full_name']), "alert-success")
-                    response = make_response(redirect(url_for('index_page', import_collections=import_col, anon_id=anon_id)))
-                    response.set_cookie(UserSession.user_cookie_name, session_id_signed, max_age=None)
+                    flash("Thank you for logging in {}.".format(
+                        user_details['full_name']), "alert-success")
+                    response = make_response(redirect(
+                        url_for('index_page', import_collections=import_col, anon_id=anon_id)))
+                    response.set_cookie(
+                        UserSession.user_cookie_name, session_id_signed, max_age=None)
                     return response
                 else:
-                    email_ob = send_verification_email(user_details, template_name="email/user_verification.txt")
+                    email_ob = send_verification_email(
+                        user_details, template_name="email/user_verification.txt")
                     return render_template("newsecurity/verification_still_needed.html", subject=email_ob['subject'])
             else:  # Incorrect password
                 # ZS: It previously seemed to store that there was an incorrect log-in attempt here, but it did so in the MySQL DB so this might need to be reproduced with Redis
@@ -252,8 +266,10 @@ def github_oauth2():
         "code": code
     }
 
-    result = requests.post("https://github.com/login/oauth/access_token", json=data)
-    result_dict = {arr[0]: arr[1] for arr in [tok.split("=") for tok in result.text.split("&")]}
+    result = requests.post(
+        "https://github.com/login/oauth/access_token", json=data)
+    result_dict = {arr[0]: arr[1]
+        for arr in [tok.split("=") for tok in result.text.split("&")]}
 
     github_user = get_github_user_details(result_dict["access_token"])
 
@@ -277,7 +293,8 @@ def github_oauth2():
 
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
-    result = requests.get(GITHUB_API_URL, headers={'Authorization': 'token ' + access_token}).content
+    result = requests.get(GITHUB_API_URL, headers={
+                          'Authorization': 'token ' + access_token}).content
 
     return json.loads(result)
 
@@ -323,7 +340,8 @@ def orcid_oauth2():
 
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
-    result = requests.get(GITHUB_API_URL, headers={'Authorization': 'token ' + access_token}).content
+    result = requests.get(GITHUB_API_URL, headers={
+                          'Authorization': 'token ' + access_token}).content
 
     return json.loads(result)
 
@@ -389,13 +407,16 @@ def forgot_password_submit():
     next_page = None
     if email_address != "":
         logger.debug("Wants to send password E-mail to ", email_address)
-        user_details = get_user_by_unique_column("email_address", email_address)
+        user_details = get_user_by_unique_column(
+            "email_address", email_address)
         if user_details:
-            email_subject = send_forgot_password_email(user_details["email_address"])
+            email_subject = send_forgot_password_email(
+                user_details["email_address"])
             return render_template("new_security/forgot_password_step2.html",
                                    subject=email_subject)
         else:
-            flash("The e-mail entered is not associated with an account.", "alert-danger")
+            flash("The e-mail entered is not associated with an account.",
+                  "alert-danger")
             return redirect(url_for("forgot_password"))
 
     else:
@@ -417,7 +438,8 @@ def password_reset():
             return render_template(
                 "new_security/password_reset.html", user_encode=user_details["email_address"])
         else:
-            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+            flash(
+                "Invalid code: Password reset code does not exist or might have expired!", "error")
             return redirect(url_for("login"))
     else:
         return redirect(url_for("login"))
@@ -446,21 +468,27 @@ def register_user(params):
         errors = []
         user_details = {}
 
-        user_details['email_address'] = params.get('email_address', '').encode("utf-8").strip()
+        user_details['email_address'] = params.get(
+            'email_address', '').encode("utf-8").strip()
         if not (5 <= len(user_details['email_address']) <= 50):
-            errors.append('Email Address needs to be between 5 and 50 characters.')
+            errors.append(
+                'Email Address needs to be between 5 and 50 characters.')
         else:
-            email_exists = get_user_by_unique_column("email_address", user_details['email_address'])
+            email_exists = get_user_by_unique_column(
+                "email_address", user_details['email_address'])
             if email_exists:
                 errors.append('User already exists with that email')
 
-        user_details['full_name'] = params.get('full_name', '').encode("utf-8").strip()
+        user_details['full_name'] = params.get(
+            'full_name', '').encode("utf-8").strip()
         if not (5 <= len(user_details['full_name']) <= 50):
             errors.append('Full Name needs to be between 5 and 50 characters.')
 
-        user_details['organization'] = params.get('organization', '').encode("utf-8").strip()
+        user_details['organization'] = params.get(
+            'organization', '').encode("utf-8").strip()
         if user_details['organization'] and not (5 <= len(user_details['organization']) <= 50):
-            errors.append('Organization needs to be empty or between 5 and 50 characters.')
+            errors.append(
+                'Organization needs to be empty or between 5 and 50 characters.')
 
         password = str(params.get('password', ''))
         if not (6 <= len(password)):
@@ -493,7 +521,8 @@ def register():
         errors = register_user(params)
 
         if len(errors) == 0:
-            flash("Registration successful. You may login with your new account", "alert-info")
+            flash(
+                "Registration successful. You may login with your new account", "alert-info")
             return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)

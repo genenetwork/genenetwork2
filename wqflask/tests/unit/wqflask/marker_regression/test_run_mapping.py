@@ -187,7 +187,8 @@ class TestRunMapping(unittest.TestCase):
                     mock.call('Time/Date: 09/01/19 / 10:12:12\n'),
                     mock.call('Population: Human GP1_\n'), mock.call(
                         'Data Set: dataser_1\n'),
-                    mock.call('N Samples: 100\n'), mock.call('Transform - Quantile Normalized\n'),
+                    mock.call('N Samples: 100\n'), mock.call(
+                        'Transform - Quantile Normalized\n'),
                     mock.call('Gene Symbol: IGFI\n'), mock.call(
                         'Location: X1 @ 123313 Mb\n'),
                     mock.call('Cofactors (dataset - trait):\n'),

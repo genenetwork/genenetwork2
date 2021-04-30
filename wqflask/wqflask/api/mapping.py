@@ -37,20 +37,25 @@ def do_mapping_for_api(start_vars):
 
     mapping_params = initialize_parameters(start_vars, dataset, this_trait)
 
-    covariates = ""  # ZS: It seems to take an empty string as default. This should probably be changed.
+    # ZS: It seems to take an empty string as default. This should probably be changed.
+    covariates = ""
 
     if mapping_params['mapping_method'] == "gemma":
         header_row = ["name", "chr", "Mb", "lod_score", "p_value"]
-        if mapping_params['use_loco'] == "True":  # ZS: gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
-            result_markers = gemma_mapping.run_gemma(this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
+        # ZS: gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
+        if mapping_params['use_loco'] == "True":
+            result_markers = gemma_mapping.run_gemma(
+                this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
         else:
-            result_markers = gemma_mapping.run_gemma(this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
+            result_markers = gemma_mapping.run_gemma(
+                this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
     elif mapping_params['mapping_method'] == "rqtl":
         header_row = ["name", "chr", "cM", "lod_score"]
         if mapping_params['num_perm'] > 0:
             _sperm_output, _suggestive, _significant, result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'],
                                                                                         mapping_params['perm_check'], mapping_params['num_perm'],
-                                                                                        mapping_params['do_control'], mapping_params['control_marker'],
+                                                                                        mapping_params['do_control'], mapping_params[
+                                                                                            'control_marker'],
                                                                                         mapping_params['manhattan_plot'], mapping_params['pair_scan'])
         else:
             result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'],

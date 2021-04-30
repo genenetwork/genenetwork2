@@ -27,7 +27,8 @@ logger = utility.logger.getLogger(__name__)
 
 class SendToBNW:
     def __init__(self, start_vars):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                                     for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         trait_samples_list = []
@@ -39,7 +40,8 @@ class SendToBNW:
             trait1_samples = list(this_sample_data.keys())
             trait_samples_list.append(trait1_samples)
 
-        shared_samples = list(set(trait_samples_list[0]).intersection(*trait_samples_list))
+        shared_samples = list(
+            set(trait_samples_list[0]).intersection(*trait_samples_list))
 
         self.form_value = ""  # ZS: string that is passed to BNW through form
         values_list = []

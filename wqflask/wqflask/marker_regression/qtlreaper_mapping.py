@@ -26,7 +26,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         gen_pheno_txt_file(samples, vals, trait_filename)
 
         output_filename = (f"{this_dataset.group.name}_GWA_" +
-            ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            ''.join(random.choice(string.ascii_uppercase + string.digits)
+                    for _ in range(6))
             )
         bootstrap_filename = None
         permu_filename = None
@@ -34,19 +35,22 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         opt_list = []
         if boot_check and num_bootstrap > 0:
             bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_" + 
-                ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+                ''.join(random.choice(string.ascii_uppercase + string.digits)
+                        for _ in range(6))
                 )
 
             opt_list.append("-b")
             opt_list.append(f"--n_bootstrap {str(num_bootstrap)}")
-            opt_list.append(f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
+            opt_list.append(
+                f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
             permu_filename = ("{this_dataset.group.name}_PERM_" + 
             ''.join(random.choice(string.ascii_uppercase + 
                 string.digits) for _ in range(6))
             )
             opt_list.append("-n " + str(num_perm))
-            opt_list.append("--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
+            opt_list.append(
+                "--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")
         if control_marker != "" and do_control == "true":
             opt_list.append("-c " + control_marker)
         if manhattan_plot != True:
@@ -58,7 +62,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
                                                                               genofile_name,
                                                                               TEMPDIR,
                                                                               trait_filename,
-                                                                              " ".join(opt_list),
+                                                                              " ".join(
+                                                                                  opt_list),
                                                                               webqtlConfig.GENERATED_IMAGE_DIR,
                                                                             output_filename))
 
@@ -67,7 +72,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
     else:
         output_filename, permu_filename, bootstrap_filename = output_files
 
-    marker_obs, permu_vals, bootstrap_vals = parse_reaper_output(output_filename, permu_filename, bootstrap_filename)
+    marker_obs, permu_vals, bootstrap_vals = parse_reaper_output(
+        output_filename, permu_filename, bootstrap_filename)
 
     suggestive = 0
     significant = 0
@@ -193,7 +199,8 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
         suggestive = 0
         significant = 0
     else:
-        perm_output = genotype.permutation(strains=trimmed_samples, trait=trimmed_values, nperm=num_perm)
+        perm_output = genotype.permutation(
+            strains=trimmed_samples, trait=trimmed_values, nperm=num_perm)
         suggestive = perm_output[int(num_perm * 0.37 - 1)]
         significant = perm_output[int(num_perm * 0.95 - 1)]
         # highly_significant = perm_output[int(num_perm*0.99-1)] #ZS: Currently not used, but leaving it here just in case
@@ -257,7 +264,8 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
         json_data['markernames'].append(reaper_locus.name)
         # if self.additive:
         #    self.json_data['additive'].append(qtl.additive)
-        locus = {"name": reaper_locus.name, "chr": reaper_locus.chr, "cM": reaper_locus.cM, "Mb": reaper_locus.Mb}
+        locus = {"name": reaper_locus.name, "chr": reaper_locus.chr,
+            "cM": reaper_locus.cM, "Mb": reaper_locus.Mb}
         qtl = {"lrs_value": qtl.lrs, "chr": converted_chr, "Mb": reaper_locus.Mb,
                "cM": reaper_locus.cM, "name": reaper_locus.name, "additive": qtl.additive, "dominance": qtl.dominance}
         qtl_results.append(qtl)
@@ -270,5 +278,6 @@ def natural_sort(marker_list):
     Changed to return indices instead of values, though, since the same reordering needs to be applied to bootstrap results
     """
     convert = lambda text: int(text) if text.isdigit() else text.lower()
-    alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', str(marker_list[key]['chr']))]
+    alphanum_key = lambda key: [convert(c) for c in re.split(
+        '([0-9]+)', str(marker_list[key]['chr']))]
     return sorted(list(range(len(marker_list))), key=alphanum_key)

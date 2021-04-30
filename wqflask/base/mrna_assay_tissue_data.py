@@ -88,6 +88,7 @@ class MrnaAssayTissueData:
                 if result.Symbol.lower() not in symbol_values_dict:
                     symbol_values_dict[result.Symbol.lower()] = [result.value]
                 else:
-                    symbol_values_dict[result.Symbol.lower()].append(result.value)
+                    symbol_values_dict[result.Symbol.lower()].append(
+                        result.value)
 
         return symbol_values_dict

@@ -39,7 +39,8 @@ class TestHtmlGenWrapper(unittest.TestCase):
             cgi="/testing/",
             enctype='multipart/form-data',
             name="formName",
-            submit=HtmlGenWrapper.create_input_tag(type_='hidden', name='Default_Name')
+            submit=HtmlGenWrapper.create_input_tag(
+                type_='hidden', name='Default_Name')
         )
         test_image = HtmlGenWrapper.create_image_tag(
             src="test.png",

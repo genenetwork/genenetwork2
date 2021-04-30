@@ -20,7 +20,8 @@ class TestRqtlMapping(unittest.TestCase):
 	def test_get_trait_data(self, mock_logger, mock_db):
 		"""test for getting trait data_type return True"""
 		query_value = """SELECT value FROM TraitMetadata WHERE type='trait_data_type'"""
-		mock_db.db.execute.return_value.fetchone.return_value = ["""{"type":"trait_data_type","name":"T1","traid_id":"fer434f"}"""]
+		mock_db.db.execute.return_value.fetchone.return_value = [
+			"""{"type":"trait_data_type","name":"T1","traid_id":"fer434f"}"""]
 		results = get_trait_data_type("traid_id")
 		mock_db.db.execute.assert_called_with(query_value)
 		self.assertEqual(results, "fer434f")

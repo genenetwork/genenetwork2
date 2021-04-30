@@ -40,16 +40,23 @@ def get_export_metadata(trait_id, dataset_name):
     metadata = []
     if dataset.type == "Publish":
         metadata.append(["Phenotype ID: " + trait_id])
-        metadata.append(["Phenotype URL: " + "http://genenetwork.org/show_trait?trait_id=" + trait_id + "&dataset=" + dataset_name])
+        metadata.append(["Phenotype URL: " + "http://genenetwork.org/show_trait?trait_id=" + \
+                        trait_id + "&dataset=" + dataset_name])
         metadata.append(["Group: " + dataset.group.name])
-        metadata.append(["Phenotype: " + this_trait.description_display.replace(",", "\",\"")])
-        metadata.append(["Authors: " + (this_trait.authors if this_trait.authors else "N/A")])
-        metadata.append(["Title: " + (this_trait.title if this_trait.title else "N/A")])
-        metadata.append(["Journal: " + (this_trait.journal if this_trait.journal else "N/A")])
-        metadata.append(["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset.name])
+        metadata.append(
+            ["Phenotype: " + this_trait.description_display.replace(",", "\",\"")])
+        metadata.append(
+            ["Authors: " + (this_trait.authors if this_trait.authors else "N/A")])
+        metadata.append(
+            ["Title: " + (this_trait.title if this_trait.title else "N/A")])
+        metadata.append(
+            ["Journal: " + (this_trait.journal if this_trait.journal else "N/A")])
+        metadata.append(
+            ["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset.name])
     else:
         metadata.append(["Record ID: " + trait_id])
-        metadata.append(["Trait URL: " + "http://genenetwork.org/show_trait?trait_id=" + trait_id + "&dataset=" + dataset_name])
+        metadata.append(["Trait URL: " + "http://genenetwork.org/show_trait?trait_id=" + \
+                        trait_id + "&dataset=" + dataset_name])
         if this_trait.symbol:
             metadata.append(["Symbol: " + this_trait.symbol])
         metadata.append(["Dataset: " + dataset.name])

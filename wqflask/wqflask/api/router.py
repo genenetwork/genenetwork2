@@ -35,7 +35,8 @@ def hello_world():
 
 @app.route("/api/v_{}/species".format(version))
 def get_species_list():
-    results = g.db.execute("SELECT SpeciesId, Name, FullName, TaxonomyId FROM Species;")
+    results = g.db.execute(
+        "SELECT SpeciesId, Name, FullName, TaxonomyId FROM Species;")
     the_species = results.fetchall()
     species_list = []
     for species in the_species:
@@ -313,7 +314,8 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
 @app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
 @app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
 def fetch_traits(dataset_name, file_format="json"):
-    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(
+        dataset_name, request.args)
     if ("ids_only" in request.args) and (len(trait_ids) > 0):
         if file_format == "json":
             filename = dataset_name + "_trait_ids.json"
@@ -361,7 +363,8 @@ def fetch_traits(dataset_name, file_format="json"):
                                 ProbeSet.Id
                         """
 
-                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb", "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
+                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb",
+                    "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
             elif data_type == "Geno":
                 query = """
                             SELECT
@@ -378,7 +381,8 @@ def fetch_traits(dataset_name, file_format="json"):
                                 Geno.Id
                         """
 
-                field_list = ["Id", "Name", "Marker_Name", "Chr", "Mb", "Sequence", "Source"]
+                field_list = ["Id", "Name", "Marker_Name",
+                    "Chr", "Mb", "Sequence", "Source"]
             else:
                 query = """
                             SELECT
@@ -394,7 +398,8 @@ def fetch_traits(dataset_name, file_format="json"):
                                 PublishXRef.Id
                         """
 
-                field_list = ["Id", "PhenotypeId", "PublicationId", "Locus", "LRS", "Additive", "Sequence"]
+                field_list = ["Id", "PhenotypeId", "PublicationId",
+                    "Locus", "LRS", "Additive", "Sequence"]
 
             if 'limit_to' in request.args:
                 limit_number = request.args['limit_to']
@@ -442,7 +447,8 @@ def fetch_traits(dataset_name, file_format="json"):
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
 def all_sample_data(dataset_name, file_format="csv"):
-    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(
+        dataset_name, request.args)
 
     if len(trait_ids) > 0:
         sample_list = get_samplelist(dataset_name)
@@ -676,7 +682,8 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
 
         return flask.jsonify(trait_dict)
     else:
-        if "Publish" in dataset_name:  # ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
+        # ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
+        if "Publish" in dataset_name:
             dataset_name = dataset_name.replace("Publish", "")
         
         group_id = get_group_id(dataset_name)
@@ -711,7 +718,8 @@ def get_corr_results():
     results = correlation.do_correlation(request.args)
 
     if len(results) > 0:
-        return flask.jsonify(results)  # ZS: I think flask.jsonify expects a dict/list instead of JSON
+        # ZS: I think flask.jsonify expects a dict/list instead of JSON
+        return flask.jsonify(results)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
@@ -768,7 +776,8 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                         output_lines.append(line.split())
                         i += 1
 
-            csv_writer = csv.writer(si, delimiter="\t", escapechar="\\", quoting = csv.QUOTE_NONE)
+            csv_writer = csv.writer(
+                si, delimiter="\t", escapechar="\\", quoting = csv.QUOTE_NONE)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     elif file_format == "rqtl2":
@@ -779,18 +788,23 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
             filename = group_name
 
         if os.path.isfile("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name)):
-            yaml_file = json.load(open("{0}/{1}.json".format(flat_files("genotype/rqtl2"), group_name)))
+            yaml_file = json.load(
+                open("{0}/{1}.json".format(flat_files("genotype/rqtl2"), group_name)))
             yaml_file["geno"] = filename + "_geno.csv"
             yaml_file["gmap"] = filename + "_gmap.csv"
             yaml_file["pheno"] = filename + "_pheno.csv"
             config_file = [filename + ".json", json.dumps(yaml_file)]
             #config_file = [filename + ".yaml", open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))]
-            geno_file = [filename + "_geno.csv", open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
-            gmap_file = [filename + "_gmap.csv", open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
+            geno_file = [filename + "_geno.csv",
+                open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
+            gmap_file = [filename + "_gmap.csv",
+                open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
             if dataset_name:
-                phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
+                phenotypes = requests.get(
+                    "http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
             else:
-                phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
+                phenotypes = requests.get(
+                    "http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
 
             with ZipFile(memory_file, 'w', compression=ZIP_DEFLATED) as zf:
                 zf.writestr(config_file[0], config_file[1])
@@ -813,7 +827,8 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                 for line in genofile:
                     if limit_num and i >= limit_num:
                         break
-                    output_lines.append([line.strip() for line in line.split(",")])
+                    output_lines.append([line.strip()
+                                        for line in line.split(",")])
                     i += 1
 
             csv_writer = csv.writer(si, delimiter=",")
@@ -898,7 +913,8 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         results = g.db.execute(query).fetchall()
 
         trait_ids = [result[0] for result in results]
-        trait_names = [str(result[2]) + "_" + str(result[1]) for result in results]
+        trait_names = [str(result[2]) + "_" + str(result[1])
+                           for result in results]
 
         return trait_ids, trait_names, data_type, dataset_id
 

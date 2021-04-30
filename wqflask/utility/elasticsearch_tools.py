@@ -49,7 +49,8 @@ from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
 
 
 def test_elasticsearch_connection():
-    es = Elasticsearch(['http://' + ELASTICSEARCH_HOST + ":" + str(ELASTICSEARCH_PORT) + '/'], verify_certs=True)
+    es = Elasticsearch(['http://' + ELASTICSEARCH_HOST + \
+                       ":" + str(ELASTICSEARCH_PORT) + '/'], verify_certs=True)
     if not es.ping():
         logger.warning("Elasticsearch is DOWN")
 
@@ -88,7 +89,8 @@ def setup_users_index(es_connection):
                     "type": "keyword"}}}
 
         es_connection.indices.create(index='users', ignore=400)
-        es_connection.indices.put_mapping(body=index_settings, index="users", doc_type="local")
+        es_connection.indices.put_mapping(
+            body=index_settings, index="users", doc_type="local")
 
 
 def get_user_by_unique_column(es, column_name, column_value, index="users", doc_type="local"):

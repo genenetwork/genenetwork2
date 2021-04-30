@@ -38,13 +38,15 @@ class genotype:
 
     def read_rdata_output(self, qtl_results):
         # ZS: This is necessary because R/qtl requires centimorgan marker positions, which it normally gets from the .geno file, but that doesn't exist for HET3-ITP (which only has RData), so it needs to read in the marker cM positions from the results
-        self.chromosomes = []  # ZS: Overwriting since the .geno file's contents are just placeholders
+        # ZS: Overwriting since the .geno file's contents are just placeholders
+        self.chromosomes = []
 
         this_chr = ""  # ZS: This is so it can track when the chromosome changes as it iterates through markers
         chr_ob = None
         for marker in qtl_results:
             locus = Locus(self)
-            if (str(marker['chr']) != this_chr) and this_chr != "X":  # ZS: This is really awkward but works as a temporary fix
+            # ZS: This is really awkward but works as a temporary fix
+            if (str(marker['chr']) != this_chr) and this_chr != "X":
                 if this_chr != "":
                     self.chromosomes.append(chr_ob)
                 this_chr = str(marker['chr'])
@@ -156,9 +158,11 @@ class Locus:
             try:
                 self.cM = float(marker_row[geno_ob.cm_column])
             except:
-                self.cM = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else 0
+                self.cM = float(
+                    marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else 0
             try:
-                self.Mb = float(marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else None
+                self.Mb = float(
+                    marker_row[geno_ob.mb_column]) if geno_ob.mb_exists else None
             except:
                 self.Mb = self.cM
 

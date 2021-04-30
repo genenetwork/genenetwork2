@@ -32,7 +32,8 @@ logger = utility.logger.getLogger(__name__)
 
 class SendToWebGestalt:
     def __init__(self, start_vars):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                                     for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.chip_name = test_chip(self.trait_list)

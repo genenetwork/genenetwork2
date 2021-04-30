@@ -47,7 +47,8 @@ def search_for_user():
     params = request.form
     user_list = []
     user_list += get_users_like_unique_column("full_name", params['user_name'])
-    user_list += get_users_like_unique_column("email_address", params['user_email'])
+    user_list += get_users_like_unique_column(
+        "email_address", params['user_email'])
 
     return json.dumps(user_list)
 
@@ -61,7 +62,8 @@ def search_for_groups():
 
     user_list = []
     user_list += get_users_like_unique_column("full_name", params['user_name'])
-    user_list += get_users_like_unique_column("email_address", params['user_email'])
+    user_list += get_users_like_unique_column(
+        "email_address", params['user_email'])
     for user in user_list:
         group_list += get_groups_like_unique_column("admins", user['user_id'])
         group_list += get_groups_like_unique_column("members", user['user_id'])
@@ -124,7 +126,8 @@ def add_group_to_resource():
                 'admin': request.form['admin_privilege']
             }
             add_access_mask(resource_id, group_id, access_mask)
-            flash("Privileges have been added for group {}.".format(group_name), "alert-info")
+            flash("Privileges have been added for group {}.".format(
+                group_name), "alert-info")
             return redirect(url_for("manage_resource", resource_id=resource_id))
         else:
             return render_template("admin/search_for_groups.html", resource_id=resource_id)

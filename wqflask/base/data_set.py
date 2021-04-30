@@ -168,7 +168,8 @@ class DatasetType:
         results = g.db.execute(sql_query_mapping[t] % group_name).fetchone()
         if results:
             self.datasets[name] = dataset_name_mapping[t]
-            self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
+            self.redis_instance.set(
+                "dataset_structure", json.dumps(self.datasets))
             return True
         return None
 
@@ -239,7 +240,8 @@ class Markers:
             for line in bimbam_fh:
                 marker = {}
                 marker['name'] = line.split(delimiter)[0].rstrip()
-                marker['Mb'] = float(line.split(delimiter)[1].rstrip()) / 1000000
+                marker['Mb'] = float(line.split(delimiter)[
+                                     1].rstrip()) / 1000000
                 marker['chr'] = line.split(delimiter)[2].rstrip()
                 markers.append(marker)
 

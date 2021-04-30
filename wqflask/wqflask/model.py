@@ -17,7 +17,8 @@ from wqflask.database import Base, init_db
 
 class User(Base):
     __tablename__ = "user"
-    id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True,
+                default=lambda: str(uuid.uuid4()))
     email_address = Column(Unicode(50), unique=True, nullable=False)
 
     # Todo: Turn on strict mode for Mysql
@@ -28,11 +29,13 @@ class User(Base):
 
     active = Column(Boolean(), nullable=False, default=True)
 
-    registration_info = Column(Text)   # json detailing when they were registered, etc.
+    # json detailing when they were registered, etc.
+    registration_info = Column(Text)
 
     confirmed = Column(Text)  # json detailing when they confirmed, etc.
 
-    superuser = Column(Text)  # json detailing when they became a superuser, otherwise empty
+    # json detailing when they became a superuser, otherwise empty
+    superuser = Column(Text)
                              # if not superuser
 
     logins = relationship("Login",
@@ -66,7 +69,8 @@ class User(Base):
 
     def get_collection_by_name(self, collection_name):
         try:
-            collect = self.user_collections.filter_by(name=collection_name).first()
+            collect = self.user_collections.filter_by(
+                name=collection_name).first()
         except sqlalchemy.orm.exc.NoResultFound:
             collect = None
         return collect
@@ -118,12 +122,15 @@ class User(Base):
 
 class Login(Base):
     __tablename__ = "login"
-    id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True,
+                default=lambda: str(uuid.uuid4()))
     user = Column(Unicode(36), ForeignKey('user.id'))
     timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
     ip_address = Column(Unicode(39))
-    successful = Column(Boolean(), nullable=False)  # False if wrong password was entered
-    session_id = Column(Text)  # Set only if successfully logged in, otherwise should be blank
+    # False if wrong password was entered
+    successful = Column(Boolean(), nullable=False)
+    # Set only if successfully logged in, otherwise should be blank
+    session_id = Column(Text)
 
     # Set to user who assumes identity if this was a login for debugging purposes by a superuser
     assumed_by = Column(Unicode(36), ForeignKey('user.id'))
@@ -137,13 +144,16 @@ class Login(Base):
 
 class UserCollection(Base):
     __tablename__ = "user_collection"
-    id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Unicode(36), primary_key=True,
+                default=lambda: str(uuid.uuid4()))
     user = Column(Unicode(36), ForeignKey('user.id'))
 
     # I'd prefer this to not have a length, but for the index below it needs one
     name = Column(Unicode(50))
-    created_timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
-    changed_timestamp = Column(DateTime(), default=lambda: datetime.datetime.utcnow())
+    created_timestamp = Column(
+        DateTime(), default=lambda: datetime.datetime.utcnow())
+    changed_timestamp = Column(
+        DateTime(), default=lambda: datetime.datetime.utcnow())
     members = Column(Text)  # We're going to store them as a json list
 
     # This index ensures a user doesn't have more than one collection with the same name
