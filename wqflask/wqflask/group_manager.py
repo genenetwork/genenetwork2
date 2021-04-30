@@ -1,4 +1,5 @@
-import random, string
+import random
+import string
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash)

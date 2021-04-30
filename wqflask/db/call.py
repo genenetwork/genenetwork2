@@ -4,7 +4,9 @@ from flask import g
 
 import string
 try:  # Python2 support
-    import urllib.request, urllib.error, urllib.parse
+    import urllib.request
+    import urllib.error
+    import urllib.parse
 except:
     import urllib2
 import json
