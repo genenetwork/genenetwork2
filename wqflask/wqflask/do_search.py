@@ -111,8 +111,8 @@ class MrnaAssaySearch(DoSearch):
         else:
             match_clause = ""
 
-        where_clause = (match_clause +
-            """ProbeSet.Id = ProbeSetXRef.ProbeSetId
+        where_clause = (match_clause
+            + """ProbeSet.Id = ProbeSetXRef.ProbeSetId
                and ProbeSetXRef.ProbeSetFreezeId = %s
                         """ % (escape(str(self.dataset.id))))
 
@@ -134,8 +134,8 @@ class MrnaAssaySearch(DoSearch):
         else:
             match_clause = ""
 
-        where_clause = (match_clause +
-            """ProbeSet.Id = ProbeSetXRef.ProbeSetId
+        where_clause = (match_clause
+            + """ProbeSet.Id = ProbeSetXRef.ProbeSetId
                and ProbeSetXRef.ProbeSetFreezeId = %s
                         """ % (escape(str(self.dataset.id))))
 
@@ -348,8 +348,8 @@ class GenotypeSearch(DoSearch):
         from_clause = self.normalize_spaces(from_clause)
 
         if self.search_term[0] == "*":
-            query = (self.base_query +
-                    """WHERE Geno.Id = GenoXRef.GenoId
+            query = (self.base_query
+                    + """WHERE Geno.Id = GenoXRef.GenoId
                         and GenoXRef.GenoFreezeId = GenoFreeze.Id
                         and GenoFreeze.Id = %s""" % (escape(str(self.dataset.id))))
         else:

@@ -179,11 +179,11 @@ def build_datasets(species, group, type_name):
     elif type_name == "Genotypes":
         results = g.db.execute(
             ("SELECT InfoFiles.GN_AccesionId " +
-             "FROM InfoFiles, GenoFreeze, InbredSet " +
-             "WHERE InbredSet.Name = '{}' AND " +
-             "GenoFreeze.InbredSetId = InbredSet.Id AND " +
-             "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
-             "ORDER BY GenoFreeze.CreateTime DESC").format(group)).fetchone()
+             "FROM InfoFiles, GenoFreeze, InbredSet "
+             + "WHERE InbredSet.Name = '{}' AND "
+             + "GenoFreeze.InbredSetId = InbredSet.Id AND "
+             + "InfoFiles.InfoPageName = GenoFreeze.ShortName "
+             + "ORDER BY GenoFreeze.CreateTime DESC").format(group)).fetchone()
 
         dataset_id = "None"
         if bool(results):

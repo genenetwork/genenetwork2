@@ -88,8 +88,8 @@ class TestDataSetTypes(unittest.TestCase):
                  '"B139_K_1206_R": "ProbeSet", '
                  '"Test": "ProbeSet"}'))
             db_mock.db.execute.assert_called_once_with(
-                ("SELECT ProbeSetFreeze.Id FROM ProbeSetFreeze " +
-                 "WHERE ProbeSetFreeze.Name = \"Test\" ")
+                ("SELECT ProbeSetFreeze.Id FROM ProbeSetFreeze "
+                 + "WHERE ProbeSetFreeze.Name = \"Test\" ")
             )
 
     @mock.patch('base.data_set.g')
@@ -145,9 +145,9 @@ class TestDataSetTypes(unittest.TestCase):
                  '"Test": "Publish"}'))
 
             db_mock.db.execute.assert_called_with(
-                ("SELECT PublishFreeze.Name " +
-                 "FROM PublishFreeze, InbredSet " +
-                 "WHERE InbredSet.Name = 'Test' AND "
+                ("SELECT PublishFreeze.Name "
+                 + "FROM PublishFreeze, InbredSet "
+                 + "WHERE InbredSet.Name = 'Test' AND "
                  "PublishFreeze.InbredSetId = InbredSet.Id")
             )
 

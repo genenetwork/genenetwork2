@@ -452,8 +452,8 @@ class ShowTrait:
 
             for sample in list(self.this_trait.data.keys()):
                 if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
-                    if ((self.this_trait.data[sample].name2 in primary_sample_names) and
-                            (self.this_trait.data[sample].name not in primary_sample_names)):
+                    if ((self.this_trait.data[sample].name2 in primary_sample_names)
+                            and (self.this_trait.data[sample].name not in primary_sample_names)):
                         primary_sample_names.append(
                             self.this_trait.data[sample].name)
                         primary_sample_names.remove(

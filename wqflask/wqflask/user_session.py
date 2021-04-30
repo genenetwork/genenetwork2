@@ -184,8 +184,8 @@ class UserSession:
         # ZS: Get user's collections if they exist
         collections = get_user_collections(self.user_id)
         collections = [item for item in collections if item['name'] != "Your Default Collection"] + \
-            [item for item in collections if item['name'] ==
-                "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
+            [item for item in collections if item['name']
+                == "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
         return collections
 
     @property
