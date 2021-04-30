@@ -19,24 +19,24 @@ logger = utility.logger.getLogger(__name__)
 
 
 def get_trait_data_type(trait_db_string):
-    logger.info("get_trait_data_type");
+    logger.info("get_trait_data_type")
     the_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
-    logger.info("the_query done");
+    logger.info("the_query done")
     results_json = g.db.execute(the_query).fetchone()
-    logger.info("the_query executed");
+    logger.info("the_query executed")
     results_ob = json.loads(results_json[0])
-    logger.info("json results loaded");
+    logger.info("json results loaded")
     if trait_db_string in results_ob:
-        logger.info("found");
+        logger.info("found")
         return results_ob[trait_db_string]
     else:
-        logger.info("not found");
+        logger.info("not found")
         return "numeric"
 
 
 # Run qtl mapping using R/qtl
 def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
-    logger.info("Start run_rqtl_geno");
+    logger.info("Start run_rqtl_geno")
     # Get pointers to some common R functions
     r_library = ro.r["library"]                 # Map the library function
     r_c = ro.r["c"]                       # Map the c function
@@ -46,7 +46,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
 
     print((r_library("qtl")))                         # Load R/qtl
 
-    logger.info("QTL library loaded");
+    logger.info("QTL library loaded")
 
     # Get pointers to some R/qtl functions
     scanone = ro.r["scanone"]               # Map the scanone function
@@ -75,29 +75,29 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         genofilelocation = locate(dataset.group.genofile, "genotype")
     else:
         genofilelocation = locate(dataset.group.name + ".geno", "genotype")
-    logger.info("Going to create a cross from geno");
+    logger.info("Going to create a cross from geno")
     # TODO: Add the SEX if that is available
     cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)
-    logger.info("before calc_genoprob");
+    logger.info("before calc_genoprob")
     if manhattan_plot:
         cross_object = calc_genoprob(cross_object)
     else:
         cross_object = calc_genoprob(cross_object, step=5, stepwidth="max")
-    logger.info("after calc_genoprob");
+    logger.info("after calc_genoprob")
     pheno_string = sanitize_rqtl_phenotype(vals)
-    logger.info("phenostring done");
+    logger.info("phenostring done")
     names_string = sanitize_rqtl_names(samples)
-    logger.info("sanitized pheno and names");
+    logger.info("sanitized pheno and names")
     # Add the phenotype
     cross_object = add_phenotype(cross_object, pheno_string, "the_pheno")
     # Add the phenotype
     cross_object = add_names(cross_object, names_string, "the_names")
-    logger.info("Added pheno and names");
+    logger.info("Added pheno and names")
     # Create the additive covariate markers
     marker_covars = create_marker_covariates(control_marker, cross_object)
-    logger.info("Marker covars done");
+    logger.info("Marker covars done")
     if cofactors != "":
-        logger.info("Cofactors: " + cofactors);
+        logger.info("Cofactors: " + cofactors)
         # Create the covariates from selected traits
         cross_object, trait_covars = add_cofactors(
             cross_object, dataset, cofactors, samples)
@@ -108,10 +108,12 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     # DEBUG to save the session object to file
     if pair_scan:
         if do_control == "true":
-            logger.info("Using covariate"); result_data_frame = scantwo(
+            logger.info("Using covariate")
+            result_data_frame = scantwo(
                 cross_object, pheno="the_pheno", addcovar=covars, model=model, method=method, n_cluster = 16)
         else:
-            logger.info("No covariates"); result_data_frame = scantwo(
+            logger.info("No covariates")
+            result_data_frame = scantwo(
                 cross_object, pheno="the_pheno", model=model, method=method, n_cluster=16)
 
         pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
@@ -122,11 +124,13 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         return process_pair_scan_results(result_data_frame)
     else:
         if do_control == "true" or cofactors != "":
-            logger.info("Using covariate"); result_data_frame = scanone(
+            logger.info("Using covariate")
+            result_data_frame = scanone(
                 cross_object, pheno="the_pheno", addcovar=covars, model=model, method=method)
             ro.r('save.image(file = "/home/zas1024/gn2-zach/itp_cofactor_test.RData")')
         else:
-            logger.info("No covariates"); result_data_frame = scanone(
+            logger.info("No covariates")
+            result_data_frame = scanone(
                 cross_object, pheno="the_pheno", model=model, method=method)
 
         # Do permutation (if requested by user)
@@ -275,18 +279,18 @@ def add_phenotype(cross, pheno_as_string, col_name):
 
 def add_categorical_covar(cross, covar_as_string, i):
     ro.globalenv["the_cross"] = cross
-    logger.info("cross set"); 
+    logger.info("cross set")
     ro.r('covar <- as.factor(' + covar_as_string + ')')
-    logger.info("covar set"); 
+    logger.info("covar set")
     ro.r('newcovar <- model.matrix(~covar-1)')
-    logger.info("model.matrix finished");
+    logger.info("model.matrix finished")
     ro.r('cat("new covar columns", ncol(newcovar), "\n")')
     nCol = ro.r('ncol(newcovar)')
-    logger.info("ncol covar done: " + str(nCol[0]));
+    logger.info("ncol covar done: " + str(nCol[0]))
     ro.r('pheno <- data.frame(pull.pheno(the_cross))')
-    logger.info("pheno pulled from cross");
+    logger.info("pheno pulled from cross")
     nCol = int(nCol[0])
-    logger.info("nCol python int:" + str(nCol));
+    logger.info("nCol python int:" + str(nCol))
     col_names = []
     # logger.info("loop")
     for x in range(1, (nCol + 1)):
@@ -298,7 +302,7 @@ def add_categorical_covar(cross, covar_as_string, i):
       col_names.append(col_name)
       #logger.info("loop" + str(x) + "done"); 
 
-    logger.info("returning from add_categorical_covar");
+    logger.info("returning from add_categorical_covar")
     return ro.r["the_cross"], col_names
 
 
@@ -323,7 +327,7 @@ def add_cofactors(cross, this_dataset, covariates, samples):
     covariate_list = covariates.split(",")
     covar_name_string = "c("
     for i, covariate in enumerate(covariate_list):
-        logger.info("Covariate: " + covariate);
+        logger.info("Covariate: " + covariate)
         this_covar_data = []
         covar_as_string = "c("
         trait_name = covariate.split(":")[0]
@@ -352,12 +356,12 @@ def add_cofactors(cross, this_dataset, covariates, samples):
         covar_as_string += ")"
 
         datatype = get_trait_data_type(covariate)
-        logger.info("Covariate: " + covariate + " is of type: " + datatype);
+        logger.info("Covariate: " + covariate + " is of type: " + datatype)
         if(datatype == "categorical"):  # Cat variable
-            logger.info("call of add_categorical_covar");
+            logger.info("call of add_categorical_covar")
             cross, col_names = add_categorical_covar(
                 cross, covar_as_string, i)  # Expand and add it to the cross
-            logger.info("add_categorical_covar returned");
+            logger.info("add_categorical_covar returned")
             # Go through the additional covar names
             for z, col_name in enumerate(col_names):
                 if i < (len(covariate_list) - 1):

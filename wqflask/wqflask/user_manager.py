@@ -765,10 +765,10 @@ class LoginUser:
             user = None
             valid = None
             if user_details:
-                user = model.User();
+                user = model.User()
                 for key in user_details:
                     user.__dict__[key] = user_details[key]
-                valid = False;
+                valid = False
 
                 submitted_password = params['password']
                 pwfields = Struct(json.loads(user.password))

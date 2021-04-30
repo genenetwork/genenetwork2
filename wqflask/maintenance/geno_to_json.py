@@ -26,7 +26,8 @@ from pprint import pformat as pf
 #from utility.tools import flat_files
 
 
-class EmptyConfigurations(Exception): pass
+class EmptyConfigurations(Exception):
+    pass
 
         
 class Marker:

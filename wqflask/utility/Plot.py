@@ -319,7 +319,7 @@ def colorSpectrum(n=100):
                 ImageColor.getrgb("rgb(0%,100%,0%)"),
                 ImageColor.getrgb("rgb(0%,0%,100%)")]
     N = n * multiple
-    out = [None] * N;
+    out = [None] * N
     for i in range(N):
         x = float(i) / N
         out[i] = ImageColor.getrgb("rgb({}%,{}%,{}%".format(

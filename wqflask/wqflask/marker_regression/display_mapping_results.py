@@ -1343,13 +1343,13 @@ class DisplayMappingResults:
                     (float(txEnd) - startMb)  # at least one pixel
 
                 if (geneEndPix < xLeftOffset):
-                    return;  # this gene is not on the screen
+                    return  # this gene is not on the screen
                 elif (geneEndPix > xLeftOffset + plotWidth):
-                    geneEndPix = xLeftOffset + plotWidth;  # clip the last in-range gene
+                    geneEndPix = xLeftOffset + plotWidth  # clip the last in-range gene
                 if (geneStartPix > xLeftOffset + plotWidth):
-                    return;  # we are outside the valid on-screen range, so stop drawing genes
+                    return  # we are outside the valid on-screen range, so stop drawing genes
                 elif (geneStartPix < xLeftOffset):
-                    geneStartPix = xLeftOffset;  # clip the first in-range gene
+                    geneStartPix = xLeftOffset  # clip the first in-range gene
 
                 # color the gene based on SNP density
                 # found earlier, needs to be recomputed as snps are added
@@ -1397,13 +1397,13 @@ class DisplayMappingResults:
                     (float(txEnd) - startMb)  # at least one pixel
 
                 if (geneEndPix < xLeftOffset):
-                    return;  # this gene is not on the screen
+                    return  # this gene is not on the screen
                 elif (geneEndPix > xLeftOffset + plotWidth):
-                    geneEndPix = xLeftOffset + plotWidth;  # clip the last in-range gene
+                    geneEndPix = xLeftOffset + plotWidth  # clip the last in-range gene
                 if (geneStartPix > xLeftOffset + plotWidth):
-                    return;  # we are outside the valid on-screen range, so stop drawing genes
+                    return  # we are outside the valid on-screen range, so stop drawing genes
                 elif (geneStartPix < xLeftOffset):
-                    geneStartPix = xLeftOffset;  # clip the first in-range gene
+                    geneStartPix = xLeftOffset  # clip the first in-range gene
 
                 outlineColor = DARKBLUE
                 fillColor = DARKBLUE
@@ -1603,9 +1603,9 @@ class DisplayMappingResults:
 
                     drawit = 1
                     if (geneStartPix < xLeftOffset):
-                        drawit = 0;
+                        drawit = 0
                     if (geneStartPix > xLeftOffset + plotWidth):
-                        drawit = 0;
+                        drawit = 0
 
                     if drawit == 1:
                         if _chr[i].name != " - ":
@@ -1755,7 +1755,7 @@ class DisplayMappingResults:
                                         geneYLocation + 17 + 2*maxind*self.EACH_GENE_HEIGHT*zoom),
                                     fill=BLACK, angle=-90)
 
-                            oldgeneEndPix = geneEndPix;
+                            oldgeneEndPix = geneEndPix
                             oldgeno = _chr[j].genotype
                             firstGene = 0
                         else:
@@ -3208,5 +3208,6 @@ class DisplayMappingResults:
                 if lCorr:
                     lCorr = lCorr[0]
                     break
-        except: raise  # lCorr = None
+        except:
+            raise  # lCorr = None
         return lCorr
