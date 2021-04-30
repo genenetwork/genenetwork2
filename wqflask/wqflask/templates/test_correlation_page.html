@@ -59,10 +59,11 @@
                 <th>index</th>
                 <th>trait_name</th>
                 <th>Sample r</th>
-                <th>Sample p(r)</th>
+                <th>Sample r(p)</th>
                 <th>N</th>
-                <th>Tissue rho</th>
-                <th>Lit rho</th>
+                <th>Tissue r</th>
+                <th>Tissue r(p)</th>
+                <th>Lit r</th>
             </tr>
         </thead>
 	</table>
@@ -116,7 +117,8 @@ console.log(correlationResults)
             { "data": "corr_coeffient","defaultContent": "--"},
             { "data": "p_value","defaultContent":"--"},
             { "data": "num_overlap","defaultContent":"--"},
-            {"data":"tissue_corr","defaultContent":"--","title":"Tissue rho"},
+            {"data":"tissue_corr","defaultContent":"--","title":"Tissue r"},
+            {"data":"tissue_p_val","defaultContent":"--","title":"Tissue r(p)"},
             {"data":"lit_corr","defaultContent":"--","title":"Lit rho"}
         ],
         "columnDefs": [ 
