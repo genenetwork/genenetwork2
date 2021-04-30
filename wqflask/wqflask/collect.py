@@ -239,4 +239,3 @@ def change_collection_name():
     g.user_session.change_collection_name(collection_id, new_name)
 
     return new_name
-

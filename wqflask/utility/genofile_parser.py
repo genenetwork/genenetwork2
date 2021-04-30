@@ -98,4 +98,3 @@ class ConvertGenoFile:
           print("WARNING:", genotype.upper())
           this_marker.genotypes.append("NA")
       self.markers.append(this_marker.__dict__)
-

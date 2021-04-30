@@ -29,7 +29,7 @@ from pprint import pformat as pf
 class EmptyConfigurations(Exception):
     pass
 
-        
+
 class Marker:
     def __init__(self):
         self.name = None
@@ -42,20 +42,20 @@ class Marker:
 class ConvertGenoFile:
 
     def __init__(self, input_file, output_file):
-        
+
         self.input_file = input_file
         self.output_file = output_file
-        
+
         self.mb_exists = False
         self.cm_exists = False
         self.markers = []
-        
+
         self.latest_row_pos = None
         self.latest_col_pos = None
-        
+
         self.latest_row_value = None
         self.latest_col_value = None
-        
+
     def convert(self):
 
         self.haplotype_notation = {
@@ -64,16 +64,16 @@ class ConvertGenoFile:
             '@het': "0.5",
             '@unk': "NA"
             }
-        
+
         self.configurations = {}
         #self.skipped_cols = 3
-        
+
         # if self.input_file.endswith(".geno.gz"):
         #    print("self.input_file: ", self.input_file)
         #    self.input_fh = gzip.open(self.input_file)
         # else:
         self.input_fh = open(self.input_file)
-        
+
         with open(self.output_file, "w") as self.output_fh:
             # if self.file_type == "geno":
             self.process_csv()
@@ -105,22 +105,22 @@ class ConvertGenoFile:
                         self.configurations[genotype.upper()])
                 else:
                     this_marker.genotypes.append("NA")
-                
-            #print("this_marker is:", pf(this_marker.__dict__))   
+
+            #print("this_marker is:", pf(this_marker.__dict__))
             # if this_marker.chr == "14":
             self.markers.append(this_marker.__dict__)
 
         with open(self.output_file, 'w') as fh:
             json.dump(self.markers, fh, indent="   ", sort_keys=True)
-                
+
                 # print('configurations:', str(configurations))
                 #self.latest_col_pos = item_count + self.skipped_cols
                 #self.latest_col_value = item
-                
+
                 # if item_count != 0:
                 #    self.output_fh.write(" ")
                 # self.output_fh.write(self.configurations[item.upper()])
-                    
+
             # self.output_fh.write("\n")
 
     def process_rows(self):
@@ -176,12 +176,12 @@ class ConvertGenoFile:
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
-            
+
     # def process_snps_file(cls, snps_file, new_directory):
     #    output_file = os.path.join(new_directory, "mouse_families.json")
     #    print("%s -> %s" % (snps_file, output_file))
     #    convertob = ConvertGenoFile(input_file, output_file)
-        
+
 
 if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
@@ -192,5 +192,5 @@ if __name__ == "__main__":
     # convertob.convert()
     ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
     # ConvertGenoFiles(Geno_Directory)
-    
+
     #process_csv(Input_File, Output_File)

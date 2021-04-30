@@ -680,4 +680,3 @@ def get_header_fields(data_type, corr_method):
                                 'Sample p(r)']
 
     return header_fields
-

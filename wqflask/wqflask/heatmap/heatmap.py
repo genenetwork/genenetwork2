@@ -125,7 +125,7 @@ class Heatmap:
                                                                                                                     webqtlConfig.GENERATED_IMAGE_DIR,
                                                                                                                     output_filename)
 
-            os.system(reaper_command)                                                                                                        
+            os.system(reaper_command)
 
             reaper_results = parse_reaper_output(output_filename)
 

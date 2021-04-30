@@ -140,5 +140,3 @@ def initialize_parameters(start_vars, dataset, this_trait):
             mapping_params['perm_check'] = False
 
     return mapping_params
-
-

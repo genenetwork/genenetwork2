@@ -20,7 +20,7 @@ class Docs:
             self.title = self.entry.capitalize()
             self.content = ""
         else:
-            
+
             self.title = result[0]
             self.content = result[1].decode("utf-8")
 

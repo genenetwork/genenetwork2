@@ -52,7 +52,7 @@ def read_dryad_file(filename):
     #                this_row.append(line.split(" ")[i+2])
     #        print("row: " + str(i))
     #        geno_rows.append(this_row)
-    #            
+    #
     # return geno_rows
 
 

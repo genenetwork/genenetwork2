@@ -33,5 +33,3 @@ class Struct:
     def __repr__(self):
         return '{%s}' % str(', '.join('%s : %s' % (k, repr(v)) for
             (k, v) in list(self.__dict__.items())))
-
-

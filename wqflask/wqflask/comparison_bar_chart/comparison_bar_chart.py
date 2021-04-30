@@ -45,7 +45,7 @@ class ComparisonBarChart:
         # ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         this_group = self.trait_list[0][1].group.name
         for trait_db in self.trait_list:
-            
+
             if trait_db[1].group.name != this_group:
                 self.insufficient_shared_samples = True
                 break
@@ -53,7 +53,7 @@ class ComparisonBarChart:
                 this_group = trait_db[1].group.name
             this_trait = trait_db[0]
             self.traits.append(this_trait)
-            
+
             this_sample_data = this_trait.data
 
             for sample in this_sample_data:
@@ -79,7 +79,7 @@ class ComparisonBarChart:
             self.js_data = dict(traits=[trait.name for trait in self.traits],
                                 samples=self.all_sample_list,
                                 sample_data=self.sample_data,)
-        
+
     def get_trait_db_obs(self, trait_db_list):
 
         self.trait_list = []
@@ -95,4 +95,3 @@ class ComparisonBarChart:
             self.trait_list.append((trait_ob, dataset_ob))
 
         #print("trait_list:", self.trait_list)
-

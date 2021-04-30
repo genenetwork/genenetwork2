@@ -494,10 +494,10 @@ class SnpBrowser:
                         function_details = function_details + ", Coding Region Unknown"
 
                     self.empty_columns['function_details'] = "true"
-                    
+
                 #[snp_href, chr, mb_formatted, alleles, snp_source_cell, conservation_score, gene_name_cell, transcript_href, exon, domain_1, domain_2, function, function_details]
 
-                base_color_dict = {"A": "#C33232", "C": "#1569C7", "T": "#CFCF32", "G": "#32C332", 
+                base_color_dict = {"A": "#C33232", "C": "#1569C7", "T": "#CFCF32", "G": "#32C332",
                                    "t": "#FF6", "c": "#5CB3FF", "a": "#F66", "g": "#CF9", ":": "#FFFFFF", "-": "#FFFFFF", "?": "#FFFFFF"}
 
                 the_bases = []
@@ -735,7 +735,7 @@ def get_header_list(variant_type, strains, species=None, empty_columns=None):
             if empty_columns['function_details'] == "false":
                 empty_field_count += 1
                 header_fields[0].remove('Details')
-        
+
         for col in empty_columns.keys():
             if empty_columns[col] == "false":
                 header_data_names.remove(col)
@@ -952,4 +952,3 @@ def check_if_in_gene(species_id, chr, mb):
         return [result[0], result[1]]
     else:
         return ""
-

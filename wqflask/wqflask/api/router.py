@@ -59,13 +59,13 @@ def get_species_info(species_name, file_format="json"):
                               WHERE (Name="{0}" OR FullName="{0}" OR SpeciesName="{0}");""".format(species_name))
 
     the_species = results.fetchone()
-    species_dict = { 
+    species_dict = {
       "Id": the_species[0],
       "Name": the_species[1],
       "FullName": the_species[2],
       "TaxonomyId": the_species[3]
     }
-    
+
     return flask.jsonify(species_dict)
 
 
@@ -639,7 +639,7 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
 
             return flask.jsonify(sample_list)
         else:
-            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="") 
+            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>".format(version))
@@ -685,7 +685,7 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
         # ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
         if "Publish" in dataset_name:
             dataset_name = dataset_name.replace("Publish", "")
-        
+
         group_id = get_group_id(dataset_name)
         pheno_query = """
                          SELECT
@@ -898,7 +898,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         data_type = "Publish"
         dataset_name = dataset_name.replace("Publish", "")
         dataset_id = get_group_id(dataset_name)
-        
+
         query = """
                          SELECT
                              PublishXRef.PhenotypeId, PublishXRef.Id, InbredSet.InbredSetCode
@@ -949,9 +949,9 @@ def get_samplelist(dataset_name):
                WHERE StrainXRef.StrainId = Strain.Id AND
                      StrainXRef.InbredSetId = {}
             """.format(group_id)
-    
+
     results = g.db.execute(query).fetchall()
-    
+
     samplelist = [result[0] for result in results]
 
     return samplelist

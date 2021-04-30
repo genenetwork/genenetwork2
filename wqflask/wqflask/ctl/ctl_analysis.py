@@ -66,7 +66,7 @@ class CTL:
 
     def addNode(self, gt):
         node_dict = {'data': {'id': str(gt.name) + ":" + str(gt.dataset.name),
-                                'sid': str(gt.name), 
+                                'sid': str(gt.name),
                                 'dataset': str(gt.dataset.name),
                                 'label': gt.name,
                                 'symbol': gt.symbol,
@@ -238,4 +238,3 @@ class CTL:
         self.render_image(self.results)
         sys.stdout.flush()
         return(dict(template_vars))
-

@@ -343,4 +343,3 @@ def get_aliases(symbol_list, species):
         search_terms.append(the_search_term)
 
     return search_terms
-
