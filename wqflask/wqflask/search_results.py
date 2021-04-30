@@ -276,7 +276,7 @@ class SearchResultPage:
                                       search_operator,
                                       self.dataset,
                                       search_type['key']
-                                    )
+                                      )
             return the_search
         else:
             return None

@@ -229,13 +229,13 @@ class pathdata:
 
     def bezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy absolut"""
-        self.path.append('C' + str(x1) + ','+str(y1)+' '+str(x2)
-                         + ',' + str(y2) + ' '+str(x)+','+str(y))
+        self.path.append('C' + str(x1) + ',' + str(y1) + ' ' + str(x2)
+                         + ',' + str(y2) + ' ' + str(x) + ',' + str(y))
 
     def relbezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy relative"""
-        self.path.append('c' + str(x1) + ','+str(y1)+' '+str(x2)
-                         + ',' + str(y2) + ' '+str(x)+','+str(y))
+        self.path.append('c' + str(x1) + ',' + str(y1) + ' ' + str(x2)
+                         + ',' + str(y2) + ' ' + str(x) + ',' + str(y))
 
     def smbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy absolut"""
@@ -267,13 +267,13 @@ class pathdata:
 
     def ellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy absolut"""
-        self.path.append('A' + str(rx) + ','+str(ry)+' '+str(xrot)
-                         + ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('A' + str(rx) + ',' + str(ry) + ' ' + str(xrot)
+                         + ' ' + str(laf) + ' ' + str(sf) + ' ' + str(x) + ' ' + str(y))
 
     def relellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy relative"""
-        self.path.append('a' + str(rx) + ','+str(ry)+' '+str(xrot)
-                         + ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('a' + str(rx) + ',' + str(ry) + ' ' + str(xrot)
+                         + ' ' + str(laf) + ' ' + str(sf) + ' ' + str(x) + ' ' + str(y))
 
     def __repr__(self):
         return ' '.join(self.path)
@@ -471,7 +471,7 @@ class ellipse(SVGelement):
     an ellipse is defined as a center and a x and y radius.
     """
 
-    def __init__(self, cx=None, cy=None, rx=None, ry=None,fill=None,stroke=None,stroke_width=None,**args):
+    def __init__(self, cx=None, cy=None, rx=None, ry=None, fill=None, stroke=None, stroke_width=None, **args):
         if rx == None or ry == None:
             raise ValueError('both rx and ry are required')
 
@@ -494,7 +494,7 @@ class circle(SVGelement):
     The circle creates an element using a x, y and radius values eg
     """
 
-    def __init__(self, cx=None, cy=None, r=None, fill=None,stroke=None,stroke_width=None,**args):
+    def __init__(self, cx=None, cy=None, r=None, fill=None, stroke=None, stroke_width=None, **args):
         if r == None:
             raise ValueError('r is required')
         SVGelement.__init__(self, 'circle', {'r': r}, **args)
@@ -527,7 +527,7 @@ class line(SVGelement):
     A line is defined by a begin x,y pair and an end x,y pair
     """
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None,stroke=None,stroke_width=None,**args):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None, stroke=None, stroke_width=None, **args):
         SVGelement.__init__(self, 'line', **args)
         if x1 != None:
             self.attributes['x1'] = x1
@@ -549,7 +549,7 @@ class polyline(SVGelement):
     a polyline is defined by a list of xy pairs
     """
 
-    def __init__(self, points, fill=None, stroke=None, stroke_width=None,**args):
+    def __init__(self, points, fill=None, stroke=None, stroke_width=None, **args):
         SVGelement.__init__(self, 'polyline', {
                             'points': _xypointlist(points)}, **args)
         if fill != None:
@@ -566,7 +566,7 @@ class polygon(SVGelement):
     a polygon is defined by a list of xy pairs
     """
 
-    def __init__(self, points, fill=None, stroke=None, stroke_width=None,**args):
+    def __init__(self, points, fill=None, stroke=None, stroke_width=None, **args):
         SVGelement.__init__(
             self, 'polygon', {'points': _xypointlist(points)}, **args)
         if fill != None:
@@ -583,7 +583,7 @@ class path(SVGelement):
     a path is defined by a path object and optional width, stroke and fillcolor
     """
 
-    def __init__(self, pathdata, fill=None, stroke=None, stroke_width=None,id=None,**args):
+    def __init__(self, pathdata, fill=None, stroke=None, stroke_width=None, id=None, **args):
         SVGelement.__init__(self, 'path', {'d': str(pathdata)}, **args)
         if stroke != None:
             self.attributes['stroke'] = stroke
@@ -601,7 +601,7 @@ class text(SVGelement):
     a text element can bge used for displaying text on the screen
     """
 
-    def __init__(self, x=None, y=None, text=None, font_size=None,font_family=None,text_anchor=None,**args):
+    def __init__(self, x=None, y=None, text=None, font_size=None, font_family=None, text_anchor=None, **args):
         SVGelement.__init__(self, 'text', **args)
         if x != None:
             self.attributes['x'] = x
@@ -637,7 +637,7 @@ class pattern(SVGelement):
     in x and y to cover the areas to be painted.
     """
 
-    def __init__(self, x=None, y=None, width=None, height=None,patternUnits=None,**args):
+    def __init__(self, x=None, y=None, width=None, height=None, patternUnits=None, **args):
         SVGelement.__init__(self, 'pattern', **args)
         if x != None:
             self.attributes['x'] = x
@@ -684,7 +684,7 @@ class lineargradient(SVGelement):
     stop elements van be added to define the gradient colors.
     """
 
-    def __init__(self, x1=None, y1=None, x2=None, y2=None,id=None,**args):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None, id=None, **args):
         SVGelement.__init__(self, 'linearGradient', **args)
         if x1 != None:
             self.attributes['x1'] = x1
@@ -705,7 +705,7 @@ class radialgradient(SVGelement):
     stop elements van be added to define the gradient colors.
     """
 
-    def __init__(self, cx=None, cy=None, r=None, fx=None,fy=None,id=None,**args):
+    def __init__(self, cx=None, cy=None, r=None, fx=None, fy=None, id=None, **args):
         SVGelement.__init__(self, 'radialGradient', **args)
         if cx != None:
             self.attributes['cx'] = cx
@@ -749,11 +749,11 @@ class image(SVGelement):
     adds an image to the drawing. Supported formats are .png, .jpg and .svg.
     """
 
-    def __init__(self, url, x=None, y=None, width=None,height=None,**args):
+    def __init__(self, url, x=None, y=None, width=None, height=None, **args):
         if width == None or height == None:
             raise ValueError('both height and width are required')
         SVGelement.__init__(
-            self, 'image', {'xlink:href': url, 'width': width, 'height':height}, **args)
+            self, 'image', {'xlink:href': url, 'width': width, 'height': height}, **args)
         if x != None:
             self.attributes['x'] = x
         if y != None:
@@ -777,7 +777,7 @@ class marker(SVGelement):
     add an element to it which should be used as a marker.
     """
 
-    def __init__(self, id=None, viewBox=None, refx=None, refy=None,markerWidth=None,markerHeight=None,**args):
+    def __init__(self, id=None, viewBox=None, refx=None, refy=None, markerWidth=None, markerHeight=None, **args):
         SVGelement.__init__(self, 'marker', **args)
         if id != None:
             self.attributes['id'] = id
@@ -851,7 +851,7 @@ class use(SVGelement):
     references a symbol by linking to its id and its position, height and width
     """
 
-    def __init__(self, link, x=None, y=None, width=None,height=None,**args):
+    def __init__(self, link, x=None, y=None, width=None, height=None, **args):
         SVGelement.__init__(self, 'use', {'xlink:href': link}, **args)
         if x != None:
             self.attributes['x'] = x
@@ -904,7 +904,7 @@ class animate(SVGelement):
     animates an attribute.
     """
 
-    def __init__(self, attribute, fr=None, to=None, dur=None,**args):
+    def __init__(self, attribute, fr=None, to=None, dur=None, **args):
         SVGelement.__init__(
             self, 'animate', {'attributeName': attribute}, **args)
         if fr != None:
@@ -935,7 +935,7 @@ class animateTransform(SVGelement):
     transform an element from and to a value.
     """
 
-    def __init__(self, type=None, fr=None, to=None, dur=None,**args):
+    def __init__(self, type=None, fr=None, to=None, dur=None, **args):
         SVGelement.__init__(self, 'animateTransform', {
                             'attributeName': 'transform'}, **args)
         # As far as I know the attributeName is always transform
@@ -955,7 +955,7 @@ class animateColor(SVGelement):
     Animates the color of a element
     """
 
-    def __init__(self, attribute, type=None, fr=None, to=None,dur=None,**args):
+    def __init__(self, attribute, type=None, fr=None, to=None, dur=None, **args):
         SVGelement.__init__(self, 'animateColor', {
                             'attributeName': attribute}, **args)
         if type != None:

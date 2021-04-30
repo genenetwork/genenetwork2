@@ -120,14 +120,16 @@ def add_or_edit_group():
         if "admin_emails_to_add" in params:
             admin_emails = params['admin_emails_to_add'].split(",")
             for email in admin_emails:
-                user_details = get_user_by_unique_column("email_address", email)
+                user_details = get_user_by_unique_column(
+                    "email_address", email)
                 if user_details:
                     admin_user_ids.add(user_details['user_id'])
             #send_group_invites(params['group_id'], user_email_list = admin_emails, user_type="admins")
         if "member_emails_to_add" in params:
             member_emails = params['member_emails_to_add'].split(",")
             for email in member_emails:
-                user_details = get_user_by_unique_column("email_address", email)
+                user_details = get_user_by_unique_column(
+                    "email_address", email)
                 if user_details:
                     member_user_ids.add(user_details['user_id'])
             #send_group_invites(params['group_id'], user_email_list = user_emails, user_type="members")
@@ -156,7 +158,7 @@ def send_group_invites(group_id, user_email_list=[], user_type="members"):
                     continue
                 else:
                     send_verification_email(user_details, template_name="email/group_verification.txt",
-                                            key_prefix="verification_code", subject = "You've been invited to join a GeneNetwork user group")
+                                            key_prefix="verification_code", subject="You've been invited to join a GeneNetwork user group")
         else:
             temp_password = ''.join(random.choice(
                 string.ascii_uppercase + string.digits) for _ in range(6))

@@ -105,7 +105,7 @@ def get_item_by_unique_column(es, column_name, column_value, index, doc_type):
     item_details = None
     try:
         response = es.search(
-            index=index, doc_type=doc_type, body = {
+            index=index, doc_type=doc_type, body={
                 "query": {"match": {column_name: column_value}}
             })
         if len(response["hits"]["hits"]) > 0:

@@ -110,7 +110,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         if do_control == "true":
             logger.info("Using covariate")
             result_data_frame = scantwo(
-                cross_object, pheno="the_pheno", addcovar=covars, model=model, method=method, n_cluster = 16)
+                cross_object, pheno="the_pheno", addcovar=covars, model=model, method=method, n_cluster=16)
         else:
             logger.info("No covariates")
             result_data_frame = scantwo(
@@ -140,14 +140,14 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
                 cross_object, strata_ob = add_perm_strata(
                     cross_object, perm_strata_list)
                 if do_control == "true" or cofactors != "":
-                    perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm = int(
-                        num_perm), perm_strata = strata_ob, model=model, method=method)
+                    perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm=int(
+                        num_perm), perm_strata=strata_ob, model=model, method=method)
                 else:
                     perm_data_frame = scanone(
-                        cross_object, pheno_col="the_pheno", n_perm=num_perm, perm_strata = strata_ob, model=model, method=method)
+                        cross_object, pheno_col="the_pheno", n_perm=num_perm, perm_strata=strata_ob, model=model, method=method)
             else:
                 if do_control == "true" or cofactors != "":
-                    perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm = int(
+                    perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm=int(
                         num_perm), model=model, method=method)
                 else:
                     perm_data_frame = scanone(

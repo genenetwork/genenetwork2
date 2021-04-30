@@ -67,7 +67,8 @@ class RunMapping:
         if 'genofile' in start_vars:
             if start_vars['genofile'] != "":
                 self.genofile_string = start_vars['genofile']
-                self.dataset.group.genofile = self.genofile_string.split(":")[0]
+                self.dataset.group.genofile = self.genofile_string.split(":")[
+                    0]
                 genofile_samplelist = get_genofile_samplelist(self.dataset)
 
         all_samples_ordered = self.dataset.group.all_samples_ordered()

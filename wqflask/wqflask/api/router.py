@@ -98,8 +98,8 @@ def get_groups_list(species_name=None):
                 "Name": group[3],
                 "FullName": group[4],
                 "public": group[5],
-              "MappingMethodId": group[6],
-              "GeneticType": group[7]
+                "MappingMethodId": group[6],
+                "GeneticType": group[7]
             }
             groups_list.append(group_dict)
 
@@ -143,8 +143,8 @@ def get_group_info(group_name, species_name=None, file_format="json"):
             "Name": group[3],
             "FullName": group[4],
             "public": group[5],
-          "MappingMethodId": group[6],
-          "GeneticType": group[7]
+            "MappingMethodId": group[6],
+            "GeneticType": group[7]
         }
 
         return flask.jsonify(group_dict)
@@ -192,11 +192,11 @@ def get_datasets_for_group(group_name, species_name=None):
                 "Short_Abbreviation": dataset[3],
                 "Long_Abbreviation": dataset[4],
                 "FullName": dataset[5],
-              "ShortName": dataset[6],
-              "CreateTime": dataset[7],
-              "public": dataset[8],
-              "confidentiality": dataset[9],
-              "DataScale": dataset[10]
+                "ShortName": dataset[6],
+                "CreateTime": dataset[7],
+                "public": dataset[8],
+                "confidentiality": dataset[9],
+                "DataScale": dataset[10]
             }
             datasets_list.append(dataset_dict)
 
@@ -249,10 +249,10 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
             "full_name": dataset[2],
             "short_name": dataset[3],
             "data_scale": dataset[4],
-          "tissue_id": dataset[5],
-          "tissue": dataset[6],
-          "public": dataset[7],
-          "confidential": dataset[8]
+            "tissue_id": dataset[5],
+            "tissue": dataset[6],
+            "public": dataset[7],
+            "confidential": dataset[8]
         }
 
         datasets_list.append(dataset_dict)
@@ -286,7 +286,7 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
                     "description": dataset[2],
                     "pubmed_id": dataset[5],
                     "title": dataset[6],
-                  "year": dataset[7]
+                    "year": dataset[7]
                 }
             elif dataset[4]:
                 dataset_dict = {
@@ -777,7 +777,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                         i += 1
 
             csv_writer = csv.writer(
-                si, delimiter="\t", escapechar="\\", quoting = csv.QUOTE_NONE)
+                si, delimiter="\t", escapechar="\\", quoting=csv.QUOTE_NONE)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     elif file_format == "rqtl2":

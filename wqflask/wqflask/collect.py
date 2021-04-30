@@ -77,13 +77,13 @@ def collections_add():
         return render_template("collections/add.html",
                                traits=traits,
                                collections=collections,
-                              )
+                               )
     else:
         hash = request.args['hash']
         return render_template("collections/add.html",
                                hash=hash,
                                collections=collections,
-                              )
+                               )
 
 
 @app.route("/collections/new")
@@ -147,7 +147,7 @@ def list_collections():
     return render_template("collections/list.html",
                            params=params,
                            collections=user_collections,
-                            )
+                           )
 
 
 @app.route("/collections/remove", methods=('POST',))
@@ -226,7 +226,7 @@ def view_collection():
     else:
         return render_template("collections/view.html",
                                **collection_info
-                           )
+                               )
 
 
 @app.route("/collections/change_name", methods=('POST',))

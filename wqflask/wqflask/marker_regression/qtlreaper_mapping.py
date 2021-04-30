@@ -2,7 +2,8 @@ import os
 import math
 import string
 import random
-import json, re
+import json
+import re
 
 from base import webqtlConfig
 from base.trait import GeneralTrait
@@ -28,7 +29,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         output_filename = (f"{this_dataset.group.name}_GWA_"
                            + ''.join(random.choice(string.ascii_uppercase + string.digits)
                                      for _ in range(6))
-        )
+                           )
         bootstrap_filename = None
         permu_filename = None
 
@@ -37,7 +38,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_"
                                   + ''.join(random.choice(string.ascii_uppercase + string.digits)
                                             for _ in range(6))
-            )
+                                  )
 
             opt_list.append("-b")
             opt_list.append(f"--n_bootstrap {str(num_bootstrap)}")
@@ -47,7 +48,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             permu_filename = ("{this_dataset.group.name}_PERM_"
                               + ''.join(random.choice(string.ascii_uppercase
                                                       + string.digits) for _ in range(6))
-            )
+                              )
             opt_list.append("-n " + str(num_perm))
             opt_list.append(
                 "--permu_output " + webqtlConfig.GENERATED_IMAGE_DIR + permu_filename + ".txt")

@@ -36,7 +36,7 @@ class User(Base):
 
     # json detailing when they became a superuser, otherwise empty
     superuser = Column(Text)
-                       # if not superuser
+    # if not superuser
 
     logins = relationship("Login",
                           order_by="desc(Login.timestamp)",
@@ -47,7 +47,7 @@ class User(Base):
     user_collections = relationship("UserCollection",
                                     order_by="asc(UserCollection.name)",
                                     lazy='dynamic',
-                          )
+                                    )
 
     def display_num_collections(self):
         """

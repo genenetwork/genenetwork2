@@ -476,7 +476,7 @@ def set_password(password, user):
 
     user.password = json.dumps(pwfields.__dict__,
                                sort_keys=True,
-                                   )
+                               )
 
 
 class VerificationEmail:
@@ -677,7 +677,7 @@ def github_oauth2():
     user_details = get_user_by_unique_column("github_id", github_user["id"])
     if user_details == None:
         user_details = {
-            "user_id": str(uuid.uuid4()), "name": github_user["name"].encode("utf-8"), "github_id": github_user["id"], "user_url": github_user["html_url"].encode("utf-8")            , "login_type": "github"            , "organization": ""            , "active": 1            , "confirmed": 1
+            "user_id": str(uuid.uuid4()), "name": github_user["name"].encode("utf-8"), "github_id": github_user["id"], "user_url": github_user["html_url"].encode("utf-8"), "login_type": "github", "organization": "", "active": 1, "confirmed": 1
         }
         save_user(user_details, user_details["user_id"])
 
@@ -705,7 +705,7 @@ def orcid_oauth2():
             user_details = {
                 "user_id": str(uuid4()), "name": result_dict["name"], "orcid": result_dict["orcid"], "user_url": "%s/%s" % (
                     "/".join(ORCID_AUTH_URL.split("/")[:-2]),
-                    result_dict["orcid"]), "login_type": "orcid", "organization": "", "active": 1                , "confirmed": 1
+                    result_dict["orcid"]), "login_type": "orcid", "organization": "", "active": 1, "confirmed": 1
             }
             save_user(user_details, user_details["user_id"])
 

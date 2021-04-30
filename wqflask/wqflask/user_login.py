@@ -65,7 +65,7 @@ def set_password(password):
         "salt": base64.b64encode(os.urandom(32)),
         "iterations": 100000,
         "keylength": 32,
-      "created_timestamp": timestamp()
+        "created_timestamp": timestamp()
     }
 
     assert len(password) >= 6, "Password shouldn't be shorter than 6 characters"
@@ -132,7 +132,7 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
     logger.info("Successfully sent email to " + toaddr)
 
 
-def send_verification_email(user_details, template_name="email/user_verification.txt", key_prefix="verification_code", subject = "GeneNetwork e-mail verification"):
+def send_verification_email(user_details, template_name="email/user_verification.txt", key_prefix="verification_code", subject="GeneNetwork e-mail verification"):
     verification_code = str(uuid.uuid4())
     key = key_prefix + ":" + verification_code
 
@@ -147,7 +147,7 @@ def send_verification_email(user_details, template_name="email/user_verification
     return {"recipient": recipient, "subject": subject, "body": body}
 
 
-def send_invitation_email(user_email, temp_password, template_name="email/user_invitation.txt", subject= "You've been added to a GeneNetwork user group"):
+def send_invitation_email(user_email, temp_password, template_name="email/user_invitation.txt", subject="You've been added to a GeneNetwork user group"):
     recipient = user_email
     body = render_template(template_name, temp_password)
     send_email(recipient, subject, body)

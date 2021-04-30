@@ -123,7 +123,7 @@ if __name__ == '__main__':
     success, _ = bulk(es, set_data(sys.argv[1]))
 
     response = es.search(
-        index="traits", doc_type="trait", body = {
+        index="traits", doc_type="trait", body={
             "query": {"match": {"name": "ENSMUSG00000028982"}}
         }
     )

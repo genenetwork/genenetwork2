@@ -60,7 +60,8 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                 newdict["snpDensity"] = newdict["snpCount"] = 0
 
             try:
-                newdict['GeneLength'] = 1000.0 * (newdict['TxEnd'] - newdict['TxStart'])
+                newdict['GeneLength'] = 1000.0 * \
+                    (newdict['TxEnd'] - newdict['TxStart'])
             except:
                 pass
 

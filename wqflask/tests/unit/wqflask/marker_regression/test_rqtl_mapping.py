@@ -28,7 +28,7 @@ class TestRqtlMapping(unittest.TestCase):
 
     def test_sanitize_rqtl_phenotype(self):
         """test for sanitizing rqtl phenotype"""
-        vals = ['f', "x", "r", "x","x"]
+        vals = ['f', "x", "r", "x", "x"]
         results = sanitize_rqtl_phenotype(vals)
         expected_phenotype_string = 'c(f,NA,r,NA,NA)'
 
@@ -36,7 +36,7 @@ class TestRqtlMapping(unittest.TestCase):
 
     def test_sanitize_rqtl_names(self):
         """test for sanitzing rqtl names"""
-        vals = ['f', "x", "r", "x","x"]
+        vals = ['f', "x", "r", "x", "x"]
         expected_sanitized_name = "c('f',NA,'r',NA,NA)"
         results = sanitize_rqtl_names(vals)
         self.assertEqual(expected_sanitized_name, results)

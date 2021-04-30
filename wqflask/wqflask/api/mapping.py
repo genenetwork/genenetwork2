@@ -53,7 +53,8 @@ def do_mapping_for_api(start_vars):
         header_row = ["name", "chr", "cM", "lod_score"]
         if mapping_params['num_perm'] > 0:
             _sperm_output, _suggestive, _significant, result_markers = rqtl_mapping.run_rqtl_geno(vals, dataset, mapping_params['rqtl_method'], mapping_params['rqtl_model'],
-                                                                                                  mapping_params['perm_check'], mapping_params['num_perm'],
+                                                                                                  mapping_params['perm_check'], mapping_params[
+                                                                                                      'num_perm'],
                                                                                                   mapping_params['do_control'], mapping_params[
                 'control_marker'],
                 mapping_params['manhattan_plot'], mapping_params['pair_scan'])
