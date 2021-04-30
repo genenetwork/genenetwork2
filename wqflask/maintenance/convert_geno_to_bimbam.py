@@ -21,7 +21,8 @@ import simplejson as json
 from pprint import pformat as pf
 
 
-class EmptyConfigurations(Exception): pass
+class EmptyConfigurations(Exception):
+    pass
 
 
 class Marker:

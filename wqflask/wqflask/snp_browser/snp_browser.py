@@ -673,13 +673,13 @@ def get_browser_sample_lists(species_id=1):
     strain_lists = {}
     mouse_strain_list = []
     query = "SHOW COLUMNS FROM SnpPattern;"
-    results = g.db.execute(query).fetchall();
+    results = g.db.execute(query).fetchall()
     for result in results[1:]:
         mouse_strain_list.append(result[0])
 
     rat_strain_list = []
     query = "SHOW COLUMNS FROM RatSnpPattern;"
-    results = g.db.execute(query).fetchall();
+    results = g.db.execute(query).fetchall()
     for result in results[2:]:
         rat_strain_list.append(result[0])
 

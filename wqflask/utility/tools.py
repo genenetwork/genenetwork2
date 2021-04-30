@@ -198,7 +198,8 @@ def locate(name, subdir=None):
             return lookfor
         else:
             raise Exception("Can not locate " + lookfor)
-    if subdir: sys.stderr.write(subdir)
+    if subdir:
+        sys.stderr.write(subdir)
     raise Exception("Can not locate " + name + " in " + base)
 
 
