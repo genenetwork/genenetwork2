@@ -158,7 +158,8 @@ def remove_traits():
     traits_to_remove = params['trait_list']
     traits_to_remove = process_traits(traits_to_remove)
 
-    members_now = g.user_session.remove_traits_from_collection(uc_id, traits_to_remove)
+    members_now = g.user_session.remove_traits_from_collection(
+        uc_id, traits_to_remove)
 
     return redirect(url_for("view_collection", uc_id=uc_id))
 
@@ -181,7 +182,8 @@ def delete_collection():
         else:
             flash("We've deleted the selected collection.", "alert-info")
     else:
-        flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
+        flash("We've deleted the collection: {}.".format(
+            collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
 
@@ -191,7 +193,8 @@ def view_collection():
     params = request.args
 
     uc_id = params['uc_id']
-    uc = next((collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
+    uc = next(
+        (collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
     traits = uc["members"]
 
     trait_obs = []
@@ -203,12 +206,14 @@ def view_collection():
         name, dataset_name = atrait.split(':')
         if dataset_name == "Temp":
             group = name.split("_")[2]
-            dataset = create_dataset(dataset_name, dataset_type="Temp", group_name=group)
+            dataset = create_dataset(
+                dataset_name, dataset_type="Temp", group_name=group)
             trait_ob = create_trait(name=name, dataset=dataset)
         else:
             dataset = create_dataset(dataset_name)
             trait_ob = create_trait(name=name, dataset=dataset)
-            trait_ob = retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
+            trait_ob = retrieve_trait_info(
+                trait_ob, dataset, get_qtl_info=True)
         trait_obs.append(trait_ob)
 
         json_version.append(jsonable(trait_ob))

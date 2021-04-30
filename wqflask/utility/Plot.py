@@ -178,7 +178,8 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
 
     # draw drawing region
     im_drawer.rectangle(
-        xy=((xLeftOffset, yTopOffset), (xLeftOffset + plotWidth, yTopOffset + plotHeight))
+        xy=((xLeftOffset, yTopOffset),
+            (xLeftOffset + plotWidth, yTopOffset + plotHeight))
     )
 
     # draw scale
@@ -199,11 +200,13 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     y = yLow
     for i in range(int(stepY) + 1):
        yc = yTopOffset + plotHeight - (y - yLow) * yScale
-       im_drawer.line(xy=((xLeftOffset, yc), (xLeftOffset - 5, yc)), fill=axesColor)
+       im_drawer.line(
+           xy=((xLeftOffset, yc), (xLeftOffset - 5, yc)), fill=axesColor)
        strY = "%d" % y
        im_drawer.text(
            text=strY,
-           xy=(xLeftOffset - im_drawer.textsize(strY, font=scaleFont)[0] - 6, yc + 5),
+           xy=(xLeftOffset - im_drawer.textsize(strY,
+               font=scaleFont)[0] - 6, yc + 5),
            font=scaleFont)
        y += (yTop - yLow) / stepY
 

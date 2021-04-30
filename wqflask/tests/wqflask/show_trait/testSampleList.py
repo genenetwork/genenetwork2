@@ -13,4 +13,5 @@ class TestSampleList(unittest.TestCase):
         sorted_list_a = natural_sort(characters_list)
         sorted_list_b = natural_sort(names_list)
         self.assertEqual(sorted_list_a, ["a", "f", "g", "q", "s", "t", "z"])
-        self.assertEqual(sorted_list_b, ["Dataset", "Sample", "publish", "temp1"])
+        self.assertEqual(
+            sorted_list_b, ["Dataset", "Sample", "publish", "temp1"])

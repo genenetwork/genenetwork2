@@ -64,7 +64,8 @@ def get_setting(command_id, guess=None):
                 command = value(guess)
                 if command is None or command == "":
                     # print command
-                    raise Exception(command_id + ' setting unknown or faulty (update default_settings.py?).')
+                    raise Exception(
+                        command_id + ' setting unknown or faulty (update default_settings.py?).')
     # print("Set "+command_id+"="+str(command))
     return command
 
@@ -113,7 +114,8 @@ def js_path(module=None):
     try_guix = get_setting("JS_GUIX_PATH") + "/" + module
     if valid_path(try_guix):
         return try_guix
-    raise "No JS path found for " + module + " (if not in Guix check JS_GN_PATH)"
+    raise "No JS path found for " + module + \
+        " (if not in Guix check JS_GN_PATH)"
 
 
 def reaper_command(guess=None):
@@ -292,7 +294,8 @@ ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
 ORCID_AUTH_URL = None
 if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
     ORCID_AUTH_URL = "https://orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
-                      ORCID_CLIENT_ID + "&client_secret=" + ORCID_CLIENT_SECRET + "&redirect_uri=" + GN2_BRANCH_URL + "n/login/orcid_oauth2"
+                      ORCID_CLIENT_ID + "&client_secret=" + ORCID_CLIENT_SECRET + \
+                          "&redirect_uri=" + GN2_BRANCH_URL + "n/login/orcid_oauth2"
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
 ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
@@ -320,7 +323,8 @@ assert_dir(JS_GUIX_PATH + '/cytoscape-panzoom')
 CSS_PATH = JS_GUIX_PATH  # The CSS is bundled together with the JS
 # assert_dir(JS_PATH)
 
-JS_TWITTER_POST_FETCHER_PATH = get_setting("JS_TWITTER_POST_FETCHER_PATH", js_path("javascript-twitter-post-fetcher"))
+JS_TWITTER_POST_FETCHER_PATH = get_setting(
+    "JS_TWITTER_POST_FETCHER_PATH", js_path("javascript-twitter-post-fetcher"))
 assert_dir(JS_TWITTER_POST_FETCHER_PATH)
 assert_file(JS_TWITTER_POST_FETCHER_PATH + "/js/twitterFetcher_min.js")
 

@@ -83,7 +83,8 @@ class ConvertGenoFile:
                 genotypes = row_items[2:]
             for item_count, genotype in enumerate(genotypes):
                 if genotype.upper().strip() in self.configurations:
-                    this_marker.genotypes.append(self.configurations[genotype.upper().strip()])
+                    this_marker.genotypes.append(
+                        self.configurations[genotype.upper().strip()])
                 else:
                     this_marker.genotypes.append("NA")
 
@@ -106,9 +107,11 @@ class ConvertGenoFile:
         with open(self.output_files[2], "w") as snp_fh:
             for marker in self.markers:
                 if self.mb_exists:
-                    snp_fh.write(marker['name'] + ", " + str(int(float(marker['Mb']) * 1000000)) + ", " + marker['chr'] + "\n")
+                    snp_fh.write(
+                        marker['name'] + ", " + str(int(float(marker['Mb']) * 1000000)) + ", " + marker['chr'] + "\n")
                 else:
-                    snp_fh.write(marker['name'] + ", " + str(int(float(marker['cM']) * 1000000)) + ", " + marker['chr'] + "\n")
+                    snp_fh.write(
+                        marker['name'] + ", " + str(int(float(marker['cM']) * 1000000)) + ", " + marker['chr'] + "\n")
 
     def get_sample_list(self, row_contents):
         self.sample_list = []
@@ -160,10 +163,14 @@ class ConvertGenoFile:
             group_name = ".".join(input_file.split('.')[:-1])
             if group_name == "HSNIH-Palmer":
                 continue
-            geno_output_file = os.path.join(new_directory, group_name + "_geno.txt")
-            pheno_output_file = os.path.join(new_directory, group_name + "_pheno.txt")
-            snp_output_file = os.path.join(new_directory, group_name + "_snps.txt")
-            output_files = [geno_output_file, pheno_output_file, snp_output_file]
+            geno_output_file = os.path.join(
+                new_directory, group_name + "_geno.txt")
+            pheno_output_file = os.path.join(
+                new_directory, group_name + "_pheno.txt")
+            snp_output_file = os.path.join(
+                new_directory, group_name + "_snps.txt")
+            output_files = [geno_output_file,
+                pheno_output_file, snp_output_file]
             print("%s -> %s" % (
                 os.path.join(old_directory, input_file), geno_output_file))
             convertob = ConvertGenoFile(input_file, output_files)

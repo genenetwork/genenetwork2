@@ -17,17 +17,21 @@ class CorrScatterPlot:
 
     def __init__(self, params):
         if "Temp" in params['dataset_1']:
-            self.dataset_1 = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name = params['dataset_1'].split("_")[1])
+            self.dataset_1 = data_set.create_dataset(
+                dataset_name="Temp", dataset_type="Temp", group_name = params['dataset_1'].split("_")[1])
         else:
             self.dataset_1 = data_set.create_dataset(params['dataset_1'])
         if "Temp" in params['dataset_2']:
-            self.dataset_2 = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name = params['dataset_2'].split("_")[1])
+            self.dataset_2 = data_set.create_dataset(
+                dataset_name="Temp", dataset_type="Temp", group_name = params['dataset_2'].split("_")[1])
         else:
             self.dataset_2 = data_set.create_dataset(params['dataset_2'])
 
         #self.dataset_3 = data_set.create_dataset(params['dataset_3'])
-        self.trait_1 = create_trait(name=params['trait_1'], dataset=self.dataset_1)
-        self.trait_2 = create_trait(name=params['trait_2'], dataset=self.dataset_2)
+        self.trait_1 = create_trait(
+            name=params['trait_1'], dataset=self.dataset_1)
+        self.trait_2 = create_trait(
+            name=params['trait_2'], dataset=self.dataset_2)
         #self.trait_3 = create_trait(name=params['trait_3'], dataset=self.dataset_3)
 
         self.method = params['method']
@@ -38,10 +42,13 @@ class CorrScatterPlot:
         if self.dataset_1.group.f1list != None:
             primary_samples += self.dataset_1.group.f1list
 
-        self.trait_1 = retrieve_sample_data(self.trait_1, self.dataset_1, primary_samples)
-        self.trait_2 = retrieve_sample_data(self.trait_2, self.dataset_2, primary_samples)
+        self.trait_1 = retrieve_sample_data(
+            self.trait_1, self.dataset_1, primary_samples)
+        self.trait_2 = retrieve_sample_data(
+            self.trait_2, self.dataset_2, primary_samples)
 
-        samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(self.trait_1.data, self.trait_2.data)
+        samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
+            self.trait_1.data, self.trait_2.data)
 
         self.data = []
         self.indIDs = list(samples_1.keys())
@@ -54,7 +61,8 @@ class CorrScatterPlot:
             vals_2.append(samples_2[sample].value)
         self.data.append(vals_2)
 
-        slope, intercept, r_value, p_value, std_err = stats.linregress(vals_1, vals_2)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(
+            vals_1, vals_2)
 
         if slope < 0.001:
             slope_string = '%.3E' % slope
@@ -67,14 +75,16 @@ class CorrScatterPlot:
         x_range = [min(vals_1) - x_buffer, max(vals_1) + x_buffer]
         y_range = [min(vals_2) - y_buffer, max(vals_2) + y_buffer]
 
-        intercept_coords = get_intercept_coords(slope, intercept, x_range, y_range)
+        intercept_coords = get_intercept_coords(
+            slope, intercept, x_range, y_range)
 
         rx = stats.rankdata(vals_1)
         ry = stats.rankdata(vals_2)
         self.rdata = []
         self.rdata.append(rx.tolist())
         self.rdata.append(ry.tolist())        
-        srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(rx, ry)
+        srslope, srintercept, srr_value, srp_value, srstd_err = stats.linregress(
+            rx, ry)
 
         if srslope < 0.001:
             srslope_string = '%.3E' % srslope
@@ -86,7 +96,8 @@ class CorrScatterPlot:
 
         sr_range = [min(rx) - x_buffer, max(rx) + x_buffer]
 
-        sr_intercept_coords = get_intercept_coords(srslope, srintercept, sr_range, sr_range)
+        sr_intercept_coords = get_intercept_coords(
+            srslope, srintercept, sr_range, sr_range)
 
         self.collections_exist = "False"
         if g.user_session.num_collections > 0:

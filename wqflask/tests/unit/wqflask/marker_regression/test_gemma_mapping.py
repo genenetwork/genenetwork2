@@ -70,7 +70,8 @@ class TestGemmaMapping(unittest.TestCase):
         ], vals=[], covariates="", use_loco=True)
         self.assertEqual(mock_os.system.call_count, 2)
         mock_gen_pheno_txt.assert_called_once()
-        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR", True)
+        mock_parse_loco.assert_called_once_with(
+            dataset, "GP1_GWA_RRRRRR", True)
         mock_os.path.isfile.assert_called_once_with(
             ('/home/user/imgfile_output.assoc.txt'))
         self.assertEqual(mock_flat_files.call_count, 4)
@@ -102,7 +103,8 @@ class TestGemmaMapping(unittest.TestCase):
         create_trait_side_effect = []
 
         for i in range(4):
-            create_dataset_side_effect.append(AttributeSetter({"name": f'name_{i}'}))
+            create_dataset_side_effect.append(
+                AttributeSetter({"name": f'name_{i}'}))
             create_trait_side_effect.append(
                 AttributeSetter({"data": [f'data_{i}']}))
 
@@ -160,9 +162,12 @@ X\tM5\t12\tQ\tE\tMMB\tR\t21.1\tW\t0.65\t0.6"""
             results = parse_loco_output(
                 this_dataset={}, gwa_output_filename=".xw/")
             expected_results = [
-            {'name': 'M1', 'chr': 'X/Y', 'Mb': 2.8457155e-05, 'p_value': 0.85, 'additive': 23.3, 'lod_score': 0.07058107428570727},
-            {'name': 'M2', 'chr': 4, 'Mb': 1.2e-05, 'p_value': 0.5, 'additive': 24.0, 'lod_score': 0.3010299956639812},
-            {'name': 'M4', 'chr': 'Y', 'Mb': 1.2e-05, 'p_value': 0.7, 'additive': 11.6, 'lod_score': 0.1549019599857432},
+            {'name': 'M1', 'chr': 'X/Y', 'Mb': 2.8457155e-05, 'p_value': 0.85,
+                'additive': 23.3, 'lod_score': 0.07058107428570727},
+            {'name': 'M2', 'chr': 4, 'Mb': 1.2e-05, 'p_value': 0.5,
+                'additive': 24.0, 'lod_score': 0.3010299956639812},
+            {'name': 'M4', 'chr': 'Y', 'Mb': 1.2e-05, 'p_value': 0.7,
+                'additive': 11.6, 'lod_score': 0.1549019599857432},
             {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': 21.1, 'lod_score': 0.22184874961635637}]
 
             self.assertEqual(expected_results, results)

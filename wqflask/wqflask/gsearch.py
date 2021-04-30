@@ -77,18 +77,21 @@ class GSearch:
                     this_trait['name'] = line[5]
                     this_trait['dataset'] = line[3]
                     this_trait['dataset_fullname'] = line[4]
-                    this_trait['hmac'] = hmac.data_hmac('{}:{}'.format(line[5], line[3]))
+                    this_trait['hmac'] = hmac.data_hmac(
+                        '{}:{}'.format(line[5], line[3]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
                     this_trait['symbol'] = line[6]
                     if line[7]:
-                        this_trait['description'] = line[7].decode('utf-8', 'replace')
+                        this_trait['description'] = line[7].decode(
+                            'utf-8', 'replace')
                     else:
                         this_trait['description'] = "N/A"
                     this_trait['location_repr'] = 'N/A'
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
-                        this_trait['location_repr'] = 'Chr%s: %.6f' % (line[8], float(line[9]))
+                        this_trait['location_repr'] = 'Chr%s: %.6f' % (
+                            line[8], float(line[9]))
                     try:
                         this_trait['mean'] = '%.3f' % line[10]
                     except:
@@ -103,7 +106,8 @@ class GSearch:
                     this_trait['locus_chr'] = line[16]
                     this_trait['locus_mb'] = line[17]
 
-                    dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="ProbeSet", species=this_trait["species"])
+                    dataset_ob = SimpleNamespace(
+                        id=this_trait["dataset_id"], type="ProbeSet", species=this_trait["species"])
                     if dataset_ob.id not in dataset_to_permissions:
                         permissions = check_resource_availability(dataset_ob)
                         dataset_to_permissions[dataset_ob.id] = permissions
@@ -118,7 +122,9 @@ class GSearch:
 
                     max_lrs_text = "N/A"
                     if this_trait['locus_chr'] != None and this_trait['locus_mb'] != None:
-                        max_lrs_text = "Chr" + str(this_trait['locus_chr']) + ": " + str(this_trait['locus_mb'])
+                        max_lrs_text = "Chr" + \
+                            str(this_trait['locus_chr']) + \
+                                ": " + str(this_trait['locus_mb'])
                     this_trait['max_lrs_text'] = max_lrs_text
 
                     trait_list.append(this_trait)
@@ -146,7 +152,8 @@ class GSearch:
             if "_" in self.terms:
                 if len(self.terms.split("_")[0]) == 3:
                     search_term = self.terms.split("_")[1]
-                    group_clause = "AND InbredSet.`InbredSetCode` = '{}'".format(self.terms.split("_")[0])
+                    group_clause = "AND InbredSet.`InbredSetCode` = '{}'".format(
+                        self.terms.split("_")[0])
             sql = """
                 SELECT
                 Species.`Name`,
@@ -192,18 +199,22 @@ class GSearch:
                     this_trait['index'] = i + 1
                     this_trait['name'] = str(line[4])
                     if len(str(line[12])) == 3:
-                        this_trait['display_name'] = str(line[12]) + "_" + this_trait['name']
+                        this_trait['display_name'] = str(
+                            line[12]) + "_" + this_trait['name']
                     else:
                         this_trait['display_name'] = this_trait['name']
                     this_trait['dataset'] = line[2]
                     this_trait['dataset_fullname'] = line[3]
-                    this_trait['hmac'] = hmac.data_hmac('{}:{}'.format(line[4], line[2]))
+                    this_trait['hmac'] = hmac.data_hmac(
+                        '{}:{}'.format(line[4], line[2]))
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     if line[9] != None and line[6] != None:
-                        this_trait['description'] = line[6].decode('utf-8', 'replace')
+                        this_trait['description'] = line[6].decode(
+                            'utf-8', 'replace')
                     elif line[5] != None:
-                        this_trait['description'] = line[5].decode('utf-8', 'replace')
+                        this_trait['description'] = line[5].decode(
+                            'utf-8', 'replace')
                     else:
                         this_trait['description'] = "N/A"
                     if line[13] != None and line[13] != "":
@@ -221,7 +232,8 @@ class GSearch:
                     else:
                         this_trait['pubmed_link'] = "N/A"
                         if line[12]:
-                            this_trait['display_name'] = line[12] + "_" + str(this_trait['name'])
+                            this_trait['display_name'] = line[12] + \
+                                "_" + str(this_trait['name'])
                     this_trait['LRS_score_repr'] = "N/A"
                     if line[10] != "" and line[10] != None:
                         this_trait['LRS_score_repr'] = '%3.1f' % line[10]
@@ -230,13 +242,16 @@ class GSearch:
                         this_trait['additive'] = '%.3f' % line[11]
 
                     this_trait['max_lrs_text'] = "N/A"
-                    trait_ob = create_trait(dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
+                    trait_ob = create_trait(
+                        dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
                     if not trait_ob:
                         continue
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
                       try:
                         if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
-                            this_trait['max_lrs_text'] = "Chr" + str(trait_ob.locus_chr) + ": " + str(trait_ob.locus_mb)
+                            this_trait['max_lrs_text'] = "Chr" + \
+                                str(trait_ob.locus_chr) + \
+                                    ": " + str(trait_ob.locus_mb)
                       except:
                           this_trait['max_lrs_text'] = "N/A"
 

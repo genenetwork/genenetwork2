@@ -74,14 +74,20 @@ class SampleList:
                 if 'rrid' in sample.extra_attributes:
                     if self.dataset.group.species == "mouse":
                         if len(sample.extra_attributes['rrid'].split(":")) > 1:
-                            the_rrid = sample.extra_attributes['rrid'].split(":")[1]
-                            sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
-                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_MOUSE_URL % the_rrid)
+                            the_rrid = sample.extra_attributes['rrid'].split(":")[
+                                                                             1]
+                            sample.extra_attributes['rrid'] = [
+                                sample.extra_attributes['rrid']]
+                            sample.extra_attributes['rrid'].append(
+                                webqtlConfig.RRID_MOUSE_URL % the_rrid)
                     elif self.dataset.group.species == "rat":
                         if len(str(sample.extra_attributes['rrid'])):
-                            the_rrid = sample.extra_attributes['rrid'].split("_")[1]
-                            sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
-                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_RAT_URL % the_rrid)
+                            the_rrid = sample.extra_attributes['rrid'].split("_")[
+                                                                             1]
+                            sample.extra_attributes['rrid'] = [
+                                sample.extra_attributes['rrid']]
+                            sample.extra_attributes['rrid'].append(
+                                webqtlConfig.RRID_RAT_URL % the_rrid)
 
             self.sample_list.append(sample)
 
@@ -130,7 +136,8 @@ class SampleList:
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
-            self.attributes[key].distinct_values = natural_sort(self.attributes[key].distinct_values)
+            self.attributes[key].distinct_values = natural_sort(
+                self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:
@@ -170,7 +177,8 @@ class SampleList:
                     except ValueError:
                         pass
 
-                    attribute_values[self.attributes[item.Id].name.lower()] = attribute_value
+                    attribute_values[self.attributes[item.Id].name.lower(
+                    )] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
 
     def get_first_attr_col(self):

@@ -35,9 +35,12 @@ def export_search_results_csv(targs):
             metadata.append(["Data Set: " + targs['database_name']])
     if 'accession_id' in targs:
         if targs['accession_id'] != "None":
-            metadata.append(["Metadata Link: http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + targs['accession_id']])
-    metadata.append(["Export Date: " + datetime.datetime.now().strftime("%B %d, %Y")])
-    metadata.append(["Export Time: " + datetime.datetime.now().strftime("%H:%M GMT")])
+            metadata.append(
+                ["Metadata Link: http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + targs['accession_id']])
+    metadata.append(
+        ["Export Date: " + datetime.datetime.now().strftime("%B %d, %Y")])
+    metadata.append(
+        ["Export Time: " + datetime.datetime.now().strftime("%H:%M GMT")])
     if 'search_string' in targs:
         if targs['search_string'] != "None":
             metadata.append(["Search Query: " + targs['search_string']])
@@ -52,10 +55,12 @@ def export_search_results_csv(targs):
     for trait in table_rows:
         trait_name, dataset_name, _hash = trait.split(":")
         trait_ob = create_trait(name=trait_name, dataset_name=dataset_name)
-        trait_ob = retrieve_trait_info(trait_ob, trait_ob.dataset, get_qtl_info=True)
+        trait_ob = retrieve_trait_info(
+            trait_ob, trait_ob.dataset, get_qtl_info=True)
         trait_list.append(trait_ob)
 
-    table_headers = ['Index', 'URL', 'Species', 'Group', 'Dataset', 'Record ID', 'Symbol', 'Description', 'ProbeTarget', 'PubMed_ID', 'Chr', 'Mb', 'Alias', 'Gene_ID', 'Homologene_ID', 'UniGene_ID', 'Strand_Probe', 'Probe_set_specificity', 'Probe_set_BLAT_score', 'Probe_set_BLAT_Mb_start', 'Probe_set_BLAT_Mb_end', 'QTL_Chr', 'QTL_Mb', 'Locus_at_Peak', 'Max_LRS', 'P_value_of_MAX', 'Mean_Expression']
+    table_headers = ['Index', 'URL', 'Species', 'Group', 'Dataset', 'Record ID', 'Symbol', 'Description', 'ProbeTarget', 'PubMed_ID', 'Chr', 'Mb', 'Alias', 'Gene_ID', 'Homologene_ID', 'UniGene_ID',
+        'Strand_Probe', 'Probe_set_specificity', 'Probe_set_BLAT_score', 'Probe_set_BLAT_Mb_start', 'Probe_set_BLAT_Mb_end', 'QTL_Chr', 'QTL_Mb', 'Locus_at_Peak', 'Max_LRS', 'P_value_of_MAX', 'Mean_Expression']
 
     traits_by_group = sort_traits_by_group(trait_list)
 
@@ -87,7 +92,8 @@ def export_search_results_csv(targs):
                 trait_symbol = "N/A"
             row_contents = [
                 i + 1,
-                "https://genenetwork.org/show_trait?trait_id=" + str(trait.name) + "&dataset=" + str(trait.dataset.name),
+                "https://genenetwork.org/show_trait?trait_id=" + \
+                    str(trait.name) + "&dataset=" + str(trait.dataset.name),
                 trait.dataset.group.species,
                 trait.dataset.group.name,
                 trait.dataset.name,
@@ -117,13 +123,15 @@ def export_search_results_csv(targs):
 
             for sample in trait.dataset.group.samplelist:
                 if sample in trait.data:
-                    row_contents += [trait.data[sample].value, trait.data[sample].variance]
+                    row_contents += [trait.data[sample].value,
+                        trait.data[sample].variance]
                 else:
                     row_contents += ["x", "x"]
 
             csv_rows.append(row_contents)
 
-        csv_rows = list(map(list, itertools.zip_longest(*[row for row in csv_rows])))
+        csv_rows = list(
+            map(list, itertools.zip_longest(*[row for row in csv_rows])))
         writer.writerows(csv_rows)
         csv_data = buff.getvalue()
         buff.close()

@@ -93,8 +93,10 @@ class AnonUser:
                 this_collection = {}
                 this_collection['id'] = collection['id']
                 this_collection['name'] = collection['name']
-                this_collection['created_timestamp'] = collection['created_timestamp'].strftime('%b %d %Y %I:%M%p')
-                this_collection['changed_timestamp'] = collection['changed_timestamp'].strftime('%b %d %Y %I:%M%p')
+                this_collection['created_timestamp'] = collection['created_timestamp'].strftime(
+                    '%b %d %Y %I:%M%p')
+                this_collection['changed_timestamp'] = collection['changed_timestamp'].strftime(
+                    '%b %d %Y %I:%M%p')
                 this_collection['num_members'] = collection['num_members']
                 this_collection['members'] = collection['members']
                 updated_collections.append(this_collection)
@@ -108,21 +110,26 @@ class AnonUser:
         else:
             collections = json.loads(json_collections)
             for collection in collections:
-                collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
-                collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
+                collection['created_timestamp'] = datetime.datetime.strptime(
+                    collection['created_timestamp'], '%b %d %Y %I:%M%p')
+                collection['changed_timestamp'] = datetime.datetime.strptime(
+                    collection['changed_timestamp'], '%b %d %Y %I:%M%p')
 
-            collections = sorted(collections, key=lambda i: i['changed_timestamp'], reverse=True)
+            collections = sorted(
+                collections, key=lambda i: i['changed_timestamp'], reverse=True)
             return collections
 
     def import_traits_to_user(self):
         result = Redis.get(self.key)
         collections_list = json.loads(result if result else "[]")
         for collection in collections_list:
-            collection_exists = g.user_session.get_collection_by_name(collection['name'])
+            collection_exists = g.user_session.get_collection_by_name(
+                collection['name'])
             if collection_exists:
                 continue
             else:
-                g.user_session.add_collection(collection['name'], collection['members'])
+                g.user_session.add_collection(
+                    collection['name'], collection['members'])
 
     def display_num_collections(self):
         """
@@ -148,7 +155,8 @@ def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
     assert len(the_uuid) == 36, "Is session_id a uuid?"
     assert separator == ":", "Expected a : here"
-    assert the_signature == actual_hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
+    assert the_signature == actual_hmac_creation(
+        the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
 
 
@@ -282,7 +290,8 @@ class UserSession:
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
-        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime(
+            '%b %d %Y %I:%M%p')
 
         updated_collections = []
         for collection in self.user_collections:
@@ -308,7 +317,8 @@ class UserSession:
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
-        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime(
+            '%b %d %Y %I:%M%p')
 
         updated_collections = []
         for collection in self.user_collections:
@@ -355,7 +365,8 @@ def get_cookie():
 
 def set_cookie(response):
     if not request.cookies.get(g.cookie_session.cookie_name):
-        response.set_cookie(g.cookie_session.cookie_name, g.cookie_session.cookie)
+        response.set_cookie(g.cookie_session.cookie_name,
+                            g.cookie_session.cookie)
     return response
 
 
@@ -390,22 +401,28 @@ class RegisterUser:
         self.errors = []
         self.user = Bunch()
 
-        self.user.email_address = kw.get('email_address', '').encode("utf-8").strip()
+        self.user.email_address = kw.get(
+            'email_address', '').encode("utf-8").strip()
         if not (5 <= len(self.user.email_address) <= 50):
-            self.errors.append('Email Address needs to be between 5 and 50 characters.')
+            self.errors.append(
+                'Email Address needs to be between 5 and 50 characters.')
         else:
-            email_exists = get_user_by_unique_column("email_address", self.user.email_address)
+            email_exists = get_user_by_unique_column(
+                "email_address", self.user.email_address)
             #email_exists = get_user_by_unique_column(es, "email_address", self.user.email_address)
             if email_exists:
                 self.errors.append('User already exists with that email')
 
         self.user.full_name = kw.get('full_name', '').encode("utf-8").strip()
         if not (5 <= len(self.user.full_name) <= 50):
-            self.errors.append('Full Name needs to be between 5 and 50 characters.')
+            self.errors.append(
+                'Full Name needs to be between 5 and 50 characters.')
 
-        self.user.organization = kw.get('organization', '').encode("utf-8").strip()
+        self.user.organization = kw.get(
+            'organization', '').encode("utf-8").strip()
         if self.user.organization and not (5 <= len(self.user.organization) <= 50):
-            self.errors.append('Organization needs to be empty or between 5 and 50 characters.')
+            self.errors.append(
+                'Organization needs to be empty or between 5 and 50 characters.')
 
         password = str(kw.get('password', ''))
         if not (6 <= len(password)):
@@ -568,14 +585,16 @@ def password_reset():
     if verification_code:
         user_email = check_verification_code(verification_code)
         if user_email:
-            user_details = get_user_by_unique_column('email_address', user_email)
+            user_details = get_user_by_unique_column(
+                'email_address', user_email)
             if user_details:
                 return render_template(
                     "new_security/password_reset.html", user_encode=user_details["user_id"])
             else:
                 flash("Invalid code: User no longer exists!", "error")
         else:
-            flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+            flash(
+                "Invalid code: Password reset code does not exist or might have expired!", "error")
     else:
         return redirect(url_for("login"))
 
@@ -648,8 +667,10 @@ def github_oauth2():
         "client_secret": GITHUB_CLIENT_SECRET,
         "code": code
     }
-    result = requests.post("https://github.com/login/oauth/access_token", json=data)
-    result_dict = {arr[0]: arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
+    result = requests.post(
+        "https://github.com/login/oauth/access_token", json=data)
+    result_dict = {arr[0]: arr[1] for arr in [tok.split(
+        "=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
 
     github_user = get_github_user_details(result_dict["access_token"])
 
@@ -696,7 +717,8 @@ def orcid_oauth2():
 
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
-    result = requests.get(GITHUB_API_URL, params={"access_token": access_token})
+    result = requests.get(GITHUB_API_URL, params={
+                          "access_token": access_token})
     return result.json()
 
 
@@ -737,7 +759,8 @@ class LoginUser:
             return render_template(
                 "new_security/login_user.html", external_login=external_login, redis_is_available=is_redis_available())
         else:
-            user_details = get_user_by_unique_column("email_address", params["email_address"])
+            user_details = get_user_by_unique_column(
+                "email_address", params["email_address"])
             #user_details = get_user_by_unique_column(es, "email_address", params["email_address"])
             user = None
             valid = None
@@ -755,8 +778,10 @@ class LoginUser:
                     pwfields.iterations,
                     pwfields.keylength,
                     pwfields.hashfunc)
-                logger.debug("\n\nComparing:\n{}\n{}\n".format(encrypted.password, pwfields.password))
-                valid = pbkdf2.safe_str_cmp(encrypted.password, pwfields.password)
+                logger.debug("\n\nComparing:\n{}\n{}\n".format(
+                    encrypted.password, pwfields.password))
+                valid = pbkdf2.safe_str_cmp(
+                    encrypted.password, pwfields.password)
                 logger.debug("valid is:", valid)
 
         if valid and not user.confirmed:
@@ -782,7 +807,8 @@ class LoginUser:
         else:
             if user:
                 self.unsuccessful_login(user)
-            flash("Invalid email-address or password. Please try again.", "alert-danger")
+            flash("Invalid email-address or password. Please try again.",
+                  "alert-danger")
             response = make_response(redirect(url_for('login')))
 
             return response
@@ -790,14 +816,17 @@ class LoginUser:
     def actual_login(self, user, assumed_by=None, import_collections=None):
         """The meat of the logging in process"""
         session_id_signed = self.successful_login(user, assumed_by)
-        flash("Thank you for logging in {}.".format(user.full_name), "alert-success")
-        response = make_response(redirect(url_for('index_page', import_collections=import_collections)))
+        flash("Thank you for logging in {}.".format(
+            user.full_name), "alert-success")
+        response = make_response(
+            redirect(url_for('index_page', import_collections=import_collections)))
         if self.remember_me:
             max_age = self.remember_time
         else:
             max_age = None
 
-        response.set_cookie(UserSession.cookie_name, session_id_signed, max_age=max_age)
+        response.set_cookie(UserSession.cookie_name,
+                            session_id_signed, max_age=max_age)
         return response
 
     def successful_login(self, user, assumed_by=None):
@@ -866,13 +895,15 @@ def forgot_password_submit():
     next_page = None
     if email_address != "":
         logger.debug("Wants to send password E-mail to ", email_address)
-        user_details = get_user_by_unique_column("email_address", email_address)
+        user_details = get_user_by_unique_column(
+            "email_address", email_address)
         if user_details:
             ForgotPasswordEmail(user_details["email_address"])
             return render_template("new_security/forgot_password_step2.html",
                                    subject=ForgotPasswordEmail.subject)
         else:
-            flash("The e-mail entered is not associated with an account.", "alert-danger")
+            flash("The e-mail entered is not associated with an account.",
+                  "alert-danger")
             return redirect(url_for("forgot_password"))
 
     else:
@@ -959,7 +990,8 @@ def register():
         errors = result.errors
 
         if len(errors) == 0:
-            flash("Registration successful. You may login with your new account", "alert-info")
+            flash(
+                "Registration successful. You may login with your new account", "alert-info")
             return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)

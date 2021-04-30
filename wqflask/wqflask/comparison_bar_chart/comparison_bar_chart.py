@@ -34,14 +34,16 @@ from flask import Flask, g
 class ComparisonBarChart:
 
     def __init__(self, start_vars):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                                     for trait in start_vars['trait_list'].split(',')]
 
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.all_sample_list = []
         self.traits = []
         self.insufficient_shared_samples = False
-        this_group = self.trait_list[0][1].group.name  # ZS: Getting initial group name before verifying all traits are in the same group in the following loop
+        # ZS: Getting initial group name before verifying all traits are in the same group in the following loop
+        this_group = self.trait_list[0][1].group.name
         for trait_db in self.trait_list:
             
             if trait_db[1].group.name != this_group:

@@ -54,7 +54,8 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                                               Mb >= %2.6f AND Mb < %2.6f AND
                                               StrainId1 = %d AND StrainId2 = %d
                                         """ % (chrName, newdict["TxStart"], newdict["TxEnd"], diffCol[0], diffCol[1])).fetchone()[0]
-				newdict["snpDensity"] = newdict["snpCount"] / (newdict["TxEnd"] - newdict["TxStart"]) / 1000.0
+				newdict["snpDensity"] = newdict["snpCount"] / \
+					(newdict["TxEnd"] - newdict["TxStart"]) / 1000.0
 			else:
 				newdict["snpDensity"] = newdict["snpCount"] = 0
 			
@@ -86,12 +87,14 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                                                           StrainId1 = %d AND StrainId2 = %d
                                                     """ % (chrName, newdict["TxStart"], newdict["TxEnd"], diffCol[0], diffCol[1])).fetchone()[0]
 
-						newdict2["snpDensity"] = newdict2["snpCount"] / (newdict2["TxEnd"] - newdict2["TxStart"]) / 1000.0
+						newdict2["snpDensity"] = newdict2["snpCount"] / \
+							(newdict2["TxEnd"] - newdict2["TxStart"]) / 1000.0
 					else:
 						newdict2["snpDensity"] = newdict2["snpCount"] = 0
 						
 					try:
-						newdict2['GeneLength'] = 1000.0 * (newdict2['TxEnd'] - newdict2['TxStart'])
+						newdict2['GeneLength'] = 1000.0 * \
+							(newdict2['TxEnd'] - newdict2['TxStart'])
 					except:
 						pass
 						

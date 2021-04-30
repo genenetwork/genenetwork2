@@ -36,7 +36,8 @@ def get_user_session():
 def set_user_session(response):
     if hasattr(g, 'user_session'):
         if not request.cookies.get(g.user_session.cookie_name):
-            response.set_cookie(g.user_session.cookie_name, g.user_session.cookie)
+            response.set_cookie(g.user_session.cookie_name,
+                                g.user_session.cookie)
     return response
 
 
@@ -44,7 +45,8 @@ def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
     assert len(the_uuid) == 36, "Is session_id a uuid?"
     assert separator == ":", "Expected a : here"
-    assert the_signature == hmac.hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
+    assert the_signature == hmac.hmac_creation(
+        the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
 
 
@@ -60,9 +62,11 @@ def create_signed_cookie():
 def manage_user():
     params = request.form if request.form else request.args
     if 'new_full_name' in params:
-        set_user_attribute(g.user_session.user_id, 'full_name', params['new_full_name'])
+        set_user_attribute(g.user_session.user_id,
+                           'full_name', params['new_full_name'])
     if 'new_organization' in params:
-        set_user_attribute(g.user_session.user_id, 'organization', params['new_organization'])
+        set_user_attribute(g.user_session.user_id,
+                           'organization', params['new_organization'])
 
     user_details = get_user_by_unique_column("user_id", g.user_session.user_id)
 
@@ -108,7 +112,8 @@ class UserSession:
 
                 # Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
-                flash("Due to inactivity your session has expired. If you'd like please login again.")
+                flash(
+                    "Due to inactivity your session has expired. If you'd like please login again.")
                 return None
             else:
                 self.record = dict(login_time=time.time(),
@@ -178,7 +183,9 @@ class UserSession:
 
         # ZS: Get user's collections if they exist
         collections = get_user_collections(self.user_id)
-        collections = [item for item in collections if item['name'] != "Your Default Collection"] + [item for item in collections if item['name'] == "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
+        collections = [item for item in collections if item['name'] != "Your Default Collection"] + \
+            [item for item in collections if item['name'] ==
+                "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
         return collections
 
     @property
@@ -234,12 +241,14 @@ class UserSession:
         this_collection = self.get_collection_by_id(collection_id)
 
         updated_collection = this_collection
-        current_members_minus_new = [member for member in this_collection['members'] if member not in traits_to_add]
+        current_members_minus_new = [
+            member for member in this_collection['members'] if member not in traits_to_add]
         updated_traits = traits_to_add + current_members_minus_new
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
-        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime(
+            '%b %d %Y %I:%M%p')
 
         updated_collections = []
         for collection in self.user_collections:
@@ -265,7 +274,8 @@ class UserSession:
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
-        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime(
+            '%b %d %Y %I:%M%p')
 
         updated_collections = []
         for collection in self.user_collections:

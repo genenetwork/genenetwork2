@@ -72,7 +72,8 @@ class TestTraits(unittest.TestCase):
         mock_get.return_value = get_return_obj
         results = get_ncbi_summary(trait)
         mock_exists.assert_called_once()
-        mock_get.assert_called_once_with(f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={trait.geneid}&retmode=json")
+        mock_get.assert_called_once_with(
+            f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={trait.geneid}&retmode=json")
 
         self.assertEqual(results, "this is a summary of the geneid")
 

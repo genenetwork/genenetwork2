@@ -10,7 +10,8 @@ logger = utility.logger.getLogger(__name__)
 
 
 def run_plink(this_trait, dataset, species, vals, maf):
-    plink_output_filename = webqtlUtil.genRandStr(f"{dataset.group.name}_{this_trait.name}_")
+    plink_output_filename = webqtlUtil.genRandStr(
+        f"{dataset.group.name}_{this_trait.name}_")
     gen_pheno_txt_file(dataset, vals)
 
     plink_command = f"{PLINK_COMMAND}  --noweb --bfile {flat_files('mapping')}/{dataset.group.name} --no-pheno --no-fid --no-parents --no-sex --maf {maf} --out { TMPDIR}{plink_output_filename} --assoc "
@@ -41,7 +42,8 @@ def gen_pheno_txt_file(this_dataset, vals):
                 this_val = -9
             else:
                 this_val = vals[i]
-            outfile.write("0 " + line[1] + " " + line[2] + " " + line[3] + " " + line[4] + " " + str(this_val) + "\n")
+            outfile.write("0 " + line[1] + " " + line[2] + " " + \
+                          line[3] + " " + line[4] + " " + str(this_val) + "\n")
 
 
 def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename=''):
@@ -162,7 +164,8 @@ def parse_plink_output(output_filename, species):
 
 
 def build_line_list(line=""):
-    line_list = line.strip().split(' ')  # irregular number of whitespaces between columns
+    # irregular number of whitespaces between columns
+    line_list = line.strip().split(' ')
     line_list = [item for item in line_list if item != '']
     line_list = [item.strip() for item in line_list]
 

@@ -18,7 +18,8 @@ logger = getLogger(__name__)
 class Heatmap:
 
     def __init__(self, start_vars, temp_uuid):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                                     for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.temp_uuid = temp_uuid
@@ -33,7 +34,8 @@ class Heatmap:
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
         for key in list(self.species.chromosomes.chromosomes.keys()):
-            chrnames.append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+            chrnames.append([self.species.chromosomes.chromosomes[key].name,
+                            self.species.chromosomes.chromosomes[key].mb_length])
 
         for trait_db in self.trait_list:
 
@@ -108,10 +110,13 @@ class Heatmap:
                     trimmed_samples.append(str(samples[i]))
                     trimmed_values.append(values[i])
 
-            trait_filename = str(this_trait.name) + "_" + str(self.dataset.name) + "_pheno"
+            trait_filename = str(this_trait.name) + "_" + \
+                                 str(self.dataset.name) + "_pheno"
             gen_pheno_txt_file(trimmed_samples, trimmed_values, trait_filename)
 
-            output_filename = self.dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            output_filename = self.dataset.group.name + "_GWA_" + \
+                ''.join(random.choice(string.ascii_uppercase + string.digits)
+                        for _ in range(6))
 
             reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt -n 1000 -o {4}{5}.txt'.format(flat_files('genotype'),
                                                                                                                     genofile_name,
@@ -129,9 +134,11 @@ class Heatmap:
             self.trait_results[this_trait.name] = []
             for qtl in reaper_results:
                 if qtl['additive'] > 0:
-                    self.trait_results[this_trait.name].append(-float(qtl['lrs_value']))
+                    self.trait_results[this_trait.name].append(
+                        -float(qtl['lrs_value']))
                 else:
-                    self.trait_results[this_trait.name].append(float(qtl['lrs_value']))
+                    self.trait_results[this_trait.name].append(
+                        float(qtl['lrs_value']))
 
 
 def gen_pheno_txt_file(samples, vals, filename):

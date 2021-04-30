@@ -65,7 +65,8 @@ class Stats:
         if len(self.sequence) < 1:
             value = None
         elif (percentile >= 100):
-            sys.stderr.write('ERROR: percentile must be < 100.  you supplied: %s\n' % percentile)
+            sys.stderr.write(
+                'ERROR: percentile must be < 100.  you supplied: %s\n' % percentile)
             value = None
         else:
             element_idx = int(len(self.sequence) * (percentile / 100.0))

@@ -35,11 +35,13 @@ class Docs:
 
 def update_text(start_vars):
     content = start_vars['ckcontent']
-    content = content.replace('%', '%%').replace('"', '\\"').replace("'", "\\'")
+    content = content.replace('%', '%%').replace(
+        '"', '\\"').replace("'", "\\'")
 
     try:
         if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
-            sql = "UPDATE Docs SET content='{0}' WHERE entry='{1}';".format(content, start_vars['entry_type'])
+            sql = "UPDATE Docs SET content='{0}' WHERE entry='{1}';".format(
+                content, start_vars['entry_type'])
             g.db.execute(sql)
     except:
         pass

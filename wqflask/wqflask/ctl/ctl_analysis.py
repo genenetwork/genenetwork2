@@ -46,13 +46,18 @@ class CTL:
         #log = r_file("/tmp/genenetwork_ctl.log", open = "wt")
         # r_sink(log)                                                       # Uncomment the r_sink() commands to log output from stdout/stderr to a file
         #r_sink(log, type = "message")
-        r_library("ctl")                                                   # Load CTL - Should only be done once, since it is quite expensive
+        # Load CTL - Should only be done once, since it is quite expensive
+        r_library("ctl")
         r_options(stringsAsFactors=False)
         logger.info("Initialization of CTL done, package loaded in R session")
-        self.r_CTLscan = ro.r["CTLscan"]                        # Map the CTLscan function
-        self.r_CTLsignificant = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
-        self.r_lineplot = ro.r["ctl.lineplot"]                   # Map the ctl.lineplot function
-        self.r_plotCTLobject = ro.r["plot.CTLobject"]                 # Map the CTLsignificant function
+        # Map the CTLscan function
+        self.r_CTLscan = ro.r["CTLscan"]
+        # Map the CTLsignificant function
+        self.r_CTLsignificant = ro.r["CTLsignificant"]
+        # Map the ctl.lineplot function
+        self.r_lineplot = ro.r["ctl.lineplot"]
+        # Map the CTLsignificant function
+        self.r_plotCTLobject = ro.r["plot.CTLobject"]
         self.nodes_list = []
         self.edges_list = []
         logger.info("Obtained pointers to CTL functions")
@@ -81,7 +86,8 @@ class CTL:
 
     def run_analysis(self, requestform):
         logger.info("Starting CTL analysis on dataset")
-        self.trait_db_list = [trait.strip() for trait in requestform['trait_list'].split(',')]
+        self.trait_db_list = [trait.strip()
+                                          for trait in requestform['trait_list'].split(',')]
         self.trait_db_list = [x for x in self.trait_db_list if x]
 
         logger.debug("strategy:", requestform.get("strategy"))
@@ -113,9 +119,11 @@ class CTL:
           markers.append(marker["genotypes"])
 
         genotypes = list(itertools.chain(*markers))
-        logger.debug(len(genotypes) / len(individuals), "==", len(parser.markers))
+        logger.debug(len(genotypes) / len(individuals),
+                     "==", len(parser.markers))
 
-        rGeno = r_t(ro.r.matrix(r_unlist(genotypes), nrow=len(markernames), ncol=len(individuals), dimnames=r_list(markernames, individuals), byrow=True))
+        rGeno = r_t(ro.r.matrix(r_unlist(genotypes), nrow=len(markernames), ncol=len(
+            individuals), dimnames=r_list(markernames, individuals), byrow=True))
 
         # Create a phenotype matrix
         traits = []
@@ -131,7 +139,8 @@ class CTL:
               else:
                 traits.append("-999")
 
-        rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames=r_list(self.trait_db_list, individuals), byrow=True))
+        rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(
+            individuals), dimnames=r_list(self.trait_db_list, individuals), byrow=True))
 
         logger.debug(rPheno)
 
@@ -144,7 +153,8 @@ class CTL:
         #r_write_table(rPheno, "~/outputGN/pheno.csv")
 
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno, strategy=strategy, nperm=nperm, parametric = parametric, nthreads=6)
+        res = self.r_CTLscan(rGeno, rPheno, strategy=strategy,
+                             nperm=nperm, parametric = parametric, nthreads=6)
 
         # Get significant interactions
         significant = self.r_CTLsignificant(res, significance=significance)
@@ -155,20 +165,27 @@ class CTL:
         self.results['imgloc1'] = GENERATED_IMAGE_DIR + self.results['imgurl1']
 
         self.results['ctlresult'] = significant
-        self.results['requestform'] = requestform             # Store the user specified parameters for the output page
+        # Store the user specified parameters for the output page
+        self.results['requestform'] = requestform
 
         # Create the lineplot
-        r_png(self.results['imgloc1'], width=1000, height=600, type='cairo-png')
+        r_png(self.results['imgloc1'], width=1000,
+              height=600, type='cairo-png')
         self.r_lineplot(res, significance=significance)
         r_dev_off()
 
-        n = 2                                                 # We start from 2, since R starts from 1 :)
+        # We start from 2, since R starts from 1 :)
+        n = 2
         for trait in self.trait_db_list:
           # Create the QTL like CTL plots
-          self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
-          self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + self.results['imgurl' + str(n)]
-          r_png(self.results['imgloc' + str(n)], width=1000, height=600, type='cairo-png')
-          self.r_plotCTLobject(res, (n - 1), significance=significance, main='Phenotype ' + trait)
+          self.results['imgurl' + \
+              str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
+          self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + \
+                                      self.results['imgurl' + str(n)]
+          r_png(self.results['imgloc' + str(n)],
+                width=1000, height=600, type='cairo-png')
+          self.r_plotCTLobject(
+              res, (n - 1), significance=significance, main='Phenotype ' + trait)
           r_dev_off()
           n = n + 1
 
@@ -178,17 +195,24 @@ class CTL:
         # Create the interactive graph for cytoscape visualization (Nodes and Edges)
         if not isinstance(significant, ri.RNULLType):
           for x in range(len(significant[0])):
-            logger.debug(significant[0][x], significant[1][x], significant[2][x])     # Debug to console
-            tsS = significant[0][x].split(':')                                        # Source
-            tsT = significant[2][x].split(':')                                        # Target
-            gtS = create_trait(name=tsS[0], dataset_name=tsS[1])            # Retrieve Source info from the DB
-            gtT = create_trait(name=tsT[0], dataset_name=tsT[1])            # Retrieve Target info from the DB
+            logger.debug(significant[0][x], significant[1]
+                         [x], significant[2][x])     # Debug to console
+            # Source
+            tsS = significant[0][x].split(':')
+            # Target
+            tsT = significant[2][x].split(':')
+            # Retrieve Source info from the DB
+            gtS = create_trait(name=tsS[0], dataset_name=tsS[1])
+            # Retrieve Target info from the DB
+            gtT = create_trait(name=tsT[0], dataset_name=tsT[1])
             self.addNode(gtS)
             self.addNode(gtT)
             self.addEdge(gtS, gtT, significant, x)
 
-            significant[0][x] = "{} ({})".format(gtS.symbol, gtS.name)                    # Update the trait name for the displayed table
-            significant[2][x] = "{} ({})".format(gtT.symbol, gtT.name)                    # Update the trait name for the displayed table
+            # Update the trait name for the displayed table
+            significant[0][x] = "{} ({})".format(gtS.symbol, gtS.name)
+            # Update the trait name for the displayed table
+            significant[2][x] = "{} ({})".format(gtT.symbol, gtT.name)
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
 

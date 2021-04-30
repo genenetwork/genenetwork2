@@ -77,8 +77,10 @@ def remove_users():
    admin_ids_to_remove = request.form['selected_admin_ids']
    member_ids_to_remove = request.form['selected_member_ids']
 
-   remove_users_from_group(g.user_session.user_id, admin_ids_to_remove.split(":"), group_id, user_type="admins")
-   remove_users_from_group(g.user_session.user_id, member_ids_to_remove.split(":"), group_id, user_type="members")
+   remove_users_from_group(g.user_session.user_id, admin_ids_to_remove.split(
+      ":"), group_id, user_type="admins")
+   remove_users_from_group(g.user_session.user_id, member_ids_to_remove.split(
+      ":"), group_id, user_type="members")
 
    return redirect(url_for('view_group', id=group_id))
 
@@ -88,10 +90,12 @@ def add_users(user_type='members'):
    group_id = request.form['group_id']
    if user_type == "admins":
       user_emails = request.form['admin_emails_to_add'].split(",")
-      add_users_to_group(g.user_session.user_id, group_id, user_emails, admins=True)
+      add_users_to_group(g.user_session.user_id, group_id,
+                         user_emails, admins=True)
    elif user_type == "members":
       user_emails = request.form['member_emails_to_add'].split(",")
-      add_users_to_group(g.user_session.user_id, group_id, user_emails, admins=False)
+      add_users_to_group(g.user_session.user_id, group_id,
+                         user_emails, admins=False)
 
    return redirect(url_for('view_group', id=group_id))
 
@@ -111,7 +115,8 @@ def add_or_edit_group():
    if "group_name" in params:
       member_user_ids = set()
       admin_user_ids = set()
-      admin_user_ids.add(g.user_session.user_id)  # ZS: Always add the user creating the group as an admin
+      # ZS: Always add the user creating the group as an admin
+      admin_user_ids.add(g.user_session.user_id)
       if "admin_emails_to_add" in params:
          admin_emails = params['admin_emails_to_add'].split(",")
          for email in admin_emails:
@@ -127,7 +132,8 @@ def add_or_edit_group():
                member_user_ids.add(user_details['user_id'])
          #send_group_invites(params['group_id'], user_email_list = user_emails, user_type="members")
 
-      create_group(list(admin_user_ids), list(member_user_ids), params['group_name'])
+      create_group(list(admin_user_ids), list(
+         member_user_ids), params['group_name'])
       return redirect(url_for('manage_groups'))
    else:
       return render_template("admin/create_group.html")
@@ -149,9 +155,11 @@ def send_group_invites(group_id, user_email_list=[], user_type="members"):
                ((user_type == "members") and (user_details['user_id'] in group_info['members'])):
                continue
             else:
-               send_verification_email(user_details, template_name="email/group_verification.txt", key_prefix="verification_code", subject = "You've been invited to join a GeneNetwork user group")
+               send_verification_email(user_details, template_name="email/group_verification.txt",
+                                       key_prefix="verification_code", subject = "You've been invited to join a GeneNetwork user group")
       else:
-         temp_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+         temp_password = ''.join(random.choice(
+            string.ascii_uppercase + string.digits) for _ in range(6))
          user_details = {
             'user_id': str(uuid.uuid4()),
             'email_address': user_email,
