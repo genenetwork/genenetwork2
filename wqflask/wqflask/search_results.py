@@ -78,7 +78,7 @@ class SearchResultPage:
         try:
             self.search()
         except:
-           self.search_term_exists = False
+            self.search_term_exists = False
 
         self.too_many_results = False
         if self.search_term_exists:

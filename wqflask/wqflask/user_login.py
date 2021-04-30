@@ -464,49 +464,49 @@ def password_reset_step2():
 
 
 def register_user(params):
-        thank_you_mode = False
-        errors = []
-        user_details = {}
+    thank_you_mode = False
+    errors = []
+    user_details = {}
 
-        user_details['email_address'] = params.get(
-            'email_address', '').encode("utf-8").strip()
-        if not (5 <= len(user_details['email_address']) <= 50):
-            errors.append(
-                'Email Address needs to be between 5 and 50 characters.')
-        else:
-            email_exists = get_user_by_unique_column(
-                "email_address", user_details['email_address'])
-            if email_exists:
-                errors.append('User already exists with that email')
+    user_details['email_address'] = params.get(
+        'email_address', '').encode("utf-8").strip()
+    if not (5 <= len(user_details['email_address']) <= 50):
+        errors.append(
+            'Email Address needs to be between 5 and 50 characters.')
+    else:
+        email_exists = get_user_by_unique_column(
+            "email_address", user_details['email_address'])
+        if email_exists:
+            errors.append('User already exists with that email')
 
-        user_details['full_name'] = params.get(
-            'full_name', '').encode("utf-8").strip()
-        if not (5 <= len(user_details['full_name']) <= 50):
-            errors.append('Full Name needs to be between 5 and 50 characters.')
+    user_details['full_name'] = params.get(
+        'full_name', '').encode("utf-8").strip()
+    if not (5 <= len(user_details['full_name']) <= 50):
+        errors.append('Full Name needs to be between 5 and 50 characters.')
 
-        user_details['organization'] = params.get(
-            'organization', '').encode("utf-8").strip()
-        if user_details['organization'] and not (5 <= len(user_details['organization']) <= 50):
-            errors.append(
-                'Organization needs to be empty or between 5 and 50 characters.')
+    user_details['organization'] = params.get(
+        'organization', '').encode("utf-8").strip()
+    if user_details['organization'] and not (5 <= len(user_details['organization']) <= 50):
+        errors.append(
+            'Organization needs to be empty or between 5 and 50 characters.')
 
-        password = str(params.get('password', ''))
-        if not (6 <= len(password)):
-            errors.append('Password needs to be at least 6 characters.')
+    password = str(params.get('password', ''))
+    if not (6 <= len(password)):
+        errors.append('Password needs to be at least 6 characters.')
 
-        if params.get('password_confirm') != password:
-            errors.append("Passwords don't match.")
+    if params.get('password_confirm') != password:
+        errors.append("Passwords don't match.")
 
-        user_details['password'] = set_password(password)
-        user_details['user_id'] = str(uuid.uuid4())
-        user_details['confirmed'] = 1
+    user_details['password'] = set_password(password)
+    user_details['user_id'] = str(uuid.uuid4())
+    user_details['confirmed'] = 1
 
-        user_details['registration_info'] = basic_info()
+    user_details['registration_info'] = basic_info()
 
-        if len(errors) == 0:
-            save_user(user_details, user_details['user_id'])
+    if len(errors) == 0:
+        save_user(user_details, user_details['user_id'])
 
-        return errors
+    return errors
 
 
 @app.route("/n/register", methods=('GET', 'POST'))

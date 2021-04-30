@@ -65,10 +65,10 @@ class RunMapping:
         # ZS: Sometimes a group may have a genofile that only includes a subset of samples
         genofile_samplelist = []
         if 'genofile' in start_vars:
-          if start_vars['genofile'] != "":
-            self.genofile_string = start_vars['genofile']
-            self.dataset.group.genofile = self.genofile_string.split(":")[0]
-            genofile_samplelist = get_genofile_samplelist(self.dataset)
+            if start_vars['genofile'] != "":
+                self.genofile_string = start_vars['genofile']
+                self.dataset.group.genofile = self.genofile_string.split(":")[0]
+                genofile_samplelist = get_genofile_samplelist(self.dataset)
 
         all_samples_ordered = self.dataset.group.all_samples_ordered()
 
@@ -324,181 +324,181 @@ class RunMapping:
 
         self.no_results = False
         if len(results) == 0:
-          self.no_results = True
+            self.no_results = True
         else:
-          if self.pair_scan == True:
-              self.qtl_results = []
-              highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
-              for marker in results:
-                  if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                      if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                          highest_chr = marker['chr1']
-                      if 'lod_score' in list(marker.keys()):
-                          self.qtl_results.append(marker)
+            if self.pair_scan == True:
+                self.qtl_results = []
+                highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
+                for marker in results:
+                    if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                        if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
+                            highest_chr = marker['chr1']
+                        if 'lod_score' in list(marker.keys()):
+                            self.qtl_results.append(marker)
 
-              self.trimmed_markers = results
+                self.trimmed_markers = results
 
-              for qtl in enumerate(self.qtl_results):
-                  self.json_data['chr1'].append(str(qtl['chr1']))
-                  self.json_data['chr2'].append(str(qtl['chr2']))
-                  self.json_data['Mb'].append(qtl['Mb'])
-                  self.json_data['markernames'].append(qtl['name'])
+                for qtl in enumerate(self.qtl_results):
+                    self.json_data['chr1'].append(str(qtl['chr1']))
+                    self.json_data['chr2'].append(str(qtl['chr2']))
+                    self.json_data['Mb'].append(qtl['Mb'])
+                    self.json_data['markernames'].append(qtl['name'])
 
-              self.js_data = dict(
-                  json_data=self.json_data,
-                  this_trait=self.this_trait.name,
-                  data_set=self.dataset.name,
-                  maf=self.maf,
-                  manhattan_plot=self.manhattan_plot,
-                  mapping_scale=self.mapping_scale,
-                  qtl_results=self.qtl_results
-              )
-
-          else:
-              self.qtl_results = []
-              self.results_for_browser = []
-              self.annotations_for_browser = []
-              highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
-              for marker in results:
-                  if 'Mb' in marker:
-                      this_ps = marker['Mb'] * 1000000
-                  else:
-                      this_ps = marker['cM'] * 1000000
-
-                  browser_marker = dict(
-                      chr=str(marker['chr']),
-                      rs=marker['name'],
-                      ps=this_ps,
-                      url="/show_trait?trait_id=" + \
-                          marker['name'] + "&dataset=" + \
-                              self.dataset.group.name + "Geno"
-                  )
-
-                  if self.geno_db_exists == "True":
-                      annot_marker = dict(
-                          name=str(marker['name']),
-                          chr=str(marker['chr']),
-                          rs=marker['name'],
-                          pos=this_ps,
-                          url="/show_trait?trait_id=" + \
-                              marker['name'] + "&dataset=" + \
-                                  self.dataset.group.name + "Geno"
-                      )
-                  else:
-                      annot_marker = dict(
-                          name=str(marker['name']),
-                          chr=str(marker['chr']),
-                          rs=marker['name'],
-                          pos=this_ps
-                      )
-
-                  if 'lrs_value' in marker and marker['lrs_value'] > 0:
-                      browser_marker['p_wald'] = 10**- \
-                          (marker['lrs_value'] / 4.61)
-                  elif 'lod_score' in marker and marker['lod_score'] > 0:
-                      browser_marker['p_wald'] = 10**-(marker['lod_score'])
-                  else:
-                      browser_marker['p_wald'] = 0
-
-                  self.results_for_browser.append(browser_marker)
-                  self.annotations_for_browser.append(annot_marker)
-                  if str(marker['chr']) > '0' or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
-                      if str(marker['chr']) > str(highest_chr) or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
-                          highest_chr = marker['chr']
-                      if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
-                          if 'Mb' in marker.keys():
-                              marker['display_pos'] = "Chr" + \
-                                  str(marker['chr']) + ": " + \
-                                      "{:.6f}".format(marker['Mb'])
-                          elif 'cM' in marker.keys():
-                              marker['display_pos'] = "Chr" + \
-                                  str(marker['chr']) + ": " + \
-                                      "{:.3f}".format(marker['cM'])
-                          else:
-                              marker['display_pos'] = "N/A"
-                          self.qtl_results.append(marker)
-
-              total_markers = len(self.qtl_results)
-
-              with Bench("Exporting Results"):
-                  export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
-                                         self.mapping_scale, self.score_type, self.transform, self.covariates, self.n_samples)
-
-              with Bench("Trimming Markers for Figure"):
-                  if len(self.qtl_results) > 30000:
-                      self.qtl_results = trim_markers_for_figure(
-                          self.qtl_results)
-                      self.results_for_browser = trim_markers_for_figure(
-                          self.results_for_browser)
-                      filtered_annotations = []
-                      for marker in self.results_for_browser:
-                          for annot_marker in self.annotations_for_browser:
-                              if annot_marker['rs'] == marker['rs']:
-                                  filtered_annotations.append(annot_marker)
-                                  break
-                      self.annotations_for_browser = filtered_annotations
-                      browser_files = write_input_for_browser(
-                          self.dataset, self.results_for_browser, self.annotations_for_browser)
-                  else:
-                      browser_files = write_input_for_browser(
-                          self.dataset, self.results_for_browser, self.annotations_for_browser)
-
-              with Bench("Trimming Markers for Table"):
-                  self.trimmed_markers = trim_markers_for_table(results)
-
-              chr_lengths = get_chr_lengths(
-                  self.mapping_scale, self.mapping_method, self.dataset, self.qtl_results)
-
-              # ZS: For zooming into genome browser, need to pass chromosome name instead of number
-              if self.dataset.group.species == "mouse":
-                  if self.selected_chr == 20:
-                      this_chr = "X"
-                  else:
-                      this_chr = str(self.selected_chr)
-              elif self.dataset.group.species == "rat":
-                  if self.selected_chr == 21:
-                      this_chr = "X"
-                  else:
-                      this_chr = str(self.selected_chr)
-              else:
-                  if self.selected_chr == 22:
-                      this_chr = "X"
-                  elif self.selected_chr == 23:
-                      this_chr = "Y"
-                  else:
-                      this_chr = str(self.selected_chr)
-
-              if self.mapping_method != "gemma":
-                  if self.score_type == "LRS":
-                      significant_for_browser = self.significant / 4.61
-                  else:
-                      significant_for_browser = self.significant
-
-                  self.js_data = dict(
-                      #result_score_type = self.score_type,
-                      #this_trait = self.this_trait.name,
-                      #data_set = self.dataset.name,
-                      #maf = self.maf,
-                      #manhattan_plot = self.manhattan_plot,
-                      #mapping_scale = self.mapping_scale,
-                      #chromosomes = chromosome_mb_lengths,
-                      #qtl_results = self.qtl_results,
-                      categorical_vars=self.categorical_vars,
-                      chr_lengths=chr_lengths,
-                      num_perm=self.num_perm,
-                      perm_results=self.perm_output,
-                      significant=significant_for_browser,
-                      browser_files=browser_files,
-                      selected_chr=this_chr,
-                      total_markers=total_markers
-                  )
-              else:
                 self.js_data = dict(
-                    chr_lengths=chr_lengths,
-                    browser_files=browser_files,
-                    selected_chr=this_chr,
-                    total_markers=total_markers
+                    json_data=self.json_data,
+                    this_trait=self.this_trait.name,
+                    data_set=self.dataset.name,
+                    maf=self.maf,
+                    manhattan_plot=self.manhattan_plot,
+                    mapping_scale=self.mapping_scale,
+                    qtl_results=self.qtl_results
                 )
+
+            else:
+                self.qtl_results = []
+                self.results_for_browser = []
+                self.annotations_for_browser = []
+                highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
+                for marker in results:
+                    if 'Mb' in marker:
+                        this_ps = marker['Mb'] * 1000000
+                    else:
+                        this_ps = marker['cM'] * 1000000
+
+                    browser_marker = dict(
+                        chr=str(marker['chr']),
+                        rs=marker['name'],
+                        ps=this_ps,
+                        url="/show_trait?trait_id=" + \
+                            marker['name'] + "&dataset=" + \
+                                self.dataset.group.name + "Geno"
+                    )
+
+                    if self.geno_db_exists == "True":
+                        annot_marker = dict(
+                            name=str(marker['name']),
+                            chr=str(marker['chr']),
+                            rs=marker['name'],
+                            pos=this_ps,
+                            url="/show_trait?trait_id=" + \
+                                marker['name'] + "&dataset=" + \
+                                    self.dataset.group.name + "Geno"
+                        )
+                    else:
+                        annot_marker = dict(
+                            name=str(marker['name']),
+                            chr=str(marker['chr']),
+                            rs=marker['name'],
+                            pos=this_ps
+                        )
+
+                    if 'lrs_value' in marker and marker['lrs_value'] > 0:
+                        browser_marker['p_wald'] = 10**- \
+                            (marker['lrs_value'] / 4.61)
+                    elif 'lod_score' in marker and marker['lod_score'] > 0:
+                        browser_marker['p_wald'] = 10**-(marker['lod_score'])
+                    else:
+                        browser_marker['p_wald'] = 0
+
+                    self.results_for_browser.append(browser_marker)
+                    self.annotations_for_browser.append(annot_marker)
+                    if str(marker['chr']) > '0' or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
+                        if str(marker['chr']) > str(highest_chr) or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
+                            highest_chr = marker['chr']
+                        if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
+                            if 'Mb' in marker.keys():
+                                marker['display_pos'] = "Chr" + \
+                                    str(marker['chr']) + ": " + \
+                                        "{:.6f}".format(marker['Mb'])
+                            elif 'cM' in marker.keys():
+                                marker['display_pos'] = "Chr" + \
+                                    str(marker['chr']) + ": " + \
+                                        "{:.3f}".format(marker['cM'])
+                            else:
+                                marker['display_pos'] = "N/A"
+                            self.qtl_results.append(marker)
+
+                total_markers = len(self.qtl_results)
+
+                with Bench("Exporting Results"):
+                    export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
+                                           self.mapping_scale, self.score_type, self.transform, self.covariates, self.n_samples)
+
+                with Bench("Trimming Markers for Figure"):
+                    if len(self.qtl_results) > 30000:
+                        self.qtl_results = trim_markers_for_figure(
+                            self.qtl_results)
+                        self.results_for_browser = trim_markers_for_figure(
+                            self.results_for_browser)
+                        filtered_annotations = []
+                        for marker in self.results_for_browser:
+                            for annot_marker in self.annotations_for_browser:
+                                if annot_marker['rs'] == marker['rs']:
+                                    filtered_annotations.append(annot_marker)
+                                    break
+                        self.annotations_for_browser = filtered_annotations
+                        browser_files = write_input_for_browser(
+                            self.dataset, self.results_for_browser, self.annotations_for_browser)
+                    else:
+                        browser_files = write_input_for_browser(
+                            self.dataset, self.results_for_browser, self.annotations_for_browser)
+
+                with Bench("Trimming Markers for Table"):
+                    self.trimmed_markers = trim_markers_for_table(results)
+
+                chr_lengths = get_chr_lengths(
+                    self.mapping_scale, self.mapping_method, self.dataset, self.qtl_results)
+
+                # ZS: For zooming into genome browser, need to pass chromosome name instead of number
+                if self.dataset.group.species == "mouse":
+                    if self.selected_chr == 20:
+                        this_chr = "X"
+                    else:
+                        this_chr = str(self.selected_chr)
+                elif self.dataset.group.species == "rat":
+                    if self.selected_chr == 21:
+                        this_chr = "X"
+                    else:
+                        this_chr = str(self.selected_chr)
+                else:
+                    if self.selected_chr == 22:
+                        this_chr = "X"
+                    elif self.selected_chr == 23:
+                        this_chr = "Y"
+                    else:
+                        this_chr = str(self.selected_chr)
+
+                if self.mapping_method != "gemma":
+                    if self.score_type == "LRS":
+                        significant_for_browser = self.significant / 4.61
+                    else:
+                        significant_for_browser = self.significant
+
+                    self.js_data = dict(
+                        #result_score_type = self.score_type,
+                        #this_trait = self.this_trait.name,
+                        #data_set = self.dataset.name,
+                        #maf = self.maf,
+                        #manhattan_plot = self.manhattan_plot,
+                        #mapping_scale = self.mapping_scale,
+                        #chromosomes = chromosome_mb_lengths,
+                        #qtl_results = self.qtl_results,
+                        categorical_vars=self.categorical_vars,
+                        chr_lengths=chr_lengths,
+                        num_perm=self.num_perm,
+                        perm_results=self.perm_output,
+                        significant=significant_for_browser,
+                        browser_files=browser_files,
+                        selected_chr=this_chr,
+                        total_markers=total_markers
+                    )
+                else:
+                    self.js_data = dict(
+                        chr_lengths=chr_lengths,
+                        browser_files=browser_files,
+                        selected_chr=this_chr,
+                        total_markers=total_markers
+                    )
 
     def run_rqtl_plink(self):
         # os.chdir("") never do this inside a webserver!!

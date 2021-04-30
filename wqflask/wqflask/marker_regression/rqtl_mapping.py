@@ -294,13 +294,13 @@ def add_categorical_covar(cross, covar_as_string, i):
     col_names = []
     # logger.info("loop")
     for x in range(1, (nCol + 1)):
-      #logger.info("loop" + str(x));
-      col_name = "covar_" + str(i) + "_" + str(x)
-      #logger.info("col_name" + col_name);
-      ro.r('the_cross$pheno <- cbind(pheno, ' + \
-           col_name + ' = newcovar[,' + str(x) + '])')
-      col_names.append(col_name)
-      #logger.info("loop" + str(x) + "done");
+        #logger.info("loop" + str(x));
+        col_name = "covar_" + str(i) + "_" + str(x)
+        #logger.info("col_name" + col_name);
+        ro.r('the_cross$pheno <- cbind(pheno, ' + \
+             col_name + ' = newcovar[,' + str(x) + '])')
+        col_names.append(col_name)
+        #logger.info("loop" + str(x) + "done");
 
     logger.info("returning from add_categorical_covar")
     return ro.r["the_cross"], col_names
