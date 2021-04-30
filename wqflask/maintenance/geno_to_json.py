@@ -66,16 +66,16 @@ class ConvertGenoFile:
         self.configurations = {}
         #self.skipped_cols = 3
         
-        #if self.input_file.endswith(".geno.gz"):
+        # if self.input_file.endswith(".geno.gz"):
         #    print("self.input_file: ", self.input_file)
         #    self.input_fh = gzip.open(self.input_file)
-        #else:
+        # else:
         self.input_fh = open(self.input_file)
         
         with open(self.output_file, "w") as self.output_fh:
-            #if self.file_type == "geno":
+            # if self.file_type == "geno":
             self.process_csv()
-            #elif self.file_type == "snps":
+            # elif self.file_type == "snps":
             #    self.process_snps_file()
 
 
@@ -105,7 +105,7 @@ class ConvertGenoFile:
                     this_marker.genotypes.append("NA")
                 
             #print("this_marker is:", pf(this_marker.__dict__))   
-            #if this_marker.chr == "14":
+            # if this_marker.chr == "14":
             self.markers.append(this_marker.__dict__)
 
         with open(self.output_file, 'w') as fh:
@@ -115,16 +115,16 @@ class ConvertGenoFile:
                 #self.latest_col_pos = item_count + self.skipped_cols
                 #self.latest_col_value = item
                 
-                #if item_count != 0:
+                # if item_count != 0:
                 #    self.output_fh.write(" ")
-                #self.output_fh.write(self.configurations[item.upper()])
+                # self.output_fh.write(self.configurations[item.upper()])
                     
-            #self.output_fh.write("\n")
+            # self.output_fh.write("\n")
 
 
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
-            #if self.input_file.endswith(".geno.gz"):
+            # if self.input_file.endswith(".geno.gz"):
             #    print("row: ", row)
             self.latest_row_value = row
             # Take care of headers
@@ -176,21 +176,21 @@ class ConvertGenoFile:
                 print("    Row is:", convertob.latest_row_value)
                 break
             
-    #def process_snps_file(cls, snps_file, new_directory):
+    # def process_snps_file(cls, snps_file, new_directory):
     #    output_file = os.path.join(new_directory, "mouse_families.json")
     #    print("%s -> %s" % (snps_file, output_file))
     #    convertob = ConvertGenoFile(input_file, output_file)
         
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
     New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/json"""
     #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
     #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")
-    #convertob.convert()
+    # convertob.convert()
     ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
-    #ConvertGenoFiles(Geno_Directory)
+    # ConvertGenoFiles(Geno_Directory)
     
     #process_csv(Input_File, Output_File)

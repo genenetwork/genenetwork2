@@ -53,7 +53,7 @@ class GSearch:
                 for line in re:
                     dataset = create_dataset(line[3], "ProbeSet", get_samplelist=False)
                     trait_id = line[4]
-                    #with Bench("Building trait object"):
+                    # with Bench("Building trait object"):
                     this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     self.trait_list.append(this_trait)
 
@@ -108,8 +108,8 @@ class GSearch:
         json_dict['data'] = []
 
         for i, trait in enumerate(self.trait_list):
-            trait_row = { "checkbox": "<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
-                         "index": i+1,
+            trait_row = {"checkbox": "<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
+                         "index": i + 1,
                          "species": trait.dataset.group.species,
                          "group": trait.dataset.group.name,
                          "tissue": trait.dataset.tissue,

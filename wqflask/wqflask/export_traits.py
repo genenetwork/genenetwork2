@@ -13,7 +13,7 @@ from base.trait import create_trait, retrieve_trait_info
 from pprint import pformat as pf
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 def export_search_results_csv(targs):
 

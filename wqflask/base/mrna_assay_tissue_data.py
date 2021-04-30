@@ -9,7 +9,7 @@ from utility.db_tools import escape
 
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 class MrnaAssayTissueData:
 
@@ -20,7 +20,7 @@ class MrnaAssayTissueData:
 
         self.data = collections.defaultdict(Bunch)
 
-        query =  '''select t.Symbol, t.GeneId, t.DataId, t.Chr, t.Mb, t.description, t.Probe_Target_Description
+        query = '''select t.Symbol, t.GeneId, t.DataId, t.Chr, t.Mb, t.description, t.Probe_Target_Description
                         from (
                         select Symbol, max(Mean) as maxmean
                         from TissueProbeSetXRef
@@ -31,14 +31,14 @@ class MrnaAssayTissueData:
         # Due to the limit size of TissueProbeSetFreezeId table in DB,
         # performance of inner join is acceptable.MrnaAssayTissueData(gene_symbols=symbol_list)
         if len(gene_symbols) == 0:
-            query +=  '''Symbol!='' and Symbol Is Not Null group by Symbol)
+            query += '''Symbol!='' and Symbol Is Not Null group by Symbol)
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
                 and t.Mean = x.maxmean;
                     '''
         else:
             in_clause = db_tools.create_in_clause(gene_symbols)
 
-            #ZS: This was in the query, not sure why: http://docs.python.org/2/library/string.html?highlight=lower#string.lower
+            # ZS: This was in the query, not sure why: http://docs.python.org/2/library/string.html?highlight=lower#string.lower
             query += ''' Symbol in {} group by Symbol)
                 as x inner join TissueProbeSetXRef as t on t.Symbol = x.Symbol
                 and t.Mean = x.maxmean;
@@ -64,11 +64,11 @@ class MrnaAssayTissueData:
                 self.data[symbol].probe_target_description = result.Probe_Target_Description
 
     ###########################################################################
-    #Input: cursor, symbolList (list), dataIdDict(Dict)
-    #output: symbolValuepairDict (dictionary):one dictionary of Symbol and Value Pair,
+    # Input: cursor, symbolList (list), dataIdDict(Dict)
+    # output: symbolValuepairDict (dictionary):one dictionary of Symbol and Value Pair,
     #        key is symbol, value is one list of expression values of one probeSet;
-    #function: get one dictionary whose key is gene symbol and value is tissue expression data (list type).
-    #Attention! All keys are lower case!
+    # function: get one dictionary whose key is gene symbol and value is tissue expression data (list type).
+    # Attention! All keys are lower case!
     ###########################################################################
 
     def get_symbol_values_pairs(self):

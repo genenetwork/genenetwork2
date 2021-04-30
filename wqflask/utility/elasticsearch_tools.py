@@ -48,7 +48,7 @@ logger = getLogger(__name__)
 from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
 
 def test_elasticsearch_connection():
-    es = Elasticsearch(['http://'+ELASTICSEARCH_HOST+":"+str(ELASTICSEARCH_PORT)+'/'], verify_certs=True)
+    es = Elasticsearch(['http://' + ELASTICSEARCH_HOST + ":" + str(ELASTICSEARCH_PORT) + '/'], verify_certs=True)
     if not es.ping():
         logger.warning("Elasticsearch is DOWN")
 
@@ -97,8 +97,8 @@ def get_item_by_unique_column(es, column_name, column_value, index, doc_type):
     item_details = None
     try:
         response = es.search(
-            index = index, doc_type = doc_type, body = {
-                "query": { "match": { column_name: column_value } }
+            index=index, doc_type=doc_type, body = {
+                "query": {"match": {column_name: column_value}}
             })
         if len(response["hits"]["hits"]) > 0:
             item_details = response["hits"]["hits"][0]["_source"]
@@ -109,4 +109,4 @@ def get_item_by_unique_column(es, column_name, column_value, index, doc_type):
 def es_save_data(es, index, doc_type, data_item, data_id,):
     from time import sleep
     es.create(index, doc_type, body=data_item, id=data_id)
-    sleep(1) # Delay 1 second to allow indexing
+    sleep(1)  # Delay 1 second to allow indexing

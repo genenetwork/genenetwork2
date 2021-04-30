@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from utility.tools import SQL_URI
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 
 engine = create_engine(SQL_URI, encoding="latin1")

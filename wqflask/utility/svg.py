@@ -172,7 +172,7 @@ def _viewboxlist(a):
     """formats a tuple"""
     s = ''
     for e in a:
-        s += str(e)+' '
+        s += str(e) + ' '
     return s
 
 
@@ -189,7 +189,7 @@ class pathdata:
     def __init__(self, x=None, y=None):
         self.path = []
         if x is not None and y is not None:
-            self.path.append('M '+str(x)+' '+str(y))
+            self.path.append('M ' + str(x) + ' ' + str(y))
 
     def closepath(self):
         """ends the path"""
@@ -197,79 +197,79 @@ class pathdata:
 
     def move(self, x, y):
         """move to absolute"""
-        self.path.append('M '+str(x)+' '+str(y))
+        self.path.append('M ' + str(x) + ' ' + str(y))
 
     def relmove(self, x, y):
         """move to relative"""
-        self.path.append('m '+str(x)+' '+str(y))
+        self.path.append('m ' + str(x) + ' ' + str(y))
 
     def line(self, x, y):
         """line to absolute"""
-        self.path.append('L '+str(x)+' '+str(y))
+        self.path.append('L ' + str(x) + ' ' + str(y))
 
     def relline(self, x, y):
         """line to relative"""
-        self.path.append('l '+str(x)+' '+str(y))
+        self.path.append('l ' + str(x) + ' ' + str(y))
 
     def hline(self, x):
         """horizontal line to absolute"""
-        self.path.append('H'+str(x))
+        self.path.append('H' + str(x))
 
     def relhline(self, x):
         """horizontal line to relative"""
-        self.path.append('h'+str(x))
+        self.path.append('h' + str(x))
 
     def vline(self, y):
         """verical line to absolute"""
-        self.path.append('V'+str(y))
+        self.path.append('V' + str(y))
 
     def relvline(self, y):
         """vertical line to relative"""
-        self.path.append('v'+str(y))
+        self.path.append('v' + str(y))
 
     def bezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy absolut"""
-        self.path.append('C'+str(x1)+','+str(y1)+' '+str(x2) +
-                         ','+str(y2)+' '+str(x)+','+str(y))
+        self.path.append('C' + str(x1) + ','+str(y1)+' '+str(x2) +
+                         ',' + str(y2) + ' '+str(x)+','+str(y))
 
     def relbezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy relative"""
-        self.path.append('c'+str(x1)+','+str(y1)+' '+str(x2) +
-                         ','+str(y2)+' '+str(x)+','+str(y))
+        self.path.append('c' + str(x1) + ','+str(y1)+' '+str(x2) +
+                         ',' + str(y2) + ' '+str(x)+','+str(y))
 
     def smbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy absolut"""
-        self.path.append('S'+str(x2)+','+str(y2)+' '+str(x)+','+str(y))
+        self.path.append('S' + str(x2) + ',' + str(y2) + ' ' + str(x) + ',' + str(y))
 
     def relsmbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy relative"""
-        self.path.append('s'+str(x2)+','+str(y2)+' '+str(x)+','+str(y))
+        self.path.append('s' + str(x2) + ',' + str(y2) + ' ' + str(x) + ',' + str(y))
 
     def qbezier(self, x1, y1, x, y):
         """quadratic bezier with xy1 to xy absolut"""
-        self.path.append('Q'+str(x1)+','+str(y1)+' '+str(x)+','+str(y))
+        self.path.append('Q' + str(x1) + ',' + str(y1) + ' ' + str(x) + ',' + str(y))
 
     def relqbezier(self, x1, y1, x, y):
         """quadratic bezier with xy1 to xy relative"""
-        self.path.append('q'+str(x1)+','+str(y1)+' '+str(x)+','+str(y))
+        self.path.append('q' + str(x1) + ',' + str(y1) + ' ' + str(x) + ',' + str(y))
 
     def smqbezier(self, x, y):
         """smooth quadratic bezier to xy absolut"""
-        self.path.append('T'+str(x)+','+str(y))
+        self.path.append('T' + str(x) + ',' + str(y))
 
     def relsmqbezier(self, x, y):
         """smooth quadratic bezier to xy relative"""
-        self.path.append('t'+str(x)+','+str(y))
+        self.path.append('t' + str(x) + ',' + str(y))
 
     def ellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy absolut"""
-        self.path.append('A'+str(rx)+','+str(ry)+' '+str(xrot) +
-                         ' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('A' + str(rx) + ','+str(ry)+' '+str(xrot) +
+                         ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
 
     def relellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy relative"""
-        self.path.append('a'+str(rx)+','+str(ry)+' '+str(xrot) +
-                         ' '+str(laf)+' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('a' + str(rx) + ','+str(ry)+' '+str(xrot) +
+                         ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
 
     def __repr__(self):
         return ' '.join(self.path)
@@ -312,10 +312,10 @@ class SVGelement:
         self.elements.append(SVGelement)
 
     def toXml(self, level, f):
-        f.write('\t'*level)
-        f.write('<'+self.type)
+        f.write('\t' * level)
+        f.write('<' + self.type)
         for attkey in list(self.attributes.keys()):
-            f.write(' '+_escape(str(attkey))+'=' +
+            f.write(' ' + _escape(str(attkey)) + '=' +
                     _quoteattr(str(self.attributes[attkey])))
         if self.namespace:
             f.write(' xmlns="' + _escape(str(self.namespace)) +
@@ -325,23 +325,23 @@ class SVGelement:
         if self.elements:
             f.write('\n')
         for element in self.elements:
-            element.toXml(level+1, f)
+            element.toXml(level + 1, f)
         if self.cdata:
-            f.write('\n'+'\t'*(level+1)+'<![CDATA[')
+            f.write('\n' + '\t' * (level + 1) + '<![CDATA[')
             for line in self.cdata.splitlines():
-                f.write('\n'+'\t'*(level+2)+line)
-            f.write('\n'+'\t'*(level+1)+']]>\n')
+                f.write('\n' + '\t' * (level + 2) + line)
+            f.write('\n' + '\t' * (level + 1) + ']]>\n')
         if self.text:
             if isinstance(self.text, type('')):  # If the text is only text
                 f.write(_escape(str(self.text)))
             else:  # If the text is a spannedtext class
                 f.write(str(self.text))
         if self.elements:
-            f.write('\t'*level+'</'+self.type+'>\n')
+            f.write('\t' * level + '</' + self.type + '>\n')
         elif self.text:
-            f.write('</'+self.type+'>\n')
+            f.write('</' + self.type + '>\n')
         elif self.cdata:
-            f.write('\t'*level+'</'+self.type+'>\n')
+            f.write('\t' * level + '</' + self.type + '>\n')
         else:
             f.write('/>\n')
 
@@ -447,38 +447,38 @@ class rect(SVGelement):
         if width == None or height == None:
             raise ValueError('both height and width are required')
 
-        SVGelement.__init__(self, 'rect', {'width':width,'height':height}, **args)
-        if x!=None:
-            self.attributes['x']=x
-        if y!=None:
-            self.attributes['y']=y
-        if fill!=None:
-            self.attributes['fill']=fill
-        if stroke!=None:
-            self.attributes['stroke']=stroke
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
+        SVGelement.__init__(self, 'rect', {'width': width, 'height': height}, **args)
+        if x != None:
+            self.attributes['x'] = x
+        if y != None:
+            self.attributes['y'] = y
+        if fill != None:
+            self.attributes['fill'] = fill
+        if stroke != None:
+            self.attributes['stroke'] = stroke
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
 
 class ellipse(SVGelement):
     """e=ellipse(rx,ry,x,y,fill,stroke,stroke_width,**args)
 
     an ellipse is defined as a center and a x and y radius.
     """
-    def __init__(self,cx=None,cy=None,rx=None,ry=None,fill=None,stroke=None,stroke_width=None,**args):
-        if rx==None or ry== None:
+    def __init__(self, cx=None, cy=None, rx=None, ry=None,fill=None,stroke=None,stroke_width=None,**args):
+        if rx == None or ry == None:
             raise ValueError('both rx and ry are required')
 
-        SVGelement.__init__(self, 'ellipse', {'rx':rx,'ry':ry}, **args)
-        if cx!=None:
-            self.attributes['cx']=cx
-        if cy!=None:
-            self.attributes['cy']=cy
-        if fill!=None:
-            self.attributes['fill']=fill
-        if stroke!=None:
-            self.attributes['stroke']=stroke
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
+        SVGelement.__init__(self, 'ellipse', {'rx': rx, 'ry': ry}, **args)
+        if cx != None:
+            self.attributes['cx'] = cx
+        if cy != None:
+            self.attributes['cy'] = cy
+        if fill != None:
+            self.attributes['fill'] = fill
+        if stroke != None:
+            self.attributes['stroke'] = stroke
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
 
 
 class circle(SVGelement):
@@ -486,20 +486,20 @@ class circle(SVGelement):
 
     The circle creates an element using a x, y and radius values eg
     """
-    def __init__(self,cx=None,cy=None,r=None,fill=None,stroke=None,stroke_width=None,**args):
-        if r==None:
+    def __init__(self, cx=None, cy=None, r=None, fill=None,stroke=None,stroke_width=None,**args):
+        if r == None:
             raise ValueError('r is required')
-        SVGelement.__init__(self, 'circle', {'r':r}, **args)
-        if cx!=None:
-            self.attributes['cx']=cx
-        if cy!=None:
-            self.attributes['cy']=cy
-        if fill!=None:
-            self.attributes['fill']=fill
-        if stroke!=None:
-            self.attributes['stroke']=stroke
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
+        SVGelement.__init__(self, 'circle', {'r': r}, **args)
+        if cx != None:
+            self.attributes['cx'] = cx
+        if cy != None:
+            self.attributes['cy'] = cy
+        if fill != None:
+            self.attributes['fill'] = fill
+        if stroke != None:
+            self.attributes['stroke'] = stroke
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
 
 class point(circle):
     """p=point(x,y,color)
@@ -507,7 +507,7 @@ class point(circle):
     A point is defined as a circle with a size 1 radius. It may be more efficient to use a
     very small rectangle if you use many points because a circle is difficult to render.
     """
-    def __init__(self,x,y,fill='black',**args):
+    def __init__(self, x, y, fill='black', **args):
         circle.__init__(self, x, y, 1, fill, **args)
 
 class line(SVGelement):
@@ -515,64 +515,64 @@ class line(SVGelement):
 
     A line is defined by a begin x,y pair and an end x,y pair
     """
-    def __init__(self,x1=None,y1=None,x2=None,y2=None,stroke=None,stroke_width=None,**args):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None,stroke=None,stroke_width=None,**args):
         SVGelement.__init__(self, 'line', **args)
-        if x1!=None:
-            self.attributes['x1']=x1
-        if y1!=None:
-            self.attributes['y1']=y1
-        if x2!=None:
-            self.attributes['x2']=x2
-        if y2!=None:
-            self.attributes['y2']=y2
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
-        if stroke!=None:
-            self.attributes['stroke']=stroke
+        if x1 != None:
+            self.attributes['x1'] = x1
+        if y1 != None:
+            self.attributes['y1'] = y1
+        if x2 != None:
+            self.attributes['x2'] = x2
+        if y2 != None:
+            self.attributes['y2'] = y2
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
+        if stroke != None:
+            self.attributes['stroke'] = stroke
 
 class polyline(SVGelement):
     """pl=polyline([[x1,y1],[x2,y2],...],fill,stroke,stroke_width,**args)
 
     a polyline is defined by a list of xy pairs
     """
-    def __init__(self,points,fill=None,stroke=None,stroke_width=None,**args):
-        SVGelement.__init__(self, 'polyline', {'points':_xypointlist(points)}, **args)
-        if fill!=None:
-            self.attributes['fill']=fill
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
-        if stroke!=None:
-            self.attributes['stroke']=stroke
+    def __init__(self, points, fill=None, stroke=None, stroke_width=None,**args):
+        SVGelement.__init__(self, 'polyline', {'points': _xypointlist(points)}, **args)
+        if fill != None:
+            self.attributes['fill'] = fill
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
+        if stroke != None:
+            self.attributes['stroke'] = stroke
 
 class polygon(SVGelement):
     """pl=polyline([[x1,y1],[x2,y2],...],fill,stroke,stroke_width,**args)
 
     a polygon is defined by a list of xy pairs
     """
-    def __init__(self,points,fill=None,stroke=None,stroke_width=None,**args):
-        SVGelement.__init__(self, 'polygon', {'points':_xypointlist(points)}, **args)
-        if fill!=None:
-            self.attributes['fill']=fill
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
-        if stroke!=None:
-            self.attributes['stroke']=stroke
+    def __init__(self, points, fill=None, stroke=None, stroke_width=None,**args):
+        SVGelement.__init__(self, 'polygon', {'points': _xypointlist(points)}, **args)
+        if fill != None:
+            self.attributes['fill'] = fill
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
+        if stroke != None:
+            self.attributes['stroke'] = stroke
 
 class path(SVGelement):
     """p=path(path,fill,stroke,stroke_width,**args)
 
     a path is defined by a path object and optional width, stroke and fillcolor
     """
-    def __init__(self,pathdata,fill=None,stroke=None,stroke_width=None,id=None,**args):
-        SVGelement.__init__(self, 'path', {'d':str(pathdata)}, **args)
-        if stroke!=None:
-            self.attributes['stroke']=stroke
-        if fill!=None:
-            self.attributes['fill']=fill
-        if stroke_width!=None:
-            self.attributes['stroke-width']=stroke_width
-        if id!=None:
-            self.attributes['id']=id
+    def __init__(self, pathdata, fill=None, stroke=None, stroke_width=None,id=None,**args):
+        SVGelement.__init__(self, 'path', {'d': str(pathdata)}, **args)
+        if stroke != None:
+            self.attributes['stroke'] = stroke
+        if fill != None:
+            self.attributes['fill'] = fill
+        if stroke_width != None:
+            self.attributes['stroke-width'] = stroke_width
+        if id != None:
+            self.attributes['id'] = id
 
 
 class text(SVGelement):
@@ -580,20 +580,20 @@ class text(SVGelement):
 
     a text element can bge used for displaying text on the screen
     """
-    def __init__(self,x=None,y=None,text=None,font_size=None,font_family=None,text_anchor=None,**args):
+    def __init__(self, x=None, y=None, text=None, font_size=None,font_family=None,text_anchor=None,**args):
         SVGelement.__init__(self, 'text', **args)
-        if x!=None:
-            self.attributes['x']=x
-        if y!=None:
-            self.attributes['y']=y
-        if font_size!=None:
-            self.attributes['font-size']=font_size
-        if font_family!=None:
-            self.attributes['font-family']=font_family
-        if text!=None:
-            self.text=text
-        if text_anchor!=None:
-            self.attributes['text-anchor']=text_anchor
+        if x != None:
+            self.attributes['x'] = x
+        if y != None:
+            self.attributes['y'] = y
+        if font_size != None:
+            self.attributes['font-size'] = font_size
+        if font_family != None:
+            self.attributes['font-family'] = font_family
+        if text != None:
+            self.text = text
+        if text_anchor != None:
+            self.attributes['text-anchor'] = text_anchor
 
 
 class textpath(SVGelement):
@@ -601,10 +601,10 @@ class textpath(SVGelement):
 
     a textpath places a text on a path which is referenced by a link.
     """
-    def __init__(self,link,text=None,**args):
-        SVGelement.__init__(self, 'textPath', {'xlink:href':link}, **args)
-        if text!=None:
-            self.text=text
+    def __init__(self, link, text=None, **args):
+        SVGelement.__init__(self, 'textPath', {'xlink:href': link}, **args)
+        if text != None:
+            self.text = text
 
 class pattern(SVGelement):
     """p=pattern(x,y,width,height,patternUnits,**args)
@@ -613,18 +613,18 @@ class pattern(SVGelement):
     graphic object which can be replicated ("tiled") at fixed intervals
     in x and y to cover the areas to be painted.
     """
-    def __init__(self,x=None,y=None,width=None,height=None,patternUnits=None,**args):
+    def __init__(self, x=None, y=None, width=None, height=None,patternUnits=None,**args):
         SVGelement.__init__(self, 'pattern', **args)
-        if x!=None:
-            self.attributes['x']=x
-        if y!=None:
-            self.attributes['y']=y
-        if width!=None:
-            self.attributes['width']=width
-        if height!=None:
-            self.attributes['height']=height
-        if patternUnits!=None:
-            self.attributes['patternUnits']=patternUnits
+        if x != None:
+            self.attributes['x'] = x
+        if y != None:
+            self.attributes['y'] = y
+        if width != None:
+            self.attributes['width'] = width
+        if height != None:
+            self.attributes['height'] = height
+        if patternUnits != None:
+            self.attributes['patternUnits'] = patternUnits
 
 class title(SVGelement):
     """t=title(text,**args)
@@ -632,10 +632,10 @@ class title(SVGelement):
     a title is a text element. The text is displayed in the title bar
     add at least one to the root svg element
     """
-    def __init__(self,text=None,**args):
+    def __init__(self, text=None, **args):
         SVGelement.__init__(self, 'title', **args)
-        if text!=None:
-            self.text=text
+        if text != None:
+            self.text = text
 
 class description(SVGelement):
     """d=description(text,**args)
@@ -643,10 +643,10 @@ class description(SVGelement):
     a description can be added to any element and is used for a tooltip
     Add this element before adding other elements.
     """
-    def __init__(self,text=None,**args):
+    def __init__(self, text=None, **args):
         SVGelement.__init__(self, 'desc', **args)
-        if text!=None:
-            self.text=text
+        if text != None:
+            self.text = text
 
 class lineargradient(SVGelement):
     """lg=lineargradient(x1,y1,x2,y2,id,**args)
@@ -654,18 +654,18 @@ class lineargradient(SVGelement):
     defines a lineargradient using two xy pairs.
     stop elements van be added to define the gradient colors.
     """
-    def __init__(self,x1=None,y1=None,x2=None,y2=None,id=None,**args):
+    def __init__(self, x1=None, y1=None, x2=None, y2=None,id=None,**args):
         SVGelement.__init__(self, 'linearGradient', **args)
-        if x1!=None:
-            self.attributes['x1']=x1
-        if y1!=None:
-            self.attributes['y1']=y1
-        if x2!=None:
-            self.attributes['x2']=x2
-        if y2!=None:
-            self.attributes['y2']=y2
-        if id!=None:
-            self.attributes['id']=id
+        if x1 != None:
+            self.attributes['x1'] = x1
+        if y1 != None:
+            self.attributes['y1'] = y1
+        if x2 != None:
+            self.attributes['x2'] = x2
+        if y2 != None:
+            self.attributes['y2'] = y2
+        if id != None:
+            self.attributes['id'] = id
 
 class radialgradient(SVGelement):
     """rg=radialgradient(cx,cy,r,fx,fy,id,**args)
@@ -673,38 +673,38 @@ class radialgradient(SVGelement):
     defines a radial gradient using a outer circle which are defined by a cx,cy and r and by using a focalpoint.
     stop elements van be added to define the gradient colors.
     """
-    def __init__(self,cx=None,cy=None,r=None,fx=None,fy=None,id=None,**args):
+    def __init__(self, cx=None, cy=None, r=None, fx=None,fy=None,id=None,**args):
         SVGelement.__init__(self, 'radialGradient', **args)
-        if cx!=None:
-            self.attributes['cx']=cx
-        if cy!=None:
-            self.attributes['cy']=cy
-        if r!=None:
-            self.attributes['r']=r
-        if fx!=None:
-            self.attributes['fx']=fx
-        if fy!=None:
-            self.attributes['fy']=fy
-        if id!=None:
-            self.attributes['id']=id
+        if cx != None:
+            self.attributes['cx'] = cx
+        if cy != None:
+            self.attributes['cy'] = cy
+        if r != None:
+            self.attributes['r'] = r
+        if fx != None:
+            self.attributes['fx'] = fx
+        if fy != None:
+            self.attributes['fy'] = fy
+        if id != None:
+            self.attributes['id'] = id
 
 class stop(SVGelement):
     """st=stop(offset,stop_color,**args)
 
     Puts a stop color at the specified radius
     """
-    def __init__(self,offset,stop_color=None,**args):
-        SVGelement.__init__(self, 'stop', {'offset':offset}, **args)
-        if stop_color!=None:
-            self.attributes['stop-color']=stop_color
+    def __init__(self, offset, stop_color=None, **args):
+        SVGelement.__init__(self, 'stop', {'offset': offset}, **args)
+        if stop_color != None:
+            self.attributes['stop-color'] = stop_color
 
 class style(SVGelement):
     """st=style(type,cdata=None,**args)
 
     Add a CDATA element to this element for defing in line stylesheets etc..
     """
-    def __init__(self,type,cdata=None,**args):
-        SVGelement.__init__(self, 'style', {'type':type}, cdata=cdata, **args)
+    def __init__(self, type, cdata=None, **args):
+        SVGelement.__init__(self, 'style', {'type': type}, cdata=cdata, **args)
 
 
 class image(SVGelement):
@@ -712,22 +712,22 @@ class image(SVGelement):
 
     adds an image to the drawing. Supported formats are .png, .jpg and .svg.
     """
-    def __init__(self,url,x=None,y=None,width=None,height=None,**args):
-        if width==None or height==None:
+    def __init__(self, url, x=None, y=None, width=None,height=None,**args):
+        if width == None or height == None:
             raise ValueError('both height and width are required')
-        SVGelement.__init__(self, 'image', {'xlink:href':url,'width':width,'height':height}, **args)
-        if x!=None:
-            self.attributes['x']=x
-        if y!=None:
-            self.attributes['y']=y
+        SVGelement.__init__(self, 'image', {'xlink:href': url, 'width': width, 'height':height}, **args)
+        if x != None:
+            self.attributes['x'] = x
+        if y != None:
+            self.attributes['y'] = y
 
 class cursor(SVGelement):
     """c=cursor(url,**args)
 
     defines a custom cursor for a element or a drawing
     """
-    def __init__(self,url,**args):
-        SVGelement.__init__(self, 'cursor', {'xlink:href':url}, **args)
+    def __init__(self, url, **args):
+        SVGelement.__init__(self, 'cursor', {'xlink:href': url}, **args)
 
 
 class marker(SVGelement):
@@ -736,20 +736,20 @@ class marker(SVGelement):
     defines a marker which can be used as an endpoint for a line or other pathtypes
     add an element to it which should be used as a marker.
     """
-    def __init__(self,id=None,viewBox=None,refx=None,refy=None,markerWidth=None,markerHeight=None,**args):
+    def __init__(self, id=None, viewBox=None, refx=None, refy=None,markerWidth=None,markerHeight=None,**args):
         SVGelement.__init__(self, 'marker', **args)
-        if id!=None:
-            self.attributes['id']=id
-        if viewBox!=None:
-            self.attributes['viewBox']=_viewboxlist(viewBox)
-        if refx!=None:
-            self.attributes['refX']=refx
-        if refy!=None:
-            self.attributes['refY']=refy
-        if markerWidth!=None:
-            self.attributes['markerWidth']=markerWidth
-        if markerHeight!=None:
-            self.attributes['markerHeight']=markerHeight
+        if id != None:
+            self.attributes['id'] = id
+        if viewBox != None:
+            self.attributes['viewBox'] = _viewboxlist(viewBox)
+        if refx != None:
+            self.attributes['refX'] = refx
+        if refy != None:
+            self.attributes['refY'] = refy
+        if markerWidth != None:
+            self.attributes['markerWidth'] = markerWidth
+        if markerHeight != None:
+            self.attributes['markerHeight'] = markerHeight
 
 class group(SVGelement):
     """g=group(id,**args)
@@ -757,10 +757,10 @@ class group(SVGelement):
     a group is defined by an id and is used to contain elements
     g.addElement(SVGelement)
     """
-    def __init__(self,id=None,**args):
+    def __init__(self, id=None, **args):
         SVGelement.__init__(self, 'g', **args)
-        if id!=None:
-            self.attributes['id']=id
+        if id != None:
+            self.attributes['id'] = id
 
 class symbol(SVGelement):
     """sy=symbol(id,viewbox,**args)
@@ -771,19 +771,19 @@ class symbol(SVGelement):
     sy.addElement(SVGelement)
     """
 
-    def __init__(self,id=None,viewBox=None,**args):
+    def __init__(self, id=None, viewBox=None, **args):
         SVGelement.__init__(self, 'symbol', **args)
-        if id!=None:
-            self.attributes['id']=id
-        if viewBox!=None:
-            self.attributes['viewBox']=_viewboxlist(viewBox)
+        if id != None:
+            self.attributes['id'] = id
+        if viewBox != None:
+            self.attributes['viewBox'] = _viewboxlist(viewBox)
 
 class defs(SVGelement):
     """d=defs(**args)
 
     container for defining elements
     """
-    def __init__(self,**args):
+    def __init__(self, **args):
         SVGelement.__init__(self, 'defs', **args)
 
 class switch(SVGelement):
@@ -793,7 +793,7 @@ class switch(SVGelement):
     requiredFeatures, requiredExtensions and systemLanguage.
     Refer to the SVG specification for details.
     """
-    def __init__(self,**args):
+    def __init__(self, **args):
         SVGelement.__init__(self, 'switch', **args)
 
 
@@ -802,17 +802,17 @@ class use(SVGelement):
 
     references a symbol by linking to its id and its position, height and width
     """
-    def __init__(self,link,x=None,y=None,width=None,height=None,**args):
-        SVGelement.__init__(self, 'use', {'xlink:href':link}, **args)
-        if x!=None:
-            self.attributes['x']=x
-        if y!=None:
-            self.attributes['y']=y
+    def __init__(self, link, x=None, y=None, width=None,height=None,**args):
+        SVGelement.__init__(self, 'use', {'xlink:href': link}, **args)
+        if x != None:
+            self.attributes['x'] = x
+        if y != None:
+            self.attributes['y'] = y
 
-        if width!=None:
-            self.attributes['width']=width
-        if height!=None:
-            self.attributes['height']=height
+        if width != None:
+            self.attributes['width'] = width
+        if height != None:
+            self.attributes['height'] = height
 
 
 class link(SVGelement):
@@ -821,17 +821,17 @@ class link(SVGelement):
     a link  is defined by a hyperlink. add elements which have to be linked
     a.addElement(SVGelement)
     """
-    def __init__(self,link='',**args):
-        SVGelement.__init__(self, 'a', {'xlink:href':link}, **args)
+    def __init__(self, link='', **args):
+        SVGelement.__init__(self, 'a', {'xlink:href': link}, **args)
 
 class view(SVGelement):
     """v=view(id,**args)
 
     a view can be used to create a view with different attributes"""
-    def __init__(self,id=None,**args):
+    def __init__(self, id=None, **args):
         SVGelement.__init__(self, 'view', **args)
-        if id!=None:
-            self.attributes['id']=id
+        if id != None:
+            self.attributes['id'] = id
 
 class script(SVGelement):
     """sc=script(type,type,cdata,**args)
@@ -839,77 +839,77 @@ class script(SVGelement):
     adds a script element which contains CDATA to the SVG drawing
 
     """
-    def __init__(self,type,cdata=None,**args):
-        SVGelement.__init__(self, 'script', {'type':type}, cdata=cdata, **args)
+    def __init__(self, type, cdata=None, **args):
+        SVGelement.__init__(self, 'script', {'type': type}, cdata=cdata, **args)
 
 class animate(SVGelement):
     """an=animate(attribute,from,to,during,**args)
 
     animates an attribute.
     """
-    def __init__(self,attribute,fr=None,to=None,dur=None,**args):
-        SVGelement.__init__(self, 'animate', {'attributeName':attribute}, **args)
-        if fr!=None:
-            self.attributes['from']=fr
-        if to!=None:
-            self.attributes['to']=to
-        if dur!=None:
-            self.attributes['dur']=dur
+    def __init__(self, attribute, fr=None, to=None, dur=None,**args):
+        SVGelement.__init__(self, 'animate', {'attributeName': attribute}, **args)
+        if fr != None:
+            self.attributes['from'] = fr
+        if to != None:
+            self.attributes['to'] = to
+        if dur != None:
+            self.attributes['dur'] = dur
 
 class animateMotion(SVGelement):
     """an=animateMotion(pathdata,dur,**args)
 
     animates a SVGelement over the given path in dur seconds
     """
-    def __init__(self,pathdata,dur,**args):
+    def __init__(self, pathdata, dur, **args):
         SVGelement.__init__(self, 'animateMotion', **args)
-        if pathdata!=None:
-            self.attributes['path']=str(pathdata)
-        if dur!=None:
-            self.attributes['dur']=dur
+        if pathdata != None:
+            self.attributes['path'] = str(pathdata)
+        if dur != None:
+            self.attributes['dur'] = dur
 
 class animateTransform(SVGelement):
     """antr=animateTransform(type,from,to,dur,**args)
 
     transform an element from and to a value.
     """
-    def __init__(self,type=None,fr=None,to=None,dur=None,**args):
-        SVGelement.__init__(self, 'animateTransform', {'attributeName':'transform'}, **args)
+    def __init__(self, type=None, fr=None, to=None, dur=None,**args):
+        SVGelement.__init__(self, 'animateTransform', {'attributeName': 'transform'}, **args)
         # As far as I know the attributeName is always transform
-        if type!=None:
-            self.attributes['type']=type
-        if fr!=None:
-            self.attributes['from']=fr
-        if to!=None:
-            self.attributes['to']=to
-        if dur!=None:
-            self.attributes['dur']=dur
+        if type != None:
+            self.attributes['type'] = type
+        if fr != None:
+            self.attributes['from'] = fr
+        if to != None:
+            self.attributes['to'] = to
+        if dur != None:
+            self.attributes['dur'] = dur
 class animateColor(SVGelement):
     """ac=animateColor(attribute,type,from,to,dur,**args)
 
     Animates the color of a element
     """
-    def __init__(self,attribute,type=None,fr=None,to=None,dur=None,**args):
-        SVGelement.__init__(self, 'animateColor', {'attributeName':attribute}, **args)
-        if type!=None:
-            self.attributes['type']=type
-        if fr!=None:
-            self.attributes['from']=fr
-        if to!=None:
-            self.attributes['to']=to
-        if dur!=None:
-            self.attributes['dur']=dur
+    def __init__(self, attribute, type=None, fr=None, to=None,dur=None,**args):
+        SVGelement.__init__(self, 'animateColor', {'attributeName': attribute}, **args)
+        if type != None:
+            self.attributes['type'] = type
+        if fr != None:
+            self.attributes['from'] = fr
+        if to != None:
+            self.attributes['to'] = to
+        if dur != None:
+            self.attributes['dur'] = dur
 class set(SVGelement):
     """st=set(attribute,to,during,**args)
 
     sets an attribute to a value for a
     """
-    def __init__(self,attribute,to=None,dur=None,**args):
-        SVGelement.__init__(self, 'set', {'attributeName':attribute}, **args)
-        if to!=None:
-            self.attributes['to']=to
-        if dur!=None:
-            self.attributes['dur']=dur
+    def __init__(self, attribute, to=None, dur=None, **args):
+        SVGelement.__init__(self, 'set', {'attributeName': attribute}, **args)
+        if to != None:
+            self.attributes['to'] = to
+        if dur != None:
+            self.attributes['dur'] = dur
 
 
 
@@ -928,15 +928,15 @@ class svg(SVGelement):
     d.setSVG(s)
     d.toXml()
     """
-    def __init__(self,viewBox=None, width=None, height=None,**args):
+    def __init__(self, viewBox=None, width=None, height=None, **args):
         SVGelement.__init__(self, 'svg', **args)
-        if viewBox!=None:
-            self.attributes['viewBox']=_viewboxlist(viewBox)
-        if width!=None:
-            self.attributes['width']=width
-        if height!=None:
-            self.attributes['height']=height
-        self.namespace="http://www.w3.org/2000/svg"
+        if viewBox != None:
+            self.attributes['viewBox'] = _viewboxlist(viewBox)
+        if width != None:
+            self.attributes['width'] = width
+        if height != None:
+            self.attributes['height'] = height
+        self.namespace = "http://www.w3.org/2000/svg"
 
 class drawing:
     """d=drawing()
@@ -950,15 +950,15 @@ class drawing:
     """
 
     def __init__(self, entity={}):
-        self.svg=None
+        self.svg = None
         self.entity = entity
     def setSVG(self, svg):
-        self.svg=svg
+        self.svg = svg
         # Voeg een element toe aan de grafiek toe.
-    if use_dom_implementation==0:
-        def toXml(self, filename='',compress=False):
+    if use_dom_implementation == 0:
+        def toXml(self, filename='', compress=False):
             import io
-            xml=io.StringIO()
+            xml = io.StringIO()
             xml.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             xml.write("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
             if self.entity:
@@ -971,8 +971,8 @@ class drawing:
             if not filename:
                 if compress:
                     import gzip
-                    f=io.StringIO()
-                    zf=gzip.GzipFile(fileobj=f, mode='wb')
+                    f = io.StringIO()
+                    zf = gzip.GzipFile(fileobj=f, mode='wb')
                     zf.write(xml.getvalue())
                     zf.close()
                     f.seek(0)
@@ -980,18 +980,18 @@ class drawing:
                 else:
                     return xml.getvalue()
             else:
-                if filename[-4:]=='svgz':
+                if filename[-4:] == 'svgz':
                     import gzip
-                    f=gzip.GzipFile(filename=filename, mode="wb", compresslevel=9)
+                    f = gzip.GzipFile(filename=filename, mode="wb", compresslevel=9)
                     f.write(xml.getvalue())
                     f.close()
                 else:
-                    f=file(filename, 'w')
+                    f = file(filename, 'w')
                     f.write(xml.getvalue())
                     f.close()
 
     else:
-        def toXml(self,filename='',compress=False):
+        def toXml(self, filename='', compress=False):
             """drawing.toXml()        ---->to the screen
             drawing.toXml(filename)---->to the file
             writes a svg drawing to the screen or to a file
@@ -1002,35 +1002,35 @@ class drawing:
             global root
             # root is defined global so it can be used by the appender. Its also possible to use it as an arugument but
             # that is a bit messy.
-            root=implementation.createDocument(None, None, doctype)
+            root = implementation.createDocument(None, None, doctype)
             # Create the xml document.
             global appender
             def appender(element, elementroot):
                 """This recursive function appends elements to an element and sets the attributes
                 and type. It stops when alle elements have been appended"""
                 if element.namespace:
-                    e=root.createElementNS(element.namespace, element.type)
+                    e = root.createElementNS(element.namespace, element.type)
                 else:
-                    e=root.createElement(element.type)
+                    e = root.createElement(element.type)
                 if element.text:
-                    textnode=root.createTextNode(element.text)
+                    textnode = root.createTextNode(element.text)
                     e.appendChild(textnode)
-                for attribute in list(element.attributes.keys()):   #in element.attributes is supported from python 2.2
+                for attribute in list(element.attributes.keys()):  # in element.attributes is supported from python 2.2
                     e.setAttribute(attribute, str(element.attributes[attribute]))
                 if element.elements:
                     for el in element.elements:
-                        e=appender(el, e)
+                        e = appender(el, e)
                 elementroot.appendChild(e)
                 return elementroot
-            root=appender(self.svg, root)
+            root = appender(self.svg, root)
             if not filename:
                 import io
-                xml=io.StringIO()
+                xml = io.StringIO()
                 PrettyPrint(root, xml)
                 if compress:
                     import gzip
-                    f=io.StringIO()
-                    zf=gzip.GzipFile(fileobj=f, mode='wb')
+                    f = io.StringIO()
+                    zf = gzip.GzipFile(fileobj=f, mode='wb')
                     zf.write(xml.getvalue())
                     zf.close()
                     f.seek(0)
@@ -1039,16 +1039,16 @@ class drawing:
                     return xml.getvalue()
             else:
                 try:
-                    if filename[-4:]=='svgz':
+                    if filename[-4:] == 'svgz':
                         import gzip
                         import io
-                        xml=io.StringIO()
+                        xml = io.StringIO()
                         PrettyPrint(root, xml)
-                        f=gzip.GzipFile(filename=filename, mode='wb', compresslevel=9)
+                        f = gzip.GzipFile(filename=filename, mode='wb', compresslevel=9)
                         f.write(xml.getvalue())
                         f.close()
                     else:
-                        f=open(filename, 'w')
+                        f = open(filename, 'w')
                         PrettyPrint(root, f)
                         f.close()
                 except:
@@ -1058,44 +1058,44 @@ class drawing:
             import xml.parsers.xmlproc.xmlval
         except:
             raise exceptions.ImportError('PyXml is required for validating SVG')
-        svg=self.toXml()
-        xv=xml.parsers.xmlproc.xmlval.XMLValidator()
+        svg = self.toXml()
+        xv = xml.parsers.xmlproc.xmlval.XMLValidator()
         try:
             xv.feed(svg)
         except:
             raise Exception("SVG is not well formed, see messages above")
         else:
             print("SVG well formed")
-if __name__=='__main__':
+if __name__ == '__main__':
 
 
-    d=drawing()
-    s=svg((0, 0, 100, 100))
-    r=rect(-100, -100, 300, 300, 'cyan')
+    d = drawing()
+    s = svg((0, 0, 100, 100))
+    r = rect(-100, -100, 300, 300, 'cyan')
     s.addElement(r)
 
-    t=title('SVGdraw Demo')
+    t = title('SVGdraw Demo')
     s.addElement(t)
-    g=group('animations')
-    e=ellipse(0, 0, 5, 2)
+    g = group('animations')
+    e = ellipse(0, 0, 5, 2)
     g.addElement(e)
-    c=circle(0, 0, 1, 'red')
+    c = circle(0, 0, 1, 'red')
     g.addElement(c)
-    pd=pathdata(0, -10)
+    pd = pathdata(0, -10)
     for i in range(6):
         pd.relsmbezier(10, 5, 0, 10)
         pd.relsmbezier(-10, 5, 0, 10)
-    an=animateMotion(pd, 10)
-    an.attributes['rotate']='auto-reverse'
-    an.attributes['repeatCount']="indefinite"
+    an = animateMotion(pd, 10)
+    an.attributes['rotate'] = 'auto-reverse'
+    an.attributes['repeatCount'] = "indefinite"
     g.addElement(an)
     s.addElement(g)
     for i in range(20, 120, 20):
-        u=use('#animations', i, 0)
+        u = use('#animations', i, 0)
         s.addElement(u)
     for i in range(0, 120, 20):
         for j in range(5, 105, 10):
-            c=circle(i, j, 1, 'red', 'black', .5)
+            c = circle(i, j, 1, 'red', 'black', .5)
             s.addElement(c)
     d.setSVG(s)
 

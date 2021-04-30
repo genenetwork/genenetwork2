@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -27,7 +27,7 @@ from base.species import TheSpecies
 from utility import helper_functions, corr_result_helpers
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 class SendToGeneWeaver:
     def __init__(self, start_vars):
@@ -74,7 +74,7 @@ def test_chip(trait_list):
                                  FROM GeneChip, ProbeFreeze, ProbeSetFreeze
                                  WHERE GeneChip.Id = ProbeFreeze.ChipId and
                                      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                                     ProbeSetFreeze.Name = '%s'"""  % dataset.name).fetchone()
+                                     ProbeSetFreeze.Name = '%s'""" % dataset.name).fetchone()
 
         if result:
             chip_name = result[0]

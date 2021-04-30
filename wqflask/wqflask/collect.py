@@ -68,18 +68,18 @@ def collections_add():
         uc_id = g.user_session.add_collection(collection_name, set())
         collections = g.user_session.user_collections
 
-    #ZS: One of these might be unnecessary
+    # ZS: One of these might be unnecessary
     if 'traits' in request.args:
-        traits=request.args['traits']
+        traits = request.args['traits']
         return render_template("collections/add.html",
-                                traits = traits,
-                                collections = collections,
+                                traits=traits,
+                                collections=collections,
                               )
     else:
         hash = request.args['hash']
         return render_template("collections/add.html",
-                                hash = hash,
-                                collections = collections,
+                                hash=hash,
+                                collections=collections,
                               )
 
 @app.route("/collections/new")
@@ -139,8 +139,8 @@ def list_collections():
 
     user_collections = list(g.user_session.user_collections)
     return render_template("collections/list.html",
-                            params = params,
-                            collections = user_collections,
+                            params=params,
+                            collections=user_collections,
                             )
 
 @app.route("/collections/remove", methods=('POST',))
@@ -196,7 +196,7 @@ def view_collection():
         name, dataset_name = atrait.split(':')
         if dataset_name == "Temp":
             group = name.split("_")[2]
-            dataset = create_dataset(dataset_name, dataset_type = "Temp", group_name = group)
+            dataset = create_dataset(dataset_name, dataset_type="Temp", group_name=group)
             trait_ob = create_trait(name=name, dataset=dataset)
         else:
             dataset = create_dataset(dataset_name)
@@ -207,7 +207,7 @@ def view_collection():
         json_version.append(jsonable(trait_ob))
 
     collection_info = dict(trait_obs=trait_obs,
-                           uc = uc)
+                           uc=uc)
 
     if "json" in params:
         return json.dumps(json_version)

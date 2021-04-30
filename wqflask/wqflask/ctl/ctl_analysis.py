@@ -25,33 +25,33 @@ from utility.tools import locate, GN2_BRANCH_URL
 from rpy2.robjects.packages import importr
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
-## Get pointers to some common R functions
-r_library       = ro.r["library"]             # Map the library function
-r_options       = ro.r["options"]             # Map the options function
-r_t             = ro.r["t"]                   # Map the t function
-r_unlist        = ro.r["unlist"]              # Map the unlist function
-r_list          = ro.r.list                   # Map the list function
-r_png           = ro.r["png"]                 # Map the png function for plotting
-r_dev_off       = ro.r["dev.off"]             # Map the dev.off function
-r_write_table   = ro.r["write.table"]         # Map the write.table function
-r_data_frame    = ro.r["data.frame"]         # Map the write.table function
-r_as_numeric    = ro.r["as.numeric"]         # Map the write.table function
+# Get pointers to some common R functions
+r_library = ro.r["library"]             # Map the library function
+r_options = ro.r["options"]             # Map the options function
+r_t = ro.r["t"]                   # Map the t function
+r_unlist = ro.r["unlist"]              # Map the unlist function
+r_list = ro.r.list                   # Map the list function
+r_png = ro.r["png"]                 # Map the png function for plotting
+r_dev_off = ro.r["dev.off"]             # Map the dev.off function
+r_write_table = ro.r["write.table"]         # Map the write.table function
+r_data_frame = ro.r["data.frame"]         # Map the write.table function
+r_as_numeric = ro.r["as.numeric"]         # Map the write.table function
 
 class CTL:
     def __init__(self):
         logger.info("Initialization of CTL")
         #log = r_file("/tmp/genenetwork_ctl.log", open = "wt")
-        #r_sink(log)                                                       # Uncomment the r_sink() commands to log output from stdout/stderr to a file
+        # r_sink(log)                                                       # Uncomment the r_sink() commands to log output from stdout/stderr to a file
         #r_sink(log, type = "message")
         r_library("ctl")                                                   # Load CTL - Should only be done once, since it is quite expensive
-        r_options(stringsAsFactors = False)
+        r_options(stringsAsFactors=False)
         logger.info("Initialization of CTL done, package loaded in R session")
-        self.r_CTLscan            = ro.r["CTLscan"]                        # Map the CTLscan function
-        self.r_CTLsignificant     = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
-        self.r_lineplot           = ro.r["ctl.lineplot"]                   # Map the ctl.lineplot function
-        self.r_plotCTLobject      = ro.r["plot.CTLobject"]                 # Map the CTLsignificant function
+        self.r_CTLscan = ro.r["CTLscan"]                        # Map the CTLscan function
+        self.r_CTLsignificant = ro.r["CTLsignificant"]                 # Map the CTLsignificant function
+        self.r_lineplot = ro.r["ctl.lineplot"]                   # Map the ctl.lineplot function
+        self.r_plotCTLobject = ro.r["plot.CTLobject"]                 # Map the CTLsignificant function
         self.nodes_list = []
         self.edges_list = []
         logger.info("Obtained pointers to CTL functions")
@@ -59,23 +59,23 @@ class CTL:
         self.gn2_url = GN2_BRANCH_URL
 
     def addNode(self, gt):
-        node_dict = { 'data' : {'id' : str(gt.name) + ":" + str(gt.dataset.name),
-                                'sid' : str(gt.name), 
-                                'dataset' : str(gt.dataset.name),
-                                'label' : gt.name,
-                                'symbol' : gt.symbol,
-                                'geneid' : gt.geneid,
-                                'omim' : gt.omim } }
+        node_dict = {'data': {'id': str(gt.name) + ":" + str(gt.dataset.name),
+                                'sid': str(gt.name), 
+                                'dataset': str(gt.dataset.name),
+                                'label': gt.name,
+                                'symbol': gt.symbol,
+                                'geneid': gt.geneid,
+                                'omim': gt.omim}}
         self.nodes_list.append(node_dict)
 
     def addEdge(self, gtS, gtT, significant, x):
-        edge_data = {'id' : str(gtS.symbol) + '_' + significant[1][x] + '_' + str(gtT.symbol),
-                     'source' : str(gtS.name) + ":" + str(gtS.dataset.name),
-                     'target' : str(gtT.name) + ":" + str(gtT.dataset.name),
-                     'lod' : significant[3][x],
-                     'color' : "#ff0000",
-                     'width' : significant[3][x] }
-        edge_dict = { 'data' : edge_data }
+        edge_data = {'id': str(gtS.symbol) + '_' + significant[1][x] + '_' + str(gtT.symbol),
+                     'source': str(gtS.name) + ":" + str(gtS.dataset.name),
+                     'target': str(gtT.name) + ":" + str(gtT.dataset.name),
+                     'lod': significant[3][x],
+                     'color': "#ff0000",
+                     'width': significant[3][x]}
+        edge_dict = {'data': edge_data}
         self.edges_list.append(edge_dict)
 
     def run_analysis(self, requestform):
@@ -114,7 +114,7 @@ class CTL:
         genotypes = list(itertools.chain(*markers))
         logger.debug(len(genotypes) / len(individuals), "==", len(parser.markers))
 
-        rGeno = r_t(ro.r.matrix(r_unlist(genotypes), nrow=len(markernames), ncol=len(individuals), dimnames = r_list(markernames, individuals), byrow=True))
+        rGeno = r_t(ro.r.matrix(r_unlist(genotypes), nrow=len(markernames), ncol=len(individuals), dimnames=r_list(markernames, individuals), byrow=True))
 
         # Create a phenotype matrix
         traits = []
@@ -122,7 +122,7 @@ class CTL:
           logger.debug("retrieving data for", trait)
           if trait != "":
             ts = trait.split(':')
-            gt = create_trait(name = ts[0], dataset_name = ts[1])
+            gt = create_trait(name=ts[0], dataset_name=ts[1])
             gt = retrieve_sample_data(gt, dataset, individuals)
             for ind in individuals:
               if ind in list(gt.data.keys()):
@@ -130,23 +130,23 @@ class CTL:
               else:
                 traits.append("-999")
 
-        rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames = r_list(self.trait_db_list, individuals), byrow=True))
+        rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(individuals), dimnames=r_list(self.trait_db_list, individuals), byrow=True))
 
         logger.debug(rPheno)
 
         # Use a data frame to store the objects
-        rPheno = r_data_frame(rPheno, check_names = False)
-        rGeno = r_data_frame(rGeno, check_names = False)
+        rPheno = r_data_frame(rPheno, check_names=False)
+        rGeno = r_data_frame(rGeno, check_names=False)
 
         # Debug: Print the genotype and phenotype files to disk
         #r_write_table(rGeno, "~/outputGN/geno.csv")
         #r_write_table(rPheno, "~/outputGN/pheno.csv")
 
         # Perform the CTL scan
-        res = self.r_CTLscan(rGeno, rPheno, strategy = strategy, nperm = nperm, parametric = parametric, nthreads=6)
+        res = self.r_CTLscan(rGeno, rPheno, strategy=strategy, nperm=nperm, parametric = parametric, nthreads=6)
 
         # Get significant interactions
-        significant = self.r_CTLsignificant(res, significance = significance)
+        significant = self.r_CTLsignificant(res, significance=significance)
 
         # Create an image for output
         self.results = {}
@@ -158,7 +158,7 @@ class CTL:
 
         # Create the lineplot
         r_png(self.results['imgloc1'], width=1000, height=600, type='cairo-png')
-        self.r_lineplot(res, significance = significance)
+        self.r_lineplot(res, significance=significance)
         r_dev_off()
 
         n = 2                                                 # We start from 2, since R starts from 1 :)
@@ -167,7 +167,7 @@ class CTL:
           self.results['imgurl' + str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
           self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + self.results['imgurl' + str(n)]
           r_png(self.results['imgloc' + str(n)], width=1000, height=600, type='cairo-png')
-          self.r_plotCTLobject(res, (n-1), significance = significance, main='Phenotype ' + trait)
+          self.r_plotCTLobject(res, (n - 1), significance=significance, main='Phenotype ' + trait)
           r_dev_off()
           n = n + 1
 
@@ -180,8 +180,8 @@ class CTL:
             logger.debug(significant[0][x], significant[1][x], significant[2][x])     # Debug to console
             tsS = significant[0][x].split(':')                                        # Source
             tsT = significant[2][x].split(':')                                        # Target
-            gtS = create_trait(name = tsS[0], dataset_name = tsS[1])            # Retrieve Source info from the DB
-            gtT = create_trait(name = tsT[0], dataset_name = tsT[1])            # Retrieve Target info from the DB
+            gtS = create_trait(name=tsS[0], dataset_name=tsS[1])            # Retrieve Source info from the DB
+            gtT = create_trait(name=tsT[0], dataset_name=tsT[1])            # Retrieve Target info from the DB
             self.addNode(gtS)
             self.addNode(gtT)
             self.addEdge(gtS, gtT, significant, x)

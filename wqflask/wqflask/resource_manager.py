@@ -26,7 +26,7 @@ def manage_resource():
 
         owner_display_name = None
         if owner_id != "none":
-            try: #ZS: User IDs are sometimes stored in Redis as bytes and sometimes as strings, so this is just to avoid any errors for the time being
+            try:  # ZS: User IDs are sometimes stored in Redis as bytes and sometimes as strings, so this is just to avoid any errors for the time being
                 owner_id = str.encode(owner_id)
             except:
                 pass
@@ -38,7 +38,7 @@ def manage_resource():
             elif 'email_address' in owner_info:
                 owner_display_name = owner_info['email_address']
 
-        return render_template("admin/manage_resource.html", owner_name = owner_display_name, resource_id = resource_id, resource_info=resource_info, default_mask=default_mask, group_masks=group_masks_with_names, admin_status=admin_status)
+        return render_template("admin/manage_resource.html", owner_name=owner_display_name, resource_id=resource_id, resource_info=resource_info, default_mask=default_mask, group_masks=group_masks_with_names, admin_status=admin_status)
 
 @app.route("/search_for_users", methods=('POST',))
 def search_for_user():
@@ -79,7 +79,7 @@ def change_owner():
             flash("You lack the permissions to make this change.", "error")
             return redirect(url_for("manage_resource", resource_id=resource_id))
     else:
-        return render_template("admin/change_resource_owner.html", resource_id = resource_id)
+        return render_template("admin/change_resource_owner.html", resource_id=resource_id)
 
 @app.route("/resources/change_default_privileges", methods=('POST',))
 def change_default_privileges():
@@ -108,7 +108,7 @@ def add_group_to_resource():
             group_id = request.form['selected_group']
             resource_info = get_resource_info(resource_id)
             default_privileges = resource_info['default_mask']
-            return render_template("admin/set_group_privileges.html", resource_id = resource_id, group_id = group_id, default_privileges = default_privileges)
+            return render_template("admin/set_group_privileges.html", resource_id=resource_id, group_id=group_id, default_privileges = default_privileges)
         elif all(key in request.form for key in ('data_privilege', 'metadata_privilege', 'admin_privilege')):
             group_id = request.form['group_id']
             group_name = get_group_info(group_id)['name']
@@ -121,7 +121,7 @@ def add_group_to_resource():
             flash("Privileges have been added for group {}.".format(group_name), "alert-info")
             return redirect(url_for("manage_resource", resource_id=resource_id))
         else:
-            return render_template("admin/search_for_groups.html", resource_id = resource_id)
+            return render_template("admin/search_for_groups.html", resource_id=resource_id)
     else:
         return redirect(url_for("no_access_page"))
 

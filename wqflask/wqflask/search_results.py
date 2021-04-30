@@ -22,7 +22,7 @@ from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_str
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 class SearchResultPage:
     #maxReturn = 3000
@@ -39,7 +39,7 @@ class SearchResultPage:
 
         self.uc_id = uuid.uuid4()
         self.go_term = None
-        logger.debug("uc_id:", self.uc_id) # contains a unique id
+        logger.debug("uc_id:", self.uc_id)  # contains a unique id
 
         logger.debug("kw is:", kw)         # dict containing search terms
         if kw['search_terms_or']:
@@ -72,7 +72,7 @@ class SearchResultPage:
         self.dataset = create_dataset(kw['dataset'], dataset_type)
         logger.debug("search_terms:", self.search_terms)
 
-        #ZS: I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
+        # ZS: I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
         try:
             self.search()
         except:
@@ -183,7 +183,7 @@ class SearchResultPage:
 
         combined_from_clause = ""
         combined_where_clause = ""
-        previous_from_clauses = [] #The same table can't be referenced twice in the from clause
+        previous_from_clauses = []  # The same table can't be referenced twice in the from clause
 
         logger.debug("len(search_terms)>1")
         symbol_list = []
@@ -231,7 +231,7 @@ class SearchResultPage:
                             combined_from_clause += from_clause
                     where_clause = the_search.get_where_clause()
                     combined_where_clause += "(" + where_clause + ")"
-                    if (i+1) < len(self.search_terms):
+                    if (i + 1) < len(self.search_terms):
                         if self.and_or == "and":
                             combined_where_clause += "AND"
                         else:
@@ -291,7 +291,7 @@ def insert_newlines(string, every=64):
     """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
     lines = []
     for i in range(0, len(string), every):
-        lines.append(string[i:i+every])
+        lines.append(string[i:i + every])
     return '\n'.join(lines)
 
 def get_aliases(symbol_list, species):
@@ -322,9 +322,9 @@ def get_aliases(symbol_list, species):
 
     search_terms = []
     for alias in filtered_aliases:
-        the_search_term = {'key':         None,
+        the_search_term = {'key': None,
                            'search_term': [alias],
-                           'separator' :  None}
+                           'separator': None}
         search_terms.append(the_search_term)
 
     return search_terms

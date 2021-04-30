@@ -127,9 +127,9 @@ class TestCorrelations(unittest.TestCase):
         expected_pearsonr = [-0.21618688834430866, 0.680771605997119, 6]
         expected_spearmanr = [-0.11595420713048969, 0.826848213385815, 6]
         for i, val in enumerate(expected_pearsonr):
-            self.assertAlmostEqual(val, results_pearsonr[i],4)
+            self.assertAlmostEqual(val, results_pearsonr[i], 4)
         for i, val in enumerate(expected_spearmanr):
-            self.assertAlmostEqual(val, results_spearmanr[i],4)
+            self.assertAlmostEqual(val, results_spearmanr[i], 4)
         self.assertEqual(results_num_overlap, None)
 
     @mock.patch("wqflask.api.correlation.do_literature_correlation_for_all_traits")

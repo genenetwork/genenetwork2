@@ -1,5 +1,5 @@
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 class genotype:
     """
@@ -18,7 +18,7 @@ class genotype:
         self.filler = False
         self.mb_exists = False
 
-        #ZS: This is because I'm not sure if some files switch the column that contains Mb/cM positions; might be unnecessary
+        # ZS: This is because I'm not sure if some files switch the column that contains Mb/cM positions; might be unnecessary
         self.cm_column = 2
         self.mb_column = 3
 
@@ -36,14 +36,14 @@ class genotype:
         return len(self.chromosomes)
 
     def read_rdata_output(self, qtl_results):
-        #ZS: This is necessary because R/qtl requires centimorgan marker positions, which it normally gets from the .geno file, but that doesn't exist for HET3-ITP (which only has RData), so it needs to read in the marker cM positions from the results
-        self.chromosomes = [] #ZS: Overwriting since the .geno file's contents are just placeholders
+        # ZS: This is necessary because R/qtl requires centimorgan marker positions, which it normally gets from the .geno file, but that doesn't exist for HET3-ITP (which only has RData), so it needs to read in the marker cM positions from the results
+        self.chromosomes = []  # ZS: Overwriting since the .geno file's contents are just placeholders
 
-        this_chr = "" #ZS: This is so it can track when the chromosome changes as it iterates through markers
+        this_chr = ""  # ZS: This is so it can track when the chromosome changes as it iterates through markers
         chr_ob = None
         for marker in qtl_results:
             locus = Locus(self)
-            if (str(marker['chr']) != this_chr) and this_chr != "X": #ZS: This is really awkward but works as a temporary fix
+            if (str(marker['chr']) != this_chr) and this_chr != "X":  # ZS: This is really awkward but works as a temporary fix
                 if this_chr != "":
                     self.chromosomes.append(chr_ob)
                 this_chr = str(marker['chr'])
@@ -68,7 +68,7 @@ class genotype:
         with open(filename, 'r') as geno_file:
             lines = geno_file.readlines()
 
-            this_chr = "" #ZS: This is so it can track when the chromosome changes as it iterates through markers
+            this_chr = ""  # ZS: This is so it can track when the chromosome changes as it iterates through markers
             chr_ob = None
             for line in lines:
                 if line[0] == "#":
@@ -141,7 +141,7 @@ class Chr:
         self.loci.append(Locus(self.geno_ob, marker_row))
 
 class Locus:
-    def __init__(self, geno_ob, marker_row = None):
+    def __init__(self, geno_ob, marker_row=None):
         self.chr = None
         self.name = None
         self.cM = None
@@ -175,5 +175,5 @@ class Locus:
             for allele in marker_row[start_pos:]:
                 if allele in list(geno_table.keys()):
                     self.genotype.append(geno_table[allele])
-                else: #ZS: Some genotype appears that isn't specified in the metadata, make it unknown
+                else:  # ZS: Some genotype appears that isn't specified in the metadata, make it unknown
                     self.genotype.append("U")

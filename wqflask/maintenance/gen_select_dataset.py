@@ -61,10 +61,10 @@ def parse_db_uri():
     parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
-                        db = parsed_uri.path[1:],
-                        host = parsed_uri.hostname,
-                        user = parsed_uri.username,
-                        passwd = parsed_uri.password)
+                        db=parsed_uri.path[1:],
+                        host=parsed_uri.hostname,
+                        user=parsed_uri.username,
+                        passwd=parsed_uri.password)
 
     print(db_conn_info)
     return db_conn_info
@@ -120,7 +120,7 @@ def get_types(groups):
                     if not phenotypes_exist(group_name) and not genotypes_exist(group_name):
                         types[species].pop(group_name, None)
                         groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
-            else: #ZS: This whole else statement might be unnecessary, need to check
+            else:  # ZS: This whole else statement might be unnecessary, need to check
                 types_list = build_types(species, group_name)
                 if len(types_list) > 0:
                     types[species][group_name] = types_list
@@ -133,7 +133,7 @@ def get_types(groups):
 def phenotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from PublishFreeze
-                      where PublishFreeze.Name = '%s'""" % (group_name+"Publish"))
+                      where PublishFreeze.Name = '%s'""" % (group_name + "Publish"))
 
     results = Cursor.fetchone()
     #print("RESULTS:", results)
@@ -146,7 +146,7 @@ def phenotypes_exist(group_name):
 def genotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from GenoFreeze
-                      where GenoFreeze.Name = '%s'""" % (group_name+"Geno"))
+                      where GenoFreeze.Name = '%s'""" % (group_name + "Geno"))
 
     results = Cursor.fetchone()
     #print("RESULTS:", results)
@@ -246,7 +246,7 @@ def build_datasets(species, group, type_name):
         dataset_text = "%s Genotypes" % group
         datasets.append((dataset_id, dataset_value, dataset_text))
 
-    else: # for mRNA expression/ProbeSet
+    else:  # for mRNA expression/ProbeSet
         Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = '%s' and Species.Id = InbredSet.SpeciesId and

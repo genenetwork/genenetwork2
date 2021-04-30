@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -52,7 +52,7 @@ class CorrelationMatrix:
         self.traits = []
         self.insufficient_shared_samples = False
         self.do_PCA = True
-        this_group = self.trait_list[0][1].group.name #ZS: Getting initial group name before verifying all traits are in the same group in the following loop
+        this_group = self.trait_list[0][1].group.name  # ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         for trait_db in self.trait_list:
             this_group = trait_db[1].group.name
             this_trait = trait_db[0]
@@ -76,10 +76,10 @@ class CorrelationMatrix:
                     this_trait_vals.append('')
             self.sample_data.append(this_trait_vals)
 
-        if len(this_trait_vals) < len(self.trait_list): #Shouldn't do PCA if there are more traits than observations/samples
+        if len(this_trait_vals) < len(self.trait_list):  # Shouldn't do PCA if there are more traits than observations/samples
             self.do_PCA = False
 
-        self.lowest_overlap = 8 #ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
+        self.lowest_overlap = 8  # ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
 
         self.corr_results = []
         self.pca_corr_results = []
@@ -93,7 +93,7 @@ class CorrelationMatrix:
 
             corr_result_row = []
             pca_corr_result_row = []
-            is_spearman = False #ZS: To determine if it's above or below the diagonal
+            is_spearman = False  # ZS: To determine if it's above or below the diagonal
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
@@ -168,12 +168,12 @@ class CorrelationMatrix:
         except:
             self.pca_works = "False"
 
-        self.js_data = dict(traits = [trait.name for trait in self.traits],
-                            groups = groups,
-                            cols = list(range(len(self.traits))),
-                            rows = list(range(len(self.traits))),
-                            samples = self.all_sample_list,
-                            sample_data = self.sample_data,)
+        self.js_data = dict(traits=[trait.name for trait in self.traits],
+                            groups=groups,
+                            cols=list(range(len(self.traits))),
+                            rows=list(range(len(self.traits))),
+                            samples=self.all_sample_list,
+                            sample_data=self.sample_data,)
 
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
         base = importr('base')
@@ -183,7 +183,7 @@ class CorrelationMatrix:
 
         m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
         eigen = base.eigen(m)
-        pca = stats.princomp(m, cor = "TRUE")
+        pca = stats.princomp(m, cor="TRUE")
         self.loadings = pca.rx('loadings')
         self.scores = pca.rx('scores')
         self.scale = pca.rx('scale')
@@ -193,15 +193,15 @@ class CorrelationMatrix:
 
         pca_traits = []
         for i, vector in enumerate(trait_array_vectors):
-            #ZS: Check if below check is necessary
-            #if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
-            pca_traits.append((vector*-1.0).tolist())
+            # ZS: Check if below check is necessary
+            # if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
+            pca_traits.append((vector * -1.0).tolist())
 
         this_group_name = self.trait_list[0][1].group.name
-        temp_dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = this_group_name)
+        temp_dataset = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name = this_group_name)
         temp_dataset.group.get_samplelist()
         for i, pca_trait in enumerate(pca_traits):
-            trait_id = "PCA" + str(i+1) + "_" + temp_dataset.group.species + "_" + this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
+            trait_id = "PCA" + str(i + 1) + "_" + temp_dataset.group.species + "_" + this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
             this_vals_string = ""
             position = 0
             for sample in temp_dataset.group.all_samples_ordered():
@@ -228,7 +228,7 @@ class CorrelationMatrix:
             else:
                the_range = 2
             for j in range(the_range):
-                position = i + len(self.trait_list)*j
+                position = i + len(self.trait_list) * j
                 loadings_row.append(self.loadings[0][position])
             loadings_array.append(loadings_row)
         return loadings_array
@@ -271,14 +271,14 @@ def zScore(trait_data_array):
         i = 0
         for data in trait_data_array:
             N = len(data)
-            S = reduce(lambda x, y: x+y, data, 0.)
-            SS = reduce(lambda x, y: x+y*y, data, 0.)
-            mean = S/N
-            var = SS - S*S/N
-            stdev = math.sqrt(var/(N-1))
+            S = reduce(lambda x, y: x + y, data, 0.)
+            SS = reduce(lambda x, y: x + y * y, data, 0.)
+            mean = S / N
+            var = SS - S * S / N
+            stdev = math.sqrt(var / (N - 1))
             if stdev == 0:
                 stdev = 1e-100
-            data2 = [(x-mean)/stdev for x in data]
+            data2 = [(x - mean) / stdev for x in data]
             trait_data_array[i] = data2
             i += 1
         return trait_data_array
@@ -298,8 +298,8 @@ def sortEigenVectors(vector):
         for item in combines:
             A.append(item[0])
             B.append(item[1])
-        sum = reduce(lambda x, y: x+y, A, 0.0)
-        A = [x*100.0/sum for x in A] 
+        sum = reduce(lambda x, y: x + y, A, 0.0)
+        A = [x * 100.0 / sum for x in A] 
         return [A, B]
     except:
         return []

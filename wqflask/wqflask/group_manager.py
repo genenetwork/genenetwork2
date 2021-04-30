@@ -40,8 +40,8 @@ def view_group():
          user_info = get_user_by_unique_column("user_id", user_id)
          members_info.append(user_info)
 
-   #ZS: This whole part might not scale well with many resources
-   resources_info  = []
+   # ZS: This whole part might not scale well with many resources
+   resources_info = []
    all_resources = get_resources()
    for resource_id in all_resources:
       resource_info = get_resource_info(resource_id)
@@ -82,10 +82,10 @@ def add_users(user_type='members'):
    group_id = request.form['group_id']
    if user_type == "admins":
       user_emails = request.form['admin_emails_to_add'].split(",")
-      add_users_to_group(g.user_session.user_id, group_id, user_emails, admins = True)
+      add_users_to_group(g.user_session.user_id, group_id, user_emails, admins=True)
    elif user_type == "members":
       user_emails = request.form['member_emails_to_add'].split(",")
-      add_users_to_group(g.user_session.user_id, group_id, user_emails, admins = False)
+      add_users_to_group(g.user_session.user_id, group_id, user_emails, admins=False)
 
    return redirect(url_for('view_group', id=group_id))
 
@@ -103,7 +103,7 @@ def add_or_edit_group():
    if "group_name" in params:
       member_user_ids = set()
       admin_user_ids = set()
-      admin_user_ids.add(g.user_session.user_id) #ZS: Always add the user creating the group as an admin
+      admin_user_ids.add(g.user_session.user_id)  # ZS: Always add the user creating the group as an admin
       if "admin_emails_to_add" in params:
          admin_emails = params['admin_emails_to_add'].split(",")
          for email in admin_emails:
@@ -124,22 +124,22 @@ def add_or_edit_group():
    else:
       return render_template("admin/create_group.html")
 
-#ZS: Will integrate this later, for now just letting users be added directly
-def send_group_invites(group_id, user_email_list = [], user_type="members"):
+# ZS: Will integrate this later, for now just letting users be added directly
+def send_group_invites(group_id, user_email_list=[], user_type="members"):
    for user_email in user_email_list:
       user_details = get_user_by_unique_column("email_address", user_email)
       if user_details:
          group_info = get_group_info(group_id)
-         #ZS: Probably not necessary since the group should normally always exist if group_id is being passed here,
+         # ZS: Probably not necessary since the group should normally always exist if group_id is being passed here,
          #    but it's technically possible to hit it if Redis is cleared out before submitting the new users or something
          if group_info:
-            #ZS: Don't add user if they're already an admin or if they're being added a regular user and are already a regular user,
+            # ZS: Don't add user if they're already an admin or if they're being added a regular user and are already a regular user,
             #    but do add them if they're a regular user and are added as an admin
             if (user_details['user_id'] in group_info['admins']) or \
                ((user_type == "members") and (user_details['user_id'] in group_info['members'])):
                continue
             else:
-               send_verification_email(user_details, template_name = "email/group_verification.txt", key_prefix = "verification_code", subject = "You've been invited to join a GeneNetwork user group")
+               send_verification_email(user_details, template_name="email/group_verification.txt", key_prefix="verification_code", subject = "You've been invited to join a GeneNetwork user group")
       else:
          temp_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
          user_details = {
@@ -152,4 +152,4 @@ def send_group_invites(group_id, user_email_list = [], user_type="members"):
          save_user(user_details, user_details['user_id'])
          send_invitation_email(user_email, temp_password)
 
-#@app.route()
+# @app.route()

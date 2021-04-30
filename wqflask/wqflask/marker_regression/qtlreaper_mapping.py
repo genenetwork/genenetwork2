@@ -6,7 +6,7 @@ from base.data_set import create_dataset
 from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
     """Generates p-values for each marker using qtlreaper"""
@@ -17,10 +17,10 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         else:
             genofile_name = this_dataset.group.name
 
-        trait_filename =f"{str(this_trait.name)}_{str(this_dataset.name)}_pheno"
+        trait_filename = f"{str(this_trait.name)}_{str(this_dataset.name)}_pheno"
         gen_pheno_txt_file(samples, vals, trait_filename)
 
-        output_filename = (f"{this_dataset.group.name}_GWA_"+
+        output_filename = (f"{this_dataset.group.name}_GWA_" +
             ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
             )
         bootstrap_filename = None
@@ -36,7 +36,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             opt_list.append(f"--n_bootstrap {str(num_bootstrap)}")
             opt_list.append(f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
-            permu_filename =("{this_dataset.group.name}_PERM_" + 
+            permu_filename = ("{this_dataset.group.name}_PERM_" + 
             ''.join(random.choice(string.ascii_uppercase + 
                 string.digits) for _ in range(6))
             )
@@ -67,8 +67,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
     suggestive = 0
     significant = 0
     if len(permu_vals) > 0:
-        suggestive = permu_vals[int(num_perm*0.37-1)]
-        significant = permu_vals[int(num_perm*0.95-1)]
+        suggestive = permu_vals[int(num_perm * 0.37 - 1)]
+        significant = permu_vals[int(num_perm * 0.95 - 1)]
 
     return (marker_obs, permu_vals, suggestive, significant, bootstrap_vals, 
         [output_filename, permu_filename, bootstrap_filename])
@@ -76,7 +76,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
 def gen_pheno_txt_file(samples, vals, trait_filename):
     """Generates phenotype file for GEMMA"""
 
-    with open(f"{TEMPDIR}/gn2/{trait_filename}.txt","w") as outfile:
+    with open(f"{TEMPDIR}/gn2/{trait_filename}.txt", "w") as outfile:
         outfile.write("Trait\t")
 
         filtered_sample_list = []
@@ -121,7 +121,7 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                         marker['cM'] = float(line.split("\t")[3])
                     else:
                         if float(line.split("\t")[3]) > 1000:
-                            marker['Mb'] = float(line.split("\t")[3])/1000000
+                            marker['Mb'] = float(line.split("\t")[3]) / 1000000
                         else:
                             marker['Mb'] = float(line.split("\t")[3])
                     if float(line.split("\t")[6]) != 1:
@@ -132,7 +132,7 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                 else:
                     marker['cM'] = float(line.split("\t")[3])
                     if float(line.split("\t")[4]) > 1000:
-                        marker['Mb'] = float(line.split("\t")[4])/1000000
+                        marker['Mb'] = float(line.split("\t")[4]) / 1000000
                     else:
                         marker['Mb'] = float(line.split("\t")[4])
                     if float(line.split("\t")[7]) != 1:
@@ -142,7 +142,7 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
                     marker['additive'] = float(line.split("\t")[6])
                 marker_obs.append(marker)
 
-    #ZS: Results have to be reordered because the new reaper returns results sorted alphabetically by chr for some reason, resulting in chr 1 being followed by 10, etc
+    # ZS: Results have to be reordered because the new reaper returns results sorted alphabetically by chr for some reason, resulting in chr 1 being followed by 10, etc
     sorted_indices = natural_sort(marker_obs)
 
     permu_vals = []
@@ -185,18 +185,18 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
         suggestive = 0
         significant = 0
     else:
-        perm_output = genotype.permutation(strains = trimmed_samples, trait = trimmed_values, nperm=num_perm)
-        suggestive = perm_output[int(num_perm*0.37-1)]
-        significant = perm_output[int(num_perm*0.95-1)]
-        #highly_significant = perm_output[int(num_perm*0.99-1)] #ZS: Currently not used, but leaving it here just in case
+        perm_output = genotype.permutation(strains=trimmed_samples, trait=trimmed_values, nperm=num_perm)
+        suggestive = perm_output[int(num_perm * 0.37 - 1)]
+        significant = perm_output[int(num_perm * 0.95 - 1)]
+        # highly_significant = perm_output[int(num_perm*0.99-1)] #ZS: Currently not used, but leaving it here just in case
 
     json_data['suggestive'] = suggestive
     json_data['significant'] = significant
 
     if control_marker != "" and do_control == "true":
-        reaper_results = genotype.regression(strains = trimmed_samples,
-                                             trait = trimmed_values,
-                                             control = str(control_marker))
+        reaper_results = genotype.regression(strains=trimmed_samples,
+                                             trait=trimmed_values,
+                                             control=str(control_marker))
         if bootCheck:
             control_geno = []
             control_geno2 = []
@@ -215,31 +215,31 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
                     _idx = _prgy.index(_strain)
                     control_geno.append(control_geno2[_idx])
 
-            bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
-                                                        trait = trimmed_values,
-                                                        control = control_geno,
-                                                        nboot = num_bootstrap)
+            bootstrap_results = genotype.bootstrap(strains=trimmed_samples,
+                                                        trait=trimmed_values,
+                                                        control=control_geno,
+                                                        nboot=num_bootstrap)
     else:
-        reaper_results = genotype.regression(strains = trimmed_samples,
-                                             trait = trimmed_values)
+        reaper_results = genotype.regression(strains=trimmed_samples,
+                                             trait=trimmed_values)
 
         if bootCheck:
-            bootstrap_results = genotype.bootstrap(strains = trimmed_samples,
-                                                        trait = trimmed_values,
-                                                        nboot = num_bootstrap)
+            bootstrap_results = genotype.bootstrap(strains=trimmed_samples,
+                                                        trait=trimmed_values,
+                                                        nboot=num_bootstrap)
 
     json_data['chr'] = []
     json_data['pos'] = []
     json_data['lod.hk'] = []
     json_data['markernames'] = []
-    #if self.additive:
+    # if self.additive:
     #    self.json_data['additive'] = []
 
-    #Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
+    # Need to convert the QTL objects that qtl reaper returns into a json serializable dictionary
     qtl_results = []
     for qtl in reaper_results:
         reaper_locus = qtl.locus
-        #ZS: Convert chr to int
+        # ZS: Convert chr to int
         converted_chr = reaper_locus.chr
         if reaper_locus.chr != "X" and reaper_locus.chr != "X/Y":
             converted_chr = int(reaper_locus.chr)
@@ -247,11 +247,11 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
         json_data['pos'].append(reaper_locus.Mb)
         json_data['lod.hk'].append(qtl.lrs)
         json_data['markernames'].append(reaper_locus.name)
-        #if self.additive:
+        # if self.additive:
         #    self.json_data['additive'].append(qtl.additive)
-        locus = {"name":reaper_locus.name, "chr":reaper_locus.chr, "cM":reaper_locus.cM, "Mb":reaper_locus.Mb}
-        qtl = {"lrs_value": qtl.lrs, "chr":converted_chr, "Mb":reaper_locus.Mb,
-               "cM":reaper_locus.cM, "name":reaper_locus.name, "additive":qtl.additive, "dominance":qtl.dominance}
+        locus = {"name": reaper_locus.name, "chr": reaper_locus.chr, "cM": reaper_locus.cM, "Mb": reaper_locus.Mb}
+        qtl = {"lrs_value": qtl.lrs, "chr": converted_chr, "Mb": reaper_locus.Mb,
+               "cM": reaper_locus.cM, "name": reaper_locus.name, "additive": qtl.additive, "dominance": qtl.dominance}
         qtl_results.append(qtl)
     return qtl_results, json_data, perm_output, suggestive, significant, bootstrap_results
 
@@ -261,5 +261,5 @@ def natural_sort(marker_list):
     Changed to return indices instead of values, though, since the same reordering needs to be applied to bootstrap results
     """
     convert = lambda text: int(text) if text.isdigit() else text.lower()
-    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', str(marker_list[key]['chr'])) ]
-    return sorted(list(range(len(marker_list))), key = alphanum_key)
+    alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', str(marker_list[key]['chr']))]
+    return sorted(list(range(len(marker_list))), key=alphanum_key)

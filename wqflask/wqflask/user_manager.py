@@ -74,11 +74,11 @@ class AnonUser:
         self.key = "anon_collection:v1:{}".format(self.anon_id)
 
     def add_collection(self, new_collection):
-        collection_dict = dict(name = new_collection.name,
-                               created_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               changed_timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
-                               num_members = new_collection.num_members,
-                               members = new_collection.get_members())
+        collection_dict = dict(name=new_collection.name,
+                               created_timestamp=datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                               changed_timestamp=datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
+                               num_members=new_collection.num_members,
+                               members=new_collection.get_members())
 
         Redis.set(self.key, json.dumps(collection_dict))
         Redis.expire(self.key, 60 * 60 * 24 * 365)
@@ -111,7 +111,7 @@ class AnonUser:
                 collection['created_timestamp'] = datetime.datetime.strptime(collection['created_timestamp'], '%b %d %Y %I:%M%p')
                 collection['changed_timestamp'] = datetime.datetime.strptime(collection['changed_timestamp'], '%b %d %Y %I:%M%p')
 
-            collections = sorted(collections, key = lambda i: i['changed_timestamp'], reverse = True)
+            collections = sorted(collections, key=lambda i: i['changed_timestamp'], reverse=True)
             return collections
 
     def import_traits_to_user(self):
@@ -182,13 +182,13 @@ class UserSession:
                 # weekend and the site hasn't been visited by the user
                 self.logged_in = False
 
-                ########### Grrr...this won't work because of the way flask handles cookies
+                # Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
                 #response = make_response(redirect(url_for('login')))
                 #response.set_cookie(self.cookie_name, '', expires=0)
-                #flash(
+                # flash(
                 #   "Due to inactivity your session has expired. If you'd like please login again.")
-                #return response
+                # return response
                 return
 
             if Redis.ttl(self.redis_key) < THREE_DAYS:
@@ -213,7 +213,7 @@ class UserSession:
 
         user_email = self.record['user_email_address']
 
-        #ZS: Get user's collections if they exist
+        # ZS: Get user's collections if they exist
         user_id = None
         user_id = get_user_id("email_address", user_email)
         return user_id
@@ -230,7 +230,7 @@ class UserSession:
     def user_collections(self):
         """List of user's collections"""
 
-        #ZS: Get user's collections if they exist
+        # ZS: Get user's collections if they exist
         collections = get_user_collections(self.redis_user_id)
         return collections
 
@@ -248,7 +248,7 @@ class UserSession:
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'num_members': len(traits),
-                           'members': list(traits) }
+                           'members': list(traits)}
 
         current_collections = self.user_collections
         current_collections.append(collection_dict)
@@ -347,7 +347,7 @@ def get_cookie():
     g.user_session = UserSession()
     g.cookie_session = AnonUser()
 
-#@app.after_request
+# @app.after_request
 def set_cookie(response):
     if not request.cookies.get(g.cookie_session.cookie_name):
         response.set_cookie(g.cookie_session.cookie_name, g.cookie_session.cookie)
@@ -455,7 +455,7 @@ def set_password(password, user):
 
 
 class VerificationEmail:
-    template_name =  "email/verification.txt"
+    template_name = "email/verification.txt"
     key_prefix = "verification_code"
     subject = "GeneNetwork email verification"
 
@@ -473,7 +473,7 @@ class VerificationEmail:
         to = user.email_address
         subject = self.subject
         body = render_template(self.template_name,
-                               verification_code = verification_code)
+                               verification_code=verification_code)
         send_email(to, subject, body)
 
 class ForgotPasswordEmail(VerificationEmail):
@@ -500,7 +500,7 @@ class ForgotPasswordEmail(VerificationEmail):
         subject = self.subject
         body = render_template(
             self.template_name,
-            verification_code = verification_code)
+            verification_code=verification_code)
 
         msg = MIMEMultipart()
         msg["To"] = toaddr
@@ -525,11 +525,11 @@ class Password:
 
 
 def basic_info():
-    return dict(timestamp = timestamp(),
-                ip_address = request.remote_addr,
-                user_agent = request.headers.get('User-Agent'))
+    return dict(timestamp=timestamp(),
+                ip_address=request.remote_addr,
+                user_agent=request.headers.get('User-Agent'))
 
-#@app.route("/manage/verify_email")
+# @app.route("/manage/verify_email")
 def verify_email():
     user = DecodeUser(VerificationEmail.key_prefix).user
     user.confirmed = json.dumps(basic_info(), sort_keys=True)
@@ -543,7 +543,7 @@ def verify_email():
     response.set_cookie(UserSession.cookie_name, session_id_signed)
     return response
 
-#@app.route("/n/password_reset", methods=['GET'])
+# @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
@@ -567,7 +567,7 @@ def password_reset():
     else:
         return redirect(url_for("login"))
 
-#@app.route("/n/password_reset_step2", methods=('POST',))
+# @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
     logger.debug("in password_reset request.url is:", request.url)
@@ -611,7 +611,7 @@ class DecodeUser:
         logger.debug("data is:", data)
         return model.User.query.get(data['id'])
 
-#@app.route("/n/login", methods=('GET', 'POST'))
+# @app.route("/n/login", methods=('GET', 'POST'))
 def login():
     lu = LoginUser()
     login_type = request.args.get("type")
@@ -621,7 +621,7 @@ def login():
     else:
         return lu.standard_login()
 
-#@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+# @app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
 def github_oauth2():
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
     code = request.args.get("code")
@@ -631,28 +631,21 @@ def github_oauth2():
         "code": code
     }
     result = requests.post("https://github.com/login/oauth/access_token", json=data)
-    result_dict = {arr[0]:arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
+    result_dict = {arr[0]: arr[1] for arr in [tok.split("=") for tok in [token.encode("utf-8") for token in result.text.split("&")]]}
 
     github_user = get_github_user_details(result_dict["access_token"])
 
     user_details = get_user_by_unique_column("github_id", github_user["id"])
     if user_details == None:
         user_details = {
-            "user_id": str(uuid.uuid4())
-            , "name": github_user["name"].encode("utf-8")
-            , "github_id": github_user["id"]
-            , "user_url": github_user["html_url"].encode("utf-8")
-            , "login_type": "github"
-            , "organization": ""
-            , "active": 1
-            , "confirmed": 1
+            "user_id": str(uuid.uuid4()), "name": github_user["name"].encode("utf-8"), "github_id": github_user["id"], "user_url": github_user["html_url"].encode("utf-8")            , "login_type": "github"            , "organization": ""            , "active": 1            , "confirmed": 1
         }
         save_user(user_details, user_details["user_id"])
 
-    url = "/n/login?type=github&uid="+user_details["user_id"]
+    url = "/n/login?type=github&uid=" + user_details["user_id"]
     return redirect(url)
 
-#@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+# @app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
 def orcid_oauth2():
     from uuid import uuid4
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
@@ -661,10 +654,7 @@ def orcid_oauth2():
     url = "/n/login"
     if code:
         data = {
-            "client_id": ORCID_CLIENT_ID
-            , "client_secret": ORCID_CLIENT_SECRET
-            , "grant_type": "authorization_code"
-            , "code": code
+            "client_id": ORCID_CLIENT_ID, "client_secret": ORCID_CLIENT_SECRET, "grant_type": "authorization_code", "code": code
         }
         result = requests.post(ORCID_TOKEN_URL, data=data)
         result_dict = json.loads(result.text.encode("utf-8"))
@@ -672,31 +662,24 @@ def orcid_oauth2():
         user_details = get_user_by_unique_column("orcid", result_dict["orcid"])
         if user_details == None:
             user_details = {
-                "user_id": str(uuid4())
-                , "name": result_dict["name"]
-                , "orcid": result_dict["orcid"]
-                , "user_url": "%s/%s" % (
+                "user_id": str(uuid4()), "name": result_dict["name"], "orcid": result_dict["orcid"], "user_url": "%s/%s" % (
                     "/".join(ORCID_AUTH_URL.split("/")[:-2]),
-                    result_dict["orcid"])
-                , "login_type": "orcid"
-                , "organization": ""
-                , "active": 1
-                , "confirmed": 1
+                    result_dict["orcid"]), "login_type": "orcid", "organization": "", "active": 1                , "confirmed": 1
             }
             save_user(user_details, user_details["user_id"])
 
-        url = "/n/login?type=orcid&uid="+user_details["user_id"]
+        url = "/n/login?type=orcid&uid=" + user_details["user_id"]
     else:
         flash("There was an error getting code from ORCID")
     return redirect(url)
 
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
-    result = requests.get(GITHUB_API_URL, params={"access_token":access_token})
+    result = requests.get(GITHUB_API_URL, params={"access_token": access_token})
     return result.json()
 
 class LoginUser:
-    remember_time = 60 * 60 * 24 * 30 # One month in seconds
+    remember_time = 60 * 60 * 24 * 30  # One month in seconds
 
     def __init__(self):
         self.remember_me = False
@@ -730,9 +713,7 @@ class LoginUser:
                 external_login["orcid"] = ORCID_AUTH_URL
 
             return render_template(
-                "new_security/login_user.html"
-                , external_login=external_login
-                , redis_is_available = is_redis_available())
+                "new_security/login_user.html", external_login=external_login, redis_is_available=is_redis_available())
         else:
             user_details = get_user_by_unique_column("email_address", params["email_address"])
             #user_details = get_user_by_unique_column(es, "email_address", params["email_address"])
@@ -770,7 +751,7 @@ class LoginUser:
             else:
                 import_col = "false"
 
-            #g.cookie_session.import_traits_to_user()
+            # g.cookie_session.import_traits_to_user()
 
             self.logged_in = True
 
@@ -810,10 +791,10 @@ class LoginUser:
         if not user.id:
             user.id = ''
 
-        session = dict(login_time = time.time(),
-                       user_id = user.id,
-                       user_name = user.full_name,
-                       user_email_address = user.email_address)
+        session = dict(login_time=time.time(),
+                       user_id=user.id,
+                       user_name=user.full_name,
+                       user_email_address=user.email_address)
 
         key = UserSession.cookie_name + ":" + login_rec.session_id
         logger.debug("Key when signing:", key)
@@ -832,7 +813,7 @@ class LoginUser:
         db_session.add(login_rec)
         db_session.commit()
 
-#@app.route("/n/logout")
+# @app.route("/n/logout")
 def logout():
     logger.debug("Logging out...")
     UserSession().delete_session()
@@ -843,7 +824,7 @@ def logout():
     return response
 
 
-#@app.route("/n/forgot_password", methods=['GET'])
+# @app.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
     print("ARGS: ", request.args)
@@ -851,7 +832,7 @@ def forgot_password():
     print("ERRORS: ", errors)
     return render_template("new_security/forgot_password.html", errors=errors)
 
-#@app.route("/n/forgot_password_submit", methods=('POST',))
+# @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
@@ -886,7 +867,7 @@ def is_redis_available():
 ###
 # ZS: The following 6 functions require the old MySQL User accounts; I'm leaving them commented out just in case we decide to reimplement them using ElasticSearch
 ###
-#def super_only():
+# def super_only():
 #    try:
 #        superuser = g.user_session.user_ob.superuser
 #    except AttributeError:
@@ -895,26 +876,26 @@ def is_redis_available():
 #        flash("You must be a superuser to access that page.", "alert-error")
 #        abort(401)
 
-#@app.route("/manage/users")
-#def manage_users():
+# @app.route("/manage/users")
+# def manage_users():
 #    super_only()
 #    template_vars = UsersManager()
 #    return render_template("admin/user_manager.html", **template_vars.__dict__)
 
-#@app.route("/manage/user")
-#def manage_user():
+# @app.route("/manage/user")
+# def manage_user():
 #    super_only()
 #    template_vars = UserManager(request.args)
 #    return render_template("admin/ind_user_manager.html", **template_vars.__dict__)
 
-#@app.route("/manage/groups")
-#def manage_groups():
+# @app.route("/manage/groups")
+# def manage_groups():
 #    super_only()
 #    template_vars = GroupsManager(request.args)
 #    return render_template("admin/group_manager.html", **template_vars.__dict__)
 
-#@app.route("/manage/make_superuser")
-#def make_superuser():
+# @app.route("/manage/make_superuser")
+# def make_superuser():
 #    super_only()
 #    params = request.args
 #    user_id = params['user_id']
@@ -926,8 +907,8 @@ def is_redis_available():
 #    flash("We've made {} a superuser!".format(user.name_and_org))
 #    return redirect(url_for("manage_users"))
 
-#@app.route("/manage/assume_identity")
-#def assume_identity():
+# @app.route("/manage/assume_identity")
+# def assume_identity():
 #    super_only()
 #    params = request.args
 #    user_id = params['user_id']
@@ -936,7 +917,7 @@ def is_redis_available():
 #    return LoginUser().actual_login(user, assumed_by=assumed_by)
 
 
-#@app.route("/n/register", methods=('GET', 'POST'))
+# @app.route("/n/register", methods=('GET', 'POST'))
 def register():
     params = None
     errors = None
@@ -1023,21 +1004,21 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
 
     """
     if SMTP_USERNAME == 'UNKNOWN':
-        logger.debug("SMTP: connecting with host "+SMTP_CONNECT)
+        logger.debug("SMTP: connecting with host " + SMTP_CONNECT)
         server = SMTP(SMTP_CONNECT)
         server.sendmail(fromaddr, toaddr, msg)
     else:
-        logger.debug("SMTP: connecting TLS with host "+SMTP_CONNECT)
+        logger.debug("SMTP: connecting TLS with host " + SMTP_CONNECT)
         server = SMTP(SMTP_CONNECT)
         server.starttls()
-        logger.debug("SMTP: login with user "+SMTP_USERNAME)
+        logger.debug("SMTP: login with user " + SMTP_USERNAME)
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
-        logger.debug("SMTP: "+fromaddr)
-        logger.debug("SMTP: "+toaddr)
-        logger.debug("SMTP: "+msg)
+        logger.debug("SMTP: " + fromaddr)
+        logger.debug("SMTP: " + toaddr)
+        logger.debug("SMTP: " + msg)
         server.sendmail(fromaddr, toaddr, msg)
         server.quit()
-    logger.info("Successfully sent email to "+toaddr)
+    logger.info("Successfully sent email to " + toaddr)
 
 class GroupsManager:
     def __init__(self, kw):

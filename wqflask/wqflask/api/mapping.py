@@ -8,15 +8,15 @@ from utility import helper_functions
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 def do_mapping_for_api(start_vars):
     assert('db' in start_vars)
     assert('trait_id' in start_vars)
 
-    dataset = data_set.create_dataset(dataset_name = start_vars['db'])
+    dataset = data_set.create_dataset(dataset_name=start_vars['db'])
     dataset.group.get_markers()
-    this_trait = create_trait(dataset = dataset, name = start_vars['trait_id'])
+    this_trait = create_trait(dataset=dataset, name=start_vars['trait_id'])
     this_trait = retrieve_sample_data(this_trait, dataset)
 
     samples = []
@@ -36,11 +36,11 @@ def do_mapping_for_api(start_vars):
 
     mapping_params = initialize_parameters(start_vars, dataset, this_trait)
 
-    covariates = "" #ZS: It seems to take an empty string as default. This should probably be changed.
+    covariates = ""  # ZS: It seems to take an empty string as default. This should probably be changed.
 
     if mapping_params['mapping_method'] == "gemma":
         header_row = ["name", "chr", "Mb", "lod_score", "p_value"]
-        if mapping_params['use_loco'] == "True": #ZS: gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
+        if mapping_params['use_loco'] == "True":  # ZS: gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
             result_markers = gemma_mapping.run_gemma(this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
         else:
             result_markers = gemma_mapping.run_gemma(this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
@@ -118,7 +118,7 @@ def initialize_parameters(start_vars, dataset, this_trait):
 
     mapping_params['maf'] = 0.01
     if 'maf' in start_vars:
-        mapping_params['maf'] = start_vars['maf'] # Minor allele frequency
+        mapping_params['maf'] = start_vars['maf']  # Minor allele frequency
 
     mapping_params['use_loco'] = True
     if 'use_loco' in start_vars:

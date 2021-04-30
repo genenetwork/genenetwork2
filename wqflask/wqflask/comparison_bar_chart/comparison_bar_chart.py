@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -23,7 +23,7 @@ from pprint import pformat as pf
 from base.trait import create_trait
 from base import data_set
 from utility import webqtlUtil, helper_functions, corr_result_helpers
-import utility.webqtlUtil #this is for parallel computing only.
+import utility.webqtlUtil  # this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 
 from MySQLdb import escape_string as escape
@@ -41,7 +41,7 @@ class ComparisonBarChart:
         self.all_sample_list = []
         self.traits = []
         self.insufficient_shared_samples = False
-        this_group = self.trait_list[0][1].group.name #ZS: Getting initial group name before verifying all traits are in the same group in the following loop
+        this_group = self.trait_list[0][1].group.name  # ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         for trait_db in self.trait_list:
             
             if trait_db[1].group.name != this_group:
@@ -74,9 +74,9 @@ class ComparisonBarChart:
                         this_trait_vals.append('')
                 self.sample_data.append(this_trait_vals)
 
-            self.js_data = dict(traits = [trait.name for trait in self.traits],
-                                samples = self.all_sample_list,
-                                sample_data = self.sample_data,)
+            self.js_data = dict(traits=[trait.name for trait in self.traits],
+                                samples=self.all_sample_list,
+                                sample_data=self.sample_data,)
         
     def get_trait_db_obs(self, trait_db_list):
 

@@ -7,11 +7,11 @@ from flask import g
 from flask import Flask
 from utility import formatting
 from wqflask.markdown_routes import glossary_blueprint
-from wqflask.markdown_routes import  references_blueprint
-from wqflask.markdown_routes import  links_blueprint
+from wqflask.markdown_routes import references_blueprint
+from wqflask.markdown_routes import links_blueprint
 from wqflask.markdown_routes import policies_blueprint
-from wqflask.markdown_routes import  environments_blueprint
-from wqflask.markdown_routes import  facilities_blueprint
+from wqflask.markdown_routes import environments_blueprint
+from wqflask.markdown_routes import facilities_blueprint
 
 app = Flask(__name__)
 
