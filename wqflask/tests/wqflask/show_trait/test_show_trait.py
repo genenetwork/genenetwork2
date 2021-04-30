@@ -242,7 +242,6 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(get_genotype_scales(file_location), expected_results)
         mock_get_scales.assert_called_once_with(file_location)
 
-
     @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
     def test_get_scales_from_genofile_found(self, mock_ignore_location):
         """"add test for get scales from genofile where file is found"""

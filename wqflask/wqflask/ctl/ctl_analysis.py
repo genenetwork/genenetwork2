@@ -39,6 +39,7 @@ r_write_table = ro.r["write.table"]         # Map the write.table function
 r_data_frame = ro.r["data.frame"]         # Map the write.table function
 r_as_numeric = ro.r["as.numeric"]         # Map the write.table function
 
+
 class CTL:
     def __init__(self):
         logger.info("Initialization of CTL")

@@ -29,8 +29,10 @@ from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_AL
 
 THREE_DAYS = 60 * 60 * 24 * 3
 
+
 def timestamp():
     return datetime.datetime.utcnow().isoformat()
+
 
 def basic_info():
     return dict(timestamp=timestamp(),
@@ -54,6 +56,7 @@ def encode_password(pass_gen_fields, unencrypted_password):
 
     return pass_gen_fields
 
+
 def set_password(password):
     pass_gen_fields = {
       "unencrypted_password": password,
@@ -70,6 +73,7 @@ def set_password(password):
     encoded_password = encode_password(pass_gen_fields, pass_gen_fields['unencrypted_password'])
 
     return encoded_password
+
 
 def get_signed_session_id(user):
     session_id = str(uuid.uuid4())
@@ -109,6 +113,7 @@ def get_signed_session_id(user):
     
     return session_id_signed
 
+
 def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
     """Send an E-mail through SMTP_CONNECT host. If SMTP_USERNAME is not
     'UNKNOWN' TLS is used
@@ -125,6 +130,7 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
         server.quit()
     logger.info("Successfully sent email to " + toaddr)
 
+
 def send_verification_email(user_details, template_name="email/user_verification.txt", key_prefix="verification_code", subject = "GeneNetwork e-mail verification"):
     verification_code = str(uuid.uuid4())
     key = key_prefix + ":" + verification_code
@@ -139,11 +145,13 @@ def send_verification_email(user_details, template_name="email/user_verification
     send_email(recipient, subject, body)
     return {"recipient": recipient, "subject": subject, "body": body}
 
+
 def send_invitation_email(user_email, temp_password, template_name="email/user_invitation.txt", subject= "You've been added to a GeneNetwork user group"):
     recipient = user_email
     body = render_template(template_name, temp_password)
     send_email(recipient, subject, body)
     return {"recipient": recipient, "subject": subject, "body": body}
+
 
 @app.route("/manage/verify_email")
 def verify_email():
@@ -159,6 +167,7 @@ def verify_email():
             return response
         else:
             flash("Invalid code: Password reset code does not exist or might have expired!", "error")
+
 
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
@@ -232,6 +241,7 @@ def login():
 
                 return response
 
+
 @app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
 def github_oauth2():
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_AUTH_URL
@@ -264,11 +274,13 @@ def github_oauth2():
     url = "/n/login?type=github&uid=" + user_details["user_id"]
     return redirect(url)
 
+
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
     result = requests.get(GITHUB_API_URL, headers={'Authorization': 'token ' + access_token}).content
 
     return json.loads(result)
+
 
 @app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
 def orcid_oauth2():
@@ -308,6 +320,7 @@ def orcid_oauth2():
         flash("There was an error getting code from ORCID")
     return redirect(url)
 
+
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
     result = requests.get(GITHUB_API_URL, headers={'Authorization': 'token ' + access_token}).content
@@ -325,6 +338,7 @@ def logout():
     response.set_cookie(UserSession.user_cookie_name, '', expires=0)
     return response
 
+
 @app.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
@@ -332,6 +346,7 @@ def forgot_password():
     errors = {"no-email": request.args.get("no-email")}
     print("ERRORS: ", errors)
     return render_template("new_security/forgot_password.html", errors=errors)
+
 
 def send_forgot_password_email(verification_email):
     from email.mime.multipart import MIMEMultipart
@@ -365,6 +380,7 @@ def send_forgot_password_email(verification_email):
 
     return subject
 
+
 @app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
@@ -386,6 +402,7 @@ def forgot_password_submit():
         flash("You MUST provide an email", "alert-danger")
         return redirect(url_for("forgot_password"))
 
+
 @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
@@ -405,6 +422,7 @@ def password_reset():
     else:
         return redirect(url_for("login"))
 
+
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
@@ -421,6 +439,7 @@ def password_reset_step2():
 
     flash("Password changed successfully. You can now sign in.", "alert-info")
     return redirect(url_for('login'))
+
 
 def register_user(params):
         thank_you_mode = False
@@ -461,6 +480,7 @@ def register_user(params):
 
         return errors
 
+
 @app.route("/n/register", methods=('GET', 'POST'))
 def register():
     errors = []
@@ -477,6 +497,7 @@ def register():
             return redirect(url_for("login"))
 
     return render_template("new_security/register_user.html", values=params, errors=errors)
+
 
 @app.errorhandler(401)
 def unauthorized(error):

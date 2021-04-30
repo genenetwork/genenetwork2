@@ -311,7 +311,6 @@ class HumanMarkers(Markers):
                 marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
 
-
     def add_pvalues(self, p_values):
         super(HumanMarkers, self).add_pvalues(p_values)
 

@@ -29,6 +29,7 @@ from utility import helper_functions, corr_result_helpers
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 class SendToGeneWeaver:
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -58,12 +59,14 @@ class SendToGeneWeaver:
                                  'list': ",".join(trait_name_list),
                                }
 
+
 def get_trait_name_list(trait_list):
     name_list = []
     for trait_db in trait_list:
         name_list.append(trait_db[0].name)
 
     return name_list
+
 
 def test_chip(trait_list):
     final_chip_name = ""

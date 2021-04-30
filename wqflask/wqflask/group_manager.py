@@ -12,6 +12,7 @@ from utility.redis_tools import get_user_groups, get_group_info, save_user, crea
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 @app.route("/groups/manage", methods=('GET', 'POST'))
 def manage_groups():
    params = request.form if request.form else request.args
@@ -20,6 +21,7 @@ def manage_groups():
    else:
       admin_groups, member_groups = get_user_groups(g.user_session.user_id)
       return render_template("admin/group_manager.html", admin_groups=admin_groups, member_groups=member_groups)
+
 
 @app.route("/groups/view", methods=('GET', 'POST'))
 def view_group():
@@ -58,6 +60,7 @@ def view_group():
 
    return render_template("admin/view_group.html", group_info=group_info, admins=admins_info, members=members_info, user_is_admin=user_is_admin, resources=resources_info)
 
+
 @app.route("/groups/remove", methods=('POST',))
 def remove_groups():
    group_ids_to_remove = request.form['selected_group_ids']
@@ -65,6 +68,7 @@ def remove_groups():
       delete_group(g.user_session.user_id, group_id)
 
    return redirect(url_for('manage_groups'))
+
 
 @app.route("/groups/remove_users", methods=('POST',))
 def remove_users():
@@ -76,6 +80,7 @@ def remove_users():
    remove_users_from_group(g.user_session.user_id, member_ids_to_remove.split(":"), group_id, user_type="members")
 
    return redirect(url_for('view_group', id=group_id))
+
 
 @app.route("/groups/add_<path:user_type>", methods=('POST',))
 def add_users(user_type='members'):
@@ -89,6 +94,7 @@ def add_users(user_type='members'):
 
    return redirect(url_for('view_group', id=group_id))
 
+
 @app.route("/groups/change_name", methods=('POST',))
 def change_name():
    group_id = request.form['group_id']
@@ -96,6 +102,7 @@ def change_name():
    group_info = change_group_name(g.user_session.user_id, group_id, new_name)
 
    return new_name
+
 
 @app.route("/groups/create", methods=('GET', 'POST'))
 def add_or_edit_group():
@@ -125,6 +132,8 @@ def add_or_edit_group():
       return render_template("admin/create_group.html")
 
 # ZS: Will integrate this later, for now just letting users be added directly
+
+
 def send_group_invites(group_id, user_email_list=[], user_type="members"):
    for user_email in user_email_list:
       user_details = get_user_by_unique_column("email_address", user_email)

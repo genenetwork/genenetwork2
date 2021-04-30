@@ -2,8 +2,10 @@ from pprint import pformat as pf
 
 # Todo: Move these out of __init__
 
+
 class Bunch:
     """Like a dictionary but using object notation"""
+
     def __init__(self, **kw):
             self.__dict__ = kw
 

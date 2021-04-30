@@ -11,6 +11,7 @@ import numpy as np
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 class CorrScatterPlot:
     """Page that displays a correlation scatterplot with a line fitted to it"""
 

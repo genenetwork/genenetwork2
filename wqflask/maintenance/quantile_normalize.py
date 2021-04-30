@@ -14,6 +14,7 @@ from wqflask import app
 from utility.elasticsearch_tools import get_elasticsearch_connection
 from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, SQL_URI
 
+
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
@@ -28,6 +29,7 @@ def parse_db_uri():
     print(db_conn_info)
     return db_conn_info
 
+
 def create_dataframe(input_file):
     with open(input_file) as f:
         ncols = len(f.readline().split("\t"))
@@ -36,6 +38,8 @@ def create_dataframe(input_file):
     return pd.DataFrame(input_array)
 
 # This function taken from https://github.com/ShawnLYU/Quantile_Normalize
+
+
 def quantileNormalize(df_input):
     df = df_input.copy()
     # compute rank
@@ -49,6 +53,7 @@ def quantileNormalize(df_input):
         t = np.searchsorted(np.sort(df[col]), df[col])
         df[col] = [rank[i] for i in t]
     return df
+
 
 def set_data(dataset_name):
     orig_file = "/home/zas1024/cfw_data/" + dataset_name + ".txt"
@@ -94,6 +99,7 @@ def set_data(dataset_name):
                         "transform_types": "qnorm"
                     }
                 }
+
 
 if __name__ == '__main__':
     Conn = MySQLdb.Connect(**parse_db_uri())

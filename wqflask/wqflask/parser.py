@@ -24,6 +24,7 @@ from pprint import pformat as pf
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 def parse(pstring):
     """
 

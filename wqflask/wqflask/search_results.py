@@ -24,6 +24,7 @@ from utility.type_checking import is_str
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 class SearchResultPage:
     #maxReturn = 3000
 
@@ -270,6 +271,7 @@ class SearchResultPage:
         else:
             return None
 
+
 def get_GO_symbols(a_search):
     query = """SELECT genes
                FROM GORef
@@ -287,12 +289,14 @@ def get_GO_symbols(a_search):
 
     return new_terms
 
+
 def insert_newlines(string, every=64):
     """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
     lines = []
     for i in range(0, len(string), every):
         lines.append(string[i:i + every])
     return '\n'.join(lines)
+
 
 def get_aliases(symbol_list, species):
 

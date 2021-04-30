@@ -8,11 +8,11 @@ from utility.tools import flat_files, PLINK_COMMAND
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 def run_plink(this_trait, dataset, species, vals, maf):
     plink_output_filename = webqtlUtil.genRandStr(f"{dataset.group.name}_{this_trait.name}_")
     gen_pheno_txt_file(dataset, vals)
 
-    
     plink_command = f"{PLINK_COMMAND}  --noweb --bfile {flat_files('mapping')}/{dataset.group.name} --no-pheno --no-fid --no-parents --no-sex --maf {maf} --out { TMPDIR}{plink_output_filename} --assoc "
     logger.debug("plink_command:", plink_command)
 
@@ -24,6 +24,7 @@ def run_plink(this_trait, dataset, species, vals, maf):
     dataset.group.markers.add_pvalues(p_values)
 
     return dataset.group.markers.markers
+
 
 def gen_pheno_txt_file(this_dataset, vals):
     """Generates phenotype file for GEMMA/PLINK"""
@@ -41,6 +42,7 @@ def gen_pheno_txt_file(this_dataset, vals):
             else:
                 this_val = vals[i]
             outfile.write("0 " + line[1] + " " + line[2] + " " + line[3] + " " + line[4] + " " + str(this_val) + "\n")
+
 
 def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename=''):
     ped_sample_list = get_samples_from_ped_file(dataset)
@@ -77,6 +79,8 @@ def gen_pheno_txt_file_plink(this_trait, dataset, vals, pheno_filename=''):
     output_file.close()
 
 # get strain name from ped file in order
+
+
 def get_samples_from_ped_file(dataset):
     ped_file = open(f"{flat_files('mapping')}{dataset.group.name}.ped", "r")
     line = ped_file.readline()
@@ -92,6 +96,7 @@ def get_samples_from_ped_file(dataset):
         line = ped_file.readline()
 
     return sample_list
+
 
 def parse_plink_output(output_filename, species):
     plink_results = {}
@@ -154,6 +159,8 @@ def parse_plink_output(output_filename, species):
 # function: convert line from str to list;
 # output: lineList list
 #######################################################
+
+
 def build_line_list(line=""):
     line_list = line.strip().split(' ')  # irregular number of whitespaces between columns
     line_list = [item for item in line_list if item != '']

@@ -4,6 +4,7 @@ import unittest
 from wqflask import app  # Required because of utility.tools in webqtlCaseData.py
 from base.webqtlCaseData import webqtlCaseData
 
+
 class TestWebqtlCaseData(unittest.TestCase):
     """Tests for WebqtlCaseData class"""
 

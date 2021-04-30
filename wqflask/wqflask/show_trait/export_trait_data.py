@@ -5,6 +5,7 @@ from functools import cmp_to_key
 from base.trait import create_trait
 from base import data_set
 
+
 def export_sample_table(targs):
 
     sample_data = json.loads(targs['export_data'])
@@ -27,6 +28,7 @@ def export_sample_table(targs):
             final_sample_data.append(sorted_row)
 
     return trait_name, final_sample_data
+
 
 def get_export_metadata(trait_id, dataset_name):
     dataset = data_set.create_dataset(dataset_name)
@@ -63,6 +65,7 @@ def dict_to_sorted_list(dictionary):
     sorted_list = sorted(sorted_list, key=cmp_to_key(cmp_samples))
     sorted_values = [item[1] for item in sorted_list]
     return sorted_values
+
 
 def cmp_samples(a, b):
     if b[0] == 'name':

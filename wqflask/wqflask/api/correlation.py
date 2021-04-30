@@ -18,6 +18,7 @@ from utility.benchmark import Bench
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 def do_correlation(start_vars):
     assert('db' in start_vars)
     assert('target_db' in start_vars)
@@ -66,6 +67,7 @@ def do_correlation(start_vars):
 
     return final_results
 
+
 def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
     corr_results = {}
 
@@ -91,6 +93,7 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
 
     return sorted_results
 
+
 def do_tissue_correlation_for_all_traits(this_trait, trait_symbol_dict, corr_params, tissue_dataset_id=1):
     # Gets tissue expression values for the primary trait
     primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(symbol_list=[this_trait.symbol])
@@ -112,6 +115,7 @@ def do_tissue_correlation_for_all_traits(this_trait, trait_symbol_dict, corr_par
                 tissue_corr_data[trait] = [result[0], result[1], result[2], symbol]
 
         return tissue_corr_data
+
 
 def do_literature_correlation_for_all_traits(this_trait, target_dataset, trait_geneid_dict, corr_params):
     input_trait_mouse_gene_id = convert_to_mouse_gene_id(target_dataset.group.species.lower(), this_trait.geneid)
@@ -145,6 +149,7 @@ def do_literature_correlation_for_all_traits(this_trait, target_dataset, trait_g
 
     return lit_corr_data
 
+
 def get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_dataset, type):
     """
     Calculates the sample r (or rho) and p-value
@@ -175,6 +180,7 @@ def get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_data
             return None
         else:
             return [sample_r, sample_p, num_overlap]
+
 
 def convert_to_mouse_gene_id(species=None, gene_id=None):
     """If the species is rat or human, translate the gene_id to the mouse geneid
@@ -211,6 +217,7 @@ def convert_to_mouse_gene_id(species=None, gene_id=None):
             mouse_gene_id = result.mouse
 
     return mouse_gene_id
+
 
 def init_corr_params(start_vars):
     method = "pearson"

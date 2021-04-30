@@ -35,6 +35,7 @@ import datetime
 
 from utility.tools import LOG_LEVEL, LOG_LEVEL_DEBUG, LOG_SQL
 
+
 class GNLogger:
     """A logger class with some additional functionality, such as
     multiple parameter logging, SQL logging, timing, colors, and lazy
@@ -139,6 +140,8 @@ LOG_LEVEL_DEBUG (NYI).
 
 # Get the module logger. You can override log levels at the
 # module level
+
+
 def getLogger(name, level=None):
     gnlogger = GNLogger(name)
     logger = gnlogger.logger

@@ -47,6 +47,7 @@ COUR_FILE = "./wqflask/static/fonts/courbd.ttf"
 TAHOMA_FILE = "./wqflask/static/fonts/tahoma.ttf"
 # ---- END: FONT FILES ---- #
 
+
 def cformat(d, rank=0):
     'custom string format'
     strD = "%2.6f" % d
@@ -68,6 +69,7 @@ def cformat(d, rank=0):
         strD = '0.0'
     return strD
 
+
 def frange(start, end=None, inc=1.0):
     "A faster range-like function that does accept float increments..."
     if end == None:
@@ -83,6 +85,7 @@ def frange(start, end=None, inc=1.0):
     for i in range(1, count):
         L[i] = start + i * inc
     return L
+
 
 def find_outliers(vals):
     """Calculates the upper and lower bounds of a set of sample/case values
@@ -119,6 +122,8 @@ def find_outliers(vals):
 
 # parameter: data is either object returned by reaper permutation function (called by MarkerRegressionPage.py)
 # or the first object returned by direct (pair-scan) permu function (called by DirectPlotPage.py)
+
+
 def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLabel=None, YLabel=None, title=None, offset=(60, 20, 40, 40), zoom=1):
     im_drawer = ImageDraw.Draw(canvas)
     xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
@@ -230,6 +235,8 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
            font=labelFont, fill=labelColor)
 
 # This function determines the scale of the plot
+
+
 def detScaleOld(min, max):
     if min >= max:
         return None
@@ -245,6 +252,7 @@ def detScaleOld(min, max):
         low = c * floor(min / c)
         high = c * ceil(max / c)
         return [low, high, round((high - low) / c)]
+
 
 def detScale(min=0, max=0):
 
@@ -283,14 +291,18 @@ def detScale(min=0, max=0):
 
         return [low, high, n]
 
+
 def bluefunc(x):
     return 1.0 / (1.0 + exp(-10 * (x - 0.6)))
+
 
 def redfunc(x):
     return 1.0 / (1.0 + exp(10 * (x - 0.5)))
 
+
 def greenfunc(x):
     return 1 - pow(redfunc(x + 0.2), 2) - bluefunc(x - 0.3)
+
 
 def colorSpectrum(n=100):
     multiple = 10
@@ -318,6 +330,7 @@ def colorSpectrum(n=100):
         out2.append(out[int(j)])
     out2.append(out[-1])
     return out2
+
 
 def _test():
     import doctest

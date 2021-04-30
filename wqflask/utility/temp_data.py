@@ -2,6 +2,7 @@ from redis import Redis
 
 import simplejson as json
 
+
 class TempData:
 
     def __init__(self, temp_uuid):

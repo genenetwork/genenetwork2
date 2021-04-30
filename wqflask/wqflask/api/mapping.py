@@ -10,6 +10,7 @@ from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_map
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 def do_mapping_for_api(start_vars):
     assert('db' in start_vars)
     assert('trait_id' in start_vars)
@@ -72,7 +73,6 @@ def do_mapping_for_api(start_vars):
         return result_markers, mapping_params['format']
     else:
         return result_markers, None
-
 
 
 def initialize_parameters(start_vars, dataset, this_trait):

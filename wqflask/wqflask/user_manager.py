@@ -151,12 +151,14 @@ def verify_cookie(cookie):
     assert the_signature == actual_hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
 
+
 def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
     signature = actual_hmac_creation(the_uuid)
     uuid_signed = the_uuid + ":" + signature
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
+
 
 class UserSession:
     """Logged in user handling"""
@@ -341,6 +343,7 @@ class UserSession:
         Redis.delete(self.cookie_name)
         logger.debug("At end of delete_session")
 
+
 @app.before_request
 def get_cookie():
     logger.info("@app.before_request get cookie")
@@ -348,15 +351,19 @@ def get_cookie():
     g.cookie_session = AnonUser()
 
 # @app.after_request
+
+
 def set_cookie(response):
     if not request.cookies.get(g.cookie_session.cookie_name):
         response.set_cookie(g.cookie_session.cookie_name, g.cookie_session.cookie)
     return response
 
+
 class UsersManager:
     def __init__(self):
         self.users = model.User.query.all()
         logger.debug("Users are:", self.users)
+
 
 class UserManager:
     def __init__(self, kw):
@@ -419,6 +426,7 @@ class RegisterUser:
         self.user.registration_info = json.dumps(basic_info(), sort_keys=True)
         save_user(self.user.__dict__, self.user.user_id)
 
+
 def set_password(password, user):
     pwfields = Bunch()
 
@@ -476,6 +484,7 @@ class VerificationEmail:
                                verification_code=verification_code)
         send_email(to, subject, body)
 
+
 class ForgotPasswordEmail(VerificationEmail):
     template_name = "email/forgot_password.txt"
     key_prefix = "forgot_password_code"
@@ -495,7 +504,6 @@ class ForgotPasswordEmail(VerificationEmail):
         }
 
         save_verification_code(toaddr, verification_code)
-
 
         subject = self.subject
         body = render_template(
@@ -530,6 +538,8 @@ def basic_info():
                 user_agent=request.headers.get('User-Agent'))
 
 # @app.route("/manage/verify_email")
+
+
 def verify_email():
     user = DecodeUser(VerificationEmail.key_prefix).user
     user.confirmed = json.dumps(basic_info(), sort_keys=True)
@@ -544,6 +554,8 @@ def verify_email():
     return response
 
 # @app.route("/n/password_reset", methods=['GET'])
+
+
 def password_reset():
     """Entry point after user clicks link in E-mail"""
     logger.debug("in password_reset request.url is:", request.url)
@@ -568,6 +580,8 @@ def password_reset():
         return redirect(url_for("login"))
 
 # @app.route("/n/password_reset_step2", methods=('POST',))
+
+
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
     logger.debug("in password_reset request.url is:", request.url)
@@ -576,7 +590,6 @@ def password_reset_step2():
     user_id = request.form['user_encode']
 
     logger.debug("locals are:", locals())
-
 
     user = Bunch()
     password = request.form['password']
@@ -588,6 +601,7 @@ def password_reset_step2():
     response = make_response(redirect(url_for('login')))
 
     return response
+
 
 class DecodeUser:
 
@@ -612,6 +626,8 @@ class DecodeUser:
         return model.User.query.get(data['id'])
 
 # @app.route("/n/login", methods=('GET', 'POST'))
+
+
 def login():
     lu = LoginUser()
     login_type = request.args.get("type")
@@ -622,6 +638,8 @@ def login():
         return lu.standard_login()
 
 # @app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+
+
 def github_oauth2():
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
     code = request.args.get("code")
@@ -646,6 +664,8 @@ def github_oauth2():
     return redirect(url)
 
 # @app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+
+
 def orcid_oauth2():
     from uuid import uuid4
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
@@ -673,10 +693,12 @@ def orcid_oauth2():
         flash("There was an error getting code from ORCID")
     return redirect(url)
 
+
 def get_github_user_details(access_token):
     from utility.tools import GITHUB_API_URL
     result = requests.get(GITHUB_API_URL, params={"access_token": access_token})
     return result.json()
+
 
 class LoginUser:
     remember_time = 60 * 60 * 24 * 30  # One month in seconds
@@ -814,6 +836,8 @@ class LoginUser:
         db_session.commit()
 
 # @app.route("/n/logout")
+
+
 def logout():
     logger.debug("Logging out...")
     UserSession().delete_session()
@@ -833,6 +857,8 @@ def forgot_password():
     return render_template("new_security/forgot_password.html", errors=errors)
 
 # @app.route("/n/forgot_password_submit", methods=('POST',))
+
+
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
@@ -853,9 +879,11 @@ def forgot_password_submit():
         flash("You MUST provide an email", "alert-danger")
         return redirect(url_for("forgot_password"))
 
+
 @app.errorhandler(401)
 def unauthorized(error):
     return redirect(url_for('login'))
+
 
 def is_redis_available():
     try:
@@ -922,7 +950,6 @@ def register():
     params = None
     errors = None
 
-
     params = request.form if request.form else request.args
     params = params.to_dict(flat=True)
 
@@ -952,6 +979,7 @@ def url_for_hmac(endpoint, **values):
         combiner = "?"
     return url + combiner + "hm=" + hm
 
+
 def data_hmac(stringy):
     """Takes arbitray data string and appends :hmac so we know data hasn't been tampered with"""
     return stringy + ":" + actual_hmac_creation(stringy)
@@ -974,6 +1002,7 @@ def verify_url_hmac(url):
 
     assert hm == hmac, "Unexpected url (stage 3)"
 
+
 def actual_hmac_creation(stringy):
     """Helper function to create the actual hmac"""
 
@@ -986,6 +1015,7 @@ def actual_hmac_creation(stringy):
     hm = hm[:20]
     return hm
 
+
 app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
                              data_hmac=data_hmac)
 
@@ -997,6 +1027,7 @@ app.jinja_env.globals.update(url_for_hmac=url_for_hmac,
 #                      Subject=subject,
 #                      Body=body))
 #     Redis.rpush("mail_queue", msg)
+
 
 def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
     """Send an E-mail through SMTP_CONNECT host. If SMTP_USERNAME is not
@@ -1019,6 +1050,7 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
         server.sendmail(fromaddr, toaddr, msg)
         server.quit()
     logger.info("Successfully sent email to " + toaddr)
+
 
 class GroupsManager:
     def __init__(self, kw):

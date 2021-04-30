@@ -40,6 +40,7 @@ def process_traits(unprocessed_traits):
 
     return traits
 
+
 def report_change(len_before, len_now):
     new_length = len_now - len_before
     if new_length:
@@ -47,6 +48,7 @@ def report_change(len_before, len_now):
             numify(new_length, 'new trait', 'new traits')))
     else:
         logger.debug("No new traits were added.")
+
 
 @app.route("/collections/store_trait_list", methods=('POST',))
 def store_traits_list():
@@ -58,6 +60,7 @@ def store_traits_list():
    Redis.set(hash, traits)
 
    return hash
+
 
 @app.route("/collections/add")
 def collections_add():
@@ -81,6 +84,7 @@ def collections_add():
                                 hash=hash,
                                 collections=collections,
                               )
+
 
 @app.route("/collections/new")
 def collections_new():
@@ -118,6 +122,7 @@ def collections_new():
         # CauseAnError
         pass
 
+
 def create_new(collection_name):
     params = request.args
 
@@ -133,6 +138,7 @@ def create_new(collection_name):
 
     return redirect(url_for('view_collection', uc_id=uc_id))
 
+
 @app.route("/collections/list")
 def list_collections():
     params = request.args
@@ -142,6 +148,7 @@ def list_collections():
                             params=params,
                             collections=user_collections,
                             )
+
 
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
@@ -215,6 +222,7 @@ def view_collection():
         return render_template("collections/view.html",
                            **collection_info
                            )
+
 
 @app.route("/collections/change_name", methods=('POST',))
 def change_collection_name():

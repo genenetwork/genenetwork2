@@ -1,6 +1,7 @@
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 class genotype:
     """
     Replacement for reaper.Dataset so we can remove qtlreaper use while still generating mapping output figure
@@ -119,6 +120,7 @@ class genotype:
 
             self.chromosomes.append(chr_ob)
 
+
 class Chr:
     def __init__(self, name, geno_ob):
         self.name = name
@@ -139,6 +141,7 @@ class Chr:
 
     def add_marker(self, marker_row):
         self.loci.append(Locus(self.geno_ob, marker_row))
+
 
 class Locus:
     def __init__(self, geno_ob, marker_row=None):

@@ -4,6 +4,8 @@ from wqflask.marker_regression.qtlreaper_mapping import gen_pheno_txt_file
 
 # issues some methods in genofile object are not defined
 # modify samples should equal to vals
+
+
 class TestQtlReaperMapping(unittest.TestCase):
 	@mock.patch("wqflask.marker_regression.qtlreaper_mapping.TEMPDIR", "/home/user/data")
 	def test_gen_pheno_txt_file(self):                   

@@ -5,6 +5,7 @@ from wqflask.marker_regression.rqtl_mapping import get_trait_data_type
 from wqflask.marker_regression.rqtl_mapping import sanitize_rqtl_phenotype
 from wqflask.marker_regression.rqtl_mapping import sanitize_rqtl_names
 
+
 class TestRqtlMapping(unittest.TestCase):
 
 	def setUp(self):
@@ -13,7 +14,6 @@ class TestRqtlMapping(unittest.TestCase):
 
 	def tearDown(self):
 		self.app_context.pop()
-
 
 	@mock.patch("wqflask.marker_regression.rqtl_mapping.g")
 	@mock.patch("wqflask.marker_regression.rqtl_mapping.logger")

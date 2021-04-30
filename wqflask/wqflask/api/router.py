@@ -27,9 +27,11 @@ logger = utility.logger.getLogger(__name__)
 
 version = "pre1"
 
+
 @app.route("/api/v_{}/".format(version))
 def hello_world():
     return flask.jsonify({"hello": "world"})
+
 
 @app.route("/api/v_{}/species".format(version))
 def get_species_list():
@@ -47,6 +49,7 @@ def get_species_list():
 
     return flask.jsonify(species_list)
 
+
 @app.route("/api/v_{}/species/<path:species_name>".format(version))
 @app.route("/api/v_{}/species/<path:species_name>.<path:file_format>".format(version))
 def get_species_info(species_name, file_format="json"):
@@ -63,6 +66,7 @@ def get_species_info(species_name, file_format="json"):
     }
     
     return flask.jsonify(species_dict)
+
 
 @app.route("/api/v_{}/groups".format(version))
 @app.route("/api/v_{}/groups/<path:species_name>".format(version))
@@ -101,6 +105,7 @@ def get_groups_list(species_name=None):
         return flask.jsonify(groups_list)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/group/<path:group_name>".format(version))
 @app.route("/api/v_{}/group/<path:group_name>.<path:file_format>".format(version))
@@ -144,6 +149,7 @@ def get_group_info(group_name, species_name=None, file_format="json"):
         return flask.jsonify(group_dict)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/datasets/<path:group_name>".format(version))
 @app.route("/api/v_{}/datasets/<path:species_name>/<path:group_name>".format(version))
@@ -196,6 +202,7 @@ def get_datasets_for_group(group_name, species_name=None):
         return flask.jsonify(datasets_list)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/dataset/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/dataset/<path:dataset_name>.<path:file_format>".format(version))
@@ -301,6 +308,7 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
         return flask.jsonify(dataset_dict)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
 @app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
@@ -430,6 +438,7 @@ def fetch_traits(dataset_name, file_format="json"):
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
 def all_sample_data(dataset_name, file_format="csv"):
@@ -536,6 +545,7 @@ def all_sample_data(dataset_name, file_format="csv"):
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 def trait_sample_data(dataset_name, trait_name, file_format="json"):
@@ -625,6 +635,7 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="") 
 
+
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>".format(version))
@@ -694,6 +705,7 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/correlation".format(version), methods=("GET",))
 def get_corr_results():
     results = correlation.do_correlation(request.args)
@@ -702,6 +714,7 @@ def get_corr_results():
         return flask.jsonify(results)  # ZS: I think flask.jsonify expects a dict/list instead of JSON
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/mapping".format(version), methods=("GET",))
 def get_mapping_results():
@@ -725,6 +738,7 @@ def get_mapping_results():
             return return_error(code=415, source=request.url_rule.rule, title="Unsupported Format", details="")
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>.zip".format(version))
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>".format(version))
@@ -813,6 +827,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
 
     return output
 
+
 @app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
     results = gen_menu.gen_dropdown_json()
@@ -821,6 +836,7 @@ def gen_dropdown_menu():
         return flask.jsonify(results)
     else:
         return return_error(code=500, source=request.url_rule.rule, title="Some error occurred", details="")
+
 
 def return_error(code, source, title, details):
     json_ob = {"errors": [
@@ -833,6 +849,7 @@ def return_error(code, source, title, details):
     ]}
 
     return flask.jsonify(json_ob)
+
 
 def get_dataset_trait_ids(dataset_name, start_vars):
 
@@ -906,6 +923,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         dataset_id = results[0][2]
         return trait_ids, trait_names, data_type, dataset_id
 
+
 def get_samplelist(dataset_name):
     group_id = get_group_id_from_dataset(dataset_name)
 
@@ -921,6 +939,7 @@ def get_samplelist(dataset_name):
     samplelist = [result[0] for result in results]
 
     return samplelist
+
 
 def get_group_id_from_dataset(dataset_name):
     if "Publish" in dataset_name:
@@ -961,6 +980,7 @@ def get_group_id_from_dataset(dataset_name):
         return result[0]
     else:
         return None
+
 
 def get_group_id(group_name):
     query = """

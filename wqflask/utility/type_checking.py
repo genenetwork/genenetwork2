@@ -7,12 +7,14 @@ def is_float(value):
     except:
         return False
 
+
 def is_int(value):
     try:
         int(value)
         return True
     except:
         return False
+
 
 def is_str(value):
     if value is None:
@@ -23,17 +25,20 @@ def is_str(value):
     except:
         return False
 
+
 def get_float(vars_obj, name, default=None):
     if name in vars_obj:
         if is_float(vars_obj[name]):
             return float(vars_obj[name])
     return default
 
+
 def get_int(vars_obj, name, default=None):
     if name in vars_obj:
         if is_int(vars_obj[name]):
             return float(vars_obj[name])
     return default
+
 
 def get_string(vars_obj, name, default=None):
     if name in vars_obj:

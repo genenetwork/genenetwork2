@@ -1,7 +1,6 @@
 # handles server side table processing
 
 
-
 class ServerSideTable:
     """
         This class is used to do server-side processing

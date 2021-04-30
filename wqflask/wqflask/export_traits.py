@@ -15,6 +15,7 @@ from pprint import pformat as pf
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 def export_search_results_csv(targs):
 
     table_data = json.loads(targs['export_data'])
@@ -131,6 +132,7 @@ def export_search_results_csv(targs):
         file_list.append([file_name, csv_data])
 
     return file_list
+
 
 def sort_traits_by_group(trait_list=[]):
     traits_by_group = {}

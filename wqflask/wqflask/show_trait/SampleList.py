@@ -8,6 +8,7 @@ from pprint import pformat as pf
 from utility import Plot
 from utility import Bunch
 
+
 class SampleList:
     def __init__(self,
                  dataset,

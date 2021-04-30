@@ -55,14 +55,17 @@ def read_dryad_file(filename):
     #            
     # return geno_rows
 
+
 def write_bimbam_files(geno_rows):
     with open('/home/zas1024/cfw_data/CFW_geno.txt', 'w') as geno_fh:
         for row in geno_rows:
             geno_fh.write(", ".join(row) + "\n")
 
+
 def convert_dryad_to_bimbam(filename):
     geno_file_rows = read_dryad_file(filename)
     write_bimbam_files(geno_file_rows)
+
 
 if __name__ == "__main__":
     input_filename = "/home/zas1024/cfw_data/" + sys.argv[1] + ".txt"

@@ -18,6 +18,7 @@ from utility.type_checking import is_float, is_int, is_str, get_float, get_int, 
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 class GSearch:
 
     def __init__(self, kw):
