@@ -22,7 +22,7 @@ import re
 from pprint import pformat as pf
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 def parse(pstring):
     """
@@ -52,7 +52,7 @@ def parse(pstring):
             if '(' in value or '[' in value:
                 assert value.startswith(("(", "[")), "Invalid token"
                 assert value.endswith((")", "]")), "Invalid token"
-                value = value[1:-1] # Get rid of the parenthesis
+                value = value[1:-1]  # Get rid of the parenthesis
                 values = re.split(r"""\s+|,""", value)
                 value = [value.strip() for value in values if value.strip()]
             else:

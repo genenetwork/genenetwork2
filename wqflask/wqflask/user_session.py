@@ -24,7 +24,7 @@ THIRTY_DAYS = 60 * 60 * 24 * 30
 def get_user_session():
     logger.info("@app.before_request get_session")
     g.user_session = UserSession()
-    #ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
+    # ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
     if not g.user_session:
         response = make_response(redirect(url_for('login')))
         response.set_cookie('session_id_v2', '', expires=0)
@@ -51,7 +51,7 @@ def create_signed_cookie():
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
 
-@app.route("/user/manage", methods=('GET','POST'))
+@app.route("/user/manage", methods=('GET', 'POST'))
 def manage_user():
     params = request.form if request.form else request.args
     if 'new_full_name' in params:
@@ -61,7 +61,7 @@ def manage_user():
 
     user_details = get_user_by_unique_column("user_id", g.user_session.user_id)
 
-    return render_template("admin/manage_user.html", user_details = user_details)
+    return render_template("admin/manage_user.html", user_details=user_details)
 
 class UserSession:
     """Logged in user handling"""
@@ -89,25 +89,25 @@ class UserSession:
         self.session_id = session_id
         self.record = Redis.hgetall(self.redis_key)
 
-        #ZS: If user correctled logged in but their session expired
-        #ZS: Need to test this by setting the time-out to be really short or something
+        # ZS: If user correctled logged in but their session expired
+        # ZS: Need to test this by setting the time-out to be really short or something
         if not self.record or self.record == []:
             if user_cookie:
                 self.logged_in = False
-                self.record = dict(login_time = time.time(),
-                                    user_type = "anon",
-                                    user_id = str(uuid.uuid4()))
+                self.record = dict(login_time=time.time(),
+                                    user_type="anon",
+                                    user_id=str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
 
-                ########### Grrr...this won't work because of the way flask handles cookies
+                # Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
                 flash("Due to inactivity your session has expired. If you'd like please login again.")
                 return None
             else:
-                self.record = dict(login_time = time.time(),
-                                    user_type = "anon",
-                                    user_id = str(uuid.uuid4()))
+                self.record = dict(login_time=time.time(),
+                                    user_type="anon",
+                                    user_id=str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
         else:
@@ -138,13 +138,13 @@ class UserSession:
     def redis_user_id(self):
         """User id from Redis (need to check if this is the same as the id stored in self.records)"""
 
-        #ZS: This part is a bit weird. Some accounts used to not have saved user ids, and in the process of testing I think I created some duplicate accounts for myself.
-        #ZS: Accounts should automatically generate user_ids if they don't already have one now, so this might not be necessary for anything other than my account's collections
+        # ZS: This part is a bit weird. Some accounts used to not have saved user ids, and in the process of testing I think I created some duplicate accounts for myself.
+        # ZS: Accounts should automatically generate user_ids if they don't already have one now, so this might not be necessary for anything other than my account's collections
 
         if 'user_email_address' in self.record:
             user_email = self.record['user_email_address']
 
-            #ZS: Get user's collections if they exist
+            # ZS: Get user's collections if they exist
             user_id = None
             user_id = get_user_id("email_address", user_email)
         elif 'user_id' in self.record:
@@ -153,7 +153,7 @@ class UserSession:
             user_github_id = self.record['github_id']
             user_id = None
             user_id = get_user_id("github_id", user_github_id)
-        else: #ZS: Anonymous user
+        else:  # ZS: Anonymous user
             return None
 
         return user_id
@@ -170,9 +170,9 @@ class UserSession:
     def user_collections(self):
         """List of user's collections"""
 
-        #ZS: Get user's collections if they exist
+        # ZS: Get user's collections if they exist
         collections = get_user_collections(self.user_id)
-        collections = [item for item in collections if item['name'] != "Your Default Collection"] + [item for item in collections if item['name'] == "Your Default Collection"] #ZS: Ensure Default Collection is last in list
+        collections = [item for item in collections if item['name'] != "Your Default Collection"] + [item for item in collections if item['name'] == "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
         return collections
 
     @property
@@ -189,7 +189,7 @@ class UserSession:
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'num_members': len(traits),
-                           'members': list(traits) }
+                           'members': list(traits)}
 
         current_collections = self.user_collections
         current_collections.append(collection_dict)

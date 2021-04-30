@@ -16,16 +16,16 @@ from utility import webqtlUtil, helper_functions, corr_result_helpers
 from utility.benchmark import Bench
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 def do_correlation(start_vars):
     assert('db' in start_vars)
     assert('target_db' in start_vars)
     assert('trait_id' in start_vars)
 
-    this_dataset = data_set.create_dataset(dataset_name = start_vars['db'])
-    target_dataset = data_set.create_dataset(dataset_name = start_vars['target_db'])
-    this_trait = create_trait(dataset = this_dataset, name = start_vars['trait_id'])
+    this_dataset = data_set.create_dataset(dataset_name=start_vars['db'])
+    target_dataset = data_set.create_dataset(dataset_name=start_vars['target_db'])
+    this_trait = create_trait(dataset=this_dataset, name=start_vars['trait_id'])
     this_trait = retrieve_sample_data(this_trait, this_dataset)
 
     corr_params = init_corr_params(start_vars)
@@ -38,26 +38,26 @@ def do_correlation(start_vars):
         if corr_params['type'] == "tissue":
             [sample_r, num_overlap, sample_p, symbol] = corr_results[trait]
             result_dict = {
-                "trait"     : trait,
-                "sample_r"  : sample_r,
-                "#_strains" : num_overlap,
-                "p_value"   : sample_p,
-                "symbol"    : symbol
+                "trait": trait,
+                "sample_r": sample_r,
+                "#_strains": num_overlap,
+                "p_value": sample_p,
+                "symbol": symbol
             }
         elif corr_params['type'] == "literature" or corr_params['type'] == "lit":
             [gene_id, sample_r] = corr_results[trait]
             result_dict = {
-                "trait"     : trait,
-                "sample_r"  : sample_r,
-                "gene_id"   : gene_id
+                "trait": trait,
+                "sample_r": sample_r,
+                "gene_id": gene_id
             }
         else:
             [sample_r, sample_p, num_overlap] = corr_results[trait]
             result_dict = {
-                "trait"     : trait,
-                "sample_r"  : sample_r,
-                "#_strains" : num_overlap,
-                "p_value"   : sample_p
+                "trait": trait,
+                "sample_r": sample_r,
+                "#_strains": num_overlap,
+                "p_value": sample_p
             }
 
         final_results.append(result_dict)
@@ -76,7 +76,7 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
         corr_results = do_tissue_correlation_for_all_traits(this_trait, trait_symbol_dict, corr_params)
         sorted_results = collections.OrderedDict(sorted(list(corr_results.items()),
                                                         key=lambda t: -abs(t[1][1])))
-    elif corr_params['type'] == "literature" or corr_params['type'] == "lit": #ZS: Just so a user can use either "lit" or "literature"
+    elif corr_params['type'] == "literature" or corr_params['type'] == "lit":  # ZS: Just so a user can use either "lit" or "literature"
         trait_geneid_dict = this_dataset.retrieve_genes("GeneId")
         corr_results = do_literature_correlation_for_all_traits(this_trait, this_dataset, trait_geneid_dict, corr_params)
         sorted_results = collections.OrderedDict(sorted(list(corr_results.items()),
@@ -92,8 +92,8 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
     return sorted_results
 
 def do_tissue_correlation_for_all_traits(this_trait, trait_symbol_dict, corr_params, tissue_dataset_id=1):
-    #Gets tissue expression values for the primary trait
-    primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(symbol_list = [this_trait.symbol])
+    # Gets tissue expression values for the primary trait
+    primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(symbol_list=[this_trait.symbol])
 
     if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
         primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower()]
@@ -227,9 +227,9 @@ def init_corr_params(start_vars):
         return_count = int(start_vars['return_count'])
 
     corr_params = {
-        'method'       : method,
-        'type'         : type,
-        'return_count' : return_count
+        'method': method,
+        'type': type,
+        'return_count': return_count
     }
 
     return corr_params

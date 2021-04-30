@@ -36,16 +36,16 @@ class SampleList:
             if isinstance(self.this_trait, list):
                 sample = webqtlCaseData.webqtlCaseData(name=sample_name)
                 if counter <= len(self.this_trait):
-                    if isinstance(self.this_trait[counter-1], (bytes, bytearray)):
-                        if (self.this_trait[counter-1].decode("utf-8").lower() != 'x'):
+                    if isinstance(self.this_trait[counter - 1], (bytes, bytearray)):
+                        if (self.this_trait[counter - 1].decode("utf-8").lower() != 'x'):
                             sample = webqtlCaseData.webqtlCaseData(
                                 name=sample_name,
-                                value=float(self.this_trait[counter-1]))
+                                value=float(self.this_trait[counter - 1]))
                     else:
-                        if (self.this_trait[counter-1].lower() != 'x'):
+                        if (self.this_trait[counter - 1].lower() != 'x'):
                             sample = webqtlCaseData.webqtlCaseData(
                                 name=sample_name,
-                                value=float(self.this_trait[counter-1]))
+                                value=float(self.this_trait[counter - 1]))
             else:
                 # ZS - If there's no value for the sample/strain,
                 # create the sample object (so samples with no value
@@ -69,7 +69,7 @@ class SampleList:
                 sample.extra_attributes = self.sample_attribute_values.get(
                     sample_name, {})
 
-                #ZS: Add a url so RRID case attributes can be displayed as links
+                # ZS: Add a url so RRID case attributes can be displayed as links
                 if 'rrid' in sample.extra_attributes:
                     if self.dataset.group.species == "mouse":
                         if len(sample.extra_attributes['rrid'].split(":")) > 1:
@@ -129,7 +129,7 @@ class SampleList:
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
-            self.attributes[key].distinct_values=natural_sort(self.attributes[key].distinct_values)
+            self.attributes[key].distinct_values = natural_sort(self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:

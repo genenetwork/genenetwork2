@@ -4,7 +4,7 @@ import time
 from utility.tools import LOG_BENCH
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 class Bench:
     entries = collections.OrderedDict()
@@ -39,7 +39,7 @@ class Bench:
         total_time = sum((time_taken for time_taken in list(cls.entries.values())))
         print("\nTiming report\n")
         for name, time_taken in list(cls.entries.items()):
-            percent = int(round((time_taken/total_time) * 100))
+            percent = int(round((time_taken / total_time) * 100))
             print("[{}%] {}: {}".format(percent, name, time_taken))
         print()
 

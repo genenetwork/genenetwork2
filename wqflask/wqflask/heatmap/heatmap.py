@@ -12,7 +12,7 @@ from utility.logger import getLogger
 
 Redis = Redis()
 
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 class Heatmap:
 
@@ -24,7 +24,7 @@ class Heatmap:
         self.num_permutations = 5000
         self.dataset = self.trait_list[0][1]
 
-        self.json_data = {} #The dictionary that will be used to create the json object that contains all the data needed to create the figure
+        self.json_data = {}  # The dictionary that will be used to create the json object that contains all the data needed to create the figure
 
         self.all_sample_list = []
         self.traits = []
@@ -83,7 +83,7 @@ class Heatmap:
             self.json_data[trait] = self.trait_results[trait]
 
         self.js_data = dict(
-            json_data = self.json_data
+            json_data=self.json_data
         )
 
     def gen_reaper_results(self):

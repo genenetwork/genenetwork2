@@ -29,14 +29,14 @@ class User(Base):
 
     registration_info = Column(Text)   # json detailing when they were registered, etc.
 
-    confirmed = Column(Text) # json detailing when they confirmed, etc.
+    confirmed = Column(Text)  # json detailing when they confirmed, etc.
 
-    superuser = Column(Text) # json detailing when they became a superuser, otherwise empty
+    superuser = Column(Text)  # json detailing when they became a superuser, otherwise empty
                              # if not superuser
 
     logins = relationship("Login",
                           order_by="desc(Login.timestamp)",
-                          lazy='dynamic', # Necessary for filter in login_count
+                          lazy='dynamic',  # Necessary for filter in login_count
                           foreign_keys="Login.user",
                           )
 
@@ -67,7 +67,7 @@ class User(Base):
     def get_collection_by_name(self, collection_name):
         try:
             collect = self.user_collections.filter_by(name=collection_name).first()
-        except  sqlalchemy.orm.exc.NoResultFound:
+        except sqlalchemy.orm.exc.NoResultFound:
             collect = None
         return collect
 

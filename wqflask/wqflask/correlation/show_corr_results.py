@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -78,7 +78,7 @@ class CorrelationResults:
 
         with Bench("Doing correlations"):
             if start_vars['dataset'] == "Temp":
-                self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
+                self.dataset = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name = start_vars['group'])
                 self.trait_id = start_vars['trait_id']
                 self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
@@ -109,8 +109,8 @@ class CorrelationResults:
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
 
-            #The two if statements below append samples to the sample list based upon whether the user
-            #rselected Primary Samples Only, Other Samples Only, or All Samples
+            # The two if statements below append samples to the sample list based upon whether the user
+            # rselected Primary Samples Only, Other Samples Only, or All Samples
 
             primary_samples = self.dataset.group.samplelist
             if self.dataset.group.parlist != None:
@@ -118,13 +118,13 @@ class CorrelationResults:
             if self.dataset.group.f1list != None:
                 primary_samples += self.dataset.group.f1list
 
-            #If either BXD/whatever Only or All Samples, append all of that group's samplelist
+            # If either BXD/whatever Only or All Samples, append all of that group's samplelist
             if corr_samples_group != 'samples_other':
                 self.process_samples(start_vars, primary_samples)
 
-            #If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
-            #exclude the primary samples (because they would have been added in the previous
-            #if statement if the user selected All Samples)
+            # If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
+            # exclude the primary samples (because they would have been added in the previous
+            # if statement if the user selected All Samples)
             if corr_samples_group != 'samples_primary':
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
@@ -173,7 +173,7 @@ class CorrelationResults:
                                                                    key=lambda t: -abs(t[1][0])))
 
 
-            #ZS: Convert min/max chromosome to an int for the location range option
+            # ZS: Convert min/max chromosome to an int for the location range option
             range_chr_as_int = None
             for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
                 if 'loc_chr' in start_vars:
@@ -259,15 +259,15 @@ class CorrelationResults:
     def do_tissue_correlation_for_trait_list(self, tissue_dataset_id=1):
         """Given a list of correlation results (self.correlation_results), gets the tissue correlation value for each"""
 
-        #Gets tissue expression values for the primary trait
+        # Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-            symbol_list = [self.this_trait.symbol])
+            symbol_list=[self.this_trait.symbol])
 
         if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
             primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
             gene_symbol_list = [trait.symbol for trait in self.correlation_results if trait.symbol]
 
-            corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
+            corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
                                                     symbol_list=gene_symbol_list)
 
             for trait in self.correlation_results:
@@ -282,15 +282,15 @@ class CorrelationResults:
                     trait.tissue_pvalue = result[2]
 
     def do_tissue_correlation_for_all_traits(self, tissue_dataset_id=1):
-        #Gets tissue expression values for the primary trait
+        # Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-            symbol_list = [self.this_trait.symbol])
+            symbol_list=[self.this_trait.symbol])
 
         if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
             primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols.values()))
-            corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
+            corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
                                                     symbol_list=list(self.trait_symbol_dict.values()))
 
             #print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
@@ -443,7 +443,7 @@ class CorrelationResults:
         self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
 
         if num_overlap > 5:
-            #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
+            # ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
             if self.corr_method == 'bicor':
                 sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
             elif self.corr_method == 'pearson':
@@ -475,16 +475,16 @@ def do_bicor(this_trait_vals, target_trait_vals):
     r_library("WGCNA")
     r_bicor = ro.r["bicorAndPvalue"]        # Map the bicorAndPvalue function
 
-    r_options(stringsAsFactors = False)
+    r_options(stringsAsFactors=False)
 
     this_vals = ro.Vector(this_trait_vals)
     target_vals = ro.Vector(target_trait_vals)
 
-    the_r, the_p, _fisher_transform, _the_t, _n_obs = [numpy.asarray(x) for x in r_bicor(x = this_vals, y = target_vals)]
+    the_r, the_p, _fisher_transform, _the_t, _n_obs = [numpy.asarray(x) for x in r_bicor(x=this_vals, y=target_vals)]
 
     return the_r, the_p
 
-def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
+def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api=False):
     results_list = []
     for i, trait in enumerate(corr_results):
         if trait.view == False:

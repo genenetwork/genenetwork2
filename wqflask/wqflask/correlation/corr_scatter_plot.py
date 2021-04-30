@@ -9,18 +9,18 @@ from scipy import stats
 import numpy as np
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 class CorrScatterPlot:
     """Page that displays a correlation scatterplot with a line fitted to it"""
 
     def __init__(self, params):
         if "Temp" in params['dataset_1']:
-            self.dataset_1 = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = params['dataset_1'].split("_")[1])
+            self.dataset_1 = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name = params['dataset_1'].split("_")[1])
         else:
             self.dataset_1 = data_set.create_dataset(params['dataset_1'])
         if "Temp" in params['dataset_2']:
-            self.dataset_2 = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = params['dataset_2'].split("_")[1])
+            self.dataset_2 = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name = params['dataset_2'].split("_")[1])
         else:
             self.dataset_2 = data_set.create_dataset(params['dataset_2'])
 
@@ -60,8 +60,8 @@ class CorrScatterPlot:
         else:
             slope_string = '%.3f' % slope
         
-        x_buffer = (max(vals_1) - min(vals_1))*0.1
-        y_buffer = (max(vals_2) - min(vals_2))*0.1
+        x_buffer = (max(vals_1) - min(vals_1)) * 0.1
+        y_buffer = (max(vals_2) - min(vals_2)) * 0.1
 
         x_range = [min(vals_1) - x_buffer, max(vals_1) + x_buffer]
         y_range = [min(vals_2) - y_buffer, max(vals_2) + y_buffer]
@@ -80,8 +80,8 @@ class CorrScatterPlot:
         else:
             srslope_string = '%.3f' % srslope
 
-        x_buffer = (max(rx) - min(rx))*0.1
-        y_buffer = (max(ry) - min(ry))*0.1
+        x_buffer = (max(rx) - min(rx)) * 0.1
+        y_buffer = (max(ry) - min(ry)) * 0.1
 
         sr_range = [min(rx) - x_buffer, max(rx) + x_buffer]
 
@@ -92,33 +92,33 @@ class CorrScatterPlot:
             self.collections_exist = "True"
 
         self.js_data = dict(
-            data = self.data,
-            rdata = self.rdata,
-            indIDs = self.indIDs,
-            trait_1 = self.trait_1.dataset.name + ": " + str(self.trait_1.name),
-            trait_2 = self.trait_2.dataset.name + ": " + str(self.trait_2.name),
-            samples_1 = samples_1,
-            samples_2 = samples_2,
-            num_overlap = num_overlap,
-            vals_1 = vals_1,
-            vals_2 = vals_2,
-            x_range = x_range,
-            y_range = y_range,
-            sr_range = sr_range,
-            intercept_coords = intercept_coords,
-            sr_intercept_coords = sr_intercept_coords,
+            data=self.data,
+            rdata=self.rdata,
+            indIDs=self.indIDs,
+            trait_1=self.trait_1.dataset.name + ": " + str(self.trait_1.name),
+            trait_2=self.trait_2.dataset.name + ": " + str(self.trait_2.name),
+            samples_1=samples_1,
+            samples_2=samples_2,
+            num_overlap=num_overlap,
+            vals_1=vals_1,
+            vals_2=vals_2,
+            x_range=x_range,
+            y_range=y_range,
+            sr_range=sr_range,
+            intercept_coords=intercept_coords,
+            sr_intercept_coords=sr_intercept_coords,
 
-            slope = slope,
-            slope_string = slope_string,
-            intercept = intercept,
-            r_value = r_value,
-            p_value = p_value,
+            slope=slope,
+            slope_string=slope_string,
+            intercept=intercept,
+            r_value=r_value,
+            p_value=p_value,
 
-            srslope = srslope,
-            srslope_string = srslope_string,
-            srintercept = srintercept,
-            srr_value = srr_value,
-            srp_value = srp_value
+            srslope=srslope,
+            srslope_string=srslope_string,
+            srintercept=srintercept,
+            srr_value=srr_value,
+            srp_value=srp_value
 
             #trait3 = self.trait_3.data,
             #vals_3 = vals_3
@@ -129,10 +129,10 @@ class CorrScatterPlot:
 def get_intercept_coords(slope, intercept, x_range, y_range):
     intercept_coords = []
 
-    y1 = slope*x_range[0] + intercept
-    y2 = slope*x_range[1] + intercept
-    x1 = (y1-intercept)/slope
-    x2 = (y2-intercept)/slope
+    y1 = slope * x_range[0] + intercept
+    y2 = slope * x_range[1] + intercept
+    x1 = (y1 - intercept) / slope
+    x2 = (y2 - intercept) / slope
 
     intercept_coords.append([x1, y1])
     intercept_coords.append([x2, y2])

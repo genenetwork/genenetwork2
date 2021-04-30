@@ -103,9 +103,9 @@ class ConvertGenoFile:
         with open(self.output_files[2], "w") as snp_fh:
             for marker in self.markers:
                 if self.mb_exists:
-                    snp_fh.write(marker['name'] +", " + str(int(float(marker['Mb'])*1000000)) + ", " + marker['chr'] + "\n")
+                    snp_fh.write(marker['name'] + ", " + str(int(float(marker['Mb']) * 1000000)) + ", " + marker['chr'] + "\n")
                 else:
-                    snp_fh.write(marker['name'] +", " + str(int(float(marker['cM'])*1000000)) + ", " + marker['chr'] + "\n")
+                    snp_fh.write(marker['name'] + ", " + str(int(float(marker['cM']) * 1000000)) + ", " + marker['chr'] + "\n")
 
     def get_sample_list(self, row_contents):
         self.sample_list = []
@@ -178,12 +178,12 @@ class ConvertGenoFile:
                 print("    Row is:", convertob.latest_row_value)
                 break
 
-if __name__=="__main__":
+if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
     New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/bimbam"""
     #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
     #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")
-    #convertob.convert()
+    # convertob.convert()
     ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
-    #ConvertGenoFiles(Geno_Directory)
+    # ConvertGenoFiles(Geno_Directory)

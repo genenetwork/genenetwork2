@@ -46,7 +46,7 @@ class ShowTrait:
                 resource_id=self.resource_id)
         elif 'group' in kw:
             self.temp_trait = True
-            self.trait_id = "Temp_"+kw['species'] + "_" + kw['group'] + \
+            self.trait_id = "Temp_" + kw['species'] + "_" + kw['group'] + \
                 "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
             self.temp_species = kw['species']
             self.temp_group = kw['group']
@@ -368,8 +368,8 @@ class ShowTrait:
                         chr = transcript_start = transcript_end = None
 
                     if chr and transcript_start and transcript_end and self.this_trait.refseq_transcriptid:
-                        transcript_start = int(transcript_start*1000000)
-                        transcript_end = int(transcript_end*1000000)
+                        transcript_start = int(transcript_start * 1000000)
+                        transcript_end = int(transcript_end * 1000000)
                         self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % (
                             'mm10', self.this_trait.refseq_transcriptid, chr, transcript_start, transcript_end)
 
@@ -393,8 +393,8 @@ class ShowTrait:
 
                 if chr and transcript_start and transcript_end and kgId:
                     # Convert to bases from megabases
-                    transcript_start = int(transcript_start*1000000)
-                    transcript_end = int(transcript_end*1000000)
+                    transcript_start = int(transcript_start * 1000000)
+                    transcript_end = int(transcript_end * 1000000)
                     self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % (
                         'rn6', kgId, chr, transcript_start, transcript_end)
 
@@ -515,13 +515,13 @@ def quantile_normalize_vals(sample_groups):
         ranked_vals = ss.rankdata(trait_vals)
         p_list = []
         for i, val in enumerate(trait_vals):
-            p_list.append(((i+1) - 0.5)/len(trait_vals))
+            p_list.append(((i + 1) - 0.5) / len(trait_vals))
 
         z = ss.norm.ppf(p_list)
 
         normed_vals = []
         for rank in ranked_vals:
-            normed_vals.append("%0.3f" % z[int(rank)-1])
+            normed_vals.append("%0.3f" % z[int(rank) - 1])
 
         return normed_vals
 
@@ -585,7 +585,7 @@ def get_nearest_marker(this_trait, this_db):
                      GenoXRef.GenoId = Geno.Id AND
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
-               ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name+"Geno", this_mb)
+               ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name + "Geno", this_mb)
     logger.sql(query)
     result = g.db.execute(query).fetchall()
 
@@ -605,7 +605,7 @@ def get_table_widths(sample_groups, sample_column_width, has_num_cases=False):
         trait_table_width += 80
     if has_num_cases:
         trait_table_width += 80
-    trait_table_width += len(sample_groups[0].attributes)*88
+    trait_table_width += len(sample_groups[0].attributes) * 88
 
     trait_table_width = str(trait_table_width) + "px"
 

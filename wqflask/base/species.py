@@ -4,7 +4,7 @@ from flask import Flask, g
 
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 class TheSpecies:
     def __init__(self, dataset=None, species_name=None):

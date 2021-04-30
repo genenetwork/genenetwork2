@@ -102,7 +102,7 @@ class GSearch:
                     this_trait['locus_chr'] = line[16]
                     this_trait['locus_mb'] = line[17]
 
-                    dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="ProbeSet",species=this_trait["species"])
+                    dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="ProbeSet", species=this_trait["species"])
                     if dataset_ob.id not in dataset_to_permissions:
                         permissions = check_resource_availability(dataset_ob)
                         dataset_to_permissions[dataset_ob.id] = permissions

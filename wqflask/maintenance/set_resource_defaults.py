@@ -43,10 +43,10 @@ def parse_db_uri():
     parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
-                        db = parsed_uri.path[1:],
-                        host = parsed_uri.hostname,
-                        user = parsed_uri.username,
-                        passwd = parsed_uri.password)
+                        db=parsed_uri.path[1:],
+                        host=parsed_uri.hostname,
+                        user=parsed_uri.username,
+                        passwd=parsed_uri.password)
 
     print(db_conn_info)
     return db_conn_info
@@ -63,14 +63,14 @@ def insert_probeset_resources(default_owner_id):
         resource_ob = {}
         resource_ob['name'] = resource[1]
         resource_ob['owner_id'] = default_owner_id
-        resource_ob['data'] = { "dataset" : str(resource[0])}
+        resource_ob['data'] = {"dataset": str(resource[0])}
         resource_ob['type'] = "dataset-probeset"
         if resource[2] < 1 and resource[3] > 0:
-            resource_ob['default_mask'] = { "data": "view",
+            resource_ob['default_mask'] = {"data": "view",
                                             "metadata": "view",
                                             "admin": "not-admin"}
         else:
-            resource_ob['default_mask'] = { "data": "no-access",
+            resource_ob['default_mask'] = {"data": "no-access",
                                             "metadata": "no-access",
                                             "admin": "not-admin"}
         resource_ob['group_masks'] = {}
@@ -97,10 +97,10 @@ def insert_publish_resources(default_owner_id):
             else:
                 resource_ob['name'] = str(resource[0])
             resource_ob['owner_id'] = default_owner_id
-            resource_ob['data'] = { "dataset" : str(resource[1]) ,
-                                    "trait"   : str(resource[0])}
+            resource_ob['data'] = {"dataset": str(resource[1]),
+                                    "trait": str(resource[0])}
             resource_ob['type'] = "dataset-publish"
-            resource_ob['default_mask'] = { "data": "view",
+            resource_ob['default_mask'] = {"data": "view",
                                             "metadata": "view",
                                             "admin": "not-admin"}
 
@@ -125,14 +125,14 @@ def insert_geno_resources(default_owner_id):
             resource_ob['owner_id'] = "c5ce8c56-78a6-474f-bcaf-7129d97f56ae"
         else:
             resource_ob['owner_id'] = default_owner_id
-        resource_ob['data'] = { "dataset" : str(resource[0]) }
+        resource_ob['data'] = {"dataset": str(resource[0])}
         resource_ob['type'] = "dataset-geno"
         if resource[2] < 1:
-            resource_ob['default_mask'] = { "data": "view",
+            resource_ob['default_mask'] = {"data": "view",
                                             "metadata": "view",
                                             "admin": "not-admin"}
         else:
-            resource_ob['default_mask'] = { "data": "no-access",
+            resource_ob['default_mask'] = {"data": "no-access",
                                             "metadata": "no-access",
                                             "admin": "not-admin"}
         resource_ob['group_masks'] = {}

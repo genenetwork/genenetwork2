@@ -26,9 +26,9 @@ class SnpBrowser:
                 self.table_rows = []
 
             if self.limit_strains == "true":
-                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type = self.variant_type, strains = self.chosen_strains, empty_columns = self.empty_columns)
+                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type=self.variant_type, strains=self.chosen_strains, empty_columns = self.empty_columns)
             else:
-                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type = self.variant_type, strains = self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
+                self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(variant_type=self.variant_type, strains=self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
 
     def initialize_parameters(self, start_vars):
         if 'first_run' in start_vars:
@@ -249,7 +249,7 @@ class SnpBrowser:
 
     def filter_results(self, results):
         filtered_results = []
-        strain_index_list = [] #ZS: List of positions of selected strains in strain list
+        strain_index_list = []  # ZS: List of positions of selected strains in strain list
         last_mb = -1
 
         if self.limit_strains == "true" and len(self.chosen_strains) > 0:
@@ -272,9 +272,9 @@ class SnpBrowser:
                 if self.limit_strains == "true" and len(self.chosen_strains) > 0:
                     for index in strain_index_list:
                         if self.species_id == 1:
-                            display_strains.append(result[29+index])
+                            display_strains.append(result[29 + index])
                         elif self.species_id == 2:
-                            display_strains.append(result[31+index])
+                            display_strains.append(result[31 + index])
                     self.allele_list = display_strains
 
                 effect_info_dict = get_effect_info(effect_list)
@@ -300,7 +300,7 @@ class SnpBrowser:
                         else:
                             gene = check_if_in_gene(species_id, chr, mb)
                         transcript = exon = function = function_details = ''
-                        if self.redundant == "false" or last_mb != mb: # filter redundant
+                        if self.redundant == "false" or last_mb != mb:  # filter redundant
                             if self.include_record(domain, function, snp_source, conservation_score):
                                 info_list = [snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain, function, function_details, snp_source, conservation_score, snp_id]
                                 info_list.extend(self.allele_list)
@@ -366,7 +366,7 @@ class SnpBrowser:
             if len(gene_name_list) > 0:
                 gene_id_name_dict = get_gene_id_name_dict(self.species_id, gene_name_list)
 
-        #ZS: list of booleans representing which columns are entirely empty, so they aren't displayed on the page; only including ones that are sometimes empty (since there's always a location, etc)
+        # ZS: list of booleans representing which columns are entirely empty, so they aren't displayed on the page; only including ones that are sometimes empty (since there's always a location, etc)
         self.empty_columns = {
             "snp_source": "false",
             "conservation_score": "false",
@@ -389,8 +389,8 @@ class SnpBrowser:
                     snp_name = rs
                 else:
                     rs = ""
-                    start_bp = int(mb*1000000 - 100)
-                    end_bp = int(mb*1000000 + 100)
+                    start_bp = int(mb * 1000000 - 100)
+                    end_bp = int(mb * 1000000 + 100)
                     position_info = "chr%s:%d-%d" % (chr, start_bp, end_bp)
                     if self.species_id == 2:
                         snp_url = webqtlConfig.GENOMEBROWSER_URL % ("rn6", position_info)
@@ -434,7 +434,7 @@ class SnpBrowser:
                     transcript_link = ""
 
                 if exon:
-                    exon = exon[1] # exon[0] is exon_id, exon[1] is exon_rank
+                    exon = exon[1]  # exon[0] is exon_id, exon[1] is exon_rank
                     self.empty_columns['exon'] = "true"
                 else:
                     exon = ""
@@ -575,7 +575,7 @@ class SnpBrowser:
         if conservation_score:
             score_as_float = float(conservation_score)
             try:
-                input_score_float = float(self.score) # the user-input score
+                input_score_float = float(self.score)  # the user-input score
             except:
                 input_score_float = 0.0
 
@@ -628,17 +628,17 @@ class SnpBrowser:
         left_offset, right_offset, top_offset, bottom_offset = (30, 30, 40, 50)
         plot_width = canvas_width - left_offset - right_offset
         plot_height = canvas_height - top_offset - bottom_offset
-        y_zero = top_offset + plot_height/2
+        y_zero = top_offset + plot_height / 2
 
-        x_scale = plot_width/(self.end_mb - self.start_mb)
+        x_scale = plot_width / (self.end_mb - self.start_mb)
 
-        #draw clickable image map at some point
+        # draw clickable image map at some point
 
         n_click = 80.0
-        click_step = plot_width/n_click
-        click_mb_step = (self.end_mb - self.start_mb)/n_click
+        click_step = plot_width / n_click
+        click_mb_step = (self.end_mb - self.start_mb) / n_click
 
-        #for i in range(n_click):
+        # for i in range(n_click):
         #    href = url_for('snp_browser', first_run="false", chosen_strains_mouse=self.chosen_strains_mouse, chosen_strains_rat=self.chosen_strains_rat, variant=self.variant_type, species=self.species_name, gene_name=self.gene_name, chr=self.chr, start_mb=self.start_mb, end_mb=self.end_mb, limit_strains=self.limit_strains, domain=self.domain, function=self.function, criteria=self.criteria, score=self.score, diff_alleles=self.diff_alleles)
 
 def get_browser_sample_lists(species_id=1):
@@ -660,7 +660,7 @@ def get_browser_sample_lists(species_id=1):
 
     return strain_lists
 
-def get_header_list(variant_type, strains, species = None, empty_columns = None):
+def get_header_list(variant_type, strains, species=None, empty_columns=None):
     if species == "Mouse":
         strain_list = strains['mouse']
     elif species == "Rat":
@@ -668,7 +668,7 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
     else:
         strain_list = strains
 
-    empty_field_count = 0 #ZS: This is an awkward way of letting the javascript know the index where the allele value columns start; there's probably a better way of doing this
+    empty_field_count = 0  # ZS: This is an awkward way of letting the javascript know the index where the allele value columns start; there's probably a better way of doing this
 
     header_fields = []
     header_data_names = []
@@ -715,7 +715,7 @@ def get_header_list(variant_type, strains, species = None, empty_columns = None)
 
     return header_fields, empty_field_count, header_data_names
 
-def get_effect_details_by_category(effect_name = None, effect_value = None):
+def get_effect_details_by_category(effect_name=None, effect_value=None):
     gene_list = []
     transcript_list = []
     exon_list = []
@@ -878,7 +878,7 @@ def get_gene_id_name_dict(species_id, gene_name_list):
     return gene_id_name_dict
 
 def check_if_in_gene(species_id, chr, mb):
-    if species_id != 0: #ZS: Check if this is necessary
+    if species_id != 0:  # ZS: Check if this is necessary
         query = """SELECT geneId, geneSymbol
                    FROM GeneList
                    WHERE SpeciesId = {0} AND chromosome = '{1}' AND

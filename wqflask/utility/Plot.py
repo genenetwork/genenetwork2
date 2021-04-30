@@ -34,7 +34,7 @@ import utility.corestats as corestats
 from base import webqtlConfig
 from utility.pillow_utils import draw_rotated_text
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 # ---- Define common colours ---- #
 BLUE = ImageColor.getrgb("blue")
@@ -74,7 +74,7 @@ def frange(start, end=None, inc=1.0):
         end = start + 0.0
         start = 0.0
     else:
-        start += 0.0 # force it to be a float
+        start += 0.0  # force it to be a float
     count = int((end - start) / inc)
     if start + count * inc != end:
     # Need to adjust the count. AFAICT, it always comes up one short.
@@ -119,13 +119,13 @@ def find_outliers(vals):
 
 # parameter: data is either object returned by reaper permutation function (called by MarkerRegressionPage.py)
 # or the first object returned by direct (pair-scan) permu function (called by DirectPlotPage.py)
-def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLabel=None, YLabel=None, title=None, offset= (60, 20, 40, 40), zoom = 1):
+def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLabel=None, YLabel=None, title=None, offset=(60, 20, 40, 40), zoom=1):
     im_drawer = ImageDraw.Draw(canvas)
     xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
 
     plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
     plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
-    if plotHeight<=0 or plotWidth<=0:
+    if plotHeight <= 0 or plotWidth <= 0:
        return
 
     if len(data) < 2:
@@ -133,15 +133,15 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
 
     max_D = max(data)
     min_D = min(data)
-    #add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
-    if max_D == float('inf') or max_D>webqtlConfig.MAXLRS:
-       max_D=webqtlConfig.MAXLRS #maximum LRS value
+    # add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
+    if max_D == float('inf') or max_D > webqtlConfig.MAXLRS:
+       max_D = webqtlConfig.MAXLRS  # maximum LRS value
 
     xLow, xTop, stepX = detScale(min_D, max_D)
 
-    #reduce data
-    #ZS: Used to determine number of bins for permutation output
-    step = ceil((xTop-xLow)/50.0)
+    # reduce data
+    # ZS: Used to determine number of bins for permutation output
+    step = ceil((xTop - xLow) / 50.0)
     j = xLow
     dataXY = []
     Count = []
@@ -151,122 +151,122 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
        j += step
 
     for i, item in enumerate(data):
-       if item == float('inf') or item>webqtlConfig.MAXLRS:
-           item = webqtlConfig.MAXLRS #maximum LRS value
-       j = int((item-xLow)/step)
+       if item == float('inf') or item > webqtlConfig.MAXLRS:
+           item = webqtlConfig.MAXLRS  # maximum LRS value
+       j = int((item - xLow) / step)
        Count[j] += 1
 
-    yLow, yTop, stepY=detScale(0, max(Count))
+    yLow, yTop, stepY = detScale(0, max(Count))
 
-    #draw data
-    xScale = plotWidth/(xTop-xLow)
-    yScale = plotHeight/(yTop-yLow)
-    barWidth = xScale*step
+    # draw data
+    xScale = plotWidth / (xTop - xLow)
+    yScale = plotHeight / (yTop - yLow)
+    barWidth = xScale * step
 
     for i, count in enumerate(Count):
        if count:
-           xc = (dataXY[i]-xLow)*xScale+xLeftOffset
-           yc =-(count-yLow)*yScale+yTopOffset+plotHeight
+           xc = (dataXY[i] - xLow) * xScale + xLeftOffset
+           yc = -(count - yLow) * yScale + yTopOffset + plotHeight
            im_drawer.rectangle(
-               xy=((xc+2, yc), (xc+barWidth-2, yTopOffset+plotHeight)),
+               xy=((xc + 2, yc), (xc + barWidth - 2, yTopOffset + plotHeight)),
                outline=barColor, fill=barColor)
 
-    #draw drawing region
+    # draw drawing region
     im_drawer.rectangle(
-        xy=((xLeftOffset, yTopOffset), (xLeftOffset+plotWidth, yTopOffset+plotHeight))
+        xy=((xLeftOffset, yTopOffset), (xLeftOffset + plotWidth, yTopOffset + plotHeight))
     )
 
-    #draw scale
-    scaleFont=ImageFont.truetype(font=COUR_FILE, size=11)
-    x=xLow
-    for i in range(int(stepX)+1):
-       xc=xLeftOffset+(x-xLow)*xScale
+    # draw scale
+    scaleFont = ImageFont.truetype(font=COUR_FILE, size=11)
+    x = xLow
+    for i in range(int(stepX) + 1):
+       xc = xLeftOffset + (x - xLow) * xScale
        im_drawer.line(
-           xy=((xc, yTopOffset+plotHeight), (xc, yTopOffset+plotHeight+5)),
+           xy=((xc, yTopOffset + plotHeight), (xc, yTopOffset + plotHeight + 5)),
            fill=axesColor)
        strX = cformat(d=x, rank=0)
        im_drawer.text(
            text=strX,
-           xy=(xc-im_drawer.textsize(strX, font=scaleFont)[0]/2,
-               yTopOffset+plotHeight+14), font=scaleFont)
-       x+= (xTop - xLow)/stepX
+           xy=(xc - im_drawer.textsize(strX, font=scaleFont)[0] / 2,
+               yTopOffset + plotHeight + 14), font=scaleFont)
+       x += (xTop - xLow) / stepX
 
-    y=yLow
-    for i in range(int(stepY)+1):
-       yc=yTopOffset+plotHeight-(y-yLow)*yScale
-       im_drawer.line(xy=((xLeftOffset, yc), (xLeftOffset-5, yc)), fill=axesColor)
-       strY = "%d" %y
+    y = yLow
+    for i in range(int(stepY) + 1):
+       yc = yTopOffset + plotHeight - (y - yLow) * yScale
+       im_drawer.line(xy=((xLeftOffset, yc), (xLeftOffset - 5, yc)), fill=axesColor)
+       strY = "%d" % y
        im_drawer.text(
            text=strY,
-           xy=(xLeftOffset-im_drawer.textsize(strY, font=scaleFont)[0]-6, yc+5),
+           xy=(xLeftOffset - im_drawer.textsize(strY, font=scaleFont)[0] - 6, yc + 5),
            font=scaleFont)
-       y+= (yTop - yLow)/stepY
+       y += (yTop - yLow) / stepY
 
-    #draw label
-    labelFont=ImageFont.truetype(font=TAHOMA_FILE, size=17)
+    # draw label
+    labelFont = ImageFont.truetype(font=TAHOMA_FILE, size=17)
     if XLabel:
        im_drawer.text(
            text=XLabel,
-           xy=(xLeftOffset+(
-               plotWidth-im_drawer.textsize(XLabel, font=labelFont)[0])/2.0,
-               yTopOffset+plotHeight+yBottomOffset-10),
+           xy=(xLeftOffset + (
+               plotWidth - im_drawer.textsize(XLabel, font=labelFont)[0]) / 2.0,
+               yTopOffset + plotHeight + yBottomOffset-10),
            font=labelFont, fill=labelColor)
 
     if YLabel:
         draw_rotated_text(canvas, text=YLabel,
                           xy=(19,
-                              yTopOffset+plotHeight-(
-                                  plotHeight-im_drawer.textsize(
-                                      YLabel, font=labelFont)[0])/2.0),
+                              yTopOffset + plotHeight - (
+                                  plotHeight - im_drawer.textsize(
+                                      YLabel, font=labelFont)[0]) / 2.0),
                           font=labelFont, fill=labelColor, angle=90)
 
-    labelFont=ImageFont.truetype(font=VERDANA_FILE, size=16)
+    labelFont = ImageFont.truetype(font=VERDANA_FILE, size=16)
     if title:
        im_drawer.text(
            text=title,
-           xy=(xLeftOffset+(plotWidth-im_drawer.textsize(
-               title, font=labelFont)[0])/2.0,
+           xy=(xLeftOffset + (plotWidth - im_drawer.textsize(
+               title, font=labelFont)[0]) / 2.0,
                20),
            font=labelFont, fill=labelColor)
 
 # This function determines the scale of the plot
 def detScaleOld(min, max):
-    if min>=max:
+    if min >= max:
         return None
     elif min == -1.0 and max == 1.0:
         return [-1.2, 1.2, 12]
     else:
-        a=max-min
-        b=floor(log10(a))
-        c=pow(10.0, b)
-        if a < c*5.0:
-            c/=2.0
-        #print a,b,c
-        low=c*floor(min/c)
-        high=c*ceil(max/c)
-        return [low, high, round((high-low)/c)]
+        a = max - min
+        b = floor(log10(a))
+        c = pow(10.0, b)
+        if a < c * 5.0:
+            c /= 2.0
+        # print a,b,c
+        low = c * floor(min / c)
+        high = c * ceil(max / c)
+        return [low, high, round((high - low) / c)]
 
-def detScale(min=0,max=0):
+def detScale(min=0, max=0):
 
-    if min>=max:
+    if min >= max:
         return None
     elif min == -1.0 and max == 1.0:
         return [-1.2, 1.2, 12]
     else:
-        a=max-min
+        a = max - min
         if max != 0:
-            max += 0.1*a
+            max += 0.1 * a
         if min != 0:
-            if min > 0 and min < 0.1*a:
+            if min > 0 and min < 0.1 * a:
                 min = 0.0
             else:
-                min -= 0.1*a
-        a=max-min
-        b=floor(log10(a))
-        c=pow(10.0, b)
-        low=c*floor(min/c)
-        high=c*ceil(max/c)
-        n = round((high-low)/c)
+                min -= 0.1 * a
+        a = max - min
+        b = floor(log10(a))
+        c = pow(10.0, b)
+        low = c * floor(min / c)
+        high = c * ceil(max / c)
+        n = round((high - low) / c)
         div = 2.0
         while n < 5 or n > 15:
             if n < 5:
@@ -274,23 +274,23 @@ def detScale(min=0,max=0):
             else:
                 c *= div
             if div == 2.0:
-                div =5.0
+                div = 5.0
             else:
-                div =2.0
-            low=c*floor(min/c)
-            high=c*ceil(max/c)
-            n = round((high-low)/c)
+                div = 2.0
+            low = c * floor(min / c)
+            high = c * ceil(max / c)
+            n = round((high - low) / c)
 
         return [low, high, n]
 
 def bluefunc(x):
-    return 1.0 / (1.0 + exp(-10*(x-0.6)))
+    return 1.0 / (1.0 + exp(-10 * (x - 0.6)))
 
 def redfunc(x):
-    return 1.0 / (1.0 + exp(10*(x-0.5)))
+    return 1.0 / (1.0 + exp(10 * (x - 0.5)))
 
 def greenfunc(x):
-    return 1 - pow(redfunc(x+0.2), 2) - bluefunc(x-0.3)
+    return 1 - pow(redfunc(x + 0.2), 2) - bluefunc(x - 0.3)
 
 def colorSpectrum(n=100):
     multiple = 10
@@ -303,17 +303,17 @@ def colorSpectrum(n=100):
         return [ImageColor.getrgb("rgb(100%,0%,0%)"),
                 ImageColor.getrgb("rgb(0%,100%,0%)"),
                 ImageColor.getrgb("rgb(0%,0%,100%)")]
-    N = n*multiple
-    out = [None]*N;
+    N = n * multiple
+    out = [None] * N;
     for i in range(N):
-        x = float(i)/N
+        x = float(i) / N
         out[i] = ImageColor.getrgb("rgb({}%,{}%,{}%".format(
-            *[int(i*100) for i in (
+            *[int(i * 100) for i in (
                 redfunc(x), greenfunc(x), bluefunc(x))]))
     out2 = [out[0]]
-    step = N/float(n-1)
+    step = N / float(n - 1)
     j = 0
-    for i in range(n-2):
+    for i in range(n - 2):
         j += step
         out2.append(out[int(j)])
     out2.append(out[-1])
@@ -324,5 +324,5 @@ def _test():
     doctest.testmod()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     _test()

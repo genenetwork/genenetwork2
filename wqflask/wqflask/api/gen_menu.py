@@ -87,14 +87,14 @@ def phenotypes_exist(group_name):
     results = g.db.execute(
         ("SELECT Name FROM PublishFreeze "
          "WHERE PublishFreeze.Name = "
-         "'{}'").format(group_name+"Publish")).fetchone()
+         "'{}'").format(group_name + "Publish")).fetchone()
     return bool(results)
 
 
 def genotypes_exist(group_name):
     results = g.db.execute(
         ("SELECT Name FROM GenoFreeze " +
-         "WHERE GenoFreeze.Name = '{}'").format(group_name+"Geno")).fetchone()
+         "WHERE GenoFreeze.Name = '{}'").format(group_name + "Geno")).fetchone()
     return bool(results)
 
 

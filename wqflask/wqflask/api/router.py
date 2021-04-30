@@ -23,13 +23,13 @@ from wqflask.api import correlation, mapping, gen_menu
 from utility.tools import flat_files
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 version = "pre1"
 
 @app.route("/api/v_{}/".format(version))
 def hello_world():
-    return flask.jsonify({"hello":"world"})
+    return flask.jsonify({"hello": "world"})
 
 @app.route("/api/v_{}/species".format(version))
 def get_species_list():
@@ -38,10 +38,10 @@ def get_species_list():
     species_list = []
     for species in the_species:
         species_dict = {
-          "Id"         : species[0],
-          "Name"       : species[1],
-          "FullName"   : species[2],
-          "TaxonomyId" : species[3]
+          "Id": species[0],
+          "Name": species[1],
+          "FullName": species[2],
+          "TaxonomyId": species[3]
         }
         species_list.append(species_dict)
 
@@ -49,17 +49,17 @@ def get_species_list():
 
 @app.route("/api/v_{}/species/<path:species_name>".format(version))
 @app.route("/api/v_{}/species/<path:species_name>.<path:file_format>".format(version))
-def get_species_info(species_name, file_format = "json"):
+def get_species_info(species_name, file_format="json"):
     results = g.db.execute("""SELECT SpeciesId, Name, FullName, TaxonomyId 
                               FROM Species 
                               WHERE (Name="{0}" OR FullName="{0}" OR SpeciesName="{0}");""".format(species_name))
 
     the_species = results.fetchone()
     species_dict = { 
-      "Id"         : the_species[0],
-      "Name"       : the_species[1],
-      "FullName"   : the_species[2],
-      "TaxonomyId" : the_species[3]
+      "Id": the_species[0],
+      "Name": the_species[1],
+      "FullName": the_species[2],
+      "TaxonomyId": the_species[3]
     }
     
     return flask.jsonify(species_dict)
@@ -87,14 +87,14 @@ def get_groups_list(species_name=None):
         groups_list = []
         for group in the_groups:
             group_dict = {
-              "Id"              : group[0],
-              "SpeciesId"       : group[1],
-              "DisplayName"     : group[2],
-              "Name"            : group[3],
-              "FullName"        : group[4],
-              "public"          : group[5],
-              "MappingMethodId" : group[6],
-              "GeneticType"     : group[7]
+              "Id": group[0],
+              "SpeciesId": group[1],
+              "DisplayName": group[2],
+              "Name": group[3],
+              "FullName": group[4],
+              "public": group[5],
+              "MappingMethodId": group[6],
+              "GeneticType": group[7]
             }
             groups_list.append(group_dict)
 
@@ -106,7 +106,7 @@ def get_groups_list(species_name=None):
 @app.route("/api/v_{}/group/<path:group_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>".format(version))
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>.<path:file_format>".format(version))
-def get_group_info(group_name, species_name = None, file_format = "json"):
+def get_group_info(group_name, species_name=None, file_format="json"):
     if species_name:
         results = g.db.execute("""SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, InbredSet.InbredSetName, 
                                          InbredSet.Name, InbredSet.FullName, InbredSet.public, 
@@ -131,14 +131,14 @@ def get_group_info(group_name, species_name = None, file_format = "json"):
     group = results.fetchone()
     if group:
         group_dict = {
-          "Id"              : group[0],
-          "SpeciesId"       : group[1],
-          "DisplayName"     : group[2],
-          "Name"            : group[3],
-          "FullName"        : group[4],
-          "public"          : group[5],
-          "MappingMethodId" : group[6],
-          "GeneticType"     : group[7]
+          "Id": group[0],
+          "SpeciesId": group[1],
+          "DisplayName": group[2],
+          "Name": group[3],
+          "FullName": group[4],
+          "public": group[5],
+          "MappingMethodId": group[6],
+          "GeneticType": group[7]
         }
 
         return flask.jsonify(group_dict)
@@ -179,17 +179,17 @@ def get_datasets_for_group(group_name, species_name=None):
         datasets_list = []
         for dataset in the_datasets:
             dataset_dict = {
-              "Id"                 : dataset[0],
-              "ProbeFreezeId"      : dataset[1],
-              "AvgID"              : dataset[2],
-              "Short_Abbreviation" : dataset[3],
-              "Long_Abbreviation"  : dataset[4],
-              "FullName"           : dataset[5],
-              "ShortName"          : dataset[6],
-              "CreateTime"         : dataset[7],
-              "public"             : dataset[8],
-              "confidentiality"    : dataset[9],
-              "DataScale"          : dataset[10]
+              "Id": dataset[0],
+              "ProbeFreezeId": dataset[1],
+              "AvgID": dataset[2],
+              "Short_Abbreviation": dataset[3],
+              "Long_Abbreviation": dataset[4],
+              "FullName": dataset[5],
+              "ShortName": dataset[6],
+              "CreateTime": dataset[7],
+              "public": dataset[8],
+              "confidentiality": dataset[9],
+              "DataScale": dataset[10]
             }
             datasets_list.append(dataset_dict)
 
@@ -201,10 +201,10 @@ def get_datasets_for_group(group_name, species_name=None):
 @app.route("/api/v_{}/dataset/<path:dataset_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/dataset/<path:group_name>/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/dataset/<path:group_name>/<path:dataset_name>.<path:file_format>".format(version))
-def get_dataset_info(dataset_name, group_name = None, file_format="json"):
-    #ZS: First get ProbeSet (mRNA expression) datasets and then get Phenotype datasets
+def get_dataset_info(dataset_name, group_name=None, file_format="json"):
+    # ZS: First get ProbeSet (mRNA expression) datasets and then get Phenotype datasets
 
-    datasets_list = [] #ZS: I figure I might as well return a list if there are multiple matches, though I don"t know if this will actually happen in practice
+    datasets_list = []  # ZS: I figure I might as well return a list if there are multiple matches, though I don"t know if this will actually happen in practice
 
     probeset_query = """
                 SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName,
@@ -235,16 +235,16 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
 
     if dataset:
         dataset_dict = {
-          "dataset_type" : "mRNA expression",
-          "id"           : dataset[0],
-          "name"         : dataset[1],
-          "full_name"    : dataset[2],
-          "short_name"   : dataset[3],
-          "data_scale"   : dataset[4],
-          "tissue_id"    : dataset[5],
-          "tissue"       : dataset[6],
-          "public"       : dataset[7],
-          "confidential" : dataset[8]
+          "dataset_type": "mRNA expression",
+          "id": dataset[0],
+          "name": dataset[1],
+          "full_name": dataset[2],
+          "short_name": dataset[3],
+          "data_scale": dataset[4],
+          "tissue_id": dataset[5],
+          "tissue": dataset[6],
+          "public": dataset[7],
+          "confidential": dataset[8]
         }
 
         datasets_list.append(dataset_dict)
@@ -272,25 +272,25 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
         if dataset:
             if dataset[5]:
                 dataset_dict = {
-                  "dataset_type" : "phenotype",
-                  "id"           : dataset[0],
-                  "name"         : dataset[1],
-                  "description"  : dataset[2],
-                  "pubmed_id"    : dataset[5],
-                  "title"        : dataset[6],
-                  "year"         : dataset[7]
+                  "dataset_type": "phenotype",
+                  "id": dataset[0],
+                  "name": dataset[1],
+                  "description": dataset[2],
+                  "pubmed_id": dataset[5],
+                  "title": dataset[6],
+                  "year": dataset[7]
                 }
             elif dataset[4]:
                 dataset_dict = {
-                  "dataset_type" : "phenotype",
-                  "id"           : dataset[0],
-                  "name"         : dataset[3],
-                  "description"  : dataset[4]
+                  "dataset_type": "phenotype",
+                  "id": dataset[0],
+                  "name": dataset[3],
+                  "description": dataset[4]
                 }
             else:
                 dataset_dict = {
-                  "dataset_type" : "phenotype",
-                  "id"           : dataset[0]
+                  "dataset_type": "phenotype",
+                  "id": dataset[0]
                 }
 
             datasets_list.append(dataset_dict)
@@ -304,7 +304,7 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
 
 @app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
 @app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
-def fetch_traits(dataset_name, file_format = "json"):
+def fetch_traits(dataset_name, file_format="json"):
     trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
     if ("ids_only" in request.args) and (len(trait_ids) > 0):
         if file_format == "json":
@@ -432,7 +432,7 @@ def fetch_traits(dataset_name, file_format = "json"):
 
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
-def all_sample_data(dataset_name, file_format = "csv"):
+def all_sample_data(dataset_name, file_format="csv"):
     trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
 
     if len(trait_ids) > 0:
@@ -538,7 +538,7 @@ def all_sample_data(dataset_name, file_format = "csv"):
 
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
-def trait_sample_data(dataset_name, trait_name, file_format = "json"):
+def trait_sample_data(dataset_name, trait_name, file_format="json"):
     probeset_query = """
                         SELECT
                             Strain.Name, Strain.Name2, ProbeSetData.value, ProbeSetData.Id, ProbeSetSE.error
@@ -610,10 +610,10 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
             sample_list = []
             for sample in sample_data:
                 sample_dict = {
-                  "sample_name"   : sample[0],
-                  "sample_name_2" : sample[1],
-                  "value"         : sample[2],
-                  "data_id"       : sample[3]
+                  "sample_name": sample[0],
+                  "sample_name_2": sample[1],
+                  "value": sample[2],
+                  "data_id": sample[3]
                 }
                 if sample[4]:
                     sample_dict["se"] = sample[4]
@@ -629,7 +629,7 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
-def get_trait_info(dataset_name, trait_name, file_format = "json"):
+def get_trait_info(dataset_name, trait_name, file_format="json"):
     probeset_query = """
                         SELECT
                             ProbeSet.Id, ProbeSet.Name, ProbeSet.Symbol, ProbeSet.description, ProbeSet.Chr, ProbeSet.Mb, ProbeSet.alias,
@@ -648,24 +648,24 @@ def get_trait_info(dataset_name, trait_name, file_format = "json"):
     trait_info = probeset_results.fetchone()
     if trait_info:
         trait_dict = {
-            "id"          : trait_info[0],
-            "name"        : trait_info[1],
-            "symbol"      : trait_info[2],
-            "description" : trait_info[3],
-            "chr"         : trait_info[4],
-            "mb"          : trait_info[5],
-            "alias"       :trait_info[6],
-            "mean"        : trait_info[7],
-            "se"          : trait_info[8],
-            "locus"       : trait_info[9],
-            "lrs"         : trait_info[10],
-            "p_value"     : trait_info[11],
-            "additive"    : trait_info[12]
+            "id": trait_info[0],
+            "name": trait_info[1],
+            "symbol": trait_info[2],
+            "description": trait_info[3],
+            "chr": trait_info[4],
+            "mb": trait_info[5],
+            "alias": trait_info[6],
+            "mean": trait_info[7],
+            "se": trait_info[8],
+            "locus": trait_info[9],
+            "lrs": trait_info[10],
+            "p_value": trait_info[11],
+            "additive": trait_info[12]
         }
 
         return flask.jsonify(trait_dict)
     else:
-        if "Publish" in dataset_name: #ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
+        if "Publish" in dataset_name:  # ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
             dataset_name = dataset_name.replace("Publish", "")
         
         group_id = get_group_id(dataset_name)
@@ -684,10 +684,10 @@ def get_trait_info(dataset_name, trait_name, file_format = "json"):
         trait_info = pheno_results.fetchone()
         if trait_info:
             trait_dict = {
-                "id"       : trait_info[0],
-                "locus"    : trait_info[1],
-                "lrs"      : trait_info[2],
-                "additive" : trait_info[3]
+                "id": trait_info[0],
+                "locus": trait_info[1],
+                "lrs": trait_info[2],
+                "additive": trait_info[3]
             }
 
             return flask.jsonify(trait_dict)
@@ -699,7 +699,7 @@ def get_corr_results():
     results = correlation.do_correlation(request.args)
 
     if len(results) > 0:
-        return flask.jsonify(results) #ZS: I think flask.jsonify expects a dict/list instead of JSON
+        return flask.jsonify(results)  # ZS: I think flask.jsonify expects a dict/list instead of JSON
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
@@ -754,7 +754,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                         output_lines.append(line.split())
                         i += 1
 
-            csv_writer = csv.writer(si, delimiter = "\t", escapechar = "\\", quoting = csv.QUOTE_NONE)
+            csv_writer = csv.writer(si, delimiter="\t", escapechar="\\", quoting = csv.QUOTE_NONE)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     elif file_format == "rqtl2":
@@ -802,7 +802,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                     output_lines.append([line.strip() for line in line.split(",")])
                     i += 1
 
-            csv_writer = csv.writer(si, delimiter = ",")
+            csv_writer = csv.writer(si, delimiter=",")
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
@@ -826,8 +826,8 @@ def return_error(code, source, title, details):
     json_ob = {"errors": [
         {
             "status": code,
-            "source": { "pointer": source },
-            "title" : title,
+            "source": {"pointer": source},
+            "title": title,
             "detail": details
         }
     ]}
@@ -842,8 +842,8 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         limit_string = ""
 
     if "Geno" in dataset_name:
-        data_type = "Geno" #ZS: Need to pass back the dataset type
-        query =    """
+        data_type = "Geno"  # ZS: Need to pass back the dataset type
+        query = """
                             SELECT
                                 GenoXRef.GenoId, Geno.Name, GenoXRef.GenoFreezeId
                             FROM
