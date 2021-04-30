@@ -15,7 +15,7 @@ from utility.tools import valid_path, mk_dir, assert_dir, assert_writable_dir, f
 DEBUG = 1
 
 # USER privilege
-USERDICT = {'guest': 1, 'user': 2, 'admin': 3, 'root':4}
+USERDICT = {'guest': 1, 'user': 2, 'admin': 3, 'root': 4}
 
 # Set privileges
 SUPER_PRIVILEGES = {'data': 'edit', 'metadata': 'edit', 'admin': 'edit-admins'}

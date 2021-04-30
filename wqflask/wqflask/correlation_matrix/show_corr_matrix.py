@@ -211,7 +211,7 @@ class CorrelationMatrix:
 
         this_group_name = self.trait_list[0][1].group.name
         temp_dataset = data_set.create_dataset(
-            dataset_name="Temp", dataset_type="Temp", group_name = this_group_name)
+            dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
         temp_dataset.group.get_samplelist()
         for i, pca_trait in enumerate(pca_traits):
             trait_id = "PCA" + str(i + 1) + "_" + temp_dataset.group.species + "_" + \

@@ -79,7 +79,7 @@ class CorrelationResults:
         with Bench("Doing correlations"):
             if start_vars['dataset'] == "Temp":
                 self.dataset = data_set.create_dataset(
-                    dataset_name="Temp", dataset_type="Temp", group_name = start_vars['group'])
+                    dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
                 self.trait_id = start_vars['trait_id']
                 self.this_trait = create_trait(dataset=self.dataset,
                                                name=self.trait_id,
@@ -609,14 +609,14 @@ def get_header_fields(data_type, corr_method):
                              'Location',
                              'Mean',
                              'Sample rho',
-                                'N',
-                                'Sample p(rho)',
-                                'Lit rho',
-                                'Tissue rho',
-                                'Tissue p(rho)',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
+                             'N',
+                             'Sample p(rho)',
+                             'Lit rho',
+                             'Tissue rho',
+                             'Tissue p(rho)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
         else:
             header_fields = ['Index',
                              'Record',
@@ -625,14 +625,14 @@ def get_header_fields(data_type, corr_method):
                              'Location',
                              'Mean',
                              'Sample r',
-                                'N',
-                                'Sample p(r)',
-                                'Lit r',
-                                'Tissue r',
-                                'Tissue p(r)',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
+                             'N',
+                             'Sample p(r)',
+                             'Lit r',
+                             'Tissue r',
+                             'Tissue p(r)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
     elif data_type == "Publish":
         if corr_method == "spearman":
             header_fields = ['Index',

@@ -154,7 +154,7 @@ class CTL:
 
         # Perform the CTL scan
         res = self.r_CTLscan(rGeno, rPheno, strategy=strategy,
-                             nperm=nperm, parametric = parametric, nthreads=6)
+                             nperm=nperm, parametric=parametric, nthreads=6)
 
         # Get significant interactions
         significant = self.r_CTLsignificant(res, significance=significance)

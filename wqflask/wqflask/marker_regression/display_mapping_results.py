@@ -591,7 +591,7 @@ class DisplayMappingResults:
         intCanvas = Image.new("RGBA", size=(self.graphWidth, self.graphHeight))
         with Bench("Drawing Plot"):
             gifmap = self.plotIntMapping(
-                intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm= showLocusForm)
+                intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm)
 
         self.gifmap = gifmap.__str__()
 
@@ -610,7 +610,7 @@ class DisplayMappingResults:
             intCanvasX2 = Image.new("RGBA", size=(
                 self.graphWidth * 2, self.graphHeight * 2))
             gifmapX2 = self.plotIntMapping(
-                intCanvasX2, startMb=self.startMb, endMb=self.endMb, showLocusForm= showLocusForm, zoom=2)
+                intCanvasX2, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm, zoom=2)
             intCanvasX2.save(
                 "{}.png".format(
                     os.path.join(webqtlConfig.GENERATED_IMAGE_DIR,
@@ -628,8 +628,8 @@ class DisplayMappingResults:
                 name=showLocusForm,
                 submit=HtmlGenWrapper.create_input_tag(type_='hidden'))
 
-            hddn = {'FormID': 'showDatabase', 'ProbeSetID': '_', 'database': fd.RISet+ \
-                    "Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
+            hddn = {'FormID': 'showDatabase', 'ProbeSetID': '_', 'database': fd.RISet + \
+                    "Geno", 'CellID': '_', 'RISet': fd.RISet, 'incparentsf1': 'ON'}
             for key in hddn.keys():
                 showLocusForm.append(HtmlGenWrapper.create_input_tag(
                     name=key, value=hddn[key], type_='hidden'))
@@ -651,7 +651,7 @@ class DisplayMappingResults:
             btminfo.append(
                 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
-    def plotIntMapping(self, canvas, offset=(80, 120, 90, 100), zoom=1, startMb= None, endMb = None, showLocusForm = ""):
+    def plotIntMapping(self, canvas, offset=(80, 120, 90, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
         # calculating margins
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
@@ -730,7 +730,7 @@ class DisplayMappingResults:
                                   zoom=zoom, startMb=startMb, endMb=endMb)
             if self.SNPChecked:
                 self.drawSNPTrackNew(
-                    canvas, offset=newoffset, zoom=2 * zoom, startMb=startMb, endMb = endMb)
+                    canvas, offset=newoffset, zoom=2 * zoom, startMb=startMb, endMb=endMb)
 # BEGIN HaplotypeAnalyst
             if self.haplotypeAnalystChecked:
                 self.drawHaplotypeBand(
@@ -758,7 +758,7 @@ class DisplayMappingResults:
 
         return gifmap
 
-    def drawBootStrapResult(self, canvas, nboot, drawAreaHeight, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawBootStrapResult(self, canvas, nboot, drawAreaHeight, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
@@ -873,14 +873,14 @@ class DisplayMappingResults:
             font=VERDANA_FILE, size=13 * fontZoom)
         im_drawer.rectangle(
             xy=((canvas.size[0] - bootOffset, yZero - bootHeightThresh),
-                (canvas.size[0] - bootOffset - 15*zoom, yZero)),
+                (canvas.size[0] - bootOffset - 15 * zoom, yZero)),
             fill=YELLOW, outline=BLACK)
         im_drawer.line(
             xy=((canvas.size[0] - bootOffset + 4, yZero),
                 (canvas.size[0] - bootOffset, yZero)),
             fill=BLACK)
         TEXT_Y_DISPLACEMENT = -8
-        im_drawer.text(xy=(canvas.size[0] - bootOffset + 10, yZero+TEXT_Y_DISPLACEMENT), text='0%',
+        im_drawer.text(xy=(canvas.size[0] - bootOffset + 10, yZero + TEXT_Y_DISPLACEMENT), text='0%',
                        font=bootScaleFont, fill=BLACK)
 
         for item in bootScale:
@@ -891,7 +891,7 @@ class DisplayMappingResults:
                 xy=((canvas.size[0] - bootOffset + 4, bootY),
                     (canvas.size[0] - bootOffset, bootY)),
                 fill=BLACK)
-            im_drawer.text(xy=(canvas.size[0] - bootOffset + 10, bootY+TEXT_Y_DISPLACEMENT),
+            im_drawer.text(xy=(canvas.size[0] - bootOffset + 10, bootY + TEXT_Y_DISPLACEMENT),
                            text='%2.1f' % item, font=bootScaleFont, fill=BLACK)
 
         if self.legendChecked:
@@ -910,7 +910,7 @@ class DisplayMappingResults:
                            text='Frequency of the Peak LRS',
                            font=smallLabelFont, fill=BLACK)
 
-    def drawProbeSetPosition(self, canvas, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawProbeSetPosition(self, canvas, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         if len(self.traitList) != 1:
             return
@@ -987,7 +987,7 @@ class DisplayMappingResults:
             draw_open_polygon(canvas, xy=traitPixel, outline=BLACK,
                               fill=self.TRANSCRIPT_LOCATION_COLOR)
 
-    def drawSNPTrackNew(self, canvas, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawSNPTrackNew(self, canvas, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.diffCol:
             return
@@ -1059,7 +1059,7 @@ class DisplayMappingResults:
 
             im_drawer.rectangle(
                 xy=((rightShift, yPaddingTop + kstep * 15),
-                    (rectWidth + rightShift, yPaddingTop + 10+kstep*15)),
+                    (rectWidth + rightShift, yPaddingTop + 10 + kstep * 15)),
                 fill=thisLRSColor, outline=BLACK)
             im_drawer.text(
                 text=name, xy=(rectWidth + 2 + rightShift,
@@ -1303,7 +1303,7 @@ class DisplayMappingResults:
                     text=string4, xy=(xLeftOffset, y_constant * fontZoom),
                     font=labelFont, fill=labelColor)
 
-    def drawGeneBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawGeneBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.geneCol:
             return
@@ -1434,7 +1434,7 @@ class DisplayMappingResults:
                     xy=(
                         (geneStartPix, geneYLocation + \
                          self.EACH_GENE_HEIGHT / 2 * zoom),
-                        (geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT / 2 *zoom)),
+                        (geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT / 2 * zoom)),
                     fill=outlineColor, width=1)
 
                 # draw the arrows
@@ -1558,7 +1558,7 @@ class DisplayMappingResults:
                     target="_blank"))
 
 # BEGIN HaplotypeAnalyst
-    def drawHaplotypeBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawHaplotypeBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         if self.plotScale != 'physic' or self.selectedChr == -1 or not self.geneCol:
             return
 
@@ -1630,7 +1630,7 @@ class DisplayMappingResults:
                     geneStartPix = xLeftOffset + plotXScale * \
                         (float(txStart) - startMb) - 0
                     geneEndPix = xLeftOffset + plotXScale * \
-                        (float(txEnd) - startMb)  + 0
+                        (float(txEnd) - startMb) + 0
 
                     if oldgeneEndPix >= xLeftOffset:
                         drawStart = oldgeneEndPix + 4
@@ -1707,19 +1707,19 @@ class DisplayMappingResults:
 
                                     im_drawer.line(
                                         xy=((drawStart,
-                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                             geneYLocation + 7 + 2 * ind * self.EACH_GENE_HEIGHT * zoom),
                                             (drawEnd,
-                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom)),
-                                        fill= mylineColor, width=zoom * (self.EACH_GENE_HEIGHT + 2))
+                                             geneYLocation + 7 + 2 * ind * self.EACH_GENE_HEIGHT * zoom)),
+                                        fill=mylineColor, width=zoom * (self.EACH_GENE_HEIGHT + 2))
 
                                     fillColor = BLACK
                                     outlineColor = BLACK
                                     if lastGene == 0:
                                         im_drawer.rectangle(
                                             xy=((geneStartPix,
-                                                 geneYLocation + 2 * ind*self.EACH_GENE_HEIGHT*zoom),
+                                                 geneYLocation + 2 * ind * self.EACH_GENE_HEIGHT * zoom),
                                                 (geneEndPix,
-                                                 geneYLocation + 2 *ind*self.EACH_GENE_HEIGHT + 2*self.EACH_GENE_HEIGHT*zoom)),
+                                                 geneYLocation + 2 * ind * self.EACH_GENE_HEIGHT + 2 * self.EACH_GENE_HEIGHT * zoom)),
                                             outline=outlineColor, fill=fillColor)
 
                                     COORDS = "%d, %d, %d, %d" % (
@@ -1741,10 +1741,10 @@ class DisplayMappingResults:
                                         mylineColor = self.HAPLOTYPE_RECOMBINATION
                                     im_drawer.line(
                                         xy=((plotRight,
-                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                             geneYLocation + 7 + 2 * ind * self.EACH_GENE_HEIGHT * zoom),
                                             (drawEnd,
-                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom)),
-                                        fill= mylineColor, width=zoom * (self.EACH_GENE_HEIGHT + 2))
+                                             geneYLocation + 7 + 2 * ind * self.EACH_GENE_HEIGHT * zoom)),
+                                        fill=mylineColor, width=zoom * (self.EACH_GENE_HEIGHT + 2))
 
                             if lastGene == 0:
                                 draw_rotated_text(
@@ -1752,7 +1752,7 @@ class DisplayMappingResults:
                                     font=ImageFont.truetype(font=VERDANA_FILE,
                                                             size=12),
                                     xy=(geneStartPix,
-                                        geneYLocation + 17 + 2*maxind*self.EACH_GENE_HEIGHT*zoom),
+                                        geneYLocation + 17 + 2 * maxind * self.EACH_GENE_HEIGHT * zoom),
                                     fill=BLACK, angle=-90)
 
                             oldgeneEndPix = geneEndPix
@@ -1778,21 +1778,21 @@ class DisplayMappingResults:
                         im_drawer.text(
                             text="%s" % (samplelist[j]),
                             xy=((xLeftOffset + plotWidth + 10),
-                                geneYLocation + 11 + 2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                geneYLocation + 11 + 2 * ind * self.EACH_GENE_HEIGHT * zoom),
                             font=ImageFont.truetype(
                                 font=VERDANA_FILE, size=12),
                             fill=BLACK)
                         im_drawer.text(
                             text="%2.2f" % (expr),
                             xy=((xLeftOffset + plotWidth + 60),
-                                geneYLocation + 11 + 2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                geneYLocation + 11 + 2 * ind * self.EACH_GENE_HEIGHT * zoom),
                             font=ImageFont.truetype(
                                 font=VERDANA_FILE, size=12),
                             fill=BLACK)
 
 # END HaplotypeAnalyst
 
-    def drawClickBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawClickBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         if self.plotScale != 'physic' or self.selectedChr == -1:
             return
@@ -1817,8 +1817,8 @@ class DisplayMappingResults:
 
         numBasesCurrentlyOnScreen = self.kONE_MILLION * \
             abs(startMb - endMb)  # Number of bases on screen now
-        flankingWidthInBases = int (
-            min((float(numBasesCurrentlyOnScreen) / 2.0), (5*self.kONE_MILLION)))
+        flankingWidthInBases = int(
+            min((float(numBasesCurrentlyOnScreen) / 2.0), (5 * self.kONE_MILLION)))
         webqtlZoomWidth = numBasesCurrentlyOnScreen / 16.0
         # Flanking width should be such that we either zoom in to a 10 million base region, or we show the clicked region at the same scale as we are currently seeing.
 
@@ -1990,7 +1990,7 @@ class DisplayMappingResults:
             # end of drawBrowserClickableRegions
         pass
 
-    def drawXAxis(self, canvas, drawAreaHeight, gifmap, plotXScale, showLocusForm, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawXAxis(self, canvas, drawAreaHeight, gifmap, plotXScale, showLocusForm, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
@@ -2087,7 +2087,7 @@ class DisplayMappingResults:
                 xy=(
                     xLeftOffset + (plotWidth - im_drawer.textsize(
                         "Megabases", font=megabaseLabelFont)[0]) / 2,
-                    strYLoc + MBLabelFont.font.height + 10*(zoom%2)),
+                    strYLoc + MBLabelFont.font.height + 10 * (zoom % 2)),
                 font=megabaseLabelFont, fill=BLACK)
             pass
         else:
@@ -2110,7 +2110,7 @@ class DisplayMappingResults:
                                 thisChr.append(
                                     [_locus.name, _locus.cM - Locus0CM])
                     else:
-                        for j in (0, nLoci / 4, nLoci / 2, nLoci*3/4, -1):
+                        for j in (0, nLoci / 4, nLoci / 2, nLoci * 3 / 4, -1):
                             while _chr[j].name == ' - ':
                                 j += 1
                             if _chr[j].cM != preLpos:
@@ -2162,23 +2162,23 @@ class DisplayMappingResults:
                                                             yZero + 25)),
                             fill=lineColor)
                         im_drawer.line(
-                            xy=((xLeftOffset + offsetA, yZero + 25), (xLeftOffset+offsetA,\
-                                                                      yZero + 40 + Zorder*(LRectWidth+3))),
+                            xy=((xLeftOffset + offsetA, yZero + 25), (xLeftOffset + offsetA,\
+                                                                      yZero + 40 + Zorder * (LRectWidth + 3))),
                             fill=lineColor)
                         rectColor = ORANGE
                     else:
                         im_drawer.line(
-                            xy=((xLeftOffset + offsetA, yZero + 40+Zorder*(LRectWidth+3)-3), (\
-                                xLeftOffset + offsetA, yZero + 40+Zorder*(LRectWidth+3))),
+                            xy=((xLeftOffset + offsetA, yZero + 40 + Zorder * (LRectWidth + 3) - 3), (\
+                                xLeftOffset + offsetA, yZero + 40 + Zorder * (LRectWidth + 3))),
                             fill=lineColor)
                         rectColor = DEEPPINK
                     im_drawer.rectangle(
-                        xy=((xLeftOffset + offsetA, yZero + 40+Zorder*(LRectWidth+3)),
+                        xy=((xLeftOffset + offsetA, yZero + 40 + Zorder * (LRectWidth + 3)),
                             (xLeftOffset + offsetA - LRectHeight,
-                             yZero + 40 + Zorder*(LRectWidth+3)+LRectWidth)),
+                             yZero + 40 + Zorder * (LRectWidth + 3) + LRectWidth)),
                         outline=rectColor, fill=rectColor, width=0)
-                    COORDS = "%d,%d,%d,%d" % (xLeftOffset+offsetA-LRectHeight, yZero+40+Zorder*(LRectWidth+3),\
-                                              xLeftOffset + offsetA, yZero +40+Zorder*(LRectWidth+3)+LRectWidth)
+                    COORDS = "%d,%d,%d,%d" % (xLeftOffset + offsetA - LRectHeight, yZero + 40 + Zorder * (LRectWidth + 3),\
+                                              xLeftOffset + offsetA, yZero + 40 + Zorder * (LRectWidth + 3) + LRectWidth)
                     HREF = "/show_trait?trait_id=%s&dataset=%s" % (
                         Lname, self.dataset.group.name + "Geno")
                     #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
@@ -2203,13 +2203,13 @@ class DisplayMappingResults:
                 text="Centimorgans",
                 xy=(xLeftOffset + (plotWidth - im_drawer.textsize(
                     "Centimorgans", font=centimorganLabelFont)[0]) / 2,
-                    strYLoc + MBLabelFont.font.height + 10 * (zoom %2)),
+                    strYLoc + MBLabelFont.font.height + 10 * (zoom % 2)),
                 font=centimorganLabelFont, fill=BLACK)
 
         im_drawer.line(xy=((xLeftOffset, yZero), (xLeftOffset + plotWidth, yZero)),
                        fill=BLACK, width=X_AXIS_THICKNESS)  # Draw the X axis itself
 
-    def drawQTL(self, canvas, drawAreaHeight, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
+    def drawQTL(self, canvas, drawAreaHeight, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
         plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
@@ -2364,7 +2364,7 @@ class DisplayMappingResults:
             TEXT_Y_DISPLACEMENT = -10
             im_drawer.text(
                 text=scaleStr,
-                xy=(xLeftOffset - 4 - im_drawer.textsize(scaleStr, font=LRSScaleFont)[0]-5,
+                xy=(xLeftOffset - 4 - im_drawer.textsize(scaleStr, font=LRSScaleFont)[0] - 5,
                     yLRS + TEXT_Y_DISPLACEMENT),
                 font=LRSScaleFont, fill=self.LRS_COLOR)
 
@@ -2479,7 +2479,7 @@ class DisplayMappingResults:
                         if k > 0:
                             Xc0, Yc0 = AdditiveCoordXY[k - 1]
                             Xc, Yc = aPoint
-                            if (Yc0 - yZero) * (Yc-yZero) < 0:
+                            if (Yc0 - yZero) * (Yc - yZero) < 0:
                                 if Xc == Xc0:  # genotype , locus distance is 0
                                     Xcm = Xc
                                 else:
@@ -2509,7 +2509,7 @@ class DisplayMappingResults:
                                         fill=plusColor, width=lineWidth
                                         # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
-                            elif (Yc0 - yZero) * (Yc-yZero) > 0:
+                            elif (Yc0 - yZero) * (Yc - yZero) > 0:
                                 if Yc < yZero:
                                     im_drawer.line(
                                         xy=((Xc0, Yc0), (Xc, Yc)),
@@ -2660,7 +2660,7 @@ class DisplayMappingResults:
                 if k > 0:
                     Xc0, Yc0 = AdditiveCoordXY[k - 1]
                     Xc, Yc = aPoint
-                    if (Yc0 - yZero) * (Yc-yZero) < 0:
+                    if (Yc0 - yZero) * (Yc - yZero) < 0:
                         if Xc == Xc0:  # genotype , locus distance is 0
                             Xcm = Xc
                         else:
@@ -2689,7 +2689,7 @@ class DisplayMappingResults:
                                 fill=plusColor, width=lineWidth
                                 # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                             )
-                    elif (Yc0 - yZero) * (Yc-yZero) > 0:
+                    elif (Yc0 - yZero) * (Yc - yZero) > 0:
                         if Yc < yZero:
                             im_drawer.line(
                                 xy=((Xc0, Yc0), (Xc, Yc)), fill=plusColor,
@@ -2726,7 +2726,7 @@ class DisplayMappingResults:
                 if k > 0:
                     Xc0, Yc0 = DominanceCoordXY[k - 1]
                     Xc, Yc = aPoint
-                    if (Yc0 - yZero) * (Yc-yZero) < 0:
+                    if (Yc0 - yZero) * (Yc - yZero) < 0:
                         if Xc == Xc0:  # genotype , locus distance is 0
                             Xcm = Xc
                         else:
@@ -2754,7 +2754,7 @@ class DisplayMappingResults:
                                 fill=plusColor, width=lineWidth
                                 # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                             )
-                    elif (Yc0 - yZero) * (Yc-yZero) > 0:
+                    elif (Yc0 - yZero) * (Yc - yZero) > 0:
                         if Yc < yZero:
                             im_drawer.line(
                                 xy=((Xc0, Yc0), (Xc, Yc)),
@@ -2805,8 +2805,8 @@ class DisplayMappingResults:
                 scaleStr = "%2.3f" % item
                 im_drawer.text(
                     text=scaleStr,
-                    xy= (xLeftOffset + plotWidth + 6,
-                         additiveY + TEXT_Y_DISPLACEMENT),
+                    xy=(xLeftOffset + plotWidth + 6,
+                        additiveY + TEXT_Y_DISPLACEMENT),
                     font=additiveScaleFont, fill=self.ADDITIVE_COLOR_POSITIVE)
 
             im_drawer.line(
@@ -2818,7 +2818,7 @@ class DisplayMappingResults:
             xy=((xLeftOffset, yZero), (xLeftOffset, yTopOffset + 30 * (zoom - 1))),
             fill=self.LRS_COLOR, width=1 * zoom)  # the blue line running up the y axis
 
-    def drawGraphBackground(self, canvas, gifmap, offset=(80, 120, 80, 50), zoom=1, startMb= None, endMb = None):
+    def drawGraphBackground(self, canvas, gifmap, offset=(80, 120, 80, 50), zoom=1, startMb=None, endMb=None):
         # conditions
         # multiple Chromosome view
         # single Chromosome Physical
@@ -2953,10 +2953,10 @@ class DisplayMappingResults:
                                           "SNP Count",
                                           "SNP Density",
                                           "Avg Expr",
-                                               "Human Chr",
-                                               "Mb Start (hg19)",
-                                               "Literature Correlation",
-                                               "Gene Description"]
+                                          "Human Chr",
+                                          "Mb Start (hg19)",
+                                          "Literature Correlation",
+                                          "Gene Description"]
             else:
                 gene_table_header_list = ["",
                                           "Index",
@@ -3073,12 +3073,12 @@ class DisplayMappingResults:
                                         geneIdString,
                                         theGO["GeneSymbol"],
                                         target="_blank")
-                                    ),
+                                        ),
                                     str(HtmlGenWrapper.create_link_tag(
                                         mouseStartString,
                                         "{:.6f}".format(txStart),
                                         target="_blank")
-                                    ),
+                                        ),
                                     str(HtmlGenWrapper.create_link_tag(
                                         "javascript:rangeView('{}', {:f}, {:f})".format(
                                             str(chr_as_int),

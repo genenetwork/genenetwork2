@@ -188,7 +188,8 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     for i in range(int(stepX) + 1):
         xc = xLeftOffset + (x - xLow) * xScale
         im_drawer.line(
-            xy=((xc, yTopOffset + plotHeight), (xc, yTopOffset + plotHeight + 5)),
+            xy=((xc, yTopOffset + plotHeight),
+                (xc, yTopOffset + plotHeight + 5)),
             fill=axesColor)
         strX = cformat(d=x, rank=0)
         im_drawer.text(
@@ -217,7 +218,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
             text=XLabel,
             xy=(xLeftOffset + (
                 plotWidth - im_drawer.textsize(XLabel, font=labelFont)[0]) / 2.0,
-                yTopOffset + plotHeight + yBottomOffset-10),
+                yTopOffset + plotHeight + yBottomOffset - 10),
             font=labelFont, fill=labelColor)
 
     if YLabel:

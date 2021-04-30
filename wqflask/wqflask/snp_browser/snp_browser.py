@@ -28,10 +28,10 @@ class SnpBrowser:
 
             if self.limit_strains == "true":
                 self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(
-                    variant_type=self.variant_type, strains=self.chosen_strains, empty_columns = self.empty_columns)
+                    variant_type=self.variant_type, strains=self.chosen_strains, empty_columns=self.empty_columns)
             else:
                 self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(
-                    variant_type=self.variant_type, strains=self.strain_lists, species = self.species_name, empty_columns = self.empty_columns)
+                    variant_type=self.variant_type, strains=self.strain_lists, species=self.species_name, empty_columns=self.empty_columns)
 
     def initialize_parameters(self, start_vars):
         if 'first_run' in start_vars:

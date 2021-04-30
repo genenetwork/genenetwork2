@@ -116,7 +116,7 @@ def add_group_to_resource():
             group_id = request.form['selected_group']
             resource_info = get_resource_info(resource_id)
             default_privileges = resource_info['default_mask']
-            return render_template("admin/set_group_privileges.html", resource_id=resource_id, group_id=group_id, default_privileges = default_privileges)
+            return render_template("admin/set_group_privileges.html", resource_id=resource_id, group_id=group_id, default_privileges=default_privileges)
         elif all(key in request.form for key in ('data_privilege', 'metadata_privilege', 'admin_privilege')):
             group_id = request.form['group_id']
             group_name = get_group_info(group_id)['name']

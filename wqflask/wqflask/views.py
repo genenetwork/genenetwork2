@@ -141,7 +141,7 @@ def handle_bad_request(e):
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
     formatted_lines = [request.url
-                       + " (" + time_str + ")"]+traceback.format_exc().splitlines()
+                       + " (" + time_str + ")"] + traceback.format_exc().splitlines()
 
     # Handle random animations
     # Use a cookie to have one animation on refresh
