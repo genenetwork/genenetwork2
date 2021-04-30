@@ -140,7 +140,7 @@ class NetworkGraph:
                     if abs(sample_r) > max_corr:
                         max_corr = abs(sample_r)
 
-                    edge_data = {'id': str(this_trait.name) + '_to_' + str(target_trait.name),
+                    edge_data = {'id': f"{str(this_trait.name)}:{str(this_trait.dataset.name)}" + '_to_' + f"{str(target_trait.name)}:{str(target_trait.dataset.name)}",
                                  'source': str(this_trait.name) + ":" + str(this_trait.dataset.name),
                                  'target': str(target_trait.name) + ":" + str(target_trait.dataset.name),
                                  'correlation': round(sample_r, 3),
