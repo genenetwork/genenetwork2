@@ -25,8 +25,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         trait_filename = f"{str(this_trait.name)}_{str(this_dataset.name)}_pheno"
         gen_pheno_txt_file(samples, vals, trait_filename)
 
-        output_filename = (f"{this_dataset.group.name}_GWA_" +
-            ''.join(random.choice(string.ascii_uppercase + string.digits)
+        output_filename = (f"{this_dataset.group.name}_GWA_"
+            + ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for _ in range(6))
             )
         bootstrap_filename = None
@@ -34,8 +34,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
 
         opt_list = []
         if boot_check and num_bootstrap > 0:
-            bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_" +
-                ''.join(random.choice(string.ascii_uppercase + string.digits)
+            bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_"
+                + ''.join(random.choice(string.ascii_uppercase + string.digits)
                         for _ in range(6))
                 )
 
@@ -44,9 +44,9 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             opt_list.append(
                 f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
-            permu_filename = ("{this_dataset.group.name}_PERM_" +
-            ''.join(random.choice(string.ascii_uppercase +
-                string.digits) for _ in range(6))
+            permu_filename = ("{this_dataset.group.name}_PERM_"
+            + ''.join(random.choice(string.ascii_uppercase
+                + string.digits) for _ in range(6))
             )
             opt_list.append("-n " + str(num_perm))
             opt_list.append(

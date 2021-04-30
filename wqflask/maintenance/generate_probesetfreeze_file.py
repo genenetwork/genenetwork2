@@ -110,9 +110,10 @@ def write_data_matrix_file(strains, probeset_vals, filename):
 
 
 def main():
-    filename = os.path.expanduser("~/gene/wqflask/maintenance/" +
-                "ProbeSetFreezeId_210_FullName_Eye_AXBXA_Illumina_V6.2" +
-                "(Oct08)_RankInv_Beta.txt")
+    filename = os.path.expanduser(
+        "~/gene/wqflask/maintenance/"
+        "ProbeSetFreezeId_210_FullName_Eye_AXBXA_Illumina_V6.2"
+        "(Oct08)_RankInv_Beta.txt")
     dataset_name = "Eye_AXBXA_1008_RankInv"
 
     cursor = get_cursor()

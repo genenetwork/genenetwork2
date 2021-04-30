@@ -479,9 +479,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             else:
                 description_display = trait.symbol
 
-            if (str(description_display or "") != "" and
-                description_display != 'N/A' and
-                    str(target_string or "") != "" and target_string != 'None'):
+            if (str(description_display or "") != ""
+                and description_display != 'N/A'
+                    and str(target_string or "") != "" and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
@@ -575,6 +575,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
-        raise KeyError(repr(trait.name) +
-                       ' information is not found in the database.')
+        raise KeyError(repr(trait.name)
+                       + ' information is not found in the database.')
     return trait

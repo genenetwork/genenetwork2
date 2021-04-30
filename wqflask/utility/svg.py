@@ -229,13 +229,13 @@ class pathdata:
 
     def bezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy absolut"""
-        self.path.append('C' + str(x1) + ','+str(y1)+' '+str(x2) +
-                         ',' + str(y2) + ' '+str(x)+','+str(y))
+        self.path.append('C' + str(x1) + ','+str(y1)+' '+str(x2)
+                         + ',' + str(y2) + ' '+str(x)+','+str(y))
 
     def relbezier(self, x1, y1, x2, y2, x, y):
         """bezier with xy1 and xy2 to xy relative"""
-        self.path.append('c' + str(x1) + ','+str(y1)+' '+str(x2) +
-                         ',' + str(y2) + ' '+str(x)+','+str(y))
+        self.path.append('c' + str(x1) + ','+str(y1)+' '+str(x2)
+                         + ',' + str(y2) + ' '+str(x)+','+str(y))
 
     def smbezier(self, x2, y2, x, y):
         """smooth bezier with xy2 to xy absolut"""
@@ -267,13 +267,13 @@ class pathdata:
 
     def ellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy absolut"""
-        self.path.append('A' + str(rx) + ','+str(ry)+' '+str(xrot) +
-                         ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('A' + str(rx) + ','+str(ry)+' '+str(xrot)
+                         + ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
 
     def relellarc(self, rx, ry, xrot, laf, sf, x, y):
         """elliptival arc with rx and ry rotating with xrot using large-arc-flag and sweep-flag  to xy relative"""
-        self.path.append('a' + str(rx) + ','+str(ry)+' '+str(xrot) +
-                         ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
+        self.path.append('a' + str(rx) + ','+str(ry)+' '+str(xrot)
+                         + ' ' + str(laf) + ' '+str(sf)+' '+str(x)+' '+str(y))
 
     def __repr__(self):
         return ' '.join(self.path)
@@ -319,11 +319,11 @@ class SVGelement:
         f.write('\t' * level)
         f.write('<' + self.type)
         for attkey in list(self.attributes.keys()):
-            f.write(' ' + _escape(str(attkey)) + '=' +
-                    _quoteattr(str(self.attributes[attkey])))
+            f.write(' ' + _escape(str(attkey)) + '='
+                    + _quoteattr(str(self.attributes[attkey])))
         if self.namespace:
-            f.write(' xmlns="' + _escape(str(self.namespace)) +
-                    '" xmlns:xlink="http://www.w3.org/1999/xlink"')
+            f.write(' xmlns="' + _escape(str(self.namespace))
+                    + '" xmlns:xlink="http://www.w3.org/1999/xlink"')
         if self.elements or self.text or self.cdata:
             f.write('>')
         if self.elements:
