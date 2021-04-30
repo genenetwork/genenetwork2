@@ -75,7 +75,7 @@ class SampleList:
                     if self.dataset.group.species == "mouse":
                         if len(sample.extra_attributes['rrid'].split(":")) > 1:
                             the_rrid = sample.extra_attributes['rrid'].split(":")[
-                                                                             1]
+                                1]
                             sample.extra_attributes['rrid'] = [
                                 sample.extra_attributes['rrid']]
                             sample.extra_attributes['rrid'].append(
@@ -83,7 +83,7 @@ class SampleList:
                     elif self.dataset.group.species == "rat":
                         if len(str(sample.extra_attributes['rrid'])):
                             the_rrid = sample.extra_attributes['rrid'].split("_")[
-                                                                             1]
+                                1]
                             sample.extra_attributes['rrid'] = [
                                 sample.extra_attributes['rrid']]
                             sample.extra_attributes['rrid'].append(

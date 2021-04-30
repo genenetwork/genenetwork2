@@ -106,9 +106,9 @@ class TestCorrelations(unittest.TestCase):
 
         target_vals = [3.4, 6.2, 4.1, 3.4, 1.2, 5.6]
         trait_data = {"S1": AttributeSetter({"value": 2.3}), "S2": AttributeSetter({"value": 1.1}),
-        "S3": AttributeSetter(
+                      "S3": AttributeSetter(
             {"value": 6.3}), "S4": AttributeSetter({"value": 3.6}), "S5": AttributeSetter({"value": 4.1}),
-        "S6": AttributeSetter({"value": 5.0})}
+            "S6": AttributeSetter({"value": 5.0})}
         this_trait = AttributeSetter({"data": trait_data})
         mock_normalize.return_value = ([2.3, 1.1, 6.3, 3.6, 4.1, 5.0],
                                        [3.4, 6.2, 4.1, 3.4, 1.2, 5.6], 6)

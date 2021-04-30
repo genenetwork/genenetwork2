@@ -124,7 +124,7 @@ class GSearch:
                     if this_trait['locus_chr'] != None and this_trait['locus_mb'] != None:
                         max_lrs_text = "Chr" + \
                             str(this_trait['locus_chr']) + \
-                                ": " + str(this_trait['locus_mb'])
+                            ": " + str(this_trait['locus_mb'])
                     this_trait['max_lrs_text'] = max_lrs_text
 
                     trait_list.append(this_trait)
@@ -133,18 +133,18 @@ class GSearch:
             self.trait_list = json.dumps(trait_list)
 
             self.header_fields = ['Index',
-                                'Record',
-                                'Species',
-                                'Group',
-                                'Tissue',
-                                'Dataset',
-                                'Symbol',
-                                'Description',
-                                'Location',
-                                'Mean',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
+                                  'Record',
+                                  'Species',
+                                  'Group',
+                                  'Tissue',
+                                  'Dataset',
+                                  'Symbol',
+                                  'Description',
+                                  'Location',
+                                  'Mean',
+                                  'Max LRS',
+                                  'Max LRS Location',
+                                  'Additive Effect']
 
         elif self.type == "phenotype":
             search_term = self.terms
@@ -251,7 +251,7 @@ class GSearch:
                             if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
                                 this_trait['max_lrs_text'] = "Chr" + \
                                     str(trait_ob.locus_chr) + \
-                                        ": " + str(trait_ob.locus_mb)
+                                    ": " + str(trait_ob.locus_mb)
                         except:
                             this_trait['max_lrs_text'] = "N/A"
 
@@ -261,12 +261,12 @@ class GSearch:
             self.trait_list = json.dumps(trait_list)
 
             self.header_fields = ['Index',
-                                'Species',
-                                'Group',
-                                'Record',
-                                'Description',
-                                'Authors',
-                                'Year',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
+                                  'Species',
+                                  'Group',
+                                  'Record',
+                                  'Description',
+                                  'Authors',
+                                  'Year',
+                                  'Max LRS',
+                                  'Max LRS Location',
+                                  'Additive Effect']

@@ -45,7 +45,7 @@ class CorrelationMatrix:
 
     def __init__(self, start_vars):
         trait_db_list = [trait.strip()
-                                     for trait in start_vars['trait_list'].split(',')]
+                         for trait in start_vars['trait_list'].split(',')]
 
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
@@ -215,7 +215,7 @@ class CorrelationMatrix:
         temp_dataset.group.get_samplelist()
         for i, pca_trait in enumerate(pca_traits):
             trait_id = "PCA" + str(i + 1) + "_" + temp_dataset.group.species + "_" + \
-                                   this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
+                this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
             this_vals_string = ""
             position = 0
             for sample in temp_dataset.group.all_samples_ordered():

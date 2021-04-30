@@ -206,7 +206,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
         im_drawer.text(
             text=strY,
             xy=(xLeftOffset - im_drawer.textsize(strY,
-                font=scaleFont)[0] - 6, yc + 5),
+                                                 font=scaleFont)[0] - 6, yc + 5),
             font=scaleFont)
         y += (yTop - yLow) / stepY
 

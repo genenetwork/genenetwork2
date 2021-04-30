@@ -41,10 +41,10 @@ def get_species_list():
     species_list = []
     for species in the_species:
         species_dict = {
-          "Id": species[0],
-          "Name": species[1],
-          "FullName": species[2],
-          "TaxonomyId": species[3]
+            "Id": species[0],
+            "Name": species[1],
+            "FullName": species[2],
+            "TaxonomyId": species[3]
         }
         species_list.append(species_dict)
 
@@ -60,10 +60,10 @@ def get_species_info(species_name, file_format="json"):
 
     the_species = results.fetchone()
     species_dict = {
-      "Id": the_species[0],
-      "Name": the_species[1],
-      "FullName": the_species[2],
-      "TaxonomyId": the_species[3]
+        "Id": the_species[0],
+        "Name": the_species[1],
+        "FullName": the_species[2],
+        "TaxonomyId": the_species[3]
     }
 
     return flask.jsonify(species_dict)
@@ -92,12 +92,12 @@ def get_groups_list(species_name=None):
         groups_list = []
         for group in the_groups:
             group_dict = {
-              "Id": group[0],
-              "SpeciesId": group[1],
-              "DisplayName": group[2],
-              "Name": group[3],
-              "FullName": group[4],
-              "public": group[5],
+                "Id": group[0],
+                "SpeciesId": group[1],
+                "DisplayName": group[2],
+                "Name": group[3],
+                "FullName": group[4],
+                "public": group[5],
               "MappingMethodId": group[6],
               "GeneticType": group[7]
             }
@@ -137,12 +137,12 @@ def get_group_info(group_name, species_name=None, file_format="json"):
     group = results.fetchone()
     if group:
         group_dict = {
-          "Id": group[0],
-          "SpeciesId": group[1],
-          "DisplayName": group[2],
-          "Name": group[3],
-          "FullName": group[4],
-          "public": group[5],
+            "Id": group[0],
+            "SpeciesId": group[1],
+            "DisplayName": group[2],
+            "Name": group[3],
+            "FullName": group[4],
+            "public": group[5],
           "MappingMethodId": group[6],
           "GeneticType": group[7]
         }
@@ -186,12 +186,12 @@ def get_datasets_for_group(group_name, species_name=None):
         datasets_list = []
         for dataset in the_datasets:
             dataset_dict = {
-              "Id": dataset[0],
-              "ProbeFreezeId": dataset[1],
-              "AvgID": dataset[2],
-              "Short_Abbreviation": dataset[3],
-              "Long_Abbreviation": dataset[4],
-              "FullName": dataset[5],
+                "Id": dataset[0],
+                "ProbeFreezeId": dataset[1],
+                "AvgID": dataset[2],
+                "Short_Abbreviation": dataset[3],
+                "Long_Abbreviation": dataset[4],
+                "FullName": dataset[5],
               "ShortName": dataset[6],
               "CreateTime": dataset[7],
               "public": dataset[8],
@@ -243,12 +243,12 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
 
     if dataset:
         dataset_dict = {
-          "dataset_type": "mRNA expression",
-          "id": dataset[0],
-          "name": dataset[1],
-          "full_name": dataset[2],
-          "short_name": dataset[3],
-          "data_scale": dataset[4],
+            "dataset_type": "mRNA expression",
+            "id": dataset[0],
+            "name": dataset[1],
+            "full_name": dataset[2],
+            "short_name": dataset[3],
+            "data_scale": dataset[4],
           "tissue_id": dataset[5],
           "tissue": dataset[6],
           "public": dataset[7],
@@ -280,25 +280,25 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
         if dataset:
             if dataset[5]:
                 dataset_dict = {
-                  "dataset_type": "phenotype",
-                  "id": dataset[0],
-                  "name": dataset[1],
-                  "description": dataset[2],
-                  "pubmed_id": dataset[5],
-                  "title": dataset[6],
+                    "dataset_type": "phenotype",
+                    "id": dataset[0],
+                    "name": dataset[1],
+                    "description": dataset[2],
+                    "pubmed_id": dataset[5],
+                    "title": dataset[6],
                   "year": dataset[7]
                 }
             elif dataset[4]:
                 dataset_dict = {
-                  "dataset_type": "phenotype",
-                  "id": dataset[0],
-                  "name": dataset[3],
-                  "description": dataset[4]
+                    "dataset_type": "phenotype",
+                    "id": dataset[0],
+                    "name": dataset[3],
+                    "description": dataset[4]
                 }
             else:
                 dataset_dict = {
-                  "dataset_type": "phenotype",
-                  "id": dataset[0]
+                    "dataset_type": "phenotype",
+                    "id": dataset[0]
                 }
 
             datasets_list.append(dataset_dict)
@@ -364,7 +364,7 @@ def fetch_traits(dataset_name, file_format="json"):
                         """
 
                 field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb",
-                    "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
+                              "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
             elif data_type == "Geno":
                 query = """
                             SELECT
@@ -382,7 +382,7 @@ def fetch_traits(dataset_name, file_format="json"):
                         """
 
                 field_list = ["Id", "Name", "Marker_Name",
-                    "Chr", "Mb", "Sequence", "Source"]
+                              "Chr", "Mb", "Sequence", "Source"]
             else:
                 query = """
                             SELECT
@@ -399,7 +399,7 @@ def fetch_traits(dataset_name, file_format="json"):
                         """
 
                 field_list = ["Id", "PhenotypeId", "PublicationId",
-                    "Locus", "LRS", "Additive", "Sequence"]
+                              "Locus", "LRS", "Additive", "Sequence"]
 
             if 'limit_to' in request.args:
                 limit_number = request.args['limit_to']
@@ -579,10 +579,10 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
         sample_list = []
         for sample in sample_data:
             sample_dict = {
-              "sample_name": sample[0],
-              "sample_name_2": sample[1],
-              "value": sample[2],
-              "data_id": sample[3],
+                "sample_name": sample[0],
+                "sample_name_2": sample[1],
+                "value": sample[2],
+                "data_id": sample[3],
             }
             if sample[4]:
                 sample_dict["se"] = sample[4]
@@ -626,10 +626,10 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
             sample_list = []
             for sample in sample_data:
                 sample_dict = {
-                  "sample_name": sample[0],
-                  "sample_name_2": sample[1],
-                  "value": sample[2],
-                  "data_id": sample[3]
+                    "sample_name": sample[0],
+                    "sample_name_2": sample[1],
+                    "value": sample[2],
+                    "data_id": sample[3]
                 }
                 if sample[4]:
                     sample_dict["se"] = sample[4]
@@ -796,9 +796,9 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
             config_file = [filename + ".json", json.dumps(yaml_file)]
             #config_file = [filename + ".yaml", open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))]
             geno_file = [filename + "_geno.csv",
-                open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
+                         open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
             gmap_file = [filename + "_gmap.csv",
-                open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
+                         open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
             if dataset_name:
                 phenotypes = requests.get(
                     "http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
@@ -828,7 +828,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                     if limit_num and i >= limit_num:
                         break
                     output_lines.append([line.strip()
-                                        for line in line.split(",")])
+                                         for line in line.split(",")])
                     i += 1
 
             csv_writer = csv.writer(si, delimiter=",")
@@ -914,7 +914,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
 
         trait_ids = [result[0] for result in results]
         trait_names = [str(result[2]) + "_" + str(result[1])
-                           for result in results]
+                       for result in results]
 
         return trait_ids, trait_names, data_type, dataset_id
 

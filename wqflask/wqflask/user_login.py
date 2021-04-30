@@ -59,12 +59,12 @@ def encode_password(pass_gen_fields, unencrypted_password):
 
 def set_password(password):
     pass_gen_fields = {
-      "unencrypted_password": password,
-      "algorithm": "pbkdf2",
-      "hashfunc": "sha256",
-      "salt": base64.b64encode(os.urandom(32)),
-      "iterations": 100000,
-      "keylength": 32,
+        "unencrypted_password": password,
+        "algorithm": "pbkdf2",
+        "hashfunc": "sha256",
+        "salt": base64.b64encode(os.urandom(32)),
+        "iterations": 100000,
+        "keylength": 32,
       "created_timestamp": timestamp()
     }
 
@@ -89,18 +89,18 @@ def get_signed_session_id(user):
 
     if 'github_id' in user:
         session = dict(login_time=time.time(),
-                    user_type="github",
-                    user_id=user['user_id'],
-                    github_id=user['github_id'],
-                    user_name=user['name'],
-                    user_url=user['user_url'])
+                       user_type="github",
+                       user_id=user['user_id'],
+                       github_id=user['github_id'],
+                       user_name=user['name'],
+                       user_url=user['user_url'])
     elif 'orcid' in user:
         session = dict(login_time=time.time(),
-                    user_type="orcid",
-                    user_id=user['user_id'],
-                    github_id=user['orcid'],
-                    user_name=user['name'],
-                    user_url=user['user_url'])
+                       user_type="orcid",
+                       user_id=user['user_id'],
+                       github_id=user['orcid'],
+                       user_name=user['name'],
+                       user_url=user['user_url'])
     else:
         session = dict(login_time=time.time(),
                        user_type="gn2",
@@ -269,7 +269,7 @@ def github_oauth2():
     result = requests.post(
         "https://github.com/login/oauth/access_token", json=data)
     result_dict = {arr[0]: arr[1]
-        for arr in [tok.split("=") for tok in result.text.split("&")]}
+                   for arr in [tok.split("=") for tok in result.text.split("&")]}
 
     github_user = get_github_user_details(result_dict["access_token"])
 

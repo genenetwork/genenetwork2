@@ -289,18 +289,18 @@ class RunMapping:
                             ",")
 
                 results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
-                                                                                                                                    self.dataset,
-                                                                                                                                    self.samples,
-                                                                                                                                    self.vals,
-                                                                                                                                    self.json_data,
-                                                                                                                                    self.num_perm,
-                                                                                                                                    self.bootCheck,
-                                                                                                                                    self.num_bootstrap,
-                                                                                                                                    self.do_control,
-                                                                                                                                    self.control_marker,
-                                                                                                                                    self.manhattan_plot,
-                                                                                                                                    self.first_run,
-                                                                                                                                    self.output_files)
+                                                                                                                                                       self.dataset,
+                                                                                                                                                       self.samples,
+                                                                                                                                                       self.vals,
+                                                                                                                                                       self.json_data,
+                                                                                                                                                       self.num_perm,
+                                                                                                                                                       self.bootCheck,
+                                                                                                                                                       self.num_bootstrap,
+                                                                                                                                                       self.do_control,
+                                                                                                                                                       self.control_marker,
+                                                                                                                                                       self.manhattan_plot,
+                                                                                                                                                       self.first_run,
+                                                                                                                                                       self.output_files)
             else:
                 results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_original_reaper(self.this_trait,
                                                                                                                                                              self.dataset,
@@ -371,7 +371,7 @@ class RunMapping:
                         ps=this_ps,
                         url="/show_trait?trait_id=" + \
                             marker['name'] + "&dataset=" + \
-                                self.dataset.group.name + "Geno"
+                        self.dataset.group.name + "Geno"
                     )
 
                     if self.geno_db_exists == "True":
@@ -382,7 +382,7 @@ class RunMapping:
                             pos=this_ps,
                             url="/show_trait?trait_id=" + \
                                 marker['name'] + "&dataset=" + \
-                                    self.dataset.group.name + "Geno"
+                            self.dataset.group.name + "Geno"
                         )
                     else:
                         annot_marker = dict(
@@ -409,11 +409,11 @@ class RunMapping:
                             if 'Mb' in marker.keys():
                                 marker['display_pos'] = "Chr" + \
                                     str(marker['chr']) + ": " + \
-                                        "{:.6f}".format(marker['Mb'])
+                                    "{:.6f}".format(marker['Mb'])
                             elif 'cM' in marker.keys():
                                 marker['display_pos'] = "Chr" + \
                                     str(marker['chr']) + ": " + \
-                                        "{:.3f}".format(marker['cM'])
+                                    "{:.3f}".format(marker['cM'])
                             else:
                                 marker['display_pos'] = "N/A"
                             self.qtl_results.append(marker)
@@ -776,7 +776,7 @@ def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
         perm_strata_strings.append(combined_string)
 
     d = dict([(y, x + 1)
-             for x, y in enumerate(sorted(set(perm_strata_strings)))])
+              for x, y in enumerate(sorted(set(perm_strata_strings)))])
     list_to_numbers = [d[x] for x in perm_strata_strings]
     perm_strata = list_to_numbers
 

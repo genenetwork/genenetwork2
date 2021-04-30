@@ -37,10 +37,10 @@ class ConvertGenoFile:
         self.input_fh = open(input_file)
         print("!!!!!!!!!!!!!!!!PARSER!!!!!!!!!!!!!!!!!!")
         self.haplotype_notation = {
-          '@mat': "1",
-          '@pat': "2",
-          '@het': "-999",
-          '@unk': "-999"
+            '@mat': "1",
+            '@pat': "2",
+            '@het': "-999",
+            '@unk': "-999"
         }
         self.configurations = {}
 
@@ -93,7 +93,7 @@ class ConvertGenoFile:
             for item_count, genotype in enumerate(genotypes):
                 if genotype.upper().strip() in self.configurations:
                     this_marker.genotypes.append(
-                      self.configurations[genotype.upper().strip()])
+                        self.configurations[genotype.upper().strip()])
                 else:
                     print("WARNING:", genotype.upper())
                     this_marker.genotypes.append("NA")

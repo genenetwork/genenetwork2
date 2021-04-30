@@ -33,7 +33,7 @@ logger = utility.logger.getLogger(__name__)
 class SendToGeneWeaver:
     def __init__(self, start_vars):
         trait_db_list = [trait.strip()
-                                     for trait in start_vars['trait_list'].split(',')]
+                         for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.chip_name = test_chip(self.trait_list)
@@ -54,11 +54,11 @@ class SendToGeneWeaver:
             trait_name_list = get_trait_name_list(self.trait_list)
 
             self.hidden_vars = {
-                                 'client': "genenetwork",
-                                 'species': species_name,
-                                 'idtype': self.chip_name,
-                                 'list': ",".join(trait_name_list),
-                               }
+                'client': "genenetwork",
+                'species': species_name,
+                'idtype': self.chip_name,
+                'list': ",".join(trait_name_list),
+            }
 
 
 def get_trait_name_list(trait_list):

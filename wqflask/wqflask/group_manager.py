@@ -8,7 +8,7 @@ from wqflask import app
 from wqflask.user_login import send_verification_email, send_invitation_email, basic_info, set_password
 
 from utility.redis_tools import get_user_groups, get_group_info, save_user, create_group, delete_group, add_users_to_group, remove_users_from_group, \
-                                change_group_name, save_verification_code, check_verification_code, get_user_by_unique_column, get_resources, get_resource_info
+    change_group_name, save_verification_code, check_verification_code, get_user_by_unique_column, get_resources, get_resource_info
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -78,9 +78,9 @@ def remove_users():
     member_ids_to_remove = request.form['selected_member_ids']
 
     remove_users_from_group(g.user_session.user_id, admin_ids_to_remove.split(
-       ":"), group_id, user_type="admins")
+        ":"), group_id, user_type="admins")
     remove_users_from_group(g.user_session.user_id, member_ids_to_remove.split(
-       ":"), group_id, user_type="members")
+        ":"), group_id, user_type="members")
 
     return redirect(url_for('view_group', id=group_id))
 
@@ -133,7 +133,7 @@ def add_or_edit_group():
             #send_group_invites(params['group_id'], user_email_list = user_emails, user_type="members")
 
         create_group(list(admin_user_ids), list(
-           member_user_ids), params['group_name'])
+            member_user_ids), params['group_name'])
         return redirect(url_for('manage_groups'))
     else:
         return render_template("admin/create_group.html")
@@ -159,13 +159,13 @@ def send_group_invites(group_id, user_email_list=[], user_type="members"):
                                             key_prefix="verification_code", subject = "You've been invited to join a GeneNetwork user group")
         else:
             temp_password = ''.join(random.choice(
-               string.ascii_uppercase + string.digits) for _ in range(6))
+                string.ascii_uppercase + string.digits) for _ in range(6))
             user_details = {
-               'user_id': str(uuid.uuid4()),
-               'email_address': user_email,
-               'registration_info': basic_info(),
-               'password': set_password(temp_password),
-               'confirmed': 0
+                'user_id': str(uuid.uuid4()),
+                'email_address': user_email,
+                'registration_info': basic_info(),
+                'password': set_password(temp_password),
+                'confirmed': 0
             }
             save_user(user_details, user_details['user_id'])
             send_invitation_email(user_email, temp_password)

@@ -411,7 +411,7 @@ def process_pair_scan_results(result):
 
     result = result[1]
     output = [tuple([result[j][i] for j in range(result.ncol)])
-                    for i in range(result.nrow)]
+              for i in range(result.nrow)]
 
     for i, line in enumerate(result.iter_row()):
         marker = {}
@@ -441,7 +441,7 @@ def process_rqtl_perm_results(num_perm, results):
 def process_rqtl_results(result, species_name):
     qtl_results = []
     output = [tuple([result[j][i] for j in range(result.ncol)])
-                    for i in range(result.nrow)]
+              for i in range(result.nrow)]
 
     for i, line in enumerate(result.iter_row()):
         marker = {}

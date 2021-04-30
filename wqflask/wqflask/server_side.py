@@ -49,8 +49,8 @@ class ServerSideTable:
                 column_name = self.header_data_names[column_number - 1]
                 sort_direction = self.request_values['sSortDir_' + str(i)]
                 self.table_rows = sorted(self.table_rows,
-                              key=lambda x: x[column_name],
-                              reverse=is_reverse(sort_direction))
+                                         key=lambda x: x[column_name],
+                                         reverse=is_reverse(sort_direction))
 
     def paginate_rows(self):
         """

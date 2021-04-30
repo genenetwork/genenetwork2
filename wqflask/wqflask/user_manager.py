@@ -475,7 +475,7 @@ def set_password(password, user):
     pwfields.encrypt_time = enc_password.encrypt_time
 
     user.password = json.dumps(pwfields.__dict__,
-                                    sort_keys=True,
+                               sort_keys=True,
                                    )
 
 

@@ -35,7 +35,7 @@ class ComparisonBarChart:
 
     def __init__(self, start_vars):
         trait_db_list = [trait.strip()
-                                     for trait in start_vars['trait_list'].split(',')]
+                         for trait in start_vars['trait_list'].split(',')]
 
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
@@ -90,8 +90,8 @@ class ComparisonBarChart:
             #print("dataset_name:", dataset_name)
             dataset_ob = data_set.create_dataset(dataset_name)
             trait_ob = create_trait(dataset=dataset_ob,
-                                   name=trait_name,
-                                   cellid=None)
+                                    name=trait_name,
+                                    cellid=None)
             self.trait_list.append((trait_ob, dataset_ob))
 
         #print("trait_list:", self.trait_list)

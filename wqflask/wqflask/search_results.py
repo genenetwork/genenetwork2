@@ -173,10 +173,10 @@ class SearchResultPage:
 
         if self.dataset.type == "ProbeSet":
             self.header_data_names = ['index', 'display_name', 'symbol', 'description',
-                'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
+                                      'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
         elif self.dataset.type == "Publish":
             self.header_data_names = ['index', 'display_name', 'description', 'mean',
-                'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
+                                      'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
         elif self.dataset.type == "Geno":
             self.header_data_names = ['index', 'display_name', 'location']
 
@@ -273,9 +273,9 @@ class SearchResultPage:
         if search_ob:
             search_class = getattr(do_search, search_ob)
             the_search = search_class(search_term,
-                                    search_operator,
-                                    self.dataset,
-                                    search_type['key']
+                                      search_operator,
+                                      self.dataset,
+                                      search_type['key']
                                     )
             return the_search
         else:

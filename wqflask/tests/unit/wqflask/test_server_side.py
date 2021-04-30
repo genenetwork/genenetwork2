@@ -23,7 +23,7 @@ class TestServerSideTableTests(unittest.TestCase):
         ]
         headers = ['first', 'second', 'third']
         request_args = {'sEcho': '1', 'iSortCol_0': '1', 'iSortingCols': '1',
-            'sSortDir_0': 'asc', 'iDisplayStart': '0', 'iDisplayLength': '3'}
+                        'sSortDir_0': 'asc', 'iDisplayStart': '0', 'iDisplayLength': '3'}
 
         test_page = ServerSideTable(
             rows_count, table_rows, headers, request_args).get_page()

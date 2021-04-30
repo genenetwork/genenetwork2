@@ -41,7 +41,7 @@ def get_export_metadata(trait_id, dataset_name):
     if dataset.type == "Publish":
         metadata.append(["Phenotype ID: " + trait_id])
         metadata.append(["Phenotype URL: " + "http://genenetwork.org/show_trait?trait_id=" + \
-                        trait_id + "&dataset=" + dataset_name])
+                         trait_id + "&dataset=" + dataset_name])
         metadata.append(["Group: " + dataset.group.name])
         metadata.append(
             ["Phenotype: " + this_trait.description_display.replace(",", "\",\"")])
@@ -56,7 +56,7 @@ def get_export_metadata(trait_id, dataset_name):
     else:
         metadata.append(["Record ID: " + trait_id])
         metadata.append(["Trait URL: " + "http://genenetwork.org/show_trait?trait_id=" + \
-                        trait_id + "&dataset=" + dataset_name])
+                         trait_id + "&dataset=" + dataset_name])
         if this_trait.symbol:
             metadata.append(["Symbol: " + this_trait.symbol])
         metadata.append(["Dataset: " + dataset.name])

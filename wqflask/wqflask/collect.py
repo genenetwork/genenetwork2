@@ -75,14 +75,14 @@ def collections_add():
     if 'traits' in request.args:
         traits = request.args['traits']
         return render_template("collections/add.html",
-                                traits=traits,
-                                collections=collections,
+                               traits=traits,
+                               collections=collections,
                               )
     else:
         hash = request.args['hash']
         return render_template("collections/add.html",
-                                hash=hash,
-                                collections=collections,
+                               hash=hash,
+                               collections=collections,
                               )
 
 
@@ -145,8 +145,8 @@ def list_collections():
 
     user_collections = list(g.user_session.user_collections)
     return render_template("collections/list.html",
-                            params=params,
-                            collections=user_collections,
+                           params=params,
+                           collections=user_collections,
                             )
 
 
@@ -225,7 +225,7 @@ def view_collection():
         return json.dumps(json_version)
     else:
         return render_template("collections/view.html",
-                           **collection_info
+                               **collection_info
                            )
 
 

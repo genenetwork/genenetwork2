@@ -21,10 +21,10 @@ def parse_db_uri():
     parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
-                        db=parsed_uri.path[1:],
-                        host=parsed_uri.hostname,
-                        user=parsed_uri.username,
-                        passwd=parsed_uri.password)
+        db=parsed_uri.path[1:],
+        host=parsed_uri.hostname,
+        user=parsed_uri.username,
+        passwd=parsed_uri.password)
 
     print(db_conn_info)
     return db_conn_info
@@ -70,10 +70,10 @@ def set_data(dataset_name):
                 trait_name = line1.split('\t')[0]
                 for i, sample in enumerate(sample_names):
                     this_sample = {
-                                    "name": sample,
-                                    "value": line1.split('\t')[i + 1],
-                                    "qnorm": line2.split('\t')[i + 1]
-                                  }
+                        "name": sample,
+                        "value": line1.split('\t')[i + 1],
+                        "qnorm": line2.split('\t')[i + 1]
+                    }
                     sample_list.append(this_sample)
                 query = """SELECT Species.SpeciesName, InbredSet.InbredSetName, ProbeSetFreeze.FullName
                            FROM Species, InbredSet, ProbeSetFreeze, ProbeFreeze, ProbeSetXRef, ProbeSet

@@ -66,12 +66,12 @@ class CTL:
 
     def addNode(self, gt):
         node_dict = {'data': {'id': str(gt.name) + ":" + str(gt.dataset.name),
-                                'sid': str(gt.name),
-                                'dataset': str(gt.dataset.name),
-                                'label': gt.name,
-                                'symbol': gt.symbol,
-                                'geneid': gt.geneid,
-                                'omim': gt.omim}}
+                              'sid': str(gt.name),
+                              'dataset': str(gt.dataset.name),
+                              'label': gt.name,
+                              'symbol': gt.symbol,
+                              'geneid': gt.geneid,
+                              'omim': gt.omim}}
         self.nodes_list.append(node_dict)
 
     def addEdge(self, gtS, gtT, significant, x):
@@ -87,7 +87,7 @@ class CTL:
     def run_analysis(self, requestform):
         logger.info("Starting CTL analysis on dataset")
         self.trait_db_list = [trait.strip()
-                                          for trait in requestform['trait_list'].split(',')]
+                              for trait in requestform['trait_list'].split(',')]
         self.trait_db_list = [x for x in self.trait_db_list if x]
 
         logger.debug("strategy:", requestform.get("strategy"))
@@ -179,9 +179,9 @@ class CTL:
         for trait in self.trait_db_list:
             # Create the QTL like CTL plots
             self.results['imgurl' + \
-                str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
+                         str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
             self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + \
-                                        self.results['imgurl' + str(n)]
+                self.results['imgurl' + str(n)]
             r_png(self.results['imgloc' + str(n)],
                   width=1000, height=600, type='cairo-png')
             self.r_plotCTLobject(
