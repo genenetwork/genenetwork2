@@ -1,4 +1,8 @@
-import os, math, string, random, json, re
+import os
+import math
+import string
+import random
+import json, re
 
 from base import webqtlConfig
 from base.trait import GeneralTrait
