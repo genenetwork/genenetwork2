@@ -294,7 +294,7 @@ class SnpBrowser:
 
                 effect_info_dict = get_effect_info(effect_list)
                 coding_domain_list = ['Start Gained', 'Start Lost',
-                    'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
+                                      'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
                 intron_domain_list = ['Splice Site', 'Nonsplice Site']
 
                 for key in effect_info_dict:
@@ -320,7 +320,7 @@ class SnpBrowser:
                         if self.redundant == "false" or last_mb != mb:  # filter redundant
                             if self.include_record(domain, function, snp_source, conservation_score):
                                 info_list = [snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain,
-                                    function, function_details, snp_source, conservation_score, snp_id]
+                                             function, function_details, snp_source, conservation_score, snp_id]
                                 info_list.extend(self.allele_list)
                                 filtered_results.append(info_list)
                         last_mb = mb
@@ -351,7 +351,7 @@ class SnpBrowser:
                             if self.redundant == "false" or last_mb != mb:
                                 if self.include_record(domain, function, snp_source, conservation_score):
                                     info_list = [snp_name, rs, chr, mb, alleles, gene, transcript, exon, domain,
-                                        function, function_details, snp_source, conservation_score, snp_id]
+                                                 function, function_details, snp_source, conservation_score, snp_id]
                                     info_list.extend(self.allele_list)
                                     filtered_results.append(info_list)
                             last_mb = mb
@@ -366,7 +366,7 @@ class SnpBrowser:
                     domain = conservation_score = snp_id = snp_name = rs = flank_3 = flank_5 = ncbi = function = ""
                     if self.include_record(domain, function, source_name, conservation_score):
                         filtered_results.append([indel_name, indel_chr, indel_mb_start, indel_mb_end,
-                                                indel_strand, indel_type, indel_size, indel_sequence, source_name])
+                                                 indel_strand, indel_type, indel_size, indel_sequence, source_name])
                 last_mb = indel_mb_start
 
             else:
@@ -703,9 +703,9 @@ def get_header_list(variant_type, strains, species=None, empty_columns=None):
     header_data_names = []
     if variant_type == "SNP":
         header_fields.append(['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'Source', 'ConScore',
-                             'Gene', 'Transcript', 'Exon', 'Domain 1', 'Domain 2', 'Function', 'Details'])
+                              'Gene', 'Transcript', 'Exon', 'Domain 1', 'Domain 2', 'Function', 'Details'])
         header_data_names = ['index', 'snp_name', 'chr', 'mb_formatted', 'alleles', 'snp_source', 'conservation_score',
-            'gene_name', 'transcript', 'exon', 'domain_1', 'domain_2', 'function', 'function_details']
+                             'gene_name', 'transcript', 'exon', 'domain_1', 'domain_2', 'function', 'function_details']
 
         header_fields.append(strain_list)
         header_data_names += strain_list
@@ -742,9 +742,9 @@ def get_header_list(variant_type, strains, species=None, empty_columns=None):
 
     elif variant_type == "InDel":
         header_fields = ['Index', 'ID', 'Type', 'InDel Chr',
-            'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source']
+                         'Mb Start', 'Mb End', 'Strand', 'Size', 'Sequence', 'Source']
         header_data_names = ['index', 'indel_name', 'indel_type', 'indel_chr', 'indel_mb_s',
-            'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name']
+                             'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name']
 
     return header_fields, empty_field_count, header_data_names
 
@@ -758,9 +758,9 @@ def get_effect_details_by_category(effect_name=None, effect_value=None):
     tmp_list = []
 
     gene_group_list = ['Upstream', 'Downstream',
-        'Splice Site', 'Nonsplice Site', '3\' UTR']
+                       'Splice Site', 'Nonsplice Site', '3\' UTR']
     biotype_group_list = ['Unknown Effect In Exon', 'Start Gained',
-        'Start Lost', 'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
+                          'Start Lost', 'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
     new_codon_group_list = ['Start Gained']
     codon_effect_group_list = [
         'Start Lost', 'Stop Gained', 'Stop Lost', 'Nonsynonymous', 'Synonymous']
@@ -913,7 +913,7 @@ def get_gene_id_name_dict(species_id, gene_name_list):
     if len(gene_name_list) == 0:
         return ""
     gene_name_str_list = ["'" + gene_name + \
-        "'" for gene_name in gene_name_list]
+                          "'" for gene_name in gene_name_list]
     gene_name_str = ",".join(gene_name_str_list)
 
     query = """

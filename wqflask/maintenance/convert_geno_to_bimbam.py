@@ -56,7 +56,7 @@ class ConvertGenoFile:
             '@pat': "0",
             '@het': "0.5",
             '@unk': "NA"
-            }
+        }
 
         self.configurations = {}
         self.input_fh = open(self.input_file)
@@ -171,7 +171,7 @@ class ConvertGenoFile:
             snp_output_file = os.path.join(
                 new_directory, group_name + "_snps.txt")
             output_files = [geno_output_file,
-                pheno_output_file, snp_output_file]
+                            pheno_output_file, snp_output_file]
             print("%s -> %s" % (
                 os.path.join(old_directory, input_file), geno_output_file))
             convertob = ConvertGenoFile(input_file, output_files)
@@ -184,7 +184,7 @@ class ConvertGenoFile:
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
-                                                                convertob.latest_col_pos))
+                                                                    convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break

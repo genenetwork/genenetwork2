@@ -50,7 +50,7 @@ from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT
 
 def test_elasticsearch_connection():
     es = Elasticsearch(['http://' + ELASTICSEARCH_HOST + \
-                       ":" + str(ELASTICSEARCH_PORT) + '/'], verify_certs=True)
+                        ":" + str(ELASTICSEARCH_PORT) + '/'], verify_certs=True)
     if not es.ping():
         logger.warning("Elasticsearch is DOWN")
 

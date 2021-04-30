@@ -105,8 +105,8 @@ class UserSession:
             if user_cookie:
                 self.logged_in = False
                 self.record = dict(login_time=time.time(),
-                                    user_type="anon",
-                                    user_id=str(uuid.uuid4()))
+                                   user_type="anon",
+                                   user_id=str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
 
@@ -117,8 +117,8 @@ class UserSession:
                 return None
             else:
                 self.record = dict(login_time=time.time(),
-                                    user_type="anon",
-                                    user_id=str(uuid.uuid4()))
+                                   user_type="anon",
+                                   user_id=str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
         else:

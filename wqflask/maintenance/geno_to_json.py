@@ -63,7 +63,7 @@ class ConvertGenoFile:
             '@pat': "0",
             '@het': "0.5",
             '@unk': "NA"
-            }
+        }
 
         self.configurations = {}
         #self.skipped_cols = 3
@@ -172,7 +172,7 @@ class ConvertGenoFile:
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
-                                                                convertob.latest_col_pos))
+                                                                    convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break

@@ -88,7 +88,7 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
         corr_results = do_literature_correlation_for_all_traits(
             this_trait, this_dataset, trait_geneid_dict, corr_params)
         sorted_results = collections.OrderedDict(sorted(list(corr_results.items()),
-                                                 key=lambda t: -abs(t[1][1])))
+                                                        key=lambda t: -abs(t[1][1])))
     else:
         for target_trait, target_vals in list(target_dataset.trait_data.items()):
             result = get_sample_r_and_p_values(

@@ -26,18 +26,18 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         gen_pheno_txt_file(samples, vals, trait_filename)
 
         output_filename = (f"{this_dataset.group.name}_GWA_"
-            + ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for _ in range(6))
-            )
+                           + ''.join(random.choice(string.ascii_uppercase + string.digits)
+                                     for _ in range(6))
+        )
         bootstrap_filename = None
         permu_filename = None
 
         opt_list = []
         if boot_check and num_bootstrap > 0:
             bootstrap_filename = (f"{this_dataset.group.name}_BOOTSTRAP_"
-                + ''.join(random.choice(string.ascii_uppercase + string.digits)
-                        for _ in range(6))
-                )
+                                  + ''.join(random.choice(string.ascii_uppercase + string.digits)
+                                            for _ in range(6))
+            )
 
             opt_list.append("-b")
             opt_list.append(f"--n_bootstrap {str(num_bootstrap)}")
@@ -45,8 +45,8 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
                 f"--bootstrap_output {webqtlConfig.GENERATED_IMAGE_DIR}{bootstrap_filename}.txt")
         if num_perm > 0:
             permu_filename = ("{this_dataset.group.name}_PERM_"
-            + ''.join(random.choice(string.ascii_uppercase
-                + string.digits) for _ in range(6))
+                              + ''.join(random.choice(string.ascii_uppercase
+                                                      + string.digits) for _ in range(6))
             )
             opt_list.append("-n " + str(num_perm))
             opt_list.append(
@@ -57,15 +57,15 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             opt_list.append("--interval 1")
 
         reaper_command = (REAPER_COMMAND +
-        ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
+                          ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
 
-                                                                              genofile_name,
-                                                                              TEMPDIR,
-                                                                              trait_filename,
-                                                                              " ".join(
-                                                                                  opt_list),
-                                                                              webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                            output_filename))
+                                                                                                   genofile_name,
+                                                                                                   TEMPDIR,
+                                                                                                   trait_filename,
+                                                                                                   " ".join(
+                              opt_list),
+                              webqtlConfig.GENERATED_IMAGE_DIR,
+                              output_filename))
 
         logger.debug("reaper_command:" + reaper_command)
         os.system(reaper_command)
@@ -82,7 +82,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         significant = permu_vals[int(num_perm * 0.95 - 1)]
 
     return (marker_obs, permu_vals, suggestive, significant, bootstrap_vals,
-        [output_filename, permu_filename, bootstrap_filename])
+            [output_filename, permu_filename, bootstrap_filename])
 
 
 def gen_pheno_txt_file(samples, vals, trait_filename):
@@ -231,17 +231,17 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
                     control_geno.append(control_geno2[_idx])
 
             bootstrap_results = genotype.bootstrap(strains=trimmed_samples,
-                                                        trait=trimmed_values,
-                                                        control=control_geno,
-                                                        nboot=num_bootstrap)
+                                                   trait=trimmed_values,
+                                                   control=control_geno,
+                                                   nboot=num_bootstrap)
     else:
         reaper_results = genotype.regression(strains=trimmed_samples,
                                              trait=trimmed_values)
 
         if bootCheck:
             bootstrap_results = genotype.bootstrap(strains=trimmed_samples,
-                                                        trait=trimmed_values,
-                                                        nboot=num_bootstrap)
+                                                   trait=trimmed_values,
+                                                   nboot=num_bootstrap)
 
     json_data['chr'] = []
     json_data['pos'] = []
@@ -265,7 +265,7 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
         # if self.additive:
         #    self.json_data['additive'].append(qtl.additive)
         locus = {"name": reaper_locus.name, "chr": reaper_locus.chr,
-            "cM": reaper_locus.cM, "Mb": reaper_locus.Mb}
+                 "cM": reaper_locus.cM, "Mb": reaper_locus.Mb}
         qtl = {"lrs_value": qtl.lrs, "chr": converted_chr, "Mb": reaper_locus.Mb,
                "cM": reaper_locus.cM, "name": reaper_locus.name, "additive": qtl.additive, "dominance": qtl.dominance}
         qtl_results.append(qtl)

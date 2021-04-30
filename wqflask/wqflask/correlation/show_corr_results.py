@@ -82,8 +82,8 @@ class CorrelationResults:
                     dataset_name="Temp", dataset_type="Temp", group_name = start_vars['group'])
                 self.trait_id = start_vars['trait_id']
                 self.this_trait = create_trait(dataset=self.dataset,
-                                           name=self.trait_id,
-                                           cellid=None)
+                                               name=self.trait_id,
+                                               cellid=None)
             else:
                 helper_functions.get_species_dataset_trait(self, start_vars)
 
@@ -98,7 +98,7 @@ class CorrelationResults:
 
             if ('loc_chr' in start_vars
                 and 'min_loc_mb' in start_vars
-                and 'max_loc_mb' in start_vars):
+                    and 'max_loc_mb' in start_vars):
 
                 self.location_type = get_string(start_vars, 'location_type')
                 self.location_chr = get_string(start_vars, 'loc_chr')
@@ -129,7 +129,7 @@ class CorrelationResults:
             if corr_samples_group != 'samples_primary':
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
-                                    self.dataset.group.parlist + self.dataset.group.f1list)]
+                        self.dataset.group.parlist + self.dataset.group.f1list)]
                 self.process_samples(start_vars, list(
                     self.this_trait.data.keys()), primary_samples)
 
@@ -201,7 +201,7 @@ class CorrelationResults:
                             chr_as_int = order_id
 
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower
-                    and float(self.correlation_data[trait][0]) <= self.p_range_upper):
+                        and float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
                     if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
@@ -221,8 +221,8 @@ class CorrelationResults:
                             continue
 
                     (trait_object.sample_r,
-                    trait_object.sample_p,
-                    trait_object.num_overlap) = self.correlation_data[trait]
+                     trait_object.sample_p,
+                     trait_object.num_overlap) = self.correlation_data[trait]
 
                     # Set some sane defaults
                     trait_object.tissue_corr = 0
@@ -277,7 +277,7 @@ class CorrelationResults:
                 trait.symbol for trait in self.correlation_results if trait.symbol]
 
             corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=gene_symbol_list)
+                symbol_list=gene_symbol_list)
 
             for trait in self.correlation_results:
                 if trait.symbol and trait.symbol.lower() in corr_result_tissue_vals_dict:
@@ -285,8 +285,8 @@ class CorrelationResults:
                     )]
 
                     result = correlation_functions.cal_zero_order_corr_for_tiss(primary_trait_tissue_values,
-                                                                          this_trait_tissue_values,
-                                                                          self.corr_method)
+                                                                                this_trait_tissue_values,
+                                                                                self.corr_method)
 
                     trait.tissue_corr = result[0]
                     trait.tissue_pvalue = result[2]
@@ -302,7 +302,7 @@ class CorrelationResults:
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols.values()))
             corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=list(self.trait_symbol_dict.values()))
+                symbol_list=list(self.trait_symbol_dict.values()))
 
             #print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
 
@@ -315,13 +315,13 @@ class CorrelationResults:
                     )]
 
                     result = correlation_functions.cal_zero_order_corr_for_tiss(primary_trait_tissue_values,
-                                                                          this_trait_tissue_values,
-                                                                          self.corr_method)
+                                                                                this_trait_tissue_values,
+                                                                                self.corr_method)
 
                     tissue_corr_data[trait] = [symbol, result[0], result[2]]
 
             tissue_corr_data = collections.OrderedDict(sorted(list(tissue_corr_data.items()),
-                                                           key=lambda t: -abs(t[1][1])))
+                                                              key=lambda t: -abs(t[1][1])))
 
             return tissue_corr_data
 
@@ -397,7 +397,7 @@ class CorrelationResults:
                 lit_corr_data[trait] = [gene_id, 0]
 
         lit_corr_data = collections.OrderedDict(sorted(list(lit_corr_data.items()),
-                                                           key=lambda t: -abs(t[1][1])))
+                                                       key=lambda t: -abs(t[1][1])))
 
         return lit_corr_data
 
@@ -603,12 +603,12 @@ def get_header_fields(data_type, corr_method):
     if data_type == "ProbeSet":
         if corr_method == "spearman":
             header_fields = ['Index',
-                                'Record',
-                                'Symbol',
-                                'Description',
-                                'Location',
-                                'Mean',
-                                'Sample rho',
+                             'Record',
+                             'Symbol',
+                             'Description',
+                             'Location',
+                             'Mean',
+                             'Sample rho',
                                 'N',
                                 'Sample p(rho)',
                                 'Lit rho',
@@ -619,12 +619,12 @@ def get_header_fields(data_type, corr_method):
                                 'Additive Effect']
         else:
             header_fields = ['Index',
-                                'Record',
-                                'Symbol',
-                                'Description',
-                                'Location',
-                                'Mean',
-                                'Sample r',
+                             'Record',
+                             'Symbol',
+                             'Description',
+                             'Location',
+                             'Mean',
+                             'Sample r',
                                 'N',
                                 'Sample p(r)',
                                 'Lit r',
@@ -636,47 +636,47 @@ def get_header_fields(data_type, corr_method):
     elif data_type == "Publish":
         if corr_method == "spearman":
             header_fields = ['Index',
-                            'Record',
-                            'Abbreviation',
-                            'Description',
-                            'Mean',
-                            'Authors',
-                            'Year',
-                            'Sample rho',
-                            'N',
-                            'Sample p(rho)',
-                            'Max LRS',
-                            'Max LRS Location',
-                            'Additive Effect']
+                             'Record',
+                             'Abbreviation',
+                             'Description',
+                             'Mean',
+                             'Authors',
+                             'Year',
+                             'Sample rho',
+                             'N',
+                             'Sample p(rho)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
         else:
             header_fields = ['Index',
-                            'Record',
-                            'Abbreviation',
-                            'Description',
-                            'Mean',
-                            'Authors',
-                            'Year',
-                            'Sample r',
-                            'N',
-                            'Sample p(r)',
-                            'Max LRS',
-                            'Max LRS Location',
-                            'Additive Effect']
+                             'Record',
+                             'Abbreviation',
+                             'Description',
+                             'Mean',
+                             'Authors',
+                             'Year',
+                             'Sample r',
+                             'N',
+                             'Sample p(r)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
 
     else:
         if corr_method == "spearman":
             header_fields = ['Index',
-                                'ID',
-                                'Location',
-                                'Sample rho',
-                                'N',
-                                'Sample p(rho)']
+                             'ID',
+                             'Location',
+                             'Sample rho',
+                             'N',
+                             'Sample p(rho)']
         else:
             header_fields = ['Index',
-                                'ID',
-                                'Location',
-                                'Sample r',
-                                'N',
-                                'Sample p(r)']
+                             'ID',
+                             'Location',
+                             'Sample r',
+                             'N',
+                             'Sample p(r)']
 
     return header_fields

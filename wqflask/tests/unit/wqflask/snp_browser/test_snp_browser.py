@@ -22,10 +22,10 @@ class TestSnpBrowser(unittest.TestCase):
         strains = {"mouse": ["S1", "S2", "S3", "S4", "S5"], "rat": []}
         expected_results = ([['Index', 'SNP ID', 'Chr', 'Mb', 'Alleles', 'ConScore',
                               'Domain 1', 'Domain 2', 'Details'],
-                              ['S1', 'S2', 'S3', 'S4', 'S5']], 5,
-                              ['index', 'snp_name', 'chr', 'mb_formatted', 'alleles',
-                              'conservation_score', 'domain_1', 'domain_2',
-                              'function_details', 'S1', 'S2', 'S3', 'S4', 'S5'])
+                             ['S1', 'S2', 'S3', 'S4', 'S5']], 5,
+                            ['index', 'snp_name', 'chr', 'mb_formatted', 'alleles',
+                             'conservation_score', 'domain_1', 'domain_2',
+                             'function_details', 'S1', 'S2', 'S3', 'S4', 'S5'])
 
         results_with_snp = get_header_list(
             variant_type="SNP", strains=strains, species="Mouse", empty_columns=empty_columns)
@@ -34,8 +34,8 @@ class TestSnpBrowser(unittest.TestCase):
         expected_results_with_indel = (
             ['Index', 'ID', 'Type', 'InDel Chr', 'Mb Start',
              'Mb End', 'Strand', 'Size', 'Sequence', 'Source'], 0,
-             ['index', 'indel_name', 'indel_type', 'indel_chr', 'indel_mb_s',
-            'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name'])
+            ['index', 'indel_name', 'indel_type', 'indel_chr', 'indel_mb_s',
+             'indel_mb_e', 'indel_strand', 'indel_size', 'indel_sequence', 'source_name'])
 
         self.assertEqual(expected_results, results_with_snp)
         self.assertEqual(expected_results_with_indel, results_with_indel)

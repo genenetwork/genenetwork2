@@ -70,7 +70,7 @@ class WGCNA:
         self.trait_db_list = [trait.strip()
                               for trait in requestform['trait_list'].split(',')]
         print(("Retrieved phenotype data from database",
-              requestform['trait_list']))
+               requestform['trait_list']))
         helper_functions.get_trait_db_obs(self, self.trait_db_list)
 
         # self.input contains the phenotype values we need to send to R

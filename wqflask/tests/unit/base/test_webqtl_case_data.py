@@ -10,10 +10,10 @@ class TestWebqtlCaseData(unittest.TestCase):
 
     def setUp(self):
         self.w = webqtlCaseData(name="Test",
-                           value=0,
-                           variance=0.0,
-                           num_cases=10,
-                           name2="Test2")
+                                value=0,
+                                variance=0.0,
+                                num_cases=10,
+                                name2="Test2")
 
     def test_webqtl_case_data_repr(self):
         self.assertEqual(

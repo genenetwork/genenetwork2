@@ -34,7 +34,7 @@ def parse(pstring):
                        (\w+\s*[=:\>\<][\w\*]+)  |  # wiki=bar, GO:foobar, etc
                        (".*?") | ('.*?') | # terms in quotes, i.e. "brain weight"
                        ([\w\*\?]+))  # shh, brain, etc """, pstring,
-                                                    flags=re.VERBOSE)
+                       flags=re.VERBOSE)
 
     pstring = [item.strip() for item in pstring if item and item.strip()]
 

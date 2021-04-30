@@ -112,7 +112,7 @@ class MrnaAssaySearch(DoSearch):
             match_clause = ""
 
         where_clause = (match_clause
-            + """ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                        + """ProbeSet.Id = ProbeSetXRef.ProbeSetId
                and ProbeSetXRef.ProbeSetFreezeId = %s
                         """ % (escape(str(self.dataset.id))))
 
@@ -135,7 +135,7 @@ class MrnaAssaySearch(DoSearch):
             match_clause = ""
 
         where_clause = (match_clause
-            + """ProbeSet.Id = ProbeSetXRef.ProbeSetId
+                        + """ProbeSet.Id = ProbeSetXRef.ProbeSetId
                and ProbeSetXRef.ProbeSetFreezeId = %s
                         """ % (escape(str(self.dataset.id))))
 
@@ -147,14 +147,14 @@ class MrnaAssaySearch(DoSearch):
         from_clause = self.normalize_spaces(from_clause)
 
         query = (self.base_query +
-            """%s
+                 """%s
                 WHERE %s
                     and ProbeSet.Id = ProbeSetXRef.ProbeSetId
                     and ProbeSetXRef.ProbeSetFreezeId = %s
                 ORDER BY ProbeSet.symbol ASC
                             """ % (escape(from_clause),
-                                    where_clause,
-                                    escape(str(self.dataset.id))))
+                                   where_clause,
+                                   escape(str(self.dataset.id))))
         return query
 
     def run_combined(self, from_clause='', where_clause=''):
@@ -166,14 +166,14 @@ class MrnaAssaySearch(DoSearch):
         from_clause = self.normalize_spaces(from_clause)
 
         query = (self.base_query +
-            """%s
+                 """%s
                 WHERE %s
                     and ProbeSet.Id = ProbeSetXRef.ProbeSetId
                     and ProbeSetXRef.ProbeSetFreezeId = %s
                 ORDER BY ProbeSet.symbol ASC
                             """ % (escape(from_clause),
-                                    where_clause,
-                                    escape(str(self.dataset.id))))
+                                   where_clause,
+                                   escape(str(self.dataset.id))))
 
         return self.execute(query)
 
@@ -199,15 +199,15 @@ class PhenotypeSearch(DoSearch):
                 FROM Phenotype, PublishFreeze, Publication, PublishXRef """
 
     search_fields = ('Phenotype.Post_publication_description',
-                    'Phenotype.Pre_publication_description',
-                    'Phenotype.Pre_publication_abbreviation',
-                    'Phenotype.Post_publication_abbreviation',
-                    'Phenotype.Lab_code',
-                    'Publication.PubMed_ID',
-                    'Publication.Abstract',
-                    'Publication.Title',
-                    'Publication.Authors',
-                    'PublishXRef.Id')
+                     'Phenotype.Pre_publication_description',
+                     'Phenotype.Pre_publication_abbreviation',
+                     'Phenotype.Post_publication_abbreviation',
+                     'Phenotype.Lab_code',
+                     'Publication.PubMed_ID',
+                     'Publication.Abstract',
+                     'Publication.Title',
+                     'Publication.Authors',
+                     'PublishXRef.Id')
 
     header_fields = ['Index',
                      'Record',
@@ -250,28 +250,28 @@ class PhenotypeSearch(DoSearch):
 
         if self.search_term[0] == "*":
             query = (self.base_query +
-                    """%s
+                     """%s
                         WHERE PublishXRef.InbredSetId = %s
                         and PublishXRef.PhenotypeId = Phenotype.Id
                         and PublishXRef.PublicationId = Publication.Id
                         and PublishFreeze.Id = %s
                         ORDER BY PublishXRef.Id""" % (
-                            from_clause,
-                            escape(str(self.dataset.group.id)),
-                            escape(str(self.dataset.id))))
+                         from_clause,
+                         escape(str(self.dataset.group.id)),
+                         escape(str(self.dataset.id))))
         else:
             query = (self.base_query +
-                    """%s
+                     """%s
                         WHERE %s
                         and PublishXRef.InbredSetId = %s
                         and PublishXRef.PhenotypeId = Phenotype.Id
                         and PublishXRef.PublicationId = Publication.Id
                         and PublishFreeze.Id = %s
                         ORDER BY PublishXRef.Id""" % (
-                            from_clause,
-                            where_clause,
-                            escape(str(self.dataset.group.id)),
-                            escape(str(self.dataset.id))))
+                         from_clause,
+                         where_clause,
+                         escape(str(self.dataset.group.id)),
+                         escape(str(self.dataset.id))))
 
         return query
 
@@ -283,16 +283,16 @@ class PhenotypeSearch(DoSearch):
         from_clause = self.normalize_spaces(from_clause)
 
         query = (self.base_query +
-                """%s
+                 """%s
                     WHERE %s
                     PublishXRef.InbredSetId = %s and
                     PublishXRef.PhenotypeId = Phenotype.Id and
                     PublishXRef.PublicationId = Publication.Id and
                     PublishFreeze.Id = %s""" % (
-                        from_clause,
-                        where_clause,
-                        escape(str(self.dataset.group.id)),
-                        escape(str(self.dataset.id))))
+                     from_clause,
+                     where_clause,
+                     escape(str(self.dataset.group.id)),
+                     escape(str(self.dataset.id))))
 
         return self.execute(query)
 
@@ -336,7 +336,7 @@ class GenotypeSearch(DoSearch):
         for field in self.search_fields:
             where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
                                                                                field),
-                                                                               self.search_term))
+                                                        self.search_term))
         logger.debug("hello ;where_clause is:", pf(where_clause))
         where_clause = "(%s) " % ' OR '.join(where_clause)
 
@@ -349,16 +349,16 @@ class GenotypeSearch(DoSearch):
 
         if self.search_term[0] == "*":
             query = (self.base_query
-                    + """WHERE Geno.Id = GenoXRef.GenoId
+                     + """WHERE Geno.Id = GenoXRef.GenoId
                         and GenoXRef.GenoFreezeId = GenoFreeze.Id
                         and GenoFreeze.Id = %s""" % (escape(str(self.dataset.id))))
         else:
             query = (self.base_query +
-                    """WHERE %s
+                     """WHERE %s
                         and Geno.Id = GenoXRef.GenoId
                         and GenoXRef.GenoFreezeId = GenoFreeze.Id
                         and GenoFreeze.Id = %s""" % (where_clause,
-                                                escape(str(self.dataset.id))))
+                                                     escape(str(self.dataset.id))))
 
         return query
 
@@ -526,7 +526,7 @@ class LrsSearch(DoSearch):
                 where_clause += """ and %sXRef.Locus = Geno.name and
                                                     Geno.SpeciesId = %s
                                                     """ % self.mescape(self.dataset.type,
-                                                           self.species_id)
+                                                                       self.species_id)
         else:
             # Deal with >, <, >=, and <=
             logger.debug("self.search_term is:", self.search_term)
@@ -535,8 +535,8 @@ class LrsSearch(DoSearch):
                 lrs_val = lrs_val * 4.61
 
             where_clause = """ %sXRef.LRS %s %s """ % self.mescape(self.dataset.type,
-                                                                        self.search_operator,
-                                                                        self.search_term[0])
+                                                                   self.search_operator,
+                                                                   self.search_term[0])
 
         return where_clause
 
@@ -618,18 +618,18 @@ class CisTransLrsSearch(DoSearch):
 
             sub_clause = """ %sXRef.LRS > %s and
                 %sXRef.LRS < %s  and """ % (
-                    escape(self.dataset.type),
-                    escape(str(min(lrs_min, lrs_max))),
-                    escape(self.dataset.type),
-                    escape(str(max(lrs_min, lrs_max)))
-                )
+                escape(self.dataset.type),
+                escape(str(min(lrs_min, lrs_max))),
+                escape(self.dataset.type),
+                escape(str(max(lrs_min, lrs_max)))
+            )
         else:
             # Deal with >, <, >=, and <=
             sub_clause = """ %sXRef.LRS %s %s and """ % (
-                    escape(self.dataset.type),
-                    escape(self.search_operator),
-                    escape(self.search_term[0])
-                )
+                escape(self.dataset.type),
+                escape(self.search_operator),
+                escape(self.search_term[0])
+            )
 
         if cis_trans == "cis":
             where_clause = sub_clause + """
@@ -637,27 +637,27 @@ class CisTransLrsSearch(DoSearch):
                     %sXRef.Locus = Geno.name and
                     Geno.SpeciesId = %s and
                     %s.Chr = Geno.Chr""" % (
-                        escape(self.dataset.type),
-                        the_operator,
-                        escape(str(self.mb_buffer)),
-                        escape(self.dataset.type),
-                        escape(str(self.species_id)),
-                        escape(self.dataset.type)
-                        )
+                escape(self.dataset.type),
+                the_operator,
+                escape(str(self.mb_buffer)),
+                escape(self.dataset.type),
+                escape(str(self.species_id)),
+                escape(self.dataset.type)
+            )
         else:
             if chromosome:
                 location_clause = "(%s.Chr = '%s' and %s.Chr = Geno.Chr and ABS(%s.Mb-Geno.Mb) %s %s) or (%s.Chr != Geno.Chr and Geno.Chr = '%s')" % (escape(self.dataset.type),
-                                                                                                                                                  chromosome,
-                                                                                                                                                  escape(
+                                                                                                                                                      chromosome,
+                                                                                                                                                      escape(
                                                                                                                                                       self.dataset.type),
-                                                                                                                                                  escape(
+                                                                                                                                                      escape(
                                                                                                                                                       self.dataset.type),
-                                                                                                                                                  the_operator,
-                                                                                                                                                  escape(
+                                                                                                                                                      the_operator,
+                                                                                                                                                      escape(
                                                                                                                                                       str(self.mb_buffer)),
-                                                                                                                                                  escape(
+                                                                                                                                                      escape(
                                                                                                                                                       self.dataset.type),
-                                                                                                                                                  chromosome)
+                                                                                                                                                      chromosome)
             else:
                 location_clause = "(ABS(%s.Mb-Geno.Mb) %s %s and %s.Chr = Geno.Chr) or (%s.Chr != Geno.Chr)" % (escape(
                     self.dataset.type), the_operator, escape(str(self.mb_buffer)), escape(self.dataset.type), escape(self.dataset.type))
@@ -665,10 +665,10 @@ class CisTransLrsSearch(DoSearch):
                     %sXRef.Locus = Geno.name and
                     Geno.SpeciesId = %s and
                     (%s)""" % (
-                        escape(self.dataset.type),
-                        escape(str(self.species_id)),
-                        location_clause
-                        )
+                escape(self.dataset.type),
+                escape(str(self.species_id)),
+                location_clause
+            )
 
         return where_clause
 
@@ -752,15 +752,15 @@ class MeanSearch(MrnaAssaySearch):
 
             where_clause = """ %sXRef.mean > %s and
                              %sXRef.mean < %s """ % self.mescape(self.dataset.type,
-                                                                min(self.mean_min,
-                                                                    self.mean_max),
-                                                                self.dataset.type,
-                                                                max(self.mean_min, self.mean_max))
+                                                                 min(self.mean_min,
+                                                                     self.mean_max),
+                                                                 self.dataset.type,
+                                                                 max(self.mean_min, self.mean_max))
         else:
             # Deal with >, <, >=, and <=
             where_clause = """ %sXRef.mean %s %s """ % self.mescape(self.dataset.type,
-                                                                        self.search_operator,
-                                                                        self.search_term[0])
+                                                                    self.search_operator,
+                                                                    self.search_term[0])
 
         return where_clause
 
@@ -893,17 +893,17 @@ class PvalueSearch(MrnaAssaySearch):
             self.pvalue_min, self.pvalue_max = self.search_term[:2]
             self.where_clause = """ %sXRef.pValue > %s and %sXRef.pValue < %s
                                     """ % self.mescape(
-                                        self.dataset.type,
-                                        min(self.pvalue_min, self.pvalue_max),
-                                        self.dataset.type,
-                                        max(self.pvalue_min, self.pvalue_max))
+                self.dataset.type,
+                min(self.pvalue_min, self.pvalue_max),
+                self.dataset.type,
+                max(self.pvalue_min, self.pvalue_max))
         else:
             # Deal with >, <, >=, and <=
             self.where_clause = """ %sXRef.pValue %s %s
                                     """ % self.mescape(
-                                        self.dataset.type,
-                                        self.search_operator,
-                                        self.search_term[0])
+                self.dataset.type,
+                self.search_operator,
+                self.search_term[0])
 
         logger.debug("where_clause is:", pf(self.where_clause))
 

@@ -33,7 +33,7 @@ logger = utility.logger.getLogger(__name__)
 class SendToWebGestalt:
     def __init__(self, start_vars):
         trait_db_list = [trait.strip()
-                                     for trait in start_vars['trait_list'].split(',')]
+                         for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.chip_name = test_chip(self.trait_list)
@@ -49,7 +49,7 @@ class SendToWebGestalt:
             id_type = "entrezgene"
 
             self.hidden_vars = {
-                             'gene_list': "\n".join(gene_id_list),
+                'gene_list': "\n".join(gene_id_list),
                              'id_type': "entrezgene",
                              'ref_set': "genome",
                              'enriched_database_category': "geneontology",
@@ -59,7 +59,7 @@ class SendToWebGestalt:
                              'enrich_method': "ORA",
                              'fdr_method': "BH",
                              'min_num': "2"
-                               }
+            }
 
             species = self.trait_list[0][1].group.species
             if species == "rat":

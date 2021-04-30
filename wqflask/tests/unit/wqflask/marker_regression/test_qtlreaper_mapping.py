@@ -18,6 +18,6 @@ class TestQtlReaperMapping(unittest.TestCase):
             mock_open.assert_called_once_with("/home/user/data/gn2/trait_file.txt", "w")
             filehandler = mock_open()
             write_calls = [mock.call('Trait\t'), mock.call(
-                    'S1\tS3\tS4\n'), mock.call('T1\t'), mock.call('V1\tV4\tV3')]
+                'S1\tS3\tS4\n'), mock.call('T1\t'), mock.call('V1\tV4\tV3')]
 
             filehandler.write.assert_has_calls(write_calls)

@@ -103,7 +103,7 @@ def environments():
 @environments_blueprint.route('/svg-dependency-graph')
 def svg_graph():
     directory, file_name, _ = get_file_from_python_search_path(
-            "wqflask/dependency-graph.svg").partition("dependency-graph.svg")
+        "wqflask/dependency-graph.svg").partition("dependency-graph.svg")
     return send_from_directory(directory, file_name)
 
 

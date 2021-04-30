@@ -45,8 +45,8 @@ class User(Base):
                           )
 
     user_collections = relationship("UserCollection",
-                          order_by="asc(UserCollection.name)",
-                          lazy='dynamic',
+                                    order_by="asc(UserCollection.name)",
+                                    lazy='dynamic',
                           )
 
     def display_num_collections(self):

@@ -23,7 +23,7 @@ class GenerateKinshipMatrices:
     def generate_kinship(self):
         gemma_command = "/gnu/store/xhzgjr0jvakxv6h3blj8z496xjig69b0-profile/bin/gemma -g " + self.geno_file + \
             " -p " + self.pheno_file + \
-                " -gk 1 -outdir /home/zas1024/genotype_files/genotype/bimbam/ -o " + self.group_name
+            " -gk 1 -outdir /home/zas1024/genotype_files/genotype/bimbam/ -o " + self.group_name
         print("command:", gemma_command)
         os.system(gemma_command)
 
@@ -52,7 +52,7 @@ class GenerateKinshipMatrices:
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
-                                                                convertob.latest_col_pos))
+                                                                    convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break

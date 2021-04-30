@@ -62,10 +62,10 @@ def parse_db_uri():
     parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
-                        db=parsed_uri.path[1:],
-                        host=parsed_uri.hostname,
-                        user=parsed_uri.username,
-                        passwd=parsed_uri.password)
+        db=parsed_uri.path[1:],
+        host=parsed_uri.hostname,
+        user=parsed_uri.username,
+        passwd=parsed_uri.password)
 
     print(db_conn_info)
     return db_conn_info

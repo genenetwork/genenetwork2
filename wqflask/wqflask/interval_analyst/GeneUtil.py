@@ -8,8 +8,8 @@ from flask import Flask, g
 
 def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
     fetchFields = ['SpeciesId', 'Id', 'GeneSymbol', 'GeneDescription', 'Chromosome', 'TxStart', 'TxEnd',
-    'Strand', 'GeneID', 'NM_ID', 'kgID', 'GenBankID', 'UnigenID', 'ProteinID', 'AlignID',
-    'exonCount', 'exonStarts', 'exonEnds', 'cdsStart', 'cdsEnd']
+                   'Strand', 'GeneID', 'NM_ID', 'kgID', 'GenBankID', 'UnigenID', 'ProteinID', 'AlignID',
+                   'exonCount', 'exonStarts', 'exonEnds', 'cdsStart', 'cdsEnd']
 
     # List All Species in the Gene Table
     speciesDict = {}
@@ -34,9 +34,9 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
 					  ((TxStart > %f and TxStart <= %f) OR (TxEnd > %f and TxEnd <= %f))
 				ORDER BY txStart
                 """ % (", ".join(fetchFields),
-                   speciesId, chrName,
-                   startMb, endMb,
-                   startMb, endMb)).fetchall()
+                       speciesId, chrName,
+                       startMb, endMb,
+                       startMb, endMb)).fetchall()
 
     GeneList = []
 
@@ -55,7 +55,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                                               StrainId1 = %d AND StrainId2 = %d
                                         """ % (chrName, newdict["TxStart"], newdict["TxEnd"], diffCol[0], diffCol[1])).fetchone()[0]
                 newdict["snpDensity"] = newdict["snpCount"] / \
-                        (newdict["TxEnd"] - newdict["TxStart"]) / 1000.0
+                    (newdict["TxEnd"] - newdict["TxStart"]) / 1000.0
             else:
                 newdict["snpDensity"] = newdict["snpCount"] = 0
 
@@ -70,8 +70,8 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                 newdict2 = {}
 
                 resultsOther = g.db.execute("SELECT %s FROM GeneList WHERE SpeciesId = %d AND geneSymbol= '%s' LIMIT 1" % (", ".join(fetchFields),
-                                                                                                           othSpecId,
-                                                                                                           newdict["GeneSymbol"])).fetchone()
+                                                                                                                           othSpecId,
+                                                                                                                           newdict["GeneSymbol"])).fetchone()
 
                 if resultsOther:
                     for j, item in enumerate(fetchFields):
@@ -88,13 +88,13 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                                                     """ % (chrName, newdict["TxStart"], newdict["TxEnd"], diffCol[0], diffCol[1])).fetchone()[0]
 
                         newdict2["snpDensity"] = newdict2["snpCount"] / \
-                                (newdict2["TxEnd"] - newdict2["TxStart"]) / 1000.0
+                            (newdict2["TxEnd"] - newdict2["TxStart"]) / 1000.0
                     else:
                         newdict2["snpDensity"] = newdict2["snpCount"] = 0
 
                     try:
                         newdict2['GeneLength'] = 1000.0 * \
-                                (newdict2['TxEnd'] - newdict2['TxStart'])
+                            (newdict2['TxEnd'] - newdict2['TxStart'])
                     except:
                         pass
 

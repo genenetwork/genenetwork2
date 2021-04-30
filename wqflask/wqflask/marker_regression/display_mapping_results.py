@@ -629,7 +629,7 @@ class DisplayMappingResults:
                 submit=HtmlGenWrapper.create_input_tag(type_='hidden'))
 
             hddn = {'FormID': 'showDatabase', 'ProbeSetID': '_', 'database': fd.RISet+ \
-                "Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
+                    "Geno",'CellID':'_', 'RISet':fd.RISet, 'incparentsf1':'ON'}
             for key in hddn.keys():
                 showLocusForm.append(HtmlGenWrapper.create_input_tag(
                     name=key, value=hddn[key], type_='hidden'))
@@ -889,7 +889,7 @@ class DisplayMappingResults:
             bootY = yZero - bootHeightThresh * item / highestPercent
             im_drawer.line(
                 xy=((canvas.size[0] - bootOffset + 4, bootY),
-                 (canvas.size[0] - bootOffset, bootY)),
+                    (canvas.size[0] - bootOffset, bootY)),
                 fill=BLACK)
             im_drawer.text(xy=(canvas.size[0] - bootOffset + 10, bootY+TEXT_Y_DISPLACEMENT),
                            text='%2.1f' % item, font=bootScaleFont, fill=BLACK)
@@ -983,7 +983,7 @@ class DisplayMappingResults:
                             break
         if locPixel >= 0 and self.plotScale == 'physic':
             traitPixel = ((locPixel, yZero), (locPixel - 7,
-                          yZero + 14), (locPixel + 7, yZero + 14))
+                                              yZero + 14), (locPixel + 7, yZero + 14))
             draw_open_polygon(canvas, xy=traitPixel, outline=BLACK,
                               fill=self.TRANSCRIPT_LOCATION_COLOR)
 
@@ -1029,7 +1029,7 @@ class DisplayMappingResults:
                         SNPCounts[i - xLeftOffset] * SNP_HEIGHT_MODIFIER / maxCount)
                     im_drawer.line(
                         xy=((i, drawSNPLocationY + (snpDensity) * zoom),
-                           (i, drawSNPLocationY - (snpDensity) * zoom)),
+                            (i, drawSNPLocationY - (snpDensity) * zoom)),
                         fill=self.SNP_COLOR, width=1)
 
     def drawMultiTraitName(self, fd, canvas, gifmap, showLocusForm, offset=(40, 120, 80, 10), zoom=1):
@@ -1356,7 +1356,7 @@ class DisplayMappingResults:
                 # always apply colors now, even if SNP Track not checked - Zach 11/24/2010
 
                 densities = [1.0000000000000001e-05, 0.094094033555233408,
-                    0.3306166377816987, 0.88246026851027781, 2.6690084029581951, 4.1, 61.0]
+                             0.3306166377816987, 0.88246026851027781, 2.6690084029581951, 4.1, 61.0]
                 if SNPdensity < densities[0]:
                     myColor = BLACK
                 elif SNPdensity < densities[1]:
@@ -1462,13 +1462,13 @@ class DisplayMappingResults:
                                 xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
                                      geneYLocation),
                                     (geneStartPix + xCoord,
-                                      geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
                                 fill=arrowColor, width=1)
                             im_drawer.line(
                                 xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
                                      geneYLocation + self.EACH_GENE_HEIGHT * zoom),
                                     (geneStartPix + xCoord,
-                                      geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
                                 fill=arrowColor, width=1)
 
                 # draw the blocks for the exon regions
@@ -1476,7 +1476,7 @@ class DisplayMappingResults:
                     exonStartPix = (
                         exonStarts[i] - startMb) * plotXScale + xLeftOffset
                     exonEndPix = (exonEnds[i] - startMb) * \
-                                  plotXScale + xLeftOffset
+                        plotXScale + xLeftOffset
                     if (exonStartPix < xLeftOffset):
                         exonStartPix = xLeftOffset
                     if (exonEndPix < xLeftOffset):
@@ -1493,7 +1493,7 @@ class DisplayMappingResults:
                 # draw gray blocks for 3' and 5' UTR blocks
                 if cdsStart and cdsEnd:
                     utrStartPix = (txStart - startMb) * \
-                                   plotXScale + xLeftOffset
+                        plotXScale + xLeftOffset
                     utrEndPix = (cdsStart - startMb) * plotXScale + xLeftOffset
                     if (utrStartPix < xLeftOffset):
                         utrStartPix = xLeftOffset
@@ -1741,9 +1741,9 @@ class DisplayMappingResults:
                                         mylineColor = self.HAPLOTYPE_RECOMBINATION
                                     im_drawer.line(
                                         xy=((plotRight,
-                                            geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom),
+                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom),
                                             (drawEnd,
-                                            geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom)),
+                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom)),
                                         fill= mylineColor, width=zoom * (self.EACH_GENE_HEIGHT + 2))
 
                             if lastGene == 0:
@@ -1869,7 +1869,7 @@ class DisplayMappingResults:
                     fill=self.CLICKABLE_WEBQTL_REGION_COLOR)
                 im_drawer.line(
                     xy=((xBrowse1, paddingTop), (xBrowse1,
-                        (paddingTop + self.BAND_HEIGHT))),
+                                                 (paddingTop + self.BAND_HEIGHT))),
                     fill=self.CLICKABLE_WEBQTL_REGION_OUTLINE_COLOR)
 
                 if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
@@ -1895,7 +1895,7 @@ class DisplayMappingResults:
                         fill=self.CLICKABLE_PHENOGEN_REGION_COLOR)
                     im_drawer.line(
                         xy=((xBrowse1, phenogenPaddingTop), (xBrowse1,
-                            (phenogenPaddingTop + self.BAND_HEIGHT))),
+                                                             (phenogenPaddingTop + self.BAND_HEIGHT))),
                         fill=self.CLICKABLE_PHENOGEN_REGION_OUTLINE_COLOR)
 
                 UCSC_COORDS = "%d, %d, %d, %d" % (
@@ -2051,7 +2051,7 @@ class DisplayMappingResults:
                                        fill=xAxisLabelColor)
                     else:
                         im_drawer.line(xy=((Xc, yZero),
-                                          (Xc, yZero + xMinorTickHeight)),
+                                           (Xc, yZero + xMinorTickHeight)),
                                        fill=xAxisTickMarkColor,
                                        width=X_MINOR_TICK_THICKNESS)  # Draw the MINOR tick mark
 
@@ -2159,17 +2159,17 @@ class DisplayMappingResults:
                     if differ:
                         im_drawer.line(
                             xy=((startPosX + Lpos, yZero), (xLeftOffset + offsetA,\
-                        yZero + 25)),
+                                                            yZero + 25)),
                             fill=lineColor)
                         im_drawer.line(
                             xy=((xLeftOffset + offsetA, yZero + 25), (xLeftOffset+offsetA,\
-                        yZero + 40 + Zorder*(LRectWidth+3))),
+                                                                      yZero + 40 + Zorder*(LRectWidth+3))),
                             fill=lineColor)
                         rectColor = ORANGE
                     else:
                         im_drawer.line(
                             xy=((xLeftOffset + offsetA, yZero + 40+Zorder*(LRectWidth+3)-3), (\
-                        xLeftOffset + offsetA, yZero + 40+Zorder*(LRectWidth+3))),
+                                xLeftOffset + offsetA, yZero + 40+Zorder*(LRectWidth+3))),
                             fill=lineColor)
                         rectColor = DEEPPINK
                     im_drawer.rectangle(
@@ -2178,7 +2178,7 @@ class DisplayMappingResults:
                              yZero + 40 + Zorder*(LRectWidth+3)+LRectWidth)),
                         outline=rectColor, fill=rectColor, width=0)
                     COORDS = "%d,%d,%d,%d" % (xLeftOffset+offsetA-LRectHeight, yZero+40+Zorder*(LRectWidth+3),\
-                            xLeftOffset + offsetA, yZero +40+Zorder*(LRectWidth+3)+LRectWidth)
+                                              xLeftOffset + offsetA, yZero +40+Zorder*(LRectWidth+3)+LRectWidth)
                     HREF = "/show_trait?trait_id=%s&dataset=%s" % (
                         Lname, self.dataset.group.name + "Geno")
                     #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
@@ -2230,7 +2230,7 @@ class DisplayMappingResults:
         if self.lrsMax <= 0:  # sliding scale
             if "lrs_value" in self.qtlresults[0]:
                 LRS_LOD_Max = max([result['lrs_value']
-                                  for result in self.qtlresults])
+                                   for result in self.qtlresults])
                 if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                     LRS_LOD_Max = LRS_LOD_Max / self.LODFACTOR
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
@@ -2248,7 +2248,7 @@ class DisplayMappingResults:
                         pass
             else:
                 LRS_LOD_Max = max([result['lod_score']
-                                  for result in self.qtlresults])
+                                   for result in self.qtlresults])
                 if self.LRS_LOD == "LRS":
                     LRS_LOD_Max = LRS_LOD_Max * self.LODFACTOR
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
@@ -2390,7 +2390,7 @@ class DisplayMappingResults:
                 )
                 im_drawer.line(
                     xy=((start_pos_x + self.SUGGESTIVE_WIDTH / 1.5, significantY),
-                       (rightEdge, significantY)),
+                        (rightEdge, significantY)),
                     fill=self.SIGNIFICANT_COLOR,
                     width=self.SIGNIFICANT_WIDTH * zoom
                     # , clipX=(xLeftOffset, xLeftOffset + plotWidth-2)
@@ -2440,7 +2440,7 @@ class DisplayMappingResults:
         else:
             if self.additiveChecked:
                 additiveMax = max([abs(X['additive'])
-                                  for X in self.qtlresults])
+                                   for X in self.qtlresults])
             lrsEdgeWidth = 3
 
         if zoom == 2:
@@ -2484,7 +2484,7 @@ class DisplayMappingResults:
                                     Xcm = Xc
                                 else:
                                     Xcm = (yZero - Yc0) / \
-                                           ((Yc - Yc0) / (Xc - Xc0)) + Xc0
+                                        ((Yc - Yc0) / (Xc - Xc0)) + Xc0
                                 if Yc0 < yZero:
                                     im_drawer.line(
                                         xy=((Xc0, Yc0), (Xcm, yZero)),
@@ -2583,12 +2583,12 @@ class DisplayMappingResults:
                             #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - webqtlConfig.MAXLRS * \
                                 LRSHeightThresh / \
-                                    (LRS_LOD_Max * self.LODFACTOR)
+                                (LRS_LOD_Max * self.LODFACTOR)
                         else:
                             #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - \
                                 qtlresult['lrs_value'] * LRSHeightThresh / \
-                                    (LRS_LOD_Max * self.LODFACTOR)
+                                (LRS_LOD_Max * self.LODFACTOR)
                     else:
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value'] == 'inf':
                             #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
@@ -2597,7 +2597,7 @@ class DisplayMappingResults:
                             #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lrs_value'] * \
-                                    LRSHeightThresh / LRS_LOD_Max
+                                LRSHeightThresh / LRS_LOD_Max
                 else:
                     if qtlresult['lod_score'] > 100 or qtlresult['lod_score'] == 'inf':
                         #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
@@ -2607,12 +2607,12 @@ class DisplayMappingResults:
                             #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lod_score'] * self.LODFACTOR * \
-                                    LRSHeightThresh / LRS_LOD_Max
+                                LRSHeightThresh / LRS_LOD_Max
                         else:
                             #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lod_score'] * \
-                                    LRSHeightThresh / LRS_LOD_Max
+                                LRSHeightThresh / LRS_LOD_Max
 
                 if self.manhattan_plot == True:
                     if self.color_scheme == "single":
@@ -2665,7 +2665,7 @@ class DisplayMappingResults:
                             Xcm = Xc
                         else:
                             Xcm = (yZero - Yc0) / \
-                                   ((Yc - Yc0) / (Xc - Xc0)) + Xc0
+                                ((Yc - Yc0) / (Xc - Xc0)) + Xc0
                         if Yc0 < yZero:
                             im_drawer.line(
                                 xy=((Xc0, Yc0), (Xcm, yZero)),
@@ -2731,7 +2731,7 @@ class DisplayMappingResults:
                             Xcm = Xc
                         else:
                             Xcm = (yZero - Yc0) / \
-                                   ((Yc - Yc0) / (Xc - Xc0)) + Xc0
+                                ((Yc - Yc0) / (Xc - Xc0)) + Xc0
                         if Yc0 < yZero:
                             im_drawer.line(
                                 xy=((Xc0, Yc0), (Xcm, yZero)),
@@ -2947,12 +2947,12 @@ class DisplayMappingResults:
         if self.dataset.group.species == "mouse":
             if refGene:
                 gene_table_header_list = ["Index",
-                                               "Symbol",
-                                               "Mb Start",
-                                               "Length (Kb)",
-                                               "SNP Count",
-                                               "SNP Density",
-                                               "Avg Expr",
+                                          "Symbol",
+                                          "Mb Start",
+                                          "Length (Kb)",
+                                          "SNP Count",
+                                          "SNP Density",
+                                          "Avg Expr",
                                                "Human Chr",
                                                "Mb Start (hg19)",
                                                "Literature Correlation",

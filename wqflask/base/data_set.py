@@ -151,7 +151,7 @@ class DatasetType:
                             "WHERE InbredSet.Name = '%s' AND "
                             "PublishFreeze.InbredSetId = InbredSet.Id"),
             'geno': ("SELECT GenoFreeze.Id FROM GenoFreeze WHERE "
-                      "GenoFreeze.Name = \"%s\" ")
+                     "GenoFreeze.Name = \"%s\" ")
         }
 
         dataset_name_mapping = {
