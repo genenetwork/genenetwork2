@@ -16,6 +16,8 @@
     	.trait_col {
     		font-weight:bolder;
     		text-align: center;
+    		color:#036ffc;
+    		/*font-size: 1.1em;*/
     	}
     	table th {
     		font-weight: bolder;
@@ -27,17 +29,32 @@
     	.correlation-title h3 span {
           font-weight: bolder;
     	}
+    	.header-toggle-vis {
+    		padding:10px 5px;
+    	}
+    	.header-toggle-vis button {
+    		border-radius: 5px;
+
+    	}
     </style>
 {% endblock %}
 
 {% block content %}
 
 <div class="correlation-title">
-	<h3>Correlation Results for <span>Dataset_name</span> against <span><a href="">trait_name</a></span> for the top <span>all</span>Results</h3>
+	<h3>Correlation Results for <span>Dataset_name</span> against <span><a href="">trait_name</a></span> for the top <span>all</span> Results</h3>
+</div>
+<div class="header-toggle-vis">
+	      <button class="toggle-vis" data-column="1">Index</button>
+          <button class="toggle-vis" data-column="2">Trait Name</button>
+          <button class="toggle-vis" data-column="3">Sample r</button>
+          <button class="toggle-vis" data-column="4">Sample P(r)</button>
+          <button class="toggle-vis" data-column="5">Num overlap</button>
 </div>
 	<table id="example" class="display" width="100%">
 		        <thead>
             <tr >
+            	<th></th>
                 <th>index</th>
                 <th>trait_name</th>
                 <th>Sample r</th>
@@ -83,9 +100,10 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-    $('#example').DataTable( {
+    let  table = $('#example').DataTable( {
         "data": correlationResults,
         "columns": [
+            {"data":null,"width":"25px"},
             { "data": "index","width":"120px","title":"Index" },
             { "data": "trait_name","title":"TraitName"},
             { "data": "corr_coeffient"},
@@ -93,16 +111,21 @@
             { "data": "num_overlap"}
         ],
         "columnDefs": [ 
-
-           {className:"trait_col",targets:1},
-           {className: "td-styles", targets: "_all"},
-          {
-            orderable: false,
-            className: 'select-checkbox',
-            targets:   0
-          },
            {
-           	"targets":1,
+           	targets:0,
+           	data:null,
+           	defaultContent: '',
+           	orderable: false,
+           	className: 'select-checkbox',
+           	"render":(data,type,row)=>{
+           		return `<input type="checkbox" class="checkbox trait_checkbox" value="other">`
+           	}
+
+           },
+           {className:"trait_col",targets:2},
+           {className: "td-styles", targets: "_all"},
+           {
+           	"targets":2,
            	"render":(data,type,row)=>{
            		let urlLink = "/show_trait?trait_id=1453207_at&dataset=HC_M2_0606_P"
            		let traitLink = `<a href=${urlLink}>${data}</a>`
@@ -110,31 +133,16 @@
            	},
            }
 
-     ],
-    select: {
-	    style:'os',
-	    selector: 'td:first-child'
-    }
+     ]
     } );
+
+    $(":button.toggle-vis").on("click",function(e){
+    	e.preventDefault()
+    	let column = table.column($(this).attr("data-column"));
+    	column.visible(!column.visible())
+    	console.log($(this).attr("data-column"))
+    })
 } );
-
-
-
-	    // console.log(corr_data)
-	    // $('#example').DataTable( {
-     //     "data": corr_data,
-     //     "columns": [
-     //      {"data":"other"},
-     //      {"data":"trait_name"}
-     //      ]
-        // "columns": [
-        //     { "data": "index" },
-        //     { "data": "trait_name"},
-        //     { "data": "corr_coeffient"},
-        //     { "data": "p_value"},
-        //     { "data": "num_overlap"}
-        // ]
-    // } );
 </script>
 
 {% endblock %}
