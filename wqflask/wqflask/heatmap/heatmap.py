@@ -14,6 +14,7 @@ Redis = Redis()
 
 logger = getLogger(__name__)
 
+
 class Heatmap:
 
     def __init__(self, start_vars, temp_uuid):
@@ -132,6 +133,7 @@ class Heatmap:
                 else:
                     self.trait_results[this_trait.name].append(float(qtl['lrs_value']))
 
+
 def gen_pheno_txt_file(samples, vals, filename):
     """Generates phenotype file for GEMMA"""
 
@@ -150,6 +152,7 @@ def gen_pheno_txt_file(samples, vals, filename):
         outfile.write("T1\t")
         values_string = "\t".join(filtered_vals_list)
         outfile.write(values_string)
+
 
 def parse_reaper_output(gwa_filename):
     included_markers = []

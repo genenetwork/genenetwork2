@@ -5,6 +5,7 @@ from flask import g
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 class Docs:
 
     def __init__(self, entry, start_vars={}):
@@ -22,7 +23,6 @@ class Docs:
             
             self.title = result[0]
             self.content = result[1].decode("utf-8")
-
 
         self.editable = "false"
         # ZS: Removing option to edit to see if text still gets vandalized

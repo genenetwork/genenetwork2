@@ -24,6 +24,7 @@ from utility import helper_functions, corr_result_helpers
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 class SendToBNW:
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]

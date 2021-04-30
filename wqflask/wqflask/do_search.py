@@ -73,6 +73,7 @@ class DoSearch:
         else:
             return None
 
+
 class MrnaAssaySearch(DoSearch):
     """A search within an expression dataset, including mRNA, protein, SNP, but not phenotype or metabolites"""
 
@@ -296,6 +297,7 @@ class PhenotypeSearch(DoSearch):
 
         return self.execute(query)
 
+
 class GenotypeSearch(DoSearch):
     """A search within a genotype dataset"""
 
@@ -339,7 +341,6 @@ class GenotypeSearch(DoSearch):
 
         from_clause = self.normalize_spaces(from_clause)
 
-
         if self.search_term[0] == "*":
             query = (self.base_query +
                     """WHERE Geno.Id = GenoXRef.GenoId
@@ -367,6 +368,7 @@ class GenotypeSearch(DoSearch):
 
         return self.execute(self.query)
 
+
 class RifSearch(MrnaAssaySearch):
     """Searches for traits with a Gene RIF entry including the search term."""
 
@@ -389,6 +391,7 @@ class RifSearch(MrnaAssaySearch):
         query = self.compile_final_query(from_clause, where_clause)
 
         return self.execute(query)
+
 
 class WikiSearch(MrnaAssaySearch):
     """Searches GeneWiki for traits other people have annotated"""
@@ -414,6 +417,7 @@ class WikiSearch(MrnaAssaySearch):
         query = self.compile_final_query(from_clause, where_clause)
 
         return self.execute(query)
+
 
 class GoSearch(MrnaAssaySearch):
     """Searches for synapse-associated genes listed in the Gene Ontology."""
@@ -449,6 +453,8 @@ class GoSearch(MrnaAssaySearch):
         return self.execute(query)
 
 # ZS: Not sure what the best way to deal with LRS searches is
+
+
 class LrsSearch(DoSearch):
     """Searches for genes with a QTL within the given LRS values
 
@@ -526,7 +532,6 @@ class LrsSearch(DoSearch):
 
         return where_clause
 
-
     def run(self):
 
         self.from_clause = self.get_from_clause()
@@ -549,6 +554,7 @@ class MrnaLrsSearch(LrsSearch, MrnaAssaySearch):
         self.query = self.compile_final_query(from_clause=self.from_clause, where_clause=self.where_clause)
 
         return self.execute(self.query)
+
 
 class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
@@ -649,6 +655,7 @@ class CisTransLrsSearch(DoSearch):
 
         return where_clause
 
+
 class CisLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
     """
     Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
@@ -679,6 +686,7 @@ class CisLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
         self.query = self.compile_final_query(self.from_clause, self.where_clause)
 
         return self.execute(self.query)
+
 
 class TransLrsSearch(CisTransLrsSearch, MrnaAssaySearch):
     """Searches for genes on a particular chromosome with a cis-eQTL within the given LRS values
@@ -744,6 +752,7 @@ class MeanSearch(MrnaAssaySearch):
 
         return self.execute(self.query)
 
+
 class RangeSearch(MrnaAssaySearch):
     """Searches for genes with a range of expression varying between two values"""
 
@@ -779,6 +788,7 @@ class RangeSearch(MrnaAssaySearch):
 
         return self.execute(self.query)
 
+
 class PositionSearch(DoSearch):
     """Searches for genes/markers located within a specified range on a specified chromosome"""
 
@@ -800,7 +810,6 @@ class PositionSearch(DoSearch):
                                                               self.dataset.type,
                                                               max(self.mb_min, self.mb_max))
 
-
         return where_clause
 
     def get_chr(self):
@@ -819,6 +828,7 @@ class PositionSearch(DoSearch):
 
         return self.execute(self.query)
 
+
 class MrnaPositionSearch(PositionSearch, MrnaAssaySearch):
     """Searches for genes located within a specified range on a specified chromosome"""
 
@@ -832,6 +842,7 @@ class MrnaPositionSearch(PositionSearch, MrnaAssaySearch):
 
         return self.execute(self.query)
 
+
 class GenotypePositionSearch(PositionSearch, GenotypeSearch):
     """Searches for genes located within a specified range on a specified chromosome"""
 
@@ -844,6 +855,7 @@ class GenotypePositionSearch(PositionSearch, GenotypeSearch):
         self.query = self.compile_final_query(where_clause=self.where_clause)
 
         return self.execute(self.query)
+
 
 class PvalueSearch(MrnaAssaySearch):
     """Searches for traits with a permutationed p-value between low and high"""
@@ -878,6 +890,7 @@ class PvalueSearch(MrnaAssaySearch):
         logger.sql(self.query)
         return self.execute(self.query)
 
+
 class AuthorSearch(PhenotypeSearch):
     """Searches for phenotype traits with specified author(s)"""
 
@@ -899,6 +912,7 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
 
 def get_aliases(symbol, species):
     if species == "mouse":
@@ -922,6 +936,7 @@ def get_aliases(symbol, species):
                 seen.add(item)
 
     return filtered_aliases
+
 
 if __name__ == "__main__":
     # Usually this will be used as a library, but call it from the command line for testing

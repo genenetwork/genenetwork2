@@ -29,6 +29,7 @@ from utility import helper_functions, corr_result_helpers
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 class SendToWebGestalt:
     def __init__(self, start_vars):
         trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -68,6 +69,7 @@ class SendToWebGestalt:
                 self.hidden_vars['organism'] = "mmusculus"
             else:
                 self.hidden_vars['organism'] = "others"
+
 
 def test_chip(trait_list):
     final_chip_name = ""
@@ -112,6 +114,7 @@ def test_chip(trait_list):
                 return chip_name
 
     return chip_name
+
 
 def gen_gene_id_list(trait_list):
     trait_name_list = []

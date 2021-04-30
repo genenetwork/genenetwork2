@@ -8,6 +8,7 @@ from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
     """Generates p-values for each marker using qtlreaper"""
 
@@ -73,6 +74,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
     return (marker_obs, permu_vals, suggestive, significant, bootstrap_vals, 
         [output_filename, permu_filename, bootstrap_filename])
 
+
 def gen_pheno_txt_file(samples, vals, trait_filename):
     """Generates phenotype file for GEMMA"""
 
@@ -91,6 +93,7 @@ def gen_pheno_txt_file(samples, vals, trait_filename):
         outfile.write("T1\t")
         values_string = "\t".join(filtered_vals_list)
         outfile.write(values_string)
+
 
 def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
     included_markers = []
@@ -162,6 +165,7 @@ def parse_reaper_output(gwa_filename, permu_filename, bootstrap_filename):
         bootstrap_vals = [bootstrap_vals[i] for i in sorted_indices]
 
     return marker_obs, permu_vals, bootstrap_vals
+
 
 def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_data, num_perm, bootCheck, num_bootstrap, do_control, control_marker, manhattan_plot):
     genotype = dataset.group.read_genotype_file(use_reaper=True)
@@ -254,6 +258,7 @@ def run_original_reaper(this_trait, dataset, samples_before, trait_vals, json_da
                "cM": reaper_locus.cM, "name": reaper_locus.name, "additive": qtl.additive, "dominance": qtl.dominance}
         qtl_results.append(qtl)
     return qtl_results, json_data, perm_output, suggestive, significant, bootstrap_results
+
 
 def natural_sort(marker_list):
     """

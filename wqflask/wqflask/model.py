@@ -14,6 +14,7 @@ from sqlalchemy.orm import relationship
 
 from wqflask.database import Base, init_db
 
+
 class User(Base):
     __tablename__ = "user"
     id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -63,7 +64,6 @@ class User(Base):
             print("Couldn't display_num_collections:", why)
             return ""
 
-
     def get_collection_by_name(self, collection_name):
         try:
             collect = self.user_collections.filter_by(name=collection_name).first()
@@ -82,7 +82,6 @@ class User(Base):
     @property
     def login_count(self):
         return self.logins.filter_by(successful=True).count()
-
 
     @property
     def confirmed_at(self):
@@ -116,6 +115,7 @@ class User(Base):
         except IndexError:
             return None
 
+
 class Login(Base):
     __tablename__ = "login"
     id = Column(Unicode(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -133,6 +133,7 @@ class Login(Base):
         self.ip_address = request.remote_addr
 
 ##################################################################################################
+
 
 class UserCollection(Base):
     __tablename__ = "user_collection"
@@ -158,11 +159,13 @@ class UserCollection(Base):
     def members_as_set(self):
         return set(json.loads(self.members))
 
+
 def display_collapsible(number):
     if number:
         return number
     else:
         return ""
+
 
 def user_uuid():
     """Unique cookie for a user"""

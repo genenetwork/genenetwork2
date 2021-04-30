@@ -509,9 +509,6 @@ class DisplayMappingResults:
             self.graphHeight = self.graphHeight + 2 * (self.NR_INDIVIDUALS + 10) * self.EACH_GENE_HEIGHT
 # END HaplotypeAnalyst
 
-
-
-
         #########################
         # Get the sorting column
         #########################
@@ -1640,7 +1637,6 @@ class DisplayMappingResults:
                                                  geneYLocation + 2 *ind*self.EACH_GENE_HEIGHT + 2*self.EACH_GENE_HEIGHT*zoom)),
                                             outline=outlineColor, fill=fillColor)
 
-
                                     COORDS = "%d, %d, %d, %d" % (geneStartPix, geneYLocation + ind * self.EACH_GENE_HEIGHT, geneEndPix + 1, (geneYLocation + ind * self.EACH_GENE_HEIGHT))
                                     TITLE = "Strain: %s, marker (%s) \n Position  %2.3f Mb." % (samplelist[k], _chr[j].name, float(txStart))
                                     HREF = ''
@@ -1662,7 +1658,6 @@ class DisplayMappingResults:
                                             (drawEnd,
                                             geneYLocation + 7 + 2*ind*self.EACH_GENE_HEIGHT*zoom)),
                                         fill= mylineColor, width=zoom * (self.EACH_GENE_HEIGHT + 2))
-
 
                             if lastGene == 0:
                                 draw_rotated_text(
@@ -2085,7 +2080,6 @@ class DisplayMappingResults:
         im_drawer.line(xy=((xLeftOffset, yZero), (xLeftOffset + plotWidth, yZero)),
                        fill=BLACK, width=X_AXIS_THICKNESS)  # Draw the X axis itself
 
-
     def drawQTL(self, canvas, drawAreaHeight, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb= None, endMb = None):
         im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
@@ -2427,7 +2421,6 @@ class DisplayMappingResults:
 
                 yLRS = yZero - (item / LRS_LOD_Max) * LRSHeightThresh
 
-
                 if 'lrs_value' in qtlresult:
                     if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value'] == 'inf':
@@ -2621,7 +2614,6 @@ class DisplayMappingResults:
                                 # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                             )
 
-
         # draw additive scale
         if not self.multipleInterval and self.additiveChecked:
             additiveScaleFont = ImageFont.truetype(font=VERDANA_FILE, size=16 * zoom)
@@ -2652,7 +2644,6 @@ class DisplayMappingResults:
         im_drawer.line(
             xy=((xLeftOffset, yZero), (xLeftOffset, yTopOffset + 30 * (zoom - 1))),
             fill=self.LRS_COLOR, width=1 * zoom)  # the blue line running up the y axis
-
 
     def drawGraphBackground(self, canvas, gifmap, offset=(80, 120, 80, 50), zoom=1, startMb= None, endMb = None):
         # conditions

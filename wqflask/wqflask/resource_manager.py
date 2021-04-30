@@ -11,6 +11,7 @@ from utility.redis_tools import get_resource_info, get_group_info, get_groups_li
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 @app.route("/resources/manage", methods=('GET', 'POST'))
 def manage_resource():
     params = request.form if request.form else request.args
@@ -40,6 +41,7 @@ def manage_resource():
 
         return render_template("admin/manage_resource.html", owner_name=owner_display_name, resource_id=resource_id, resource_info=resource_info, default_mask=default_mask, group_masks=group_masks_with_names, admin_status=admin_status)
 
+
 @app.route("/search_for_users", methods=('POST',))
 def search_for_user():
     params = request.form
@@ -48,6 +50,7 @@ def search_for_user():
     user_list += get_users_like_unique_column("email_address", params['user_email'])
 
     return json.dumps(user_list)
+
 
 @app.route("/search_for_groups", methods=('POST',))
 def search_for_groups():
@@ -65,6 +68,7 @@ def search_for_groups():
 
     return json.dumps(group_list)
 
+
 @app.route("/resources/change_owner", methods=('POST',))
 def change_owner():
     resource_id = request.form['resource_id']
@@ -80,6 +84,7 @@ def change_owner():
             return redirect(url_for("manage_resource", resource_id=resource_id))
     else:
         return render_template("admin/change_resource_owner.html", resource_id=resource_id)
+
 
 @app.route("/resources/change_default_privileges", methods=('POST',))
 def change_default_privileges():
@@ -98,6 +103,7 @@ def change_default_privileges():
         return redirect(url_for("manage_resource", resource_id=resource_id))
     else:
         return redirect(url_for("no_access_page"))
+
 
 @app.route("/resources/add_group", methods=('POST',))
 def add_group_to_resource():
@@ -124,6 +130,7 @@ def add_group_to_resource():
             return render_template("admin/search_for_groups.html", resource_id=resource_id)
     else:
         return redirect(url_for("no_access_page"))
+
 
 def get_group_names(group_masks):
     group_masks_with_names = {}

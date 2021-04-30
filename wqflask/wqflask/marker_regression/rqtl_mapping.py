@@ -16,6 +16,8 @@ import utility.logger
 logger = utility.logger.getLogger(__name__)
 
 # Get a trait's type (numeric, categorical, etc) from the DB
+
+
 def get_trait_data_type(trait_db_string):
     logger.info("get_trait_data_type");
     the_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
@@ -133,6 +135,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
         else:
             return process_rqtl_results(result_data_frame, dataset.group.species)
 
+
 def generate_cross_from_rdata(dataset):
     rdata_location = locate(dataset.group.name + ".RData", "genotype/rdata")
     ro.r("""
@@ -142,6 +145,7 @@ def generate_cross_from_rdata(dataset):
            return(cross)
        }
     """ % (rdata_location))
+
 
 def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
 
@@ -187,6 +191,7 @@ def generate_cross_from_geno(dataset, scale_units):        # TODO: Need to figur
       }
     """ % (dataset.group.genofile, scale_units))
 
+
 def add_perm_strata(cross, perm_strata):
     col_string = 'c("the_strata")'
     perm_strata_string = "c("
@@ -200,6 +205,7 @@ def add_perm_strata(cross, perm_strata):
     strata_ob = pull_var("perm_strata", cross, col_string)
 
     return cross, strata_ob
+
 
 def sanitize_rqtl_phenotype(vals):
     pheno_as_string = "c("
@@ -218,6 +224,7 @@ def sanitize_rqtl_phenotype(vals):
 
     return pheno_as_string
 
+
 def sanitize_rqtl_names(vals):
     pheno_as_string = "c("
     for i, val in enumerate(vals):
@@ -235,11 +242,13 @@ def sanitize_rqtl_names(vals):
 
     return pheno_as_string
 
+
 def add_phenotype(cross, pheno_as_string, col_name):
     ro.globalenv["the_cross"] = cross
     ro.r('pheno <- data.frame(pull.pheno(the_cross))')
     ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = as.numeric(' + pheno_as_string + '))')
     return ro.r["the_cross"]
+
 
 def add_categorical_covar(cross, covar_as_string, i):
     ro.globalenv["the_cross"] = cross
@@ -275,11 +284,13 @@ def add_names(cross, names_as_string, col_name):
     ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + ' = ' + names_as_string + ')')
     return ro.r["the_cross"]
 
+
 def pull_var(var_name, cross, var_string):
     ro.globalenv["the_cross"] = cross
     ro.r(var_name + ' <- pull.pheno(the_cross, ' + var_string + ')')
 
     return ro.r[var_name]
+
 
 def add_cofactors(cross, this_dataset, covariates, samples):
     ro.numpy2ri.activate()
@@ -341,6 +352,7 @@ def add_cofactors(cross, this_dataset, covariates, samples):
     covars_ob = pull_var("trait_covars", cross, covar_name_string)
     return cross, covars_ob
 
+
 def create_marker_covariates(control_marker, cross):
     ro.globalenv["the_cross"] = cross
     ro.r('genotypes <- pull.geno(the_cross)')                             # Get the genotype matrix
@@ -358,6 +370,7 @@ def create_marker_covariates(control_marker, cross):
     # TODO: Create a design matrix from the marker covars for the markers in case of an F2, 4way, etc
     return ro.r["marker_covars"]
 
+
 def process_pair_scan_results(result):
     pair_scan_results = []
 
@@ -374,6 +387,7 @@ def process_pair_scan_results(result):
 
     return pair_scan_results
 
+
 def process_rqtl_perm_results(num_perm, results):
     perm_vals = []
     for line in str(results).split("\n")[1:(num_perm + 1)]:
@@ -385,6 +399,7 @@ def process_rqtl_perm_results(num_perm, results):
     significant = np.percentile(np.array(perm_vals), 95)
 
     return perm_output, suggestive, significant
+
 
 def process_rqtl_results(result, species_name):        # TODO: how to make this a one liner and not copy the stuff in a loop
     qtl_results = []

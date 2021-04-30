@@ -10,6 +10,7 @@ GREEN = '\033[92m'
 BOLD = '\033[1m'
 ENDC = '\033[0m'
 
+
 def app_config():
     app.config['SESSION_TYPE'] = 'filesystem'
     if not app.config.get('SECRET_KEY'):

@@ -90,6 +90,7 @@ class InfoPage:
         except Exception as e:
             pass
 
+
 def process_query_results(results):
     info_ob = {
         'info_page_name': results[0],

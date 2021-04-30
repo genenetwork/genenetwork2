@@ -9,6 +9,7 @@ logger = getLogger(__name__)
 from base import species
 from base import webqtlConfig
 
+
 class SnpBrowser:
 
     def __init__(self, start_vars):
@@ -472,7 +473,6 @@ class SnpBrowser:
                 base_color_dict = {"A": "#C33232", "C": "#1569C7", "T": "#CFCF32", "G": "#32C332", 
                                    "t": "#FF6", "c": "#5CB3FF", "a": "#F66", "g": "#CF9", ":": "#FFFFFF", "-": "#FFFFFF", "?": "#FFFFFF"}
 
-
                 the_bases = []
                 for j, item in enumerate(allele_value_list):
                     if item and isinstance(item, str):
@@ -641,6 +641,7 @@ class SnpBrowser:
         # for i in range(n_click):
         #    href = url_for('snp_browser', first_run="false", chosen_strains_mouse=self.chosen_strains_mouse, chosen_strains_rat=self.chosen_strains_rat, variant=self.variant_type, species=self.species_name, gene_name=self.gene_name, chr=self.chr, start_mb=self.start_mb, end_mb=self.end_mb, limit_strains=self.limit_strains, domain=self.domain, function=self.function, criteria=self.criteria, score=self.score, diff_alleles=self.diff_alleles)
 
+
 def get_browser_sample_lists(species_id=1):
     strain_lists = {}
     mouse_strain_list = []
@@ -659,6 +660,7 @@ def get_browser_sample_lists(species_id=1):
     strain_lists['rat'] = rat_strain_list
 
     return strain_lists
+
 
 def get_header_list(variant_type, strains, species=None, empty_columns=None):
     if species == "Mouse":
@@ -715,6 +717,7 @@ def get_header_list(variant_type, strains, species=None, empty_columns=None):
 
     return header_fields, empty_field_count, header_data_names
 
+
 def get_effect_details_by_category(effect_name=None, effect_value=None):
     gene_list = []
     transcript_list = []
@@ -763,6 +766,7 @@ def get_effect_details_by_category(effect_name=None, effect_value=None):
                 function_detail_list.append(biotype)
 
     return [gene_list, transcript_list, exon_list, function_list, function_detail_list]
+
 
 def get_effect_info(effect_list):
     domain = ""
@@ -836,6 +840,7 @@ def get_effect_info(effect_list):
 
     return effect_info_dict
 
+
 def get_gene_id(species_id, gene_name):
     query = """
                 SELECT
@@ -852,6 +857,7 @@ def get_gene_id(species_id, gene_name):
         return result
     else:
         return ""
+
 
 def get_gene_id_name_dict(species_id, gene_name_list):
     gene_id_name_dict = {}
@@ -876,6 +882,7 @@ def get_gene_id_name_dict(species_id, gene_name_list):
             gene_id_name_dict[item[1]] = item[0]
 
     return gene_id_name_dict
+
 
 def check_if_in_gene(species_id, chr, mb):
     if species_id != 0:  # ZS: Check if this is necessary

@@ -28,6 +28,7 @@ import utility.tools
 
 utility.tools.show_settings()
 
+
 class webqtlCaseData:
     """one case data in one trait"""
 

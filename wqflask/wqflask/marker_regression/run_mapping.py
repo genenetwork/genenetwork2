@@ -45,6 +45,7 @@ from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
+
 class RunMapping:
 
     def __init__(self, start_vars, temp_uuid):
@@ -504,6 +505,7 @@ class RunMapping:
             trimmed_genotype_data.append(new_genotypes)
         return trimmed_genotype_data
 
+
 def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples):
     with open(results_path, "w+") as output_file:
         output_file.write("Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
@@ -563,6 +565,7 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
                 output_file.write("," + str(marker['dominance']))
             if i < (len(markers) - 1):
                 output_file.write("\n")
+
 
 def trim_markers_for_figure(markers):
     if 'p_wald' in list(markers[0].keys()):
@@ -624,6 +627,7 @@ def trim_markers_for_figure(markers):
                 filtered_markers.append(marker)
     return filtered_markers
 
+
 def trim_markers_for_table(markers):
     if 'lod_score' in list(markers[0].keys()):
         sorted_markers = sorted(markers, key=lambda k: k['lod_score'], reverse=True)
@@ -636,6 +640,7 @@ def trim_markers_for_table(markers):
         return trimmed_sorted_markers
     else:
         return sorted_markers
+
 
 def write_input_for_browser(this_dataset, gwas_results, annotations):
     file_base = this_dataset.group.name + "_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
@@ -650,6 +655,7 @@ def write_input_for_browser(this_dataset, gwas_results, annotations):
 
     return [gwas_filename, annot_filename]
 
+
 def geno_db_exists(this_dataset):
     geno_db_name = this_dataset.group.name + "Geno"
     try:
@@ -657,6 +663,7 @@ def geno_db_exists(this_dataset):
         return "True"
     except:
         return "False"
+
 
 def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
     chr_lengths = []
@@ -696,6 +703,7 @@ def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
 
     return chr_lengths
 
+
 def get_genofile_samplelist(dataset):
     genofile_samplelist = []
 
@@ -705,6 +713,7 @@ def get_genofile_samplelist(dataset):
             genofile_samplelist = genofile['sample_list']
 
     return genofile_samplelist
+
 
 def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
     perm_strata_strings = []

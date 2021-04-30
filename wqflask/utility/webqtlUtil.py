@@ -64,12 +64,14 @@ ParInfo = {
 #      Accessory Functions
 #########################################
 
+
 def genRandStr(prefix="", length=8, chars=string.ascii_letters + string.digits):
     from random import choice
     _str = prefix[:]
     for i in range(length):
         _str += choice(chars)
     return _str
+
 
 def ListNotNull(lst):
     '''Obsolete - Use built in function any (or all or whatever)
@@ -83,6 +85,7 @@ def ListNotNull(lst):
             return 1
     return None
 
+
 def readLineCSV(line):  # dcrowell July 2008
     """Parses a CSV string of text and returns a list containing each element as a string.
     Used by correlationPage"""
@@ -90,6 +93,7 @@ def readLineCSV(line):  # dcrowell July 2008
     returnList[-1] = returnList[-1][:-2]
     returnList[0] = returnList[0][1:]
     return returnList
+
 
 def cmpEigenValue(A, B):
     try:
@@ -101,6 +105,7 @@ def cmpEigenValue(A, B):
             return 1
     except:
         return 0
+
 
 def hasAccessToConfidentialPhenotypeTrait(privilege, userName, authorized_users):
     access_to_confidential_phenotype_trait = 0

@@ -233,6 +233,7 @@ class CorrelationMatrix:
             loadings_array.append(loadings_row)
         return loadings_array
 
+
 def export_corr_matrix(corr_results):
     corr_matrix_filename = "corr_matrix_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     matrix_export_path = "{}{}.csv".format(GENERATED_TEXT_DIR, corr_matrix_filename)
@@ -263,6 +264,7 @@ def export_corr_matrix(corr_results):
 
     return corr_matrix_filename, matrix_export_path
 
+
 def zScore(trait_data_array):
     NN = len(trait_data_array[0])
     if NN < 10:
@@ -282,6 +284,7 @@ def zScore(trait_data_array):
             trait_data_array[i] = data2
             i += 1
         return trait_data_array
+
 
 def sortEigenVectors(vector):
     try:

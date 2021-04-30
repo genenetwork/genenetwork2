@@ -20,7 +20,9 @@ import simplejson as json
 
 from pprint import pformat as pf
 
+
 class EmptyConfigurations(Exception): pass
+
 
 class Marker:
     def __init__(self):
@@ -29,6 +31,7 @@ class Marker:
         self.cM = None
         self.Mb = None
         self.genotypes = []
+
 
 class ConvertGenoFile:
 
@@ -177,6 +180,7 @@ class ConvertGenoFile:
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
+
 
 if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""

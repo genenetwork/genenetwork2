@@ -6,6 +6,7 @@ from utility.tools import LOG_BENCH
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+
 class Bench:
     entries = collections.OrderedDict()
 

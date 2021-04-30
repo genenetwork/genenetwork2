@@ -25,10 +25,10 @@ from pprint import pformat as pf
 
 #from utility.tools import flat_files
 
+
 class EmptyConfigurations(Exception): pass
 
         
-
 class Marker:
     def __init__(self):
         self.name = None
@@ -36,6 +36,7 @@ class Marker:
         self.cM = None
         self.Mb = None
         self.genotypes = []
+
 
 class ConvertGenoFile:
 
@@ -78,7 +79,6 @@ class ConvertGenoFile:
             # elif self.file_type == "snps":
             #    self.process_snps_file()
 
-
     def process_csv(self):
         for row_count, row in enumerate(self.process_rows()):
             row_items = row.split("\t")
@@ -120,7 +120,6 @@ class ConvertGenoFile:
                 # self.output_fh.write(self.configurations[item.upper()])
                     
             # self.output_fh.write("\n")
-
 
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
@@ -181,7 +180,6 @@ class ConvertGenoFile:
     #    print("%s -> %s" % (snps_file, output_file))
     #    convertob = ConvertGenoFile(input_file, output_file)
         
-
 
 if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""

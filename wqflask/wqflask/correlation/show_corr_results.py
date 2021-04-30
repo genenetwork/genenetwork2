@@ -172,7 +172,6 @@ class CorrelationResults:
             self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
                                                                    key=lambda t: -abs(t[1][0])))
 
-
             # ZS: Convert min/max chromosome to an int for the location range option
             range_chr_as_int = None
             for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
@@ -348,7 +347,6 @@ class CorrelationResults:
             else:
                 trait.lit_corr = 0
 
-
     def do_lit_correlation_for_all_traits(self):
         input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
 
@@ -484,6 +482,7 @@ def do_bicor(this_trait_vals, target_trait_vals):
 
     return the_r, the_p
 
+
 def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api=False):
     results_list = []
     for i, trait in enumerate(corr_results):
@@ -573,6 +572,7 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_list.append(results_dict)
 
     return json.dumps(results_list)
+
 
 def get_header_fields(data_type, corr_method):
     if data_type == "ProbeSet":

@@ -55,6 +55,7 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
+
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
@@ -143,6 +144,7 @@ def phenotypes_exist(group_name):
     else:
         return False
 
+
 def genotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from GenoFreeze
@@ -155,6 +157,7 @@ def genotypes_exist(group_name):
         return True
     else:
         return False
+
 
 def build_types(species, group):
     """Fetches tissues
@@ -183,6 +186,7 @@ def build_types(species, group):
                 results.append((result[0], result[0]))
 
     return results
+
 
 def get_datasets(types):
     """Build datasets list"""
@@ -307,6 +311,7 @@ def _test_it():
     #print("build_types:", pf(types))
     datasets = build_datasets("Mouse", "BXD", "Hippocampus")
     #print("build_datasets:", pf(datasets))
+
 
 if __name__ == '__main__':
     Conn = MySQLdb.Connect(**parse_db_uri())

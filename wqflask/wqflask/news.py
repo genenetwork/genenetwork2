@@ -1,5 +1,6 @@
 from flask import g
 
+
 class News:
 
     def __init__(self):

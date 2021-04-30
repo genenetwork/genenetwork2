@@ -20,6 +20,7 @@ logger = getLogger(__name__)
 THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
+
 @app.before_request
 def get_user_session():
     logger.info("@app.before_request get_session")
@@ -30,12 +31,14 @@ def get_user_session():
         response.set_cookie('session_id_v2', '', expires=0)
         return response
 
+
 @app.after_request
 def set_user_session(response):
     if hasattr(g, 'user_session'):
         if not request.cookies.get(g.user_session.cookie_name):
             response.set_cookie(g.user_session.cookie_name, g.user_session.cookie)
     return response
+
 
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
@@ -44,12 +47,14 @@ def verify_cookie(cookie):
     assert the_signature == hmac.hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
 
+
 def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
     signature = hmac.hmac_creation(the_uuid)
     uuid_signed = the_uuid + ":" + signature
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
+
 
 @app.route("/user/manage", methods=('GET', 'POST'))
 def manage_user():
@@ -62,6 +67,7 @@ def manage_user():
     user_details = get_user_by_unique_column("user_id", g.user_session.user_id)
 
     return render_template("admin/manage_user.html", user_details=user_details)
+
 
 class UserSession:
     """Logged in user handling"""

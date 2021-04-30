@@ -13,10 +13,12 @@ logger = logging.getLogger(__name__)
 
 OVERRIDES = {}
 
+
 def app_set(command_id, value):
     """Set application wide value"""
     app.config.setdefault(command_id, value)
     return value
+
 
 def get_setting(command_id, guess=None):
     """Resolve a setting from the environment or the global settings in
@@ -66,11 +68,13 @@ def get_setting(command_id, guess=None):
     # print("Set "+command_id+"="+str(command))
     return command
 
+
 def get_setting_bool(id):
     v = get_setting(id)
     if v not in [0, False, 'False', 'FALSE', None]:
       return True
     return False
+
 
 def get_setting_int(id):
     v = get_setting(id)
@@ -80,20 +84,24 @@ def get_setting_int(id):
         return 0
     return v
 
+
 def valid_bin(bin):
     if os.path.islink(bin) or valid_file(bin):
         return bin
     return None
+
 
 def valid_file(fn):
     if os.path.isfile(fn):
         return fn
     return None
 
+
 def valid_path(dir):
     if os.path.isdir(dir):
         return dir
     return None
+
 
 def js_path(module=None):
     """
@@ -107,21 +115,27 @@ def js_path(module=None):
         return try_guix
     raise "No JS path found for " + module + " (if not in Guix check JS_GN_PATH)"
 
+
 def reaper_command(guess=None):
     return get_setting("REAPER_COMMAND", guess)
+
 
 def gemma_command(guess=None):
     return assert_bin(get_setting("GEMMA_COMMAND", guess))
 
+
 def gemma_wrapper_command(guess=None):
     return assert_bin(get_setting("GEMMA_WRAPPER_COMMAND", guess))
+
 
 def plink_command(guess=None):
     return assert_bin(get_setting("PLINK_COMMAND", guess))
 
+
 def flat_file_exists(subdir):
     base = get_setting("GENENETWORK_FILES")
     return valid_path(base + "/" + subdir)
+
 
 def flat_files(subdir=None):
     base = get_setting("GENENETWORK_FILES")
@@ -129,15 +143,18 @@ def flat_files(subdir=None):
         return assert_dir(base + "/" + subdir)
     return assert_dir(base)
 
+
 def assert_bin(fn):
     if not valid_bin(fn):
         raise Exception("ERROR: can not find binary " + fn)
     return fn
 
+
 def assert_dir(dir):
     if not valid_path(dir):
         raise Exception("ERROR: can not find directory " + dir)
     return dir
+
 
 def assert_writable_dir(dir):
     try:
@@ -150,15 +167,18 @@ def assert_writable_dir(dir):
         raise Exception('Unable to write test.txt to directory ' + dir)
     return dir
 
+
 def assert_file(fn):
     if not valid_file(fn):
         raise Exception('Unable to find file ' + fn)
     return fn
 
+
 def mk_dir(dir):
     if not valid_path(dir):
         os.makedirs(dir)
     return assert_dir(dir)
+
 
 def locate(name, subdir=None):
     """
@@ -179,8 +199,10 @@ def locate(name, subdir=None):
     if subdir: sys.stderr.write(subdir)
     raise Exception("Can not locate " + name + " in " + base)
 
+
 def locate_phewas(name, subdir=None):
     return locate(name, '/phewas/' + subdir)
+
 
 def locate_ignore_error(name, subdir=None):
     """
@@ -200,16 +222,19 @@ def locate_ignore_error(name, subdir=None):
     logger.info("WARNING: file " + name + " not found\n")
     return None
 
+
 def tempdir():
     """
     Get UNIX TMPDIR by default
     """
     return valid_path(get_setting("TMPDIR", "/tmp"))
 
+
 BLUE = '\033[94m'
 GREEN = '\033[92m'
 BOLD = '\033[1m'
 ENDC = '\033[0m'
+
 
 def show_settings():
     from utility.tools import LOG_LEVEL

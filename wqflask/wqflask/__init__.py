@@ -30,6 +30,7 @@ app.register_blueprint(policies_blueprint, url_prefix="/policies")
 app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 
+
 @app.before_request
 def before_request():
     g.request_start_time = time.time()

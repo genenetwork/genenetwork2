@@ -12,6 +12,7 @@ import simplejson as json
 
 from pprint import pformat as pf
 
+
 class Marker:
   def __init__(self):
     self.name = None
