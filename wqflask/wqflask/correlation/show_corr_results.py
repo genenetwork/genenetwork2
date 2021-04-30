@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -78,11 +78,12 @@ class CorrelationResults:
 
         with Bench("Doing correlations"):
             if start_vars['dataset'] == "Temp":
-                self.dataset = data_set.create_dataset(dataset_name = "Temp", dataset_type = "Temp", group_name = start_vars['group'])
+                self.dataset = data_set.create_dataset(
+                    dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
                 self.trait_id = start_vars['trait_id']
                 self.this_trait = create_trait(dataset=self.dataset,
-                                           name=self.trait_id,
-                                           cellid=None)
+                                               name=self.trait_id,
+                                               cellid=None)
             else:
                 helper_functions.get_species_dataset_trait(self, start_vars)
 
@@ -95,9 +96,9 @@ class CorrelationResults:
             self.p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
             self.p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
 
-            if ('loc_chr' in start_vars and
-                'min_loc_mb' in start_vars and
-                'max_loc_mb' in start_vars):
+            if ('loc_chr' in start_vars
+                and 'min_loc_mb' in start_vars
+                    and 'max_loc_mb' in start_vars):
 
                 self.location_type = get_string(start_vars, 'location_type')
                 self.location_chr = get_string(start_vars, 'loc_chr')
@@ -109,8 +110,8 @@ class CorrelationResults:
             self.get_formatted_corr_type()
             self.return_number = int(start_vars['corr_return_results'])
 
-            #The two if statements below append samples to the sample list based upon whether the user
-            #rselected Primary Samples Only, Other Samples Only, or All Samples
+            # The two if statements below append samples to the sample list based upon whether the user
+            # rselected Primary Samples Only, Other Samples Only, or All Samples
 
             primary_samples = self.dataset.group.samplelist
             if self.dataset.group.parlist != None:
@@ -118,23 +119,26 @@ class CorrelationResults:
             if self.dataset.group.f1list != None:
                 primary_samples += self.dataset.group.f1list
 
-            #If either BXD/whatever Only or All Samples, append all of that group's samplelist
+            # If either BXD/whatever Only or All Samples, append all of that group's samplelist
             if corr_samples_group != 'samples_other':
                 self.process_samples(start_vars, primary_samples)
 
-            #If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
-            #exclude the primary samples (because they would have been added in the previous
-            #if statement if the user selected All Samples)
+            # If either Non-BXD/whatever or All Samples, get all samples from this_trait.data and
+            # exclude the primary samples (because they would have been added in the previous
+            # if statement if the user selected All Samples)
             if corr_samples_group != 'samples_primary':
                 if corr_samples_group == 'samples_other':
                     primary_samples = [x for x in primary_samples if x not in (
-                                    self.dataset.group.parlist + self.dataset.group.f1list)]
-                self.process_samples(start_vars, list(self.this_trait.data.keys()), primary_samples)
+                        self.dataset.group.parlist + self.dataset.group.f1list)]
+                self.process_samples(start_vars, list(
+                    self.this_trait.data.keys()), primary_samples)
 
-            self.target_dataset = data_set.create_dataset(start_vars['corr_dataset'])
+            self.target_dataset = data_set.create_dataset(
+                start_vars['corr_dataset'])
             self.target_dataset.get_trait_data(list(self.sample_data.keys()))
 
-            self.header_fields = get_header_fields(self.target_dataset.type, self.corr_method)
+            self.header_fields = get_header_fields(
+                self.target_dataset.type, self.corr_method)
 
             if self.target_dataset.type == "ProbeSet":
                 self.filter_cols = [7, 6]
@@ -153,7 +157,8 @@ class CorrelationResults:
                 tissue_corr_data = self.do_tissue_correlation_for_all_traits()
                 if tissue_corr_data != None:
                     for trait in list(tissue_corr_data.keys())[:self.return_number]:
-                        self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
+                        self.get_sample_r_and_p_values(
+                            trait, self.target_dataset.trait_data[trait])
                 else:
                     for trait, values in list(self.target_dataset.trait_data.items()):
                         self.get_sample_r_and_p_values(trait, values)
@@ -163,7 +168,8 @@ class CorrelationResults:
                 lit_corr_data = self.do_lit_correlation_for_all_traits()
 
                 for trait in list(lit_corr_data.keys())[:self.return_number]:
-                    self.get_sample_r_and_p_values(trait, self.target_dataset.trait_data[trait])
+                    self.get_sample_r_and_p_values(
+                        trait, self.target_dataset.trait_data[trait])
 
             elif self.corr_type == "sample":
                 for trait, values in list(self.target_dataset.trait_data.items()):
@@ -172,8 +178,7 @@ class CorrelationResults:
             self.correlation_data = collections.OrderedDict(sorted(list(self.correlation_data.items()),
                                                                    key=lambda t: -abs(t[1][0])))
 
-
-            #ZS: Convert min/max chromosome to an int for the location range option
+            # ZS: Convert min/max chromosome to an int for the location range option
             range_chr_as_int = None
             for order_id, chr_info in list(self.dataset.species.chromosomes.chromosomes.items()):
                 if 'loc_chr' in start_vars:
@@ -181,7 +186,8 @@ class CorrelationResults:
                         range_chr_as_int = order_id
 
             for _trait_counter, trait in enumerate(list(self.correlation_data.keys())[:self.return_number]):
-                trait_object = create_trait(dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
+                trait_object = create_trait(
+                    dataset=self.target_dataset, name=trait, get_qtl_info=True, get_sample_info=False)
                 if not trait_object:
                     continue
 
@@ -194,8 +200,8 @@ class CorrelationResults:
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
 
-                if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
-                    float(self.correlation_data[trait][0]) <= self.p_range_upper):
+                if (float(self.correlation_data[trait][0]) >= self.p_range_lower
+                        and float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
                     if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):
@@ -215,8 +221,8 @@ class CorrelationResults:
                             continue
 
                     (trait_object.sample_r,
-                    trait_object.sample_p,
-                    trait_object.num_overlap) = self.correlation_data[trait]
+                     trait_object.sample_p,
+                     trait_object.num_overlap) = self.correlation_data[trait]
 
                     # Set some sane defaults
                     trait_object.tissue_corr = 0
@@ -236,7 +242,8 @@ class CorrelationResults:
             if self.corr_type != "tissue" and self.dataset.type == "ProbeSet" and self.target_dataset.type == "ProbeSet":
                 self.do_tissue_correlation_for_trait_list()
 
-        self.json_results = generate_corr_json(self.correlation_results, self.this_trait, self.dataset, self.target_dataset)
+        self.json_results = generate_corr_json(
+            self.correlation_results, self.this_trait, self.dataset, self.target_dataset)
 
 ############################################################################################################################################
 
@@ -259,39 +266,43 @@ class CorrelationResults:
     def do_tissue_correlation_for_trait_list(self, tissue_dataset_id=1):
         """Given a list of correlation results (self.correlation_results), gets the tissue correlation value for each"""
 
-        #Gets tissue expression values for the primary trait
+        # Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-            symbol_list = [self.this_trait.symbol])
+            symbol_list=[self.this_trait.symbol])
 
         if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
-            primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
-            gene_symbol_list = [trait.symbol for trait in self.correlation_results if trait.symbol]
+            primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower(
+            )]
+            gene_symbol_list = [
+                trait.symbol for trait in self.correlation_results if trait.symbol]
 
-            corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=gene_symbol_list)
+            corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+                symbol_list=gene_symbol_list)
 
             for trait in self.correlation_results:
                 if trait.symbol and trait.symbol.lower() in corr_result_tissue_vals_dict:
-                    this_trait_tissue_values = corr_result_tissue_vals_dict[trait.symbol.lower()]
+                    this_trait_tissue_values = corr_result_tissue_vals_dict[trait.symbol.lower(
+                    )]
 
                     result = correlation_functions.cal_zero_order_corr_for_tiss(primary_trait_tissue_values,
-                                                                          this_trait_tissue_values,
-                                                                          self.corr_method)
+                                                                                this_trait_tissue_values,
+                                                                                self.corr_method)
 
                     trait.tissue_corr = result[0]
                     trait.tissue_pvalue = result[2]
 
     def do_tissue_correlation_for_all_traits(self, tissue_dataset_id=1):
-        #Gets tissue expression values for the primary trait
+        # Gets tissue expression values for the primary trait
         primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
-            symbol_list = [self.this_trait.symbol])
+            symbol_list=[self.this_trait.symbol])
 
         if self.this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
-            primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower()]
+            primary_trait_tissue_values = primary_trait_tissue_vals_dict[self.this_trait.symbol.lower(
+            )]
 
             #print("trait_gene_symbols: ", pf(trait_gene_symbols.values()))
-            corr_result_tissue_vals_dict= correlation_functions.get_trait_symbol_and_tissue_values(
-                                                    symbol_list=list(self.trait_symbol_dict.values()))
+            corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+                symbol_list=list(self.trait_symbol_dict.values()))
 
             #print("corr_result_tissue_vals: ", pf(corr_result_tissue_vals_dict))
 
@@ -300,27 +311,30 @@ class CorrelationResults:
             tissue_corr_data = {}
             for trait, symbol in list(self.trait_symbol_dict.items()):
                 if symbol and symbol.lower() in corr_result_tissue_vals_dict:
-                    this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower()]
+                    this_trait_tissue_values = corr_result_tissue_vals_dict[symbol.lower(
+                    )]
 
                     result = correlation_functions.cal_zero_order_corr_for_tiss(primary_trait_tissue_values,
-                                                                          this_trait_tissue_values,
-                                                                          self.corr_method)
+                                                                                this_trait_tissue_values,
+                                                                                self.corr_method)
 
                     tissue_corr_data[trait] = [symbol, result[0], result[2]]
 
             tissue_corr_data = collections.OrderedDict(sorted(list(tissue_corr_data.items()),
-                                                           key=lambda t: -abs(t[1][1])))
+                                                              key=lambda t: -abs(t[1][1])))
 
             return tissue_corr_data
 
     def do_lit_correlation_for_trait_list(self):
 
-        input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
+        input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(
+            self.dataset.group.species.lower(), self.this_trait.geneid)
 
         for trait in self.correlation_results:
 
             if trait.geneid:
-                trait.mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), trait.geneid)
+                trait.mouse_gene_id = self.convert_to_mouse_gene_id(
+                    self.dataset.group.species.lower(), trait.geneid)
             else:
                 trait.mouse_gene_id = None
 
@@ -348,13 +362,14 @@ class CorrelationResults:
             else:
                 trait.lit_corr = 0
 
-
     def do_lit_correlation_for_all_traits(self):
-        input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), self.this_trait.geneid)
+        input_trait_mouse_gene_id = self.convert_to_mouse_gene_id(
+            self.dataset.group.species.lower(), self.this_trait.geneid)
 
         lit_corr_data = {}
         for trait, gene_id in list(self.trait_geneid_dict.items()):
-            mouse_gene_id = self.convert_to_mouse_gene_id(self.dataset.group.species.lower(), gene_id)
+            mouse_gene_id = self.convert_to_mouse_gene_id(
+                self.dataset.group.species.lower(), gene_id)
 
             if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
                 #print("gene_symbols:", input_trait_mouse_gene_id + " / " + mouse_gene_id)
@@ -382,7 +397,7 @@ class CorrelationResults:
                 lit_corr_data[trait] = [gene_id, 0]
 
         lit_corr_data = collections.OrderedDict(sorted(list(lit_corr_data.items()),
-                                                           key=lambda t: -abs(t[1][1])))
+                                                       key=lambda t: -abs(t[1][1])))
 
         return lit_corr_data
 
@@ -440,21 +455,26 @@ class CorrelationResults:
                 self.this_trait_vals.append(sample_value)
                 target_vals.append(target_sample_value)
 
-        self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(self.this_trait_vals, target_vals)
+        self.this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
+            self.this_trait_vals, target_vals)
 
         if num_overlap > 5:
-            #ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
+            # ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
             if self.corr_method == 'bicor':
-                sample_r, sample_p = do_bicor(self.this_trait_vals, target_vals)
+                sample_r, sample_p = do_bicor(
+                    self.this_trait_vals, target_vals)
             elif self.corr_method == 'pearson':
-                sample_r, sample_p = scipy.stats.pearsonr(self.this_trait_vals, target_vals)
+                sample_r, sample_p = scipy.stats.pearsonr(
+                    self.this_trait_vals, target_vals)
             else:
-                sample_r, sample_p = scipy.stats.spearmanr(self.this_trait_vals, target_vals)
+                sample_r, sample_p = scipy.stats.spearmanr(
+                    self.this_trait_vals, target_vals)
 
             if numpy.isnan(sample_r):
                 pass
             else:
-                self.correlation_data[trait] = [sample_r, sample_p, num_overlap]
+                self.correlation_data[trait] = [
+                    sample_r, sample_p, num_overlap]
 
     def process_samples(self, start_vars, sample_names, excluded_samples=None):
         if not excluded_samples:
@@ -475,16 +495,18 @@ def do_bicor(this_trait_vals, target_trait_vals):
     r_library("WGCNA")
     r_bicor = ro.r["bicorAndPvalue"]        # Map the bicorAndPvalue function
 
-    r_options(stringsAsFactors = False)
+    r_options(stringsAsFactors=False)
 
     this_vals = ro.Vector(this_trait_vals)
     target_vals = ro.Vector(target_trait_vals)
 
-    the_r, the_p, _fisher_transform, _the_t, _n_obs = [numpy.asarray(x) for x in r_bicor(x = this_vals, y = target_vals)]
+    the_r, the_p, _fisher_transform, _the_t, _n_obs = [
+        numpy.asarray(x) for x in r_bicor(x=this_vals, y=target_vals)]
 
     return the_r, the_p
 
-def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api = False):
+
+def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api=False):
     results_list = []
     for i, trait in enumerate(corr_results):
         if trait.view == False:
@@ -493,7 +515,8 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
         results_dict['index'] = i + 1
         results_dict['trait_id'] = trait.name
         results_dict['dataset'] = trait.dataset.name
-        results_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait.name, trait.dataset.name))
+        results_dict['hmac'] = hmac.data_hmac(
+            '{}:{}'.format(trait.name, trait.dataset.name))
         if target_dataset.type == "ProbeSet":
             results_dict['symbol'] = trait.symbol
             results_dict['description'] = "N/A"
@@ -544,7 +567,8 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
             if bool(trait.authors):
                 authors_list = trait.authors.split(',')
                 if len(authors_list) > 6:
-                    results_dict['authors_display'] = ", ".join(authors_list[:6]) + ", et al."
+                    results_dict['authors_display'] = ", ".join(
+                        authors_list[:6]) + ", et al."
                 else:
                     results_dict['authors_display'] = trait.authors
             if bool(trait.pubmed_id):
@@ -574,85 +598,85 @@ def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_ap
 
     return json.dumps(results_list)
 
+
 def get_header_fields(data_type, corr_method):
     if data_type == "ProbeSet":
         if corr_method == "spearman":
             header_fields = ['Index',
-                                'Record',
-                                'Symbol',
-                                'Description',
-                                'Location',
-                                'Mean',
-                                'Sample rho',
-                                'N',
-                                'Sample p(rho)',
-                                'Lit rho',
-                                'Tissue rho',
-                                'Tissue p(rho)',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
+                             'Record',
+                             'Symbol',
+                             'Description',
+                             'Location',
+                             'Mean',
+                             'Sample rho',
+                             'N',
+                             'Sample p(rho)',
+                             'Lit rho',
+                             'Tissue rho',
+                             'Tissue p(rho)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
         else:
             header_fields = ['Index',
-                                'Record',
-                                'Symbol',
-                                'Description',
-                                'Location',
-                                'Mean',
-                                'Sample r',
-                                'N',
-                                'Sample p(r)',
-                                'Lit r',
-                                'Tissue r',
-                                'Tissue p(r)',
-                                'Max LRS',
-                                'Max LRS Location',
-                                'Additive Effect']
+                             'Record',
+                             'Symbol',
+                             'Description',
+                             'Location',
+                             'Mean',
+                             'Sample r',
+                             'N',
+                             'Sample p(r)',
+                             'Lit r',
+                             'Tissue r',
+                             'Tissue p(r)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
     elif data_type == "Publish":
         if corr_method == "spearman":
             header_fields = ['Index',
-                            'Record',
-                            'Abbreviation',
-                            'Description',
-                            'Mean',
-                            'Authors',
-                            'Year',
-                            'Sample rho',
-                            'N',
-                            'Sample p(rho)',
-                            'Max LRS',
-                            'Max LRS Location',
-                            'Additive Effect']
+                             'Record',
+                             'Abbreviation',
+                             'Description',
+                             'Mean',
+                             'Authors',
+                             'Year',
+                             'Sample rho',
+                             'N',
+                             'Sample p(rho)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
         else:
             header_fields = ['Index',
-                            'Record',
-                            'Abbreviation',
-                            'Description',
-                            'Mean',
-                            'Authors',
-                            'Year',
-                            'Sample r',
-                            'N',
-                            'Sample p(r)',
-                            'Max LRS',
-                            'Max LRS Location',
-                            'Additive Effect']
+                             'Record',
+                             'Abbreviation',
+                             'Description',
+                             'Mean',
+                             'Authors',
+                             'Year',
+                             'Sample r',
+                             'N',
+                             'Sample p(r)',
+                             'Max LRS',
+                             'Max LRS Location',
+                             'Additive Effect']
 
     else:
         if corr_method == "spearman":
             header_fields = ['Index',
-                                'ID',
-                                'Location',
-                                'Sample rho',
-                                'N',
-                                'Sample p(rho)']
+                             'ID',
+                             'Location',
+                             'Sample rho',
+                             'N',
+                             'Sample p(rho)']
         else:
             header_fields = ['Index',
-                                'ID',
-                                'Location',
-                                'Sample r',
-                                'N',
-                                'Sample p(r)']
+                             'ID',
+                             'Location',
+                             'Sample r',
+                             'N',
+                             'Sample p(r)']
 
     return header_fields
-

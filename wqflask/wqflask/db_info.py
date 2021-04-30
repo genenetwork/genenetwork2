@@ -23,23 +23,23 @@ class InfoPage:
 
     def get_info(self, create=False):
         query_base = ("SELECT InfoPageName, GN_AccesionId, Species.MenuName, Species.TaxonomyId, Tissue.Name, InbredSet.Name, " +
-                      "GeneChip.GeneChipName, GeneChip.GeoPlatform, AvgMethod.Name, Datasets.DatasetName, Datasets.GeoSeries, " +
-                      "Datasets.PublicationTitle, DatasetStatus.DatasetStatusName, Datasets.Summary, Datasets.AboutCases, " +
-                      "Datasets.AboutTissue, Datasets.AboutDataProcessing, Datasets.Acknowledgment, Datasets.ExperimentDesign, " +
-                      "Datasets.Contributors, Datasets.Citation, Datasets.Notes, Investigators.FirstName, Investigators.LastName, " +
-                      "Investigators.Address, Investigators.City, Investigators.State, Investigators.ZipCode, Investigators.Country, " +
-                      "Investigators.Phone, Investigators.Email, Investigators.Url, Organizations.OrganizationName, " +
-                      "InvestigatorId, DatasetId, DatasetStatusId, Datasets.AboutPlatform, InfoFileTitle, Specifics " +
-                      "FROM InfoFiles " +
-                      "LEFT JOIN Species USING (SpeciesId) " +
-                      "LEFT JOIN Tissue USING (TissueId) " +
-                      "LEFT JOIN InbredSet USING (InbredSetId) " +
-                      "LEFT JOIN GeneChip USING (GeneChipId) " +
-                      "LEFT JOIN AvgMethod USING (AvgMethodId) " +
-                      "LEFT JOIN Datasets USING (DatasetId) " +
-                      "LEFT JOIN Investigators USING (InvestigatorId) " +
-                      "LEFT JOIN Organizations USING (OrganizationId) " +
-                      "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE ")
+                      "GeneChip.GeneChipName, GeneChip.GeoPlatform, AvgMethod.Name, Datasets.DatasetName, Datasets.GeoSeries, "
+                      + "Datasets.PublicationTitle, DatasetStatus.DatasetStatusName, Datasets.Summary, Datasets.AboutCases, "
+                      + "Datasets.AboutTissue, Datasets.AboutDataProcessing, Datasets.Acknowledgment, Datasets.ExperimentDesign, "
+                      + "Datasets.Contributors, Datasets.Citation, Datasets.Notes, Investigators.FirstName, Investigators.LastName, "
+                      + "Investigators.Address, Investigators.City, Investigators.State, Investigators.ZipCode, Investigators.Country, "
+                      + "Investigators.Phone, Investigators.Email, Investigators.Url, Organizations.OrganizationName, "
+                      + "InvestigatorId, DatasetId, DatasetStatusId, Datasets.AboutPlatform, InfoFileTitle, Specifics "
+                      + "FROM InfoFiles "
+                      + "LEFT JOIN Species USING (SpeciesId) "
+                      + "LEFT JOIN Tissue USING (TissueId) "
+                      + "LEFT JOIN InbredSet USING (InbredSetId) "
+                      + "LEFT JOIN GeneChip USING (GeneChipId) "
+                      + "LEFT JOIN AvgMethod USING (AvgMethodId) "
+                      + "LEFT JOIN Datasets USING (DatasetId) "
+                      + "LEFT JOIN Investigators USING (InvestigatorId) "
+                      + "LEFT JOIN Organizations USING (OrganizationId) "
+                      + "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE ")
 
         if self.gn_accession_id:
             final_query = query_base + \
@@ -90,6 +90,7 @@ class InfoPage:
         except Exception as e:
             pass
 
+
 def process_query_results(results):
     info_ob = {
         'info_page_name': results[0],
@@ -134,5 +135,3 @@ def process_query_results(results):
     }
 
     return info_ob
-
-

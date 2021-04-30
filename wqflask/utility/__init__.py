@@ -2,10 +2,12 @@ from pprint import pformat as pf
 
 # Todo: Move these out of __init__
 
+
 class Bunch:
     """Like a dictionary but using object notation"""
-    def __init__(self,  **kw):
-            self.__dict__ = kw
+
+    def __init__(self, **kw):
+        self.__dict__ = kw
 
     def __repr__(self):
         return pf(self.__dict__)
@@ -30,6 +32,4 @@ class Struct:
 
     def __repr__(self):
         return '{%s}' % str(', '.join('%s : %s' % (k, repr(v)) for
-            (k, v) in list(self.__dict__.items())))
-
-
+                                      (k, v) in list(self.__dict__.items())))

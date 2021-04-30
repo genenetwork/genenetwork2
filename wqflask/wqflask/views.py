@@ -140,8 +140,8 @@ def handle_bad_request(e):
     logger.error(traceback.format_exc())
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    formatted_lines = [request.url +
-                       " ("+time_str+")"]+traceback.format_exc().splitlines()
+    formatted_lines = [request.url
+                       + " (" + time_str + ")"] + traceback.format_exc().splitlines()
 
     # Handle random animations
     # Use a cookie to have one animation on refresh
@@ -240,7 +240,7 @@ def search_page():
 
     if USE_REDIS and valid_search:
         Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
-        Redis.expire(key, 60*60)
+        Redis.expire(key, 60 * 60)
 
     if valid_search:
         return render_template("search_result_page.html", **result)
@@ -518,10 +518,10 @@ def export_perm_data():
         ["#N_genotypes: " + str(perm_info['n_genotypes'])],
         ["#Genotype_file: " + perm_info['genofile']],
         ["#Units_linkage: " + perm_info['units_linkage']],
-        ["#Permutation_stratified_by: " +
-            ", ".join([str(cofactor) for cofactor in perm_info['strat_cofactors']])],
-        ["#RESULTS_1: Suggestive LRS(p=0.63) = " +
-         str(np.percentile(np.array(perm_info['perm_data']), 67))],
+        ["#Permutation_stratified_by: "
+            + ", ".join([str(cofactor) for cofactor in perm_info['strat_cofactors']])],
+        ["#RESULTS_1: Suggestive LRS(p=0.63) = "
+         + str(np.percentile(np.array(perm_info['perm_data']), 67))],
         ["#RESULTS_2: Significant LRS(p=0.05) = " + str(
             np.percentile(np.array(perm_info['perm_data']), 95))],
         ["#RESULTS_3: Highly Significant LRS(p=0.01) = " + str(
@@ -601,7 +601,7 @@ def heatmap_page():
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             logger.info("pickled result length:", len(pickled_result))
             Redis.set(key, pickled_result)
-            Redis.expire(key, 60*60)
+            Redis.expire(key, 60 * 60)
 
         with Bench("Rendering template"):
             rendered_template = render_template("heatmap.html", **result)

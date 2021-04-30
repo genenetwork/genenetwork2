@@ -4,7 +4,8 @@ from flask import Flask, g
 
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
+
 
 class TheSpecies:
     def __init__(self, dataset=None, species_name=None):
@@ -15,6 +16,7 @@ class TheSpecies:
             self.dataset = dataset
             self.chromosomes = Chromosomes(dataset=self.dataset)
 
+
 class IndChromosome:
     def __init__(self, name, length):
         self.name = name
@@ -24,6 +26,7 @@ class IndChromosome:
     def mb_length(self):
         """Chromosome length in megabases"""
         return self.length / 1000000
+
 
 class Chromosomes:
     def __init__(self, dataset=None, species=None):
@@ -52,4 +55,5 @@ class Chromosomes:
         results = g.db.execute(query).fetchall()
 
         for item in results:
-            self.chromosomes[item.OrderId] = IndChromosome(item.Name, item.Length)
+            self.chromosomes[item.OrderId] = IndChromosome(
+                item.Name, item.Length)

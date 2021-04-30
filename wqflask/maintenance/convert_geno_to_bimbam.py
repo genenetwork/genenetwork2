@@ -20,7 +20,10 @@ import simplejson as json
 
 from pprint import pformat as pf
 
-class EmptyConfigurations(Exception): pass
+
+class EmptyConfigurations(Exception):
+    pass
+
 
 class Marker:
     def __init__(self):
@@ -29,6 +32,7 @@ class Marker:
         self.cM = None
         self.Mb = None
         self.genotypes = []
+
 
 class ConvertGenoFile:
 
@@ -52,7 +56,7 @@ class ConvertGenoFile:
             '@pat': "0",
             '@het': "0.5",
             '@unk': "NA"
-            }
+        }
 
         self.configurations = {}
         self.input_fh = open(self.input_file)
@@ -80,13 +84,14 @@ class ConvertGenoFile:
                 genotypes = row_items[2:]
             for item_count, genotype in enumerate(genotypes):
                 if genotype.upper().strip() in self.configurations:
-                    this_marker.genotypes.append(self.configurations[genotype.upper().strip()])
+                    this_marker.genotypes.append(
+                        self.configurations[genotype.upper().strip()])
                 else:
                     this_marker.genotypes.append("NA")
 
             self.markers.append(this_marker.__dict__)
 
-        self.write_to_bimbam()    
+        self.write_to_bimbam()
 
     def write_to_bimbam(self):
         with open(self.output_files[0], "w") as geno_fh:
@@ -103,9 +108,11 @@ class ConvertGenoFile:
         with open(self.output_files[2], "w") as snp_fh:
             for marker in self.markers:
                 if self.mb_exists:
-                    snp_fh.write(marker['name'] +", " + str(int(float(marker['Mb'])*1000000)) + ", " + marker['chr'] + "\n")
+                    snp_fh.write(
+                        marker['name'] + ", " + str(int(float(marker['Mb']) * 1000000)) + ", " + marker['chr'] + "\n")
                 else:
-                    snp_fh.write(marker['name'] +", " + str(int(float(marker['cM'])*1000000)) + ", " + marker['chr'] + "\n")
+                    snp_fh.write(
+                        marker['name'] + ", " + str(int(float(marker['cM']) * 1000000)) + ", " + marker['chr'] + "\n")
 
     def get_sample_list(self, row_contents):
         self.sample_list = []
@@ -119,7 +126,7 @@ class ConvertGenoFile:
                 self.sample_list = row_contents[3:]
             else:
                 self.sample_list = row_contents[2:]
-    
+
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
             self.latest_row_value = row
@@ -157,10 +164,14 @@ class ConvertGenoFile:
             group_name = ".".join(input_file.split('.')[:-1])
             if group_name == "HSNIH-Palmer":
                 continue
-            geno_output_file = os.path.join(new_directory, group_name + "_geno.txt")
-            pheno_output_file = os.path.join(new_directory, group_name + "_pheno.txt")
-            snp_output_file = os.path.join(new_directory, group_name + "_snps.txt")
-            output_files = [geno_output_file, pheno_output_file, snp_output_file]
+            geno_output_file = os.path.join(
+                new_directory, group_name + "_geno.txt")
+            pheno_output_file = os.path.join(
+                new_directory, group_name + "_pheno.txt")
+            snp_output_file = os.path.join(
+                new_directory, group_name + "_snps.txt")
+            output_files = [geno_output_file,
+                            pheno_output_file, snp_output_file]
             print("%s -> %s" % (
                 os.path.join(old_directory, input_file), geno_output_file))
             convertob = ConvertGenoFile(input_file, output_files)
@@ -173,17 +184,18 @@ class ConvertGenoFile:
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
-                                                                convertob.latest_col_pos))
+                                                                    convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
     New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/bimbam"""
     #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
     #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")
-    #convertob.convert()
+    # convertob.convert()
     ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
-    #ConvertGenoFiles(Geno_Directory)
+    # ConvertGenoFiles(Geno_Directory)

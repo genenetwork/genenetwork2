@@ -3,12 +3,13 @@ from wqflask import app
 from utility.tools import WEBSERVER_MODE, show_settings, get_setting_int, get_setting, get_setting_bool
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
-BLUE  = '\033[94m'
+BLUE = '\033[94m'
 GREEN = '\033[92m'
-BOLD  = '\033[1m'
-ENDC  = '\033[0m'
+BOLD = '\033[1m'
+ENDC = '\033[0m'
+
 
 def app_config():
     app.config['SESSION_TYPE'] = 'filesystem'
@@ -27,7 +28,8 @@ def app_config():
     port = get_setting_int("SERVER_PORT")
 
     if get_setting_bool("USE_GN_SERVER"):
-        print(("GN2 API server URL is ["+BLUE+get_setting("GN_SERVER_URL")+ENDC+"]"))
+        print(
+            ("GN2 API server URL is [" + BLUE + get_setting("GN_SERVER_URL") + ENDC + "]"))
         import requests
         page = requests.get(get_setting("GN_SERVER_URL"))
         if page.status_code != 200:
@@ -36,4 +38,5 @@ def app_config():
     # import utility.elasticsearch_tools as es
     # es.test_elasticsearch_connection()
 
-    print(("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" % (BLUE, str(port), ENDC, get_setting("WEBSERVER_URL"))))
+    print(("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" %
+           (BLUE, str(port), ENDC, get_setting("WEBSERVER_URL"))))

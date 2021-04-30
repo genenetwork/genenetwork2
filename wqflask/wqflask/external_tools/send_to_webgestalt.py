@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -27,11 +27,13 @@ from base.species import TheSpecies
 from utility import helper_functions, corr_result_helpers
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
+
 
 class SendToWebGestalt:
     def __init__(self, start_vars):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                         for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.chip_name = test_chip(self.trait_list)
@@ -46,18 +48,18 @@ class SendToWebGestalt:
 
             id_type = "entrezgene"
 
-            self.hidden_vars = { 
-                             'gene_list'                  : "\n".join(gene_id_list),
-                             'id_type'                    : "entrezgene",
-                             'ref_set'                    : "genome",
-                             'enriched_database_category' : "geneontology",
-                             'enriched_database_name'     : "Biological_Process",
-                             'sig_method'                 : "fdr",
-                             'sig_value'                  : "0.05",
-                             'enrich_method'              : "ORA",
-                             'fdr_method'                 : "BH",
-                             'min_num'                    : "2"
-                               }
+            self.hidden_vars = {
+                'gene_list': "\n".join(gene_id_list),
+                             'id_type': "entrezgene",
+                             'ref_set': "genome",
+                             'enriched_database_category': "geneontology",
+                             'enriched_database_name': "Biological_Process",
+                             'sig_method': "fdr",
+                             'sig_value': "0.05",
+                             'enrich_method': "ORA",
+                             'fdr_method': "BH",
+                             'min_num': "2"
+            }
 
             species = self.trait_list[0][1].group.species
             if species == "rat":
@@ -69,6 +71,7 @@ class SendToWebGestalt:
             else:
                 self.hidden_vars['organism'] = "others"
 
+
 def test_chip(trait_list):
     final_chip_name = ""
 
@@ -78,7 +81,7 @@ def test_chip(trait_list):
                                  FROM GeneChip, ProbeFreeze, ProbeSetFreeze
                                  WHERE GeneChip.Id = ProbeFreeze.ChipId and
                                      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                                     ProbeSetFreeze.Name = '%s'"""  % dataset.name).fetchone()
+                                     ProbeSetFreeze.Name = '%s'""" % dataset.name).fetchone()
 
         if result:
             chip_name = result[0]
@@ -112,6 +115,7 @@ def test_chip(trait_list):
                 return chip_name
 
     return chip_name
+
 
 def gen_gene_id_list(trait_list):
     trait_name_list = []

@@ -25,9 +25,10 @@ from pprint import pformat as pf
 
 #from utility.tools import flat_files
 
-class EmptyConfigurations(Exception): pass
 
-        
+class EmptyConfigurations(Exception):
+    pass
+
 
 class Marker:
     def __init__(self):
@@ -37,23 +38,24 @@ class Marker:
         self.Mb = None
         self.genotypes = []
 
+
 class ConvertGenoFile:
 
     def __init__(self, input_file, output_file):
-        
+
         self.input_file = input_file
         self.output_file = output_file
-        
+
         self.mb_exists = False
         self.cm_exists = False
         self.markers = []
-        
+
         self.latest_row_pos = None
         self.latest_col_pos = None
-        
+
         self.latest_row_value = None
         self.latest_col_value = None
-        
+
     def convert(self):
 
         self.haplotype_notation = {
@@ -61,23 +63,22 @@ class ConvertGenoFile:
             '@pat': "0",
             '@het': "0.5",
             '@unk': "NA"
-            }
-        
+        }
+
         self.configurations = {}
         #self.skipped_cols = 3
-        
-        #if self.input_file.endswith(".geno.gz"):
+
+        # if self.input_file.endswith(".geno.gz"):
         #    print("self.input_file: ", self.input_file)
         #    self.input_fh = gzip.open(self.input_file)
-        #else:
+        # else:
         self.input_fh = open(self.input_file)
-        
-        with open(self.output_file, "w") as self.output_fh:
-            #if self.file_type == "geno":
-            self.process_csv()
-            #elif self.file_type == "snps":
-            #    self.process_snps_file()
 
+        with open(self.output_file, "w") as self.output_fh:
+            # if self.file_type == "geno":
+            self.process_csv()
+            # elif self.file_type == "snps":
+            #    self.process_snps_file()
 
     def process_csv(self):
         for row_count, row in enumerate(self.process_rows()):
@@ -100,31 +101,31 @@ class ConvertGenoFile:
                 genotypes = row_items[2:]
             for item_count, genotype in enumerate(genotypes):
                 if genotype.upper() in self.configurations:
-                    this_marker.genotypes.append(self.configurations[genotype.upper()])
+                    this_marker.genotypes.append(
+                        self.configurations[genotype.upper()])
                 else:
                     this_marker.genotypes.append("NA")
-                
-            #print("this_marker is:", pf(this_marker.__dict__))   
-            #if this_marker.chr == "14":
+
+            #print("this_marker is:", pf(this_marker.__dict__))
+            # if this_marker.chr == "14":
             self.markers.append(this_marker.__dict__)
 
         with open(self.output_file, 'w') as fh:
             json.dump(self.markers, fh, indent="   ", sort_keys=True)
-                
-                # print('configurations:', str(configurations))
-                #self.latest_col_pos = item_count + self.skipped_cols
-                #self.latest_col_value = item
-                
-                #if item_count != 0:
-                #    self.output_fh.write(" ")
-                #self.output_fh.write(self.configurations[item.upper()])
-                    
-            #self.output_fh.write("\n")
 
+            # print('configurations:', str(configurations))
+            #self.latest_col_pos = item_count + self.skipped_cols
+            #self.latest_col_value = item
+
+            # if item_count != 0:
+            #    self.output_fh.write(" ")
+            # self.output_fh.write(self.configurations[item.upper()])
+
+            # self.output_fh.write("\n")
 
     def process_rows(self):
         for self.latest_row_pos, row in enumerate(self.input_fh):
-            #if self.input_file.endswith(".geno.gz"):
+            # if self.input_file.endswith(".geno.gz"):
             #    print("row: ", row)
             self.latest_row_value = row
             # Take care of headers
@@ -171,26 +172,25 @@ class ConvertGenoFile:
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
-                                                                convertob.latest_col_pos))
+                                                                    convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
-            
-    #def process_snps_file(cls, snps_file, new_directory):
+
+    # def process_snps_file(cls, snps_file, new_directory):
     #    output_file = os.path.join(new_directory, "mouse_families.json")
     #    print("%s -> %s" % (snps_file, output_file))
     #    convertob = ConvertGenoFile(input_file, output_file)
-        
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
     New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/json"""
     #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
     #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
     #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")
-    #convertob.convert()
+    # convertob.convert()
     ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
-    #ConvertGenoFiles(Geno_Directory)
-    
+    # ConvertGenoFiles(Geno_Directory)
+
     #process_csv(Input_File, Output_File)

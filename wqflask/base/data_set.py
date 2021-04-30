@@ -150,8 +150,8 @@ class DatasetType:
                             "FROM PublishFreeze, InbredSet "
                             "WHERE InbredSet.Name = '%s' AND "
                             "PublishFreeze.InbredSetId = InbredSet.Id"),
-            'geno':  ("SELECT GenoFreeze.Id FROM GenoFreeze WHERE "
-                      "GenoFreeze.Name = \"%s\" ")
+            'geno': ("SELECT GenoFreeze.Id FROM GenoFreeze WHERE "
+                     "GenoFreeze.Name = \"%s\" ")
         }
 
         dataset_name_mapping = {
@@ -168,7 +168,8 @@ class DatasetType:
         results = g.db.execute(sql_query_mapping[t] % group_name).fetchone()
         if results:
             self.datasets[name] = dataset_name_mapping[t]
-            self.redis_instance.set("dataset_structure", json.dumps(self.datasets))
+            self.redis_instance.set(
+                "dataset_structure", json.dumps(self.datasets))
             return True
         return None
 
@@ -215,7 +216,7 @@ def create_datasets_list():
 
         if USE_REDIS:
             r.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
-            r.expire(key, 60*60)
+            r.expire(key, 60 * 60)
 
     return datasets
 
@@ -239,7 +240,8 @@ class Markers:
             for line in bimbam_fh:
                 marker = {}
                 marker['name'] = line.split(delimiter)[0].rstrip()
-                marker['Mb'] = float(line.split(delimiter)[1].rstrip())/1000000
+                marker['Mb'] = float(line.split(delimiter)[
+                                     1].rstrip()) / 1000000
                 marker['chr'] = line.split(delimiter)[2].rstrip()
                 markers.append(marker)
 
@@ -311,7 +313,6 @@ class HumanMarkers(Markers):
                 marker['Mb'] = float(splat[3]) / 1000000
             self.markers.append(marker)
 
-
     def add_pvalues(self, p_values):
         super(HumanMarkers, self).add_pvalues(p_values)
 
@@ -369,8 +370,8 @@ class DatasetGroup:
     def get_markers(self):
         def check_plink_gemma():
             if flat_file_exists("mapping"):
-                MAPPING_PATH = flat_files("mapping")+"/"
-                if os.path.isfile(MAPPING_PATH+self.name+".bed"):
+                MAPPING_PATH = flat_files("mapping") + "/"
+                if os.path.isfile(MAPPING_PATH + self.name + ".bed"):
                     return True
             return False
 
@@ -416,7 +417,7 @@ class DatasetGroup:
         else:
             logger.debug("Cache not hit")
 
-            genotype_fn = locate_ignore_error(self.name+".geno", 'genotype')
+            genotype_fn = locate_ignore_error(self.name + ".geno", 'genotype')
             if genotype_fn:
                 self.samplelist = get_group_samplelists.get_samplelist(
                     "geno", genotype_fn)
@@ -425,7 +426,7 @@ class DatasetGroup:
 
             if USE_REDIS:
                 r.set(key, json.dumps(self.samplelist))
-                r.expire(key, 60*5)
+                r.expire(key, 60 * 5)
 
     def all_samples_ordered(self):
         result = []
@@ -531,7 +532,7 @@ def datasets(group_name, this_group=None):
 
     if USE_REDIS:
         r.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
-        r.expire(key, 60*5)
+        r.expire(key, 60 * 5)
 
     if this_group != None:
         this_group._datasets = dataset_menu
@@ -622,7 +623,7 @@ class DataSet:
     WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
     AND ProbeFreeze.TissueId = Tissue.Id
     AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
-                """ % (query_args), "/dataset/"+self.name+".json",
+                """ % (query_args), "/dataset/" + self.name + ".json",
                     lambda r: (r["id"], r["name"], r["full_name"],
                                r["short_name"], r["data_scale"], r["tissue"])
                 )
@@ -1031,8 +1032,8 @@ class MrnaAssayDataSet(DataSet):
             else:
                 description_display = this_trait.symbol
 
-            if (len(description_display) > 1 and description_display != 'N/A' and
-                    len(target_string) > 1 and target_string != 'None'):
+            if (len(description_display) > 1 and description_display != 'N/A'
+                    and len(target_string) > 1 and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template

@@ -14,41 +14,47 @@ from wqflask import app
 from utility.elasticsearch_tools import get_elasticsearch_connection
 from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, SQL_URI
 
+
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
     parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
-                        db = parsed_uri.path[1:],
-                        host = parsed_uri.hostname,
-                        user = parsed_uri.username,
-                        passwd = parsed_uri.password)
+        db=parsed_uri.path[1:],
+        host=parsed_uri.hostname,
+        user=parsed_uri.username,
+        passwd=parsed_uri.password)
 
     print(db_conn_info)
     return db_conn_info
+
 
 def create_dataframe(input_file):
     with open(input_file) as f:
         ncols = len(f.readline().split("\t"))
 
-    input_array = np.loadtxt(open(input_file, "rb"), delimiter="\t", skiprows=1, usecols=list(range(1, ncols)))
+    input_array = np.loadtxt(open(
+        input_file, "rb"), delimiter="\t", skiprows=1, usecols=list(range(1, ncols)))
     return pd.DataFrame(input_array)
 
-#This function taken from https://github.com/ShawnLYU/Quantile_Normalize
+# This function taken from https://github.com/ShawnLYU/Quantile_Normalize
+
+
 def quantileNormalize(df_input):
     df = df_input.copy()
-    #compute rank
+    # compute rank
     dic = {}
     for col in df:
-        dic.update({col : sorted(df[col])})
+        dic.update({col: sorted(df[col])})
     sorted_df = pd.DataFrame(dic)
-    rank = sorted_df.mean(axis = 1).tolist()
-    #sort
+    rank = sorted_df.mean(axis=1).tolist()
+    # sort
     for col in df:
         t = np.searchsorted(np.sort(df[col]), df[col])
         df[col] = [rank[i] for i in t]
     return df
+
 
 def set_data(dataset_name):
     orig_file = "/home/zas1024/cfw_data/" + dataset_name + ".txt"
@@ -64,10 +70,10 @@ def set_data(dataset_name):
                 trait_name = line1.split('\t')[0]
                 for i, sample in enumerate(sample_names):
                     this_sample = {
-                                    "name": sample,
-                                    "value": line1.split('\t')[i+1],
-                                    "qnorm": line2.split('\t')[i+1]
-                                  }
+                        "name": sample,
+                        "value": line1.split('\t')[i + 1],
+                        "qnorm": line2.split('\t')[i + 1]
+                    }
                     sample_list.append(this_sample)
                 query = """SELECT Species.SpeciesName, InbredSet.InbredSetName, ProbeSetFreeze.FullName
                            FROM Species, InbredSet, ProbeSetFreeze, ProbeFreeze, ProbeSetXRef, ProbeSet
@@ -95,13 +101,14 @@ def set_data(dataset_name):
                     }
                 }
 
+
 if __name__ == '__main__':
     Conn = MySQLdb.Connect(**parse_db_uri())
     Cursor = Conn.cursor()
 
-    #es = Elasticsearch([{
+    # es = Elasticsearch([{
     #    "host": ELASTICSEARCH_HOST, "port": ELASTICSEARCH_PORT
-    #}], timeout=60) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
+    # }], timeout=60) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
 
     es = get_elasticsearch_connection(for_user=False)
 
@@ -116,8 +123,8 @@ if __name__ == '__main__':
     success, _ = bulk(es, set_data(sys.argv[1]))
 
     response = es.search(
-        index = "traits", doc_type = "trait", body = {
-            "query": { "match": { "name": "ENSMUSG00000028982" } }
+        index="traits", doc_type="trait", body={
+            "query": {"match": {"name": "ENSMUSG00000028982"}}
         }
     )
 

@@ -1,4 +1,4 @@
-#########################################'
+# '
 #      Environment Variables - public
 #
 # Note: much of this needs to handled by the settings/environment
@@ -10,35 +10,35 @@
 
 from utility.tools import valid_path, mk_dir, assert_dir, assert_writable_dir, flat_files, TEMPDIR
 
-#Debug Level
-#1 for debug, mod python will reload import each time
+# Debug Level
+# 1 for debug, mod python will reload import each time
 DEBUG = 1
 
-#USER privilege
-USERDICT = {'guest':1,'user':2, 'admin':3, 'root':4}
+# USER privilege
+USERDICT = {'guest': 1, 'user': 2, 'admin': 3, 'root': 4}
 
-#Set privileges
+# Set privileges
 SUPER_PRIVILEGES = {'data': 'edit', 'metadata': 'edit', 'admin': 'edit-admins'}
 DEFAULT_PRIVILEGES = {'data': 'view', 'metadata': 'view', 'admin': 'not-admin'}
 
-#minimum number of informative strains
+# minimum number of informative strains
 KMININFORMATIVE = 5
 
-#Daily download limit from one IP
+# Daily download limit from one IP
 DAILYMAXIMUM = 1000
 
-#maximum LRS value
+# maximum LRS value
 MAXLRS = 460.0
 
-#MINIMUM Database public value
+# MINIMUM Database public value
 PUBLICTHRESH = 0
 
-#EXTERNAL LINK ADDRESSES
+# EXTERNAL LINK ADDRESSES
 PUBMEDLINK_URL = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=%s&dopt=Abstract"
 UCSC_BLAT = 'http://genome.ucsc.edu/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
 UTHSC_BLAT = 'http://ucscbrowser.genenetwork.org/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
 UTHSC_BLAT2 = 'http://ucscbrowserbeta.genenetwork.org/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
-GENOMEBROWSER_URL="https://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=%s"
+GENOMEBROWSER_URL = "https://genome.ucsc.edu/cgi-bin/hgTracks?db=%s&position=%s"
 NCBI_LOCUSID = "http://www.ncbi.nlm.nih.gov/gene?cmd=Retrieve&dopt=Graphics&list_uids=%s"
 GENBANK_ID = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=Nucleotide&cmd=search&doptcmdl=DocSum&term=%s"
 OMIM_ID = "http://www.ncbi.nlm.nih.gov/omim/%s"
@@ -56,7 +56,7 @@ GEMMA_URL = "http://www.chibi.ubc.ca/Gemma/gene/showGene.html?ncbiid=%s"
 ABA_URL = "http://mouse.brain-map.org/search/show?search_type=gene&search_term=%s"
 EBIGWAS_URL = "https://www.ebi.ac.uk/gwas/search?query=%s"
 WIKI_PI_URL = "http://severus.dbmi.pitt.edu/wiki-pi/index.php/search?q=%s"
-ENSEMBLETRANSCRIPT_URL="http://useast.ensembl.org/Mus_musculus/Transcript/Idhistory?t=%s"
+ENSEMBLETRANSCRIPT_URL = "http://useast.ensembl.org/Mus_musculus/Transcript/Idhistory?t=%s"
 DBSNP = 'http://ensembl.org/Mus_musculus/Variation/Population?v=%s'
 PROTEIN_ATLAS_URL = "http://www.proteinatlas.org/search/%s"
 OPEN_TARGETS_URL = "https://genetics.opentargets.org/gene/%s"
@@ -71,13 +71,13 @@ RRID_RAT_URL = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id=%s"
 # want to reach this base dir
 assert_writable_dir(TEMPDIR)
 
-TMPDIR               = mk_dir(TEMPDIR+'/gn2/')
+TMPDIR = mk_dir(TEMPDIR + '/gn2/')
 assert_writable_dir(TMPDIR)
 
-CACHEDIR             = mk_dir(TMPDIR+'/cache/')
+CACHEDIR = mk_dir(TMPDIR + '/cache/')
 # We can no longer write into the git tree:
-GENERATED_IMAGE_DIR  = mk_dir(TMPDIR+'generated/')
-GENERATED_TEXT_DIR   = mk_dir(TMPDIR+'generated_text/')
+GENERATED_IMAGE_DIR = mk_dir(TMPDIR + 'generated/')
+GENERATED_TEXT_DIR = mk_dir(TMPDIR + 'generated_text/')
 
 # Make sure we have permissions to access these
 assert_writable_dir(CACHEDIR)
@@ -85,12 +85,12 @@ assert_writable_dir(GENERATED_IMAGE_DIR)
 assert_writable_dir(GENERATED_TEXT_DIR)
 
 # Flat file directories
-GENODIR              = flat_files('genotype')+'/'
+GENODIR = flat_files('genotype') + '/'
 assert_dir(GENODIR)
 # assert_dir(GENODIR+'bimbam') # for gemma
 
 # JSON genotypes are OBSOLETE
-JSON_GENODIR         = flat_files('genotype/json')+'/'
+JSON_GENODIR = flat_files('genotype/json') + '/'
 if not valid_path(JSON_GENODIR):
     # fall back on old location (move the dir, FIXME)
     JSON_GENODIR = flat_files('json')
@@ -98,4 +98,4 @@ if not valid_path(JSON_GENODIR):
 # Are we using the following...?
 PORTADDR = "http://50.16.251.170"
 INFOPAGEHREF = '/dbdoc/%s.html'
-CGIDIR = '/webqtl/' #XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
+CGIDIR = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
