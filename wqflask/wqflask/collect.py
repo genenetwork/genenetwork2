@@ -35,7 +35,7 @@ def process_traits(unprocessed_traits):
         data, _separator, the_hmac = trait.rpartition(':')
         data = data.strip()
         if g.user_session.logged_in:
-          assert the_hmac == hmac.hmac_creation(data), "Data tampering?"
+            assert the_hmac == hmac.hmac_creation(data), "Data tampering?"
         traits.add(str(data))
 
     return traits
@@ -52,14 +52,14 @@ def report_change(len_before, len_now):
 
 @app.route("/collections/store_trait_list", methods=('POST',))
 def store_traits_list():
-   params = request.form
+    params = request.form
 
-   traits = params['traits']
-   hash = params['hash']
+    traits = params['traits']
+    hash = params['hash']
 
-   Redis.set(hash, traits)
+    Redis.set(hash, traits)
 
-   return hash
+    return hash
 
 
 @app.route("/collections/add")

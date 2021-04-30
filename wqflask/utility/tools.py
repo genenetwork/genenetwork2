@@ -73,7 +73,7 @@ def get_setting(command_id, guess=None):
 def get_setting_bool(id):
     v = get_setting(id)
     if v not in [0, False, 'False', 'FALSE', None]:
-      return True
+        return True
     return False
 
 

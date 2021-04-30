@@ -79,7 +79,7 @@ def frange(start, end=None, inc=1.0):
         start += 0.0  # force it to be a float
     count = int((end - start) / inc)
     if start + count * inc != end:
-    # Need to adjust the count. AFAICT, it always comes up one short.
+        # Need to adjust the count. AFAICT, it always comes up one short.
         count += 1
     L = [start] * count
     for i in range(1, count):
@@ -131,16 +131,16 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
     plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
     if plotHeight <= 0 or plotWidth <= 0:
-       return
+        return
 
     if len(data) < 2:
-       return
+        return
 
     max_D = max(data)
     min_D = min(data)
     # add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
     if max_D == float('inf') or max_D > webqtlConfig.MAXLRS:
-       max_D = webqtlConfig.MAXLRS  # maximum LRS value
+        max_D = webqtlConfig.MAXLRS  # maximum LRS value
 
     xLow, xTop, stepX = detScale(min_D, max_D)
 
@@ -151,15 +151,15 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     dataXY = []
     Count = []
     while j <= xTop:
-       dataXY.append(j)
-       Count.append(0)
-       j += step
+        dataXY.append(j)
+        Count.append(0)
+        j += step
 
     for i, item in enumerate(data):
-       if item == float('inf') or item > webqtlConfig.MAXLRS:
-           item = webqtlConfig.MAXLRS  # maximum LRS value
-       j = int((item - xLow) / step)
-       Count[j] += 1
+        if item == float('inf') or item > webqtlConfig.MAXLRS:
+            item = webqtlConfig.MAXLRS  # maximum LRS value
+        j = int((item - xLow) / step)
+        Count[j] += 1
 
     yLow, yTop, stepY = detScale(0, max(Count))
 
@@ -169,12 +169,12 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     barWidth = xScale * step
 
     for i, count in enumerate(Count):
-       if count:
-           xc = (dataXY[i] - xLow) * xScale + xLeftOffset
-           yc = -(count - yLow) * yScale + yTopOffset + plotHeight
-           im_drawer.rectangle(
-               xy=((xc + 2, yc), (xc + barWidth - 2, yTopOffset + plotHeight)),
-               outline=barColor, fill=barColor)
+        if count:
+            xc = (dataXY[i] - xLow) * xScale + xLeftOffset
+            yc = -(count - yLow) * yScale + yTopOffset + plotHeight
+            im_drawer.rectangle(
+                xy=((xc + 2, yc), (xc + barWidth - 2, yTopOffset + plotHeight)),
+                outline=barColor, fill=barColor)
 
     # draw drawing region
     im_drawer.rectangle(
@@ -186,39 +186,39 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     scaleFont = ImageFont.truetype(font=COUR_FILE, size=11)
     x = xLow
     for i in range(int(stepX) + 1):
-       xc = xLeftOffset + (x - xLow) * xScale
-       im_drawer.line(
-           xy=((xc, yTopOffset + plotHeight), (xc, yTopOffset + plotHeight + 5)),
-           fill=axesColor)
-       strX = cformat(d=x, rank=0)
-       im_drawer.text(
-           text=strX,
-           xy=(xc - im_drawer.textsize(strX, font=scaleFont)[0] / 2,
-               yTopOffset + plotHeight + 14), font=scaleFont)
-       x += (xTop - xLow) / stepX
+        xc = xLeftOffset + (x - xLow) * xScale
+        im_drawer.line(
+            xy=((xc, yTopOffset + plotHeight), (xc, yTopOffset + plotHeight + 5)),
+            fill=axesColor)
+        strX = cformat(d=x, rank=0)
+        im_drawer.text(
+            text=strX,
+            xy=(xc - im_drawer.textsize(strX, font=scaleFont)[0] / 2,
+                yTopOffset + plotHeight + 14), font=scaleFont)
+        x += (xTop - xLow) / stepX
 
     y = yLow
     for i in range(int(stepY) + 1):
-       yc = yTopOffset + plotHeight - (y - yLow) * yScale
-       im_drawer.line(
-           xy=((xLeftOffset, yc), (xLeftOffset - 5, yc)), fill=axesColor)
-       strY = "%d" % y
-       im_drawer.text(
-           text=strY,
-           xy=(xLeftOffset - im_drawer.textsize(strY,
-               font=scaleFont)[0] - 6, yc + 5),
-           font=scaleFont)
-       y += (yTop - yLow) / stepY
+        yc = yTopOffset + plotHeight - (y - yLow) * yScale
+        im_drawer.line(
+            xy=((xLeftOffset, yc), (xLeftOffset - 5, yc)), fill=axesColor)
+        strY = "%d" % y
+        im_drawer.text(
+            text=strY,
+            xy=(xLeftOffset - im_drawer.textsize(strY,
+                font=scaleFont)[0] - 6, yc + 5),
+            font=scaleFont)
+        y += (yTop - yLow) / stepY
 
     # draw label
     labelFont = ImageFont.truetype(font=TAHOMA_FILE, size=17)
     if XLabel:
-       im_drawer.text(
-           text=XLabel,
-           xy=(xLeftOffset + (
-               plotWidth - im_drawer.textsize(XLabel, font=labelFont)[0]) / 2.0,
-               yTopOffset + plotHeight + yBottomOffset-10),
-           font=labelFont, fill=labelColor)
+        im_drawer.text(
+            text=XLabel,
+            xy=(xLeftOffset + (
+                plotWidth - im_drawer.textsize(XLabel, font=labelFont)[0]) / 2.0,
+                yTopOffset + plotHeight + yBottomOffset-10),
+            font=labelFont, fill=labelColor)
 
     if YLabel:
         draw_rotated_text(canvas, text=YLabel,
@@ -230,12 +230,12 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
 
     labelFont = ImageFont.truetype(font=VERDANA_FILE, size=16)
     if title:
-       im_drawer.text(
-           text=title,
-           xy=(xLeftOffset + (plotWidth - im_drawer.textsize(
-               title, font=labelFont)[0]) / 2.0,
-               20),
-           font=labelFont, fill=labelColor)
+        im_drawer.text(
+            text=title,
+            xy=(xLeftOffset + (plotWidth - im_drawer.textsize(
+                title, font=labelFont)[0]) / 2.0,
+                20),
+            font=labelFont, fill=labelColor)
 
 # This function determines the scale of the plot
 

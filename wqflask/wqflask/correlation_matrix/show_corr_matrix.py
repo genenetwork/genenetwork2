@@ -238,9 +238,9 @@ class CorrelationMatrix:
         for i in range(len(self.trait_list)):
             loadings_row = []
             if len(self.trait_list) > 2:
-               the_range = 3
+                the_range = 3
             else:
-               the_range = 2
+                the_range = 2
             for j in range(the_range):
                 position = i + len(self.trait_list) * j
                 loadings_row.append(self.loadings[0][position])

@@ -115,8 +115,8 @@ class CTL:
         markers = []
         markernames = []
         for marker in parser.markers:
-          markernames.append(marker["name"])
-          markers.append(marker["genotypes"])
+            markernames.append(marker["name"])
+            markers.append(marker["genotypes"])
 
         genotypes = list(itertools.chain(*markers))
         logger.debug(len(genotypes) / len(individuals),
@@ -128,16 +128,16 @@ class CTL:
         # Create a phenotype matrix
         traits = []
         for trait in self.trait_db_list:
-          logger.debug("retrieving data for", trait)
-          if trait != "":
-            ts = trait.split(':')
-            gt = create_trait(name=ts[0], dataset_name=ts[1])
-            gt = retrieve_sample_data(gt, dataset, individuals)
-            for ind in individuals:
-              if ind in list(gt.data.keys()):
-                traits.append(gt.data[ind].value)
-              else:
-                traits.append("-999")
+            logger.debug("retrieving data for", trait)
+            if trait != "":
+                ts = trait.split(':')
+                gt = create_trait(name=ts[0], dataset_name=ts[1])
+                gt = retrieve_sample_data(gt, dataset, individuals)
+                for ind in individuals:
+                    if ind in list(gt.data.keys()):
+                        traits.append(gt.data[ind].value)
+                    else:
+                        traits.append("-999")
 
         rPheno = r_t(ro.r.matrix(r_as_numeric(r_unlist(traits)), nrow=len(self.trait_db_list), ncol=len(
             individuals), dimnames=r_list(self.trait_db_list, individuals), byrow=True))
@@ -177,42 +177,42 @@ class CTL:
         # We start from 2, since R starts from 1 :)
         n = 2
         for trait in self.trait_db_list:
-          # Create the QTL like CTL plots
-          self.results['imgurl' + \
-              str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
-          self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + \
-                                      self.results['imgurl' + str(n)]
-          r_png(self.results['imgloc' + str(n)],
-                width=1000, height=600, type='cairo-png')
-          self.r_plotCTLobject(
-              res, (n - 1), significance=significance, main='Phenotype ' + trait)
-          r_dev_off()
-          n = n + 1
+            # Create the QTL like CTL plots
+            self.results['imgurl' + \
+                str(n)] = webqtlUtil.genRandStr("CTL_") + ".png"
+            self.results['imgloc' + str(n)] = GENERATED_IMAGE_DIR + \
+                                        self.results['imgurl' + str(n)]
+            r_png(self.results['imgloc' + str(n)],
+                  width=1000, height=600, type='cairo-png')
+            self.r_plotCTLobject(
+                res, (n - 1), significance=significance, main='Phenotype ' + trait)
+            r_dev_off()
+            n = n + 1
 
         # Flush any output from R
         sys.stdout.flush()
 
         # Create the interactive graph for cytoscape visualization (Nodes and Edges)
         if not isinstance(significant, ri.RNULLType):
-          for x in range(len(significant[0])):
-            logger.debug(significant[0][x], significant[1]
-                         [x], significant[2][x])     # Debug to console
-            # Source
-            tsS = significant[0][x].split(':')
-            # Target
-            tsT = significant[2][x].split(':')
-            # Retrieve Source info from the DB
-            gtS = create_trait(name=tsS[0], dataset_name=tsS[1])
-            # Retrieve Target info from the DB
-            gtT = create_trait(name=tsT[0], dataset_name=tsT[1])
-            self.addNode(gtS)
-            self.addNode(gtT)
-            self.addEdge(gtS, gtT, significant, x)
+            for x in range(len(significant[0])):
+                logger.debug(significant[0][x], significant[1]
+                             [x], significant[2][x])     # Debug to console
+                # Source
+                tsS = significant[0][x].split(':')
+                # Target
+                tsT = significant[2][x].split(':')
+                # Retrieve Source info from the DB
+                gtS = create_trait(name=tsS[0], dataset_name=tsS[1])
+                # Retrieve Target info from the DB
+                gtT = create_trait(name=tsT[0], dataset_name=tsT[1])
+                self.addNode(gtS)
+                self.addNode(gtT)
+                self.addEdge(gtS, gtT, significant, x)
 
-            # Update the trait name for the displayed table
-            significant[0][x] = "{} ({})".format(gtS.symbol, gtS.name)
-            # Update the trait name for the displayed table
-            significant[2][x] = "{} ({})".format(gtT.symbol, gtT.name)
+                # Update the trait name for the displayed table
+                significant[0][x] = "{} ({})".format(gtS.symbol, gtS.name)
+                # Update the trait name for the displayed table
+                significant[2][x] = "{} ({})".format(gtT.symbol, gtT.name)
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
 
@@ -227,8 +227,8 @@ class CTL:
         self.loadImage("imgloc1", "imgdata1")
         n = 2
         for trait in self.trait_db_list:
-          self.loadImage("imgloc" + str(n), "imgdata" + str(n))
-          n = n + 1
+            self.loadImage("imgloc" + str(n), "imgdata" + str(n))
+            n = n + 1
 
     def process_results(self, results):
         logger.info("Processing CTL output")

@@ -36,7 +36,7 @@ class User(Base):
 
     # json detailing when they became a superuser, otherwise empty
     superuser = Column(Text)
-                             # if not superuser
+                       # if not superuser
 
     logins = relationship("Login",
                           order_by="desc(Login.timestamp)",

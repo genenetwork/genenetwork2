@@ -247,13 +247,13 @@ class GSearch:
                     if not trait_ob:
                         continue
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
-                      try:
-                        if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
-                            this_trait['max_lrs_text'] = "Chr" + \
-                                str(trait_ob.locus_chr) + \
-                                    ": " + str(trait_ob.locus_mb)
-                      except:
-                          this_trait['max_lrs_text'] = "N/A"
+                        try:
+                            if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
+                                this_trait['max_lrs_text'] = "Chr" + \
+                                    str(trait_ob.locus_chr) + \
+                                        ": " + str(trait_ob.locus_mb)
+                        except:
+                            this_trait['max_lrs_text'] = "N/A"
 
                     trait_list.append(this_trait)
 

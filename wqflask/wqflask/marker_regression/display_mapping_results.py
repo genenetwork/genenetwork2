@@ -395,17 +395,17 @@ class DisplayMappingResults:
 
         # Darwing Options
         try:
-           if self.selectedChr > -1:
-               self.graphWidth = min(self.GRAPH_MAX_WIDTH, max(
-                   self.GRAPH_MIN_WIDTH, int(start_vars['graphWidth'])))
-           else:
-               self.graphWidth = min(self.GRAPH_MAX_WIDTH, max(
-                   self.MULT_GRAPH_MIN_WIDTH, int(start_vars['graphWidth'])))
+            if self.selectedChr > -1:
+                self.graphWidth = min(self.GRAPH_MAX_WIDTH, max(
+                    self.GRAPH_MIN_WIDTH, int(start_vars['graphWidth'])))
+            else:
+                self.graphWidth = min(self.GRAPH_MAX_WIDTH, max(
+                    self.MULT_GRAPH_MIN_WIDTH, int(start_vars['graphWidth'])))
         except:
-           if self.selectedChr > -1:
-               self.graphWidth = self.GRAPH_DEFAULT_WIDTH
-           else:
-               self.graphWidth = self.MULT_GRAPH_DEFAULT_WIDTH
+            if self.selectedChr > -1:
+                self.graphWidth = self.GRAPH_DEFAULT_WIDTH
+            else:
+                self.graphWidth = self.MULT_GRAPH_DEFAULT_WIDTH
 
 # BEGIN HaplotypeAnalyst
         if 'haplotypeAnalystCheck' in list(start_vars.keys()):
@@ -574,15 +574,15 @@ class DisplayMappingResults:
                     chrName, self.diffCol, self.startMb, self.endMb, "rat")
 
             if self.geneCol and self.intervalAnalystChecked:
-               #######################################################################
-               #Nick use GENEID as RefGene to get Literature Correlation Informations#
-               #For Interval Mapping, Literature Correlation isn't useful, so skip it#
-               #through set GENEID is None                                           #
-               #######################################################################
+                #######################################################################
+                #Nick use GENEID as RefGene to get Literature Correlation Informations#
+                #For Interval Mapping, Literature Correlation isn't useful, so skip it#
+                #through set GENEID is None                                           #
+                #######################################################################
 
-               GENEID = None
+                GENEID = None
 
-               self.geneTable(self.geneCol, GENEID)
+                self.geneTable(self.geneCol, GENEID)
 
         ################################################################
         # Plots goes here
@@ -2636,11 +2636,11 @@ class DisplayMappingResults:
                     LRSCoordXY.append((Xc, Yc))
 
                 if not self.multipleInterval and self.additiveChecked:
-                   if additiveMax == 0.0:
-                       additiveMax = 0.000001
-                   Yc = yZero - qtlresult['additive'] * \
-                       AdditiveHeightThresh / additiveMax
-                   AdditiveCoordXY.append((Xc, Yc))
+                    if additiveMax == 0.0:
+                        additiveMax = 0.000001
+                    Yc = yZero - qtlresult['additive'] * \
+                        AdditiveHeightThresh / additiveMax
+                    AdditiveCoordXY.append((Xc, Yc))
 
                 m += 1
 

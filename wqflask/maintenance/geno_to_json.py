@@ -113,13 +113,13 @@ class ConvertGenoFile:
         with open(self.output_file, 'w') as fh:
             json.dump(self.markers, fh, indent="   ", sort_keys=True)
 
-                # print('configurations:', str(configurations))
-                #self.latest_col_pos = item_count + self.skipped_cols
-                #self.latest_col_value = item
+            # print('configurations:', str(configurations))
+            #self.latest_col_pos = item_count + self.skipped_cols
+            #self.latest_col_value = item
 
-                # if item_count != 0:
-                #    self.output_fh.write(" ")
-                # self.output_fh.write(self.configurations[item.upper()])
+            # if item_count != 0:
+            #    self.output_fh.write(" ")
+            # self.output_fh.write(self.configurations[item.upper()])
 
             # self.output_fh.write("\n")
 
