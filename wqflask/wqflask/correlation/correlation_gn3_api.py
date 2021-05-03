@@ -11,7 +11,7 @@ from base.trait import retrieve_sample_data
 from gn3.computations.correlations import compute_all_sample_correlation
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
-from gn3.computations.correlations import experimental_compute_all_tissue_correlation
+from gn3.computations.correlations import compute_tissue_correlation
 from gn3.db_utils import database_connector
 
 
@@ -76,7 +76,7 @@ def tissue_for_trait_lists(corr_results, this_dataset, this_trait):
         trait_name, symbol) in traits_symbol_dict.items() if trait_lists.get(trait_name)})
     primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
         this_trait, traits_symbol_dict)
-    corr_results = experimental_compute_all_tissue_correlation(
+    corr_results = compute_tissue_correlation(
         primary_tissue_dict=primary_tissue_data,
         target_tissues_data=target_tissue_data,
         corr_method="pearson")
@@ -93,7 +93,7 @@ def compute_correlation(start_vars, method="pearson"):
      sample_data) = create_target_this_trait(start_vars)
 
     method = start_vars['corr_sample_method']
-    _corr_return_results = start_vars.get("corr_return_results", 100)
+    corr_return_results = int(start_vars.get("corr_return_results", 100))
     corr_input_data = {}
 
     if corr_type == "sample":
@@ -121,7 +121,7 @@ def compute_correlation(start_vars, method="pearson"):
             "primary_tissue": primary_tissue_data,
             "target_tissues_dict": target_tissue_data
         }
-        correlation_results = experimental_compute_all_tissue_correlation(
+        correlation_results = compute_tissue_correlation(
             primary_tissue_dict=corr_input_data["primary_tissue"],
             target_tissues_data=corr_input_data[
                 "target_tissues_dict"],
@@ -139,7 +139,7 @@ def compute_correlation(start_vars, method="pearson"):
                 conn=conn, trait_lists=list(geneid_dict.items()),
                 species=species, gene_id=this_trait_geneid)
 
-    return correlation_results
+    return correlation_results[0:corr_return_results]
 
 
 def do_lit_correlation(this_trait, this_dataset):
