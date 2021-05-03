@@ -40,7 +40,6 @@ from utility.redis_tools import get_redis_conn
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
-
 class CorrelationMatrix:
 
     def __init__(self, start_vars):
@@ -129,7 +128,7 @@ class CorrelationMatrix:
                         this_trait_vals, target_vals)
                     if is_spearman == False:
                         sample_r, sample_p = pearson_r, pearson_p
-                        if sample_r == 1:
+                        if sample_r > 0.999:
                             is_spearman = True
                     else:
                         sample_r, sample_p = scipy.stats.spearmanr(
