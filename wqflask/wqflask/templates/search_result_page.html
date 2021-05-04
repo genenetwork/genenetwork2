@@ -408,9 +408,9 @@
               }
             }
 
-            get_checked_rows = function(trait_table){
+            get_checked_rows = function(table_id){
               let checked_rows = []
-              $("#trait_table input").each(function(index){
+              $("#" + table_id + " input").each(function(index){
                 if ($(this).prop("checked") == true){
                   checked_rows.push(index);
                 }
@@ -520,7 +520,7 @@
                 $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
               }
 
-              let checked_rows = get_checked_rows();
+              let checked_rows = get_checked_rows(tableId);
               trait_table = $('#' + tableId).DataTable(table_settings);
               if (checked_rows.length > 0){
                 recheck_rows(trait_table, checked_rows);
