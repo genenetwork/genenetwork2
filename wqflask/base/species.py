@@ -39,7 +39,13 @@ class Chromosomes:
     species: Optional[str] = None
 
     def __post_init__(self, dataset):
-        self.chromosomes = OrderedDict()
+        if self.species is None:
+            self.dataset = dataset
+
+    @property
+    def chromosomes(self):
+        """Lazily fetch the chromosomes"""
+        chromosomes = OrderedDict()
         if self.species is not None:
             query = (
                 "SELECT Chr_Length.Name, Chr_Length.OrderId, Length "
@@ -48,7 +54,6 @@ class Chromosomes:
                 "Species.Name = "
                 "'%s' ORDER BY OrderId" % self.species.capitalize())
         else:
-            self.dataset = dataset
             query = (
                 "SELECT Chr_Length.Name, Chr_Length.OrderId, "
                 "Length FROM Chr_Length, InbredSet WHERE "
@@ -57,5 +62,6 @@ class Chromosomes:
                 "'%s' ORDER BY OrderId" % self.dataset.group.name)
         results = g.db.execute(query).fetchall()
         for item in results:
-            self.chromosomes[item.OrderId] = IndChromosome(
+            chromosomes[item.OrderId] = IndChromosome(
                 item.Name, item.Length)
+        return chromosomes
