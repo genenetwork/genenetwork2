@@ -81,17 +81,17 @@ class TestChromosomes(unittest.TestCase):
         ]
         mock_dataset = MockDataset(MockGroup("Random"))
         test_chromosomes = Chromosomes(dataset=mock_dataset)
+        self.assertEqual(
+            list(test_chromosomes.chromosomes.keys()),
+            [1, 2, 3]
+        )
+        self.assertEqual(test_chromosomes.dataset, mock_dataset)
         mock_db.db.execute.assert_called_with(
             "SELECT Chr_Length.Name, Chr_Length.OrderId, Length "
             "FROM Chr_Length, InbredSet WHERE "
             "Chr_Length.SpeciesId = InbredSet.SpeciesId AND "
             "InbredSet.Name = 'Random' ORDER BY OrderId"
         )
-        self.assertEqual(
-            list(test_chromosomes.chromosomes.keys()),
-            [1, 2, 3]
-        )
-        self.assertEqual(test_chromosomes.dataset, mock_dataset)
 
     @mock.patch("base.species.g")
     def test_create_chromosomes_with_species(self, mock_db):
@@ -104,13 +104,13 @@ class TestChromosomes(unittest.TestCase):
         mock_dataset = MockDataset(MockGroup("Random"))
         test_chromosomes = Chromosomes(dataset=mock_dataset,
                                        species="testSpecies")
+        self.assertEqual(
+            list(test_chromosomes.chromosomes.keys()),
+            [1, 2, 3]
+        )
         mock_db.db.execute.assert_called_with(
             "SELECT Chr_Length.Name, Chr_Length.OrderId, Length "
             "FROM Chr_Length, Species WHERE "
             "Chr_Length.SpeciesId = Species.SpeciesId AND "
             "Species.Name = 'Testspecies' ORDER BY OrderId"
-        )
-        self.assertEqual(
-            list(test_chromosomes.chromosomes.keys()),
-            [1, 2, 3]
         )
