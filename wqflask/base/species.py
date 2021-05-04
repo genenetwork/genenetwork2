@@ -32,28 +32,23 @@ class Chromosomes:
     def __init__(self, dataset=None, species=None):
         self.chromosomes = collections.OrderedDict()
         if species != None:
-            query = """
-                Select
-                        Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, Species
-                where
-                        Chr_Length.SpeciesId = Species.SpeciesId AND
-                        Species.Name = '%s'
-                Order by OrderId
-                """ % species.capitalize()
+            query = (
+                "SELECT Chr_Length.Name, Chr_Length.OrderId, Length "
+                "FROM Chr_Length, Species WHERE "
+                "Chr_Length.SpeciesId = Species.SpeciesId AND "
+                "Species.Name = "
+                "'%s' ORDER BY OrderId" % species.capitalize()
+                )
         else:
             self.dataset = dataset
-
-            query = """
-                Select
-                        Chr_Length.Name, Chr_Length.OrderId, Length from Chr_Length, InbredSet
-                where
-                        Chr_Length.SpeciesId = InbredSet.SpeciesId AND
-                        InbredSet.Name = '%s'
-                Order by OrderId
-                """ % self.dataset.group.name
+            query = (
+                "SELECT Chr_Length.Name, Chr_Length.OrderId, "
+                "Length FROM Chr_Length, InbredSet WHERE "
+                "Chr_Length.SpeciesId = InbredSet.SpeciesId AND "
+                "InbredSet.Name = "
+                "'%s' ORDER BY OrderId" % self.dataset.group.name)
         logger.sql(query)
         results = g.db.execute(query).fetchall()
-
         for item in results:
             self.chromosomes[item.OrderId] = IndChromosome(
                 item.Name, item.Length)
