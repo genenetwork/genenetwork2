@@ -20,14 +20,15 @@ class TheSpecies:
             self.chromosomes = Chromosomes(dataset=self.dataset)
 
 
+@dataclass
 class IndChromosome:
-    def __init__(self, name, length):
-        self.name = name
-        self.length = length
+    """Data related to IndChromosome"""
+    name: str
+    length: int
 
     @property
     def mb_length(self):
-        """Chromosome length in megabases"""
+        """Chromosome length in mega-bases"""
         return self.length / 1000000
 
 
