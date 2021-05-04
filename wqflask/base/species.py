@@ -1,6 +1,6 @@
 import collections
 
-from flask import Flask, g
+from flask import g
 
 
 from utility.logger import getLogger
