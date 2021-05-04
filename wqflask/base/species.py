@@ -1,6 +1,6 @@
-import collections
-
+from collections import OrderedDict
 from dataclasses import dataclass
+from dataclasses import InitVar
 from typing import Optional, Dict
 from flask import g
 
@@ -32,17 +32,21 @@ class IndChromosome:
         return self.length / 1000000
 
 
+@dataclass
 class Chromosomes:
-    def __init__(self, dataset=None, species=None):
-        self.chromosomes = collections.OrderedDict()
-        if species != None:
+    """Data related to a chromosome"""
+    dataset: InitVar[Dict] = None
+    species: Optional[str] = None
+
+    def __post_init__(self, dataset):
+        self.chromosomes = OrderedDict()
+        if self.species is not None:
             query = (
                 "SELECT Chr_Length.Name, Chr_Length.OrderId, Length "
                 "FROM Chr_Length, Species WHERE "
                 "Chr_Length.SpeciesId = Species.SpeciesId AND "
                 "Species.Name = "
-                "'%s' ORDER BY OrderId" % species.capitalize()
-                )
+                "'%s' ORDER BY OrderId" % self.species.capitalize())
         else:
             self.dataset = dataset
             query = (
