@@ -1,5 +1,7 @@
 import collections
 
+from dataclasses import dataclass
+from typing import Optional, Dict
 from flask import g
 
 
@@ -7,13 +9,18 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 
+@dataclass
 class TheSpecies:
-    def __init__(self, dataset=None, species_name=None):
-        if species_name != None:
-            self.name = species_name
+    """Data related to species."""
+    dataset: Optional[Dict] = None
+    species_name: Optional[str] = None
+
+    def __post_init__(self):
+        if self.species_name is not None:
+            self.name = self.species_name
             self.chromosomes = Chromosomes(species=self.name)
         else:
-            self.dataset = dataset
+            self.dataset = self.dataset
             self.chromosomes = Chromosomes(dataset=self.dataset)
 
 
