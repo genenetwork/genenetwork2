@@ -5,10 +5,6 @@ from typing import Optional, Dict
 from flask import g
 
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
-
 @dataclass
 class TheSpecies:
     """Data related to species."""
@@ -54,7 +50,6 @@ class Chromosomes:
                 "Chr_Length.SpeciesId = InbredSet.SpeciesId AND "
                 "InbredSet.Name = "
                 "'%s' ORDER BY OrderId" % self.dataset.group.name)
-        logger.sql(query)
         results = g.db.execute(query).fetchall()
         for item in results:
             self.chromosomes[item.OrderId] = IndChromosome(
