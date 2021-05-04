@@ -13,7 +13,6 @@ import os
 import collections
 import uuid
 
-import rpy2.robjects as ro
 import numpy as np
 
 import pickle as pickle
