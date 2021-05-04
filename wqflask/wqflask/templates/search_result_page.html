@@ -424,7 +424,7 @@
             function loadDataTable(first_run=false){
 
               if (!first_run){
-                setUserColumnsDefWidths();
+                setUserColumnsDefWidths(tableId);
               }
 
               //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
@@ -508,7 +508,7 @@
                         width_change = ui.size.width - ui.originalSize.width;
                       },
                       stop: function () {
-                        saveColumnSettings();
+                        saveColumnSettings(tableId, trait_table);
                         loadDataTable();
                       }
                     });
@@ -541,11 +541,11 @@
               trait_table.columns.adjust();
             });
 
-            function setUserColumnsDefWidths() {
+            function setUserColumnsDefWidths(table_id) {
               var userColumnDef;
 
               // Get the settings for this table from localStorage
-              var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
+              var userColumnDefs = JSON.parse(localStorage.getItem(table_id)) || [];
 
               if (userColumnDefs.length === 0 ) return;
 
@@ -575,8 +575,8 @@
               });
             }
 
-            function saveColumnSettings() {
-              var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
+            function saveColumnSettings(table_id, trait_table) {
+              var userColumnDefs = JSON.parse(localStorage.getItem(table_id)) || [];
 
               var width, header, existingSetting; 
 
