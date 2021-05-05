@@ -14,7 +14,7 @@
         <br>
         <i>n</i> = {{ start_vars.n_samples }}
         <br>
-        Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
+        Method = {% if start_vars.method == "gemma" %}GEMMA {% if start_vars.use_loco == "True" %}using LOCO {% endif %}{% else %}{{ start_vars.method }}{% endif %}
         <br>
         {% set genofile_desc = start_vars.genofile.split(":")[1] %}
         Genotype File = {{ genofile_desc }}
