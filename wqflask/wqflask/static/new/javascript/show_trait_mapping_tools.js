@@ -147,7 +147,7 @@ var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form
                           'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                           'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples']
 
-$(".rqtl-tab, #rqtl_geno_compute").on("click", (function(_this) {
+$(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
       var form_data, url;
@@ -175,7 +175,6 @@ $(".gemma-tab, #gemma_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "gemma_compute"){
       var form_data, url;
-      console.log("RUNNING GEMMA");
       url = "/loading";
       $('input[name=method]').val("gemma");
       $('input[name=selected_chr]').val($('#chr_gemma').val());
