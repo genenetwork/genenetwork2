@@ -16,7 +16,6 @@ class TheSpecies:
             self.name = self.species_name
             self.chromosomes = Chromosomes(species=self.name)
         else:
-            self.dataset = self.dataset
             self.chromosomes = Chromosomes(dataset=self.dataset)
 
 
