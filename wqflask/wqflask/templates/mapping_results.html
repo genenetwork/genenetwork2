@@ -71,7 +71,7 @@
               {% endif %}
               <br>
               <br>
-              <a id="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
+              <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -247,6 +247,7 @@
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
         {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
+        <button class="btn btn-default export_mapping_results" >Download <span class="glyphicon glyphicon-download"></span></button>
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
@@ -612,7 +613,7 @@
             return $('#marker_regression_form').submit();
         }
 
-        $('#export_mapping_results').click(export_mapping_results);
+        $('.export_mapping_results').click(export_mapping_results);
 
         $('#browser_tab').click(function() {
           $('#gn1_map_options').css("display", "none")
