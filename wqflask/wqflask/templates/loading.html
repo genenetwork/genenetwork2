@@ -15,12 +15,31 @@
         <i>n</i> = {{ start_vars.n_samples }}
         <br>
         Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
+        {% if start_vars.num_perm | int > 0 %}
         <br>
-        {% if start_vars.transform != "" %}
-        transform = {{ start_vars.transform }}
-        <br>
+        # Permutations = {{ start_vars.num_perm }}
         {% endif %}
+        {% if start_vars.num_bootstrap | int > 0 %}
+        <br>
+        # Bootstrap = {{ start_vars.num_bootstrap }}
+        {% endif %}
+        {% if start_vars.transform != "" %}
+        <br>
+        transform = {{ start_vars.transform }}
+        {% endif %}
+        {% if start_vars.maf != "" and start_vars.method != "reaper" %}
+        <br>
         MAF >= {{ start_vars.maf }}
+        {% endif %}
+        {% if start_vars.covariates != "" and start_vars.method != "reaper" %}
+        <br>
+        {% set covariate_list = start_vars.covariates.split(",") %}
+        Trait Covariates: {% for covariate in covariate_list %}{% set this_covariate = covariate.split(":")[0] %}{{ this_covariate }}{% if not loop.last %}, {% endif %}{% endfor %}
+        {% endif %}
+        {% if start_vars.control_marker != "" and start_vars.do_control == "true" and start_vars.method != "gemma" %}
+        <br>
+        Marker Covariate: {{ start_vars.control_marker }}
+        {% endif %}
         {% else %}
         <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
         {% endif %}
