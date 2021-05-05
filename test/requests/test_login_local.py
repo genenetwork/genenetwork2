@@ -1,5 +1,4 @@
 import requests
-from wqflask import user_manager
 from parameterized import parameterized
 from parametrized_test import ParametrizedTest
 
@@ -19,8 +18,6 @@ class TestLoginLocal(ParametrizedTest):
             "password": "test_password",
             "password_confirm": "test_password"
         }
-        user_manager.basic_info = lambda : { "basic_info": "basic" }
-        user_manager.RegisterUser(data)
 
     
     @parameterized.expand([
