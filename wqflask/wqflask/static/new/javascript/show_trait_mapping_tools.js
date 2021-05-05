@@ -143,7 +143,7 @@ $('input[name=display_all]').change((function(_this) {
 //ZS: This is a list of inputs to be passed to the loading page, since not all inputs on the trait page are relevant to mapping
 var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
                           'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
-                          'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'control_marker_db', 'do_control', 'genofile', 
+                          'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'do_control', 'genofile',
                           'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                           'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples']
 

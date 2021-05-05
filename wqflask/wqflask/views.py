@@ -794,7 +794,6 @@ def mapping_results_page():
         'color_scheme',
         'manhattan_single_color',
         'control_marker',
-        'control_marker_db',
         'do_control',
         'genofile',
         'genofile_string',
