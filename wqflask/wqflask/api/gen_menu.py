@@ -23,12 +23,7 @@ def get_species():
     """Build species list"""
     results = g.db.execute(
         "SELECT Name, MenuName FROM Species ORDER BY OrderId").fetchall()
-
-    species = []
-    for result in results:
-        species.append([str(result[0]), str(result[1])])
-
-    return species
+    return [[name, menu_name] for name, menu_name in results]
 
 
 def get_groups(species):
@@ -92,14 +87,14 @@ def phenotypes_exist(group_name):
     results = g.db.execute(
         ("SELECT Name FROM PublishFreeze "
          "WHERE PublishFreeze.Name = "
-         "'{}'").format(group_name+"Publish")).fetchone()
+         "'{}'").format(group_name + "Publish")).fetchone()
     return bool(results)
 
 
 def genotypes_exist(group_name):
     results = g.db.execute(
         ("SELECT Name FROM GenoFreeze " +
-         "WHERE GenoFreeze.Name = '{}'").format(group_name+"Geno")).fetchone()
+         "WHERE GenoFreeze.Name = '{}'").format(group_name + "Geno")).fetchone()
     return bool(results)
 
 
@@ -183,11 +178,11 @@ def build_datasets(species, group, type_name):
 
     elif type_name == "Genotypes":
         results = g.db.execute(
-            ("SELECT InfoFiles.GN_AccesionId " +
-             "FROM InfoFiles, GenoFreeze, InbredSet " +
-             "WHERE InbredSet.Name = '{}' AND " +
-             "GenoFreeze.InbredSetId = InbredSet.Id AND " +
-             "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
+            ("SELECT InfoFiles.GN_AccesionId "
+             "FROM InfoFiles, GenoFreeze, InbredSet "
+             "WHERE InbredSet.Name = '{}' AND "
+             "GenoFreeze.InbredSetId = InbredSet.Id AND "
+             "InfoFiles.InfoPageName = GenoFreeze.ShortName "
              "ORDER BY GenoFreeze.CreateTime DESC").format(group)).fetchone()
 
         dataset_id = "None"

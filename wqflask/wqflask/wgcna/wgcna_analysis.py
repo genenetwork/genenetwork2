@@ -42,7 +42,7 @@ r_png = ro.r["png"]            # Map the png function for plotting
 r_dev_off = ro.r["dev.off"]    # Map the dev.off function
 
 
-class WGCNA(object):
+class WGCNA:
     def __init__(self):
         # To log output from stdout/stderr to a file add `r_sink(log)`
         print("Initialization of WGCNA")
@@ -70,7 +70,7 @@ class WGCNA(object):
         self.trait_db_list = [trait.strip()
                               for trait in requestform['trait_list'].split(',')]
         print(("Retrieved phenotype data from database",
-              requestform['trait_list']))
+               requestform['trait_list']))
         helper_functions.get_trait_db_obs(self, self.trait_db_list)
 
         # self.input contains the phenotype values we need to send to R

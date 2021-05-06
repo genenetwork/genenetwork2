@@ -28,7 +28,7 @@ from utility import corr_result_helpers
 from utility.tools import GN2_BRANCH_URL
 
 
-class NetworkGraph(object):
+class NetworkGraph:
 
     def __init__(self, start_vars):
         trait_db_list = [trait.strip()
@@ -69,7 +69,7 @@ class NetworkGraph(object):
             this_trait = trait_db[0]
             this_db = trait_db[1]
 
-            this_db_samples = this_db.group.samplelist
+            this_db_samples = this_db.group.all_samples_ordered()
             this_sample_data = this_trait.data
 
             corr_result_row = []
@@ -80,7 +80,11 @@ class NetworkGraph(object):
             for target in self.trait_list:
                 target_trait = target[0]
                 target_db = target[1]
-                target_samples = target_db.group.samplelist
+
+                if str(this_trait) == str(target_trait) and str(this_db) == str(target_db):
+                    continue
+
+                target_samples = target_db.group.all_samples_ordered()
 
                 target_sample_data = target_trait.data
 
@@ -137,7 +141,7 @@ class NetworkGraph(object):
                     if abs(sample_r) > max_corr:
                         max_corr = abs(sample_r)
 
-                    edge_data = {'id': str(this_trait.name) + '_to_' + str(target_trait.name),
+                    edge_data = {'id': f"{str(this_trait.name)}:{str(this_trait.dataset.name)}" + '_to_' + f"{str(target_trait.name)}:{str(target_trait.dataset.name)}",
                                  'source': str(this_trait.name) + ":" + str(this_trait.dataset.name),
                                  'target': str(target_trait.name) + ":" + str(target_trait.dataset.name),
                                  'correlation': round(sample_r, 3),

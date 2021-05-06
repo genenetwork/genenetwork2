@@ -26,6 +26,6 @@ def divide_into_chunks(the_list, number_chunks):
 
     chunks = []
     for counter in range(0, length, chunksize):
-        chunks.append(the_list[counter:counter+chunksize])
+        chunks.append(the_list[counter:counter + chunksize])
 
     return chunks

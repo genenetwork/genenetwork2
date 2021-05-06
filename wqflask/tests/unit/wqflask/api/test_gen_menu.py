@@ -105,13 +105,13 @@ class TestGenMenu(unittest.TestCase):
         for name in ["mouse", "human"]:
             db_mock.db.execute.assert_any_call(
                 ("SELECT InbredSet.Name, InbredSet.FullName, " +
-                 "IFNULL(InbredSet.Family, 'None') " +
-                 "FROM InbredSet, Species WHERE Species.Name " +
-                 "= '{}' AND InbredSet.SpeciesId = Species.Id GROUP by " +
-                 "InbredSet.Name ORDER BY IFNULL(InbredSet.FamilyOrder, " +
-                 "InbredSet.FullName) ASC, IFNULL(InbredSet.Family, " +
-                 "InbredSet.FullName) ASC, InbredSet.FullName ASC, " +
-                 "InbredSet.MenuOrderId ASC").format(name)
+                 "IFNULL(InbredSet.Family, 'None') "
+                 + "FROM InbredSet, Species WHERE Species.Name "
+                 + "= '{}' AND InbredSet.SpeciesId = Species.Id GROUP by "
+                 + "InbredSet.Name ORDER BY IFNULL(InbredSet.FamilyOrder, "
+                 + "InbredSet.FullName) ASC, IFNULL(InbredSet.Family, "
+                 + "InbredSet.FullName) ASC, InbredSet.FullName ASC, "
+                 + "InbredSet.MenuOrderId ASC").format(name)
             )
 
     @mock.patch('wqflask.api.gen_menu.g')
@@ -172,12 +172,12 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(build_datasets("Mouse", "BXD", "Phenotypes"),
                          [['602', "BXDPublish", "BXD Published Phenotypes"]])
         db_mock.db.execute.assert_called_with(
-            "SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, " +
-            "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, " +
-            "InbredSet WHERE InbredSet.Name = 'BXD' AND " +
-            "PublishFreeze.InbredSetId = InbredSet.Id AND " +
-            "InfoFiles.InfoPageName = PublishFreeze.Name " +
-            "ORDER BY PublishFreeze.CreateTime ASC"
+            "SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, "
+            + "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, "
+            + "InbredSet WHERE InbredSet.Name = 'BXD' AND "
+            + "PublishFreeze.InbredSetId = InbredSet.Id AND "
+            + "InfoFiles.InfoPageName = PublishFreeze.Name "
+            + "ORDER BY PublishFreeze.CreateTime ASC"
         )
         self.assertEqual(build_datasets("Mouse", "MDP", "Phenotypes"),
                          [['602', "BXDPublish", "Mouse Phenome Database"]])
@@ -221,8 +221,8 @@ class TestGenMenu(unittest.TestCase):
             "SELECT InfoFiles.GN_AccesionId FROM InfoFiles, "
             "GenoFreeze, InbredSet WHERE InbredSet.Name = 'HLC' AND "
             "GenoFreeze.InbredSetId = InbredSet.Id AND "
-            "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
-            "ORDER BY GenoFreeze.CreateTime DESC"
+            "InfoFiles.InfoPageName = GenoFreeze.ShortName "
+            + "ORDER BY GenoFreeze.CreateTime DESC"
         )
         db_mock.db.execute.return_value.fetchone.return_value = ()
         self.assertEqual(build_datasets("Mouse", "HLC", "Genotypes"),
@@ -239,16 +239,16 @@ class TestGenMenu(unittest.TestCase):
             "112", 'HC_M2_0606_P', "Hippocampus Consortium M430v2 (Jun06) PDNN"
         ]])
         db_mock.db.execute.assert_called_once_with(
-            "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, " +
-            "ProbeSetFreeze.FullName FROM ProbeSetFreeze, " +
-            "ProbeFreeze, InbredSet, Tissue, Species WHERE " +
-            "Species.Name = 'Mouse' AND Species.Id = " +
-            "InbredSet.SpeciesId AND InbredSet.Name = 'HLC' AND " +
-            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND " +
-            "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = " +
-            "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id AND " +
-            "ProbeSetFreeze.public > 0 " +
-            "ORDER BY -ProbeSetFreeze.OrderList DESC, ProbeSetFreeze.CreateTime DESC")
+            "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, "
+            + "ProbeSetFreeze.FullName FROM ProbeSetFreeze, "
+            + "ProbeFreeze, InbredSet, Tissue, Species WHERE "
+            + "Species.Name = 'Mouse' AND Species.Id = "
+            + "InbredSet.SpeciesId AND InbredSet.Name = 'HLC' AND "
+            + "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND "
+            + "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = "
+            + "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id AND "
+            + "ProbeSetFreeze.public > 0 "
+            + "ORDER BY -ProbeSetFreeze.OrderList DESC, ProbeSetFreeze.CreateTime DESC")
 
     @mock.patch('wqflask.api.gen_menu.build_datasets')
     @mock.patch('wqflask.api.gen_menu.g')
@@ -266,15 +266,15 @@ class TestGenMenu(unittest.TestCase):
                           ['H', 'H', 'Molecular Traits'],
                           ['R', 'R', 'Molecular Traits']])
         db_mock.db.execute.assert_called_once_with(
-            "SELECT DISTINCT Tissue.Name " +
-            "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, " +
-            "Tissue, Species WHERE Species.Name = 'mouse' " +
-            "AND Species.Id = InbredSet.SpeciesId AND " +
-            "InbredSet.Name = 'random group' AND " +
-            "ProbeFreeze.TissueId = Tissue.Id AND " +
-            "ProbeFreeze.InbredSetId = InbredSet.Id AND " +
-            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
-            "ORDER BY Tissue.Name"
+            "SELECT DISTINCT Tissue.Name "
+            + "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, "
+            + "Tissue, Species WHERE Species.Name = 'mouse' "
+            + "AND Species.Id = InbredSet.SpeciesId AND "
+            + "InbredSet.Name = 'random group' AND "
+            + "ProbeFreeze.TissueId = Tissue.Id AND "
+            + "ProbeFreeze.InbredSetId = InbredSet.Id AND "
+            + "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+            + "ORDER BY Tissue.Name"
         )
 
     @mock.patch('wqflask.api.gen_menu.build_types')
