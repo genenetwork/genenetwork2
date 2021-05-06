@@ -22,11 +22,6 @@
 
 from db.call import fetch1
 
-###########################################################################
-# output: cursor instance
-# function: connect to database and return cursor instance
-###########################################################################
-
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
