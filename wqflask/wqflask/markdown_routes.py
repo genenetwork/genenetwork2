@@ -57,6 +57,39 @@ def get_file_from_python_search_path(pathname_suffix):
         return None
 
 
+def get_blogs(user="genenetwork", repo_name="gn-docs"):
+
+    blogs = {}
+    github_url = f"https://api.github.com/repos/{user}/{repo_name}/git/trees/master?recursive=1"
+
+    repo_tree = requests.get(github_url).json()["tree"]
+
+    for data in repo_tree:
+        path_name = data["path"]
+        if path_name.startswith("blog") and path_name.endswith(".md"):
+            split_path = path_name.split("/")[1:]
+            try:
+                year, title, file_name = split_path
+            except Exception as e:
+                year, file_name = split_path
+                title = ""
+
+            subtitle = os.path.splitext(file_name)[0]
+
+            blog = {
+                "title": title,
+                "subtitle": subtitle,
+                "full_path": path_name
+            }
+
+            if year in blogs:
+                blogs[int(year)].append(blog)
+            else:
+                blogs[int(year)] = [blog]
+
+    return dict(sorted(blogs.items(), key=lambda x: x[0], reverse=True))
+
+
 @glossary_blueprint.route('/')
 def glossary():
     return render_template(
@@ -128,34 +161,13 @@ def facilities():
     return render_template("facilities.html", rendered_markdown=render_markdown("general/help/facilities.md")), 200
 
 
-@blogs_blueprint.route("/<blog_title>")
-def display_blog(blog_title):
-    # should use the blog title path
-
-    return render_template("blogs.html", rendered_markdown=render_markdown("blog/2021/proteome/Wang_WIlliams_Rat_Brain_Proteome_For_Blog.md"))
+@blogs_blueprint.route("/<path:blog_path>")
+def display_blog(blog_path):
+    return render_template("blogs.html", rendered_markdown=render_markdown(blog_path))
 
 
 @blogs_blueprint.route("/")
 def blogs_list():
-
-    # should fetch this from github
-
-    blogs = {"2021": [
-        {
-            "title": "proteome",
-            "subtitle": "Wang_WIlliams_Rat_Brain_Proteome_For_Blog"
-        },
-        { 
-          "title":"xxx",
-          "subtitle":"blog 2"
-        }
-    ],
-        "2020": [
-        {
-            "title": "other",
-            "subtitle": "other"
-        }
-    ]
-    }
+    blogs = get_blogs()
 
     return render_template("blogs_list.html", blogs=blogs)
