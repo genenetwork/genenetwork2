@@ -11,11 +11,8 @@
 	}
 	.blog_year {
 		font-weight: bold;
-		opacity: 0.8;
-		/*letter-spacing: 0.2em;*/
 		font-size: 48px;
 		padding:12px 10px;
-		color:#0F75CD;
 	}
 
 	.blog_title {
@@ -26,14 +23,10 @@
 
 
 	.blog_title a{
-		text-decoration: none;
-		font-size:16px;
-		color:#333;
-		/*margin: 10px 15px;*/
-		padding-left: 30px;
-		opacity: 0.8;
-
-		/*font-weight: bold;*/
+		font-size:1.3em;
+		padding-left: 10px;
+		letter-spacing: 0.07em;
+		text-decoration: underline;
 	}
 </style>
 
@@ -48,8 +41,16 @@
      <div class="blog_year"><h3>{{year}}</h3></div>
      {%for blog in year_blogs%}
         <!-- <a href="#" class="blog_subtitle">{{blog['subtitle']}}</a> -->
-        <div class="blog_title"><a href="{{ url_for('blogs_blueprint.display_blog',blog_title = blog.subtitle)}}">{{blog['subtitle']}}</a>
+        <div>
+        <div class="blog_title">
+        	<ul>
+        		<li>
+        			<a href="{{ url_for('blogs_blueprint.display_blog',blog_path = blog.full_path)}}">{{blog['subtitle']}}</a>
+        		</li>
+        	</ul>
+        	
         </div>
+    </div>
      {% endfor %}
 
    	{%endfor%}
