@@ -20,6 +20,8 @@ links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
 
+blogs_blueprint = Blueprint("blogs_blueprint", __name__)
+
 
 def render_markdown(file_name, is_remote_file=True):
     """Try to fetch the file name from Github and if that fails, try to
@@ -124,3 +126,36 @@ def policies():
 @facilities_blueprint.route("/")
 def facilities():
     return render_template("facilities.html", rendered_markdown=render_markdown("general/help/facilities.md")), 200
+
+
+@blogs_blueprint.route("/<blog_title>")
+def display_blog(blog_title):
+    # should use the blog title path
+
+    return render_template("blogs.html", rendered_markdown=render_markdown("blog/2021/proteome/Wang_WIlliams_Rat_Brain_Proteome_For_Blog.md"))
+
+
+@blogs_blueprint.route("/")
+def blogs_list():
+
+    # should fetch this from github
+
+    blogs = {"2021": [
+        {
+            "title": "proteome",
+            "subtitle": "Wang_WIlliams_Rat_Brain_Proteome_For_Blog"
+        },
+        { 
+          "title":"xxx",
+          "subtitle":"blog 2"
+        }
+    ],
+        "2020": [
+        {
+            "title": "other",
+            "subtitle": "other"
+        }
+    ]
+    }
+
+    return render_template("blogs_list.html", blogs=blogs)
