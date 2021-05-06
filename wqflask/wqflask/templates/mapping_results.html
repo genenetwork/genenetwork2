@@ -17,8 +17,9 @@
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         {% if temp_trait is defined %}
         <input type="hidden" name="temp_trait" value="{{ temp_trait }}">
-        <input type="hidden" name="group" value="{{ group }}">
         {% endif %}
+        <input type="hidden" name="group" value="{{ dataset.group.name }}">
+        <input type="hidden" name="species" value="{{ dataset.group.species }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
