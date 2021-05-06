@@ -263,6 +263,9 @@ class ShowTrait:
             hddn['temp_trait'] = True
             hddn['group'] = self.temp_group
             hddn['species'] = self.temp_species
+        else:
+            hddn['group'] = self.dataset.group.name
+            hddn['species'] = self.dataset.group.species
         hddn['use_outliers'] = False
         hddn['method'] = "gemma"
         hddn['selected_chr'] = -1
