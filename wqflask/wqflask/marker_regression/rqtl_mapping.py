@@ -10,6 +10,7 @@ from base.trait import create_trait
 from base.data_set import create_dataset
 from utility import webqtlUtil
 from utility.tools import locate, TEMPDIR
+from wqflask.marker_regression.gemma_mapping import generate_random_n_string
 from flask import g
 
 import utility.logger
@@ -84,6 +85,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     else:
         cross_object = calc_genoprob(cross_object, step=5, stepwidth="max")
     logger.info("after calc_genoprob")
+
     pheno_string = sanitize_rqtl_phenotype(vals)
     logger.info("phenostring done")
     names_string = sanitize_rqtl_names(samples)
@@ -125,13 +127,13 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
     else:
         if do_control == "true" or cofactors != "":
             logger.info("Using covariate")
-            result_data_frame = scanone(
-                cross_object, pheno="the_pheno", addcovar=covars, model=model, method=method)
-            ro.r('save.image(file = "/home/zas1024/gn2-zach/itp_cofactor_test.RData")')
+            ro.r(f"qtl_results = scanone(the_cross, pheno='the_pheno', addcovar=all_covars, model='{model}', method='{method}')")
+            result_data_frame = ro.r("qtl_results")
         else:
-            logger.info("No covariates")
-            result_data_frame = scanone(
-                cross_object, pheno="the_pheno", model=model, method=method)
+            ro.r(f"qtl_results = scanone(the_cross, pheno='the_pheno', model='{model}', method='{method}')")
+            result_data_frame = np.asarray(ro.r("qtl_results")).T
+
+        marker_names = np.asarray(ro.r("row.names(qtl_results)"))
 
         # Do permutation (if requested by user)
         if num_perm > 0 and permCheck == "ON":
@@ -139,6 +141,7 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
             if len(perm_strata_list) > 0:
                 cross_object, strata_ob = add_perm_strata(
                     cross_object, perm_strata_list)
+
                 if do_control == "true" or cofactors != "":
                     perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm=int(
                         num_perm), perm_strata=strata_ob, model=model, method=method)
@@ -156,9 +159,9 @@ def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permChec
             # Functions that sets the thresholds for the webinterface
             perm_output, suggestive, significant = process_rqtl_perm_results(
                 num_perm, perm_data_frame)
-            return perm_output, suggestive, significant, process_rqtl_results(result_data_frame, dataset.group.species)
+            return perm_output, suggestive, significant, process_rqtl_results(marker_names, result_data_frame, dataset.group.species)
         else:
-            return process_rqtl_results(result_data_frame, dataset.group.species)
+            return process_rqtl_results(marker_names, result_data_frame, dataset.group.species)
 
 
 def generate_cross_from_rdata(dataset):
@@ -175,13 +178,16 @@ def generate_cross_from_rdata(dataset):
 # TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
 def generate_cross_from_geno(dataset, scale_units):
 
+    cross_filename = (f"{str(dataset.group.name)}_"
+                      f"{generate_random_n_string(6)}")
+
     ro.r("""
        trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
        getGenoCode <- function(header, name = 'unk'){
          mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
          return(trim(strsplit(header[mat],':')[[1]][2]))
        }
-       GENOtoCSVR <- function(genotypes = '%s', out = 'cross.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
+       GENOtoCSVR <- function(genotypes = '%s', out = '%s.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
          header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
          toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
          type <- getGenoCode(header, 'type')
@@ -215,7 +221,7 @@ def generate_cross_from_geno(dataset, scale_units):
          }
          return(cross)
       }
-    """ % (dataset.group.genofile, scale_units))
+    """ % (dataset.group.genofile, cross_filename, scale_units))
 
 
 def add_perm_strata(cross, perm_strata):
@@ -425,10 +431,7 @@ def process_pair_scan_results(result):
 
 
 def process_rqtl_perm_results(num_perm, results):
-    perm_vals = []
-    for line in str(results).split("\n")[1:(num_perm + 1)]:
-        #print("R/qtl permutation line:", line.split())
-        perm_vals.append(float(line.split()[1]))
+    perm_vals = item[0] for item in results
 
     perm_output = perm_vals
     suggestive = np.percentile(np.array(perm_vals), 67)
@@ -437,23 +440,21 @@ def process_rqtl_perm_results(num_perm, results):
     return perm_output, suggestive, significant
 
 
-# TODO: how to make this a one liner and not copy the stuff in a loop
-def process_rqtl_results(result, species_name):
+def process_rqtl_results(marker_names, results, species_name):        # TODO: how to make this a one liner and not copy the stuff in a loop
     qtl_results = []
-    output = [tuple([result[j][i] for j in range(result.ncol)])
-              for i in range(result.nrow)]
 
-    for i, line in enumerate(result.iter_row()):
+    for i, line in enumerate(results):
         marker = {}
-        marker['name'] = result.rownames[i]
-        # ZS: This is awkward, but I'm not sure how to change the 20s to Xs in the RData file
-        if species_name == "mouse" and output[i][0] == 20:
+        marker['name'] = marker_names[i]
+        if species_name == "mouse" and line[0] == 20:
             marker['chr'] = "X"
         else:
-            marker['chr'] = output[i][0]
-        marker['cM'] = output[i][1]
-        marker['Mb'] = output[i][1]
-        marker['lod_score'] = output[i][2]
+            try:
+                marker['chr'] = int(line[0])
+            except:
+                marker['chr'] = line[0]
+        marker['cM'] = marker['Mb'] = line[1]
+        marker['lod_score'] = line[2]
         qtl_results.append(marker)
 
     return qtl_results
