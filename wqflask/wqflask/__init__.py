@@ -12,6 +12,7 @@ from wqflask.markdown_routes import links_blueprint
 from wqflask.markdown_routes import policies_blueprint
 from wqflask.markdown_routes import environments_blueprint
 from wqflask.markdown_routes import facilities_blueprint
+from wqflask.markdown_routes import blogs_blueprint
 
 app = Flask(__name__)
 
@@ -29,6 +30,7 @@ app.register_blueprint(links_blueprint, url_prefix="/links")
 app.register_blueprint(policies_blueprint, url_prefix="/policies")
 app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
+app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
 
 
 @app.before_request
