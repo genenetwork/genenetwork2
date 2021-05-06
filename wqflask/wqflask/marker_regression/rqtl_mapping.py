@@ -385,7 +385,7 @@ def process_pair_scan_results(result):
 def process_rqtl_perm_results(num_perm, results):
     perm_vals = []
     for item in results:
-        perm_vals.append(item)
+        perm_vals.append(item[0])
 
     perm_output = perm_vals
     suggestive = np.percentile(np.array(perm_vals), 67)
