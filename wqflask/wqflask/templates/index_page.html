@@ -3,6 +3,31 @@
 {% block css %}
 <style TYPE="text/css">
   p.interact { display: none; }
+
+
+  
+
+  .tweet  {
+
+   padding:5px;
+   color:#000;
+
+  }
+
+  .media {
+    padding-bottom:10px;
+    border-bottom: 1px solid #c8ccc9;
+  }
+
+  .media img {
+
+    width: 95%;
+    height: 100%;
+    border-radius: 5px;
+    /*transform: scale(1.1); image small?*/
+    border:1px solid #c8ccc9;
+
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -255,7 +280,7 @@
       "showImages": true,
       "lang": 'en'
       };
-      twitterFetcher.fetch(configProfile);
+      twitterFetcher.fetch(configProfile)
     </script>
 
 
