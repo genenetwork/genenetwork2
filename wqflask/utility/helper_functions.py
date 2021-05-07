@@ -57,14 +57,16 @@ def get_trait_db_obs(self, trait_db_list):
 def get_species_groups():
     """Group each species into a group"""
     _menu = {}
+
     for species, group_name in g.db.execute(
             "SELECT s.MenuName, i.InbredSetName FROM InbredSet i "
             "INNER JOIN Species s ON s.SpeciesId = i.SpeciesId "
             "ORDER BY i.SpeciesId ASC, i.Name ASC").fetchall():
-        if _menu.get(species):
-            _menu = _menu[species].append(group_name)
-        else:
-            _menu[species] = [group_name]
+        if species in _menu:
+            if _menu.get(species):
+                _menu = _menu[species].append(group_name)
+            else:
+                _menu[species] = [group_name]
     return [{"species": key,
              "groups": value} for key, value in
             list(_menu.items())]
