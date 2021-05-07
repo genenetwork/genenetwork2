@@ -2,16 +2,20 @@
 
 Render pages from github, or if they are unavailable, look for it else where
 """
+
 import requests
 import markdown
 import os
 import sys
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore
 
 from flask import send_from_directory
 from flask import Blueprint
 from flask import render_template
+
+from typing import Dict
+from typing import List
 
 glossary_blueprint = Blueprint('glossary_blueprint', __name__)
 references_blueprint = Blueprint("references_blueprint", __name__)
@@ -57,9 +61,10 @@ def get_file_from_python_search_path(pathname_suffix):
         return None
 
 
-def get_blogs(user="genenetwork", repo_name="gn-docs"):
+def get_blogs(user: str = "genenetwork",
+              repo_name: str = "gn-docs") -> dict:
 
-    blogs = {}
+    blogs: Dict[int, List] = {}
     github_url = f"https://api.github.com/repos/{user}/{repo_name}/git/trees/master?recursive=1"
 
     repo_tree = requests.get(github_url).json()["tree"]
