@@ -33,10 +33,12 @@
           <br>
           minor allele frequency lower limit = <b><i>{{ start_vars.maf }}</i></b>
           {% endif %}
-          {% if start_vars.covariates != "" and start_vars.method != "reaper" %}
           <br>
+          {% if start_vars.covariates != "" and start_vars.method != "reaper" %}
           {% set covariate_list = start_vars.covariates.split(",") %}
           cofactors = <b><i>{% for covariate in covariate_list %}{% set this_covariate = covariate.split(":")[0] %}{{ this_covariate }}{% if not loop.last %}, {% endif %}{% endfor %}</i></b>
+          {% else %}
+          cofactors = <b><i>None</i></b>
           {% endif %}
           {% if start_vars.control_marker != "" and start_vars.do_control == "true" and start_vars.method != "gemma" %}
           <br>
