@@ -24,16 +24,17 @@ def app_config():
         app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     print("==========================================")
+
     show_settings()
 
     port = get_setting_int("SERVER_PORT")
 
     if get_setting_bool("USE_GN_SERVER"):
-        print(
-            ("GN2 API server URL is [" + BLUE + get_setting("GN_SERVER_URL") + ENDC + "]"))
+        print(f"GN2 API server URL is [{BLUE}GN_SERVER_URL{ENDC}]")
         import requests
         page = requests.get(get_setting("GN_SERVER_URL"))
         if page.status_code != 200:
             raise Exception("API server not found!")
-    print(("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" %
-           (BLUE, str(port), ENDC, get_setting("WEBSERVER_URL"))))
+    print(f"GN2 is running. Visit {BLUE}"
+          f"[http://localhost:{str(port)}/{ENDC}]"
+          f"({get_setting('WEBSERVER_URL')})")
