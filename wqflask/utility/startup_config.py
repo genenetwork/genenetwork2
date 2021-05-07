@@ -16,12 +16,10 @@ def app_config():
     if not app.config.get('SECRET_KEY'):
         import os
         app.config['SECRET_KEY'] = str(os.urandom(24))
-
     mode = WEBSERVER_MODE
     if mode == "DEV" or mode == "DEBUG":
         app.config['TEMPLATES_AUTO_RELOAD'] = True
-        # if mode == "DEBUG":
-        #     app.config['EXPLAIN_TEMPLATE_LOADING'] = True <--- use overriding app param instead
+
     print("==========================================")
     show_settings()
 
@@ -34,9 +32,5 @@ def app_config():
         page = requests.get(get_setting("GN_SERVER_URL"))
         if page.status_code != 200:
             raise Exception("API server not found!")
-
-    # import utility.elasticsearch_tools as es
-    # es.test_elasticsearch_connection()
-
     print(("GN2 is running. Visit %s[http://localhost:%s/%s](%s)" %
            (BLUE, str(port), ENDC, get_setting("WEBSERVER_URL"))))
