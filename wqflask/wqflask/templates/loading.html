@@ -49,9 +49,11 @@
           <br>
           n of permutations = <b><i>{{ start_vars.num_perm }}</i></b>
           {% endif %}
+          {% if num_bootstrap in start_vars %}
           {% if start_vars.num_bootstrap | int > 0 and start_vars.method == "reaper" %}
           <br>
           n of bootstrap = <b><i>{{ start_vars.num_bootstrap }}</i></b>
+          {% endif %}
           {% endif %}
           {% else %}
           <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
