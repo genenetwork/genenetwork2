@@ -1,24 +1,12 @@
 {% extends "base.html" %}
-
 {% block title %}Blogs {% endblock %}
-
 {% block css %}
 <link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
 {% endblock %}
-
 {% block content %}
-
- <div class="github-btn-container">
-<!--     <div class="github-btn">
-        <a href="https://github.com/genenetwork/gn-docs/blob/master/general/help/facilities.md">
-            Edit Text
-            <img src="/static/images/edit.png">
-        </a>
-    </div> -->
+<div class="github-btn-container">
 </div>
 <div id="markdown" class="container">
-   {{ rendered_markdown|safe }}
-
+    {{ rendered_markdown|safe }}
 </div>
-
 {% endblock %}
