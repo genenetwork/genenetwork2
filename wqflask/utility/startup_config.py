@@ -1,9 +1,12 @@
 
 from wqflask import app
-from utility.tools import WEBSERVER_MODE, show_settings, get_setting_int, get_setting, get_setting_bool
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
+from utility.tools import WEBSERVER_MODE
+from utility.tools import show_settings
+from utility.tools import get_setting_int
+from utility.tools import get_setting
+from utility.tools import get_setting_bool
+
 
 BLUE = '\033[94m'
 GREEN = '\033[92m'
