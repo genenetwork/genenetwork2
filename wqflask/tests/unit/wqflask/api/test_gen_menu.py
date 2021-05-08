@@ -2,7 +2,6 @@
 import unittest
 from unittest import mock
 
-from wqflask import app
 from wqflask.api.gen_menu import gen_dropdown_json
 from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
@@ -18,8 +17,6 @@ class TestGenMenu(unittest.TestCase):
     """Tests for the gen_menu module"""
 
     def setUp(self):
-        self.app_context = app.app_context()
-        self.app_context.push()
         self.test_group = {
             'mouse': [
                 ['H_T1',
@@ -69,9 +66,6 @@ class TestGenMenu(unittest.TestCase):
                         ['M', 'M', 'Molecular Trait Datasets']]
             }
         }
-
-    def tearDown(self):
-        self.app_context.pop()
 
     def test_get_species(self):
         """Test that assertion is raised when dataset and dataset_name
