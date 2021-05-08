@@ -6,11 +6,13 @@ import csv
 import json
 import datetime
 import requests
+import MySQLdb
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
 
 import flask
+from flask import current_app
 from flask import g
 from flask import request
 from flask import make_response
@@ -845,7 +847,11 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
 
 @app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
-    results = gen_menu.gen_dropdown_json()
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    results = gen_menu.gen_dropdown_json(conn)
 
     if len(results) > 0:
         return flask.jsonify(results)
