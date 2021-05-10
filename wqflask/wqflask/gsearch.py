@@ -121,16 +121,14 @@ class GSearch:
                             continue
 
                     max_lrs_text = "N/A"
-                    if this_trait['locus_chr'] != None and this_trait['locus_mb'] != None:
-                        max_lrs_text = "Chr" + \
-                            str(this_trait['locus_chr']) + \
-                            ": " + str(this_trait['locus_mb'])
+                    if this_trait['locus_chr'] and this_trait['locus_mb']:
+                        max_lrs_text = f"Chr{str(this_trait['locus_chr'])}: {str(this_trait['locus_mb'])}"
                     this_trait['max_lrs_text'] = max_lrs_text
 
                     trait_list.append(this_trait)
 
             self.trait_count = len(trait_list)
-            self.trait_list = json.dumps(trait_list)
+            self.trait_list = trait_list
 
             self.header_fields = ['Index',
                                   'Record',
@@ -145,6 +143,22 @@ class GSearch:
                                   'Max LRS',
                                   'Max LRS Location',
                                   'Additive Effect']
+
+            self.header_data_names = [
+                'index',
+                'name',
+                'species',
+                'group',
+                'tissue',
+                'dataset_fullname',
+                'symbol',
+                'description',
+                'location_repr',
+                'mean',
+                'LRS_score_repr',
+                'max_lrs_text',
+                'additive',
+            ]
 
         elif self.type == "phenotype":
             search_term = self.terms
@@ -169,24 +183,23 @@ class GSearch:
                 PublishXRef.`LRS`,
                 PublishXRef.`additive`,
                 InbredSet.`InbredSetCode`,
-                PublishXRef.`mean`
-                FROM Species,InbredSet,PublishFreeze,PublishXRef,Phenotype,Publication
-                WHERE PublishXRef.`InbredSetId`=InbredSet.`Id`
-                AND PublishFreeze.`InbredSetId`=InbredSet.`Id`
-                AND InbredSet.`SpeciesId`=Species.`Id`
+                PublishXRef.`mean`,
+                PublishFreeze.Id,
+                Geno.Chr as geno_chr,
+                Geno.Mb as geno_mb 
+                FROM Species 
+                INNER JOIN InbredSet ON InbredSet.`SpeciesId`=Species.`Id` 
+                INNER JOIN PublishFreeze ON PublishFreeze.`InbredSetId`=InbredSet.`Id` 
+                INNER JOIN PublishXRef ON PublishXRef.`InbredSetId`=InbredSet.`Id` 
+                INNER JOIN Phenotype ON PublishXRef.`PhenotypeId`=Phenotype.`Id` 
+                INNER JOIN Publication ON PublishXRef.`PublicationId`=Publication.`Id` 
+                LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id 
+                WHERE 
+                (
+                    (MATCH (Phenotype.Post_publication_description, Phenotype.Pre_publication_description, Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, Phenotype.Lab_code) AGAINST ('{1}' IN BOOLEAN MODE) )
+                    OR (MATCH (Publication.Abstract, Publication.Title, Publication.Authors) AGAINST ('{1}' IN BOOLEAN MODE) )
+                )
                 {0}
-                AND PublishXRef.`PhenotypeId`=Phenotype.`Id`
-                AND PublishXRef.`PublicationId`=Publication.`Id`
-                AND	  (Phenotype.Post_publication_description REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Pre_publication_description REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Pre_publication_abbreviation REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Post_publication_abbreviation REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Phenotype.Lab_code REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.PubMed_ID REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.Abstract REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.Title REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR Publication.Authors REGEXP "[[:<:]]{1}[[:>:]]"
-                    OR PublishXRef.Id REGEXP "[[:<:]]{1}[[:>:]]")
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000
                 """.format(group_clause, search_term)
@@ -221,6 +234,9 @@ class GSearch:
                         this_trait['mean'] = f"{line[13]:.3f}"
                     else:
                         this_trait['mean'] = "N/A"
+                    this_trait['dataset_id'] = line[14]
+                    this_trait['locus_chr'] = line[15]
+                    this_trait['locus_mb'] = line[16]
                     this_trait['authors'] = line[7]
                     this_trait['year'] = line[8]
                     if this_trait['year'].isdigit():
@@ -241,32 +257,51 @@ class GSearch:
                     if line[11] != "" and line[11] != None:
                         this_trait['additive'] = '%.3f' % line[11]
 
+                    dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="Publish", species=this_trait["species"])
+                    permissions = check_resource_availability(dataset_ob, this_trait['name'])
+                    if type(permissions['data']) is list:
+                        if "view" not in permissions['data']:
+                            continue
+                    else:
+                        if permissions['data'] == 'no-access':
+                            continue
+
                     this_trait['max_lrs_text'] = "N/A"
-                    trait_ob = create_trait(
-                        dataset_name=this_trait['dataset'], name=this_trait['name'], get_qtl_info=True, get_sample_info=False)
-                    if not trait_ob:
-                        continue
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
                         try:
-                            if trait_ob.locus_chr != "" and trait_ob.locus_mb != "":
-                                this_trait['max_lrs_text'] = "Chr" + \
-                                    str(trait_ob.locus_chr) + \
-                                    ": " + str(trait_ob.locus_mb)
+                            if this_trait['locus_chr'] and this_trait['locus_mb']:
+                                this_trait['max_lrs_text'] = f"Chr{str(this_trait['locus_chr'])}: {str(this_trait['locus_mb'])}"
                         except:
                             this_trait['max_lrs_text'] = "N/A"
 
                     trait_list.append(this_trait)
 
             self.trait_count = len(trait_list)
-            self.trait_list = json.dumps(trait_list)
+            self.trait_list = trait_list
 
             self.header_fields = ['Index',
-                                  'Species',
-                                  'Group',
-                                  'Record',
-                                  'Description',
-                                  'Authors',
-                                  'Year',
-                                  'Max LRS',
-                                  'Max LRS Location',
-                                  'Additive Effect']
+                                'Species',
+                                'Group',
+                                'Record',
+                                'Description',
+                                'Authors',
+                                'Year',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+
+            self.header_data_names = [
+                'index',
+                'name',
+                'species',
+                'group',
+                'tissue',
+                'dataset_fullname',
+                'symbol',
+                'description',
+                'location_repr',
+                'mean',
+                'LRS_score_repr',
+                'max_lrs_text',
+                'additive',
+            ]
