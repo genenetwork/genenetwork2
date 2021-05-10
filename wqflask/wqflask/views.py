@@ -881,11 +881,14 @@ def network_graph_page():
 def corr_compute_page():
     logger.info("In corr_compute, request.form is:", pf(request.form))
     logger.info(request.url)
-    import time
-    initial_time = time.time()
-    correlation_results = compute_correlation(request.form)
-    print(">>>>Time taken by this endpoint",time.time()-initial_time)
-    return render_template("test_correlation_page.html",correlation_results=correlation_results)
+    template_vars = show_corr_results.CorrelationResults(request.form)
+    return render_template("correlation_page.html", **template_vars.__dict__)
+
+    # to test the new  correlation api uncomment these lines
+
+    # correlation_results = compute_correlation(request.form)
+    # print(">>>>Time taken by this endpoint",time.time()-initial_time)
+    # return render_template("test_correlation_page.html",correlation_results=correlation_results)
 
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():

@@ -655,42 +655,7 @@ class DataSet(object):
                 "Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
 
-    def fetch_probe_trait_data(self, sample_list=None):
-        if sample_list:
-            self.samplelist = sample_list
-        else:
-            self.samplelist = self.group.samplelist
 
-        if self.group.parlist != None and self.group.f1list != None:
-            if (self.group.parlist + self.group.f1list) in self.samplelist:
-                self.samplelist += self.group.parlist + self.group.f1list
-
-        query = """
-            SELECT Strain.Name, Strain.Id FROM Strain, Species
-            WHERE Strain.Name IN {}
-            and Strain.SpeciesId=Species.Id
-            and Species.name = '{}'
-            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        logger.sql(query)
-        results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results[item] for item in self.samplelist]
-
-        query = """SELECT * from ProbeSetData WHERE Id in ( SELECT ProbeSetXRef.DataId FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze) WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id  and ProbeSetFreeze.Name = 'HC_M2_0606_P'  and ProbeSet.Id = ProbeSetXRef.ProbeSetId  order by ProbeSet.Id )    and  StrainId in ({})""".format(
-            ",".join(str(sample_id) for sample_id in sample_ids))
-
-        results = g.db.execute(query).fetchall()
-
-        # with conn:
-        #     cursor = conn.cursor()
-        #     cursor.execute(query)
-        #     results = cursor.fetchall()
-        trait_data = {}
-        for trait_id, StrainId, value in results:
-            if trait_id in trait_data:
-                trait_data[trait_id].append(value)
-            else:
-                trait_data[trait_id] = [value]
-        self.trait_data = trait_data
 
     def get_trait_data(self, sample_list=None):
         if sample_list:
@@ -711,7 +676,6 @@ class DataSet(object):
         logger.sql(query)
         results = dict(g.db.execute(query).fetchall())
         sample_ids = [results[item] for item in self.samplelist]
-        print("the number of sample ids are", len(sample_ids))
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
@@ -762,7 +726,6 @@ class DataSet(object):
             trait_sample_data.append(results)
 
         trait_count = len(trait_sample_data[0])
-        print("the trait count is >>>", trait_count)
         self.trait_data = collections.defaultdict(list)
 
         # put all of the separate data together into a dictionary where the keys are
