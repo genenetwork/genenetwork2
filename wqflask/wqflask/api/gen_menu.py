@@ -1,28 +1,16 @@
+from gn3.db.species import get_all_species
 def gen_dropdown_json(conn):
     """Generates and outputs (as json file) the data for the main dropdown menus on
     the home page
     """
-
-    species = get_species(conn)
+    species = get_all_species(conn)
     groups = get_groups(species, conn)
     types = get_types(groups, conn)
     datasets = get_datasets(types, conn)
-
-    data = dict(species=species,
+    return dict(species=species,
                 groups=groups,
                 types=types,
                 datasets=datasets)
-
-    return data
-
-
-def get_species(conn):
-    """Build species list"""
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT Name, MenuName FROM Species "
-                       "ORDER BY OrderId")
-        results = cursor.fetchall()
-        return [[name, menu_name] for name, menu_name in results]
 
 
 def get_groups(species, conn):
