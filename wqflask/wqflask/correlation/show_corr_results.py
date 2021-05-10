@@ -57,6 +57,7 @@ TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
 
 TISSUE_MOUSE_DB = 1
 
+
 class CorrelationResults(object):
     def __init__(self, start_vars):
         # get trait list from db (database name)
@@ -444,9 +445,6 @@ class CorrelationResults(object):
         using the corresponding scipy functions.
 
         """
-
-        print("below here>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        print(self.target_dataset.trait_data)
 
         self.this_trait_vals = []
         target_vals = []
