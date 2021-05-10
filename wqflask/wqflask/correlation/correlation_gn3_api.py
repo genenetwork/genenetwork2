@@ -68,9 +68,9 @@ def sample_for_trait_lists(corr_results, target_dataset,
 
 def tissue_for_trait_lists(corr_results, this_dataset, this_trait):
     """interface function for doing tissue corr_results on trait_list"""
-    # trait_lists = dict([(list(corr_result)[0], True)
-    #                     for corr_result in corr_results])
-    trait_lists = {list(corr_results)[0]: 1 for corr_result in corr_results}
+    trait_lists = dict([(list(corr_result)[0], True)
+                        for corr_result in corr_results])
+    # trait_lists = {list(corr_results)[0]: 1 for corr_result in corr_results}
     traits_symbol_dict = this_dataset.retrieve_genes("Symbol")
     traits_symbol_dict = dict({trait_name: symbol for (
         trait_name, symbol) in traits_symbol_dict.items() if trait_lists.get(trait_name)})
@@ -85,19 +85,24 @@ def tissue_for_trait_lists(corr_results, this_dataset, this_trait):
 
 def lit_for_trait_list(corr_results, this_dataset, this_trait):
     (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
-            this_trait, this_dataset)
+        this_trait, this_dataset)
 
-    trait_lists = {list(corr_results)[0]: 1 for corr_result in corr_results}
+    # trait_lists = {list(corr_results)[0]: 1 for corr_result in corr_results}
+    trait_lists = dict([(list(corr_result)[0], True)
+                        for corr_result in corr_results])
 
-    geneid_dict = {trait_name: geneid for (trait_name, geneid) in geneid_dict if
-    trait_lists.get(trait_name)}
+    geneid_dict = {trait_name: geneid for (trait_name, geneid) in geneid_dict.items() if
+                   trait_lists.get(trait_name)}
 
     conn, _cursor_object = database_connector()
-    correlation_results = compute_all_lit_correlation(
-                conn=conn, trait_lists=list(geneid_dict.items()),
-                species=species, gene_id=this_trait_geneid)
 
-    return correlation_results[0:corr_return_results]
+    with conn:
+
+        correlation_results = compute_all_lit_correlation(
+            conn=conn, trait_lists=list(geneid_dict.items()),
+            species=species, gene_id=this_trait_geneid)
+
+    return correlation_results
 
 
 def compute_correlation(start_vars, method="pearson"):
@@ -129,6 +134,17 @@ def compute_correlation(start_vars, method="pearson"):
                                                              this_trait=this_trait_data,
                                                              target_dataset=results)
 
+        # do tissue correaltion
+
+        # code to be use later
+
+        # tissue_result = tissue_for_trait_lists(
+        #     correlation_results, this_dataset, this_trait)
+        # # lit spoils the party so slow
+        # lit_result = lit_for_trait_list(
+        #     correlation_results, this_dataset, this_trait)
+
+
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
         primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
@@ -153,30 +169,30 @@ def compute_correlation(start_vars, method="pearson"):
         conn, _cursor_object = database_connector()
         with conn:
             correlation_results = compute_all_lit_correlation(
-                conn = conn, trait_lists = list(geneid_dict.items()),
-                species = species, gene_id = this_trait_geneid)
+                conn=conn, trait_lists=list(geneid_dict.items()),
+                species=species, gene_id=this_trait_geneid)
 
     return correlation_results[0:corr_return_results]
 
 
 def do_lit_correlation(this_trait, this_dataset):
     """function for fetching lit inputs"""
-    geneid_dict=this_dataset.retrieve_genes("GeneId")
-    species=this_dataset.group.species.lower()
-    trait_geneid=this_trait.geneid
+    geneid_dict = this_dataset.retrieve_genes("GeneId")
+    species = this_dataset.group.species.lower()
+    trait_geneid = this_trait.geneid
     return (trait_geneid, geneid_dict, species)
 
 
 def get_tissue_correlation_input(this_trait, trait_symbol_dict):
     """Gets tissue expression values for the primary trait and target tissues values"""
-    primary_trait_tissue_vals_dict=correlation_functions.get_trait_symbol_and_tissue_values(
-        symbol_list = [this_trait.symbol])
+    primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+        symbol_list=[this_trait.symbol])
     if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
-        primary_trait_tissue_values=primary_trait_tissue_vals_dict[this_trait.symbol.lower(
+        primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
         )]
-        corr_result_tissue_vals_dict=correlation_functions.get_trait_symbol_and_tissue_values(
-            symbol_list = list(trait_symbol_dict.values()))
-        primary_tissue_data={
+        corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
+            symbol_list=list(trait_symbol_dict.values()))
+        primary_tissue_data = {
             "this_id": this_trait.name,
             "tissue_values": primary_trait_tissue_values
 
