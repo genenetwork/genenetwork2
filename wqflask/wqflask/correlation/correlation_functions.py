@@ -34,19 +34,19 @@ from flask import Flask, g
 
 
 #####################################################################################
-#Input: primaryValue(list): one list of expression values of one probeSet,
+# Input: primaryValue(list): one list of expression values of one probeSet,
 #       targetValue(list): one list of expression values of one probeSet,
 #               method(string): indicate correlation method ('pearson' or 'spearman')
-#Output: corr_result(list): first item is Correlation Value, second item is tissue number,
+# Output: corr_result(list): first item is Correlation Value, second item is tissue number,
 #                           third item is PValue
-#Function: get correlation value,Tissue quantity ,p value result by using R;
-#Note : This function is special case since both primaryValue and targetValue are from
-#the same dataset. So the length of these two parameters is the same. They are pairs.
-#Also, in the datatable TissueProbeSetData, all Tissue values are loaded based on
-#the same tissue order
+# Function: get correlation value,Tissue quantity ,p value result by using R;
+# Note : This function is special case since both primaryValue and targetValue are from
+# the same dataset. So the length of these two parameters is the same. They are pairs.
+# Also, in the datatable TissueProbeSetData, all Tissue values are loaded based on
+# the same tissue order
 #####################################################################################
 
-def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pearson'):
+def cal_zero_order_corr_for_tiss(primaryValue=[], targetValue=[], method='pearson'):
 
     R_primary = rpy2.robjects.FloatVector(list(range(len(primaryValue))))
     N = len(primaryValue)
@@ -55,27 +55,27 @@ def cal_zero_order_corr_for_tiss (primaryValue=[], targetValue=[], method='pears
 
     R_target = rpy2.robjects.FloatVector(list(range(len(targetValue))))
     for i in range(len(targetValue)):
-        R_target[i]=targetValue[i]
+        R_target[i] = targetValue[i]
 
     R_corr_test = rpy2.robjects.r['cor.test']
-    if method =='spearman':
+    if method == 'spearman':
         R_result = R_corr_test(R_primary, R_target, method='spearman')
     else:
         R_result = R_corr_test(R_primary, R_target)
 
-    corr_result =[]
-    corr_result.append( R_result[3][0])
-    corr_result.append( N )
-    corr_result.append( R_result[2][0])
+    corr_result = []
+    corr_result.append(R_result[3][0])
+    corr_result.append(N)
+    corr_result.append(R_result[2][0])
 
     return corr_result
 
 
 ########################################################################################################
-#input: cursor, symbolList (list), dataIdDict(Dict): key is symbol
-#output: SymbolValuePairDict(dictionary):one dictionary of Symbol and Value Pair.
+# input: cursor, symbolList (list), dataIdDict(Dict): key is symbol
+# output: SymbolValuePairDict(dictionary):one dictionary of Symbol and Value Pair.
 #        key is symbol, value is one list of expression values of one probeSet.
-#function: wrapper function for getSymbolValuePairDict function
+# function: wrapper function for getSymbolValuePairDict function
 #          build gene symbol list if necessary, cut it into small lists if necessary,
 #          then call getSymbolValuePairDict function and merge the results.
 ########################################################################################################

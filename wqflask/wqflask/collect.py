@@ -35,10 +35,11 @@ def process_traits(unprocessed_traits):
         data, _separator, the_hmac = trait.rpartition(':')
         data = data.strip()
         if g.user_session.logged_in:
-          assert the_hmac == hmac.hmac_creation(data), "Data tampering?"
+            assert the_hmac == hmac.hmac_creation(data), "Data tampering?"
         traits.add(str(data))
 
     return traits
+
 
 def report_change(len_before, len_now):
     new_length = len_now - len_before
@@ -48,16 +49,18 @@ def report_change(len_before, len_now):
     else:
         logger.debug("No new traits were added.")
 
+
 @app.route("/collections/store_trait_list", methods=('POST',))
 def store_traits_list():
-   params = request.form
+    params = request.form
 
-   traits = params['traits']
-   hash = params['hash']
+    traits = params['traits']
+    hash = params['hash']
 
-   Redis.set(hash, traits)
+    Redis.set(hash, traits)
 
-   return hash
+    return hash
+
 
 @app.route("/collections/add")
 def collections_add():
@@ -68,19 +71,20 @@ def collections_add():
         uc_id = g.user_session.add_collection(collection_name, set())
         collections = g.user_session.user_collections
 
-    #ZS: One of these might be unnecessary
+    # ZS: One of these might be unnecessary
     if 'traits' in request.args:
-        traits=request.args['traits']
+        traits = request.args['traits']
         return render_template("collections/add.html",
-                                traits = traits,
-                                collections = collections,
-                              )
+                               traits=traits,
+                               collections=collections,
+                               )
     else:
         hash = request.args['hash']
         return render_template("collections/add.html",
-                                hash = hash,
-                                collections = collections,
-                              )
+                               hash=hash,
+                               collections=collections,
+                               )
+
 
 @app.route("/collections/new")
 def collections_new():
@@ -118,6 +122,7 @@ def collections_new():
         # CauseAnError
         pass
 
+
 def create_new(collection_name):
     params = request.args
 
@@ -133,15 +138,17 @@ def create_new(collection_name):
 
     return redirect(url_for('view_collection', uc_id=uc_id))
 
+
 @app.route("/collections/list")
 def list_collections():
     params = request.args
 
     user_collections = list(g.user_session.user_collections)
     return render_template("collections/list.html",
-                            params = params,
-                            collections = user_collections,
-                            )
+                           params=params,
+                           collections=user_collections,
+                           )
+
 
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
@@ -151,7 +158,8 @@ def remove_traits():
     traits_to_remove = params['trait_list']
     traits_to_remove = process_traits(traits_to_remove)
 
-    members_now = g.user_session.remove_traits_from_collection(uc_id, traits_to_remove)
+    members_now = g.user_session.remove_traits_from_collection(
+        uc_id, traits_to_remove)
 
     return redirect(url_for("view_collection", uc_id=uc_id))
 
@@ -174,7 +182,8 @@ def delete_collection():
         else:
             flash("We've deleted the selected collection.", "alert-info")
     else:
-        flash("We've deleted the collection: {}.".format(collection_name), "alert-info")
+        flash("We've deleted the collection: {}.".format(
+            collection_name), "alert-info")
 
     return redirect(url_for('list_collections'))
 
@@ -184,35 +193,41 @@ def view_collection():
     params = request.args
 
     uc_id = params['uc_id']
-    uc = next((collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
+    uc = next(
+        (collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
     traits = uc["members"]
 
     trait_obs = []
     json_version = []
 
     for atrait in traits:
+        if ':' not in atrait:
+            continue
         name, dataset_name = atrait.split(':')
         if dataset_name == "Temp":
             group = name.split("_")[2]
-            dataset = create_dataset(dataset_name, dataset_type = "Temp", group_name = group)
+            dataset = create_dataset(
+                dataset_name, dataset_type="Temp", group_name=group)
             trait_ob = create_trait(name=name, dataset=dataset)
         else:
             dataset = create_dataset(dataset_name)
             trait_ob = create_trait(name=name, dataset=dataset)
-            trait_ob = retrieve_trait_info(trait_ob, dataset, get_qtl_info=True)
+            trait_ob = retrieve_trait_info(
+                trait_ob, dataset, get_qtl_info=True)
         trait_obs.append(trait_ob)
 
         json_version.append(jsonable(trait_ob))
 
     collection_info = dict(trait_obs=trait_obs,
-                           uc = uc)
+                           uc=uc)
 
     if "json" in params:
         return json.dumps(json_version)
     else:
         return render_template("collections/view.html",
-                           **collection_info
-                           )
+                               **collection_info
+                               )
+
 
 @app.route("/collections/change_name", methods=('POST',))
 def change_collection_name():
@@ -224,4 +239,3 @@ def change_collection_name():
     g.user_session.change_collection_name(collection_id, new_name)
 
     return new_name
-

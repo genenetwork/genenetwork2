@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 class MockSession:
     """Helper class for mocking wqflask.collect.g.user_session.logged_in"""
+
     def __init__(self, is_logged_in=False):
         self.is_logged_in = is_logged_in
 
@@ -21,6 +22,7 @@ class MockSession:
 
 class MockFlaskG:
     """Helper class for mocking wqflask.collect.g.user_session"""
+
     def __init__(self, is_logged_in=False):
         self.is_logged_in = is_logged_in
 

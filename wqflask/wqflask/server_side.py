@@ -1,8 +1,7 @@
 # handles server side table processing
 
 
-
-class ServerSideTable(object):
+class ServerSideTable:
     """
         This class is used to do server-side processing
         on the DataTables table such as paginating, sorting,
@@ -31,7 +30,7 @@ class ServerSideTable(object):
         self.rows_count = rows_count
         self.table_rows = table_rows
         self.header_data_names = header_data_names
-        
+
         self.sort_rows()
         self.paginate_rows()
 
@@ -50,8 +49,8 @@ class ServerSideTable(object):
                 column_name = self.header_data_names[column_number - 1]
                 sort_direction = self.request_values['sSortDir_' + str(i)]
                 self.table_rows = sorted(self.table_rows,
-                              key=lambda x: x[column_name],
-                              reverse=is_reverse(sort_direction))
+                                         key=lambda x: x[column_name],
+                                         reverse=is_reverse(sort_direction))
 
     def paginate_rows(self):
         """

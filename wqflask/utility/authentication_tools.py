@@ -11,6 +11,7 @@ from utility.redis_tools import (get_redis_conn,
                                  add_resource)
 Redis = get_redis_conn()
 
+
 def check_resource_availability(dataset, trait_id=None):
     # At least for now assume temporary entered traits are accessible
     if type(dataset) == str or dataset.type == "Temp":

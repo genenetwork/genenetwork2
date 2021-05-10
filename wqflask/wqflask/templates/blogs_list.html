@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Blogs {% endblock %}
+{% block css %}
+<style type="text/css">
+.container {
+    height: 100vh;
+}
+
+.blog_year {
+    font-weight: bold;
+    font-size: 48px;
+    padding: 12px 10px;
+}
+
+.blog_title {
+    padding: 10px 15px;
+
+}
+
+
+
+.blog_title a {
+    font-size: 1.3em;
+    padding-left: 10px;
+    letter-spacing: 0.07em;
+    text-decoration: underline;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
+{% block content %}
+<div id="markdown" class="container">
+    <div>
+        {% for year, year_blogs in blogs.items() %}
+        <div class="blog_year">
+            <h3>{{year}}</h3>
+        </div>
+        {%for blog in year_blogs%}
+        <div>
+            <div class="blog_title">
+                <ul>
+                    <li>
+                        <a href="{{ url_for('blogs_blueprint.display_blog',blog_path = blog.full_path)}}">{{blog['subtitle']}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+        {%endfor%}
+    </div>
+</div>
+{% endblock %}

@@ -28,17 +28,20 @@ import utility.tools
 
 utility.tools.show_settings()
 
+
 class webqtlCaseData:
     """one case data in one trait"""
 
     def __init__(self, name, value=None, variance=None, num_cases=None, name2=None):
         self.name = name
-        self.name2 = name2                  # Other name (for traits like BXD65a)
+        # Other name (for traits like BXD65a)
+        self.name2 = name2
         self.value = value                  # Trait Value
         self.variance = variance            # Trait Variance
         self.num_cases = num_cases          # Number of individuals/cases
         self.extra_attributes = None
-        self.this_id = None   # Set a sane default (can't be just "id" cause that's a reserved word)
+        # Set a sane default (can't be just "id" cause that's a reserved word)
+        self.this_id = None
         self.outlier = None   # Not set to True/False until later
 
     def __repr__(self):

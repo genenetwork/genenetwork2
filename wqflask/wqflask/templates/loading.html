@@ -7,34 +7,62 @@
   {% endfor %}
   <div class="container">
     <div>
-      <div style="min-height: 80vh; display: flex; align-items: center; text-align: center;">
-        <div style="margin-bottom: 5px; left: 50%; margin-right: -50%; margin-top: 10%; transform: translate(-50%, -50%); position: absolute;">
-        {% if start_vars.tool_used == "Mapping" %}
-        <h1>Computing the Maps</h1>
-        <br>
-        <i>n</i> = {{ start_vars.n_samples }}
-        <br>
-        Method = {% if start_vars.method == "gemma" %}GEMMA{% else %}{{ start_vars.method }}{% endif %}
-        <br>
-        {% if start_vars.transform != "" %}
-        transform = {{ start_vars.transform }}
-        <br>
-        {% endif %}
-        MAF >= {{ start_vars.maf }}
-        {% else %}
-        <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
-        {% endif %}
-        <br><br>
-        <img align="center" src="/static/gif/89.gif">
-        </div>
-        <!--<div style="margin-left: auto; margin-right: auto; display: block; width: 50%; top:50%;">
+      <div style="min-height: 80vh; display: flex; align-items: center; text-align: left;">
+        <div style="margin-bottom: 5px; left: 50%; margin-right: -50%; top: 50%; transform: translate(-50%, -50%); position: absolute;">
+          {% if start_vars.tool_used == "Mapping" %}
+          <h1>Computing the Maps</h1>
+          <br>
+          <b>Trait Metadata</b>
+          <br>
+          species = <b><i>{{ start_vars.species[0] | upper }}{{ start_vars.species[1:] }}</i></b>
+          <br>
+          group = <b><i>{{ start_vars.group[0] | upper }}{{ start_vars.group[1:] }}</i></b>
+          <br>
+          trait identifier = <b><i>{{ start_vars.trait_id }}</i></b>
+          <br>
+          n of sample = <b><i>{{ start_vars.n_samples }}</i></b>
+          {% if start_vars.transform != "" %}
+          <br>
+          transformation = <b><i>{{ start_vars.transform }}</i></b>
+          {% endif %}
+          <br><br>
+          <b>Mapping Metadata</b>
+          <br>
+          mapping method = <b><i>{% if start_vars.method == "gemma" %}GEMMA {% if start_vars.use_loco == "True" %}using LOCO {% endif %}{% else %}{{ start_vars.method }}{% endif %}</i></b>
+          {% if start_vars.maf != "" and start_vars.method != "reaper" %}
+          <br>
+          minor allele frequency lower limit = <b><i>{{ start_vars.maf }}</i></b>
+          {% endif %}
+          {% if start_vars.covariates != "" and start_vars.method != "reaper" %}
+          <br>
+          {% set covariate_list = start_vars.covariates.split(",") %}
+          cofactors = <b><i>{% for covariate in covariate_list %}{% set this_covariate = covariate.split(":")[0] %}{{ this_covariate }}{% if not loop.last %}, {% endif %}{% endfor %}</i></b>
+          {% endif %}
+          {% if start_vars.control_marker != "" and start_vars.do_control == "true" and start_vars.method != "gemma" %}
+          <br>
+          marker covariate = <b><i>{{ start_vars.control_marker }}</i></b>
+          {% endif %}
+          {% set genofile_desc = start_vars.genofile.split(":")[1] %}
+          <br>
+          Genotype File = <b><i>{{ genofile_desc }}</i></b>
+          {% if start_vars.num_perm | int > 0 and start_vars.method != "gemma" %}
+          <br>
+          n of permutations = <b><i>{{ start_vars.num_perm }}</i></b>
+          {% endif %}
+          {% if num_bootstrap in start_vars %}
+          {% if start_vars.num_bootstrap | int > 0 and start_vars.method == "reaper" %}
+          <br>
+          n of bootstrap = <b><i>{{ start_vars.num_bootstrap }}</i></b>
+          {% endif %}
+          {% endif %}
+          {% else %}
+          <h1>Loading&nbsp;{{ start_vars.tool_used }}&nbsp;Results...</h1>
+          {% endif %}
+          <br><br>
+          <div style="text-align: center;">
             <img align="center" src="/static/gif/89.gif">
-        </div>-->
-        <!--
-        <div class="progress center-block" style="margin-left: 25%; margin-right: 25%; position: absolute; height:50px; width:50%; top:50%;">
-          <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"></div>
+          </div>
         </div>
-        -->
       </div>
     </div>
   </div>

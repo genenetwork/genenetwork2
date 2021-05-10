@@ -49,8 +49,20 @@
 </div>
 
 <script>
-    $('#add_form').parsley();
-    $('#add_form').on('submit', function(){
-      parent.jQuery.colorbox.close();
-    });
+  $('#add_form').parsley();
+  $('#add_form').on('submit', function(){
+    parent.jQuery.colorbox.close();
+  });
+
+  apply_default = function() {
+    let default_collection_id = $.cookie('default_collection');
+    if (default_collection_id) {
+      let the_option = $('[name=existing_collection] option').filter(function() {
+        return ($(this).val().split(":")[0] == default_collection_id);
+      })
+      the_option.prop('selected', true);
+    }
+  }
+
+  apply_default();
 </script>

@@ -58,7 +58,7 @@ TISSUE_METHODS = [METHOD_TISSUE_PEARSON, METHOD_TISSUE_RANK]
 TISSUE_MOUSE_DB = 1
 
 
-class CorrelationResults(object):
+class CorrelationResults:
     def __init__(self, start_vars):
         # get trait list from db (database name)
         # calculate correlation with Base vector and targets
@@ -96,9 +96,10 @@ class CorrelationResults(object):
             self.p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
             self.p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
 
-            if ('loc_chr' in start_vars and
-                'min_loc_mb' in start_vars and
-                    'max_loc_mb' in start_vars):
+
+            if ('loc_chr' in start_vars
+                and 'min_loc_mb' in start_vars
+                    and 'max_loc_mb' in start_vars):
 
                 self.location_type = get_string(start_vars, 'location_type')
                 self.location_chr = get_string(start_vars, 'loc_chr')
@@ -200,8 +201,9 @@ class CorrelationResults(object):
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
 
-                if (float(self.correlation_data[trait][0]) >= self.p_range_lower and
-                        float(self.correlation_data[trait][0]) <= self.p_range_upper):
+
+                if (float(self.correlation_data[trait][0]) >= self.p_range_lower
+                        and float(self.correlation_data[trait][0]) <= self.p_range_upper):
 
                     if (self.target_dataset.type == "ProbeSet" or self.target_dataset.type == "Publish") and bool(trait_object.mean):
                         if (self.min_expr != None) and (float(trait_object.mean) < self.min_expr):

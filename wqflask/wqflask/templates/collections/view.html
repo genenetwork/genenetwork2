@@ -14,6 +14,7 @@
             <span id="collection_name">{{ uc.name }}</span>
             <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
             <button class="btn btn-default" style="display: inline;" id="change_collection_name">Change Collection Name</button>
+            <button class="btn btn-default" style="display: inline;" id="make_default">Make Default</button>
         </h1>
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
@@ -230,6 +231,21 @@
                     $('#collection_name').text(new_name)
                     $('#collection_name').css('display', 'inline');
                 }
+            });
+
+            make_default = function() {
+                alert("The current collection is now your default collection.")
+                let uc_id = $('#uc_id').val();
+                $.cookie('default_collection', uc_id, {
+                    expires: 365,
+                    path: '/'
+                });
+
+                let default_collection_id = $.cookie('default_collection');
+            };
+
+            $("#make_default").on("click", function(){
+                make_default();
             });
         });
     </script>

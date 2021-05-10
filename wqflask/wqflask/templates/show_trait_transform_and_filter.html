@@ -20,7 +20,7 @@
     <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
           Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
     </div>
-    {% if sample_groups[0].attributes %}
+    {% if categorical_attr_exists == "true" %}
     <div class="input-append block-div-2">
         <label for="exclude_column">Block samples by group:</label>
         <select id="exclude_column" size=1>
