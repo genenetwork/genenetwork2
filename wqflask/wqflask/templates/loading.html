@@ -44,9 +44,13 @@
           <br>
           marker covariate = <b><i>{{ start_vars.control_marker }}</i></b>
           {% endif %}
-          {% set genofile_desc = start_vars.genofile.split(":")[1] %}
           <br>
-          Genotype File = <b><i>{{ genofile_desc }}</i></b>
+          {% if start_vars.genofile != "" %}
+          {% set genofile_desc = start_vars.genofile.split(":")[1] %}
+          genotype file = <b><i>{{ genofile_desc }}</i></b>
+          {% else %}
+          genotype file = <b><i>{{ start_vars.group[0] | upper }}{{ start_vars.group[1:] }}.geno</i></b>
+          {% endif %}
           {% if start_vars.num_perm | int > 0 and start_vars.method != "gemma" %}
           <br>
           n of permutations = <b><i>{{ start_vars.num_perm }}</i></b>
