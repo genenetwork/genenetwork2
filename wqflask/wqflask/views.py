@@ -951,10 +951,9 @@ def corr_compute_page():
     # template_vars = show_corr_results.CorrelationResults(request.form)
     # return render_template("correlation_page.html", **template_vars.__dict__)
 
-    # to test the new  correlation api uncomment these lines
+    # to test/disable the new  correlation api uncomment these lines
 
     correlation_results = compute_correlation(request.form)
-    # print(">>>>Time taken by this endpoint",time.time()-initial_time)
     return render_template("test_correlation_page.html",correlation_results=correlation_results)
 
 
