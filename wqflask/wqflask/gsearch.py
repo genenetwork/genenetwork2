@@ -122,7 +122,7 @@ class GSearch:
 
                     max_lrs_text = "N/A"
                     if this_trait['locus_chr'] and this_trait['locus_mb']:
-                        max_lrs_text = f"Chr{str(this_trait['locus_chr']}): {str(this_trait['locus_mb'])}"
+                        max_lrs_text = f"Chr{str(this_trait['locus_chr'])}: {str(this_trait['locus_mb'])}"
                     this_trait['max_lrs_text'] = max_lrs_text
 
                     trait_list.append(this_trait)
@@ -270,7 +270,7 @@ class GSearch:
                     if this_trait['dataset'] == this_trait['group'] + "Publish":
                         try:
                             if this_trait['locus_chr'] and this_trait['locus_mb']:
-                                this_trait['max_lrs_text'] = f"Chr{str(this_trait['locus_chr']}): {str(this_trait['locus_mb'])}"
+                                this_trait['max_lrs_text'] = f"Chr{str(this_trait['locus_chr'])}: {str(this_trait['locus_mb'])}"
                         except:
                             this_trait['max_lrs_text'] = "N/A"
 
