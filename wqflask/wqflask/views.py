@@ -279,6 +279,19 @@ def gsearchact():
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
+@app.route("/gsearch_table", methods=('GET',))
+def gsearchtable():
+    logger.info(request.url)
+
+    gsearch_table_data = GSearch(request.args)
+    current_page = server_side.ServerSideTable(
+        gsearch_table_data.trait_count,
+        gsearch_table_data.trait_list,
+        gsearch_table_data.header_data_names,
+        request.args,
+    ).get_page()
+
+    return flask.jsonify(current_page)
 
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
