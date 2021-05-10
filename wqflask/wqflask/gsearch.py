@@ -130,7 +130,7 @@ class GSearch:
                     trait_list.append(this_trait)
 
             self.trait_count = len(trait_list)
-            self.trait_list = json.dumps(trait_list)
+            self.trait_list = trait_list
 
             self.header_fields = ['Index',
                                   'Record',
@@ -145,6 +145,22 @@ class GSearch:
                                   'Max LRS',
                                   'Max LRS Location',
                                   'Additive Effect']
+
+            self.header_data_names = [
+                'index',
+                'name',
+                'species',
+                'group',
+                'tissue',
+                'dataset_fullname',
+                'symbol',
+                'description',
+                'location_repr',
+                'mean',
+                'LRS_score_repr',
+                'max_lrs_text',
+                'additive',
+            ]
 
         elif self.type == "phenotype":
             search_term = self.terms
@@ -263,15 +279,31 @@ class GSearch:
                     trait_list.append(this_trait)
 
             self.trait_count = len(trait_list)
-            self.trait_list = json.dumps(trait_list)
+            self.trait_list = trait_list
 
             self.header_fields = ['Index',
-                                  'Species',
-                                  'Group',
-                                  'Record',
-                                  'Description',
-                                  'Authors',
-                                  'Year',
-                                  'Max LRS',
-                                  'Max LRS Location',
-                                  'Additive Effect']
+                                'Species',
+                                'Group',
+                                'Record',
+                                'Description',
+                                'Authors',
+                                'Year',
+                                'Max LRS',
+                                'Max LRS Location',
+                                'Additive Effect']
+
+            self.header_data_names = [
+                'index',
+                'name',
+                'species',
+                'group',
+                'tissue',
+                'dataset_fullname',
+                'symbol',
+                'description',
+                'location_repr',
+                'mean',
+                'LRS_score_repr',
+                'max_lrs_text',
+                'additive',
+            ]

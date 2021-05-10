@@ -55,7 +55,15 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script type='text/javascript'>
-      var the_rows = {{ trait_list|safe }};
+      var getParams = function(url) {
+        let parser = document.createElement('a');
+        parser.href = url;
+        let params = parser.search.substring(1);
+        if(params.length > 0) {
+          return ('?'+params);
+        }
+        return params;
+      };
     </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -142,7 +150,6 @@
                     $('td', row).eq(12).attr('data-export', $('td', row).eq(12).text());
                     $('td', row).eq(13).attr('data-export', $('td', row).eq(13).text());
                 },
-                'data': the_rows,
                 'columns': [
                     { 
                       'data': null,
@@ -237,11 +244,13 @@
                 'order': [[1, "asc" ]],
                 'sDom': "pitirp",
                 'autoWidth': true,
-                'iDisplayLength': 500,
                 'deferRender': false,
                 'paging': true,
                 'orderClasses': true,
                 'processing': true,
+                'iDisplayLength': 100,
+                'bServerSide': true,
+                'sAjaxSource': '/gsearch_table'+getParams(window.location.href),
                 'language': {
                   'loadingRecords': '&nbsp;',
                   'processing': 'Loading...'
