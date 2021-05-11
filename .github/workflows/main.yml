@@ -39,14 +39,6 @@ jobs:
         mysql -u root -e "CREATE USER 'gn2'@'localhost' IDENTIFIED BY 'mysql_password';"
         mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'gn2'@'localhost';FLUSH PRIVILEGES;"
 
-    - name: Run the unit tests
-      run: |
-        env GN2_PROFILE=/gn2-profile \
-        TMPDIR=/tmp SERVER_PORT=5004 \
-        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
-        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
-        etc/default_settings.py -c -m unittest discover -v
-
     - name: Start Genenetwork as a  Background Task
       run: |
         /gn2-profile/bin/screen -dmL bash -c "env GN2_PROFILE=/gn2-profile \
@@ -54,6 +46,14 @@ jobs:
         WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
         etc/default_settings.py"
+
+    - name: Run the unit tests
+      run: |
+        env GN2_PROFILE=/gn2-profile \
+        TMPDIR=/tmp SERVER_PORT=5004 \
+        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
+        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
+        etc/default_settings.py -c -m unittest discover -v
 
     - name: Test for Broken Links
       run: |
