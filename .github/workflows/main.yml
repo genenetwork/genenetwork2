@@ -49,11 +49,11 @@ jobs:
 
     - name: Start Genenetwork as a  Background Task
       run: |
-        env GN2_PROFILE=/gn2-profile \
+        /gn2-profile/bin/screen -dmL bash -c "env GN2_PROFILE=/gn2-profile \
         TMPDIR=/tmp SERVER_PORT=5004 \
         WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
-        etc/default_settings.py&
+        etc/default_settings.py"
 
     - name: Test for Broken Links
       run: |
