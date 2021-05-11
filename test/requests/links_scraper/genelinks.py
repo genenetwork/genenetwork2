@@ -2,7 +2,6 @@ import re
 import requests
 import urllib3
 import os
-import logging
 
 from urllib.request import urlopen as uReq
 from bs4 import BeautifulSoup as soup
