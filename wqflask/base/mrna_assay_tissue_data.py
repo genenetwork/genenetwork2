@@ -6,6 +6,7 @@ from utility import db_tools
 from utility import Bunch
 
 from utility.db_tools import escape
+from gn3.db_utils import database_connector
 
 
 from utility.logger import getLogger
@@ -45,16 +46,18 @@ class MrnaAssayTissueData:
                 and t.Mean = x.maxmean;
                     '''.format(in_clause)
 
-        results = g.db.execute(query).fetchall()
 
-        lower_symbols = []
+        # lower_symbols = []
+        lower_symbols = {}
         for gene_symbol in gene_symbols:
+            # lower_symbols[gene_symbol.lower()] = True
             if gene_symbol != None:
-                lower_symbols.append(gene_symbol.lower())
-
+                lower_symbols[gene_symbol.lower()] = True
+        results = list(g.db.execute(query).fetchall())
         for result in results:
             symbol = result[0]
-            if symbol.lower() in lower_symbols:
+            if symbol  is not None and lower_symbols.get(symbol.lower()):
+
                 symbol = symbol.lower()
 
                 self.data[symbol].gene_id = result.GeneId
@@ -82,6 +85,7 @@ class MrnaAssayTissueData:
                        FROM TissueProbeSetXRef, TissueProbeSetData
                        WHERE TissueProbeSetData.Id IN {} and
                              TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
+
 
             results = g.db.execute(query).fetchall()
             for result in results:

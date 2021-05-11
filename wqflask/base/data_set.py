@@ -124,6 +124,7 @@ class DatasetType:
                                 self.datasets[short_dataset_name] = new_type
             except Exception:  # Do nothing
                 pass
+
             self.redis_instance.set("dataset_structure",
                                     json.dumps(self.datasets))
         self.data = data
@@ -164,6 +165,7 @@ class DatasetType:
         group_name = name
         if t in ['pheno', 'other_pheno']:
             group_name = name.replace("Publish", "")
+
 
         results = g.db.execute(sql_query_mapping[t] % group_name).fetchone()
         if results:
@@ -645,6 +647,8 @@ class DataSet:
             logger.debug(
                 "Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
+
+
 
     def get_trait_data(self, sample_list=None):
         if sample_list:

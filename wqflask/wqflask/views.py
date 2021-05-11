@@ -47,6 +47,7 @@ from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation import show_corr_results
+from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 from wqflask.wgcna import wgcna_analysis
@@ -717,7 +718,7 @@ def mapping_results_container_page():
 
 @app.route("/loading", methods=('POST',))
 def loading_page():
-    logger.info(request.url)
+    # logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
     n_samples = 0  # ZS: So it can be displayed on loading page
@@ -963,7 +964,17 @@ def corr_compute_page():
     template_vars = show_corr_results.CorrelationResults(request.form)
     return render_template("correlation_page.html", **template_vars.__dict__)
 
+    # to test/disable the new  correlation api uncomment these lines
 
+    # correlation_results = compute_correlation(request.form)
+    # return render_template("test_correlation_page.html", correlation_results=correlation_results)
+
+
+@app.route("/test_corr_compute", methods=["POST"])
+def test_corr_compute_page():
+    correlation_results = compute_correlation(request.form)
+    return render_template("test_correlation_page.html", correlation_results=correlation_results)
+    
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     logger.info("In corr_matrix, request.form is:", pf(request.form))
