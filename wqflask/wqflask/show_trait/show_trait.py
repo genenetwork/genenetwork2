@@ -156,8 +156,14 @@ class ShowTrait:
 
         self.make_sample_lists()
 
-        self.qnorm_vals = quantile_normalize_vals(self.sample_groups)
-        self.z_scores = get_z_scores(self.sample_groups)
+        trait_vals_by_group = []
+        for sample_type in self.sample_groups:
+            trait_vals_by_group.append(get_trait_vals(sample_type.sample_list))
+
+        self.max_digits_by_group = get_max_digits(trait_vals_by_group)
+
+        self.qnorm_vals = quantile_normalize_vals(self.sample_groups, trait_vals_by_group)
+        self.z_scores = get_z_scores(self.sample_groups, trait_vals_by_group)
 
         self.temp_uuid = uuid.uuid4()
 
@@ -294,6 +300,7 @@ class ShowTrait:
 
         js_data = dict(trait_id=self.trait_id,
                        trait_symbol=trait_symbol,
+                       max_digits = self.max_digits_by_group,
                        short_description=short_description,
                        unit_type=trait_units,
                        dataset_type=self.dataset.type,
@@ -513,7 +520,26 @@ class ShowTrait:
         self.dataset.group.allsamples = all_samples_ordered
 
 
-def quantile_normalize_vals(sample_groups):
+def get_trait_vals(sample_list):
+    trait_vals = []
+    for sample in sample_list:
+        try:
+            trait_vals.append(float(sample.value))
+        except:
+            continue
+
+    return trait_vals
+
+def get_max_digits(trait_vals):
+    max_digits = []
+    for these_vals in trait_vals:
+        max_val = max(these_vals)
+        digits = len(str(max_val))
+        max_digits.append(digits - 1)
+
+    return max_digits
+
+def quantile_normalize_vals(sample_groups, trait_vals):
     def normf(trait_vals):
         ranked_vals = ss.rankdata(trait_vals)
         p_list = []
@@ -529,15 +555,8 @@ def quantile_normalize_vals(sample_groups):
         return normed_vals
 
     qnorm_by_group = []
-    for sample_type in sample_groups:
-        trait_vals = []
-        for sample in sample_type.sample_list:
-            try:
-                trait_vals.append(float(sample.value))
-            except:
-                continue
-
-        qnorm_vals = normf(trait_vals)
+    for i, sample_type in enumerate(sample_groups):
+        qnorm_vals = normf(trait_vals[i])
         qnorm_vals_with_x = []
         counter = 0
         for sample in sample_type.sample_list:
@@ -552,17 +571,10 @@ def quantile_normalize_vals(sample_groups):
     return qnorm_by_group
 
 
-def get_z_scores(sample_groups):
+def get_z_scores(sample_groups, trait_vals):
     zscore_by_group = []
-    for sample_type in sample_groups:
-        trait_vals = []
-        for sample in sample_type.sample_list:
-            try:
-                trait_vals.append(float(sample.value))
-            except:
-                continue
-
-        zscores = ss.mstats.zscore(np.array(trait_vals)).tolist()
+    for i, sample_type in enumerate(sample_groups):
+        zscores = ss.mstats.zscore(np.array(trait_vals[i])).tolist()
         zscores_with_x = []
         counter = 0
         for sample in sample_type.sample_list:
