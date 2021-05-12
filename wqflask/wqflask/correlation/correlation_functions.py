@@ -82,6 +82,6 @@ def cal_zero_order_corr_for_tiss(primaryValue=[], targetValue=[], method='pearso
 
 def get_trait_symbol_and_tissue_values(symbol_list=None):
     tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
-
-    if len(tissue_data.gene_symbols):
-        return tissue_data.get_symbol_values_pairs()
+    if len(tissue_data.gene_symbols) >0:
+        results = tissue_data.get_symbol_values_pairs()
+        return results 

@@ -585,6 +585,16 @@ get_table_contents_for_form_submit = function(form_id) {
 var corr_input_list = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
+$(".test_corr_compute").on("click", (function(_this) {
+  return function() {
+    $('input[name=tool_used]').val("Correlation");
+    $('input[name=form_url]').val("/test_corr_compute");
+    $('input[name=wanted_inputs]').val(corr_input_list.join(","));
+    url = "/loading";
+    return submit_special(url);
+  };
+})(this));
+
 $(".corr_compute").on("click", (function(_this) {
   return function() {
     $('input[name=tool_used]').val("Correlation");
