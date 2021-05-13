@@ -42,7 +42,7 @@
 {% block content %}
 
 <div class="correlation-title">
-	<h3>Correlation Results for <span>Dataset_name</span> against <span><a href="">trait_name</a></span> for the top <span>all</span> Results</h3>
+	<h3>Correlation Results for <span>{{target_dataset}}</span> against <span><a href="">{{this_trait}}</a></span> for the top <span>all</span> Results</h3>
 </div>
 <div class="header-toggle-vis">
 	      <h4 style="font-weight: bolder;padding: 5px 3px;">Toggle Columns</h4>
@@ -84,7 +84,6 @@
 <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 <script type="text/javascript">
-	console.log("running this script")
 	let correlationResults = {{correlation_results|safe}}
 	// document.querySelector(".content").innerHTML =correlationResults
 	// parse the data
@@ -102,7 +101,7 @@
 		return new_dict;
 	})
 
-console.log(correlationResults) 
+console.log(correlationResults)
 	
 </script>
 
