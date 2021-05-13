@@ -972,8 +972,8 @@ def corr_compute_page():
 
 @app.route("/test_corr_compute", methods=["POST"])
 def test_corr_compute_page():
-    correlation_results = compute_correlation(request.form)
-    return render_template("test_correlation_page.html", correlation_results=correlation_results)
+    correlation_data = compute_correlation(request.form)
+    return render_template("test_correlation_page.html", **correlation_data)
     
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
