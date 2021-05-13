@@ -180,25 +180,15 @@ def compute_correlation(start_vars, method="pearson"):
 
     correlation_results = correlation_results[0:corr_return_results]
 
-    compute_all = True
+    compute_all = True  # later to  be passed as argument
 
-    correlation_results = compute_corr_for_top_results(correlation_results,
-                                                       this_trait,
-                                                       this_dataset,
-                                                       target_dataset,
-                                                       corr_type)
+    if (compute_all):
 
-    # if corr_type != "tissue" and this_dataset_type == "ProbeSet" and target_dataset_type == "ProbeSet":
-
-    #     tissue_result = tissue_for_trait_lists(
-    #         correlation_results, this_dataset, this_trait)
-
-    # if corr_type != "lit" and this_dataset_type == "ProbeSet" and target_dataset_type == "ProbeSet":
-    #     lit_result = lit_for_trait_list(
-    #         correlation_results, this_dataset, this_trait)
-
-    # if corr_type != "sample":
-    #     pass
+        correlation_results = compute_corr_for_top_results(correlation_results,
+                                                           this_trait,
+                                                           this_dataset,
+                                                           target_dataset,
+                                                           corr_type)
 
     correlation_data = {"correlation_results": correlation_results,
                         "this_trait": this_trait.name,
