@@ -3,7 +3,6 @@ import unittest
 from unittest import mock
 
 from wqflask.api.gen_menu import gen_dropdown_json
-from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
 from wqflask.api.gen_menu import get_types
 from wqflask.api.gen_menu import get_datasets
@@ -66,20 +65,6 @@ class TestGenMenu(unittest.TestCase):
                         ['M', 'M', 'Molecular Trait Datasets']]
             }
         }
-
-    def test_get_species(self):
-        """Test that assertion is raised when dataset and dataset_name
-        are defined"""
-        db_mock = mock.MagicMock()
-        with db_mock.cursor() as cursor:
-            cursor.fetchall.return_value = (
-                ('human', 'Human'),
-                ('mouse', 'Mouse'))
-            self.assertEqual(get_species(db_mock),
-                             [['human', 'Human'], ['mouse', 'Mouse']])
-            cursor.execute.assert_called_once_with(
-                "SELECT Name, MenuName FROM Species ORDER BY OrderId"
-            )
 
     def test_get_groups(self):
         """Test that species groups are grouped correctly"""
@@ -411,7 +396,7 @@ class TestGenMenu(unittest.TestCase):
     @mock.patch('wqflask.api.gen_menu.get_datasets')
     @mock.patch('wqflask.api.gen_menu.get_types')
     @mock.patch('wqflask.api.gen_menu.get_groups')
-    @mock.patch('wqflask.api.gen_menu.get_species')
+    @mock.patch('wqflask.api.gen_menu.get_all_species')
     def test_gen_dropdown_json(self,
                                species_mock,
                                groups_mock,
