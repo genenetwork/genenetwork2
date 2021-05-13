@@ -137,16 +137,19 @@ def compute_correlation(start_vars, method="pearson"):
     (this_dataset, this_trait, target_dataset,
      sample_data) = create_target_this_trait(start_vars)
 
+    target_dataset_type = target_dataset.type
+    this_dataset_type = this_dataset.type
+
     method = start_vars['corr_sample_method']
     corr_return_results = int(start_vars.get("corr_return_results", 100))
     corr_input_data = {}
 
     if corr_type == "sample":
-        (this_trait_data, target_dataset) = fetch_sample_data(
+        (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
         correlation_results = compute_all_sample_correlation(corr_method=method,
                                                              this_trait=this_trait_data,
-                                                             target_dataset=target_dataset)
+                                                             target_dataset=target_dataset_data)
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
@@ -175,29 +178,60 @@ def compute_correlation(start_vars, method="pearson"):
                 conn=conn, trait_lists=list(geneid_dict.items()),
                 species=species, gene_id=this_trait_geneid)
 
-    # correlation_results = correlation_results[0:corr_return_results]
-    # if corr_type != "tissue" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
-    #     pass
-    #     # tissue_result = tissue_for_trait_lists(
-    #     #     correlation_results, this_dataset, this_trait)
-
-    #     # correlation_results = merge_correlation_results(
-    #     #     correlation_results, tissue_result)
-
-    # if corr_type != "lit" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
-    #     pass
-    #     # lit  is very slow
-    #     # lit_result = lit_for_trait_list(correlation_results, this_dataset, this_trait)
-    #     # correlation_results = merge_correlation_results(correlation_results,lit_result)
-    # if corr_type != "sample":
-    #     # do sample correlation
-    #     pass
     correlation_results = correlation_results[0:corr_return_results]
+
+    compute_all = True
+
+    correlation_results = compute_corr_for_top_results(correlation_results,
+                                                       this_trait,
+                                                       this_dataset,
+                                                       target_dataset,
+                                                       corr_type)
+
+    # if corr_type != "tissue" and this_dataset_type == "ProbeSet" and target_dataset_type == "ProbeSet":
+
+    #     tissue_result = tissue_for_trait_lists(
+    #         correlation_results, this_dataset, this_trait)
+
+    # if corr_type != "lit" and this_dataset_type == "ProbeSet" and target_dataset_type == "ProbeSet":
+    #     lit_result = lit_for_trait_list(
+    #         correlation_results, this_dataset, this_trait)
+
+    # if corr_type != "sample":
+    #     pass
+
     correlation_data = {"correlation_results": correlation_results,
                         "this_trait": this_trait.name,
-                        "target_dataset": start_vars['corr_dataset']}
+                        "target_dataset": start_vars['corr_dataset'],
+                        "return_results": corr_return_results}
 
     return correlation_data
+
+
+def compute_corr_for_top_results(correlation_results,
+                                 this_trait,
+                                 this_dataset,
+                                 target_dataset,
+                                 corr_type):
+    if corr_type != "tissue" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
+
+        tissue_result = tissue_for_trait_lists(
+            correlation_results, this_dataset, this_trait)
+
+        correlation_results = merge_correlation_results(
+            correlation_results, tissue_result)
+
+    if corr_type != "lit" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
+        lit_result = lit_for_trait_list(
+            correlation_results, this_dataset, this_trait)
+
+        correlation_results = merge_correlation_results(
+            correlation_results, lit_result)
+
+    if corr_type != "sample":
+        pass
+
+    return correlation_results
 
 
 def do_lit_correlation(this_trait, this_dataset):
