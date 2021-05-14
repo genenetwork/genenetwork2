@@ -631,7 +631,7 @@ def has_num_cases(this_trait):
     has_n = False
     if this_trait.dataset.type != "ProbeSet" and this_trait.dataset.type != "Geno":
         for name, sample in list(this_trait.data.items()):
-            if sample.num_cases:
+            if sample.num_cases and sample.num_cases != "1":
                 has_n = True
                 break
 
