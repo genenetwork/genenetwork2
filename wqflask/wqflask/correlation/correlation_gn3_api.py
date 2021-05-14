@@ -80,13 +80,16 @@ def tissue_for_trait_lists(corr_results, this_dataset, this_trait):
     traits_symbol_dict = this_dataset.retrieve_genes("Symbol")
     traits_symbol_dict = dict({trait_name: symbol for (
         trait_name, symbol) in traits_symbol_dict.items() if trait_lists.get(trait_name)})
-    primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
+    tissue_input = get_tissue_correlation_input(
         this_trait, traits_symbol_dict)
-    corr_results = compute_tissue_correlation(
-        primary_tissue_dict=primary_tissue_data,
-        target_tissues_data=target_tissue_data,
-        corr_method="pearson")
-    return corr_results
+
+    if tissue_input is not None:
+        (primary_tissue_data, target_tissue_data) = tissue_input
+        corr_results = compute_tissue_correlation(
+            primary_tissue_dict=primary_tissue_data,
+            target_tissues_data=target_tissue_data,
+            corr_method="pearson")
+        return corr_results
 
 
 def lit_for_trait_list(corr_results, this_dataset, this_trait):
@@ -153,8 +156,11 @@ def compute_correlation(start_vars, method="pearson"):
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
-        primary_tissue_data, target_tissue_data = get_tissue_correlation_input(
+        tissue_input = get_tissue_correlation_input(
             this_trait, trait_symbol_dict)
+
+        if tissue_input is not None:
+            (primary_tissue_data, target_tissue_data) = tissue_input
 
         corr_input_data = {
             "primary_tissue": primary_tissue_data,
@@ -208,15 +214,18 @@ def compute_corr_for_top_results(correlation_results,
         tissue_result = tissue_for_trait_lists(
             correlation_results, this_dataset, this_trait)
 
-        correlation_results = merge_correlation_results(
-            correlation_results, tissue_result)
+        if tissue_result:
+
+            correlation_results = merge_correlation_results(
+                correlation_results, tissue_result)
 
     if corr_type != "lit" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
         lit_result = lit_for_trait_list(
             correlation_results, this_dataset, this_trait)
 
-        correlation_results = merge_correlation_results(
-            correlation_results, lit_result)
+        if lit_result:
+            correlation_results = merge_correlation_results(
+                correlation_results, lit_result)
 
     if corr_type != "sample":
         pass
