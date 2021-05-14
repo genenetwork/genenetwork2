@@ -8,7 +8,6 @@ from pprint import pformat as pf
 from utility import Plot
 from utility import Bunch
 
-
 class SampleList:
     def __init__(self,
                  dataset,
@@ -92,8 +91,10 @@ class SampleList:
             self.sample_list.append(sample)
 
         self.se_exists = any(sample.variance for sample in self.sample_list)
-        self.num_cases_exists = any(
-            sample.num_cases for sample in self.sample_list)
+        self.num_cases_exists = False
+        if (any(sample.num_cases for sample in self.sample_list) and
+            any((sample.num_cases and sample.num_cases != "1") for sample in self.sample_list)):
+            self.num_cases_exists = True
 
         first_attr_col = self.get_first_attr_col()
         for sample in self.sample_list:
