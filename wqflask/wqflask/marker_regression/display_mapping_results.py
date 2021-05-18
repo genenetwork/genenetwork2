@@ -1771,7 +1771,7 @@ class DisplayMappingResults:
 
                     if (plotbxd == 1):
                         ind = [item.name for item in smd].index(
-                            samplelist[j]) - 1
+                            samplelist[j])
                         expr = smd[ind].value
 
                         # Place where font is hardcoded
