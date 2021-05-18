@@ -1771,8 +1771,8 @@ class DisplayMappingResults:
 
                     if (plotbxd == 1):
                         ind = [item.name for item in smd].index(
-                            samplelist[j])
-                        expr = smd[ind].value
+                            samplelist[j]) - 1
+                        expr = smd[ind+1].value
 
                         # Place where font is hardcoded
                         im_drawer.text(
