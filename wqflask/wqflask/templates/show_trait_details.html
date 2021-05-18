@@ -235,7 +235,7 @@
         {% endif %}
         <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}', '_blank')">Go to GN1</button>
         {% if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access" %}
-            <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('./resources/manage?resource_id={{ resource_id }}', '_blank')">Edit</button>
+        <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('/trait/{{ this_trait.name }}/edit/{{ this_trait.dataset.id }}', '_blank')">Edit</button>
         {% endif %}
     </div>
 </div>
