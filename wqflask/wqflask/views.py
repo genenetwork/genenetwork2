@@ -21,6 +21,7 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
+from flask import current_app
 from flask import g
 from flask import Response
 from flask import request
@@ -414,13 +415,35 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/edit_trait_form")
-def edit_trait_page():
-    species_and_groups = get_species_groups()
+@app.route("/trait/<name>/edit/<inbred_set_id>")
+def show_edit_trait_page(name, inbred_set_id):
+    from gn3.db.phenotypes import (Phenotype,
+                                   PublishXRef,
+                                   Publication,
+                                   fetchone)
+    import MySQLdb
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    publish_xref = fetchone(
+        conn=conn,
+        table="PublishXRef",
+        where=PublishXRef(id_=name,
+                          inbred_set_id=inbred_set_id))
+    phenotype_ = fetchone(
+        conn=conn,
+        table="Phenotype",
+        where=Phenotype(id_=publish_xref.phenotype_id))
+    publication_ = fetchone(
+        conn=conn,
+        table="Publication",
+        where=Publication(id_=publish_xref.publication_id))
     return render_template(
         "edit_trait.html",
-        species_and_groups=species_and_groups,
-        gn_server_url=GN_SERVER_URL,
+        publish_xref=publish_xref,
+        phenotype=phenotype_,
+        publication=publication_,
         version=GN_VERSION)
 
 
