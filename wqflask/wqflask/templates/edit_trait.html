@@ -12,27 +12,23 @@ Submit Trait | Reset
 
 {% endif %}
 
-<form class="form-horizontal" method="post" action="/show_temp_trait">
+<form id="edit-form" class="form-horizontal" method="post" action="/trait/update">
     <h2 class="text-center">Trait Information:</h2>
     <div class="form-group">
-        <label for="pubmedId" class="col-sm-2 control-label">Pubmed ID:</label>
+        <label for="pubmed-id" class="col-sm-2 control-label">Pubmed ID:</label>
         <!-- Do not enter PubMed_ID if this trait has not been Published.
              If the PubMed_ID you entered is alreday stored in our
              database, all the following fields except Post Publication
              Description will be ignored.  Do not enter any non-digit
              character in this field. -->
         <div class="col-sm-8">
-            <textarea id="pubmedId" class="form-control" rows="1">
-{{ publish_xref.publication_id |default('', true) }}
-            </textarea>
+            <textarea name="pubmed-id" class="form-control" rows="1">{{ publish_xref.publication_id |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label for="prePubDesc" class="col-sm-2 control-label">Pre Publication Description:</label>
+        <label for="pre-pub-desc" class="col-sm-2 control-label">Pre Publication Description:</label>
         <div class="col-sm-8">
-            <textarea id="prePubDesc" class="form-control" rows="4">
-{{ phenotype.pre_pub_description |default('', true) }}
-            </textarea>
+            <textarea name="pre-pub-desc" class="form-control" rows="4">{{ phenotype.pre_pub_description |default('', true) }}</textarea>
         </div>
         <!-- If the PubMed ID is entered, the Post Publication Description
              will be shown to all users. If there is no PubMed ID, and the
@@ -40,47 +36,37 @@ Submit Trait | Reset
              authorized users can see the Post Publication Description -->
     </div>
     <div class="form-group">
-        <label for="postPubDesc" class="col-sm-2 control-label">Post Publication Description:</label>
+        <label for="post-pub-desc" class="col-sm-2 control-label">Post Publication Description:</label>
         <div class="col-sm-8">
-            <textarea id="prePubDesc" class="form-control" rows="4">
-{{ phenotype.post_pub_description |default('', true) }}
-            </textarea>
+            <textarea name="pre-pub-desc" class="form-control" rows="4">{{ phenotype.post_pub_description |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label for="origDesc" class="col-sm-2 control-label">Original Description:</label>
+        <label for="orig-desc" class="col-sm-2 control-label">Original Description:</label>
         <div class="col-sm-8">
-            <textarea id="origDesc" class="form-control" rows="4">
-{{ phenotype.original_description |default('', true) }}
-            </textarea>
+            <textarea name="orig-desc" class="form-control" rows="4">{{ phenotype.original_description |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="units" class="col-sm-2 control-label">Units:</label>
         <div class="col-sm-8">
-            <textarea id="units" class="form-control" rows="1">
-{{ phenotype.units |default('', true) }}
-            </textarea>
+            <textarea name="units" class="form-control" rows="1">{{ phenotype.units |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label for="prePubAbbrev" class="col-sm-2 control-label">
+        <label for="pre-pub-abbrev" class="col-sm-2 control-label">
             Pre Publication Abbreviation:
         </label>
         <div class="col-sm-8">
-            <textarea id="prePubAbbrev" class="form-control" rows="1">
-{{ phenotype.pre_pub_abbreviation |default('', true) }}
-            </textarea>
+            <textarea name="pre-pub-abbrev" class="form-control" rows="1">{{ phenotype.pre_pub_abbreviation |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label for="postPubAbbrev" class="col-sm-2 control-label">
+        <label for="post-pub-abbrev" class="col-sm-2 control-label">
             Post Publication Abbreviation:
         </label>
         <div class="col-sm-8">
-            <textarea id="postPubAbbrev" class="form-control" rows="1">
-{{ phenotype.post_pub_abbreviation |default('', true) }}
-            </textarea>
+            <textarea name="post-pub-abbrev" class="form-control" rows="1">{{ phenotype.post_pub_abbreviation |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
@@ -88,27 +74,21 @@ Submit Trait | Reset
             Lab Code:
         </label>
         <div class="col-sm-8">
-            <textarea id="labcode" class="form-control" rows="1">
-{{ phenotype.lab_code |default('', true) }}
-            </textarea>
+            <textarea name="labcode" class="form-control" rows="1">{{ phenotype.lab_code |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label for="labcode" class="col-sm-2 control-label">
+        <label for="submitter" class="col-sm-2 control-label">
             Submitter:
         </label>
         <div class="col-sm-8">
-            <textarea id="submitter" class="form-control" rows="1">
-{{ phenotype.submitter |default('', true) }}
-            </textarea>
+            <textarea name="submitter" class="form-control" rows="1">{{ phenotype.submitter |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="owner" class="col-sm-2 control-label">Owner:</label>
         <div class="col-sm-8">
-            <textarea id="owner" class="form-control" rows="1">
-{{ phenotype.owner |default('', true) }}
-            </textarea>
+            <textarea name="owner" class="form-control" rows="1">{{ phenotype.owner |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
@@ -116,78 +96,60 @@ Submit Trait | Reset
             Authorized Users:
         </label>
         <div class="col-sm-8">
-            <textarea id="owner" class="form-control" rows="1">
-{{ phenotype.authorized_users |default('', true) }}
-            </textarea>
+            <textarea name="owner" class="form-control" rows="1">{{ phenotype.authorized_users |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="authors" class="col-sm-2 control-label">Authors:</label>
         <div class="col-sm-8">
-            <textarea id="authors" class="form-control" rows="2">
-{{ publication.authors |default('', true) }}
-            </textarea>
+            <textarea name="authors" class="form-control" rows="2">{{ publication.authors |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="title" class="col-sm-2 control-label">Title:</label>
         <div class="col-sm-8">
-            <textarea id="title" class="form-control" rows="2">
-{{ publication.title |default('', true) }}
-            </textarea>
+            <textarea name="title" class="form-control" rows="2">{{ publication.title |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="abstract" class="col-sm-2 control-label">Abstract:</label>
         <div class="col-sm-8">
-            <textarea id="abstract" class="form-control" rows="6">
-{{ publication.abstract |default('', true) }}
-            </textarea>
+            <textarea name="abstract" class="form-control" rows="6">{{ publication.abstract |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="journal" class="col-sm-2 control-label">Journal:</label>
         <div class="col-sm-8">
-            <textarea id="journal" class="form-control" rows="1">
-{{ publication.journal |default('', true) }}
-            </textarea>
+            <textarea name="journal" class="form-control" rows="1">{{ publication.journal |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="pages" class="col-sm-2 control-label">Pages:</label>
         <div class="col-sm-8">
-            <textarea id="pages" class="form-control" rows="1">
-{{ publication.pages |default('', true) }}
-            </textarea>
+            <textarea name="pages" class="form-control" rows="1">{{ publication.pages |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="month" class="col-sm-2 control-label">Month:</label>
         <div class="col-sm-8">
-            <textarea id="month" class="form-control" rows="1">
-{{ publication.month |default('', true) }}
-            </textarea>
+            <textarea name="month" class="form-control" rows="1">{{ publication.month |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="year" class="col-sm-2 control-label">Year:</label>
         <div class="col-sm-8">
-            <textarea id="year" class="form-control" rows="1">
-{{ publication.year |default('', true) }}
-            </textarea>
+            <textarea name="year" class="form-control" rows="1">{{ publication.year |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
         <label for="sequence" class="col-sm-2 control-label">Sequence:</label>
         <div class="col-sm-8">
-            <textarea id="sequence" class="form-control" rows="6">
-{{ publish_xref.sequence |default('', true) }}
-            </textarea>
+            <textarea name="sequence" class="form-control" rows="6">{{ publish_xref.sequence |default('', true) }}</textarea>
         </div>
     </div>
     <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
         <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Change">
-        <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
+        <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" onClick="window.location.reload();" value="Reset">
     </div>
 </form>
 
