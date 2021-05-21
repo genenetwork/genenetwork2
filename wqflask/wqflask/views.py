@@ -416,7 +416,7 @@ def submit_trait_form():
 
 
 @app.route("/trait/<name>/edit/<inbred_set_id>")
-def show_edit_trait_page(name, inbred_set_id):
+def edit_trait(name, inbred_set_id):
     from gn3.db.phenotypes import (Phenotype,
                                    PublishXRef,
                                    Publication,
