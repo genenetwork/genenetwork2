@@ -9,6 +9,7 @@ import csv
 import simplejson as json
 import xlsxwriter
 import io  # Todo: Use cStringIO?
+import MySQLdb
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -21,6 +22,12 @@ import base64
 import array
 import sqlalchemy
 from wqflask import app
+
+from gn3.db.phenotypes import Phenotype
+from gn3.db.phenotypes import PublishXRef
+from gn3.db.phenotypes import Publication
+from gn3.db.phenotypes import fetchone
+
 from flask import current_app
 from flask import g
 from flask import Response
@@ -417,11 +424,6 @@ def submit_trait_form():
 
 @app.route("/trait/<name>/edit/<inbred_set_id>")
 def edit_trait(name, inbred_set_id):
-    from gn3.db.phenotypes import (Phenotype,
-                                   PublishXRef,
-                                   Publication,
-                                   fetchone)
-    import MySQLdb
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
