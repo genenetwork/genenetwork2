@@ -8,6 +8,8 @@ from typing import List
 from typing import Optional
 from typing import TextIO
 
+import numpy as np
+
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
 from utility.tools import locate
@@ -46,7 +48,11 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, method, model, p
 
     out_file = requests.post(GN3_RQTL_URL, data=post_data).json()['output_file']
 
-    return process_rqtl_results(out_file)
+    if num_perm > 0:
+        perm_results, suggestive, significant = process_perm_results(out_file)
+        return perm_results, suggestive, significant, process_rqtl_results(out_file)
+    else:
+        return process_rqtl_results(out_file)
 
 
 def process_rqtl_results(out_file: str) -> List:
@@ -63,6 +69,7 @@ def process_rqtl_results(out_file: str) -> List:
         for line in the_file:
             line_items = line.split(",")
             if line_items[1][1:-1] == "chr" or not line_items:
+                # Skip header line
                 continue
             else:
                 # Convert chr to int if possible
@@ -80,6 +87,30 @@ def process_rqtl_results(out_file: str) -> List:
                 marker_obs.append(this_marker)
 
     return marker_obs
+
+
+def process_perm_results(out_file: str):
+    """Given base filename, read in R/qtl permutation output and calculate
+    suggestive and significant thresholds
+
+    """
+    perm_results = []
+    with open(GN3_TMP_PATH + "/output/PERM_" + out_file, "r") as the_file:
+        for i, line in enumerate(the_file):
+            if i == 0:
+                # Skip header line
+                continue
+            else:
+                line_items = line.split(",")
+                perm_results.append(float(line_items[1]))
+
+    logger.debug("PERM RESULTS:", perm_results)
+
+    suggestive = np.percentile(np.array(perm_results), 67)
+    significant = np.percentile(np.array(perm_results), 95)
+
+    return perm_results, suggestive, significant
+
 
 def get_hash_of_textio(the_file: TextIO) -> str:
     """Given a StringIO, return the hash of its contents"""
@@ -146,7 +177,6 @@ def cofactors_to_dict(cofactors: str, dataset_ob, samples) -> Dict:
                                         name=cofactor_name)
                 sample_data = trait_ob.data
                 for index, sample in enumerate(samples):
-                    #if (sample in sample_list) and (sample in sample_data):
                     if sample in sample_data:
                         sample_value = sample_data[sample].value
                         cofactors[cofactor_name].append(sample_value)
