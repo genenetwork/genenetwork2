@@ -28,7 +28,8 @@ class TestRqtlMapping(unittest.TestCase):
         mock_write_pheno_file.return_value = "pheno_filename"
         mock_locate.return_value = "geno_filename"
 
-        mock_post.return_value = "output_filename"
+        mock_post.return_value = {"output_file": "output_filename",
+                                  "rqtl_cmd": "the_command"}
 
         mock_process_perm.return_value = [[], 3, 4]
         mock_process_rqtl.return_value = []
