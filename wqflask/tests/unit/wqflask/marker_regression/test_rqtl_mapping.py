@@ -1,42 +1,46 @@
 import unittest
 from unittest import mock
-from wqflask import app
-from wqflask.marker_regression.rqtl_mapping import get_trait_data_type
-from wqflask.marker_regression.rqtl_mapping import sanitize_rqtl_phenotype
-from wqflask.marker_regression.rqtl_mapping import sanitize_rqtl_names
+from wqflask.marker_regression.rqtl_mapping import run_rqtl
 
+class AttributeSetter:
+    def __init__(self, obj):
+        for key, val in obj.items():
+            setattr(self, key, val)
+
+class MockGroup(AttributeSetter):
+    def get_samplelist(self):
+        return None
 
 class TestRqtlMapping(unittest.TestCase):
 
-    def setUp(self):
-        self.app_context = app.app_context()
-        self.app_context.push()
+    @mock.patch("wqflask.marker_regression.rqtl_mapping.process_rqtl_results")
+    @mock.patch("wqflask.marker_regression.rqtl_mapping.process_perm_results")
+    @mock.patch("wqflask.marker_regression.rqtl_mapping.requests.post")
+    @mock.patch("wqflask.marker_regression.rqtl_mapping.locate")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.write_phenotype_file")
+    def test_run_rqtl_with_perm(self, mock_write_pheno_file, mock_locate, mock_post, mock_process_perm, mock_process_rqtl):
+        """Test for run_rqtl with permutations > 0"""
+        dataset_group = MockGroup(
+            {"name": "GP1", "genofile": "file_geno"})
 
-    def tearDown(self):
-        self.app_context.pop()
+        dataset = AttributeSetter({"group": dataset_group})
 
-    @mock.patch("wqflask.marker_regression.rqtl_mapping.g")
-    @mock.patch("wqflask.marker_regression.rqtl_mapping.logger")
-    def test_get_trait_data(self, mock_logger, mock_db):
-        """test for getting trait data_type return True"""
-        query_value = """SELECT value FROM TraitMetadata WHERE type='trait_data_type'"""
-        mock_db.db.execute.return_value.fetchone.return_value = [
-            """{"type":"trait_data_type","name":"T1","traid_id":"fer434f"}"""]
-        results = get_trait_data_type("traid_id")
-        mock_db.db.execute.assert_called_with(query_value)
-        self.assertEqual(results, "fer434f")
+        mock_write_pheno_file.return_value = "pheno_filename"
+        mock_locate.return_value = "geno_filename"
 
-    def test_sanitize_rqtl_phenotype(self):
-        """test for sanitizing rqtl phenotype"""
-        vals = ['f', "x", "r", "x", "x"]
-        results = sanitize_rqtl_phenotype(vals)
-        expected_phenotype_string = 'c(f,NA,r,NA,NA)'
+        mock_post.return_value = "output_filename"
 
-        self.assertEqual(results, expected_phenotype_string)
+        mock_process_perm.return_value = [[], 3, 4]
+        mock_process_rqtl.return_value = []
 
-    def test_sanitize_rqtl_names(self):
-        """test for sanitzing rqtl names"""
-        vals = ['f', "x", "r", "x", "x"]
-        expected_sanitized_name = "c('f',NA,'r',NA,NA)"
-        results = sanitize_rqtl_names(vals)
-        self.assertEqual(expected_sanitized_name, results)
+        results = run_rqtl(trait_name="the_trait", vals=[], samples=[],
+        dataset=dataset, mapping_scale="cM", model="normal", method="hk",
+        num_perm=5, perm_strata_list=[], do_control="false", control_marker="",
+        manhattan_plot=True, cofactors="")
+
+        mock_write_pheno_file.assert_called_once()
+        mock_locate.assert_called_once()
+        mock_post.assert_called_once()
+        mock_process_perm.assert_called_once()
+        mock_process_rqtl.assert_called_once()
+        self.assertEqual(results, ([], 3, 4, []))
