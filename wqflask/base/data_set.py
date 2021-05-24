@@ -166,7 +166,6 @@ class DatasetType:
         if t in ['pheno', 'other_pheno']:
             group_name = name.replace("Publish", "")
 
-
         results = g.db.execute(sql_query_mapping[t] % group_name).fetchone()
         if results:
             self.datasets[name] = dataset_name_mapping[t]
@@ -278,7 +277,7 @@ class Markers:
             filtered_markers = []
             for marker in self.markers:
                 if marker['name'] in p_values:
-                    #logger.debug("marker {} IS in p_values".format(i))
+                    # logger.debug("marker {} IS in p_values".format(i))
                     marker['p_value'] = p_values[marker['name']]
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
@@ -299,7 +298,7 @@ class HumanMarkers(Markers):
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
-            #logger.debug("splat:", splat)
+            # logger.debug("splat:", splat)
             if len(specified_markers) > 0:
                 if splat[1] in specified_markers:
                     marker = {}
@@ -441,7 +440,7 @@ class DatasetGroup:
         # genotype_1 is Dataset Object without parents and f1
         # genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
-        #genotype_1 = reaper.Dataset()
+        # genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
@@ -650,9 +649,39 @@ class DataSet:
 
 
 
-    def get_trait_data(self, sample_list=None):
+
+    def chunk_dataset(self, dataset, n):
+
+
+        results = {}
+
+        query = """
+                SELECT ProbeSetXRef.DataId,ProbeSet.Name
+                FROM ProbeSet, ProbeSetXRef, ProbeSetFreeze
+                WHERE ProbeSetFreeze.Name = '{}' AND
+                      ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
+                      ProbeSetXRef.ProbeSetId = ProbeSet.Id
+        """.format(self.name)
+
+        # should cache this
+
+        traits_name_dict= dict(g.db.execute(query).fetchall())
+
+
+
+
+        for i in range(0, len(dataset), n):
+            matrix = list(dataset[i:i + n])
+            trait_name = traits_name_dict[matrix[0][0]]
+
+            my_values = [value for (trait_name, strain, value) in matrix]
+            results[trait_name] = my_values
+        return results
+
+    def get_probeset_data(self, sample_list=None, trait_ids=None):
         if sample_list:
             self.samplelist = sample_list
+
         else:
             self.samplelist = self.group.samplelist
 
@@ -666,27 +695,59 @@ class DataSet:
             and Strain.SpeciesId=Species.Id
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        logger.sql(query)
         results = dict(g.db.execute(query).fetchall())
         sample_ids = [results[item] for item in self.samplelist]
+
+        query = """SELECT * from ProbeSetData
+                where StrainID in {}
+                and id in (SELECT ProbeSetXRef.DataId
+                FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)
+                WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
+                and ProbeSetFreeze.Name = '{}'
+                and ProbeSet.Id = ProbeSetXRef.ProbeSetId)""".format(create_in_clause(sample_ids),self.name)
+
+        query_results=list(g.db.execute(query).fetchall())
+
+        data_results=self.chunk_dataset(query_results, len(sample_ids))
+        self.trait_data=data_results
+
+    def get_trait_data(self, sample_list=None):
+        if sample_list:
+            self.samplelist=sample_list
+        else:
+            self.samplelist=self.group.samplelist
+
+        if self.group.parlist != None and self.group.f1list != None:
+            if (self.group.parlist + self.group.f1list) in self.samplelist:
+                self.samplelist += self.group.parlist + self.group.f1list
+
+        query="""
+            SELECT Strain.Name, Strain.Id FROM Strain, Species
+            WHERE Strain.Name IN {}
+            and Strain.SpeciesId=Species.Id
+            and Species.name = '{}'
+            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
+        logger.sql(query)
+        results=dict(g.db.execute(query).fetchall())
+        sample_ids=[results[item] for item in self.samplelist]
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
         # Postgres doesn't have that limit, so we can get rid of this after we transition
-        chunk_size = 50
-        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
-        trait_sample_data = []
+        chunk_size=50
+        number_chunks=int(math.ceil(len(sample_ids) / chunk_size))
+        trait_sample_data=[]
         for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
             if self.type == "Publish":
-                dataset_type = "Phenotype"
+                dataset_type="Phenotype"
             else:
-                dataset_type = self.type
-            temp = ['T%s.value' % item for item in sample_ids_step]
+                dataset_type=self.type
+            temp=['T%s.value' % item for item in sample_ids_step]
             if self.type == "Publish":
-                query = "SELECT {}XRef.Id,".format(escape(self.type))
+                query="SELECT {}XRef.Id,".format(escape(self.type))
             else:
-                query = "SELECT {}.Name,".format(escape(dataset_type))
-            data_start_pos = 1
+                query="SELECT {}.Name,".format(escape(dataset_type))
+            data_start_pos=1
             query += ', '.join(temp)
             query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
                                                                      self.type,
@@ -715,27 +776,27 @@ class DataSet:
                         """.format(*mescape(self.type, self.type, self.type, self.type,
                                             self.name, dataset_type, self.type, self.type, dataset_type))
 
-            results = g.db.execute(query).fetchall()
+            results=g.db.execute(query).fetchall()
             trait_sample_data.append(results)
 
-        trait_count = len(trait_sample_data[0])
-        self.trait_data = collections.defaultdict(list)
+        trait_count=len(trait_sample_data[0])
+        self.trait_data=collections.defaultdict(list)
 
         # put all of the separate data together into a dictionary where the keys are
         # trait names and values are lists of sample values
         for trait_counter in range(trait_count):
-            trait_name = trait_sample_data[0][trait_counter][0]
+            trait_name=trait_sample_data[0][trait_counter][0]
             for chunk_counter in range(int(number_chunks)):
                 self.trait_data[trait_name] += (
                     trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
 
 class PhenotypeDataSet(DataSet):
-    DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
+    DS_NAME_MAP['Publish']='PhenotypeDataSet'
 
     def setup(self):
         # Fields in the database table
-        self.search_fields = ['Phenotype.Post_publication_description',
+        self.search_fields=['Phenotype.Post_publication_description',
                               'Phenotype.Pre_publication_description',
                               'Phenotype.Pre_publication_abbreviation',
                               'Phenotype.Post_publication_abbreviation',
@@ -748,7 +809,7 @@ class PhenotypeDataSet(DataSet):
                               'PublishXRef.Id']
 
         # Figure out what display_fields is
-        self.display_fields = ['name', 'group_code',
+        self.display_fields=['name', 'group_code',
                                'pubmed_id',
                                'pre_publication_description',
                                'post_publication_description',
@@ -766,7 +827,7 @@ class PhenotypeDataSet(DataSet):
                                'sequence', 'units', 'comments']
 
         # Fields displayed in the search results table header
-        self.header_fields = ['Index',
+        self.header_fields=['Index',
                               'Record',
                               'Description',
                               'Authors',
@@ -775,9 +836,9 @@ class PhenotypeDataSet(DataSet):
                               'Max LRS Location',
                               'Additive Effect']
 
-        self.type = 'Publish'
+        self.type='Publish'
 
-        self.query_for_group = '''
+        self.query_for_group='''
                             SELECT
                                     InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                             FROM
@@ -797,13 +858,13 @@ class PhenotypeDataSet(DataSet):
             if not this_trait.haveinfo:
                 this_trait.retrieve_info(get_qtl_info=True)
 
-            description = this_trait.post_publication_description
+            description=this_trait.post_publication_description
 
             # If the dataset is confidential and the user has access to confidential
             # phenotype traits, then display the pre-publication description instead
             # of the post-publication description
             if this_trait.confidential:
-                this_trait.description_display = ""
+                this_trait.description_display=""
                 continue   # for now, because no authorization features
 
                 if not webqtlUtil.hasAccessToConfidentialPhenotypeTrait(
@@ -811,46 +872,46 @@ class PhenotypeDataSet(DataSet):
                         userName=self.userName,
                         authorized_users=this_trait.authorized_users):
 
-                    description = this_trait.pre_publication_description
+                    description=this_trait.pre_publication_description
 
             if len(description) > 0:
-                this_trait.description_display = description.strip()
+                this_trait.description_display=description.strip()
             else:
-                this_trait.description_display = ""
+                this_trait.description_display=""
 
             if not this_trait.year.isdigit():
-                this_trait.pubmed_text = "N/A"
+                this_trait.pubmed_text="N/A"
             else:
-                this_trait.pubmed_text = this_trait.year
+                this_trait.pubmed_text=this_trait.year
 
             if this_trait.pubmed_id:
-                this_trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id
+                this_trait.pubmed_link=webqtlConfig.PUBMEDLINK_URL % this_trait.pubmed_id
 
             # LRS and its location
-            this_trait.LRS_score_repr = "N/A"
-            this_trait.LRS_location_repr = "N/A"
+            this_trait.LRS_score_repr="N/A"
+            this_trait.LRS_location_repr="N/A"
 
             if this_trait.lrs:
-                query = """
+                query="""
                     select Geno.Chr, Geno.Mb from Geno, Species
                     where Species.Name = '%s' and
                         Geno.Name = '%s' and
                         Geno.SpeciesId = Species.Id
                 """ % (species, this_trait.locus)
                 logger.sql(query)
-                result = g.db.execute(query).fetchone()
+                result=g.db.execute(query).fetchone()
 
                 if result:
                     if result[0] and result[1]:
-                        LRS_Chr = result[0]
-                        LRS_Mb = result[1]
+                        LRS_Chr=result[0]
+                        LRS_Mb=result[1]
 
-                        this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
+                        this_trait.LRS_score_repr=LRS_score_repr='%3.1f' % this_trait.lrs
+                        this_trait.LRS_location_repr=LRS_location_repr='Chr%s: %.6f' % (
                             LRS_Chr, float(LRS_Mb))
 
     def retrieve_sample_data(self, trait):
-        query = """
+        query="""
                     SELECT
                             Strain.Name, PublishData.value, PublishSE.error, NStrain.count, Strain.Name2
                     FROM
@@ -868,34 +929,34 @@ class PhenotypeDataSet(DataSet):
                             Strain.Name
                     """
         logger.sql(query)
-        results = g.db.execute(query, (trait, self.id)).fetchall()
+        results=g.db.execute(query, (trait, self.id)).fetchall()
         return results
 
 
 class GenotypeDataSet(DataSet):
-    DS_NAME_MAP['Geno'] = 'GenotypeDataSet'
+    DS_NAME_MAP['Geno']='GenotypeDataSet'
 
     def setup(self):
         # Fields in the database table
-        self.search_fields = ['Name',
+        self.search_fields=['Name',
                               'Chr']
 
         # Find out what display_fields is
-        self.display_fields = ['name',
+        self.display_fields=['name',
                                'chr',
                                'mb',
                                'source2',
                                'sequence']
 
         # Fields displayed in the search results table header
-        self.header_fields = ['Index',
+        self.header_fields=['Index',
                               'ID',
                               'Location']
 
         # Todo: Obsolete or rename this field
-        self.type = 'Geno'
+        self.type='Geno'
 
-        self.query_for_group = '''
+        self.query_for_group='''
                 SELECT
                         InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                 FROM
@@ -914,11 +975,11 @@ class GenotypeDataSet(DataSet):
                 this_trait.retrieveInfo()
 
             if this_trait.chr and this_trait.mb:
-                this_trait.location_repr = 'Chr%s: %.6f' % (
+                this_trait.location_repr='Chr%s: %.6f' % (
                     this_trait.chr, float(this_trait.mb))
 
     def retrieve_sample_data(self, trait):
-        query = """
+        query="""
                     SELECT
                             Strain.Name, GenoData.value, GenoSE.error, "N/A", Strain.Name2
                     FROM
@@ -935,7 +996,7 @@ class GenotypeDataSet(DataSet):
                             Strain.Name
                     """
         logger.sql(query)
-        results = g.db.execute(query,
+        results=g.db.execute(query,
                                (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
                                 trait, self.name)).fetchall()
         return results
@@ -949,11 +1010,11 @@ class MrnaAssayDataSet(DataSet):
     platform and is far too specific.
 
     '''
-    DS_NAME_MAP['ProbeSet'] = 'MrnaAssayDataSet'
+    DS_NAME_MAP['ProbeSet']='MrnaAssayDataSet'
 
     def setup(self):
         # Fields in the database table
-        self.search_fields = ['Name',
+        self.search_fields=['Name',
                               'Description',
                               'Probe_Target_Description',
                               'Symbol',
@@ -963,7 +1024,7 @@ class MrnaAssayDataSet(DataSet):
                               'RefSeq_TranscriptId']
 
         # Find out what display_fields is
-        self.display_fields = ['name', 'symbol',
+        self.display_fields=['name', 'symbol',
                                'description', 'probe_target_description',
                                'chr', 'mb',
                                'alias', 'geneid',
@@ -983,7 +1044,7 @@ class MrnaAssayDataSet(DataSet):
                                'flag']
 
         # Fields displayed in the search results table header
-        self.header_fields = ['Index',
+        self.header_fields=['Index',
                               'Record',
                               'Symbol',
                               'Description',
@@ -994,9 +1055,9 @@ class MrnaAssayDataSet(DataSet):
                               'Additive Effect']
 
         # Todo: Obsolete or rename this field
-        self.type = 'ProbeSet'
+        self.type='ProbeSet'
 
-        self.query_for_group = '''
+        self.query_for_group='''
                         SELECT
                                 InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
                         FROM
@@ -1014,7 +1075,7 @@ class MrnaAssayDataSet(DataSet):
 
         #  Note: setting trait_list to [] is probably not a great idea.
         if not trait_list:
-            trait_list = []
+            trait_list=[]
 
         for this_trait in trait_list:
 
@@ -1022,33 +1083,33 @@ class MrnaAssayDataSet(DataSet):
                 this_trait.retrieveInfo(QTL=1)
 
             if not this_trait.symbol:
-                this_trait.symbol = "N/A"
+                this_trait.symbol="N/A"
 
             # XZ, 12/08/2008: description
             # XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = str(
+            description_string=str(
                 str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = str(
+            target_string=str(
                 str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
             if len(description_string) > 1 and description_string != 'None':
-                description_display = description_string
+                description_display=description_string
             else:
-                description_display = this_trait.symbol
+                description_display=this_trait.symbol
 
             if (len(description_display) > 1 and description_display != 'N/A'
                     and len(target_string) > 1 and target_string != 'None'):
-                description_display = description_display + '; ' + target_string.strip()
+                description_display=description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
-            this_trait.description_display = description_display
+            this_trait.description_display=description_display
 
             if this_trait.chr and this_trait.mb:
-                this_trait.location_repr = 'Chr%s: %.6f' % (
+                this_trait.location_repr='Chr%s: %.6f' % (
                     this_trait.chr, float(this_trait.mb))
 
             # Get mean expression value
-            query = (
+            query=(
                 """select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
                 where ProbeSetXRef.ProbeSetFreezeId = %s and
                 ProbeSet.Id = ProbeSetXRef.ProbeSetId and
@@ -1056,44 +1117,45 @@ class MrnaAssayDataSet(DataSet):
             """ % (escape(str(this_trait.dataset.id)),
                    escape(this_trait.name)))
 
-            #logger.debug("query is:", pf(query))
+            # logger.debug("query is:", pf(query))
             logger.sql(query)
-            result = g.db.execute(query).fetchone()
+            result=g.db.execute(query).fetchone()
 
-            mean = result[0] if result else 0
+            mean=result[0] if result else 0
 
             if mean:
-                this_trait.mean = "%2.3f" % mean
+                this_trait.mean="%2.3f" % mean
 
             # LRS and its location
-            this_trait.LRS_score_repr = 'N/A'
-            this_trait.LRS_location_repr = 'N/A'
+            this_trait.LRS_score_repr='N/A'
+            this_trait.LRS_location_repr='N/A'
 
             # Max LRS and its Locus location
             if this_trait.lrs and this_trait.locus:
-                query = """
+                query="""
                     select Geno.Chr, Geno.Mb from Geno, Species
                     where Species.Name = '{}' and
                         Geno.Name = '{}' and
                         Geno.SpeciesId = Species.Id
                 """.format(species, this_trait.locus)
                 logger.sql(query)
-                result = g.db.execute(query).fetchone()
+                result=g.db.execute(query).fetchone()
 
                 if result:
-                    lrs_chr, lrs_mb = result
-                    this_trait.LRS_score_repr = '%3.1f' % this_trait.lrs
-                    this_trait.LRS_location_repr = 'Chr%s: %.6f' % (
+                    lrs_chr, lrs_mb=result
+                    this_trait.LRS_score_repr='%3.1f' % this_trait.lrs
+                    this_trait.LRS_location_repr='Chr%s: %.6f' % (
                         lrs_chr, float(lrs_mb))
 
         return trait_list
 
     def retrieve_sample_data(self, trait):
-        query = """
+        query="""
                     SELECT
                             Strain.Name, ProbeSetData.value, ProbeSetSE.error, NStrain.count, Strain.Name2
                     FROM
-                            (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, ProbeSetXRef)
+                            (ProbeSetData, ProbeSetFreeze,
+                             Strain, ProbeSet, ProbeSetXRef)
                     left join ProbeSetSE on
                             (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
                     left join NStrain on
@@ -1109,19 +1171,19 @@ class MrnaAssayDataSet(DataSet):
                             Strain.Name
                     """ % (escape(trait), escape(self.name))
         logger.sql(query)
-        results = g.db.execute(query).fetchall()
-        #logger.debug("RETRIEVED RESULTS HERE:", results)
+        results=g.db.execute(query).fetchall()
+        # logger.debug("RETRIEVED RESULTS HERE:", results)
         return results
 
     def retrieve_genes(self, column_name):
-        query = """
+        query="""
                     select ProbeSet.Name, ProbeSet.%s
                     from ProbeSet,ProbeSetXRef
                     where ProbeSetXRef.ProbeSetFreezeId = %s and
                     ProbeSetXRef.ProbeSetId=ProbeSet.Id;
                 """ % (column_name, escape(str(self.id)))
         logger.sql(query)
-        results = g.db.execute(query).fetchall()
+        results=g.db.execute(query).fetchall()
 
         return dict(results)
 
@@ -1129,40 +1191,40 @@ class MrnaAssayDataSet(DataSet):
 class TempDataSet(DataSet):
     '''Temporary user-generated data set'''
 
-    DS_NAME_MAP['Temp'] = 'TempDataSet'
+    DS_NAME_MAP['Temp']='TempDataSet'
 
     def setup(self):
-        self.search_fields = ['name',
+        self.search_fields=['name',
                               'description']
 
-        self.display_fields = ['name',
+        self.display_fields=['name',
                                'description']
 
-        self.header_fields = ['Name',
+        self.header_fields=['Name',
                               'Description']
 
-        self.type = 'Temp'
+        self.type='Temp'
 
         # Need to double check later how these are used
-        self.id = 1
-        self.fullname = 'Temporary Storage'
-        self.shortname = 'Temp'
+        self.id=1
+        self.fullname='Temporary Storage'
+        self.shortname='Temp'
 
 
 def geno_mrna_confidentiality(ob):
-    dataset_table = ob.type + "Freeze"
-    #logger.debug("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
+    dataset_table=ob.type + "Freeze"
+    # logger.debug("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
 
-    query = '''SELECT Id, Name, FullName, confidentiality,
+    query='''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = "%s"''' % (dataset_table, ob.name)
     logger.sql(query)
-    result = g.db.execute(query)
+    result=g.db.execute(query)
 
     (dataset_id,
      name,
      full_name,
      confidential,
-     authorized_users) = result.fetchall()[0]
+     authorized_users)=result.fetchall()[0]
 
     if confidential:
         return True
