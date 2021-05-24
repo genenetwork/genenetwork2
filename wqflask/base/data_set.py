@@ -1221,7 +1221,6 @@ def geno_mrna_confidentiality(ob):
 
     if confidential:
         return True
-uery)
     result = g.db.execute(query)
 
     (dataset_id,
