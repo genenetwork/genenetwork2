@@ -65,6 +65,7 @@ from wqflask.export_traits import export_search_results_csv
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
+from wqflask.decorators import admin_login_required
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
@@ -422,6 +423,7 @@ def submit_trait_form():
 
 
 @app.route("/trait/<name>/edit/<inbred_set_id>")
+@admin_login_required
 def edit_trait(name, inbred_set_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
