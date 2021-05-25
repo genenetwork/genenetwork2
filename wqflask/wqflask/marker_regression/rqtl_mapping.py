@@ -46,70 +46,11 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
     if cofactors:
         post_data["addcovar"] = True
 
-    out_file = requests.post(GN3_RQTL_URL, data=post_data).json()['output_file']
-
+    rqtl_output = requests.post(GN3_RQTL_URL, data=post_data).json()
     if num_perm > 0:
-        perm_results, suggestive, significant = process_perm_results(out_file)
-        return perm_results, suggestive, significant, process_rqtl_results(out_file)
+        return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
-        return process_rqtl_results(out_file)
-
-
-def process_rqtl_results(out_file: str) -> List:
-    """Given the output filename, read in results and
-    return as a list of dictionaries representing each
-    marker
-
-    """
-
-    marker_obs = []
-    # Later I should probably redo this using csv.read to avoid the
-    # awkwardness with removing quotes with [1:-1]
-    with open(GN3_TMP_PATH + "/output/" + out_file, "r") as the_file:
-        for line in the_file:
-            line_items = line.split(",")
-            if line_items[1][1:-1] == "chr" or not line_items:
-                # Skip header line
-                continue
-            else:
-                # Convert chr to int if possible
-                try:
-                    the_chr = int(line_items[1][1:-1])
-                except:
-                    the_chr = line_items[1][1:-1]
-                this_marker = {
-                    "name": line_items[0][1:-1],
-                    "chr": the_chr,
-                    "cM": float(line_items[2]),
-                    "Mb": float(line_items[2]),
-                    "lod_score": float(line_items[3])
-                }
-                marker_obs.append(this_marker)
-
-    return marker_obs
-
-
-def process_perm_results(out_file: str):
-    """Given base filename, read in R/qtl permutation output and calculate
-    suggestive and significant thresholds
-
-    """
-    perm_results = []
-    with open(GN3_TMP_PATH + "/output/PERM_" + out_file, "r") as the_file:
-        for i, line in enumerate(the_file):
-            if i == 0:
-                # Skip header line
-                continue
-            else:
-                line_items = line.split(",")
-                perm_results.append(float(line_items[1]))
-
-    logger.debug("PERM RESULTS:", perm_results)
-
-    suggestive = np.percentile(np.array(perm_results), 67)
-    significant = np.percentile(np.array(perm_results), 95)
-
-    return perm_results, suggestive, significant
+        return rqtl_output['results']
 
 
 def get_hash_of_textio(the_file: TextIO) -> str:
