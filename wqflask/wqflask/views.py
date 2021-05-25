@@ -27,6 +27,7 @@ from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import fetchone
+from gn3.db.phenotypes import update
 
 from flask import current_app
 from flask import g
@@ -445,6 +446,49 @@ def edit_trait(name, inbred_set_id):
         phenotype=phenotype_,
         publication=publication_,
         version=GN_VERSION)
+
+
+@app.route("/trait/update", methods=["POST"])
+def update_trait():
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    # Filter out empty values
+    data_ = {k: v for k, v in request.form.items() if v is not ''}
+
+    # Run updates:
+    update(conn, "Phenotype",
+           data=Phenotype(
+               pre_pub_description=data_.get("pre-pub-desc"),
+               post_pub_description=data_.get("post-pub-desc"),
+               original_description=data_.get("orig-desc"),
+               units=data_.get("units"),
+               pre_pub_abbreviation=data_.get("pre-pub-abbrev"),
+               post_pub_abbreviation=data_.get("post-pub-abbrev"),
+               lab_code=data_.get("labcode"),
+               submitter=data_.get("submitter"),
+               owner=data_.get("owner"),
+           ),
+           where=Phenotype(id_=data_.get("phenotype-id")))
+    update(conn, "Publication",
+           data=Publication(
+               abstract=data_.get("abstract"),
+               authors=data_.get("authors"),
+               title=data_.get("title"),
+               journal=data_.get("journal"),
+               volume=data_.get("volume"),
+               pages=data_.get("pages"),
+               month=data_.get("month"),
+               year=data_.get("year")),
+           where=Publication(id_=data_.get("pubmed-id")))
+    update(conn, "PublishXRef",
+           data=PublishXRef(comments="",
+                            publication_id=data_.get("pubmed-id")),
+           where=PublishXRef(
+               id_=data_.get("dataset-name"),
+               inbred_set_id=data_.get("inbred-set-id")))
+    return redirect("/trait/10007/edit/1")
 
 
 @app.route("/create_temp_trait", methods=('POST',))
