@@ -279,6 +279,8 @@ class ShowTrait:
         hddn['suggestive'] = 0
         hddn['num_perm'] = 0
         hddn['categorical_vars'] = ""
+        if categorical_var_list:
+            hddn['categorical_vars'] = ",".join(categorical_var_list)
         hddn['manhattan_plot'] = ""
         hddn['control_marker'] = ""
         if not self.temp_trait:
@@ -684,23 +686,13 @@ def get_ncbi_summary(this_trait):
         return None
 
 
-def get_categorical_variables(this_trait, sample_list):
+def get_categorical_variables(this_trait, sample_list) -> list:
     categorical_var_list = []
 
     if len(sample_list.attributes) > 0:
         for attribute in sample_list.attributes:
-            attribute_vals = []
-            for sample_name in list(this_trait.data.keys()):
-                if sample_list.attributes[attribute].name in this_trait.data[sample_name].extra_attributes:
-                    attribute_vals.append(
-                        this_trait.data[sample_name].extra_attributes[sample_list.attributes[attribute].name])
-                else:
-                    attribute_vals.append("N/A")
-            num_distinct = len(set(attribute_vals))
-
-            if num_distinct < 10:
-                categorical_var_list.append(
-                    sample_list.attributes[attribute].name)
+            if len(sample_list.attributes[attribute].distinct_values) < 10:
+                categorical_var_list.append(sample_list.attributes[attribute].name)
 
     return categorical_var_list
 
