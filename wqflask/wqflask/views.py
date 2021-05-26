@@ -23,11 +23,12 @@ import array
 import sqlalchemy
 from wqflask import app
 
+from gn3.db import fetchone
+from gn3.db import update
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import Publication
-from gn3.db.phenotypes import fetchone
-from gn3.db.phenotypes import update
+
 
 from flask import current_app
 from flask import g
