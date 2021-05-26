@@ -461,36 +461,47 @@ def update_trait():
     data_ = {k: v for k, v in request.form.items() if v is not ''}
 
     # Run updates:
-    update(conn, "Phenotype",
-           data=Phenotype(
-               pre_pub_description=data_.get("pre-pub-desc"),
-               post_pub_description=data_.get("post-pub-desc"),
-               original_description=data_.get("orig-desc"),
-               units=data_.get("units"),
-               pre_pub_abbreviation=data_.get("pre-pub-abbrev"),
-               post_pub_abbreviation=data_.get("post-pub-abbrev"),
-               lab_code=data_.get("labcode"),
-               submitter=data_.get("submitter"),
-               owner=data_.get("owner"),
-           ),
-           where=Phenotype(id_=data_.get("phenotype-id")))
-    update(conn, "Publication",
-           data=Publication(
-               abstract=data_.get("abstract"),
-               authors=data_.get("authors"),
-               title=data_.get("title"),
-               journal=data_.get("journal"),
-               volume=data_.get("volume"),
-               pages=data_.get("pages"),
-               month=data_.get("month"),
-               year=data_.get("year")),
-           where=Publication(id_=data_.get("pubmed-id")))
-    update(conn, "PublishXRef",
-           data=PublishXRef(comments="",
-                            publication_id=data_.get("pubmed-id")),
-           where=PublishXRef(
-               id_=data_.get("dataset-name"),
-               inbred_set_id=data_.get("inbred-set-id")))
+    updated_phenotypes = update(
+        conn, "Phenotype",
+        data=Phenotype(
+            pre_pub_description=data_.get("pre-pub-desc"),
+            post_pub_description=data_.get("post-pub-desc"),
+            original_description=data_.get("orig-desc"),
+            units=data_.get("units"),
+            pre_pub_abbreviation=data_.get("pre-pub-abbrev"),
+            post_pub_abbreviation=data_.get("post-pub-abbrev"),
+            lab_code=data_.get("labcode"),
+            submitter=data_.get("submitter"),
+            owner=data_.get("owner"),
+        ),
+        where=Phenotype(id_=data_.get("phenotype-id")))
+    updated_publications = update(
+        conn, "Publication",
+        data=Publication(
+            abstract=data_.get("abstract"),
+            authors=data_.get("authors"),
+            title=data_.get("title"),
+            journal=data_.get("journal"),
+            volume=data_.get("volume"),
+            pages=data_.get("pages"),
+            month=data_.get("month"),
+            year=data_.get("year")),
+        where=Publication(id_=data_.get("pubmed-id")))
+    if updated_phenotypes or updated_publications:
+        comments = data_.get("comments")
+        if comments:
+            comments = (f"{comments}\r\n"
+                        f"{g.user_session.record.get(b'user_name')}")
+        update(conn, "PublishXRef",
+               data=PublishXRef(
+                   comments=(f"{data_.get('comments')}\r\n"
+                             "Modified by: "
+                             f"{g.user_session.record.get(b'user_name').decode('utf-8')} "
+                             f"on {str(datetime.datetime.now())}"),
+                   publication_id=data_.get("pubmed-id")),
+               where=PublishXRef(
+                   id_=data_.get("dataset-name"),
+                   inbred_set_id=data_.get("inbred-set-id")))
     return redirect("/trait/10007/edit/1")
 
 
