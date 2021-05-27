@@ -25,7 +25,7 @@ class TestRqtlMapping(unittest.TestCase):
 
         mock_write_pheno_file.return_value = "pheno_filename"
         mock_locate.return_value = "geno_filename"
-        mock_post.return_value = Mock(ok=True)
+        mock_post.return_value = mock.Mock(ok=True)
         mock_post.return_value.json.return_value = {"perm_results": [],
                                                     "suggestive": 3,
                                                     "significant": 4,
