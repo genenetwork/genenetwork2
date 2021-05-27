@@ -2,17 +2,17 @@ import unittest
 from unittest import mock
 from wqflask.marker_regression.rqtl_mapping import run_rqtl
 
-class AttributeSetter:
-    def __init__(self, obj):
-        for key, val in obj.items():
-            setattr(self, key, val)
+@dataclass
+class MockGroup:
+    name: str,
+    genofile: str
 
-class MockGroup(AttributeSetter):
-    def get_samplelist(self):
-        return None
+@dataclass
+class MockDataset:
+    group: MockGroup
 
 class TestRqtlMapping(unittest.TestCase):
-
+    """Tests for functions in rqtl_mapping.py"""
     @mock.patch("wqflask.marker_regression.rqtl_mapping.process_rqtl_results")
     @mock.patch("wqflask.marker_regression.rqtl_mapping.process_perm_results")
     @mock.patch("wqflask.marker_regression.rqtl_mapping.requests.post")
@@ -22,15 +22,12 @@ class TestRqtlMapping(unittest.TestCase):
         """Test for run_rqtl with permutations > 0"""
         dataset_group = MockGroup(
             {"name": "GP1", "genofile": "file_geno"})
-
-        dataset = AttributeSetter({"group": dataset_group})
+        dataset = MockDataset(dataset_group)
 
         mock_write_pheno_file.return_value = "pheno_filename"
         mock_locate.return_value = "geno_filename"
-
         mock_post.return_value = {"output_file": "output_filename",
                                   "rqtl_cmd": "the_command"}
-
         mock_process_perm.return_value = [[], 3, 4]
         mock_process_rqtl.return_value = []
 
