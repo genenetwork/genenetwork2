@@ -765,9 +765,9 @@ def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
         if sample in list(sample_list.sample_attribute_values.keys()):
             combined_string = ""
             for var in categorical_vars:
-                if var in list(sample_list.sample_attribute_values[sample].keys()):
+                if var.lower() in sample_list.sample_attribute_values[sample]:
                     combined_string += str(
-                        sample_list.sample_attribute_values[sample][var])
+                        sample_list.sample_attribute_values[sample][var.lower()])
                 else:
                     combined_string += "NA"
         else:
