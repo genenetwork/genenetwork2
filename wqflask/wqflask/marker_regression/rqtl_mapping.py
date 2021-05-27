@@ -1,460 +1,133 @@
-import rpy2.robjects as ro
-import rpy2.robjects.numpy2ri as np2r
-import numpy as np
-import json
+import csv
+import hashlib
+import io
+import requests
+import shutil
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import TextIO
 
-from flask import g
+import numpy as np
 
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
-from base.data_set import create_dataset
-from utility import webqtlUtil
-from utility.tools import locate, TEMPDIR
-from wqflask.marker_regression.gemma_mapping import generate_random_n_string
-from flask import g
+from utility.tools import locate
 
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
-# Get a trait's type (numeric, categorical, etc) from the DB
+GN3_RQTL_URL = "http://localhost:8086/api/rqtl/compute"
+GN3_TMP_PATH = "/export/local/home/zas1024/genenetwork3/tmp"
 
+def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
+    """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
-def get_trait_data_type(trait_db_string):
-    logger.info("get_trait_data_type")
-    the_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
-    logger.info("the_query done")
-    results_json = g.db.execute(the_query).fetchone()
-    logger.info("the_query executed")
-    results_ob = json.loads(results_json[0])
-    logger.info("json results loaded")
-    if trait_db_string in results_ob:
-        logger.info("found")
-        return results_ob[trait_db_string]
-    else:
-        logger.info("not found")
-        return "numeric"
-
-
-# Run qtl mapping using R/qtl
-def run_rqtl_geno(vals, samples, dataset, mapping_scale, method, model, permCheck, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, pair_scan, cofactors):
-    logger.info("Start run_rqtl_geno")
-    # Get pointers to some common R functions
-    r_library = ro.r["library"]                 # Map the library function
-    r_c = ro.r["c"]                       # Map the c function
-    plot = ro.r["plot"]                    # Map the plot function
-    png = ro.r["png"]                     # Map the png function
-    dev_off = ro.r["dev.off"]                 # Map the device off function
-
-    print((r_library("qtl")))                         # Load R/qtl
-
-    logger.info("QTL library loaded")
-
-    # Get pointers to some R/qtl functions
-    scanone = ro.r["scanone"]               # Map the scanone function
-    scantwo = ro.r["scantwo"]               # Map the scantwo function
-    # Map the calc.genoprob function
-    calc_genoprob = ro.r["calc.genoprob"]
-
-    crossname = dataset.group.name
-    # try:
-    #    generate_cross_from_rdata(dataset)
-    #    read_cross_from_rdata      = ro.r["generate_cross_from_rdata"] # Map the local read_cross_from_rdata function
-    #    genofilelocation  = locate(crossname + ".RData", "genotype/rdata")
-    #    cross_object = read_cross_from_rdata(genofilelocation)  # Map the local GENOtoCSVR function
-    # except:
-
-    if mapping_scale == "morgan":
-        scale_units = "cM"
-    else:
-        scale_units = "Mb"
-
-    generate_cross_from_geno(dataset, scale_units)
-    # Map the local GENOtoCSVR function
-    GENOtoCSVR = ro.r["GENOtoCSVR"]
-    crossfilelocation = TMPDIR + crossname + ".cross"
+    pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
     if dataset.group.genofile:
-        genofilelocation = locate(dataset.group.genofile, "genotype")
+        geno_file = locate(dataset.group.genofile, "genotype")
     else:
-        genofilelocation = locate(dataset.group.name + ".geno", "genotype")
-    logger.info("Going to create a cross from geno")
-    # TODO: Add the SEX if that is available
-    cross_object = GENOtoCSVR(genofilelocation, crossfilelocation)
-    logger.info("before calc_genoprob")
-    if manhattan_plot:
-        cross_object = calc_genoprob(cross_object)
+        geno_file = locate(dataset.group.name + ".geno", "genotype")
+
+    post_data = {
+        "pheno_file": pheno_file,
+        "geno_file": geno_file,
+        "model": model,
+        "method": method,
+        "nperm": num_perm,
+        "scale": mapping_scale
+    }
+
+    if do_control == "true" and control_marker:
+        post_data["control_marker"] = control_marker
+
+    if not manhattan_plot:
+        post_data["interval"] = True
+    if cofactors:
+        post_data["addcovar"] = True
+
+    if perm_strata_list:
+        post_data["pstrata"] = True
+
+    rqtl_output = requests.post(GN3_RQTL_URL, data=post_data).json()
+    if num_perm > 0:
+        return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
-        cross_object = calc_genoprob(cross_object, step=5, stepwidth="max")
-    logger.info("after calc_genoprob")
+        return rqtl_output['results']
 
-    pheno_string = sanitize_rqtl_phenotype(vals)
-    logger.info("phenostring done")
-    names_string = sanitize_rqtl_names(samples)
-    logger.info("sanitized pheno and names")
-    # Add the phenotype
-    cross_object = add_phenotype(cross_object, pheno_string, "the_pheno")
-    # Add the phenotype
-    cross_object = add_names(cross_object, names_string, "the_names")
-    logger.info("Added pheno and names")
-    # Create the additive covariate markers
-    marker_covars = create_marker_covariates(control_marker, cross_object)
-    logger.info("Marker covars done")
-    if cofactors != "":
-        logger.info("Cofactors: " + cofactors)
-        # Create the covariates from selected traits
-        cross_object, trait_covars = add_cofactors(
-            cross_object, dataset, cofactors, samples)
-        ro.r('all_covars <- cbind(marker_covars, trait_covars)')
-    else:
-        ro.r('all_covars <- marker_covars')
-    covars = ro.r['all_covars']
-    # DEBUG to save the session object to file
-    if pair_scan:
-        if do_control == "true":
-            logger.info("Using covariate")
-            result_data_frame = scantwo(
-                cross_object, pheno="the_pheno", addcovar=covars, model=model, method=method, n_cluster=16)
+
+def get_hash_of_textio(the_file: TextIO) -> str:
+    """Given a StringIO, return the hash of its contents"""
+
+    the_file.seek(0)
+    hash_of_file = hashlib.md5(the_file.read().encode()).hexdigest()
+
+    return hash_of_file
+
+
+def write_phenotype_file(trait_name: str,
+                         samples: List[str],
+                         vals: List,
+                         dataset_ob,
+                         cofactors: Optional[str] = None,
+                         perm_strata_list: Optional[List] = None) -> TextIO:
+    """Given trait name, sample list, value list, dataset ob, and optional string
+    representing cofactors, return the file's full path/name
+
+    """
+    cofactor_data = cofactors_to_dict(cofactors, dataset_ob, samples)
+
+    pheno_file = io.StringIO()
+    writer = csv.writer(pheno_file, delimiter="\t", quoting=csv.QUOTE_NONE)
+
+    header_row = ["Samples", trait_name]
+    header_row += [cofactor for cofactor in cofactor_data]
+    if perm_strata_list:
+        header_row.append("Strata")
+
+    writer.writerow(header_row)
+    for i, sample in enumerate(samples):
+        this_row = [sample]
+        if vals[i] != "x":
+            this_row.append(vals[i])
         else:
-            logger.info("No covariates")
-            result_data_frame = scantwo(
-                cross_object, pheno="the_pheno", model=model, method=method, n_cluster=16)
+            this_row.append("NA")
+        for cofactor in cofactor_data:
+            this_row.append(cofactor_data[cofactor][i])
+        if perm_strata_list:
+            this_row.append(perm_strata_list[i])
+        writer.writerow(this_row)
 
-        pair_scan_filename = webqtlUtil.genRandStr("scantwo_") + ".png"
-        png(file=TEMPDIR + pair_scan_filename)
-        plot(result_data_frame)
-        dev_off()
+    hash_of_file = get_hash_of_textio(pheno_file)
+    file_path = TMPDIR + hash_of_file + ".csv"
 
-        return process_pair_scan_results(result_data_frame)
-    else:
-        if do_control == "true" or cofactors != "":
-            logger.info("Using covariate")
-            ro.r(f"qtl_results = scanone(the_cross, pheno='the_pheno', addcovar=all_covars, model='{model}', method='{method}')")
-            result_data_frame = ro.r("qtl_results")
-        else:
-            ro.r(f"qtl_results = scanone(the_cross, pheno='the_pheno', model='{model}', method='{method}')")
-            result_data_frame = np.asarray(ro.r("qtl_results")).T
+    with open(file_path, "w") as fd:
+        pheno_file.seek(0)
+        shutil.copyfileobj(pheno_file, fd)
 
-        marker_names = np.asarray(ro.r("row.names(qtl_results)"))
-
-        # Do permutation (if requested by user)
-        if num_perm > 0 and permCheck == "ON":
-            # ZS: The strata list would only be populated if "Stratified" was checked on before mapping
-            if len(perm_strata_list) > 0:
-                cross_object, strata_ob = add_perm_strata(
-                    cross_object, perm_strata_list)
-
-                if do_control == "true" or cofactors != "":
-                    perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm=int(
-                        num_perm), perm_strata=strata_ob, model=model, method=method)
-                else:
-                    perm_data_frame = scanone(
-                        cross_object, pheno_col="the_pheno", n_perm=num_perm, perm_strata=strata_ob, model=model, method=method)
-            else:
-                if do_control == "true" or cofactors != "":
-                    perm_data_frame = scanone(cross_object, pheno_col="the_pheno", addcovar=covars, n_perm=int(
-                        num_perm), model=model, method=method)
-                else:
-                    perm_data_frame = scanone(
-                        cross_object, pheno_col="the_pheno", n_perm=num_perm, model=model, method=method)
-
-            # Functions that sets the thresholds for the webinterface
-            perm_output, suggestive, significant = process_rqtl_perm_results(
-                num_perm, perm_data_frame)
-            return perm_output, suggestive, significant, process_rqtl_results(marker_names, result_data_frame, dataset.group.species)
-        else:
-            return process_rqtl_results(marker_names, result_data_frame, dataset.group.species)
+    return file_path
 
 
-def generate_cross_from_rdata(dataset):
-    rdata_location = locate(dataset.group.name + ".RData", "genotype/rdata")
-    ro.r("""
-       generate_cross_from_rdata <- function(filename = '%s') {
-           load(file=filename)
-           cross = cunique
-           return(cross)
-       }
-    """ % (rdata_location))
+def cofactors_to_dict(cofactors: str, dataset_ob, samples) -> Dict:
+    """Given a string of cofactors, the trait being mapped's dataset ob,
+    and list of samples, return cofactor data as a Dict
 
-
-# TODO: Need to figure out why some genofiles have the wrong format and don't convert properly
-def generate_cross_from_geno(dataset, scale_units):
-
-    cross_filename = (f"{str(dataset.group.name)}_"
-                      f"{generate_random_n_string(6)}")
-
-    ro.r("""
-       trim <- function( x ) { gsub("(^[[:space:]]+|[[:space:]]+$)", "", x) }
-       getGenoCode <- function(header, name = 'unk'){
-         mat = which(unlist(lapply(header,function(x){ length(grep(paste('@',name,sep=''), x)) })) == 1)
-         return(trim(strsplit(header[mat],':')[[1]][2]))
-       }
-       GENOtoCSVR <- function(genotypes = '%s', out = '%s.csvr', phenotype = NULL, sex = NULL, verbose = FALSE){
-         header = readLines(genotypes, 40)                                                                                 # Assume a geno header is not longer than 40 lines
-         toskip = which(unlist(lapply(header, function(x){ length(grep("Chr\t", x)) })) == 1)-1                            # Major hack to skip the geno headers
-         type <- getGenoCode(header, 'type')
-         if(type == '4-way'){
-            genocodes <- NULL
-         } else {
-            genocodes <- c(getGenoCode(header, 'mat'), getGenoCode(header, 'het'), getGenoCode(header, 'pat'))             # Get the genotype codes
-         }
-         genodata <- read.csv(genotypes, sep='\t', skip=toskip, header=TRUE, na.strings=getGenoCode(header,'unk'), colClasses='character', comment.char = '#')
-         cat('Genodata:', toskip, " ", dim(genodata), genocodes, '\n')
-         if(is.null(phenotype)) phenotype <- runif((ncol(genodata)-4))                                                     # If there isn't a phenotype, generate a random one
-         if(is.null(sex)) sex <- rep('m', (ncol(genodata)-4))                                                              # If there isn't a sex phenotype, treat all as males
-         outCSVR <- rbind(c('Pheno', '', '', phenotype),                                                                   # Phenotype
-                          c('sex', '', '', sex),                                                                           # Sex phenotype for the mice
-                          cbind(genodata[,c('Locus','Chr', '%s')], genodata[, 5:ncol(genodata)]))                          # Genotypes
-         write.table(outCSVR, file = out, row.names=FALSE, col.names=FALSE,quote=FALSE, sep=',')                           # Save it to a file
-         require(qtl)
-         if(type == '4-way'){
-           cat('Loading in as 4-WAY\n')
-           cross = read.cross(file=out, 'csvr', genotypes=NULL, crosstype="4way")                                         # Load the created cross file using R/qtl read.cross
-         }else if(type == 'f2'){
-           cat('Loading in as F2\n')
-           cross = read.cross(file=out, 'csvr', genotypes=genocodes, crosstype="f2")                                       # Load the created cross file using R/qtl read.cross
-         }else{
-           cat('Loading in as normal\n')
-           cross = read.cross(file=out, 'csvr', genotypes=genocodes)                                                       # Load the created cross file using R/qtl read.cross
-         }
-         if(type == 'riset'){
-           cat('Converting to RISELF\n')
-           cross <- convert2riself(cross)                                                                # If its a RIL, convert to a RIL in R/qtl
-         }
-         return(cross)
-      }
-    """ % (dataset.group.genofile, cross_filename, scale_units))
-
-
-def add_perm_strata(cross, perm_strata):
-    col_string = 'c("the_strata")'
-    perm_strata_string = "c("
-    for item in perm_strata:
-        perm_strata_string += str(item) + ","
-
-    perm_strata_string = perm_strata_string[:-1] + ")"
-
-    cross = add_phenotype(cross, perm_strata_string, "the_strata")
-
-    strata_ob = pull_var("perm_strata", cross, col_string)
-
-    return cross, strata_ob
-
-
-def sanitize_rqtl_phenotype(vals):
-    pheno_as_string = "c("
-    for i, val in enumerate(vals):
-        if val == "x":
-            if i < (len(vals) - 1):
-                pheno_as_string += "NA,"
-            else:
-                pheno_as_string += "NA"
-        else:
-            if i < (len(vals) - 1):
-                pheno_as_string += str(val) + ","
-            else:
-                pheno_as_string += str(val)
-    pheno_as_string += ")"
-
-    return pheno_as_string
-
-
-def sanitize_rqtl_names(vals):
-    pheno_as_string = "c("
-    for i, val in enumerate(vals):
-        if val == "x":
-            if i < (len(vals) - 1):
-                pheno_as_string += "NA,"
-            else:
-                pheno_as_string += "NA"
-        else:
-            if i < (len(vals) - 1):
-                pheno_as_string += "'" + str(val) + "',"
-            else:
-                pheno_as_string += "'" + str(val) + "'"
-    pheno_as_string += ")"
-
-    return pheno_as_string
-
-
-def add_phenotype(cross, pheno_as_string, col_name):
-    ro.globalenv["the_cross"] = cross
-    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
-    ro.r('the_cross$pheno <- cbind(pheno, ' + col_name + \
-         ' = as.numeric(' + pheno_as_string + '))')
-    return ro.r["the_cross"]
-
-
-def add_categorical_covar(cross, covar_as_string, i):
-    ro.globalenv["the_cross"] = cross
-    logger.info("cross set")
-    ro.r('covar <- as.factor(' + covar_as_string + ')')
-    logger.info("covar set")
-    ro.r('newcovar <- model.matrix(~covar-1)')
-    logger.info("model.matrix finished")
-    ro.r('cat("new covar columns", ncol(newcovar), "\n")')
-    nCol = ro.r('ncol(newcovar)')
-    logger.info("ncol covar done: " + str(nCol[0]))
-    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
-    logger.info("pheno pulled from cross")
-    nCol = int(nCol[0])
-    logger.info("nCol python int:" + str(nCol))
-    col_names = []
-    # logger.info("loop")
-    for x in range(1, (nCol + 1)):
-        #logger.info("loop" + str(x));
-        col_name = "covar_" + str(i) + "_" + str(x)
-        #logger.info("col_name" + col_name);
-        ro.r('the_cross$pheno <- cbind(pheno, ' + \
-             col_name + ' = newcovar[,' + str(x) + '])')
-        col_names.append(col_name)
-        #logger.info("loop" + str(x) + "done");
-
-    logger.info("returning from add_categorical_covar")
-    return ro.r["the_cross"], col_names
-
-
-def add_names(cross, names_as_string, col_name):
-    ro.globalenv["the_cross"] = cross
-    ro.r('pheno <- data.frame(pull.pheno(the_cross))')
-    ro.r('the_cross$pheno <- cbind(pheno, ' + \
-         col_name + ' = ' + names_as_string + ')')
-    return ro.r["the_cross"]
-
-
-def pull_var(var_name, cross, var_string):
-    ro.globalenv["the_cross"] = cross
-    ro.r(var_name + ' <- pull.pheno(the_cross, ' + var_string + ')')
-
-    return ro.r[var_name]
-
-
-def add_cofactors(cross, this_dataset, covariates, samples):
-    ro.numpy2ri.activate()
-
-    covariate_list = covariates.split(",")
-    covar_name_string = "c("
-    for i, covariate in enumerate(covariate_list):
-        logger.info("Covariate: " + covariate)
-        this_covar_data = []
-        covar_as_string = "c("
-        trait_name = covariate.split(":")[0]
-        dataset_ob = create_dataset(covariate.split(":")[1])
-        trait_ob = create_trait(dataset=dataset_ob,
-                                name=trait_name,
-                                cellid=None)
-
-        this_dataset.group.get_samplelist()
-        trait_samples = this_dataset.group.samplelist
-        trait_sample_data = trait_ob.data
-        for index, sample in enumerate(samples):
-            if sample in trait_samples:
-                if sample in trait_sample_data:
-                    sample_value = trait_sample_data[sample].value
-                    this_covar_data.append(sample_value)
-                else:
-                    this_covar_data.append("NA")
-
-        for j, item in enumerate(this_covar_data):
-            if j < (len(this_covar_data) - 1):
-                covar_as_string += str(item) + ","
-            else:
-                covar_as_string += str(item)
-
-        covar_as_string += ")"
-
-        datatype = get_trait_data_type(covariate)
-        logger.info("Covariate: " + covariate + " is of type: " + datatype)
-        if(datatype == "categorical"):  # Cat variable
-            logger.info("call of add_categorical_covar")
-            cross, col_names = add_categorical_covar(
-                cross, covar_as_string, i)  # Expand and add it to the cross
-            logger.info("add_categorical_covar returned")
-            # Go through the additional covar names
-            for z, col_name in enumerate(col_names):
-                if i < (len(covariate_list) - 1):
-                    covar_name_string += '"' + col_name + '", '
-                else:
-                    if(z < (len(col_names) - 1)):
-                        covar_name_string += '"' + col_name + '", '
+    """
+    cofactor_dict = {}
+    if cofactors:
+        dataset_ob.group.get_samplelist()
+        sample_list = dataset_ob.group.samplelist
+        for cofactor in cofactors.split(","):
+            cofactor_name, cofactor_dataset = cofactor.split(":")
+            if cofactor_dataset == dataset_ob.name:
+                cofactor_dict[cofactor_name] = []
+                trait_ob = create_trait(dataset=dataset_ob,
+                                        name=cofactor_name)
+                sample_data = trait_ob.data
+                for index, sample in enumerate(samples):
+                    if sample in sample_data:
+                        sample_value = sample_data[sample].value
+                        cofactor_dict[cofactor_name].append(sample_value)
                     else:
-                        covar_name_string += '"' + col_name + '"'
-        else:
-            col_name = "covar_" + str(i)
-            cross = add_phenotype(cross, covar_as_string, col_name)
-            if i < (len(covariate_list) - 1):
-                covar_name_string += '"' + col_name + '", '
-            else:
-                covar_name_string += '"' + col_name + '"'
-
-    covar_name_string += ")"
-    covars_ob = pull_var("trait_covars", cross, covar_name_string)
-    return cross, covars_ob
-
-
-def create_marker_covariates(control_marker, cross):
-    ro.globalenv["the_cross"] = cross
-    # Get the genotype matrix
-    ro.r('genotypes <- pull.geno(the_cross)')
-    # TODO: sanitize user input, Never Ever trust a user
-    userinput_sanitized = control_marker.replace(" ", "").split(",")
-    logger.debug(userinput_sanitized)
-    if len(userinput_sanitized) > 0:
-        covariate_names = ', '.join('"{0}"'.format(w)
-                                    for w in userinput_sanitized)
-        ro.r('covnames <- c(' + covariate_names + ')')
-    else:
-        ro.r('covnames <- c()')
-    ro.r('covInGeno <- which(covnames %in% colnames(genotypes))')
-    ro.r('covnames <- covnames[covInGeno]')
-    ro.r("cat('covnames (purged): ', covnames,'\n')")
-    # Get the covariate matrix by using the marker name as index to the genotype file
-    ro.r('marker_covars <- genotypes[,covnames]')
-    # TODO: Create a design matrix from the marker covars for the markers in case of an F2, 4way, etc
-    return ro.r["marker_covars"]
-
-
-def process_pair_scan_results(result):
-    pair_scan_results = []
-
-    result = result[1]
-    output = [tuple([result[j][i] for j in range(result.ncol)])
-              for i in range(result.nrow)]
-
-    for i, line in enumerate(result.iter_row()):
-        marker = {}
-        marker['name'] = result.rownames[i]
-        marker['chr1'] = output[i][0]
-        marker['Mb'] = output[i][1]
-        marker['chr2'] = int(output[i][2])
-        pair_scan_results.append(marker)
-
-    return pair_scan_results
-
-
-def process_rqtl_perm_results(num_perm, results):
-    perm_vals = [item[0] for item in results]
-
-    perm_output = perm_vals
-    suggestive = np.percentile(np.array(perm_vals), 67)
-    significant = np.percentile(np.array(perm_vals), 95)
-
-    return perm_output, suggestive, significant
-
-
-def process_rqtl_results(marker_names, results, species_name):        # TODO: how to make this a one liner and not copy the stuff in a loop
-    qtl_results = []
-
-    for i, line in enumerate(results):
-        marker = {}
-        marker['name'] = marker_names[i]
-        if species_name == "mouse" and line[0] == 20:
-            marker['chr'] = "X"
-        else:
-            try:
-                marker['chr'] = int(line[0])
-            except:
-                marker['chr'] = line[0]
-        marker['cM'] = marker['Mb'] = line[1]
-        marker['lod_score'] = line[2]
-        qtl_results.append(marker)
-
-    return qtl_results
+                        cofactor_dict[cofactor_name].append("NA")
+    return cofactor_dict
