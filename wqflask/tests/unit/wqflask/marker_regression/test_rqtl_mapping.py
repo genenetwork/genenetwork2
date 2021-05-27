@@ -25,8 +25,11 @@ class TestRqtlMapping(unittest.TestCase):
 
         mock_write_pheno_file.return_value = "pheno_filename"
         mock_locate.return_value = "geno_filename"
-        mock_post.return_value = {"output_file": "output_filename",
-                                  "rqtl_cmd": "the_command"}
+        mock_post.return_value = Mock(ok=True)
+        mock_post.return_value.json.return_value = {"perm_results": [],
+                                                    "suggestive": 3,
+                                                    "significant": 4,
+                                                    "results" : []}
 
         results = run_rqtl(trait_name="the_trait", vals=[], samples=[],
         dataset=dataset, mapping_scale="cM", model="normal", method="hk",
