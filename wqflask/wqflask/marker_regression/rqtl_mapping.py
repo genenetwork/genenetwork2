@@ -23,7 +23,7 @@ GN3_TMP_PATH = "/export/local/home/zas1024/genenetwork3/tmp"
 def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
-    pheno_file = write_phenotype_file(trait_name, samples, vals, cofactors)
+    pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
     if dataset.group.genofile:
         geno_file = locate(dataset.group.genofile, "genotype")
     else:
@@ -46,6 +46,9 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
     if cofactors:
         post_data["addcovar"] = True
 
+    if perm_strata_list:
+        post_data["pstrata"] = True
+
     rqtl_output = requests.post(GN3_RQTL_URL, data=post_data).json()
     if num_perm > 0:
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
@@ -66,12 +69,12 @@ def write_phenotype_file(trait_name: str,
                          samples: List[str],
                          vals: List,
                          dataset_ob,
-                         cofactors: Optional[str] = None) -> TextIO:
+                         cofactors: Optional[str] = None,
+                         perm_strata_list: Optional[List] = None) -> TextIO:
     """Given trait name, sample list, value list, dataset ob, and optional string
     representing cofactors, return the file's full path/name
 
     """
-
     cofactor_data = cofactors_to_dict(cofactors, dataset_ob, samples)
 
     pheno_file = io.StringIO()
@@ -79,6 +82,8 @@ def write_phenotype_file(trait_name: str,
 
     header_row = ["Samples", trait_name]
     header_row += [cofactor for cofactor in cofactor_data]
+    if perm_strata_list:
+        header_row.append("Strata")
 
     writer.writerow(header_row)
     for i, sample in enumerate(samples):
@@ -89,6 +94,8 @@ def write_phenotype_file(trait_name: str,
             this_row.append("NA")
         for cofactor in cofactor_data:
             this_row.append(cofactor_data[cofactor][i])
+        if perm_strata_list:
+            this_row.append(perm_strata_list[i])
         writer.writerow(this_row)
 
     hash_of_file = get_hash_of_textio(pheno_file)
@@ -106,21 +113,21 @@ def cofactors_to_dict(cofactors: str, dataset_ob, samples) -> Dict:
     and list of samples, return cofactor data as a Dict
 
     """
-    cofactors = {}
+    cofactor_dict = {}
     if cofactors:
         dataset_ob.group.get_samplelist()
         sample_list = dataset_ob.group.samplelist
         for cofactor in cofactors.split(","):
             cofactor_name, cofactor_dataset = cofactor.split(":")
-            if cofactor_dataset == this_dataset.name:
-                cofactors[cofactor_name] = []
+            if cofactor_dataset == dataset_ob.name:
+                cofactor_dict[cofactor_name] = []
                 trait_ob = create_trait(dataset=dataset_ob,
                                         name=cofactor_name)
                 sample_data = trait_ob.data
                 for index, sample in enumerate(samples):
                     if sample in sample_data:
                         sample_value = sample_data[sample].value
-                        cofactors[cofactor_name].append(sample_value)
+                        cofactor_dict[cofactor_name].append(sample_value)
                     else:
-                        cofactors[cofactor_name].append("NA")
-    return cofactors
+                        cofactor_dict[cofactor_name].append("NA")
+    return cofactor_dict
