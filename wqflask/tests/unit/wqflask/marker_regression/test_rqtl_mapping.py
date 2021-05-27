@@ -20,8 +20,7 @@ class TestRqtlMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.rqtl_mapping.write_phenotype_file")
     def test_run_rqtl_with_perm(self, mock_write_pheno_file, mock_locate, mock_post):
         """Test for run_rqtl with permutations > 0"""
-        dataset_group = MockGroup(
-            {"name": "GP1", "genofile": "file_geno"})
+        dataset_group = MockGroup("GP1", "file_geno")
         dataset = MockDataset(dataset_group)
 
         mock_write_pheno_file.return_value = "pheno_filename"
