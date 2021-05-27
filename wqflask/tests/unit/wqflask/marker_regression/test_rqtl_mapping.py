@@ -1,5 +1,7 @@
 import unittest
 from unittest import mock
+from dataclasses import dataclass
+
 from wqflask.marker_regression.rqtl_mapping import run_rqtl
 
 @dataclass
