@@ -4,7 +4,7 @@ from wqflask.marker_regression.rqtl_mapping import run_rqtl
 
 @dataclass
 class MockGroup:
-    name: str,
+    name: str
     genofile: str
 
 @dataclass
