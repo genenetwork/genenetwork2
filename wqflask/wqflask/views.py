@@ -41,6 +41,8 @@ from flask import redirect
 from flask import url_for
 from flask import send_file
 
+# Some of these (like collect) might contain endpoints, so they're still used.
+# Blueprints should probably be used instead.
 from wqflask import collect
 from wqflask import search_results
 from wqflask import server_side
