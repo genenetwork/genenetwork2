@@ -145,6 +145,7 @@ class SampleList:
                     val_as_float = float(value)
                 except:
                     all_numbers = False
+                    break
 
             if all_numbers:
                 self.attributes[key].alignment = "right"

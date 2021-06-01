@@ -150,8 +150,8 @@ var primary_table = $('#samples_primary').DataTable( {
       }
 
       for (i=0; i < attr_keys.length; i++) {
-        $('td', row).eq(attribute_start_pos + i).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
-        $('td', row).eq(attribute_start_pos + i).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+        $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
+        $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
       }
     },
     'data': js_data['sample_lists'][0],
