@@ -102,7 +102,7 @@
                         <div id="outlier_alert_placeholder"></div>
                     </div>
                 </div>                
-                <div class="panel panel-default">
+                <div class="panel panel-default" {% if (trait_table_width|int > 1100) %}style="min-width: {{ trait_table_width|int + 30 }}px;"{% endif %}>
                     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseSix" aria-expanded="true">
                         <h3 class="panel-title">
                              <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
