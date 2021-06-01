@@ -162,5 +162,13 @@ Submit Trait | Reset
 {% block js %}
 <script>
  gn_server_url = "{{ gn_server_url }}";
+ function MarkAsChanged(){
+     $(this).addClass("changed");
+ }
+ $(":input").blur(MarkAsChanged).change(MarkAsChanged);
+
+ $("input[type=submit]").click(function(){
+     $(":input:not(.changed)").attr("disabled", "disabled");
+ });
 </script>
 {% endblock %}
