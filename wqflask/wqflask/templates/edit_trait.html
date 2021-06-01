@@ -38,7 +38,7 @@ Submit Trait | Reset
     <div class="form-group">
         <label for="post-pub-desc" class="col-sm-2 control-label">Post Publication Description:</label>
         <div class="col-sm-8">
-            <textarea name="pre-pub-desc" class="form-control" rows="4">{{ phenotype.post_pub_description |default('', true) }}</textarea>
+            <textarea name="post-pub-desc" class="form-control" rows="4">{{ phenotype.post_pub_description |default('', true) }}</textarea>
         </div>
     </div>
     <div class="form-group">
@@ -148,12 +148,12 @@ Submit Trait | Reset
         </div>
     </div>
     <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
-        <input name="dataset-name" type="hidden" value="{{ publish_xref.id_ }}"/>
-        <input name="phenotype-id" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
-        <input name="inbred-set-id" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
-        <input name="comments" type="hidden" value="{{ publish_xref.comments }}"/>
-        <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Change">
-        <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" onClick="window.location.reload();" value="Reset">
+        <input name="dataset-name" class="changed" type="hidden" value="{{ publish_xref.id_ }}"/>
+        <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
+        <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
+        <input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
+        <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2 changed" value="Submit Change">
+        <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">
     </div>
 </form>
 
@@ -162,5 +162,13 @@ Submit Trait | Reset
 {% block js %}
 <script>
  gn_server_url = "{{ gn_server_url }}";
+ function MarkAsChanged(){
+     $(this).addClass("changed");
+ }
+ $(":input").blur(MarkAsChanged).change(MarkAsChanged);
+
+ $("input[type=submit]").click(function(){
+     $(":input:not(.changed)").attr("disabled", "disabled");
+ });
 </script>
 {% endblock %}
