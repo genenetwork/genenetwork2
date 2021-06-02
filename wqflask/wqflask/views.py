@@ -460,9 +460,7 @@ def update_trait():
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
-    # Filter out empty values
-    data_ = {k: v for k, v in request.form.items() if v is not ''}
-
+    data_ = request.form.to_dict()
     # Run updates:
     updated_phenotypes = update(
         conn, "Phenotype",
