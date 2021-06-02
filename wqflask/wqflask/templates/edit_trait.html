@@ -102,11 +102,11 @@ Submit Trait | Reset
         </div>
     </div>
     <div class="form-group">
-        <label for="owner" class="col-sm-2 control-label">
+        <label for="authorized-users" class="col-sm-2 control-label">
             Authorized Users:
         </label>
         <div class="col-sm-8">
-            <textarea name="owner" class="form-control" rows="1">{{ phenotype.authorized_users |default('', true) }}</textarea>
+            <textarea name="authorized-users" class="form-control" rows="1">{{ phenotype.authorized_users |default('', true) }}</textarea>
             <input name="old_authorized_users" class="changed" type="hidden" value="{{ phenotype.authorized_users |default('', true) }}"/>
         </div>
     </div>
