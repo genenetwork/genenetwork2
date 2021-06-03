@@ -244,13 +244,16 @@ class GSearch:
 
                     if line[10] != "" and line[10] != None:
                         this_trait['LRS_score_repr'] = f"{line[10]:.3f}"
+                        # Some Max LRS values in the DB are wrongly listed as 0.000, but shouldn't be displayed
+                        if this_trait['LRS_score_repr'] == "0.000":
+                            this_trait['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
                         this_trait['additive'] = f"{line[11]:.3f}"
                     if line[13] != "" and line[13] != None:
                         this_trait['mean'] = f"{line[13]:.3f}"
 
-                    locus_chr = line[16]
-                    locus_mb = line[17]
+                    locus_chr = line[15]
+                    locus_mb = line[16]
 
                     max_lrs_text = "N/A"
                     if locus_chr and locus_mb:
