@@ -6,7 +6,7 @@ import random    # for random error gif
 import datetime  # for errors
 import sys
 import csv
-import simplejson as json
+import json
 import xlsxwriter
 import io  # Todo: Use cStringIO?
 import MySQLdb
