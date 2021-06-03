@@ -48,6 +48,7 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
@@ -64,6 +65,10 @@
         }
         return params;
       };
+    </script>
+
+    <script type='text/javascript'>
+      var trait_list = {{ trait_list|safe }};
     </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -102,7 +107,6 @@
                 }
             }
 
-            console.time("Creating table");
             $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
@@ -150,6 +154,7 @@
                     $('td', row).eq(12).attr('data-export', $('td', row).eq(12).text());
                     $('td', row).eq(13).attr('data-export', $('td', row).eq(13).text());
                 },
+                'data': trait_list,
                 'columns': [
                     { 
                       'data': null,
@@ -241,20 +246,18 @@
                       'orderSequence': [ "desc", "asc"]
                     }
                 ],
-                'order': [[1, "asc" ]],
-                'sDom': "pitirp",
-                'autoWidth': true,
-                'deferRender': false,
-                'paging': true,
-                'orderClasses': true,
+                "order": [[1, "asc" ]],
+                'sDom': "iti",
+                "autoWidth": true,
+                "bSortClasses": false,
                 'processing': true,
-                'iDisplayLength': 100,
-                'bServerSide': true,
-                'sAjaxSource': '/gsearch_table'+getParams(window.location.href),
-                'language': {
-                  'loadingRecords': '&nbsp;',
-                  'processing': 'Loading...'
-                }
+                {% if trait_count > 20 %}
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
+                {% else %}
+                "iDisplayLength": -1
+                {% endif %}
             } );
 
             $('#trait_table').append(
@@ -277,9 +280,6 @@
                 '</tr>' + 
               '</tfoot>'
             );
-
-            console.timeEnd("Creating table");
-
         });
         
     </script>
