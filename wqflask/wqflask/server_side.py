@@ -9,13 +9,11 @@ class ServerSideTable:
         the client-side and reduces the size of data interchanged.
 
         Usage:
-            ServerSideTable(table_data, request_values)
+            ServerSideTable(rows_count, table_rows, header_data_names, request_values)
         where,
-            `table_data` must have data members
             `rows_count` as number of rows in the table,
             `table_rows` as data rows of the table,
             `header_data_names` as headers names of the table.
-
             `request_values` must have request arguments values
             including the DataTables server-side processing arguments.
 
