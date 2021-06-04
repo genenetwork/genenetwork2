@@ -7,7 +7,7 @@
 {% block content %}
 <!-- Start of body -->
 
-    <div class="container" style="width: 2000px;">
+    <div class="container">
 
         <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 754 datasets and 39,765,944 traits across 10 species<br/>
             and found <b>{{ trait_count }}</b> results that match your query.<br/>
@@ -31,7 +31,7 @@
             </form>
             <br />
             <br />
-            <div style="width: 100%;">
+            <div style="min-width: 2000px; width: 100%;">
               <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
                   <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -156,9 +156,10 @@
                 },
                 'data': trait_list,
                 'columns': [
-                    { 
-                      'data': null,
+                    {
                       'orderDataType': "dom-checkbox",
+                      'width': "25px",
+                      'data': null,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
                       }
@@ -166,45 +167,53 @@
                     {
                       'title': "Index",
                       'type': "natural", 
+                      'width': "30px",
                       'data': "index"
                     },
                     { 
                       'title': "Record",
                       'type': "natural", 
-                      'data': null,
                       'orderDataType': "dom-inner-text",
+                      'width': "60px",
+                      'data': null,
                       'render': function(data, type, row, meta) {
                         return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
                       }
                     },
                     { 
                       'title': "Species",
-                      'type': "natural", 
+                      'type': "natural",
+                      'width': "60px",
                       'data': "species"
                     },
                     { 
                       'title': "Group",
                       'type': "natural",
+                      'width': "150px",
                       'data': "group"
                     },
                     { 
                       'title': "Tissue",
                       'type': "natural",
+                      'width': "150px",
                       'data': "tissue"
                     },
                     { 
                       'title': "Dataset",
                       'type': "natural",
+                      'width': "300px",
                       'data': "dataset_fullname"
                     },
                     { 
                       'title': "Symbol",
                       'type': "natural",
+                      'width': "60px",
                       'data': "symbol"
                     },
                     { 
                       'title': "Description",
                       'type': "natural",
+                      'width': "300px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         try {
@@ -217,25 +226,27 @@
                     { 
                       'title': "Location",
                       'type': "natural-minus-na",
-                      'width': "100px",
+                      'width': "125px",
                       'data': "location_repr"
                     },
                     {
                       'title': "Mean",
                       'type': "natural-minus-na",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
+                      'orderSequence': [ "desc", "asc"],
+                      'width': "30px",
+                      'data': "mean"
                     },
                     { 
                       'title': "Max<br>LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural-minus-na",
+                      'width': "60px",
                       'data': "LRS_score_repr",
                       'orderSequence': [ "desc", "asc"]
                     },
                     { 
-                      'title': "Max LRS<br>Location",
+                      'title': "Max LRS Location",
                       'type': "natural-minus-na",
-                      'width': "100px",
+                      'width': "125px",
                       'data': "max_lrs_text"
                     },
                     { 
