@@ -4,9 +4,11 @@ import MySQLdb
 import array
 import base64
 import csv
+import difflib
 import datetime
 import flask
 import io  # Todo: Use cStringIO?
+
 import json
 import numpy as np
 import os
@@ -18,12 +20,15 @@ import traceback
 import uuid
 import xlsxwriter
 
+from itertools import groupby
+from collections import namedtuple
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 
 from wqflask import app
 
 from gn3.db import diff_from_dict
+from gn3.db import fetchall
 from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
@@ -449,12 +454,41 @@ def edit_trait(name, inbred_set_id):
         conn=conn,
         table="Publication",
         where=Publication(id_=publish_xref.publication_id))
+    json_data = fetchall(
+        conn,
+        "metadata_audit",
+        where=MetadataAudit(dataset_id=publish_xref.id_))
+
+    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
+    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
+    diff_data = []
+    for data in json_data:
+        json_ = json.loads(data.json_data)
+        timestamp = json_.get("timestamp")
+        author = json_.get("author")
+        for key, value in json_.items():
+            if isinstance(value, dict):
+                for field, data_ in value.items():
+                    diff_data.append(
+                        Diff(author=author,
+                             diff=Edit(field,
+                                       data_.get("old"),
+                                       data_.get("new"),
+                                       "\n".join(difflib.ndiff(
+                                           [data_.get("old")],
+                                           [data_.get("new")]))),
+                             timestamp=timestamp))
+    diff_data_ = None
+    if len(diff_data) > 0:
+        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return render_template(
         "edit_trait.html",
+        diff=diff_data_,
         publish_xref=publish_xref,
         phenotype=phenotype_,
         publication=publication_,
-        version=GN_VERSION)
+        version=GN_VERSION,
+    )
 
 
 @app.route("/trait/update", methods=["POST"])
