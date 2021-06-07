@@ -23,11 +23,14 @@ import array
 import sqlalchemy
 from wqflask import app
 
+from gn3.db import diff_from_dict
 from gn3.db import fetchone
+from gn3.db import insert
 from gn3.db import update
+from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
-from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import Publication
+from gn3.db.phenotypes import PublishXRef
 
 
 from flask import current_app
@@ -462,47 +465,57 @@ def update_trait():
                            host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
     # Run updates:
+    phenotype_ = {
+        "pre_pub_description": data_.get("pre-pub-desc"),
+        "post_pub_description": data_.get("post-pub-desc"),
+        "original_description": data_.get("orig-desc"),
+        "units": data_.get("units"),
+        "pre_pub_abbreviation": data_.get("pre-pub-abbrev"),
+        "post_pub_abbreviation": data_.get("post-pub-abbrev"),
+        "lab_code": data_.get("labcode"),
+        "submitter": data_.get("submitter"),
+        "owner": data_.get("owner"),
+        "authorized_users": data_.get("authorized-users"),
+    }
     updated_phenotypes = update(
         conn, "Phenotype",
-        data=Phenotype(
-            pre_pub_description=data_.get("pre-pub-desc"),
-            post_pub_description=data_.get("post-pub-desc"),
-            original_description=data_.get("orig-desc"),
-            units=data_.get("units"),
-            pre_pub_abbreviation=data_.get("pre-pub-abbrev"),
-            post_pub_abbreviation=data_.get("post-pub-abbrev"),
-            lab_code=data_.get("labcode"),
-            submitter=data_.get("submitter"),
-            owner=data_.get("owner"),
-        ),
+        data=Phenotype(**phenotype_),
         where=Phenotype(id_=data_.get("phenotype-id")))
+    diff_data = {}
+    if updated_phenotypes:
+        diff_data.update({"Phenotype": diff_from_dict(old={
+            k: data_.get(f"old_{k}") for k, v in phenotype_.items()
+            if v is not None}, new=phenotype_)})
+    publication_ = {
+        "abstract": data_.get("abstract"),
+        "authors": data_.get("authors"),
+        "title": data_.get("title"),
+        "journal": data_.get("journal"),
+        "volume": data_.get("volume"),
+        "pages": data_.get("pages"),
+        "month": data_.get("month"),
+        "year": data_.get("year")
+    }
     updated_publications = update(
         conn, "Publication",
-        data=Publication(
-            abstract=data_.get("abstract"),
-            authors=data_.get("authors"),
-            title=data_.get("title"),
-            journal=data_.get("journal"),
-            volume=data_.get("volume"),
-            pages=data_.get("pages"),
-            month=data_.get("month"),
-            year=data_.get("year")),
-        where=Publication(id_=data_.get("pubmed-id")))
-    if updated_phenotypes or updated_publications:
-        comments = data_.get("comments")
-        if comments:
-            comments = (f"{comments}\r\n"
-                        f"{g.user_session.record.get(b'user_name')}")
-        update(conn, "PublishXRef",
-               data=PublishXRef(
-                   comments=(f"{data_.get('comments')}\r\n"
-                             "Modified by: "
-                             f"{g.user_session.record.get(b'user_name').decode('utf-8')} "
-                             f"on {str(datetime.datetime.now())}"),
-                   publication_id=data_.get("pubmed-id")),
-               where=PublishXRef(
-                   id_=data_.get("dataset-name"),
-                   inbred_set_id=data_.get("inbred-set-id")))
+        data=Publication(**publication_),
+        where=Publication(id_=data_.get("pubmed-id",
+                                        data_.get("old_id_"))))
+    if updated_publications:
+        diff_data.update({"Publication": diff_from_dict(old={
+            k: data_.get(f"old_{k}") for k, v in publication_.items()
+            if v is not None}, new=publication_)})
+    author = g.user_session.record.get(b'user_name')
+    if diff_data:
+        diff_data.update({"dataset_id": data_.get("dataset-name")})
+        diff_data.update({"author": author.decode('utf-8')})
+        diff_data.update({"timestamp": datetime.datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S")})
+        insert(conn,
+               table="metadata_audit",
+               data=MetadataAudit(dataset_id=data_.get("dataset-name"),
+                                  editor=author.decode("utf-8"),
+                                  json_data=json.dumps(diff_data)))
     return redirect("/trait/10007/edit/1")
 
 
