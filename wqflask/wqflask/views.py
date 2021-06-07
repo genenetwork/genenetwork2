@@ -1,26 +1,26 @@
 """Main routing table for GN2"""
 
-import traceback  # for error page
-import os        # for error gifs
-import random    # for random error gif
-import datetime  # for errors
-import sys
-import csv
-import json
-import xlsxwriter
-import io  # Todo: Use cStringIO?
 import MySQLdb
-
-from zipfile import ZipFile, ZIP_DEFLATED
-
-import numpy as np
-import pickle as pickle
-import uuid
-
-import flask
-import base64
 import array
+import base64
+import csv
+import datetime
+import flask
+import io  # Todo: Use cStringIO?
+import json
+import numpy as np
+import os
+import pickle as pickle
+import random
 import sqlalchemy
+import sys
+import traceback
+import uuid
+import xlsxwriter
+
+from zipfile import ZipFile
+from zipfile import ZIP_DEFLATED
+
 from wqflask import app
 
 from gn3.db import diff_from_dict
