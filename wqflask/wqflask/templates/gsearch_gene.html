@@ -107,7 +107,7 @@
                 }
             }
 
-            $('#trait_table').DataTable( {
+            var the_table = $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
                          if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
@@ -158,7 +158,7 @@
                 'columns': [
                     {
                       'orderDataType': "dom-checkbox",
-                      'width': "25px",
+                      'width': "10px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
@@ -291,6 +291,8 @@
                 '</tr>' + 
               '</tfoot>'
             );
+
+            the_table.draw();
         });
         
     </script>
