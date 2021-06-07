@@ -5,10 +5,53 @@
 Edit Trait for Published Database
 Submit Trait | Reset
 
-{% if publish_xref.comments %}
-<h2>Update History:</h2>
+{% if diff %}
 
-{{ publish_xref.comments }}
+<div class="container">
+    <details class="col-sm-12 col-md-10 col-lg-12">
+    <summary>
+        <h2>Update History</h2>
+    </summary>
+    <table class="table">
+    <tbody>
+        <tr>
+            <th>Timestamp</th>
+            <th>Editor</th>
+            <th>Field</th>
+            <th>Diff</th>
+        </tr>
+        {% set ns = namespace(display_cell=True) %}
+
+        {% for timestamp, group in diff %}
+        {% set ns.display_cell = True %}
+        {% for i in group %}
+        <tr>
+            {% if ns.display_cell and i.timestamp == timestamp %}
+            
+            {% set author = i.author %}
+            {% set field = i.diff.field %}
+            {% set timestamp_ = i.timestamp %}
+
+            {% else %}
+
+            {% set author = "" %}
+            {% set field = "" %}
+            {% set timestamp_ = "" %}
+
+            {% endif %}
+            <td>{{ timestamp_ }}</td>
+	    <td>{{ author }} {{ display_cell }}</td>
+	    <td>{{ field }}</td>
+            <td><pre>{{ i.diff.diff }}</pre></td>                
+            {% set ns.display_cell = False %}
+	</tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+    </table>
+    </details>
+
+</div>
 
 {% endif %}
 
