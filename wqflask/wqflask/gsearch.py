@@ -92,19 +92,30 @@ class GSearch:
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (
                             line[8], float(line[9]))
-                    try:
-                        this_trait['mean'] = '%.3f' % line[10]
-                    except:
-                        this_trait['mean'] = "N/A"
+
                     this_trait['LRS_score_repr'] = "N/A"
+                    this_trait['additive'] = "N/A"
+                    this_trait['mean'] = "N/A"
+
                     if line[11] != "" and line[11] != None:
-                        this_trait['LRS_score_repr'] = '%3.1f' % line[11]
+                        this_trait['LRS_score_repr'] = f"{line[11]:.3f}"
+                    if line[14] != "" and line[14] != None:
+                        this_trait['additive'] = f"{line[14]:.3f}"
+                    if line[10] != "" and line[10] != None:
+                        this_trait['mean'] = f"{line[10]:.3f}"
+
+                    locus_chr = line[16]
+                    locus_mb = line[17]
+
+                    max_lrs_text = "N/A"
+                    if locus_chr and locus_mb:
+                        max_lrs_text = f"Chr{locus_chr}: {locus_mb}"
+                    this_trait['max_lrs_text'] = max_lrs_text
+
                     this_trait['additive'] = "N/A"
                     if line[14] != "" and line[14] != None:
                         this_trait['additive'] = '%.3f' % line[14]
                     this_trait['dataset_id'] = line[15]
-                    this_trait['locus_chr'] = line[16]
-                    this_trait['locus_mb'] = line[17]
 
                     dataset_ob = SimpleNamespace(
                         id=this_trait["dataset_id"], type="ProbeSet", species=this_trait["species"])
@@ -119,11 +130,6 @@ class GSearch:
                     else:
                         if permissions['data'] == 'no-access':
                             continue
-
-                    max_lrs_text = "N/A"
-                    if this_trait['locus_chr'] and this_trait['locus_mb']:
-                        max_lrs_text = f"Chr{str(this_trait['locus_chr'])}: {str(this_trait['locus_mb'])}"
-                    this_trait['max_lrs_text'] = max_lrs_text
 
                     trait_list.append(this_trait)
 
@@ -230,32 +236,41 @@ class GSearch:
                             'utf-8', 'replace')
                     else:
                         this_trait['description'] = "N/A"
-                    if line[13] != None and line[13] != "":
-                        this_trait['mean'] = f"{line[13]:.3f}"
-                    else:
-                        this_trait['mean'] = "N/A"
                     this_trait['dataset_id'] = line[14]
-                    this_trait['locus_chr'] = line[15]
-                    this_trait['locus_mb'] = line[16]
+
+                    this_trait['LRS_score_repr'] = "N/A"
+                    this_trait['additive'] = "N/A"
+                    this_trait['mean'] = "N/A"
+
+                    if line[10] != "" and line[10] != None:
+                        this_trait['LRS_score_repr'] = f"{line[10]:.3f}"
+                        # Some Max LRS values in the DB are wrongly listed as 0.000, but shouldn't be displayed
+                        if this_trait['LRS_score_repr'] == "0.000":
+                            this_trait['LRS_score_repr'] = "N/A"
+                    if line[11] != "" and line[11] != None:
+                        this_trait['additive'] = f"{line[11]:.3f}"
+                    if line[13] != "" and line[13] != None:
+                        this_trait['mean'] = f"{line[13]:.3f}"
+
+                    locus_chr = line[15]
+                    locus_mb = line[16]
+
+                    max_lrs_text = "N/A"
+                    if locus_chr and locus_mb:
+                        max_lrs_text = f"Chr{locus_chr}: {locus_mb}"
+                    this_trait['max_lrs_text'] = max_lrs_text
+
                     this_trait['authors'] = line[7]
                     this_trait['year'] = line[8]
+                    this_trait['pubmed_text'] = "N/A"
+                    this_trait['pubmed_link'] = "N/A"
                     if this_trait['year'].isdigit():
                         this_trait['pubmed_text'] = this_trait['year']
-                    else:
-                        this_trait['pubmed_text'] = "N/A"
                     if line[9] != "" and line[9] != None:
                         this_trait['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[8]
-                    else:
-                        this_trait['pubmed_link'] = "N/A"
                         if line[12]:
                             this_trait['display_name'] = line[12] + \
                                 "_" + str(this_trait['name'])
-                    this_trait['LRS_score_repr'] = "N/A"
-                    if line[10] != "" and line[10] != None:
-                        this_trait['LRS_score_repr'] = '%3.1f' % line[10]
-                    this_trait['additive'] = "N/A"
-                    if line[11] != "" and line[11] != None:
-                        this_trait['additive'] = '%.3f' % line[11]
 
                     dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="Publish", species=this_trait["species"])
                     permissions = check_resource_availability(dataset_ob, this_trait['name'])
@@ -265,14 +280,6 @@ class GSearch:
                     else:
                         if permissions['data'] == 'no-access':
                             continue
-
-                    this_trait['max_lrs_text'] = "N/A"
-                    if this_trait['dataset'] == this_trait['group'] + "Publish":
-                        try:
-                            if this_trait['locus_chr'] and this_trait['locus_mb']:
-                                this_trait['max_lrs_text'] = f"Chr{str(this_trait['locus_chr'])}: {str(this_trait['locus_mb'])}"
-                        except:
-                            this_trait['max_lrs_text'] = "N/A"
 
                     trait_list.append(this_trait)
 
