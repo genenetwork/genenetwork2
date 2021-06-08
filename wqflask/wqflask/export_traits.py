@@ -65,14 +65,18 @@ def export_search_results_csv(targs):
     traits_by_group = sort_traits_by_group(trait_list)
 
     file_list = []
-    for group in list(traits_by_group.keys()):
+    for group in traits_by_group:
         group_traits = traits_by_group[group]
+        samplelist = group_traits[0].dataset.group.samplelist
+        if not samplelist:
+            continue
+
         buff = io.StringIO()
         writer = csv.writer(buff)
         csv_rows = []
 
         sample_headers = []
-        for sample in group_traits[0].dataset.group.samplelist:
+        for sample in samplelist:
             sample_headers.append(sample)
             sample_headers.append(sample + "_SE")
 
