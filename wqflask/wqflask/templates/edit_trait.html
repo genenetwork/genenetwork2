@@ -29,19 +29,17 @@ Submit Trait | Reset
             {% if ns.display_cell and i.timestamp == timestamp %}
             
             {% set author = i.author %}
-            {% set field = i.diff.field %}
             {% set timestamp_ = i.timestamp %}
 
             {% else %}
 
             {% set author = "" %}
-            {% set field = "" %}
             {% set timestamp_ = "" %}
 
             {% endif %}
             <td>{{ timestamp_ }}</td>
-	    <td>{{ author }} {{ display_cell }}</td>
-	    <td>{{ field }}</td>
+	    <td>{{ author }}</td>
+	    <td>{{ i.diff.field }}</td>
             <td><pre>{{ i.diff.diff }}</pre></td>                
             {% set ns.display_cell = False %}
 	</tr>
