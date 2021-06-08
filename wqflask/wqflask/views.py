@@ -623,7 +623,7 @@ def export_traits_csv():
         now = datetime.datetime.now()
         time_str = now.strftime('%H:%M_%d%B%Y')
         filename = "export_{}".format(time_str)
-        memory_file = io.StringIO()
+        memory_file = io.BytesIO()
         with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
             for the_file in file_list:
                 zf.writestr(the_file[0], the_file[1])
