@@ -27,12 +27,10 @@ def create_target_this_trait(start_vars):
     return (this_dataset, this_trait, target_dataset, sample_data)
 
 
-
-def test_process_data(this_trait,dataset,start_vars):
+def test_process_data(this_trait, dataset, start_vars):
     """test function for bxd,all and other sample data"""
 
     corr_samples_group = start_vars["corr_samples_group"]
-
 
     primary_samples = dataset.group.samplelist
     if dataset.group.parlist != None:
@@ -51,9 +49,11 @@ def test_process_data(this_trait,dataset,start_vars):
         if corr_samples_group == 'samples_other':
             primary_samples = [x for x in primary_samples if x not in (
                 dataset.group.parlist + dataset.group.f1list)]
-        sample_data = process_samples(start_vars, list(this_trait.data.keys()), primary_samples)
+        sample_data = process_samples(start_vars, list(
+            this_trait.data.keys()), primary_samples)
 
     return sample_data
+
 
 def process_samples(start_vars, sample_names, excluded_samples=None):
     """process samples"""
@@ -149,7 +149,7 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     # sample_data = test_process_data(this_trait,this_dataset,start_vars)
 
-    if target_dataset.type =="ProbeSet":
+    if target_dataset.type == "ProbeSet":
         # pass
         target_dataset.get_probeset_data(list(sample_data.keys()))
     else:
@@ -242,7 +242,6 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
                         "target_dataset": start_vars['corr_dataset'],
                         "return_results": corr_return_results}
 
-
     return correlation_data
 
 
@@ -303,107 +302,3 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
         }
         return (primary_tissue_data, target_tissue_data)
     return None
-
-
-def generate_corr_data(corr_results, target_dataset):
-    counter = 0
-    results_list = []
-    for (index, trait_corr) in enumerate(corr_results):
-        trait_name = list(trait_corr.keys())[0]
-        trait = create_trait(dataset=target_dataset,
-                             name=trait_name)
-
-        trait_corr_data =  trait_corr[trait_name]
-
-        if trait.view == False:
-            continue
-        results_dict = {}
-        results_dict['index'] = index + 1
-        results_dict['trait_id'] = trait.name
-        results_dict['dataset'] = trait.dataset.name
-        # results_dict['hmac'] = hmac.data_hmac(
-        #     '{}:{}'.format(trait.name, trait.dataset.name))
-        if target_dataset.type == "ProbeSet":
-            results_dict['symbol'] = trait.symbol
-            results_dict['description'] = "N/A"
-            results_dict['location'] = trait.location_repr
-            results_dict['mean'] = "N/A"
-            results_dict['additive'] = "N/A"
-            if bool(trait.description_display):
-                results_dict['description'] = trait.description_display
-            if bool(trait.mean):
-                results_dict['mean'] = f"{float(trait.mean):.3f}"
-            try:
-                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
-            except:
-                results_dict['lod_score'] = "N/A"
-            results_dict['lrs_location'] = trait.LRS_location_repr
-            if bool(trait.additive):
-                results_dict['additive'] = f"{float(trait.additive):.3f}"
-            results_dict['sample_r'] = f"{float(trait_corr_data.get('sample_r',0)):.3f}"
-            results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = f"{float(trait_corr_data.get('sample_p',0)):.3e}"
-            results_dict['lit_corr'] = "--"
-            results_dict['tissue_corr'] = "--"
-            results_dict['tissue_pvalue'] = "--"
-            tissue_corr = trait_corr_data.get('tissue_corr',0)
-            lit_corr = trait_corr_data.get('lit_corr',0)
-            if bool(lit_corr):
-                results_dict['lit_corr'] = f"{float(trait_corr_data.get('lit_corr',0)):.3f}"
-            if bool(tissue_corr):
-                results_dict['tissue_corr'] = f"{float(trait_corr_data.get('tissue_corr',0)):.3f}"
-                results_dict['tissue_pvalue'] = f"{float(trait_corr_data.get('tissue_pvalue',0)):.3e}"
-        elif target_dataset.type == "Publish":
-            results_dict['abbreviation_display'] = "N/A"
-            results_dict['description'] = "N/A"
-            results_dict['mean'] = "N/A"
-            results_dict['authors_display'] = "N/A"
-            results_dict['additive'] = "N/A"
-            if for_api:
-                results_dict['pubmed_id'] = "N/A"
-                results_dict['year'] = "N/A"
-            else:
-                results_dict['pubmed_link'] = "N/A"
-                results_dict['pubmed_text'] = "N/A"
-
-            if bool(trait.abbreviation):
-                results_dict['abbreviation_display'] = trait.abbreviation
-            if bool(trait.description_display):
-                results_dict['description'] = trait.description_display
-            if bool(trait.mean):
-                results_dict['mean'] = f"{float(trait.mean):.3f}"
-            if bool(trait.authors):
-                authors_list = trait.authors.split(',')
-                if len(authors_list) > 6:
-                    results_dict['authors_display'] = ", ".join(
-                        authors_list[:6]) + ", et al."
-                else:
-                    results_dict['authors_display'] = trait.authors
-            if bool(trait.pubmed_id):
-                if for_api:
-                    results_dict['pubmed_id'] = trait.pubmed_id
-                    results_dict['year'] = trait.pubmed_text
-                else:
-                    results_dict['pubmed_link'] = trait.pubmed_link
-                    results_dict['pubmed_text'] = trait.pubmed_text
-            try:
-                results_dict['lod_score'] = f"{float(trait.LRS_score_repr) / 4.61:.1f}"
-            except:
-                results_dict['lod_score'] = "N/A"
-            results_dict['lrs_location'] = trait.LRS_location_repr
-            if bool(trait.additive):
-                results_dict['additive'] = f"{float(trait.additive):.3f}"
-            results_dict['sample_r'] = f"{float(trait_corr_data.get('sample_r',0)):.3f}"
-            results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = f"{float(trait_corr_data.get('sample_p',0)):.3e}"
-        else:
-            results_dict['location'] = trait.location_repr
-            results_dict['sample_r'] = f"{float(trait_corr_data.get('sample_r',0)):.3f}"
-            results_dict['num_overlap'] = trait.num_overlap
-            results_dict['sample_p'] = f"{float(trait_corr_data.get('sample_p',0)):.3e}"
-
-        results_list.append(results_dict)
-
-    return results_list
-
-

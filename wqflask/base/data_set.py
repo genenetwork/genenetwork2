@@ -684,6 +684,8 @@ class DataSet:
         return results
 
     def get_probeset_data(self, sample_list=None, trait_ids=None):
+
+        # improvement of get trait data--->>>
         if sample_list:
             self.samplelist = sample_list
 
