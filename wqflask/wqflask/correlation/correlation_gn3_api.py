@@ -146,6 +146,10 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     sample_data = process_samples(
         start_vars, this_dataset.group.samplelist)
+
+    sample_data = test_process_data(this_trait, this_dataset, start_vars)
+
+
     if target_dataset.type == "ProbeSet":
         target_dataset.get_probeset_data(list(sample_data.keys()))
     else:
