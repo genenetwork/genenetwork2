@@ -21,15 +21,11 @@ def get_species_dataset_trait(self, start_vars):
             self.dataset = data_set.create_dataset(start_vars['dataset'])
     else:
         self.dataset = data_set.create_dataset(start_vars['dataset'])
-    logger.debug("After creating dataset")
     self.species = TheSpecies(dataset=self.dataset)
-    logger.debug("After creating species")
     self.this_trait = create_trait(dataset=self.dataset,
                                    name=start_vars['trait_id'],
                                    cellid=None,
                                    get_qtl_info=True)
-    logger.debug("After creating trait")
-
 
 def get_trait_db_obs(self, trait_db_list):
     if isinstance(trait_db_list, str):
