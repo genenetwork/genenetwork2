@@ -693,6 +693,9 @@ class DataSet:
         results = dict(g.db.execute(query).fetchall())
         sample_ids = [results[item] for item in self.samplelist]
 
+        sorted_samplelist = [strain_name for strain_name, strain_id in sorted(
+            results.items(), key=lambda item: item[1])]
+
         query = """SELECT * from ProbeSetData
                 where StrainID in {}
                 and id in (SELECT ProbeSetXRef.DataId
@@ -702,9 +705,10 @@ class DataSet:
                 and ProbeSet.Id = ProbeSetXRef.ProbeSetId)""".format(create_in_clause(sample_ids), self.name)
 
         query_results = list(g.db.execute(query).fetchall())
-
         data_results = self.chunk_dataset(query_results, len(sample_ids))
+        self.samplelist = sorted_samplelist
         self.trait_data = data_results
+        
 
     def get_trait_data(self, sample_list=None):
         if sample_list:
