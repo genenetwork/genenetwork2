@@ -146,11 +146,7 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     sample_data = process_samples(
         start_vars, this_dataset.group.samplelist)
-
-    # sample_data = test_process_data(this_trait,this_dataset,start_vars)
-
     if target_dataset.type == "ProbeSet":
-        # pass
         target_dataset.get_probeset_data(list(sample_data.keys()))
     else:
         target_dataset.get_trait_data(list(sample_data.keys()))
@@ -159,9 +155,6 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
         "trait_sample_data": sample_data,
         "trait_id": start_vars["trait_id"]
     }
-
-    # should remove this  len(samplelist) == len(strain_values)
-
     results = map_shared_keys_to_values(
         target_dataset.samplelist, target_dataset.trait_data)
 
