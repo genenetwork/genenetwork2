@@ -440,7 +440,6 @@ class DatasetGroup:
         # genotype_1 is Dataset Object without parents and f1
         # genotype_2 is Dataset Object with parents and f1 (not for intercross)
 
-        # genotype_1 = reaper.Dataset()
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
@@ -1128,7 +1127,6 @@ class MrnaAssayDataSet(DataSet):
             """ % (escape(str(this_trait.dataset.id)),
                    escape(this_trait.name)))
 
-            # logger.debug("query is:", pf(query))
             logger.sql(query)
             result = g.db.execute(query).fetchone()
 
@@ -1183,7 +1181,6 @@ class MrnaAssayDataSet(DataSet):
                     """ % (escape(trait), escape(self.name))
         logger.sql(query)
         results = g.db.execute(query).fetchall()
-        # logger.debug("RETRIEVED RESULTS HERE:", results)
         return results
 
     def retrieve_genes(self, column_name):
@@ -1224,7 +1221,6 @@ class TempDataSet(DataSet):
 
 def geno_mrna_confidentiality(ob):
     dataset_table = ob.type + "Freeze"
-    # logger.debug("dataset_table [%s]: %s" % (type(dataset_table), dataset_table))
 
     query = '''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = "%s"''' % (dataset_table, ob.name)
