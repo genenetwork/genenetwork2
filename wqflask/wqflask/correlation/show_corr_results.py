@@ -28,8 +28,6 @@ import utility.webqtlUtil
 
 from base.trait import create_trait
 
-from rpy2.robjects.packages import importr
-
 from base import data_set
 from utility import helper_functions
 from utility import corr_result_helpers
@@ -46,7 +44,6 @@ from utility.db_tools import escape
 
 from flask import g
 
-utils = importr("utils")
 logger = utility.logger.getLogger(__name__)
 
 METHOD_LIT = "3"
