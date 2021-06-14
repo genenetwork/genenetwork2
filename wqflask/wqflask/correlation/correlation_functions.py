@@ -25,7 +25,6 @@
 # Last updated by NL 2011/03/23
 
 import math
-import rpy2.robjects
 import string
 
 from base.mrna_assay_tissue_data import MrnaAssayTissueData
@@ -48,27 +47,28 @@ from flask import Flask, g
 
 def cal_zero_order_corr_for_tiss(primaryValue=[], targetValue=[], method='pearson'):
 
-    R_primary = rpy2.robjects.FloatVector(list(range(len(primaryValue))))
     N = len(primaryValue)
-    for i in range(len(primaryValue)):
-        R_primary[i] = primaryValue[i]
+    # R_primary = rpy2.robjects.FloatVector(list(range(len(primaryValue))))
+    # for i in range(len(primaryValue)):
+    #     R_primary[i] = primaryValue[i]
 
-    R_target = rpy2.robjects.FloatVector(list(range(len(targetValue))))
-    for i in range(len(targetValue)):
-        R_target[i] = targetValue[i]
+    # R_target = rpy2.robjects.FloatVector(list(range(len(targetValue))))
+    # for i in range(len(targetValue)):
+    #     R_target[i] = targetValue[i]
 
-    R_corr_test = rpy2.robjects.r['cor.test']
-    if method == 'spearman':
-        R_result = R_corr_test(R_primary, R_target, method='spearman')
-    else:
-        R_result = R_corr_test(R_primary, R_target)
+    # R_corr_test = rpy2.robjects.r['cor.test']
+    # if method == 'spearman':
+    #     R_result = R_corr_test(R_primary, R_target, method='spearman')
+    # else:
+    #     R_result = R_corr_test(R_primary, R_target)
 
-    corr_result = []
-    corr_result.append(R_result[3][0])
-    corr_result.append(N)
-    corr_result.append(R_result[2][0])
+    # corr_result = []
+    # corr_result.append(R_result[3][0])
+    # corr_result.append(N)
+    # corr_result.append(R_result[2][0])
 
-    return corr_result
+    return [None, N, None]
+    # return corr_result
 
 
 ########################################################################################################
