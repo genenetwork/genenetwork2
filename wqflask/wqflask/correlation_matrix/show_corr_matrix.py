@@ -25,8 +25,6 @@ import string
 
 import numpy as np
 import scipy
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
 
 from base import data_set
 from base.webqtlConfig import GENERATED_TEXT_DIR
@@ -162,21 +160,23 @@ class CorrelationMatrix:
         for sample in self.all_sample_list:
             groups.append(1)
 
-        try:
-            corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
-            corr_eigen_value, corr_eigen_vectors = sortEigenVectors(
-                corr_result_eigen)
+        # Not doing PCA until rpy2 is excised
+        self.pca_works = "False"
+        # try:
+        #     corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
+        #     corr_eigen_value, corr_eigen_vectors = sortEigenVectors(
+        #         corr_result_eigen)
 
-            if self.do_PCA == True:
-                self.pca_works = "True"
-                self.pca_trait_ids = []
-                pca = self.calculate_pca(
-                    list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
-                self.loadings_array = self.process_loadings()
-            else:
-                self.pca_works = "False"
-        except:
-            self.pca_works = "False"
+        #     if self.do_PCA == True:
+        #         self.pca_works = "True"
+        #         self.pca_trait_ids = []
+        #         pca = self.calculate_pca(
+        #             list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
+        #         self.loadings_array = self.process_loadings()
+        #     else:
+        #         self.pca_works = "False"
+        # except:
+        #     self.pca_works = "False"
 
         self.js_data = dict(traits=[trait.name for trait in self.traits],
                             groups=groups,
@@ -185,51 +185,51 @@ class CorrelationMatrix:
                             samples=self.all_sample_list,
                             sample_data=self.sample_data,)
 
-    def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
-        base = importr('base')
-        stats = importr('stats')
+    # def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
+    #     base = importr('base')
+    #     stats = importr('stats')
 
-        corr_results_to_list = robjects.FloatVector(
-            [item for sublist in self.pca_corr_results for item in sublist])
+    #     corr_results_to_list = robjects.FloatVector(
+    #         [item for sublist in self.pca_corr_results for item in sublist])
 
-        m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
-        eigen = base.eigen(m)
-        pca = stats.princomp(m, cor="TRUE")
-        self.loadings = pca.rx('loadings')
-        self.scores = pca.rx('scores')
-        self.scale = pca.rx('scale')
+    #     m = robjects.r.matrix(corr_results_to_list, nrow=len(cols))
+    #     eigen = base.eigen(m)
+    #     pca = stats.princomp(m, cor="TRUE")
+    #     self.loadings = pca.rx('loadings')
+    #     self.scores = pca.rx('scores')
+    #     self.scale = pca.rx('scale')
 
-        trait_array = zScore(self.trait_data_array)
-        trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
+    #     trait_array = zScore(self.trait_data_array)
+    #     trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
 
-        pca_traits = []
-        for i, vector in enumerate(trait_array_vectors):
-            # ZS: Check if below check is necessary
-            # if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
-            pca_traits.append((vector * -1.0).tolist())
+    #     pca_traits = []
+    #     for i, vector in enumerate(trait_array_vectors):
+    #         # ZS: Check if below check is necessary
+    #         # if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
+    #         pca_traits.append((vector * -1.0).tolist())
 
-        this_group_name = self.trait_list[0][1].group.name
-        temp_dataset = data_set.create_dataset(
-            dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
-        temp_dataset.group.get_samplelist()
-        for i, pca_trait in enumerate(pca_traits):
-            trait_id = "PCA" + str(i + 1) + "_" + temp_dataset.group.species + "_" + \
-                this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
-            this_vals_string = ""
-            position = 0
-            for sample in temp_dataset.group.all_samples_ordered():
-                if sample in self.shared_samples_list:
-                    this_vals_string += str(pca_trait[position])
-                    this_vals_string += " "
-                    position += 1
-                else:
-                    this_vals_string += "x "
-            this_vals_string = this_vals_string[:-1]
+    #     this_group_name = self.trait_list[0][1].group.name
+    #     temp_dataset = data_set.create_dataset(
+    #         dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
+    #     temp_dataset.group.get_samplelist()
+    #     for i, pca_trait in enumerate(pca_traits):
+    #         trait_id = "PCA" + str(i + 1) + "_" + temp_dataset.group.species + "_" + \
+    #             this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
+    #         this_vals_string = ""
+    #         position = 0
+    #         for sample in temp_dataset.group.all_samples_ordered():
+    #             if sample in self.shared_samples_list:
+    #                 this_vals_string += str(pca_trait[position])
+    #                 this_vals_string += " "
+    #                 position += 1
+    #             else:
+    #                 this_vals_string += "x "
+    #         this_vals_string = this_vals_string[:-1]
 
-            Redis.set(trait_id, this_vals_string, ex=THIRTY_DAYS)
-            self.pca_trait_ids.append(trait_id)
+    #         Redis.set(trait_id, this_vals_string, ex=THIRTY_DAYS)
+    #         self.pca_trait_ids.append(trait_id)
 
-        return pca
+    #     return pca
 
     def process_loadings(self):
         loadings_array = []
