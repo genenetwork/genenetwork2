@@ -2,18 +2,566 @@
 {% block title %}Tutorials/Primers{% endblock %}
 {% block content %}
 
-<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
-<!-- Body Start from Here -->
-<TD valign="top" height="200" width="100%">
-	<P class="title"><H2>Tutorials/Primers</H2></P>
-	<UL>
-		<LI><A HREF="http://www.nervenet.org/tutorials/HS_Rat_Using_GeneNetwork_21Apr2020v7.pptx">Statistical and genetic functions, 
-			and initial mapping results for Rat GWAS P50 as implemented in GeneNetwork.org</A></LI>
-		<LI><A HREF="https://opar.io/training/osga-webinar-series-2020.html">Webinar Series - Quantitative Genetics Tools for Mapping Trait Variation to Mechanisms, Therapeutics, and Interventions</A></LI>
-	</UL>
-	<P></P>
-</TD>
-</TR></TABLE>
+<head>
+    <title>OPAR - OSGA webinar series</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--    <link rel="stylesheet" href="uikit-3/css/uikit.min.css" />-->
+<!--    <script src="uikit-3/js/uikit.min.js"></script>-->
+<!--    <script src="uikit-3/js/uikit-icons.min.js"></script>-->
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit-icons.min.js"></script>
+
+    <!-- DataTables-->
+    <!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/cr-1.5.2/datatables.min.css"/>-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
+
+   <!-- <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/cr-1.5.2/datatables.min.js"></script>-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+ <script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+
+</head>
+<body>
+
+<div class="uk-margin-small uk-card uk-card-default uk-card-body">
+<h2 class="uk-heading-small">Webinar Series - Quantitative Genetics Tools for Mapping Trait Variation to Mechanisms, Therapeutics, and Interventions</h2>
+<p>The NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome has put together a webinar series, Quantitative Genetics Tools for Mapping Trait Variation to Mechanisms, Therapeutics, and Interventions. The goal of this series is to transverse the path from trait variance to QTL to gene variant to molecular networks to mechanisms to therapeutic and interventions. The target audience for this series are those new to the field of quantitative genetics, so please pass this information on to your trainees or colleagues.</p>
+
+    <table id="myTable" class="display">
+        <thead>
+        <tr>
+            <th>Title/Description</th>
+            <th>Presentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><p><h3>Webinar #01 - Introduction to Quantitative Trait Loci (QTL) Analysis</h3>
+            <p><i>Friday, May 8th, 2020<br>
+			10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT</i></p>
+		<p>Goals of this webinar (trait variance to QTL):</p>
+            <ul>
+              <li>Define quantitative trait locus (QTL)</li>
+              <li>Explain how genome scans can help find QTL</li>
+              </ul>
+              <p>Presented by:<br>
+Dr. Saunak Sen<br>
+Professor and Chief of Biostatistics<br>
+Department of Preventative Medicine<br>
+University of Tennessee Health Science Center
+</p>
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-05-08/README.md">Link to course material</a>
+</p></td>
+            <td>
+           <iframe width="560" height="315" src="https://www.youtube.com/embed/leY3kPmnLaI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #02 - Mapping Addiction and Behavioral Traits and Getting at Causal Gene Variants with GeneNetwork</h3>
+            <p><i>Friday, May 22nd. 2020
+		10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT</i>
+</p>
+		<p>Goals of this webinar (QTL to gene variant):</p>
+            <ul>
+              <li>Demonstrate mapping a quantitative trait using GeneNetwork (GN)</li>
+              <li>Explore GN tools to identify genes and genetics variants related to a QTL</li>
+              </ul>
+              <p>Presented by:<br>
+Dr. Rob Williams<br>
+Professor and Chair<br>
+Department of Genetics, Genomics, and Informatics<br>
+University of Tennessee Health Science Center
+</p><p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-05-22/README.md">Link to course material</a>
+</p></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/LwpXzLHX9aM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #03 - Introduction to expression (e)QTL and their role in connecting QTL to genes and molecular networks</h3>
+            <p><i>Friday, June 12, 2020 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT</i>
+    <!--<p>1 hour presentation followed by 30 minutes of discussion</p>-->
+		<p>Goals of this webinar (QTL to gene/molecular networks):</p>
+            <ul>
+              <li>Define eQTL</li>
+              <li>Examine the role of eQTL in the relationship of genes and molecular networks with phenotypic QTL</li>
+              <li>eQTL for co-expression networks</li>
+              </ul>
+              <p>Presented by:<br>
+Dr. Laura Saba<br>
+Associate Professor<br>
+Department of Pharmaceutical Sciences<br>
+University of Colorado Anschutz Medical Campus
+</p><p>
+<a href="/pdf/webinar_flyer_2020-06-12.pdf" target="_blank">Webinar flyer (pdf)</a><br>
+<a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-06-12/README.md">Link to course material</a><br>
+</td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/8jiNHuOgr1A" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #04 - From Candidate Genes to Causal Variants—Strategies for and Examples of Identifying Genes and Sequence Variants in Rodent Populations</h3>
+            <p><i>Friday, June 26, 2020 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT</i>
+    
+		<p>Goals of this webinar (candidate genes to causal variants):</p>
+            <ul>
+              <li>To understand when it is practical or (just as often) not practical to try to "clone" the gene or nucleotide variant modulating trait variants
+</li>
+              <li>To understand that defining the crucial causal nucleotide variant is usually a bonus and often not for the translational or even mechanistic utility of discoveries.
+</li>
+              <li>To review new sequence-based methods to identify common and rare variants—the reduced complexity cross and epoch-effects in reference populations
+</li>
+              </ul>
+              <p>Presented by:<br>
+Dr. Rob Williams<br>
+Professor and Chair<br>
+Department of Genetics, Genomics, and Informatics<br>
+University of Tennessee Health Science Center
+</p>
+
+<p>
+<a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-06-26/README.md">Link to course material</a><br>
+Link to course material in powerpoint pptx: [<a href="pdf/P30_Webinar_on_QTGenes_26Jun2020v3.pptx" target="_blank">P30_Webinar_on_QTGenes_26Jun2020v3.pptx</a>]<br>
+</p></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/u9d5dYxM5q4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #05 - Identifying genes from QTL using RNA expression and the PhenoGen website (<a href="http://phenogen.org" target="_blank">http://phenogen.org</a>)</h3>
+            <p><i>Friday, August 28, 2020 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT<br>
+1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Goals of this webinar (candidate genes to causal variants):
+		<p>Demonstrate how to use the PhenoGen website to identify transcripts:</p>
+            <ul>
+              <li>Physically located within a QTL</li>
+              <li>Physically located within a QTL and expressed in brain</li>
+              <li>With a brain cis eQTL within the QTL</li>
+              <li>With any brain eQTL within the QTL</li>
+              <li>Within a co-expression network controlled from the same region as the QTL</li>
+              </ul>
+               <p>Presented by:<br>
+Dr. Laura Saba<br>
+Associate Professor<br>
+Department of Pharmaceutical Sciences<br>
+University of Colorado Anschutz Medical Campus
+</p>
+<p>
+<a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-08-28/README.md">Link to course material</a><br>
+</p></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/9DJm5cJgVis" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #06 - Sex as a Biological Covariate in QTL Studies</h3>
+            <p><i>Friday, September 11th, 2020 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Goals of this webinar (trait variance to QTL): 
+
+            <ul>
+              <li>Review QTL mapping </li>
+              <li>Understand the role of sex in QTL study design </li>
+              <li>Use sex as a covariate in QTL analysis </li>
+              <li>Understand X chromosome segregation in crosses</li>
+              <li>Make adjustments for X chromosome in QTL analysis </li>
+              </ul>
+               <p>Presented by:<br>
+Dr. Saunak Sen<br>
+Professor and Chief of Biostatistics<br>
+Department of Preventative Medicine<br>
+University of Tennessee Health Science Center
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-09-11/README.md">Link to course material</a>
+</p></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/dYeJcBbJjRU" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><h3>Webinar #07 - Introduction to Weighted Gene Co-expression Network Analysis</h3>
+            <p><i>Friday, September 25th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+1-hour presentation followed by 30 minutes of discussion </i>
+    
+		<p>Goals of this webinar (molecular networks):
+            <ul>
+              <li>Introduction and motivation for co-expression network analysis  </li>
+              <li>Basics of weighted gene co-expression network analysis </li>
+              <li>Step-by-step guide to WGCNA using the wgcna package in R.  </li>
+              </ul>
+              <p>Background reading available at: <a href="http://bit.ly/osga_wgcna">http://bit.ly/osga_wgcna</a></p>
+                <p>Presented by:<br>
+Dr. Laura Saba<br>
+Associate Professor<br>
+Department of Pharmaceutical Sciences<br>
+University of Colorado Anschutz Medical Campus
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-09-11/README.md">Link to course material</a>
+</p></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/OpWEHazyQLA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #08 - Using genetic and non-genetic covariates in QTL studies</h3>
+            <p><i>Friday, October 9th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+1-hour presentation followed by 30 minutes of discussion </i>
+    
+		<p>Goals of this webinar (quantitative trait to genetic loci):
+            <ul>
+              <li>Identify covariates and mediators in QTL studies </li>
+              <li>Adjust for covariates in QTL scans  </li>
+              <li>Review genetic relatedness in segregating populations </li>
+              <li>Adjust for genetic relatedness using linear mixed models  </li>
+              </ul>
+              <!--<p>Background reading available at: <a href="http://bit.ly/osga_wgcna">http://bit.ly/osga_wgcna</a></p>-->
+               <p>Presented by:<br>
+Dr. Saunak Sen<br>
+Professor and Chief of Biostatistics<br>
+Department of Preventative Medicine<br>
+University of Tennessee Health Science Center
+</p><p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-10-09/README.md">Link to course material</a></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/1U_4DCSDq9U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+       <tr>
+            <td><p><h3>Webinar #09 - Introduction to GeneWeaver: Integrating and analyzing heterogeneous functional genomics data</h3>
+            <p><i>Friday, October 23th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+1-hour presentation followed by 30 minutes of discussion </i>
+    
+		<p>Goals of this webinar:
+            <ul>
+              <li>Compare a user's gene list with multiple functional genomics data sets </li>
+              <li>Compare and contrast gene lists with data currently available and integrated in GeneWeaver</li>
+              <li>Explore functional relationships among genes and disease across species </li>
+              </ul>
+              <!--<p>Background reading available at: <a href="http://bit.ly/osga_wgcna">http://bit.ly/osga_wgcna</a></p>-->
+               <p>Presented by:<br>
+Dr. Elissa Chesler<br>
+Professor The Jackson Laboratory
+</p>
+<p>
+Dr. Erich Baker<br>
+Professor and Chair<br>
+Department of Computer Science<br>
+Baylor University
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-10-23/README.md">Link to course material</a></p> 
+<!--After the presentation, the recording will be made available for download at <a href="http://opar.io">http://opar.io</a><br>--></p>
+
+
+<p></td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/Vq3vocdMWLQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        
+        
+        
+
+<tr>
+            <td><p><h3>Webinar #10 - Sketching alternate realities: An introduction to causal inference in genetic studies</h3>
+            <p><i>Friday, November 20th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT<br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Goals of this webinar: 
+		<p>Determination of cause is an important goal of biological studies, and genetic studies provide unique opportunities.  In this introductory lecture we will frame causal inference as a missing data problem to clarify challenges, assumptions, and strategies necessary for assigning cause.  We will survey the use of directed acyclic graphs (DAGs) to express causal information and to guide analytic strategies. 
+              <ul>
+              <li>Express causal inference as a missing data problem (counterfactual framework) </li>
+              <li>Outline assumptions needed for causal inference </li>
+              <li>Express causal information as (directed acyclic) graphs </li>
+              <li>Outline how to use graphs to guide analytic strategy </li>
+              </ul>
+              
+                <p>Presented by:<br>
+Dr. Saunak Sen<br>
+Professor and Chief of Biostatistics<br>
+Department of Preventative Medicine<br>
+University of Tennessee Health Science Center
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-11-20/README.md">Link to course material</a>
+</p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="https://bit.ly/osga_2020-11-20">https://bit.ly/osga_2020-11-20</a>-->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/twJNYOL3qfA" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </tr>
+        
+         <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #11 - Beginner's guide to bulk RNA-Seq analysis</h3>
+            <p><i>Friday, February 12th, 2021 at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Goals of this webinar: 
+		<p>The use of high throughput short read RNA sequencing has become common place in many scientific laboratories. The analysis tools for quantitating a transcriptome have matured becoming relatively simple to use. The goals of this webinar are:  
+              <ul>
+              <li>To give a general overview of the popular Illumina technology for sequencing RNA. </li>
+              <li>To outline several of the key aspects to consider when designing an RNA-Seq study </li>
+              <li>To provide guidance on methods and tools for transforming reads to quantitative expression measurements. </li>
+              <li>To describe statistical models that are typically used for differential expression and why these specialized models are needed.</li>
+              </ul>
+              
+              <p>Presented by:<br>
+Dr. Laura Saba<br>
+Associate Professor<br>
+Department of Pharmaceutical Sciences<br>
+University of Colorado Anschutz Medical Campus
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2021-02-12/README.md">Link to course material</a>
+</p>
+<p><a href="/pdf/webinar_flyer_2021-02-12.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="http://bit.ly/osga_2021-02-12">http://bit.ly/osga_2021-02-12</a>-->
+<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223) and the NIAAA-funded PhenoGen Website (R24 AA013162).</p>
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/WW94W-DBf2U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+        <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #12 - From GWAS to gene: What are the essential analyses and how do we bring them together using heterogeneous stock rats?</h3>
+            <p><i>Friday, February 26th at 10am PST/ 11am MST/ 12pm CST/ 1pm EST<br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Goals of this webinar: 
+		<p>Heterogeneous stock (HS) rats are an outbred population that was created in 1984 by intercrossing 8 inbred strains. The Center for GWAS in Outbred Rats (www.ratgenes.org) has developed a suite of analysis tools for analyzing genome wide association studies (GWAS) in HS rats  
+              <ul>
+              <li>Explain the HS rat population and their history</li>
+              <li>Describe the automated pipeline that performs GWAS in HS rats</li>
+              <li>Explore the fine mapping of associated regions and explain the various secondary analyses that we use to prioritize genes within associated intervals</li>
+              </ul>
+              
+              <p>Presented by:<br>
+Abraham A. Palmer, Ph.D.<br>
+Professor & Vice Chair for Basic Research<br>
+Department of Psychiatry<br>
+University of California San Diego
+</p>
+<p><a href="/pdf/webinar_flyer_2021-02-26.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2021-02-26/README.md">Link to course material</a>
+<p>Link to course material in pptx:<a href="/pdf/Palmer_talk_2-26-21.pptx" target="_blank"> Palmer_talk_2-26-21.pptx</a></p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="http://bit.ly/osga_2021-02-26  ">http://bit.ly/osga_2021-02-26</a>-->
+<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223) and the NIDA-funded Center for GWAS in Outbred Rats (P50 DA037844).</p>
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/aWUxNZ9wS3E" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+         <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #13 - Become a UseR: A brief tour of R</h3>
+            <p><i>Friday, March 12th at 10am PST/ 11am MST/ 12pm CST/ 1pm EST<br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    	<p>We will introduce R programming language and outline the benefits of learning R.  We will give a brief tour of basic concepts and tasks: variables, objects, functions, basic statistics, visualization, and data import/export. We will showcase a practical example demonstrating statistical analysis.
+
+		<p>Goals of this webinar:
+			 <ul>
+              <li>Why should one use/learn R?</li>
+              <li>How to install R/Rstudio</li>
+              <li>Learn about R basics: variables, programming, functions</li>
+              <li>Learn about the R package ecosystem that extends its capabilities</li>
+              <li>See a basic statistical analysis example</li>
+              <li>Learn about additional resources</li>
+              </ul>
+              
+              <p>Presented by:<br>
+Gregory Farage, PhD and Saunak Sen, PhD<br>
+Department of Preventive Medicine<br>
+University of Tennessee Health Science Center
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2021-03-12/README.md">Link to course material</a>
+</p>
+<p><a href="/pdf/webinar_flyer_2021-03-12.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<!--<p>Link to course material in pptx:<a href="/pdf/Palmer_talk_2-26-21.pptx" target="_blank"> Palmer_talk_2-26-21.pptx</a></p>-->
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="http://bit.ly/osga_2021-03-12">http://bit.ly/osga_2021-03-12</a></p>-->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/25-X8_oXBSY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+         <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #14 - Landing on Jupyter: A guided tour of interactive notebooks</h3>
+            <p><i>Friday, March 26th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT<br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    	<p>Jupyter is an interactive interface to data science and scientific computing across a variety of programming languages.  We will present the Jupyter notebook, and explain some key concepts (e.g., kernel, cells).  We will show how to create a new notebook; modify an existing notebook; save, export, and publish a notebook.  We will discuss several possible use cases: developing code, writing reports, taking notes, and teaching/presenting.
+
+		<p>Goals of this webinar:
+			 <ul>
+              <li>Learn what Jupyter notebooks are</li>
+              <li>Learn how to install, configure, and use Jupyter notebooks</li>
+              <li>Learn how to use Jupyter notebooks for research, teaching, or code
+  development </li>
+              </ul>
+              
+              <p>Presented by:<br>
+Gregory Farage, PhD and Saunak Sen, PhD<br>
+Department of Preventive Medicine<br>
+University of Tennessee Health Science Center
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2021-03-26/README.md">Link to course material</a>
+</p>
+<p><a href="/pdf/webinar_flyer_2021-03-26.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<!--<p>Link to course material in pptx:<a href="/pdf/Palmer_talk_2-26-21.pptx" target="_blank"> Palmer_talk_2-26-21.pptx</a></p>-->
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="http://bit.ly/osga_2021-03-26">http://bit.ly/osga_2021-03-26</a>-->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/GVzUNEmpanI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></iframe>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+                 <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #15 – Introduction to Metabolomics Platforms and Data Analysis</h3>
+            <p><i>Friday, April 9th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+		<p>Goals of this webinar:
+		<p>The use of metabolomics to profile small molecules is now widespread in biomedical research. The goals of this webinar are: 
+			 <ul>
+              <li>To describe research questions that can be addressed using metabolomics</li>
+              <li>To give a general overview of metabolomics technologies</li>
+              <li>To outline steps in a metabolomics data analysis pipeline</li>
+              <li>To provide information on common resources and databases</li>
+              </ul>
+              
+              <p>Presented by:<br>
+Katerina Kechris, PhD <br>
+Professor<br>
+Department of Biostatistics and Informatics <br>
+Colorado School of Public Health <br>
+University of Colorado Anschutz Medical Campus 
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2021-04-09/README.md">Link to course material</a>
+</p>
+<p><a href="/pdf/webinar_flyer_2021-04-09.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<!--<p>Link to course material in pptx:<a href="/pdf/Palmer_talk_2-26-21.pptx" target="_blank"> Palmer_talk_2-26-21.pptx</a></p>
+<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="https://bit.ly/osga_2021-04-09">https://bit.ly/osga_2021-04-09</a></p>-->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/oB1Khk6mt_8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+        <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #16 – Introduction to the Hybrid Rat Diversity Panel: A renewable rat panel for genetic studies of addiction-related traits</h3>
+            <p><i>Friday, April 23rd at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+		<p>Goals of this webinar:
+		<p>The Hybrid Rat Diversity Panel (HRDP) is an inbred panel of rats that included two recombinant inbred panels and a panel of classic inbred strains. 
+			 <ul>
+              <li>To describe hybrid diversity panels, in particular the HRDP, including advantages and disadvantages when studying the role of genetics is substance use disorders, e.g., renewable genomes and the accumulation of behavioral and physiological phenotypes and high throughput omics data. </li>
+              <li>To outline current resources and resources that are being generated. </li>
+              <li>To demonstrate the utility of a renewable genetically diverse rodent population when exploring the interaction between genetics, drug exposure, and behavior. </li>
+              </ul>
+              
+              <p>Presented by:<br>
+               Hao Chen, PhD<br>
+Associate Professor<br>
+Department of Pharmacology, Addiction Science, and Toxicology <br>
+University of Tennessee Health Science Center 
+<p>
+Dr. Laura Saba<br>
+Associate Professor<br>
+Department of Pharmaceutical Sciences<br>
+University of Colorado Anschutz Medical Campus
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2021-04-23/README.md">Link to course material</a>
+</p>
+<p><a href="/pdf/webinar_flyer_2021-04-09.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<!--<p>Link to course material in pptx:<a href="/pdf/Palmer_talk_2-26-21.pptx" target="_blank"> Palmer_talk_2-26-21.pptx</a></p>
+<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="http://bit.ly/osga_2021-04-23">http://bit.ly/osga_2021-04-23</a>
+<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223) and RGAP: The heritable transcriptome and alcoholism (R24 AA013162). </p>
+</td>
+            <td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/dYIiv01IetQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+
+ <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Webinar #17 – Identifying sample mix-ups in eQTL data</h3>
+            <p><i>Friday, June 11th at 10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT <br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+		<p>Goals of this webinar:
+		<p>Sample mix-ups interfere with our ability to detect genotype-phenotype associations. However, the presence of numerous eQTL with strong effects provides the opportunity to not just identify sample mix-ups, but also to correct them.
+			 <ul>
+              <li>To illustrate methods for identifying sample duplicates and errors in sex annotations. </li>
+              <li>To illustrate methods for identifying sample mix-ups in DNA and RNA samples from experimental cross data.</li>
+			 </ul>
+              
+              <p>Presented by:<br>
+               Karl Broman, PhD <br>
+Professor<br>
+Department of Biostatistics & Medical Informatics <br>
+University of Wisconsin-Madison
+<p>
+
+<p><a href="/pdf/webinar_flyer_2021-06-11.pdf" target="_blank">Webinar flyer (pdf)</a></p>
+<p>Link to course material:<a href="kbroman.org/Talk_OSGA2021" target="_blank">kbroman.org/Talk_OSGA2021</a></p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="http://bit.ly/osga_2021-06-11">http://bit.ly/osga_2021-06-11</a>-->
+ <!--<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223) and RGAP: The heritable transcriptome and alcoholism (R24 AA013162). </p>-->
+</td>
+           <!-- <td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/h5gF7YnffeI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+
+
+        
+        
+         <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Bonus 1 - Data structure, disease risk, GXE, and causal modeling</h3>
+            <p><i>Friday, November 20th at 9am PDT/ 11pm CDT/ 12pm EDT<br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Human disease is mainly due to complex interactions between genetic and environmental factors (GXE). We need to acquire the right "smart" data types—coherent and multiplicative data—required to make accurate predictions about risk and outcome for  n = 1 individuals—a daunting task.  We have developed large families of fully sequenced mice that mirror the genetic complexity of humans. We are using these Reference Populations to generate multiplicatively useful data and to build and test causal quantitative models of disease mechanisms with a special focus on diseases of aging, addiction, and neurological and psychiatric disease. 
+
+<p>Speaker Bio: Robert (Rob) W. Williams received a BA in neuroscience from UC Santa Cruz (1975) and a Ph.D. in system physiology at UC Davis with Leo M. Chalupa (1983). He did postdoctoral work in developmental neurobiology at Yale School of Medicine with Pasko Rakic where he developed novel stereological methods to estimate cell populations in brain. In 2013 Williams established the Department of Genetics, Genomics and Informatics at UTHSC. He holds the UT Oak Ridge National Laboratory Governor’s Chair in Computational Genomics. Williams is director of the Complex Trait Community (www.complextrait.org) and editor-in-chief of Frontiers in Neurogenomics. One of Williams’ more notable contributions is in the field of systems neurogenetics and experimental precision medicine. He and his research collaborators have built GeneNetwork (www.genenetwork.org), an online resource of data and analysis code that is used as a platform for experimental precision medicine.</p>
+              
+              <p>Presented by:<br>
+Dr. Rob Williams<br>
+Professor and Chair<br>
+Department of Genetics, Genomics, and Informatics<br>
+University of Tennessee Health Science Center
+</p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="https://bit.ly/osga_2020-11-20">https://bit.ly/osga_2020-11-20</a>-->
+<!--<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223). -->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/4ZhnXU8gV44" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        </tbody>
+    </table>
+</div>
+
+<script>
+$('#myTable').dataTable( {
+  "lengthMenu": [ 50, 75, 100 ]
+} );
+</script>
+
+<!--<script>
+$(document).ready( function () {
+$('#myTable').DataTable({
+  "lengthMenu": [ [50, 75, 100]
+} );
+} );
+</script>-->
+
+<!--<script>
+$(document).ready( function () {
+$('#myTable').DataTable({
+  "lengthMenu": [ [50, 75, 100, -1], [50, 75, 100, "All"] ]);
+} );
+</script>-->
+
+<!--<script>
+$(document).ready( function () {
+$('#myTable').DataTable();
+} );
+</script>-->
+
+</body>
+
 
 {% endblock %}
 
