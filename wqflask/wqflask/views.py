@@ -69,8 +69,8 @@ from wqflask.correlation import show_corr_results
 from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
-from wqflask.wgcna import wgcna_analysis
-from wqflask.ctl import ctl_analysis
+# from wqflask.wgcna import wgcna_analysis
+# from wqflask.ctl import ctl_analysis
 from wqflask.snp_browser import snp_browser
 from wqflask.search_results import SearchResultPage
 from wqflask.export_traits import export_search_results_csv
@@ -357,18 +357,18 @@ def wcgna_setup():
     return render_template("wgcna_setup.html", **request.form)
 
 
-@app.route("/wgcna_results", methods=('POST',))
-def wcgna_results():
-    logger.info("In wgcna, request.form is:", request.form)
-    logger.info(request.url)
-    # Start R, load the package and pointers and create the analysis
-    wgcna = wgcna_analysis.WGCNA()
-    # Start the analysis, a wgcnaA object should be a separate long running thread
-    wgcnaA = wgcna.run_analysis(request.form)
-    # After the analysis is finished store the result
-    result = wgcna.process_results(wgcnaA)
-    # Display them using the template
-    return render_template("wgcna_results.html", **result)
+# @app.route("/wgcna_results", methods=('POST',))
+# def wcgna_results():
+#     logger.info("In wgcna, request.form is:", request.form)
+#     logger.info(request.url)
+#     # Start R, load the package and pointers and create the analysis
+#     wgcna = wgcna_analysis.WGCNA()
+#     # Start the analysis, a wgcnaA object should be a separate long running thread
+#     wgcnaA = wgcna.run_analysis(request.form)
+#     # After the analysis is finished store the result
+#     result = wgcna.process_results(wgcnaA)
+#     # Display them using the template
+#     return render_template("wgcna_results.html", **result)
 
 
 @app.route("/ctl_setup", methods=('POST',))
@@ -380,18 +380,18 @@ def ctl_setup():
     return render_template("ctl_setup.html", **request.form)
 
 
-@app.route("/ctl_results", methods=('POST',))
-def ctl_results():
-    logger.info("In ctl, request.form is:", request.form)
-    logger.info(request.url)
-    # Start R, load the package and pointers and create the analysis
-    ctl = ctl_analysis.CTL()
-    # Start the analysis, a ctlA object should be a separate long running thread
-    ctlA = ctl.run_analysis(request.form)
-    # After the analysis is finished store the result
-    result = ctl.process_results(ctlA)
-    # Display them using the template
-    return render_template("ctl_results.html", **result)
+# @app.route("/ctl_results", methods=('POST',))
+# def ctl_results():
+#     logger.info("In ctl, request.form is:", request.form)
+#     logger.info(request.url)
+#     # Start R, load the package and pointers and create the analysis
+#     ctl = ctl_analysis.CTL()
+#     # Start the analysis, a ctlA object should be a separate long running thread
+#     ctlA = ctl.run_analysis(request.form)
+#     # After the analysis is finished store the result
+#     result = ctl.process_results(ctlA)
+#     # Display them using the template
+#     return render_template("ctl_results.html", **result)
 
 
 @app.route("/news")
