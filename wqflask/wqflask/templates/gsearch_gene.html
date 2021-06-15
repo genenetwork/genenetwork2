@@ -7,7 +7,7 @@
 {% block content %}
 <!-- Start of body -->
 
-    <div class="container" style="width: 2000px;">
+    <div class="container">
 
         <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 754 datasets and 39,765,944 traits across 10 species<br/>
             and found <b>{{ trait_count }}</b> results that match your query.<br/>
@@ -31,7 +31,7 @@
             </form>
             <br />
             <br />
-            <div style="width: 100%;">
+            <div style="min-width: 2000px; width: 100%;">
               <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
                   <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -48,6 +48,7 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
@@ -55,7 +56,19 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script type='text/javascript'>
-      var the_rows = {{ trait_list|safe }};
+      var getParams = function(url) {
+        let parser = document.createElement('a');
+        parser.href = url;
+        let params = parser.search.substring(1);
+        if(params.length > 0) {
+          return ('?'+params);
+        }
+        return params;
+      };
+    </script>
+
+    <script type='text/javascript'>
+      var trait_list = {{ trait_list|safe }};
     </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -94,8 +107,7 @@
                 }
             }
 
-            console.time("Creating table");
-            $('#trait_table').DataTable( {
+            var the_table = $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
                          if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
@@ -105,26 +117,26 @@
                      $('.trait_checkbox:checkbox').on("change", change_buttons);
                 },
                 'createdRow': function ( row, data, index ) {
-                    $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 13px;");
                     $('td', row).eq(1).attr("align", "right");
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
-                    if ($('td', row).eq(4).text().length > 20) {
-                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 20));
+                    if ($('td', row).eq(4).text().length > 30) {
+                        $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 30));
                         $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                     }
                     $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
-                    if ($('td', row).eq(5).text().length > 20) {
-                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 20));
+                    if ($('td', row).eq(5).text().length > 35) {
+                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 35));
                         $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
                     }
                     $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
-                    if ($('td', row).eq(6).text().length > 35) {
-                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 35));
+                    if ($('td', row).eq(6).text().length > 60) {
+                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 60));
                         $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
                     }
                     $('td', row).eq(8).attr('title', $('td', row).eq(8).text());
-                    if ($('td', row).eq(8).text().length > 45) {
-                        $('td', row).eq(8).text($('td', row).eq(8).text().substring(0, 45));
+                    if ($('td', row).eq(8).text().length > 60) {
+                        $('td', row).eq(8).text($('td', row).eq(8).text().substring(0, 60));
                         $('td', row).eq(8).text($('td', row).eq(8).text() + '...')
                     }
                     $('td', row).slice(10,14).attr("align", "right");
@@ -142,11 +154,12 @@
                     $('td', row).eq(12).attr('data-export', $('td', row).eq(12).text());
                     $('td', row).eq(13).attr('data-export', $('td', row).eq(13).text());
                 },
-                'data': the_rows,
+                'data': trait_list,
                 'columns': [
-                    { 
-                      'data': null,
+                    {
                       'orderDataType': "dom-checkbox",
+                      'width': "10px",
+                      'data': null,
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
                       }
@@ -154,30 +167,35 @@
                     {
                       'title': "Index",
                       'type': "natural", 
+                      'width': "30px",
                       'data': "index"
                     },
                     { 
                       'title': "Record",
                       'type': "natural", 
-                      'data': null,
                       'orderDataType': "dom-inner-text",
+                      'width': "60px",
+                      'data': null,
                       'render': function(data, type, row, meta) {
                         return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
                       }
                     },
                     { 
                       'title': "Species",
-                      'type': "natural", 
+                      'type': "natural",
+                      'width': "60px",
                       'data': "species"
                     },
                     { 
                       'title': "Group",
                       'type': "natural",
+                      'width': "150px",
                       'data': "group"
                     },
                     { 
                       'title': "Tissue",
                       'type': "natural",
+                      'width': "150px",
                       'data': "tissue"
                     },
                     { 
@@ -188,6 +206,7 @@
                     { 
                       'title': "Symbol",
                       'type': "natural",
+                      'width': "60px",
                       'data': "symbol"
                     },
                     { 
@@ -205,25 +224,27 @@
                     { 
                       'title': "Location",
                       'type': "natural-minus-na",
-                      'width': "100px",
+                      'width': "125px",
                       'data': "location_repr"
                     },
                     {
                       'title': "Mean",
                       'type': "natural-minus-na",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
+                      'orderSequence': [ "desc", "asc"],
+                      'width': "30px",
+                      'data': "mean"
                     },
                     { 
                       'title': "Max<br>LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural-minus-na",
+                      'width': "60px",
                       'data': "LRS_score_repr",
                       'orderSequence': [ "desc", "asc"]
                     },
                     { 
-                      'title': "Max LRS<br>Location",
+                      'title': "Max LRS Location",
                       'type': "natural-minus-na",
-                      'width': "100px",
+                      'width': "125px",
                       'data': "max_lrs_text"
                     },
                     { 
@@ -234,18 +255,18 @@
                       'orderSequence': [ "desc", "asc"]
                     }
                 ],
-                'order': [[1, "asc" ]],
-                'sDom': "pitirp",
-                'autoWidth': true,
-                'iDisplayLength': 500,
-                'deferRender': false,
-                'paging': true,
-                'orderClasses': true,
+                "order": [[1, "asc" ]],
+                'sDom': "iti",
+                "autoWidth": true,
+                "bSortClasses": false,
                 'processing': true,
-                'language': {
-                  'loadingRecords': '&nbsp;',
-                  'processing': 'Loading...'
-                }
+                {% if trait_count > 20 %}
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
+                {% else %}
+                "iDisplayLength": -1
+                {% endif %}
             } );
 
             $('#trait_table').append(
@@ -269,8 +290,7 @@
               '</tfoot>'
             );
 
-            console.timeEnd("Creating table");
-
+            the_table.draw();
         });
         
     </script>

@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/all.min.css') }}"/>
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="static/new/css/trait_list.css" />
 {% endblock %}
@@ -150,7 +150,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='fontawesome/js/all.min.js') }}"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
@@ -188,7 +188,7 @@
                       });
                 },
                 'createdRow': function ( row, data, index ) {
-                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 13px;");
                     $('td', row).eq(1).attr("align", "right");
                     $('td', row).eq(1).attr('data-export', index+1);
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
@@ -227,7 +227,7 @@
                 'columns': [
                     {
                       'data': null,
-                      'width': "25px",
+                      'width': "10px",
                       'orderDataType': "dom-checkbox",
                       'orderable': false,
                       'render': function(data, type, row, meta) {

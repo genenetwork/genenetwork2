@@ -21,27 +21,18 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 from db.call import fetch1
-from utility.tools import USE_GN_SERVER
 
-from utility.logger import getLogger
-logger = getLogger(__name__ )
-
-###########################################################################
-#output: cursor instance
-#function: connect to database and return cursor instance
-###########################################################################
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
 
     """
-    result = fetch1("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (group), "/cross/"+group+".json", lambda r: (r["species"],))[0]
-    logger.debug("retrieve_species result:", result)
+    result = fetch1("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (
+        group), "/cross/" + group + ".json", lambda r: (r["species"],))[0]
     return result
 
 
 def retrieve_species_id(group):
-
-    result = fetch1("select SpeciesId from InbredSet where Name = '%s'" % (group), "/cross/"+group+".json", lambda r: (r["species_id"],))[0]
-    logger.debug("retrieve_species_id result:", result)
+    result = fetch1("select SpeciesId from InbredSet where Name = '%s'" % (
+        group), "/cross/" + group + ".json", lambda r: (r["species_id"],))[0]
     return result

@@ -11,7 +11,7 @@ on:
 jobs:
   unittest:
     runs-on: ubuntu-latest
-    container: bonfacekilz/python3-genenetwork2:ad741c1
+    container: bonfacekilz/genenetwork2:latest
 
     steps:
     # First start with mariadb set then checkout. The checkout gives
@@ -31,13 +31,21 @@ jobs:
       run: |
         /gn2-profile/bin/screen -dmLS redisconn /gn2-profile/bin/redis-server
 
-    # Redis is required by some of the tests 6379
+    # Initialise the tables
     - name: Bootstrap tables
       run: |
         mysql -u root -e "SHOW DATABASES;"
         mysql -u root -e "CREATE DATABASE db_webqtl_s;"
         mysql -u root -e "CREATE USER 'gn2'@'localhost' IDENTIFIED BY 'mysql_password';"
         mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'gn2'@'localhost';FLUSH PRIVILEGES;"
+
+    - name: Start Genenetwork as a  Background Task
+      run: |
+        /gn2-profile/bin/screen -dm bash -c "env GN2_PROFILE=/gn2-profile \
+        TMPDIR=/tmp SERVER_PORT=5004 \
+        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
+        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
+        etc/default_settings.py"
 
     - name: Run the unit tests
       run: |
@@ -47,20 +55,11 @@ jobs:
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
         etc/default_settings.py -c -m unittest discover -v
 
-    - name: Start Genenetwork as a  Background Task
-      run: |
-        env GN2_PROFILE=/gn2-profile \
-        TMPDIR=/tmp SERVER_PORT=5004 \
-        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
-        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
-        etc/default_settings.py&
-
     - name: Test for Broken Links
       run: |
-
         env GN2_PROFILE=/gn2-profile \
         TMPDIR=/tmp\
         WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
-        etc/default_settings.py -c  /__w/genenetwork2/genenetwork2/test/requests/links_scraper/genelinks.py 
-
+        etc/default_settings.py -c \
+        $PWD/test/requests/links_scraper/genelinks.py

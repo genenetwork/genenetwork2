@@ -133,8 +133,10 @@ def get_user_groups(user_id):
     for key in groups_list:
         try:
             group_ob = json.loads(groups_list[key])
-            group_admins = set([this_admin.encode('utf-8') if this_admin else None for this_admin in group_ob['admins']])
-            group_members = set([this_member.encode('utf-8') if this_member else None for this_member in group_ob['members']])
+            group_admins = set([this_admin.encode(
+                'utf-8') if this_admin else None for this_admin in group_ob['admins']])
+            group_members = set([this_member.encode(
+                'utf-8') if this_member else None for this_member in group_ob['members']])
             if user_id in group_admins:
                 admin_group_ids.append(group_ob['id'])
             elif user_id in group_members:
@@ -203,7 +205,8 @@ def get_groups_like_unique_column(column_name, column_value):
                         if column_value in group_info[column_name]:
                             matched_groups.append(group_info)
         else:
-            matched_groups.append(load_json_from_redis(group_list, column_value))
+            matched_groups.append(
+                load_json_from_redis(group_list, column_value))
 
     return matched_groups
 

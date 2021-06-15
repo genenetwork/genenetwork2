@@ -8,7 +8,7 @@ from pprint import pformat as pf
 from utility import Plot
 from utility import Bunch
 
-class SampleList(object):
+class SampleList:
     def __init__(self,
                  dataset,
                  sample_names,
@@ -36,16 +36,16 @@ class SampleList(object):
             if isinstance(self.this_trait, list):
                 sample = webqtlCaseData.webqtlCaseData(name=sample_name)
                 if counter <= len(self.this_trait):
-                    if isinstance(self.this_trait[counter-1], (bytes, bytearray)):
-                        if (self.this_trait[counter-1].decode("utf-8").lower() != 'x'):
+                    if isinstance(self.this_trait[counter - 1], (bytes, bytearray)):
+                        if (self.this_trait[counter - 1].decode("utf-8").lower() != 'x'):
                             sample = webqtlCaseData.webqtlCaseData(
                                 name=sample_name,
-                                value=float(self.this_trait[counter-1]))
+                                value=float(self.this_trait[counter - 1]))
                     else:
-                        if (self.this_trait[counter-1].lower() != 'x'):
+                        if (self.this_trait[counter - 1].lower() != 'x'):
                             sample = webqtlCaseData.webqtlCaseData(
                                 name=sample_name,
-                                value=float(self.this_trait[counter-1]))
+                                value=float(self.this_trait[counter - 1]))
             else:
                 # ZS - If there's no value for the sample/strain,
                 # create the sample object (so samples with no value
@@ -56,8 +56,8 @@ class SampleList(object):
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
             sample.extra_info = {}
-            if (self.dataset.group.name == 'AXBXA' and
-                    sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17')):
+            if (self.dataset.group.name == 'AXBXA'
+                    and sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17')):
                 sample.extra_info['url'] = "/mouseCross.html#AXB/BXA"
                 sample.extra_info['css_class'] = "fs12"
 
@@ -69,24 +69,32 @@ class SampleList(object):
                 sample.extra_attributes = self.sample_attribute_values.get(
                     sample_name, {})
 
-                #ZS: Add a url so RRID case attributes can be displayed as links
+                # ZS: Add a url so RRID case attributes can be displayed as links
                 if 'rrid' in sample.extra_attributes:
                     if self.dataset.group.species == "mouse":
                         if len(sample.extra_attributes['rrid'].split(":")) > 1:
-                            the_rrid = sample.extra_attributes['rrid'].split(":")[1]
-                            sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
-                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_MOUSE_URL % the_rrid)
+                            the_rrid = sample.extra_attributes['rrid'].split(":")[
+                                1]
+                            sample.extra_attributes['rrid'] = [
+                                sample.extra_attributes['rrid']]
+                            sample.extra_attributes['rrid'].append(
+                                webqtlConfig.RRID_MOUSE_URL % the_rrid)
                     elif self.dataset.group.species == "rat":
                         if len(str(sample.extra_attributes['rrid'])):
-                            the_rrid = sample.extra_attributes['rrid'].split("_")[1]
-                            sample.extra_attributes['rrid'] = [sample.extra_attributes['rrid']]
-                            sample.extra_attributes['rrid'].append(webqtlConfig.RRID_RAT_URL % the_rrid)
+                            the_rrid = sample.extra_attributes['rrid'].split("_")[
+                                1]
+                            sample.extra_attributes['rrid'] = [
+                                sample.extra_attributes['rrid']]
+                            sample.extra_attributes['rrid'].append(
+                                webqtlConfig.RRID_RAT_URL % the_rrid)
 
             self.sample_list.append(sample)
 
         self.se_exists = any(sample.variance for sample in self.sample_list)
-        self.num_cases_exists = any(
-            sample.num_cases for sample in self.sample_list)
+        self.num_cases_exists = False
+        if (any(sample.num_cases for sample in self.sample_list) and
+            any((sample.num_cases and sample.num_cases != "1") for sample in self.sample_list)):
+            self.num_cases_exists = True
 
         first_attr_col = self.get_first_attr_col()
         for sample in self.sample_list:
@@ -129,13 +137,15 @@ class SampleList(object):
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
-            self.attributes[key].distinct_values=natural_sort(self.attributes[key].distinct_values)
+            self.attributes[key].distinct_values = natural_sort(
+                self.attributes[key].distinct_values)
             all_numbers = True
             for value in self.attributes[key].distinct_values:
                 try:
                     val_as_float = float(value)
                 except:
                     all_numbers = False
+                    break
 
             if all_numbers:
                 self.attributes[key].alignment = "right"
@@ -169,7 +179,8 @@ class SampleList(object):
                     except ValueError:
                         pass
 
-                    attribute_values[self.attributes[item.Id].name.lower()] = attribute_value
+                    attribute_values[self.attributes[item.Id].name.lower(
+                    )] = attribute_value
                 self.sample_attribute_values[sample_name] = attribute_values
 
     def get_first_attr_col(self):

@@ -17,8 +17,9 @@
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         {% if temp_trait is defined %}
         <input type="hidden" name="temp_trait" value="{{ temp_trait }}">
-        <input type="hidden" name="group" value="{{ group }}">
         {% endif %}
+        <input type="hidden" name="group" value="{{ dataset.group.name }}">
+        <input type="hidden" name="species" value="{{ dataset.group.species }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
@@ -71,7 +72,7 @@
               {% endif %}
               <br>
               <br>
-              <a id="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
+              <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -247,6 +248,7 @@
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
         {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
+        <button class="btn btn-default export_mapping_results" >Download <span class="glyphicon glyphicon-download"></span></button>
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
@@ -355,7 +357,7 @@
     {% endif %}
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+   <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='purescript-genome-browser/js/purescript-genetics-browser.js') }}"></script>
@@ -480,7 +482,7 @@
 
         var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
-                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'control_marker_db', 'do_control', 'genofile',
+                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'do_control', 'genofile',
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                             'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'n_samples']
 
@@ -612,7 +614,7 @@
             return $('#marker_regression_form').submit();
         }
 
-        $('#export_mapping_results').click(export_mapping_results);
+        $('.export_mapping_results').click(export_mapping_results);
 
         $('#browser_tab').click(function() {
           $('#gn1_map_options').css("display", "none")

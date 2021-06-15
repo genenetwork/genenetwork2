@@ -73,23 +73,24 @@ SMTP_PASSWORD = "UNKNOWN"
 
 # ---- Behavioural settings (defaults) note that logger and log levels can
 #      be overridden at the module level and with enviroment settings
-WEBSERVER_MODE  = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
+WEBSERVER_MODE = 'DEV'     # Python webserver mode (DEBUG|DEV|PROD)
 WEBSERVER_BRANDING = None   # Set the branding (nyi)
 WEBSERVER_DEPLOY = None     # Deployment specifics (nyi)
-WEBSERVER_URL    = "http://localhost:"+str(SERVER_PORT)+"/" # external URL
+WEBSERVER_URL = "http://localhost:" + str(SERVER_PORT) + "/" # external URL
 
-LOG_LEVEL       = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
+LOG_LEVEL = 'WARNING' # Logger mode (DEBUG|INFO|WARNING|ERROR|CRITICAL)
 LOG_LEVEL_DEBUG = '0'       # logger.debugf log level (0-5, 5 = show all)
-LOG_SQL         = 'False'   # Log SQL/backend and GN_SERVER calls
+LOG_SQL = 'False'   # Log SQL/backend and GN_SERVER calls
 LOG_SQL_ALCHEMY = 'False'
-LOG_BENCH       = True      # Log bench marks
+LOG_BENCH = True      # Log bench marks
 
-USE_REDIS       = True      # REDIS caching (note that redis will be phased out)
-USE_GN_SERVER   = 'False'   # Use GN_SERVER SQL calls
-HOME            = os.environ['HOME']
+USE_REDIS = True      # REDIS caching (note that redis will be phased out)
+USE_GN_SERVER = 'False'   # Use GN_SERVER SQL calls
+HOME = os.environ['HOME']
 
 # ---- Default locations
-GENENETWORK_FILES   = HOME+"/genotype_files"  # base dir for all static data files
+# base dir for all static data files
+GENENETWORK_FILES = HOME + "/genotype_files"
 
 # ---- Path overrides for Genenetwork - the defaults are normally
 #      picked up from Guix or in the HOME directory
@@ -98,7 +99,7 @@ GENENETWORK_FILES   = HOME+"/genotype_files"  # base dir for all static data fil
 # PRIVATE_FILES = HOME+"/gn2_private_data" # private static data files (unused)
 
 # ---- Local path to JS libraries - for development modules (only)
-JS_GN_PATH = os.environ['HOME']+"/genenetwork/javascript"
+JS_GN_PATH = os.environ['HOME'] + "/genenetwork/javascript"
 
 # ---- GN2 Executables (overwrite for testing only)
 # PLINK_COMMAND = str.strip(os.popen("which plink2").read())

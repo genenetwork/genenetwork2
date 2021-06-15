@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Correlation Results{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+    <style type="text/css">
+    	.td-styles{
+    		height: 40px;
+    		text-align: center;
+    	}
+    	.trait_col {
+    		font-weight:bolder;
+    		text-align: center;
+    		color:#036ffc;
+    		/*font-size: 1.1em;*/
+    	}
+    	table th {
+    		font-weight: bolder;
+    		text-transform: uppercase;
+    	}
+    	.correlation-title {
+    		padding:25px 10px;
+    	}
+    	.correlation-title h3 span {
+          font-weight: bolder;
+    	}
+    	.header-toggle-vis {
+    		padding:10px 5px;
+    	}
+    	.header-toggle-vis button {
+    		border-radius: 5px;
+
+    	}
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="correlation-title">
+	<h3>Correlation Results for <span>{{target_dataset}}</span> against <span><a href="">{{this_trait}}</a></span> for the top <span>{{return_results}}</span> Results</h3>
+</div>
+<div class="header-toggle-vis">
+	      <h4 style="font-weight: bolder;padding: 5px 3px;">Toggle Columns</h4>
+	      <button class="toggle-vis" data-column="1">Index</button>
+          <button class="toggle-vis" data-column="2">Trait Name</button>
+          <button class="toggle-vis" data-column="3">Sample r</button>
+          <button class="toggle-vis" data-column="4">Sample P(r)</button>
+          <button class="toggle-vis" data-column="5">Num overlap</button>
+</div>
+	<table id="example" class="display" width="100%">
+		        <thead>
+            <tr >
+            	<th></th>
+                <th>index</th>
+                <th>trait_name</th>
+                <th>Sample r</th>
+                <th>Sample r(p)</th>
+                <th>N</th>
+                <th>Tissue r</th>
+                <th>Tissue r(p)</th>
+                <th>Lit r</th>
+            </tr>
+        </thead>
+	</table>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
+<script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.html5.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+<script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script type="text/javascript">
+	let correlationResults = {{correlation_results|safe}}
+	// document.querySelector(".content").innerHTML =correlationResults
+	// parse the data
+	let  counter = 0;
+	let corr_type = "tissue";
+	correlationResults =correlationResults.map((trait_object)=>{
+		let trait_name = Object.keys(trait_object)[0]
+		
+		let new_dict = {
+			"index":counter,
+			"trait_name":trait_name,
+			...trait_object[trait_name]
+		}
+		counter++;
+		return new_dict;
+	})
+
+console.log(correlationResults)
+	
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+    let  table = $('#example').DataTable( {
+        "data": correlationResults,
+      "columns": [
+            {"data":corr_type=="sample"?null:"fd","width":"25px"},
+            { "data": "index","width":"120px","title":"Index" },
+            { "data": "trait_name","title":"TraitName"},
+            { "data": "corr_coeffient","defaultContent": "--"},
+            { "data": "p_value","defaultContent":"--"},
+            { "data": "num_overlap","defaultContent":"--"},
+            {"data":"tissue_corr","defaultContent":"--","title":"Tissue r"},
+            {"data":"tissue_p_val","defaultContent":"--","title":"Tissue r(p)"},
+            {"data":"lit_corr","defaultContent":"--","title":"Lit rho"}
+        ],
+        "columnDefs": [ 
+           {
+           	targets:0,
+           	data:null,
+           	defaultContent: '',
+           	orderable: false,
+           	className: 'select-checkbox',
+           	"render":(data,type,row)=>{
+           		return `<input type="checkbox" class="checkbox trait_checkbox" value="other">`
+           	}
+
+           },
+           {className:"trait_col",targets:2},
+           {className: "td-styles", targets: "_all"},
+           {
+           	"targets":2,
+           	"render":(data,type,row)=>{
+              // should use a dynamic dataset  name
+           		let urlLink = `/show_trait?trait_id=${data}&dataset=HC_M2_0606_P`
+           		let traitLink = `<a href=${urlLink}>${data}</a>`
+           		return traitLink
+           	},
+           }
+
+     ]
+    } );
+
+    $(":button.toggle-vis").on("click",function(e){
+    	e.preventDefault()
+    	let column = table.column($(this).attr("data-column"));
+    	column.visible(!column.visible())
+    	console.log($(this).attr("data-column"))
+    })
+} );
+</script>
+
+{% endblock %}

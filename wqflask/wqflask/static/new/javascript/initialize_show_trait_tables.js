@@ -40,9 +40,9 @@ build_columns = function() {
       'data': null,
       'render': function(data, type, row, meta) {
         if (data.value == null) {
-            return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=6 maxlength=6>'
+            return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
         } else {
-            return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=6 maxlength=6>'
+            return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=' + js_data.max_digits[0] + '>'
         }
       }
     }
@@ -66,9 +66,9 @@ build_columns = function() {
         'data': null,
         'render': function(data, type, row, meta) {
           if (data.variance == null) {
-              return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6 maxlength=6>'
+              return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6>'
           } else {
-              return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6 maxlength=6>'
+              return '<input type="text" data-value="' + data.variance.toFixed(3) + '" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="' + data.variance.toFixed(3) + '" size=6>'
           }
         }
       }
@@ -150,8 +150,8 @@ var primary_table = $('#samples_primary').DataTable( {
       }
 
       for (i=0; i < attr_keys.length; i++) {
-        $('td', row).eq(attribute_start_pos + i).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
-        $('td', row).eq(attribute_start_pos + i).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+        $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
+        $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
       }
     },
     'data': js_data['sample_lists'][0],

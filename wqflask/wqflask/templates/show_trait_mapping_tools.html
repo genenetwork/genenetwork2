@@ -39,7 +39,7 @@
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div class="col-xs-8 controls">
+                            <div class="col-xs-6 controls">
                                 <select id="genofile_gemma" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -124,7 +124,7 @@
                         </div>
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div class="col-xs-4 controls">
+                            <div class="col-xs-6 controls">
                                 <select id="genofile_reaper" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -218,7 +218,7 @@
                         </div>
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div class="col-xs-4 controls">
+                            <div class="col-xs-6 controls">
                                 <select id="genofile_rqtl_geno" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>

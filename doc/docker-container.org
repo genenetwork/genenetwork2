@@ -32,13 +32,13 @@ First create the gn2 tar archive by running:
 env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
     ./pre-inst-env guix pack --no-grafts\
     -S /gn2-profile=/ \
-    screen genenetwork2
+    screen python2-genenetwork2
 
 # For the Python 3 version:
 env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
     ./pre-inst-env guix pack --no-grafts\
     -S /gn2-profile=/ \
-    screen python3-genenetwork2
+    screen genenetwork2
   #+end_src
 
 The output will look something similar to:
@@ -59,16 +59,16 @@ RUN tar -xzf /tmp/gn2.tar.gz -C / && rm -f /tmp/gn2.tar.gz && \
 
 Build the image(Note the fullstop at the end):
 
-: sudo docker build -t python2-genenetwork2:latest -f Dockerfile .
+: sudo docker build -t genenetwork2:latest -f Dockerfile .
 
 To load the image interactively you've just created:
 
-: docker run -ti "python2-genenetwork2:latest" bash
+: docker run -ti "genenetwork2:latest" bash
 
 Assuming you have a docker instance running, you could always run
 commands in it e.g:
 
-: docker run "python2-genenetwork2:latest" python --version 
+: docker run "genenetwork2:latest" python --version
 
 * Pushing to DockerHub
 
@@ -78,7 +78,7 @@ CI environment using Github Actions.
 To push to dockerhub, first get the image name by running =docker
 images=. Push to dockerhub using a command similar to:
 
-: docker push bonfacekilz/python2-genenetwork2:latest
+: docker push bonfacekilz/genenetwork2:latest
 
 Right now, we have 2 images on DockerHub:
 

@@ -2,16 +2,20 @@
 
 Render pages from github, or if they are unavailable, look for it else where
 """
+
 import requests
 import markdown
 import os
 import sys
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore
 
 from flask import send_from_directory
 from flask import Blueprint
 from flask import render_template
+
+from typing import Dict
+from typing import List
 
 glossary_blueprint = Blueprint('glossary_blueprint', __name__)
 references_blueprint = Blueprint("references_blueprint", __name__)
@@ -19,6 +23,8 @@ environments_blueprint = Blueprint("environments_blueprint", __name__)
 links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
+
+blogs_blueprint = Blueprint("blogs_blueprint", __name__)
 
 
 def render_markdown(file_name, is_remote_file=True):
@@ -53,6 +59,40 @@ def get_file_from_python_search_path(pathname_suffix):
         return list(filter(os.path.exists, cands))[0]
     except IndexError:
         return None
+
+
+def get_blogs(user: str = "genenetwork",
+              repo_name: str = "gn-docs") -> dict:
+
+    blogs: Dict[int, List] = {}
+    github_url = f"https://api.github.com/repos/{user}/{repo_name}/git/trees/master?recursive=1"
+
+    repo_tree = requests.get(github_url).json()["tree"]
+
+    for data in repo_tree:
+        path_name = data["path"]
+        if path_name.startswith("blog") and path_name.endswith(".md"):
+            split_path = path_name.split("/")[1:]
+            try:
+                year, title, file_name = split_path
+            except Exception as e:
+                year, file_name = split_path
+                title = ""
+
+            subtitle = os.path.splitext(file_name)[0]
+
+            blog = {
+                "title": title,
+                "subtitle": subtitle,
+                "full_path": path_name
+            }
+
+            if year in blogs:
+                blogs[int(year)].append(blog)
+            else:
+                blogs[int(year)] = [blog]
+
+    return dict(sorted(blogs.items(), key=lambda x: x[0], reverse=True))
 
 
 @glossary_blueprint.route('/')
@@ -103,7 +143,7 @@ def environments():
 @environments_blueprint.route('/svg-dependency-graph')
 def svg_graph():
     directory, file_name, _ = get_file_from_python_search_path(
-            "wqflask/dependency-graph.svg").partition("dependency-graph.svg")
+        "wqflask/dependency-graph.svg").partition("dependency-graph.svg")
     return send_from_directory(directory, file_name)
 
 
@@ -124,3 +164,15 @@ def policies():
 @facilities_blueprint.route("/")
 def facilities():
     return render_template("facilities.html", rendered_markdown=render_markdown("general/help/facilities.md")), 200
+
+
+@blogs_blueprint.route("/<path:blog_path>")
+def display_blog(blog_path):
+    return render_template("blogs.html", rendered_markdown=render_markdown(blog_path))
+
+
+@blogs_blueprint.route("/")
+def blogs_list():
+    blogs = get_blogs()
+
+    return render_template("blogs_list.html", blogs=blogs)

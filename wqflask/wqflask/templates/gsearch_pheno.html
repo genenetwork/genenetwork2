@@ -48,6 +48,7 @@
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
@@ -55,7 +56,19 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script type='text/javascript'>
-      var the_rows = {{ trait_list|safe }};
+      var getParams = function(url) {
+        let parser = document.createElement('a');
+        parser.href = url;
+        let params = parser.search.substring(1);
+        if(params.length > 0) {
+          return ('?'+params);
+        }
+        return params;
+      };
+    </script>
+
+    <script type='text/javascript'>
+      var trait_list = {{ trait_list|safe }};
     </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -94,8 +107,7 @@
                 }
             }
 
-            console.time("Creating table");
-            $('#trait_table').DataTable( {
+            var the_table = $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
                      $('#trait_table tr').click(function(event) {
                          if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
@@ -130,11 +142,12 @@
                     $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
                     $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
                 },
-                'data': the_rows,
+                'data': trait_list,
                 'columns': [
                     {
                       'data': null,
                       'orderDataType': "dom-checkbox",
+                      'width': "10px",
                       'render': function(data, type, row, meta) {
                         return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
                       }
@@ -142,23 +155,26 @@
                     {
                       'title': "Index",
                       'type': "natural",
+                      'width': "30px",
                       'data': "index"
                     },
                     {
                       'title': "Species",
                       'type': "natural",
+                      'width': "60px",
                       'data': "species"
                     },
                     {
                       'title': "Group",
                       'type': "natural",
-                      'width': "10%",
+                      'width': "100px",
                       'data': "group"
                     },
                     {
                       'title': "Record",
                       'type': "natural",
                       'data': null,
+                      'width': "60px",
                       'orderDataType': "dom-inner-text",
                       'render': function(data, type, row, meta) {
                         return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
@@ -167,7 +183,7 @@
                     {
                       'title': "Description",
                       'type': "natural",
-                      'width': "25%",
+                      'width': "500px",
                       'data': null,
                       'render': function(data, type, row, meta) {
 			                  try {
@@ -180,13 +196,13 @@
                     {
                       'title': "Mean",
                       'type': "natural-minus-na",
-                      'width': "10%",
+                      'width': "30px",
                       'data': "mean"
                     },
                     {
                       'title': "Authors",
                       'type': "natural",
-                      'width': "25%",
+                      'width': "300px",
                       'data': null,
                       'render': function(data, type, row, meta) {
                         author_list = data.authors.split(",")
@@ -195,13 +211,7 @@
                         } else{
                           author_string = data.authors
                         }
-
-			                  try {
-                            return decodeURIComponent(escape(author_string))
-			                  } catch(err) {
-			                      return author_string
-                        }
-
+                        return author_string
                       }
                     },
                     {
@@ -209,6 +219,7 @@
                       'type': "natural-minus-na",
                       'data': null,
                       'orderDataType': "dom-inner-text",
+                      'width': "25px",
                       'render': function(data, type, row, meta) {
                         if (data.pubmed_id != "N/A"){
                           return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -222,33 +233,35 @@
                       'title': "Max LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "LRS_score_repr",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     },
                     {
                       'title': "Max LRS Location",
                       'type': "natural-minus-na",
-                      'width': "10%",
+                      'width': "125px",
                       'data': "max_lrs_text"
                     },
                     {
                       'title': "Additive Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
                       'type': "natural-minus-na",
                       'data': "additive",
+                      'width': "60px",
                       'orderSequence': [ "desc", "asc"]
                     }
                 ],
-                'order': [[1, "asc" ]],
-                'sDom': "pitirp",
-                'autoWidth': false,
-                'deferRender': false,
-                'iDisplayLength': 500,
-                'paging': true,
-                'orderClasses': true,
+                "order": [[1, "asc" ]],
+                'sDom': "iti",
+                "autoWidth": true,
+                "bSortClasses": false,
                 'processing': true,
-                'language': {
-                  'loadingRecords': '&nbsp;',
-                  'processing': 'Loading...'
-                }
+                {% if trait_count > 20 %}
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
+                {% else %}
+                "iDisplayLength": -1
+                {% endif %}
             } );
 
             $('#trait_table').append(
@@ -269,7 +282,7 @@
               '</tfoot>'
             );
 
-            console.timeEnd("Creating table");
+            the_table.draw();
         });
         
     </script>

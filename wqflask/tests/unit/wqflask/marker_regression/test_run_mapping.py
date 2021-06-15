@@ -187,7 +187,8 @@ class TestRunMapping(unittest.TestCase):
                     mock.call('Time/Date: 09/01/19 / 10:12:12\n'),
                     mock.call('Population: Human GP1_\n'), mock.call(
                         'Data Set: dataser_1\n'),
-                    mock.call('N Samples: 100\n'), mock.call('Transform - Quantile Normalized\n'),
+                    mock.call('N Samples: 100\n'), mock.call(
+                        'Transform - Quantile Normalized\n'),
                     mock.call('Gene Symbol: IGFI\n'), mock.call(
                         'Location: X1 @ 123313 Mb\n'),
                     mock.call('Cofactors (dataset - trait):\n'),
@@ -228,20 +229,20 @@ class TestRunMapping(unittest.TestCase):
         used_samples = ["S1", "S2"]
         sample_list = AttributeSetter({"sample_attribute_values": {
             "S1": {
-                "C1": "c1_value",
-                "C2": "c2_value",
-                "W1": "w1_value"
+                "c1": "c1_value",
+                "c2": "c2_value",
+                "w1": "w1_value"
 
             },
             "S2": {
-                "W1": "w2_value",
-                "W2": "w2_value"
+                "w1": "w2_value",
+                "w2": "w2_value"
 
             },
             "S3": {
 
-                "C1": "c1_value",
-                "C2": "c2_value"
+                "c1": "c1_value",
+                "c2": "c2_value"
 
             },
 
