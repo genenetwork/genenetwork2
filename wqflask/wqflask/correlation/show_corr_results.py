@@ -22,7 +22,7 @@ import collections
 import json
 import scipy
 import numpy
-import rpy2.robjects as ro                    # R Objects
+# import rpy2.robjects as ro                    # R Objects
 import utility.logger
 import utility.webqtlUtil
 
@@ -459,10 +459,10 @@ class CorrelationResults:
 
         if num_overlap > 5:
             # ZS: 2015 could add biweight correlation, see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3465711/
-            if self.corr_method == 'bicor':
-                sample_r, sample_p = do_bicor(
-                    self.this_trait_vals, target_vals)
-            elif self.corr_method == 'pearson':
+            # if self.corr_method == 'bicor':
+            #     sample_r, sample_p = do_bicor(
+            #         self.this_trait_vals, target_vals)
+            if self.corr_method == 'pearson':
                 sample_r, sample_p = scipy.stats.pearsonr(
                     self.this_trait_vals, target_vals)
             else:
@@ -487,22 +487,22 @@ class CorrelationResults:
                     self.sample_data[str(sample)] = float(value)
 
 
-def do_bicor(this_trait_vals, target_trait_vals):
-    r_library = ro.r["library"]             # Map the library function
-    r_options = ro.r["options"]             # Map the options function
+# def do_bicor(this_trait_vals, target_trait_vals):
+#     r_library = ro.r["library"]             # Map the library function
+#     r_options = ro.r["options"]             # Map the options function
 
-    r_library("WGCNA")
-    r_bicor = ro.r["bicorAndPvalue"]        # Map the bicorAndPvalue function
+#     r_library("WGCNA")
+#     r_bicor = ro.r["bicorAndPvalue"]        # Map the bicorAndPvalue function
 
-    r_options(stringsAsFactors=False)
+#     r_options(stringsAsFactors=False)
 
-    this_vals = ro.Vector(this_trait_vals)
-    target_vals = ro.Vector(target_trait_vals)
+#     this_vals = ro.Vector(this_trait_vals)
+#     target_vals = ro.Vector(target_trait_vals)
 
-    the_r, the_p, _fisher_transform, _the_t, _n_obs = [
-        numpy.asarray(x) for x in r_bicor(x=this_vals, y=target_vals)]
+#     the_r, the_p, _fisher_transform, _the_t, _n_obs = [
+#         numpy.asarray(x) for x in r_bicor(x=this_vals, y=target_vals)]
 
-    return the_r, the_p
+#     return the_r, the_p
 
 
 def generate_corr_json(corr_results, this_trait, dataset, target_dataset, for_api=False):
