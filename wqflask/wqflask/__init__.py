@@ -15,6 +15,7 @@ from wqflask.markdown_routes import policies_blueprint
 from wqflask.markdown_routes import environments_blueprint
 from wqflask.markdown_routes import facilities_blueprint
 from wqflask.markdown_routes import blogs_blueprint
+from wqflask.markdown_routes import news_blueprint
 
 app = Flask(__name__)
 
@@ -52,6 +53,7 @@ app.register_blueprint(policies_blueprint, url_prefix="/policies")
 app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
+app.register_blueprint(news_blueprint, url_prefix="/news")
 
 
 @app.before_request
@@ -68,7 +70,6 @@ from wqflask import export_traits
 from wqflask import gsearch
 from wqflask import update_search_results
 from wqflask import docs
-from wqflask import news
 from wqflask import db_info
 from wqflask import user_login
 from wqflask import user_session

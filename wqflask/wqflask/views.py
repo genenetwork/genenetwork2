@@ -394,12 +394,6 @@ def ctl_setup():
 #     return render_template("ctl_results.html", **result)
 
 
-@app.route("/news")
-def news():
-    doc = Docs("news", request.args)
-    return render_template("docs.html", **doc.__dict__)
-
-
 @app.route("/intro")
 def intro():
     doc = Docs("intro", request.args)

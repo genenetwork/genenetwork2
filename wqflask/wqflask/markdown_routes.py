@@ -23,6 +23,7 @@ environments_blueprint = Blueprint("environments_blueprint", __name__)
 links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
+news_blueprint = Blueprint("news_blueprint", __name__)
 
 blogs_blueprint = Blueprint("blogs_blueprint", __name__)
 
@@ -107,6 +108,13 @@ def references():
     return render_template(
         "references.html",
         rendered_markdown=render_markdown("general/references/references.md")), 200
+
+
+@news_blueprint.route('/')
+def news():
+    return render_template(
+        "news.html",
+        rendered_markdown=render_markdown("general/news/news.md")), 200
 
 
 @environments_blueprint.route("/")
