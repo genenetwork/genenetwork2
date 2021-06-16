@@ -65,7 +65,7 @@ from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
-from wqflask.correlation import show_corr_results
+from wqflask.correlation.show_corr_results import set_other_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
@@ -1082,15 +1082,9 @@ def network_graph_page():
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
-    logger.info("In corr_compute, request.form is:", pf(request.form))
-    logger.info(request.url)
-    template_vars = show_corr_results.CorrelationResults(request.form)
-    return render_template("correlation_page.html", **template_vars.__dict__)
-
-    # to test/disable the new  correlation api uncomment these lines
-
-    # correlation_results = compute_correlation(request.form)
-    # return render_template("test_correlation_page.html", correlation_results=correlation_results)
+    correlation_results = compute_correlation(request.form, compute_all=True)
+    correlation_results = set_other_template_vars(request.form, correlation_results)
+    return render_template("correlation_page.html", **correlation_results)
 
 
 @app.route("/test_corr_compute", methods=["POST"])
