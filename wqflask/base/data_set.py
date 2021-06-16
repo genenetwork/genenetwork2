@@ -559,6 +559,7 @@ class DataSet:
         self.fullname = None
         self.type = None
         self.data_scale = None  # ZS: For example log2
+        self.accession_id = None
 
         self.setup()
 
@@ -574,6 +575,17 @@ class DataSet:
         if get_samplelist == True:
             self.group.get_samplelist()
         self.species = species.TheSpecies(self)
+
+    def as_dict(self):
+        return {
+            'name': self.name,
+            'shortname': self.shortname,
+            'fullname': self.fullname,
+            'type': self.type,
+            'data_scale': self.data_scale,
+            'group': self.group.name,
+            'accession_id': self.accession_id
+        }
 
     def get_accession_id(self):
         if self.type == "Publish":
