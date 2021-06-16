@@ -152,7 +152,7 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
             if bool(target_trait['additive']):
                 results_dict['additive'] = f"{float(target_trait['additive']):.3f}"
         else:
-            results_dict['location'] = target_trait['lrs_location']
+            results_dict['location'] = target_trait['location']
 
         results_list.append(results_dict)
 
