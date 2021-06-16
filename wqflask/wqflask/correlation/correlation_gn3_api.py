@@ -131,8 +131,14 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
     return (this_trait_data, results)
 
 
-def compute_correlation(start_vars, method="pearson"):
-    """compute correlation for to call gn3  api"""
+def compute_correlation(start_vars, method="pearson", compute_all=False):
+    """Compute correlations using GN3 API
+
+    Keyword arguments:
+    start_vars -- All input from form; includes things like the trait/dataset names
+    method -- Correlation method to be used (pearson, spearman, or bicor)
+    compute_all -- Include sample, tissue, and literature correlations (when applicable)
+    """
     # pylint: disable-msg=too-many-locals
 
     corr_type = start_vars['corr_type']
@@ -185,8 +191,6 @@ def compute_correlation(start_vars, method="pearson"):
                 species=species, gene_id=this_trait_geneid)
 
     correlation_results = correlation_results[0:corr_return_results]
-
-    compute_all = True  # later to  be passed as argument
 
     if (compute_all):
 
