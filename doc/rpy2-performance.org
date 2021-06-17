@@ -21,7 +21,7 @@ server:
 
 However, when loading the homepage, I occasionally ran into this trace:
 
-#+begin_export ascii
+#+begin_src
 DEBUG:wqflask.views:.check_access_permissions: @app.before_request check_access_permissions
 DEBUG:wqflask.views:.shutdown_session: remove db_session
 WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: Error: ignoring SIGPIPE signal
@@ -58,7 +58,7 @@ Possible actions:
 
 Selection:
 
-#+end_export
+#+end_src
 
 This blocks the flask service. Seems to be related to: [[https://github.com/rpy2/rpy2/issues/769][rpy2-issue#769]]
 and [[https://github.com/rpy2/rpy2/issues/809][rpy2-issue#809]]. I tried to reproduce this problem using some endpoint:
@@ -80,7 +80,7 @@ and [[https://github.com/rpy2/rpy2/issues/809][rpy2-issue#809]]. I tried to repr
 
 which generates this trace:
 
-#+begin_export ascii
+#+begin_src
 /home/bonface/opt/python3-genenetwork2/lib/python3.8/site-packages/rpy2/rinterface.py:955: UserWarning: R is not initialized by the main thread.
               Its taking over SIGINT cannot be reversed here, and as a
               consequence the embedded R cannot be interrupted with Ctrl-C.
@@ -89,7 +89,7 @@ which generates this trace:
 warnings.warn(
 DEBUG:wqflask.views:.shutdown_session: remove db_session
 
-#+end_export
+#+end_src
 
 Modifying the endpoint to:
 
@@ -108,7 +108,7 @@ Modifying the endpoint to:
 
 and refreshing the page a couple of times, I get:
 
-#+begin_export ascii
+#+begin_src
 DEBUG:wqflask.views:.check_access_permissions: @app.before_request check_access_
 permissions
 Sleeping for 3 seconds
@@ -136,7 +136,7 @@ WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:  library '/home/bonfa
 ce/R/x86_64-unknown-linux-gnu-library/4.0' contains no packages
 
 WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
-*** caught segfault ***
+\*** caught segfault ***
 
 WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: address (nil), cause
 'memory not mapped'
@@ -151,9 +151,11 @@ Possible actions:
 Selection: [2021-06-16 13:11:00 +0300] [18657] [INFO] Handling signal: winch
 [2021-06-16 13:11:00 +0300] [18657] [INFO] Handling signal: winch
 [2021-06-16 13:13:02 +0300] [18657] [INFO] Handling signal: winch
-#+end_export
+#+end_src
 
-However, this seems to be non-deterministic, in the sense that I can't really pin what causes the above. I've tried to write a Locust Test that simulates users hitting that endpoint:
+However, this seems to be non-deterministic, in the sense that I can't
+really pin what causes the above. I've tried to write a Locust Test
+that simulates users hitting that endpoint:
 
 #+begin_src python
 """Load test a single trait page"""
@@ -168,3 +170,4 @@ from locust import HttpUser, task, between
           """Fetch a single trait"""
           self.client.get("/test")
 #+end_src
+
