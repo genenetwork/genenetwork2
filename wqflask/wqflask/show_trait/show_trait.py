@@ -177,9 +177,12 @@ class ShowTrait:
         sample_lists = [group.sample_list for group in self.sample_groups]
 
         categorical_var_list = []
+        self.numerical_var_list = []
         if not self.temp_trait:
             # ZS: Only using first samplelist, since I think mapping only uses those samples
             categorical_var_list = get_categorical_variables(
+                self.this_trait, self.sample_groups[0])
+            self.numerical_var_list = get_numerical_variables(
                 self.this_trait, self.sample_groups[0])
 
         # ZS: Get list of chromosomes to select for mapping
@@ -694,6 +697,26 @@ def get_categorical_variables(this_trait, sample_list) -> list:
 
     return categorical_var_list
 
+def get_numerical_variables(this_trait, sample_list) -> list:
+    numerical_var_list = []
+
+    if len(sample_list.attributes) > 0:
+        for attribute in sample_list.attributes:
+            all_numeric = True
+            all_none = True
+            for attr_val in sample_list.attributes[attribute].distinct_values:
+                if not attr_val:
+                    continue
+                try:
+                    val_as_float = float(attr_val)
+                    all_none = False
+                except:
+                    all_numeric = False
+                    break
+            if all_numeric and not all_none:
+                numerical_var_list.append(sample_list.attributes[attribute].name)
+
+    return numerical_var_list
 
 def get_genotype_scales(genofiles):
     geno_scales = {}
