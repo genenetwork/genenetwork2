@@ -46,19 +46,17 @@
     </div>
     {% endif %}
     <div id="filterMenuSpan" class="input-append block-div-2">
-      <label for="filter_samples_field">Filter samples by {% if not sample_groups[0].attributes %}value{% endif %} </label>
-      {% if sample_groups[0].attributes %}
+      <label for="filter_samples_field">Filter samples by {% if (numerical_var_list|length == 0) and (not js_data.se_exists) %}value{% endif %} </label>
+      {% if (numerical_var_list|length > 0) or js_data.se_exists %}
       <select id="filter_column">
         <option value="value">Value</option>
         {% if js_data.se_exists %}
         <option value="stderr">SE</option>
         {% endif %}
-        {% for attribute in sample_groups[0].attributes %}
-
+        {% for attribute in numerical_var_list %}
         <option value="{{ loop.index }}">
-          {{ sample_groups[0].attributes[attribute].name }}
+          {{ attribute }}
         </option>
-
         {% endfor %}
       </select>
       {% endif %}
