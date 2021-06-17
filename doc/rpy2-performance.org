@@ -1,0 +1,170 @@
+* Python-Rpy2 performance issues with genenetwork2
+
+At one point, genenetwork2 was down. A possible cause was that it
+wrote into the log file in an infinite loop due to rpy2, so a solution
+was to empty it. Currently, as a work around, rpy2 is disabled by
+removing it's imports. This affects WGCNA/ CTL imports and commenting
+out Biweight Midcorrelation option in the trait page. See:
+
+- [[https://github.com/genenetwork/genenetwork2/commit/1baf5f7611909c651483208184c5fbf7d4a7a088][1baf5f7]]
+- [[https://github.com/genenetwork/genenetwork2/commit/afee4d625248565857df98d3510f680ae6204864][afee4d6]]
+- [[https://github.com/genenetwork/genenetwork2/commit/c458bf0ad731e5e5fd9cbd0686936b3a441bae63][c458bf0]]
+- [[https://github.com/genenetwork/genenetwork2/commit/d31f3f763471b19559ca74e73b52b3cb5e7153ce][d31f3f7]]
+
+** Reproducing the problem
+
+I went back to commit #b8408cea. With regards to logs, I never
+experienced any log issue. Perhaps it's because of how I start my
+server:
+
+: env SERVER_PORT=5004 TMPDIR=/home/bonface/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG GENENETWORK_FILES=/home/bonface/data/genotype_files/ GN2_PROFILE=/home/bonface/opt/python3-genenetwork2 ./scripts/run_debug.sh
+
+However, when loading the homepage, I occasionally ran into this trace:
+
+#+begin_export ascii
+DEBUG:wqflask.views:.check_access_permissions: @app.before_request check_access_permissions
+DEBUG:wqflask.views:.shutdown_session: remove db_session
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: Error: ignoring SIGPIPE signal
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: In addition:
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: Warning messages:
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: 1:
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: In (function (package, help, pos = 2, lib.loc = NULL, character.only = FALSE,  :
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:  library '/home/bonface/R/x86_64-unknown-linux-gnu-library/4.0' contains no packages
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: 2:
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: In (function (package, help, pos = 2, lib.loc = NULL, character.only = FALSE,  :
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:  library '/home/bonface/R/x86_64-unknown-linux-gnu-library/4.0' contains no packages
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: Fatal error: unable to initialize the JIT
+
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+ *** caught segfault ***
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: address (nil), cause 'memory not mapped'
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+Possible actions:
+1: abort (with core dump, if enabled)
+2: normal R exit
+3: exit R without saving workspace
+4: exit R saving workspace
+
+Selection:
+
+#+end_export
+
+This blocks the flask service. Seems to be related to: [[https://github.com/rpy2/rpy2/issues/769][rpy2-issue#769]]
+and [[https://github.com/rpy2/rpy2/issues/809][rpy2-issue#809]]. I tried to reproduce this problem using some endpoint:
+
+#+begin_src python
+@app.route("/test")
+  def test():
+      from rpy2 import robjects as ro
+      from rpy2 import rinterface
+      from threading import Thread
+
+      def rpy2_init_simple():
+          rinterface.initr_simple()
+
+      thread = Thread(target=rpy2_init_simple)
+      thread.start()
+      return "This is a test after importing rpy2"
+#+end_src
+
+which generates this trace:
+
+#+begin_export ascii
+/home/bonface/opt/python3-genenetwork2/lib/python3.8/site-packages/rpy2/rinterface.py:955: UserWarning: R is not initialized by the main thread.
+              Its taking over SIGINT cannot be reversed here, and as a
+              consequence the embedded R cannot be interrupted with Ctrl-C.
+              Consider (re)setting the signal handler of your choice from
+              the main thread.
+warnings.warn(
+DEBUG:wqflask.views:.shutdown_session: remove db_session
+
+#+end_export
+
+Modifying the endpoint to:
+
+#+begin_src python
+@app.route("/test")
+  def test():
+      import wqflask.correlation.show_corr_results
+      import wqflask.ctl.ctl_analysis
+      import time
+      from wqflask.correlation.correlation_functions import cal_zero_order_corr_for_tiss
+
+      print("Sleeping for 3 seconds")
+      time.sleep(3)
+      return "This is a test after importing rpy2"
+#+end_src
+
+and refreshing the page a couple of times, I get:
+
+#+begin_export ascii
+DEBUG:wqflask.views:.check_access_permissions: @app.before_request check_access_
+permissions
+Sleeping for 3 seconds
+DEBUG:wqflask.views:.shutdown_session: remove db_session
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: Error: ignoring SIGPI
+PE signal
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: In addition:
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: Warning messages:
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: 1:
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: In (function (package
+, help, pos = 2, lib.loc = NULL, character.only = FALSE,  :
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:  library '/home/bonfa
+ce/R/x86_64-unknown-linux-gnu-library/4.0' contains no packages
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: 2:
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: In (function (package
+, help, pos = 2, lib.loc = NULL, character.only = FALSE,  :
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:  library '/home/bonfa
+ce/R/x86_64-unknown-linux-gnu-library/4.0' contains no packages
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+*** caught segfault ***
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]: address (nil), cause
+'memory not mapped'
+
+WARNING:rpy2.rinterface_lib.callbacks:R[write to console]:
+Possible actions:
+1: abort (with core dump, if enabled)
+2: normal R exit
+3: exit R without saving workspace
+4: exit R saving workspace
+
+Selection: [2021-06-16 13:11:00 +0300] [18657] [INFO] Handling signal: winch
+[2021-06-16 13:11:00 +0300] [18657] [INFO] Handling signal: winch
+[2021-06-16 13:13:02 +0300] [18657] [INFO] Handling signal: winch
+#+end_export
+
+However, this seems to be non-deterministic, in the sense that I can't really pin what causes the above. I've tried to write a Locust Test that simulates users hitting that endpoint:
+
+#+begin_src python
+"""Load test a single trait page"""
+from locust import HttpUser, task, between
+
+
+  class LoadTest(HttpUser):
+      wait_time = between(1, 2.5)
+
+      @task
+      def fetch_trait(self):
+          """Fetch a single trait"""
+          self.client.get("/test")
+#+end_src
