@@ -1,10 +1,10 @@
 * Python-Rpy2 performance issues with genenetwork2
 
 At one point, genenetwork2 was down. A possible cause was that it
-wrote into the log file in an infinite loop due to rpy2, so a solution
-was to empty it. Currently, as a work around, rpy2 is disabled by
-removing it's imports. This affects WGCNA/ CTL imports and commenting
-out Biweight Midcorrelation option in the trait page. See:
+wrote into the log file in an infinite loop due to rpy2(v3.4.4), so a
+solution was to empty it. Currently, as a work around, rpy2 is
+disabled by removing it's imports. This affects WGCNA/ CTL imports and
+commenting out Biweight Midcorrelation option in the trait page. See:
 
 - [[https://github.com/genenetwork/genenetwork2/commit/1baf5f7611909c651483208184c5fbf7d4a7a088][1baf5f7]]
 - [[https://github.com/genenetwork/genenetwork2/commit/afee4d625248565857df98d3510f680ae6204864][afee4d6]]
