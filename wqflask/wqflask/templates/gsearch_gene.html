@@ -2,6 +2,7 @@
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
@@ -31,7 +32,7 @@
             </form>
             <br />
             <br />
-            <div style="min-width: 2000px; width: 100%;">
+            <div id="table_container" style="width: 2000px;">
               <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
                   <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -54,6 +55,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
 
     <script type='text/javascript'>
       var getParams = function(url) {
@@ -73,51 +75,150 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
-            
-            $('#trait_table tr').click(function(event) {
-                if (event.target.type !== 'checkbox') {
-                    $(':checkbox', this).trigger('click');
-                }
-            });
+            var tableId = "trait_table";
 
-            function change_buttons() {
-                buttons = ["#add", "#remove"];
-                num_checked = $('.trait_checkbox:checked').length;
-                if (num_checked === 0) {
-                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-                        button = buttons[_i];
-                        $(button).prop("disabled", true);
-                    }
-                } else {
-                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
-                        button = buttons[_j];
-                        $(button).prop("disabled", false);
-                    }
-                }
-                         //});
-                if ($(this).is(":checked")) {
-                    if (!$(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').addClass('selected')
-                    }
-                }
-                else {
-                    if ($(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').removeClass('selected')
-                    }
-                }
-            }
+            var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
 
-            var the_table = $('#trait_table').DataTable( {
+            columnDefs = [
+              {
+                'orderDataType': "dom-checkbox",
+                'width': "10px",
+                'data': null,
+                'targets': 0,
+                'render': function(data, type, row, meta) {
+                  return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
+                }
+              },
+              {
+                'title': "Index",
+                'type': "natural",
+                'width': "30px",
+                'targets': 1,
+                'data': "index"
+              },
+              {
+                'title': "Record",
+                'type': "natural",
+                'orderDataType': "dom-inner-text",
+                'width': "60px",
+                'data': null,
+                'targets': 2,
+                'render': function(data, type, row, meta) {
+                  return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
+                }
+              },
+              {
+                'title': "Species",
+                'type': "natural",
+                'width': "60px",
+                'targets': 3,
+                'data': "species"
+              },
+              {
+                'title': "Group",
+                'type': "natural",
+                'width': "150px",
+                'targets': 4,
+                'data': "group"
+              },
+              {
+                'title': "Tissue",
+                'type': "natural",
+                'width': "150px",
+                'targets': 5,
+                'data': "tissue"
+              },
+              {
+                'title': "Dataset",
+                'type': "natural",
+                'targets': 6,
+                'data': "dataset_fullname"
+              },
+              {
+                'title': "Symbol",
+                'type': "natural",
+                'width': "60px",
+                'targets': 7,
+                'data': "symbol"
+              },
+              {
+                'title': "Description",
+                'type': "natural",
+                'data': null,
+                'targets': 8,
+                'render': function(data, type, row, meta) {
+                  try {
+                      return decodeURIComponent(escape(data.description))
+                  } catch(err) {
+                      return escape(data.description)
+                  }
+                }
+              },
+              {
+                'title': "Location",
+                'type': "natural-minus-na",
+                'width': "125px",
+                'targets': 9,
+                'data': "location_repr"
+              },
+              {
+                'title': "Mean",
+                'type': "natural-minus-na",
+                'orderSequence': [ "desc", "asc"],
+                'width': "30px",
+                'targets': 10,
+                'data': "mean"
+              },
+              {
+                'title': "Max<br>LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                'type': "natural-minus-na",
+                'width': "60px",
+                'targets': 11,
+                'data': "LRS_score_repr",
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "Max LRS Location",
+                'type': "natural-minus-na",
+                'width': "125px",
+                'targets': 12,
+                'data': "max_lrs_text"
+              },
+              {
+                'title': "Additive<br>Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+                'type': "natural-minus-na",
+                'width': "50px",
+                'targets': 13,
+                'data': "additive",
+                'orderSequence': [ "desc", "asc"]
+              }
+            ]
+
+            loadDataTable(true);
+
+            function loadDataTable(first_run=false){
+
+              if (!first_run){
+                setUserColumnsDefWidths(tableId);
+              }
+
+              table_settings = {
                 'drawCallback': function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                     $('.trait_checkbox:checkbox').on("change", change_buttons);
+                  $('#' + tableId + ' tr').off().on("click", function(event) {
+                    if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                      var obj =$(this).find('input');
+                      obj.prop('checked', !obj.is(':checked'));
+                    }
+                    if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                      $(this).removeClass("selected")
+                    } else if (event.target.tagName.toLowerCase() !== 'a') {
+                      $(this).addClass("selected")
+                    }
+                    change_buttons()
+                  });
                 },
                 'createdRow': function ( row, data, index ) {
-                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 13px;");
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
                     $('td', row).eq(1).attr("align", "right");
                     $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                     if ($('td', row).eq(4).text().length > 30) {
@@ -155,144 +256,62 @@
                     $('td', row).eq(13).attr('data-export', $('td', row).eq(13).text());
                 },
                 'data': trait_list,
-                'columns': [
-                    {
-                      'orderDataType': "dom-checkbox",
-                      'width': "10px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
-                      }
-                    },
-                    {
-                      'title': "Index",
-                      'type': "natural", 
-                      'width': "30px",
-                      'data': "index"
-                    },
-                    { 
-                      'title': "Record",
-                      'type': "natural", 
-                      'orderDataType': "dom-inner-text",
-                      'width': "60px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
-                      }
-                    },
-                    { 
-                      'title': "Species",
-                      'type': "natural",
-                      'width': "60px",
-                      'data': "species"
-                    },
-                    { 
-                      'title': "Group",
-                      'type': "natural",
-                      'width': "150px",
-                      'data': "group"
-                    },
-                    { 
-                      'title': "Tissue",
-                      'type': "natural",
-                      'width': "150px",
-                      'data': "tissue"
-                    },
-                    { 
-                      'title': "Dataset",
-                      'type': "natural",
-                      'data': "dataset_fullname"
-                    },
-                    { 
-                      'title': "Symbol",
-                      'type': "natural",
-                      'width': "60px",
-                      'data': "symbol"
-                    },
-                    { 
-                      'title': "Description",
-                      'type': "natural",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        try {
-                            return decodeURIComponent(escape(data.description))
-                        } catch(err) {
-                            return escape(data.description)
-                        }
-                      }
-                    },
-                    { 
-                      'title': "Location",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "location_repr"
-                    },
-                    {
-                      'title': "Mean",
-                      'type': "natural-minus-na",
-                      'orderSequence': [ "desc", "asc"],
-                      'width': "30px",
-                      'data': "mean"
-                    },
-                    { 
-                      'title': "Max<br>LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural-minus-na",
-                      'width': "60px",
-                      'data': "LRS_score_repr",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    { 
-                      'title': "Max LRS Location",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "max_lrs_text"
-                    },
-                    { 
-                      'title': "Additive<br>Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural-minus-na",
-                      'width': "50px",
-                      'data': "additive",
-                      'orderSequence': [ "desc", "asc"]
-                    }
-                ],
+                'columns': columnDefs,
                 "order": [[1, "asc" ]],
                 'sDom': "iti",
+                "destroy": true,
                 "autoWidth": true,
+                "deferRender": true,
                 "bSortClasses": false,
-                'processing': true,
                 {% if trait_count > 20 %}
                 "scrollY": "100vh",
                 "scroller":  true,
-                "scrollCollapse": true
+                "scrollCollapse": true,
                 {% else %}
-                "iDisplayLength": -1
+                "iDisplayLength": -1,
                 {% endif %}
-            } );
+                "initComplete": function (settings) {
+                  //Add JQueryUI resizable functionality to each th in the ScrollHead table
+                  $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
+                    handles: "e",
+                    alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
+                    resize: function( event, ui ) {
+                      width_change = ui.size.width - ui.originalSize.width;
+                    },
+                    stop: function () {
+                      saveColumnSettings(tableId, trait_table);
+                      loadDataTable();
+                    }
+                  });
+                }
+              }
 
-            $('#trait_table').append(
-              '<tfoot>' + 
-                '<tr>' +
-                  '<th></th>' +
-                  '<th>Index</th>' +
-                  '<th>Record ID</th>' +
-                  '<th>Species</th> ' +
-                  '<th>Group</th>' +
-                  '<th>Tissue</th>' +
-                  '<th>Dataset</th>' + 
-                  '<th>Symbol</th>' + 
-                  '<th>Description</th>' + 
-                  '<th>Location</th>' +
-                  '<th>Mean</th>' +
-                  '<th>Max LRS <a href="{{ url_for('glossary_blueprint.glossary') }}#LRS" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
-                  '<th>Max LRS Location</th>' + 
-                  '<th>Additive Effect <a href="{{ url_for('glossary_blueprint.glossary') }}#A" target="_blank" style="color: white;"><sup>?</sup></a></th>' +
-                '</tr>' + 
-              '</tfoot>'
-            );
+              if (!first_run){
+                table_settings['autoWidth'] = false;
+                $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+              }
 
-            the_table.draw();
+              let checked_rows = get_checked_rows(tableId);
+              trait_table = $('#' + tableId).DataTable(table_settings);
+              if (checked_rows.length > 0){
+                recheck_rows(trait_table, checked_rows);
+              }
+
+              if (first_run){
+                  {% if trait_list|length > 20 %}
+                  $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+                  {% endif %}
+              }
+
+              trait_table.draw();
+            }
+
+            $('#redraw').click(function() {
+                var table = $('#' + tableId).DataTable();
+                table.colReorder.reset()
+            });
+
         });
         
     </script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 {% endblock %}
