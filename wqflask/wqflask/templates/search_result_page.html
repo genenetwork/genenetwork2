@@ -8,7 +8,6 @@
     <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="static/new/css/trait_list.css" />
-    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
@@ -126,7 +125,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" {% if wide_columns_exist == true %}style="width: 2000px;"{% endif %}>
+          <div id="table_container">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -180,9 +179,7 @@
             columnDefs = [
             {
               'data': null,
-              {% if wide_columns_exist == true %}
               'width': "25px",
-              {% endif %}
               'orderDataType': "dom-checkbox",
               'orderable': false,
               'targets': 0,
@@ -193,9 +190,7 @@
             {
               'title': "Index",
               'type': "natural",
-              {% if wide_columns_exist == true %}
               'width': "35px",
-              {% endif %}
               'targets': 1,
               'data': "index"
             }
@@ -204,9 +199,7 @@
               'title': "Record",
               'type': "natural-minus-na",
               'data': null,
-              {% if wide_columns_exist == true %}
-              'width': "{{ max_widths.display_name * 5 }}px",
-              {% endif %}
+              'width': "{{ max_widths.display_name * 8 }}px",
               'targets': 2,
               'render': function(data, type, row, meta) {
                 return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
@@ -215,9 +208,7 @@
             {
               'title': "Symbol",
               'type': "natural",
-              {% if wide_columns_exist == true %}
-              'width': "200px",
-              {% endif %}
+              'width': "{{ max_widths.symbol * 8 }}px",
               'targets': 3,
               'data': "symbol"
             },
@@ -237,18 +228,14 @@
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "125px",
-              {% endif %}
               'targets': 5,
               'data': "location"
             },
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "40px",
-              {% endif %}
               'data': "mean",
               'targets': 6,
               'orderSequence': [ "desc", "asc"]
@@ -257,18 +244,14 @@
               'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
               'type': "natural-minus-na",
               'data': "lod_score",
-              {% if wide_columns_exist == true %}
               'width': "60px",
-              {% endif %}
               'targets': 7,
               'orderSequence': [ "desc", "asc"]
             },
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "125px",
-              {% endif %}
               'targets': 8,
               'data': "lrs_location"
             },
@@ -276,19 +259,15 @@
               'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
               'type': "natural-minus-na",
               'data': "additive",
-              {% if wide_columns_exist == true %}
               'width': "60px",
-              {% endif %}
               'targets': 9,
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Publish' %},
             {
               'title': "Record",
               'type': "natural-minus-na",
+              'width': "{{ max_widths.display_name * 9 }}px",
               'data': null,
-              {% if wide_columns_exist == true %}
-              'width': "100px",
-              {% endif %}
               'targets': 2,
               'render': function(data, type, row, meta) {
                 return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
@@ -297,6 +276,11 @@
             {
               'title': "Description",
               'type': "natural",
+              {% if (max_widths.description * 7) < 500 %}
+              'width': "{{ max_widths.description * 7 }}px",
+              {% else %}
+              'width': "500px",
+              {% endif %}
               'data': null,
               'targets': 3,
               'render': function(data, type, row, meta) {
@@ -310,9 +294,7 @@
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "60px",
-              {% endif %}
               'data': "mean",
               'targets': 4,
               'orderSequence': [ "desc", "asc"]
@@ -320,8 +302,10 @@
             {
               'title': "Authors",
               'type': "natural",
-              {% if wide_columns_exist == true %}
-              'width': "400px",
+              {% if (max_widths.authors * 7) < 500 %}
+              'width': "{{ max_widths.authors * 7 }}px",
+              {% else %}
+              'width': "500px",
               {% endif %}
               'data': null,
               'targets': 5,
@@ -339,9 +323,7 @@
               'title': "<div style='text-align: right;'>Year</div>",
               'type': "natural-minus-na",
               'data': null,
-              {% if wide_columns_exist == true %}
               'width': "50px",
-              {% endif %}
               'targets': 6,
               'render': function(data, type, row, meta) {
                 if (data.pubmed_id != "N/A"){
@@ -357,26 +339,20 @@
               'type': "natural-minus-na",
               'data': "lod_score",
               'targets': 7,
-              {% if wide_columns_exist == true %}
               'width': "60px",
-              {% endif %}
               'orderSequence': [ "desc", "asc"]
             },
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "120px",
-              {% endif %}
               'targets': 8,
               'data': "lrs_location"
             },
             {
               'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "60px",
-              {% endif %}
               'data': "additive",
               'targets': 9,
               'orderSequence': [ "desc", "asc"]
@@ -384,9 +360,7 @@
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
-              {% if wide_columns_exist == true %}
               'width': "120px",
-              {% endif %}
               'targets': 2,
               'data': "location"
             }{% endif %}
@@ -457,20 +431,13 @@
                 "order": [[1, "asc" ]],
                 "sDom": "iti",
                 "destroy": true,
-                {% if wide_columns_exist != true %}
-                "autoWidth": true,
-                {% else %}
                 "autoWidth": false,
-                {% endif %}
                 "deferRender": true,
                 "bSortClasses": false,
-                {% if trait_list|length > 20 %}
                 "scrollY": "500px",
-                "scroller":  true,
                 "scrollCollapse": true,
-                {% else %}
+                "scroller":  true,
                 "iDisplayLength": -1,
-                {% endif %}
                 "initComplete": function (settings) {
                   //Add JQueryUI resizable functionality to each th in the ScrollHead table
                   $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
@@ -488,23 +455,23 @@
               }
 
               if (!first_run){
-                table_settings['autoWidth'] = false;
                 $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
-              }
 
-              let checked_rows = get_checked_rows(tableId);
-              trait_table = $('#' + tableId).DataTable(table_settings);
-              if (checked_rows.length > 0){
-                recheck_rows(trait_table, checked_rows);
+                let checked_rows = get_checked_rows(tableId);
+                trait_table = $('#' + tableId).DataTable(table_settings);
+                if (checked_rows.length > 0){
+                  recheck_rows(trait_table, checked_rows);
+                }
+              } else {
+                trait_table = $('#' + tableId).DataTable(table_settings);
+                trait_table.draw();
               }
 
               if (first_run){
                 {% if trait_list|length > 20 %}
                 $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
                 {% else %}
-                {% if wide_columns_exist != true %}
                 $('#table_container').css("width", String($('#trait_table').width()) + "px");
-                {% endif %}
                 {% endif %}
               }
             }
