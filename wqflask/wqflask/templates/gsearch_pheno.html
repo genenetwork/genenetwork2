@@ -32,7 +32,7 @@
             </form>
             <br />
             <br />
-            <div style="min-width: 2000px; width: 100%;">
+            <div id="table_container" style="width: 2000px;">
               <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -75,218 +75,233 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+          var tableId = "trait_table";
 
-            $('#trait_table tr').click(function(event) {
-                if (event.target.type !== 'checkbox') {
-                    $(':checkbox', this).trigger('click');
+          var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
+
+          columnDefs = [
+            {
+              'data': null,
+              'orderDataType': "dom-checkbox",
+              'width': "10px",
+              'targets': 0,
+              'render': function(data, type, row, meta) {
+                return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
+              }
+            },
+            {
+              'title': "Index",
+              'type': "natural",
+              'width': "30px",
+              'targets': 1,
+              'data': "index"
+            },
+            {
+              'title': "Species",
+              'type': "natural",
+              'width': "60px",
+              'targets': 2,
+              'data': "species"
+            },
+            {
+              'title': "Group",
+              'type': "natural",
+              'width': "100px",
+              'targets': 3,
+              'data': "group"
+            },
+            {
+              'title': "Record",
+              'type': "natural",
+              'data': null,
+              'width': "60px",
+              'targets': 4,
+              'orderDataType': "dom-inner-text",
+              'render': function(data, type, row, meta) {
+                return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+              }
+            },
+            {
+              'title': "Description",
+              'type': "natural",
+              'width': "500px",
+              'targets': 5,
+              'data': null,
+              'render': function(data, type, row, meta) {
+                try {
+                    return decodeURIComponent(escape(data.description))
+                } catch(err) {
+                    return data.description
                 }
-            });
-
-            function change_buttons() {
-                buttons = ["#add", "#remove"];
-                num_checked = $('.trait_checkbox:checked').length;
-                if (num_checked === 0) {
-                    for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-                        button = buttons[_i];
-                        $(button).prop("disabled", true);
-                    }
+              }
+            },
+            {
+              'title': "Mean",
+              'type': "natural-minus-na",
+              'width': "30px",
+              'targets': 6,
+              'data': "mean"
+            },
+            {
+              'title': "Authors",
+              'type': "natural",
+              'width': "300px",
+              'targets': 7,
+              'data': null,
+              'render': function(data, type, row, meta) {
+                author_list = data.authors.split(",")
+                if (author_list.length >= 6) {
+                  author_string = author_list.slice(0, 6).join(",") + ", et al."
+                } else{
+                  author_string = data.authors
+                }
+                return author_string
+              }
+            },
+            {
+              'title': "Year",
+              'type': "natural-minus-na",
+              'data': null,
+              'orderDataType': "dom-inner-text",
+              'width': "25px",
+              'targets': 8,
+              'render': function(data, type, row, meta) {
+                if (data.pubmed_id != "N/A"){
+                  return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
                 } else {
-                    for (_j = 0, _len2 = buttons.length; _j < _len2; _j++) {
-                        button = buttons[_j];
-                        $(button).prop("disabled", false);
-                    }
+                  return data.pubmed_text
                 }
-                         //});
-                if ($(this).is(":checked")) {
-                    if (!$(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').addClass('selected')
-                    }
-                }
-                else {
-                    if ($(this).closest('tr').hasClass('selected')) {
-                        $(this).closest('tr').removeClass('selected')
-                    }
-                }
+              },
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Max LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+              'type': "natural-minus-na",
+              'data': "LRS_score_repr",
+              'width': "60px",
+              'targets': 9,
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Max LRS Location",
+              'type': "natural-minus-na",
+              'width': "125px",
+              'targets': 10,
+              'data': "max_lrs_text"
+            },
+            {
+              'title': "Additive Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
+              'type': "natural-minus-na",
+              'data': "additive",
+              'width': "60px",
+              'targets': 11,
+              'orderSequence': [ "desc", "asc"]
+            }
+          ]
+
+          loadDataTable(true);
+
+          function loadDataTable(first_run=false){
+
+            if (!first_run){
+              setUserColumnsDefWidths(tableId);
             }
 
-            var the_table = $('#trait_table').DataTable( {
-                'drawCallback': function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                             $(':checkbox', this).trigger('click');
-                         }
-                     });
-                     $('.trait_checkbox:checkbox').on("change", change_buttons);
-                },
-                "createdRow": function ( row, data, index ) {
-                    $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
-                    $('td', row).eq(1).attr("align", "right");
-                    $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
-                    if ($('td', row).eq(5).text().length > 150) {
-                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 150));
-                        $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
-                    }
-                    $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
-                    if ($('td', row).eq(6).text().length > 150) {
-                        $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 150));
-                        $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
-                    }
-                    $('td', row).eq(6).attr("align", "right");
-                    $('td', row).slice(8,11).attr("align", "right");
-                    $('td', row).eq(1).attr('data-export', $('td', row).eq(1).text());
-                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
-                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
-                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
-                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
-                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
-                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
-                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
-                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
-                    $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
-                },
-                'data': trait_list,
-                'columns': [
-                    {
-                      'data': null,
-                      'orderDataType': "dom-checkbox",
-                      'width': "10px",
-                      'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
-                      }
-                    },
-                    {
-                      'title': "Index",
-                      'type': "natural",
-                      'width': "30px",
-                      'data': "index"
-                    },
-                    {
-                      'title': "Species",
-                      'type': "natural",
-                      'width': "60px",
-                      'data': "species"
-                    },
-                    {
-                      'title': "Group",
-                      'type': "natural",
-                      'width': "100px",
-                      'data': "group"
-                    },
-                    {
-                      'title': "Record",
-                      'type': "natural",
-                      'data': null,
-                      'width': "60px",
-                      'orderDataType': "dom-inner-text",
-                      'render': function(data, type, row, meta) {
-                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
-                      }
-                    },
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'width': "500px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-			                  try {
-                            return decodeURIComponent(escape(data.description))
-			                  } catch(err) {
-			                      return data.description
-                        }
-                      }
-                    },
-                    {
-                      'title': "Mean",
-                      'type': "natural-minus-na",
-                      'width': "30px",
-                      'data': "mean"
-                    },
-                    {
-                      'title': "Authors",
-                      'type': "natural",
-                      'width': "300px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        author_list = data.authors.split(",")
-                        if (author_list.length >= 6) {
-                          author_string = author_list.slice(0, 6).join(",") + ", et al."
-                        } else{
-                          author_string = data.authors
-                        }
-                        return author_string
-                      }
-                    },
-                    {
-                      'title': "Year",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'orderDataType': "dom-inner-text",
-                      'width': "25px",
-                      'render': function(data, type, row, meta) {
-                        if (data.pubmed_id != "N/A"){
-                          return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
-                        } else {
-                          return data.pubmed_text
-                        }
-                      },
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Max LRS<a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural-minus-na",
-                      'data': "LRS_score_repr",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Max LRS Location",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "max_lrs_text"
-                    },
-                    {
-                      'title': "Additive Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
-                      'type': "natural-minus-na",
-                      'data': "additive",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    }
-                ],
-                "order": [[1, "asc" ]],
-                'sDom': "iti",
-                "autoWidth": true,
-                "bSortClasses": false,
-                'processing': true,
-                {% if trait_count > 20 %}
-                "scrollY": "100vh",
-                "scroller":  true,
-                "scrollCollapse": true
-                {% else %}
-                "iDisplayLength": -1
-                {% endif %}
-            } );
+            table_settings = {
+              'drawCallback': function( settings ) {
+                $('#' + tableId + ' tr').off().on("click", function(event) {
+                  if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                    var obj =$(this).find('input');
+                    obj.prop('checked', !obj.is(':checked'));
+                  }
+                  if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                    $(this).removeClass("selected")
+                  } else if (event.target.tagName.toLowerCase() !== 'a') {
+                    $(this).addClass("selected")
+                  }
+                  change_buttons()
+                });
+              },
+              "createdRow": function ( row, data, index ) {
+                $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
+                $('td', row).eq(1).attr("align", "right");
+                $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
+                if ($('td', row).eq(5).text().length > 150) {
+                    $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 150));
+                    $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
+                }
+                $('td', row).eq(6).attr('title', $('td', row).eq(6).text());
+                if ($('td', row).eq(6).text().length > 150) {
+                    $('td', row).eq(6).text($('td', row).eq(6).text().substring(0, 150));
+                    $('td', row).eq(6).text($('td', row).eq(6).text() + '...')
+                }
+                $('td', row).eq(6).attr("align", "right");
+                $('td', row).slice(8,11).attr("align", "right");
+                $('td', row).eq(1).attr('data-export', $('td', row).eq(1).text());
+                $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
+              },
+              'data': trait_list,
+              'columns': columnDefs,
+              "order": [[1, "asc" ]],
+              'sDom': "iti",
+              "destroy": true,
+              "deferRender": true,
+              "bSortClasses": false,
+              {% if trait_count > 20 %}
+              "scrollY": "100vh",
+              "scroller":  true,
+              "scrollCollapse": true,
+              {% else %}
+              "iDisplayLength": -1,
+              {% endif %}
+              "initComplete": function (settings) {
+                //Add JQueryUI resizable functionality to each th in the ScrollHead table
+                $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
+                  handles: "e",
+                  alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
+                  resize: function( event, ui ) {
+                    width_change = ui.size.width - ui.originalSize.width;
+                  },
+                  stop: function () {
+                    saveColumnSettings(tableId, trait_table);
+                    loadDataTable();
+                  }
+                });
+              }
+            }
 
-            $('#trait_table').append(
-              '<tfoot>' +
-                '<tr>' +
-                  '<th></th>' +
-                  '<th>Index</th>' +
-                  '<th>Species</th> ' +
-                  '<th>Group</th>' +
-                  '<th>Record</th>' +
-                  '<th>Description</th>' +
-                  '<th>Authors</th>' +
-                  '<th>Year</th>' +
-                  '<th>Max LRS</th>' +
-                  '<th>Max LRS Location</th>' +
-                  '<th>Additive Effect</th>' +
-                '</tr>' +
-              '</tfoot>'
-            );
+            if (!first_run){
+                table_settings['autoWidth'] = false;
+                $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); // Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+              }
 
-            the_table.draw();
+              let checked_rows = get_checked_rows(tableId);
+              trait_table = $('#' + tableId).DataTable(table_settings);
+              if (checked_rows.length > 0){
+                recheck_rows(trait_table, checked_rows);
+              }
+
+              if (first_run){
+                  {% if trait_list|length > 20 %}
+                  $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+                  {% endif %}
+              }
+
+              trait_table.draw();
+            }
+
+            $('#redraw').click(function() {
+                var table = $('#' + tableId).DataTable();
+                table.colReorder.reset()
+            });
         });
-        
     </script>
-    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 {% endblock %}
