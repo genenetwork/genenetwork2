@@ -171,7 +171,11 @@ class SearchResultPage:
         self.max_widths = {}
         for i, trait in enumerate(trait_list):
             for key in trait.keys():
-                self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+                if key == "authors":
+                    authors_string = ",".join(str(trait[key]).split(",")[:6]) + ", et al."
+                    self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+                else:
+                    self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
         self.wide_columns_exist = False
         if this_trait.dataset.type == "Publish":
