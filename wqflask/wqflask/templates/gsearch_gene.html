@@ -132,6 +132,7 @@
                 'title': "Dataset",
                 'type': "natural",
                 'targets': 6,
+                'width': "320px",
                 'data': "dataset_fullname"
               },
               {
@@ -145,6 +146,7 @@
                 'title': "Description",
                 'type': "natural",
                 'data': null,
+                'width': "120px",
                 'targets': 8,
                 'render': function(data, type, row, meta) {
                   try {
@@ -260,7 +262,6 @@
                 "order": [[1, "asc" ]],
                 'sDom': "iti",
                 "destroy": true,
-                "autoWidth": true,
                 "deferRender": true,
                 "bSortClasses": false,
                 {% if trait_count > 20 %}
@@ -301,9 +302,8 @@
                   {% if trait_list|length > 20 %}
                   $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
                   {% endif %}
+                  trait_table.draw();
               }
-
-              trait_table.draw();
             }
 
             $('#redraw').click(function() {
