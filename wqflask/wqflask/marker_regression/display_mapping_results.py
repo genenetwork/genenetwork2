@@ -2372,8 +2372,7 @@ class DisplayMappingResults:
 
             # ZS: I don't know if what I did here with this inner function is clever or overly complicated, but it's the only way I could think of to avoid duplicating the code inside this function
             def add_suggestive_significant_lines_and_legend(start_pos_x, chr_length_dist):
-                rightEdge = int(start_pos_x + chr_length_dist * \
-                                plotXScale - self.SUGGESTIVE_WIDTH / 1.5)
+                rightEdge = xLeftOffset + plotWidth
                 im_drawer.line(
                     xy=((start_pos_x + self.SUGGESTIVE_WIDTH / 1.5, suggestiveY),
                         (rightEdge, suggestiveY)),
@@ -2561,7 +2560,7 @@ class DisplayMappingResults:
                                 Xc = startPosX + ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) * (
                                     ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) / ((qtlresult['Mb'] - start_cm - startMb + self.GraphInterval) * plotXScale))
                 else:
-                    if qtlresult['Mb'] > endMb:
+                    if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
                         Xc = startPosX + endMb * plotXScale
                     else:
                         Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
@@ -2630,7 +2629,7 @@ class DisplayMappingResults:
                         AdditiveHeightThresh / additiveMax
                     AdditiveCoordXY.append((Xc, Yc))
 
-                if qtlresult['Mb'] > endMb:
+                if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
                     break
 
                 m += 1
