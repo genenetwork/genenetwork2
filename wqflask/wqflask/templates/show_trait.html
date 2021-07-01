@@ -5,9 +5,10 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
-     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='nouislider/nouislider.min.css') }}" />
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
@@ -155,6 +156,7 @@
     <script type="text/javascript" src="/static/new/javascript/show_trait.js"></script>
     <script type="text/javascript" src="/static/new/javascript/validation.js"></script>
     <script type="text/javascript" src="/static/new/javascript/get_covariates_from_collection.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
 
     <script type="text/javascript" charset="utf-8">
 
@@ -211,16 +213,6 @@
                    }
                 });
 
-                primary_table.on( 'order.dt search.dt draw.dt', function () {
-                  primary_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                    cell.innerHTML = i+1;
-                  } );
-                } ).draw();
-
-                $('#primary_searchbox').on( 'keyup', function () {
-                  primary_table.search($(this).val()).draw();
-                } );
-
                 $('.toggle-vis').on('click', function (e) {
                     e.preventDefault();
 
@@ -237,7 +229,6 @@
                     // Get the column API object
                     var target_cols = $(this).attr('data-column').split(",")
                     for (let i = 0; i < target_cols.length; i++){
-                        console.log("THE COL:", target_cols[i])
                         var column = primary_table.column( target_cols[i] );
                         toggle_column(column);
 
@@ -247,12 +238,6 @@
                         {% endif %}
                     }
                 } );
-
-                {% if sample_groups|length != 1 %}
-                $('#other_searchbox').on( 'keyup', function () {
-                  other_table.search($(this).val()).draw();
-                } );
-                {% endif %}
 
                 $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'orange')
 
