@@ -2561,7 +2561,10 @@ class DisplayMappingResults:
                                 Xc = startPosX + ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) * (
                                     ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) / ((qtlresult['Mb'] - start_cm - startMb + self.GraphInterval) * plotXScale))
                 else:
-                    Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
+                    if qtlresult['Mb'] > endMb:
+                        Xc = startPosX + endMb * plotXScale
+                    else:
+                        Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
 
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
@@ -2572,36 +2575,29 @@ class DisplayMappingResults:
                 if 'lrs_value' in qtlresult:
                     if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value'] == 'inf':
-                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - webqtlConfig.MAXLRS * \
                                 LRSHeightThresh / \
                                 (LRS_LOD_Max * self.LODFACTOR)
                         else:
-                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - \
                                 qtlresult['lrs_value'] * LRSHeightThresh / \
                                 (LRS_LOD_Max * self.LODFACTOR)
                     else:
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value'] == 'inf':
-                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - webqtlConfig.MAXLRS * LRSHeightThresh / LRS_LOD_Max
                         else:
-                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lrs_value'] * \
                                 LRSHeightThresh / LRS_LOD_Max
                 else:
                     if qtlresult['lod_score'] > 100 or qtlresult['lod_score'] == 'inf':
-                        #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
                         Yc = yZero - webqtlConfig.MAXLRS * LRSHeightThresh / LRS_LOD_Max
                     else:
                         if self.LRS_LOD == "LRS":
-                            #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lod_score'] * self.LODFACTOR * \
                                 LRSHeightThresh / LRS_LOD_Max
                         else:
-                            #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lod_score'] * \
                                 LRSHeightThresh / LRS_LOD_Max
@@ -2634,14 +2630,12 @@ class DisplayMappingResults:
                         AdditiveHeightThresh / additiveMax
                     AdditiveCoordXY.append((Xc, Yc))
 
+                if qtlresult['Mb'] > endMb:
+                    break
+
                 m += 1
 
         if self.manhattan_plot != True:
-            # im_drawer.polygon(
-            #     xy=LRSCoordXY,
-            #     outline=thisLRSColor
-            #     #, closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth)
-            # )
             draw_open_polygon(canvas, xy=LRSCoordXY, outline=thisLRSColor,
                               width=lrsEdgeWidth)
 
