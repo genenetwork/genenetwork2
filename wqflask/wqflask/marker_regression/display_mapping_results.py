@@ -861,6 +861,9 @@ class DisplayMappingResults:
                             (item[1], yZero - item[2] * bootHeightThresh / maxBootCount)),
                         fill=self.BOOTSTRAP_BOX_COLOR, outline=BLACK)
 
+        if maxBootCount == 0:
+            return
+
         # draw boot scale
         highestPercent = (maxBootCount * 100.0) / nboot
         bootScale = Plot.detScale(0, highestPercent)
