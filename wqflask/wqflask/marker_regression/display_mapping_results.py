@@ -2289,20 +2289,9 @@ class DisplayMappingResults:
             font=VERDANA_FILE, size=int(18 * zoom * 1.5))
 
         yZero = yTopOffset + plotHeight
-        # LRSHeightThresh = drawAreaHeight
-        # AdditiveHeightThresh = drawAreaHeight/2
-        # DominanceHeightThresh = drawAreaHeight/2
-        if self.selectedChr == 1:
-            LRSHeightThresh = drawAreaHeight - yTopOffset + 30 * (zoom - 1)
-            AdditiveHeightThresh = LRSHeightThresh / 2
-            DominanceHeightThresh = LRSHeightThresh / 2
-        else:
-            LRSHeightThresh = drawAreaHeight
-            AdditiveHeightThresh = drawAreaHeight / 2
-            DominanceHeightThresh = drawAreaHeight / 2
-        # LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
-        # AdditiveHeightThresh = LRSHeightThresh/2
-        # DominanceHeightThresh = LRSHeightThresh/2
+        LRSHeightThresh = drawAreaHeight
+        AdditiveHeightThresh = drawAreaHeight / 2
+        DominanceHeightThresh = drawAreaHeight / 2
 
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
