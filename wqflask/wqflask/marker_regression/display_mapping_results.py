@@ -861,6 +861,9 @@ class DisplayMappingResults:
                             (item[1], yZero - item[2] * bootHeightThresh / maxBootCount)),
                         fill=self.BOOTSTRAP_BOX_COLOR, outline=BLACK)
 
+        if maxBootCount == 0:
+            return
+
         # draw boot scale
         highestPercent = (maxBootCount * 100.0) / nboot
         bootScale = Plot.detScale(0, highestPercent)
@@ -2286,20 +2289,9 @@ class DisplayMappingResults:
             font=VERDANA_FILE, size=int(18 * zoom * 1.5))
 
         yZero = yTopOffset + plotHeight
-        # LRSHeightThresh = drawAreaHeight
-        # AdditiveHeightThresh = drawAreaHeight/2
-        # DominanceHeightThresh = drawAreaHeight/2
-        if self.selectedChr == 1:
-            LRSHeightThresh = drawAreaHeight - yTopOffset + 30 * (zoom - 1)
-            AdditiveHeightThresh = LRSHeightThresh / 2
-            DominanceHeightThresh = LRSHeightThresh / 2
-        else:
-            LRSHeightThresh = drawAreaHeight
-            AdditiveHeightThresh = drawAreaHeight / 2
-            DominanceHeightThresh = drawAreaHeight / 2
-        # LRSHeightThresh = (yZero - yTopOffset + 30*(zoom - 1))
-        # AdditiveHeightThresh = LRSHeightThresh/2
-        # DominanceHeightThresh = LRSHeightThresh/2
+        LRSHeightThresh = drawAreaHeight
+        AdditiveHeightThresh = drawAreaHeight / 2
+        DominanceHeightThresh = drawAreaHeight / 2
 
         if LRS_LOD_Max > 100:
             LRSScale = 20.0
@@ -2380,8 +2372,7 @@ class DisplayMappingResults:
 
             # ZS: I don't know if what I did here with this inner function is clever or overly complicated, but it's the only way I could think of to avoid duplicating the code inside this function
             def add_suggestive_significant_lines_and_legend(start_pos_x, chr_length_dist):
-                rightEdge = int(start_pos_x + chr_length_dist * \
-                                plotXScale - self.SUGGESTIVE_WIDTH / 1.5)
+                rightEdge = xLeftOffset + plotWidth
                 im_drawer.line(
                     xy=((start_pos_x + self.SUGGESTIVE_WIDTH / 1.5, suggestiveY),
                         (rightEdge, suggestiveY)),
@@ -2569,7 +2560,10 @@ class DisplayMappingResults:
                                 Xc = startPosX + ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) * (
                                     ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) / ((qtlresult['Mb'] - start_cm - startMb + self.GraphInterval) * plotXScale))
                 else:
-                    Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
+                    if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
+                        Xc = startPosX + endMb * plotXScale
+                    else:
+                        Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
 
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
@@ -2580,36 +2574,29 @@ class DisplayMappingResults:
                 if 'lrs_value' in qtlresult:
                     if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value'] == 'inf':
-                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - webqtlConfig.MAXLRS * \
                                 LRSHeightThresh / \
                                 (LRS_LOD_Max * self.LODFACTOR)
                         else:
-                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/(LRSAxisList[-1]*self.LODFACTOR)
                             Yc = yZero - \
                                 qtlresult['lrs_value'] * LRSHeightThresh / \
                                 (LRS_LOD_Max * self.LODFACTOR)
                     else:
                         if qtlresult['lrs_value'] > 460 or qtlresult['lrs_value'] == 'inf':
-                            #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - webqtlConfig.MAXLRS * LRSHeightThresh / LRS_LOD_Max
                         else:
-                            #Yc = yZero - qtlresult['lrs_value']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lrs_value'] * \
                                 LRSHeightThresh / LRS_LOD_Max
                 else:
                     if qtlresult['lod_score'] > 100 or qtlresult['lod_score'] == 'inf':
-                        #Yc = yZero - webqtlConfig.MAXLRS*LRSHeightThresh/LRSAxisList[-1]
                         Yc = yZero - webqtlConfig.MAXLRS * LRSHeightThresh / LRS_LOD_Max
                     else:
                         if self.LRS_LOD == "LRS":
-                            #Yc = yZero - qtlresult['lod_score']*self.LODFACTOR*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lod_score'] * self.LODFACTOR * \
                                 LRSHeightThresh / LRS_LOD_Max
                         else:
-                            #Yc = yZero - qtlresult['lod_score']*LRSHeightThresh/LRSAxisList[-1]
                             Yc = yZero - \
                                 qtlresult['lod_score'] * \
                                 LRSHeightThresh / LRS_LOD_Max
@@ -2642,14 +2629,12 @@ class DisplayMappingResults:
                         AdditiveHeightThresh / additiveMax
                     AdditiveCoordXY.append((Xc, Yc))
 
+                if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
+                    break
+
                 m += 1
 
         if self.manhattan_plot != True:
-            # im_drawer.polygon(
-            #     xy=LRSCoordXY,
-            #     outline=thisLRSColor
-            #     #, closed=0, edgeWidth=lrsEdgeWidth, clipX=(xLeftOffset, xLeftOffset + plotWidth)
-            # )
             draw_open_polygon(canvas, xy=LRSCoordXY, outline=thisLRSColor,
                               width=lrsEdgeWidth)
 
