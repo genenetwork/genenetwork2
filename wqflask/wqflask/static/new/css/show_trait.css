@@ -159,10 +159,10 @@ div.normalize-div {
 }
 
 div.mapping-main {
-  min-width: 1200px;
+  min-width: 1400px;
 }
 div.mapping-options {
-  min-width: 500px;
+  min-width: 700px;
 }
 
 div.covar-options {
@@ -194,7 +194,7 @@ div.select-covar-div {
 .selected-covariates {
   overflow-y: scroll;
   resize: none;
-  width: 200px;
+  width: 400px;
 }
 
 .cofactor-input {
