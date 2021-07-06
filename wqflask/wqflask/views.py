@@ -428,9 +428,9 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/<inbred_set_id>")
+@app.route("/trait/<name>/edit/inbredset-id/<inbred_set_id>")
 @admin_login_required
-def edit_trait(name, inbred_set_id):
+def edit_phenotype(name, inbred_set_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -476,7 +476,7 @@ def edit_trait(name, inbred_set_id):
     if len(diff_data) > 0:
         diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return render_template(
-        "edit_trait.html",
+        "edit_phenotype.html",
         diff=diff_data_,
         publish_xref=publish_xref,
         phenotype=phenotype_,
@@ -486,7 +486,7 @@ def edit_trait(name, inbred_set_id):
 
 
 @app.route("/trait/update", methods=["POST"])
-def update_trait():
+def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -544,7 +544,8 @@ def update_trait():
                data=MetadataAudit(dataset_id=data_.get("dataset-name"),
                                   editor=author.decode("utf-8"),
                                   json_data=json.dumps(diff_data)))
-    return redirect("/trait/10007/edit/1")
+    return redirect(f"/trait/{data_.get('dataset-name')}"
+                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
 
 
 @app.route("/create_temp_trait", methods=('POST',))
