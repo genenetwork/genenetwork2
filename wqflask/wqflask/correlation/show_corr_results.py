@@ -34,6 +34,7 @@ from utility import corr_result_helpers
 from utility import hmac
 
 from wqflask.correlation import correlation_functions
+
 from utility.benchmark import Bench
 
 from utility.type_checking import is_str
@@ -92,7 +93,6 @@ class CorrelationResults:
             self.min_expr = get_float(start_vars, 'min_expr')
             self.p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
             self.p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
-
 
             if ('loc_chr' in start_vars
                 and 'min_loc_mb' in start_vars
@@ -197,7 +197,6 @@ class CorrelationResults:
                     else:
                         if chr_info.name == trait_object.chr:
                             chr_as_int = order_id
-
 
                 if (float(self.correlation_data[trait][0]) >= self.p_range_lower
                         and float(self.correlation_data[trait][0]) <= self.p_range_upper):
