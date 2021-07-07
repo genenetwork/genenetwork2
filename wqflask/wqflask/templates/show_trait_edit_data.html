@@ -57,8 +57,8 @@
         <div style="position: relative;">
           <div class="inline-div"><h3 style="float: left;">{{ sample_type.header }}<span name="transform_text"></span></h3></div>
         </div>
-        <div id="{{ sample_type.sample_group_type }}_container">
-        <table class="table-hover table-striped cell-border sample-table" id="samples_{{ sample_type.sample_group_type }}">
+        <div id="{{ sample_type.sample_group_type }}_container" style="width: {{ trait_table_width }}px;">
+        <table class="table-hover table-striped cell-border" id="samples_{{ sample_type.sample_group_type }}">
             <tbody>
               <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
             </tbody>
