@@ -16,6 +16,7 @@ build_columns = function() {
       'orderDataType': "dom-checkbox",
       'searchable' : false,
       'targets': 0,
+      'width': "25px",
       'render': function(data, type, row, meta) {
       return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
       }
@@ -25,6 +26,7 @@ build_columns = function() {
       'type': "natural",
       'searchable' : false,
       'targets': 1,
+      'width': "35px",
       'data': "this_id"
     },
     {
@@ -32,6 +34,7 @@ build_columns = function() {
       'type': "natural",
       'data': null,
       'targets': 2,
+      'width': "60px",
       'render': function(data, type, row, meta) {
       return '<span class="edit_sample_sample_name">' + data.name + '</span>'
       }
@@ -42,6 +45,7 @@ build_columns = function() {
       'type': "cust-txt",
       'data': null,
       'targets': 3,
+      'width': "60px",
       'render': function(data, type, row, meta) {
         if (data.value == null) {
             return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
@@ -62,6 +66,7 @@ build_columns = function() {
         'data': null,
         'targets': 4,
         'searchable' : false,
+        'width': "25px",
         'render': function(data, type, row, meta) {
         return '±'
         }
@@ -72,6 +77,7 @@ build_columns = function() {
         'type': "cust-txt",
         'data': null,
         'targets': 5,
+        'width': "60px",
         'render': function(data, type, row, meta) {
           if (data.variance == null) {
               return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6>'
@@ -91,6 +97,7 @@ build_columns = function() {
           'type': "cust-txt",
           'data': null,
           'targets': 6,
+          'width': "60px",
           'render': function(data, type, row, meta) {
             if (data.num_cases == null || data.num_cases == undefined) {
                 return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
@@ -112,6 +119,7 @@ build_columns = function() {
           'type': "cust-txt",
           'data': null,
           'targets': 4,
+          'width': "60px",
           'render': function(data, type, row, meta) {
             if (data.num_cases == null || data.num_cases == undefined) {
                 return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
@@ -212,7 +220,7 @@ function loadDataTable(first_run=false, table_id, table_data){
     "order": [[1, "asc" ]],
     "sDom": "iti",
     "destroy": true,
-    "autoWidth": first_run,
+    "autoWidth": false,
     "deferRender": true,
     "bSortClasses": false,
     "scrollY": "100vh",
@@ -235,24 +243,25 @@ function loadDataTable(first_run=false, table_id, table_data){
     }
   }
 
-  var the_table = $('#' + table_id).DataTable(table_settings);
-
-  the_table.draw(); //ZS: This makes the table adjust its height properly on initial load
-
-  the_table.on( 'order.dt search.dt draw.dt', function () {
-      the_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-      cell.innerHTML = i+1;
-      } );
-  } ).draw();
-
   if (!first_run){
     $('#' + table_type.toLowerCase() + '_container').css("width", String($('#' + table_id).width() + width_change + 17) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
 
     let checked_rows = get_checked_rows(table_id);
+    the_table = $('#' + table_id).DataTable(table_settings);
     if (checked_rows.length > 0){
       recheck_rows(the_table, checked_rows);
     }
+  } else {
+    the_table = $('#' + table_id).DataTable(table_settings);
+    the_table.draw();
   }
+
+  the_table.on( 'order.dt search.dt draw.dt', function () {
+    the_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+    cell.innerHTML = i+1;
+    } );
+  } ).draw();
+
 
   if (first_run){
     $('#' + table_type.toLowerCase() + '_container').css("width", String($('#' + table_id).width() + 17) + "px");
