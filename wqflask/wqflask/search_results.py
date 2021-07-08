@@ -168,22 +168,23 @@ class SearchResultPage:
                         trait_dict[key] = trait_dict[key].decode('utf-8')
                 trait_list.append(trait_dict)
 
-        self.max_widths = {}
-        for i, trait in enumerate(trait_list):
-            for key in trait.keys():
-                if key == "authors":
-                    authors_string = ",".join(str(trait[key]).split(",")[:6]) + ", et al."
-                    self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
-                else:
-                    self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+        if self.results:
+            self.max_widths = {}
+            for i, trait in enumerate(trait_list):
+                for key in trait.keys():
+                    if key == "authors":
+                        authors_string = ",".join(str(trait[key]).split(",")[:6]) + ", et al."
+                        self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+                    else:
+                        self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
-        self.wide_columns_exist = False
-        if this_trait.dataset.type == "Publish":
-            if (self.max_widths['display_name'] > 25 or self.max_widths['description'] > 100 or self.max_widths['authors']> 80):
-                self.wide_columns_exist = True
-        if this_trait.dataset.type == "ProbeSet":
-            if (self.max_widths['display_name'] > 25 or self.max_widths['symbol'] > 25 or self.max_widths['description'] > 100):
-                self.wide_columns_exist = True
+            self.wide_columns_exist = False
+            if this_trait.dataset.type == "Publish":
+                if (self.max_widths['display_name'] > 25 or self.max_widths['description'] > 100 or self.max_widths['authors']> 80):
+                    self.wide_columns_exist = True
+            if this_trait.dataset.type == "ProbeSet":
+                if (self.max_widths['display_name'] > 25 or self.max_widths['symbol'] > 25 or self.max_widths['description'] > 100):
+                    self.wide_columns_exist = True
 
         self.trait_list = trait_list
 
