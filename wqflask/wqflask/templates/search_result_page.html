@@ -125,7 +125,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" style="width: 1350px;">
+          <div id="table_container" style="width: {% if dataset.type == 'Geno' %}270{% else %}1350{% endif %}px;">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
