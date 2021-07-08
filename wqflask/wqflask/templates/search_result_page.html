@@ -435,7 +435,9 @@
                 "bSortClasses": false,
                 "scrollY": "500px",
                 "scrollCollapse": true,
+                {% if trait_list|length > 5 %}
                 "scroller":  true,
+                {% endif %}
                 "iDisplayLength": -1,
                 "initComplete": function (settings) {
                   //Add JQueryUI resizable functionality to each th in the ScrollHead table
