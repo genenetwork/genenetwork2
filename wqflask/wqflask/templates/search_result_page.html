@@ -125,7 +125,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container">
+          <div id="table_container" style="width: 1350px;">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -179,9 +179,8 @@
             columnDefs = [
             {
               'data': null,
-              'width': "25px",
+              'width': "5px",
               'orderDataType': "dom-checkbox",
-              'orderable': false,
               'targets': 0,
               'render': function(data, type, row, meta) {
                 return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
@@ -259,7 +258,7 @@
               'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
               'type': "natural-minus-na",
               'data': "additive",
-              'width': "60px",
+              'width': "65px",
               'targets': 9,
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Publish' %},
