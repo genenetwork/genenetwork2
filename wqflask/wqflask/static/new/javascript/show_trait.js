@@ -747,7 +747,11 @@ filter_by_value = function() {
     if (filter_column == "value" || filter_column == "stderr"){
       var this_col_value = filter_val_nodes[i].childNodes[0].value;
     } else {
-      var this_col_value = filter_val_nodes[i].childNodes[0].data;
+      if (filter_val_nodes[i].childNodes[0] !== undefined){
+        var this_col_value = filter_val_nodes[i].childNodes[0].data;
+      } else {
+        continue
+      }
     }
     let this_val_node = val_nodes[i].childNodes[0];
 

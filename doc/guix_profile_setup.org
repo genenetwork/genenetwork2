@@ -1,0 +1,39 @@
+* Setting up GUIX profile for GN
+
+First create a guix profile with the latest packages:
+
+: ~/opt/guix/bin/guix pull
+
+This will create a profile with the latest packages under`~/.config/guix/current`
+
+Now you have the latest guix. Check: `$HOME/.config/guix/current/bin/guix --version`
+
+At this point, it's worth mentioning that installing
+python3-genenetwork using `$HOME/.config/guix/current/bin/guix` should
+work; but let's use the dev version(since that may come handy in
+time), and it's a nice thing to know.
+
+Next, we ensure that the appropriate GUILE<sub>PATHS</sub> are set:
+
+: export GUILE_LOAD_PATH=$HOME/.config/guix/current/share/guile/site/3.0/
+: export GUILE_LOAD_COMPILED_PATH=$HOME/.config/guix/current/lib/guile/3.0/site-ccache/ 
+
+Get into the container:
+
+: $HOME/.config/guix/current/bin/guix environment -C guix --ad-hoc bash gcc-toolchain
+: ./bootstrap
+: ./configure --localstatedir=/var --sysconfdir=/etc
+
+Check that everything works:
+
+: make check
+
+Clean up and build:
+
+: make clean-go
+: make -j 4
+: exit
+
+Install Python3 (substitute paths when necessary):
+
+: env GUIX_PACKAGE_PATH='/home/zas1024/guix-bioinformatics:/home/zas1024/guix-past/modules' $HOME/.config/guix/current/bin/guix install python3-genenetwork2 -p ~/opt/python3-genenetwork2 --substitute-urls="http://guix.genenetwork.org https://berlin.guixsd.org https://ci.guix.gnu.org https://mirror.hydra.gnu.org"
