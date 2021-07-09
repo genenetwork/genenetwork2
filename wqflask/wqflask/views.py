@@ -34,8 +34,10 @@ from gn3.db import insert
 from gn3.db import update
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
+from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
+from gn3.db.phenotypes import probeset_mapping
 
 
 from flask import current_app
@@ -482,6 +484,23 @@ def edit_phenotype(name, inbred_set_id):
         phenotype=phenotype_,
         publication=publication_,
         version=GN_VERSION,
+    )
+
+
+@app.route("/trait/edit/probeset-name/<dataset_name>")
+@admin_login_required
+def edit_probeset(dataset_name):
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    probeset_ = fetchone(conn=conn,
+                         table="ProbeSet",
+                         columns=list(probeset_mapping.values()),
+                         where=Probeset(name=dataset_name))
+    return render_template(
+        "edit_probeset.html",
+        probeset=probeset_
     )
 
 
