@@ -498,13 +498,40 @@ def edit_probeset(dataset_name):
                          table="ProbeSet",
                          columns=list(probeset_mapping.values()),
                          where=Probeset(name=dataset_name))
+    json_data = fetchall(
+        conn,
+        "metadata_audit",
+        where=MetadataAudit(dataset_id=probeset_.id_))
+    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
+    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
+    diff_data = []
+    for data in json_data:
+        json_ = json.loads(data.json_data)
+        timestamp = json_.get("timestamp")
+        author = json_.get("author")
+        for key, value in json_.items():
+            if isinstance(value, dict):
+                for field, data_ in value.items():
+                    diff_data.append(
+                        Diff(author=author,
+                             diff=Edit(field,
+                                       data_.get("old"),
+                                       data_.get("new"),
+                                       "\n".join(difflib.ndiff(
+                                           [data_.get("old")],
+                                           [data_.get("new")]))),
+                             timestamp=timestamp))
+    diff_data_ = None
+    if len(diff_data) > 0:
+        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return render_template(
         "edit_probeset.html",
-        probeset=probeset_
-    )
+        diff=diff_data_,
+        probeset=probeset_)
 
 
 @app.route("/trait/update", methods=["POST"])
+@admin_login_required
 def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
