@@ -165,8 +165,14 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
     return (this_trait_data, results)
 
 
-def compute_correlation(start_vars, method="pearson"):
-    """compute correlation for to call gn3  api"""
+def compute_correlation(start_vars, method="pearson", compute_all=False):
+    """Compute correlations using GN3 API
+
+    Keyword arguments:
+    start_vars -- All input from form; includes things like the trait/dataset names
+    method -- Correlation method to be used (pearson, spearman, or bicor)
+    compute_all -- Include sample, tissue, and literature correlations (when applicable)
+    """
     # pylint: disable-msg=too-many-locals
 
     corr_type = start_vars['corr_type']
@@ -220,11 +226,9 @@ def compute_correlation(start_vars, method="pearson"):
 
     correlation_results = correlation_results[0:corr_return_results]
 
-    compute_all = True  # later to  be passed as argument
-
     if (compute_all):
-
-        correlation_results = compute_corr_for_top_results(correlation_results,
+        correlation_results = compute_corr_for_top_results(start_vars,
+                                                           correlation_results,
                                                            this_trait,
                                                            this_dataset,
                                                            target_dataset,
@@ -238,7 +242,8 @@ def compute_correlation(start_vars, method="pearson"):
     return correlation_data
 
 
-def compute_corr_for_top_results(correlation_results,
+def compute_corr_for_top_results(start_vars,
+                                 correlation_results,
                                  this_trait,
                                  this_dataset,
                                  target_dataset,
@@ -261,8 +266,12 @@ def compute_corr_for_top_results(correlation_results,
             correlation_results = merge_correlation_results(
                 correlation_results, lit_result)
 
-    if corr_type != "sample":
-        pass
+    if corr_type != "sample" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
+        sample_result = sample_for_trait_lists(
+            correlation_results, target_dataset, this_trait, this_dataset, start_vars)
+        if sample_result:
+            correlation_results = merge_correlation_results(
+                correlation_results, sample_result)
 
     return correlation_results
 

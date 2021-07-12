@@ -34,8 +34,10 @@ from gn3.db import insert
 from gn3.db import update
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
+from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
+from gn3.db.phenotypes import probeset_mapping
 
 
 from flask import current_app
@@ -65,7 +67,7 @@ from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
-from wqflask.correlation import show_corr_results
+from wqflask.correlation.show_corr_results import set_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
@@ -428,9 +430,9 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/<inbred_set_id>")
+@app.route("/trait/<name>/edit/inbredset-id/<inbred_set_id>")
 @admin_login_required
-def edit_trait(name, inbred_set_id):
+def edit_phenotype(name, inbred_set_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -476,7 +478,7 @@ def edit_trait(name, inbred_set_id):
     if len(diff_data) > 0:
         diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return render_template(
-        "edit_trait.html",
+        "edit_phenotype.html",
         diff=diff_data_,
         publish_xref=publish_xref,
         phenotype=phenotype_,
@@ -485,8 +487,52 @@ def edit_trait(name, inbred_set_id):
     )
 
 
+@app.route("/trait/edit/probeset-name/<dataset_name>")
+# @admin_login_required
+def edit_probeset(dataset_name):
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    probeset_ = fetchone(conn=conn,
+                         table="ProbeSet",
+                         columns=list(probeset_mapping.values()),
+                         where=Probeset(name=dataset_name))
+    json_data = fetchall(
+        conn,
+        "metadata_audit",
+        where=MetadataAudit(dataset_id=probeset_.id_))
+    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
+    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
+    diff_data = []
+    for data in json_data:
+        json_ = json.loads(data.json_data)
+        timestamp = json_.get("timestamp")
+        author = json_.get("author")
+        for key, value in json_.items():
+            if isinstance(value, dict):
+                for field, data_ in value.items():
+                    diff_data.append(
+                        Diff(author=author,
+                             diff=Edit(field,
+                                       data_.get("old"),
+                                       data_.get("new"),
+                                       "\n".join(difflib.ndiff(
+                                           [data_.get("old")],
+                                           [data_.get("new")]))),
+                             timestamp=timestamp))
+    diff_data_ = None
+    if len(diff_data) > 0:
+        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
+    return render_template(
+        "edit_probeset.html",
+        diff=diff_data_,
+        probeset=probeset_)
+
+
 @app.route("/trait/update", methods=["POST"])
-def update_trait():
+@admin_login_required
+def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -544,7 +590,65 @@ def update_trait():
                data=MetadataAudit(dataset_id=data_.get("dataset-name"),
                                   editor=author.decode("utf-8"),
                                   json_data=json.dumps(diff_data)))
-    return redirect("/trait/10007/edit/1")
+    return redirect(f"/trait/{data_.get('dataset-name')}"
+                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
+
+
+@app.route("/probeset/update", methods=["POST"])
+@admin_login_required
+def update_probeset():
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    data_ = request.form.to_dict()
+    probeset_ = {
+        "id_": data_.get("id"),
+        "symbol": data_.get("symbol"),
+        "description": data_.get("description"),
+        "probe_target_description": data_.get("probe_target_description"),
+        "chr_": data_.get("chr"),
+        "mb": data_.get("mb"),
+        "alias": data_.get("alias"),
+        "geneid": data_.get("geneid"),
+        "homologeneid": data_.get("homologeneid"),
+        "unigeneid": data_.get("unigeneid"),
+        "omim": data_.get("OMIM"),
+        "refseq_transcriptid": data_.get("refseq_transcriptid"),
+        "blatseq": data_.get("blatseq"),
+        "targetseq": data_.get("targetseq"),
+        "strand_probe": data_.get("Strand_Probe"),
+        "probe_set_target_region": data_.get("probe_set_target_region"),
+        "probe_set_specificity": data_.get("probe_set_specificity"),
+        "probe_set_blat_score": data_.get("probe_set_blat_score"),
+        "probe_set_blat_mb_start": data_.get("probe_set_blat_mb_start"),
+        "probe_set_blat_mb_end": data_.get("probe_set_blat_mb_end"),
+        "probe_set_strand": data_.get("probe_set_strand"),
+        "probe_set_note_by_rw": data_.get("probe_set_note_by_rw"),
+        "flag": data_.get("flag")
+    }
+    updated_probeset = update(
+        conn, "ProbeSet",
+        data=Probeset(**probeset_),
+        where=Probeset(id_=data_.get("id")))
+
+    diff_data = {}
+    author = g.user_session.record.get(b'user_name')
+    if updated_probeset:
+        diff_data.update({"Probeset": diff_from_dict(old={
+            k: data_.get(f"old_{k}") for k, v in probeset_.items()
+            if v is not None}, new=probeset_)})
+    if diff_data:
+        diff_data.update({"probeset_name": data_.get("probeset_name")})
+        diff_data.update({"author": author.decode('utf-8')})
+        diff_data.update({"timestamp": datetime.datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S")})
+        insert(conn,
+               table="metadata_audit",
+               data=MetadataAudit(dataset_id=data_.get("id"),
+                                  editor=author.decode("utf-8"),
+                                  json_data=json.dumps(diff_data)))
+    return redirect(f"/trait/edit/probeset-name/{data_.get('probeset_name')}")
 
 
 @app.route("/create_temp_trait", methods=('POST',))
@@ -1082,15 +1186,9 @@ def network_graph_page():
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
-    logger.info("In corr_compute, request.form is:", pf(request.form))
-    logger.info(request.url)
-    template_vars = show_corr_results.CorrelationResults(request.form)
-    return render_template("correlation_page.html", **template_vars.__dict__)
-
-    # to test/disable the new  correlation api uncomment these lines
-
-    # correlation_results = compute_correlation(request.form)
-    # return render_template("test_correlation_page.html", correlation_results=correlation_results)
+    correlation_results = compute_correlation(request.form, compute_all=True)
+    correlation_results = set_template_vars(request.form, correlation_results)
+    return render_template("correlation_page.html", **correlation_results)
 
 
 @app.route("/test_corr_compute", methods=["POST"])

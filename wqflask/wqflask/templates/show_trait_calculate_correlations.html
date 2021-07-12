@@ -7,8 +7,10 @@
             <div class="col-xs-3 controls">
                 <select name="corr_type" class="form-control">
                     <option value="sample">Sample r</option>
+                    {% if dataset.type == 'ProbeSet' %}
                     <option value="lit">Literature r</option>
                     <option value="tissue">Tissue r</option>
+                    {% endif %}
                 </select>
             </div>
         </div>
