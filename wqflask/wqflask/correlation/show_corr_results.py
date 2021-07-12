@@ -25,6 +25,7 @@ from base.data_set import create_dataset
 
 from utility import hmac
 
+
 def set_template_vars(start_vars, correlation_data):
     corr_type = start_vars['corr_type']
     corr_method = start_vars['corr_sample_method']
@@ -55,10 +56,13 @@ def set_template_vars(start_vars, correlation_data):
 
     correlation_data['corr_method'] = corr_method
     correlation_data['filter_cols'] = filter_cols
-    correlation_data['header_fields'] = get_header_fields(target_dataset_ob.type, correlation_data['corr_method'])
-    correlation_data['formatted_corr_type'] = get_formatted_corr_type(corr_type, corr_method)
+    correlation_data['header_fields'] = get_header_fields(
+        target_dataset_ob.type, correlation_data['corr_method'])
+    correlation_data['formatted_corr_type'] = get_formatted_corr_type(
+        corr_type, corr_method)
 
     return correlation_data
+
 
 def correlation_json_for_table(correlation_data, this_trait, this_dataset, target_dataset_ob):
     """Return JSON data for use with the DataTable in the correlation result page
