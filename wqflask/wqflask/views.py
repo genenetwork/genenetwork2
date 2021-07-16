@@ -302,6 +302,7 @@ def gsearchact():
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
+
 @app.route("/gsearch_table", methods=('GET',))
 def gsearchtable():
     logger.info(request.url)
@@ -315,6 +316,7 @@ def gsearchtable():
     ).get_page()
 
     return flask.jsonify(current_page)
+
 
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
@@ -1193,9 +1195,10 @@ def corr_compute_page():
 
 @app.route("/test_corr_compute", methods=["POST"])
 def test_corr_compute_page():
-    correlation_data = compute_correlation(request.form)
+    correlation_data = compute_correlation(request.form, compute_all=True)
     return render_template("test_correlation_page.html", **correlation_data)
-    
+
+
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     logger.info("In corr_matrix, request.form is:", pf(request.form))
