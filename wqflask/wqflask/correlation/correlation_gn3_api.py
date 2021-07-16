@@ -149,7 +149,6 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     sample_data = test_process_data(this_trait, this_dataset, start_vars)
 
-
     if target_dataset.type == "ProbeSet":
         target_dataset.get_probeset_data(list(sample_data.keys()))
     else:
@@ -202,17 +201,22 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
         if tissue_input is not None:
             (primary_tissue_data, target_tissue_data) = tissue_input
 
-        corr_input_data = {
-            "primary_tissue": primary_tissue_data,
-            "target_tissues_dict": target_tissue_data
-        }
-        correlation_results = compute_tissue_correlation(
-            primary_tissue_dict=corr_input_data["primary_tissue"],
-            target_tissues_data=corr_input_data[
-                "target_tissues_dict"],
-            corr_method=method
+            corr_input_data = {
+                "primary_tissue": primary_tissue_data,
+                "target_tissues_dict": target_tissue_data
+            }
+            correlation_results = compute_tissue_correlation(
+                primary_tissue_dict=corr_input_data["primary_tissue"],
+                target_tissues_data=corr_input_data[
+                    "target_tissues_dict"],
+                corr_method=method
 
-        )
+            )
+        else:
+            return {"correlation_results": [],
+                    "this_trait": this_trait.name,
+                    "target_dataset": start_vars['corr_dataset'],
+                    "return_results": corr_return_results}
 
     elif corr_type == "lit":
         (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
@@ -303,4 +307,3 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
             "symbol_tissue_vals_dict": corr_result_tissue_vals_dict
         }
         return (primary_tissue_data, target_tissue_data)
-    return None
