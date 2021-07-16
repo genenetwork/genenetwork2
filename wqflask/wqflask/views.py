@@ -38,6 +38,7 @@ from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
+from gn3.db.traits import get_trait_csv_sample_data
 
 
 from flask import current_app
@@ -1313,3 +1314,19 @@ def json_default_handler(obj):
     else:
         raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj)))
+
+
+@app.route("/trait/<trait_name>/sampledata/<phenotype_id>")
+def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    csv_data = get_trait_csv_sample_data(conn, str(trait_name),
+                                         str(phenotype_id))
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=myplot.csv"}
+    )
