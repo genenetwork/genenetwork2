@@ -206,11 +206,31 @@ Submit Trait | Reset
             <textarea name="sequence" class="form-control" rows="6">{{ publish_xref.sequence |default('', true) }}</textarea>
             <input name="old_sequence" class="changed" type="hidden" value="{{ publication.sequence |default('', true) }}"/>
         </div>
+                </div>
+    <div class="form-group">
+        <label for="sequence" class="col-sm-2 control-label">Sequence:</label>
+        <div class="col-sm-8">
+            <textarea name="sequence" class="form-control" rows="6">{{ publish_xref.sequence |default('', true) }}</textarea>
+            <input name="old_sequence" class="changed" type="hidden" value="{{ publication.sequence |default('', true) }}"/>
+        </div>
+        <input type = "file" class="form-control" name = "file" />
+    </div>
+
+    <div class="form-group">
+        <a href="/data/approve/">
+            Data Approval
+        </a>
+    </div>
+
+    <div class="form-group">
+        <a href="/trait/{{ publish_xref.id_ }}/sampledata/{{ publish_xref.phenotype_id }}">
+            Download csv of sample data for editing
+        </a>
     </div>
     <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
         <input name="dataset-name" class="changed" type="hidden" value="{{ publish_xref.id_ }}"/>
-        <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
         <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
+        <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
         <input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
         <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2 changed" value="Submit Change">
         <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">
