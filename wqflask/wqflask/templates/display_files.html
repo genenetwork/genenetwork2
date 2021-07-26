@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Trait Submission{% endblock %}
+{% block content %}
+<!-- Start of body -->
+Show files for approval
+
+<div>
+    <ul>
+        {% for file in files %}
+        <li><a href="/display-file/{{ file }}" target="_blank">{{ file }}</a><br/> <button>Approve</button> <button>Reject</button></li>
+        {% endfor %}
+    </ul>
+</div>
+{%endblock%}
+
+{% block js %}
+<script>
+ gn_server_url = "{{ gn_server_url }}";
+
+</script>
+{% endblock %}

@@ -1372,3 +1372,15 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
         headers={"Content-disposition":
                  "attachment; filename=myplot.csv"}
     )
+
+
+@app.route("/data/approve/")
+def display_diffs_admin():
+    DIFF_DIR = "/tmp/sample-data/diffs"
+    files = []
+    if os.path.exists(DIFF_DIR):
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))),
+                       os.listdir(DIFF_DIR))
+    return render_template("display_files.html",
+                           files=files)
+
