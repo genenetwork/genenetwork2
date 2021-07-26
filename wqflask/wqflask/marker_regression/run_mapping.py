@@ -126,8 +126,6 @@ class RunMapping:
             self.use_loco = None
         self.suggestive = ""
         self.significant = ""
-        # Initializing this since it is checked in views to determine which template to use
-        self.pair_scan = False
         if 'transform' in start_vars:
             self.transform = start_vars['transform']
         else:
@@ -239,8 +237,9 @@ class RunMapping:
             else:
                 self.method = "em"
             self.model = start_vars['mapmodel_rqtl_geno']
-            # if start_vars['pair_scan'] == "true":
-            #    self.pair_scan = True
+            self.pair_scan = False
+            if 'pair_scan' in start_vars:
+               self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
                     self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
