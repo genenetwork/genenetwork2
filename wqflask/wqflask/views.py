@@ -1297,8 +1297,6 @@ def browser_inputs():
 
     return flask.jsonify(file_contents)
 
-##########################################################################
-
 
 def json_default_handler(obj):
     """Based on http://stackoverflow.com/a/2680060/1175849"""
