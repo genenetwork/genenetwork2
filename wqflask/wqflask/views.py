@@ -1426,3 +1426,9 @@ def approve_data(name):
                            f"{name}.approved"))
     return redirect("/data/approve/")
 
+
+@app.route("/display-file/<name>")
+def display_file(name):
+    with open(os.path.join("/tmp/sample-data/diffs", name), 'r') as myfile:
+        content = myfile.read()
+    return Response(content, mimetype='text/json')
