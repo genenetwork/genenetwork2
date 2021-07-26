@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+
+<body>
+    <div id="scree_graph" style="width:700px;height:600px;"></div>
+</body>
+<script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
+<script>
+//used temp dataset x_val and y_val
+
+
+let layout = {
+    title: {
+        text: "<b>Scree Plot</b>",
+        font: {
+            "size": 20,
+            "family": "Arial"
+        }
+    },
+
+    yaxis: {
+        // range: [-1, 100],
+        title: {
+            text: "Percent of total variance %",
+            font: {
+                "size": 18
+            }
+        }
+    },
+    xaxis: {
+        title: {
+            text: 'PCA Components',
+            font: {
+                "size": 18,
+                "color": ""
+            }
+        }
+    }
+}
+
+let data = [{
+    x: ["PC1", "PC2", "PC3", "PC4", "PC5"],
+    y: [75, 15, 5, 3, 2],
+    marker: {
+
+        color: 'rgb(17, 157, 255)',
+        size: 5,
+        line: {
+            color: 'rgb(255, 0, 0)',
+            width: 3
+        }
+    }
+
+}]
+
+
+
+let configs = (filename, format) => {
+    return {
+        toImageButtonOptions: {
+            format, // can modify this to png, svg, jpeg, webp
+            filename,
+            height: 800,
+            width: 600,
+            scale: 1
+        }
+    }
+
+}
+
+
+
+let scree = document.getElementById('scree_graph');
+Plotly.newPlot(scree, data, layout, configs("scree_plot", "svg"));
+</script>
+
+</html>
