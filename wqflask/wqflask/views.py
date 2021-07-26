@@ -27,6 +27,7 @@ from zipfile import ZIP_DEFLATED
 
 from wqflask import app
 
+from gn3.commands import run_cmd
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -43,6 +44,7 @@ from gn3.db.traits import get_trait_csv_sample_data
 
 from flask import current_app
 from flask import g
+from flask import flash
 from flask import Response
 from flask import request
 from flask import make_response
@@ -539,6 +541,52 @@ def update_phenotype():
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
+    author = g.user_session.record.get(b'user_name')
+    if 'file' not in request.files:
+        flash("No sample data has been uploaded")
+    else:
+        file_ = request.files['file']
+        trait_name = str(data_.get('dataset-name'))
+        phenotype_id = str(data_.get('phenotype-id', 35))
+        SAMPLE_DATADIR = "/tmp/sample-data/"
+        if not os.path.exists(SAMPLE_DATADIR):
+            os.makedirs(SAMPLE_DATADIR)
+        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                           "diffs")):
+            os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                     "diffs"))
+        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                           "updated")):
+            os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                     "updated"))
+        current_time = str(datetime.datetime.now().isoformat())
+        new_file_name = ("/tmp/sample-data/updated/"
+                         f"{author.decode('utf-8')}."
+                         f"{trait_name}.{phenotype_id}."
+                         f"{current_time}.csv")
+        uploaded_file_name = ("/tmp/sample-data/updated/"
+                              f"updated.{author.decode('utf-8')}."
+                              f"{trait_name}.{phenotype_id}."
+                              f"{current_time}.csv")
+        file_.save(new_file_name)
+        csv_ = get_trait_csv_sample_data(conn=conn,
+                                         trait_name=str(trait_name),
+                                         phenotype_id=str(phenotype_id))
+        with open(uploaded_file_name, "w") as f_:
+            f_.write(csv_)
+        r = run_cmd(cmd=("/home/bonface/opt/genenetwork3/bin/csvdiff "
+                         f"'{uploaded_file_name}' '{new_file_name}' "
+                         "--format json"))
+        diff_output = ("/tmp/sample-data/diffs/"
+                       f"{trait_name}."
+                       f"{phenotype_id}.{current_time}.json")
+        with open(diff_output, "w") as f:
+            print(r.get("output"))
+            dict_ = json.loads(r.get("output"))
+            dict_.update({"author": author.decode('utf-8')})
+            dict_.update({"timestamp": datetime.datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S")})
+            f.write(json.dumps(dict_))
     # Run updates:
     phenotype_ = {
         "pre_pub_description": data_.get("pre-pub-desc"),
@@ -580,7 +628,6 @@ def update_phenotype():
         diff_data.update({"Publication": diff_from_dict(old={
             k: data_.get(f"old_{k}") for k, v in publication_.items()
             if v is not None}, new=publication_)})
-    author = g.user_session.record.get(b'user_name')
     if diff_data:
         diff_data.update({"dataset_id": data_.get("dataset-name")})
         diff_data.update({"author": author.decode('utf-8')})
@@ -1317,10 +1364,10 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
-    csv_data = get_trait_csv_sample_data(conn, str(trait_name),
-                                         str(phenotype_id))
+    csv_ = get_trait_csv_sample_data(conn, str(trait_name),
+                                     str(phenotype_id))
     return Response(
-        csv_data,
+        csv_,
         mimetype="text/csv",
         headers={"Content-disposition":
                  "attachment; filename=myplot.csv"}
