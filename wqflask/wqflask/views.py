@@ -33,6 +33,7 @@ from gn3.db import fetchall
 from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
+from gn3.db import update_raw
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
@@ -1386,4 +1387,42 @@ def display_diffs_admin():
                        os.listdir(DIFF_DIR))
     return render_template("display_files.html",
                            files=files)
+
+
+@app.route("/data-samples/approve/<name>")
+def approve_data(name):
+    sample_data = {}
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    with open(os.path.join("/tmp/sample-data/diffs", name), 'r') as myfile:
+        sample_data = json.load(myfile)
+    modifications = [d for d in sample_data.get("Modifications")]
+    for modification in modifications:
+        if modifications.get("current"):
+            (strain_id, publish_id,
+             strain_name,
+             value, se, count) = modification.get("Current").split(",")
+            row_counts = update_sample_data(
+                conn=conn,
+                strain_name=strain_name,
+                strain_id=int(strain_id),
+                publish_data_id=int(PUBLISH_ID),
+                value=value,
+                error=se,
+                count=int(count)
+            )
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(
+                       dataset_id=sample_data.get("publishdata_id"),
+                       editor=sample_data.get("author"),
+                       json_data=json.dumps(sample_data)))
+            
+    # Once data is approved, rename it!
+    os.rename(os.path.join("/tmp/sample-data/diffs", name),
+              os.path.join("/tmp/sample-data/diffs",
+                           f"{name}.approved"))
+    return redirect("/data/approve/")
 
