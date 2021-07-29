@@ -33,7 +33,6 @@ from gn3.db import fetchall
 from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
-from gn3.db import update_raw
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
@@ -41,6 +40,7 @@ from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
 from gn3.db.traits import get_trait_csv_sample_data
+from gn3.db.traits import update_sample_data
 
 
 from flask import current_app
@@ -1398,10 +1398,11 @@ def approve_data(name):
                            host=current_app.config.get("DB_HOST"))
     with open(os.path.join("/tmp/sample-data/diffs", name), 'r') as myfile:
         sample_data = json.load(myfile)
+    PUBLISH_ID = sample_data.get("publishdata_id")
     modifications = [d for d in sample_data.get("Modifications")]
     for modification in modifications:
-        if modifications.get("current"):
-            (strain_id, publish_id,
+        if modification.get("Current"):
+            (strain_id,
              strain_name,
              value, se, count) = modification.get("Current").split(",")
             row_counts = update_sample_data(
@@ -1419,11 +1420,10 @@ def approve_data(name):
                        dataset_id=sample_data.get("publishdata_id"),
                        editor=sample_data.get("author"),
                        json_data=json.dumps(sample_data)))
-            
-    # Once data is approved, rename it!
-    os.rename(os.path.join("/tmp/sample-data/diffs", name),
-              os.path.join("/tmp/sample-data/diffs",
-                           f"{name}.approved"))
+            # Once data is approved, rename it!
+            os.rename(os.path.join("/tmp/sample-data/diffs", name),
+                      os.path.join("/tmp/sample-data/diffs",
+                                   f"{name}.approved"))
     return redirect("/data/approve/")
 
 
