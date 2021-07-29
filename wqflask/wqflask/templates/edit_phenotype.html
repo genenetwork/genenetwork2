@@ -212,15 +212,12 @@
         <input type = "file" class="col-sm-4 control-label" name = "file" />
     </div>
 
-    <div class="form-group">
-        <a href="/data/approve/">
+    <div style="margin-left: 13%;">
+        <a href="/data/approve/" class="btn btn-link btn-sm">
             Data Approval
         </a>
-    </div>
-
-    <div class="form-group">
-        <a href="/trait/{{ publish_xref.id_ }}/sampledata/{{ publish_xref.phenotype_id }}">
-            Download csv of sample data for editing
+        <a href="/trait/{{ publish_xref.id_ }}/sampledata/{{ publish_xref.phenotype_id }}" class="btn btn-link btn-sm">
+            Sample Data(CSV Download)
         </a>
     </div>
     <div class="controls center-block" style="width: max-content;">
