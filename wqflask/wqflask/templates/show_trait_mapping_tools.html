@@ -13,6 +13,9 @@
                 <li class="rqtl-geno-tab mapping-tab {% if dataset.group.mapping_id == '3' %}active{% endif %}">
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
+                <li class="rqtl-pair-tab mapping-tab {% if dataset.group.mapping_id == '3' %}active{% endif %}">
+                    <a href="#rqtl_pair" data-toggle="tab">Pair Scan</a>
+                </li>
                 {% elif mapping_method == "QTLReaper" %}
                 <li class="reaper-tab mapping-tab">
                     <a href="#interval_mapping" data-toggle="tab">Haley-Knott Regression</a>
@@ -332,6 +335,110 @@
                         </div>
                     </div>
                 </div>
+                <div class="tab-pane {% if dataset.group.mapping_id == '3' %}active{% endif %}" id="rqtl_pair">
+                    <div class="form-horizontal section-form-div">
+                        {% if genofiles and genofiles|length > 0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
+                            <div class="col-xs-6 controls">
+                                <select id="genofile_rqtl_geno" class="form-control">
+                                    {% for item in genofiles %}
+                                    <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
+                            <div class="col-xs-4 controls">
+                                <input name="num_perm_rqtl_geno" value="200" type="text" class="form-control">
+                            </div>
+                        </div>
+                        {% if sample_groups[0].attributes|length > 0 %}
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-xs-3 control-label">Stratified</label>
+                            <div class="col-xs-6 controls">
+                                <label class="radio-inline">
+                                    <input type="radio" name="perm_strata" value="True" checked=""> 
+                                    Yes
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="perm_strata" value="False" >
+                                    No
+                               </label>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
+                            <div class="col-xs-6 controls">
+                              <input name="control_rqtl_geno" value="{% if dataset.type == 'ProbeSet' and this_trait.locus_chr != '' %}{{ nearest_marker }}{% endif %}" type="text" class="form-control cofactor-input" />
+                              <label class="radio-inline">
+                                  <input type="radio" name="do_control_rqtl" value="true">
+                                  Yes
+                              </label>
+                              <label class="radio-inline">
+                                  <input type="radio" name="do_control_rqtl" value="false" checked="">
+                                  No
+                              </label>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapmodel_rqtl_geno" class="col-xs-3 control-label">Model</label>
+                            <div class="col-xs-4 controls">
+                              <select id="mapmodel_rqtl_geno" name="mapmodel_rqtl_geno" class="form-control">
+                                <option value="normal">Normal</option>
+                                {% if binary == "true" %}<option value="binary">Binary</option>{% endif %}
+                                <!--<option value="2part">2-part</option>-->
+                                <option value="np">Non-parametric</option>
+                              </select>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label for="mapmethod_rqtl_geno" class="col-xs-3 control-label">Method</label>
+                            <div class="col-xs-6 controls">
+                              <select id="mapmethod_rqtl_geno" name="mapmethod_rqtl_geno" class="form-control">
+                                <option value="hk" selected>Haley-Knott</option>
+                                <option value="ehk">Extended Haley-Knott</option>
+                                <option value="mr">Marker Regression</option>
+                                <option value="em">Expectation-Maximization</option>
+                                <option value="imp">Imputation</option>
+                              </select>
+                            </div>
+                        </div>
+                        <div id="missing_geno_div" class="mapping_method_fields form-group" style="display: none;">
+                            <label for="missing_genotypes" class="col-xs-3 control-label"></label>
+                            <div class="col-xs-6 controls">
+                              <select id="missing_genotype" name="missing_genotypes" class="form-control">
+                                <option value="mr">Remove Samples w/o Genotypes</option>
+                                <option value="mr-imp">Single Imputation</option>
+                                <option value="mr-argmax">Imputation w/ Viterbi Algorithm</option>
+                              </select>
+                            </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                          <label class="col-xs-3 control-label">Covariates<br><span class="covar-text">Select covariate(s) from a collection</span></label>
+                          <div class="col-xs-8 covar-options">
+                            {% if g.user_session.num_collections < 1 %}
+                            No collections available. Please add traits to a collection to use them as covariates.
+                            {% else %}
+                            <div class="select-covar-div">
+                              <button type="button" class="btn btn-default select-covar-button select_covariates">Select</button>
+                              <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
+                            </div>
+                            <textarea rows="3" cols="50" readonly placeholder="No covariates selected" class="selected-covariates"></textarea>
+                            {% endif %}
+                          </div>
+                        </div>
+                        <div class="mapping_method_fields form-group">
+                            <label class="col-xs-3 control-label"></label>
+                            <div class="col-xs-6 controls">
+                              <button id="rqtl_pair_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Pair Scan" value="Compute">Compute</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
                 {% endfor %}
             </div>
@@ -345,8 +452,10 @@
                 <dt>GEMMA</dt>
                 <dd>Maps traits with correction for kinship among samples using a linear mixed model method, and also allows users to fit multiple covariates such as sex, age, treatment, and genetic markers (<a href="https://www.ncbi.nlm.nih.gov/pubmed/24531419">PMID: 2453419</a>, and <a href="https://github.com/genetics-statistics/GEMMA"> GitHub code</a>). GEMMA incorporates the Leave One Chromosome Out (LOCO) method to ensure that the correction for kinship does not remove useful genetic variance near each marker. Markers can be filtered to include only those with minor allele frequencies (MAF) above a threshold. The default MAF is 0.05.</dd>
                 {% elif mapping_method == "R/qtl" %}
-                <dt class="map-method-text">R/qtl (version 1.44.9</dt>
+                <dt class="map-method-text">R/qtl (version 1.44.9)</dt>
                 <dd>The original R/qtl mapping package that supports classic experimental crosses including 4-parent F2 intercrosses (e.g., NIA ITP UM-HET3). R/qtl is ideal for populations that do not have complex kinship or admixture (<a href="https://www.ncbi.nlm.nih.gov/pubmed/12724300">PMID: 12724300</a>). Both R/qtl as implemented here, and R/qtl2 (<a href="https://www.ncbi.nlm.nih.gov/pubmed/30591514">PMID: 30591514</a>) are available as <span  class="broken-link" href="https://kbroman.org/pages/software.html">R suites</span>.</dd>
+                <dt class="map-method-text">Pair Scan</dt>
+                <dd>Pair Scan using the R/qtl scantwo function.</dd>
                 {% elif mapping_method == "QTLReaper" %}
                 <dt class="map-method-text">Haley-Knott Regression</dt>
                 <dd>Fast linear mapping method (<a href="https://www.ncbi.nlm.nih.gov/pubmed/16718932">PMID 16718932</a>) works well with F2 intercrosses and backcrosses, but that is not recommended for complex or admixed populations (e.g., GWAS or heterogeneous stock studies) or for advanced intercrosses, recombinant inbred families, or diallel crosses. Interactive plots in GeneNetwork have relied on the fast HK mapping for two decades and we still use this method for mapping omics data sets and computing genome-wide permutation threshold (<a href="https://github.com/pjotrp/QTLReaper">QTL Reaper code</a>).</dd>
