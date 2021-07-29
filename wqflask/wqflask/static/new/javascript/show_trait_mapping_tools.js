@@ -171,6 +171,28 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
   };
 })(this));
 
+$(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
+  return function() {
+    if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_pair_compute"){
+      var form_data, url;
+      url = "/loading";
+      $('input[name=method]').val("rqtl_geno");
+      $('input[name=pair_scan]').val("");
+      $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
+      $('input[name=categorical_vars]').val(js_data.categorical_vars)
+      $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
+      $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
+      $('input[name=tool_used]').val("Mapping");
+      $('input[name=form_url]').val("/run_mapping");
+      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
+      return submit_special(url);
+    } else {
+      return true
+    }
+  };
+})(this));
+
 $(".gemma-tab, #gemma_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "gemma_compute"){
