@@ -570,11 +570,19 @@ def update_phenotype():
                               f"{trait_name}.{phenotype_id}."
                               f"{current_time}.csv")
         file_.save(new_file_name)
+        publishdata_id = ""
+        lines = []
+        with open(new_file_name, "r") as f:
+            lines = f.read()
+            first_line = lines.split('\n', 1)[0]
+            publishdata_id = first_line.split("Id:")[-1].strip()
+        with open(new_file_name, "w") as f:
+            f.write(lines.split("\n\n")[-1])
         csv_ = get_trait_csv_sample_data(conn=conn,
                                          trait_name=str(trait_name),
                                          phenotype_id=str(phenotype_id))
         with open(uploaded_file_name, "w") as f_:
-            f_.write(csv_)
+            f_.write(csv_.split("\n\n")[-1])
         r = run_cmd(cmd=("/home/bonface/opt/genenetwork3/bin/csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
@@ -582,9 +590,9 @@ def update_phenotype():
                        f"{trait_name}."
                        f"{phenotype_id}.{current_time}.json")
         with open(diff_output, "w") as f:
-            print(r.get("output"))
             dict_ = json.loads(r.get("output"))
             dict_.update({"author": author.decode('utf-8')})
+            dict_.update({"publishdata_id": publishdata_id})
             dict_.update({"timestamp": datetime.datetime.now().strftime(
                 "%Y-%m-%d %H:%M:%S")})
             f.write(json.dumps(dict_))
