@@ -20,7 +20,7 @@ logger = utility.logger.getLogger(__name__)
 GN3_RQTL_URL = "http://localhost:8086/api/rqtl/compute"
 GN3_TMP_PATH = "/export/local/home/zas1024/genenetwork3/tmp"
 
-def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
+def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
@@ -37,6 +37,9 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
         "nperm": num_perm,
         "scale": mapping_scale
     }
+
+    if pair_scan:
+        post_data["pair_scan"] = True
 
     if do_control == "true" and control_marker:
         post_data["control_marker"] = control_marker

@@ -232,19 +232,19 @@ class RunMapping:
             self.score_type = "LOD"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            if 'mapmethod_rqtl_geno' in start_vars:
-                self.method = start_vars['mapmethod_rqtl_geno']
+            if 'mapmethod_rqtl' in start_vars:
+                self.method = start_vars['mapmethod_rqtl']
             else:
                 self.method = "em"
-            self.model = start_vars['mapmodel_rqtl_geno']
+            self.model = start_vars['mapmodel_rqtl']
             self.pair_scan = False
             if 'pair_scan' in start_vars:
                self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
-                    self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
+                    self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
             else:
-                results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method,
+                results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method,
                                                      self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars:  # ZS: Check if first time page loaded, so it can default to ON
