@@ -208,11 +208,6 @@ Submit Trait | Reset
         </div>
                 </div>
     <div class="form-group">
-        <label for="sequence" class="col-sm-2 control-label">Sequence:</label>
-        <div class="col-sm-8">
-            <textarea name="sequence" class="form-control" rows="6">{{ publish_xref.sequence |default('', true) }}</textarea>
-            <input name="old_sequence" class="changed" type="hidden" value="{{ publication.sequence |default('', true) }}"/>
-        </div>
         <input type = "file" class="form-control" name = "file" />
     </div>
 
