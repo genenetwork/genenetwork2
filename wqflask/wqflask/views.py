@@ -1380,8 +1380,9 @@ def display_diffs_admin():
     DIFF_DIR = "/tmp/sample-data/diffs"
     files = []
     if os.path.exists(DIFF_DIR):
+        files = os.listdir(DIFF_DIR)
         files = filter(lambda x: not(x.endswith((".approved", ".rejected"))),
-                       os.listdir(DIFF_DIR))
+                       files)
     return render_template("display_files.html",
                            files=files)
 
