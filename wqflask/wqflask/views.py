@@ -546,7 +546,7 @@ def update_phenotype():
     data_ = request.form.to_dict()
     author = g.user_session.record.get(b'user_name')
     if 'file' not in request.files:
-        flash("No sample data has been uploaded")
+        flash("No sample-data has been uploaded", "warning")
     else:
         file_ = request.files['file']
         trait_name = str(data_.get('dataset-name'))
@@ -598,6 +598,7 @@ def update_phenotype():
             dict_.update({"timestamp": datetime.datetime.now().strftime(
                 "%Y-%m-%d %H:%M:%S")})
             f.write(json.dumps(dict_))
+        flash("Sample-data has been successfully uploaded", "success")
     # Run updates:
     phenotype_ = {
         "pre_pub_description": data_.get("pre-pub-desc"),
@@ -649,6 +650,7 @@ def update_phenotype():
                data=MetadataAudit(dataset_id=data_.get("dataset-name"),
                                   editor=author.decode("utf-8"),
                                   json_data=json.dumps(diff_data)))
+        flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(f"/trait/{data_.get('dataset-name')}"
                     f"/edit/phenotype-id/{data_.get('phenotype-id')}")
 

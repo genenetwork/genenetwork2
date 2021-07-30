@@ -2,6 +2,15 @@
 {% block title %}Trait Submission{% endblock %}
 {% block content %}
 <!-- Start of body -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="container-fluid bg-{{ category }}">
+    <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 <div class="page-header text-center">
     <h1>Edit Trait for Published Database</h1>
 </div>
