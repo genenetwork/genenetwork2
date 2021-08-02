@@ -591,10 +591,13 @@ def update_phenotype():
                        f"{phenotype_id}.{current_time}.json")
         with open(diff_output, "w") as f:
             dict_ = json.loads(r.get("output"))
-            dict_.update({"author": author.decode('utf-8')})
-            dict_.update({"publishdata_id": publishdata_id})
-            dict_.update({"timestamp": datetime.datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S")})
+            dict_.update({
+                "author": author.decode('utf-8'),
+                "publishdata_id": publishdata_id,
+                "dataset_id": data_.get("dataset-name"),
+                "timestamp": datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S")
+            })
             f.write(json.dumps(dict_))
         flash("Sample-data has been successfully uploaded", "success")
     # Run updates:
