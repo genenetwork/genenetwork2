@@ -589,7 +589,7 @@ def update_phenotype():
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
         diff_output = ("/tmp/sample-data/diffs/"
-                       f"{trait_name}."
+                       f"{trait_name}.{author.decode('utf-8')}."
                        f"{phenotype_id}.{current_time}.json")
         with open(diff_output, "w") as f:
             dict_ = json.loads(r.get("output"))
