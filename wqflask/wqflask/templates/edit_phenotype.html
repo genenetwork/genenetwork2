@@ -216,15 +216,14 @@
             <textarea name="sequence" class="form-control" rows="6">{{ publish_xref.sequence |default('', true) }}</textarea>
             <input name="old_sequence" class="changed" type="hidden" value="{{ publication.sequence |default('', true) }}"/>
         </div>
-                </div>
-    <div class="form-group">
-        <input type = "file" class="col-sm-4 control-label" name = "file" />
     </div>
-
     <div style="margin-left: 13%;">
         <a href="/trait/{{ publish_xref.id_ }}/sampledata/{{ publish_xref.phenotype_id }}" class="btn btn-link btn-sm">
             Sample Data(CSV Download)
         </a>
+    </div>
+    <div class="form-group">
+        <input type = "file" class="col-sm-4 control-label" name = "file" />
     </div>
     <div class="controls center-block" style="width: max-content;">
         <input name="dataset-name" class="changed" type="hidden" value="{{ publish_xref.id_ }}"/>
