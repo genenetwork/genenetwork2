@@ -1428,7 +1428,7 @@ def approve_data(name):
             insert(conn,
                    table="metadata_audit",
                    data=MetadataAudit(
-                       dataset_id=sample_data.get("publishdata_id"),
+                       dataset_id=name.split(".")[0],  # use the dataset name
                        editor=sample_data.get("author"),
                        json_data=json.dumps(sample_data)))
             # Once data is approved, rename it!
