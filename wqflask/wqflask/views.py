@@ -1399,7 +1399,8 @@ def display_diffs_admin():
         files = os.listdir(DIFF_DIR)
         files = filter(lambda x: not(x.endswith((".approved", ".rejected"))),
                        files)
-    return render_template("display_files.html",
+    return render_template("display_files_admin.html",
+                           files=files)
                            files=files)
 
 
