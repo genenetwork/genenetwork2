@@ -587,7 +587,7 @@ def update_phenotype():
                                          phenotype_id=str(phenotype_id))
         with open(uploaded_file_name, "w") as f_:
             f_.write(csv_.split("\n\n")[-1])
-        r = run_cmd(cmd=("/home/bonface/opt/genenetwork3/bin/csvdiff "
+        r = run_cmd(cmd=("csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
         diff_output = ("/tmp/sample-data/diffs/"
