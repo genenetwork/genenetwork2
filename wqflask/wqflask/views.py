@@ -1446,6 +1446,15 @@ def approve_data(name):
     return redirect("/admin/data-sample/diffs/")
 
 
+@app.route("/data-samples/reject/<name>")
+def reject_data(name):
+    os.rename(os.path.join("/tmp/sample-data/diffs", name),
+              os.path.join("/tmp/sample-data/diffs",
+                           f"{name}.rejected"))
+    flash(f"{name} has been rejected!", "success")
+    return redirect("/admin/data-sample/diffs/")
+
+
 @app.route("/display-file/<name>")
 def display_file(name):
     with open(os.path.join("/tmp/sample-data/diffs", name), 'r') as myfile:

@@ -17,7 +17,8 @@ Show files for approval
     <ul>
         {% for file in files %}
         <li><a href="/display-file/{{ file }}" target="_blank">{{ file }}</a><br/>
-            <button><a href="/data-samples/approve/{{ file }}">Approve</a></button> <button>Reject</button></li>
+            <button><a href="/data-samples/approve/{{ file }}">Approve</a></button>
+            <button><a href="/data-samples/reject/{{ file }}">Reject</a></button></li>
         {% endfor %}
     </ul>
 </div>
