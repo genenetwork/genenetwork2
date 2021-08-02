@@ -1431,10 +1431,11 @@ def approve_data(name):
                        dataset_id=name.split(".")[0],  # use the dataset name
                        editor=sample_data.get("author"),
                        json_data=json.dumps(sample_data)))
-            # Once data is approved, rename it!
-            os.rename(os.path.join("/tmp/sample-data/diffs", name),
-                      os.path.join("/tmp/sample-data/diffs",
-                                   f"{name}.approved"))
+    if modifications:
+        # Once data is approved, rename it!
+        os.rename(os.path.join("/tmp/sample-data/diffs", name),
+                  os.path.join("/tmp/sample-data/diffs",
+                               f"{name}.approved"))
     return redirect("/admin/data-sample/diffs/")
 
 
