@@ -542,6 +542,7 @@ def update_phenotype():
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
+    TMPDIR = current_app.config.get("TMPDIR")
     author = g.user_session.record.get(b'user_name')
     if 'file' not in request.files:
         flash("No sample-data has been uploaded", "warning")
@@ -549,7 +550,7 @@ def update_phenotype():
         file_ = request.files['file']
         trait_name = str(data_.get('dataset-name'))
         phenotype_id = str(data_.get('phenotype-id', 35))
-        SAMPLE_DATADIR = "/tmp/sample-data/"
+        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
         if not os.path.exists(SAMPLE_DATADIR):
             os.makedirs(SAMPLE_DATADIR)
         if not os.path.exists(os.path.join(SAMPLE_DATADIR,
@@ -561,14 +562,17 @@ def update_phenotype():
             os.makedirs(os.path.join(SAMPLE_DATADIR,
                                      "updated"))
         current_time = str(datetime.datetime.now().isoformat())
-        new_file_name = ("/tmp/sample-data/updated/"
-                         f"{author.decode('utf-8')}."
-                         f"{trait_name}.{phenotype_id}."
-                         f"{current_time}.csv")
-        uploaded_file_name = ("/tmp/sample-data/updated/"
-                              f"updated.{author.decode('utf-8')}."
-                              f"{trait_name}.{phenotype_id}."
-                              f"{current_time}.csv")
+        new_file_name = (os.path.join(TMPDIR,
+                                      "sample-data/updated/",
+                                      (f"{author.decode('utf-8')}."
+                                       f"{trait_name}.{phenotype_id}."
+                                       f"{current_time}.csv")))
+        uploaded_file_name = (os.path.join(
+            TMPDIR,
+            "sample-data/updated/",
+            (f"updated.{author.decode('utf-8')}."
+             f"{trait_name}.{phenotype_id}."
+             f"{current_time}.csv")))
         file_.save(new_file_name)
         publishdata_id = ""
         lines = []
@@ -1422,7 +1426,9 @@ def approve_data(name):
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
-    with open(os.path.join("/tmp/sample-data/diffs", name), 'r') as myfile:
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
         sample_data = json.load(myfile)
     PUBLISH_ID = sample_data.get("publishdata_id")
     modifications = [d for d in sample_data.get("Modifications")]
@@ -1449,8 +1455,8 @@ def approve_data(name):
                        json_data=json.dumps(sample_data)))
     if modifications:
         # Once data is approved, rename it!
-        os.rename(os.path.join("/tmp/sample-data/diffs", name),
-                  os.path.join("/tmp/sample-data/diffs",
+        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
+                  os.path.join(f"{TMPDIR}/sample-data/diffs",
                                f"{name}.approved"))
         flash((f"Just updated data from: {name}; {row_counts} "
                "row(s) modified!"),
@@ -1460,8 +1466,9 @@ def approve_data(name):
 
 @app.route("/data-samples/reject/<name>")
 def reject_data(name):
-    os.rename(os.path.join("/tmp/sample-data/diffs", name),
-              os.path.join("/tmp/sample-data/diffs",
+    TMPDIR = current_app.config.get("TMPDIR")
+    os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
+              os.path.join(f"{TMPDIR}/sample-data/diffs",
                            f"{name}.rejected"))
     flash(f"{name} has been rejected!", "success")
     return redirect("/admin/data-sample/diffs/")
@@ -1469,6 +1476,8 @@ def reject_data(name):
 
 @app.route("/display-file/<name>")
 def display_file(name):
-    with open(os.path.join("/tmp/sample-data/diffs", name), 'r') as myfile:
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
         content = myfile.read()
     return Response(content, mimetype='text/json')
