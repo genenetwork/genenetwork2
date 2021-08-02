@@ -1414,12 +1414,13 @@ def approve_data(name):
         sample_data = json.load(myfile)
     PUBLISH_ID = sample_data.get("publishdata_id")
     modifications = [d for d in sample_data.get("Modifications")]
+    row_counts = len(modifications)
     for modification in modifications:
         if modification.get("Current"):
             (strain_id,
              strain_name,
              value, se, count) = modification.get("Current").split(",")
-            row_counts = update_sample_data(
+            update_sample_data(
                 conn=conn,
                 strain_name=strain_name,
                 strain_id=int(strain_id),
@@ -1439,6 +1440,9 @@ def approve_data(name):
         os.rename(os.path.join("/tmp/sample-data/diffs", name),
                   os.path.join("/tmp/sample-data/diffs",
                                f"{name}.approved"))
+        flash((f"Just updated data from: {name}; {row_counts} "
+               "row(s) modified!"),
+              "success")
     return redirect("/admin/data-sample/diffs/")
 
 
