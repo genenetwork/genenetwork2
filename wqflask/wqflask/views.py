@@ -1391,7 +1391,7 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
     )
 
 
-@app.route("/data/approve/")
+@app.route("/admin/data-sample/diffs/")
 def display_diffs_admin():
     DIFF_DIR = "/tmp/sample-data/diffs"
     files = []
@@ -1438,7 +1438,7 @@ def approve_data(name):
             os.rename(os.path.join("/tmp/sample-data/diffs", name),
                       os.path.join("/tmp/sample-data/diffs",
                                    f"{name}.approved"))
-    return redirect("/data/approve/")
+    return redirect("/admin/data-sample/diffs/")
 
 
 @app.route("/display-file/<name>")
