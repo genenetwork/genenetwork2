@@ -72,6 +72,12 @@
 </form>
 <br>
 {% if pca_works == "True" %}
+
+<div style="margin:20px;">
+  {%include 'scree_plot.html'%}
+</div>
+
+
 <h2>PCA Traits</h2>
 <div style="margin-bottom: 20px; overflow:hidden;">
 <table id="pca_table" class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
