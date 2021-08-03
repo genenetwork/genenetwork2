@@ -60,13 +60,17 @@ let data = [{
 
 
 
-let configs = (filename, format) => {
+let configs = (filename, format,modebar=true) => {
+
+    //  customize download icon
     return {
+        displayModeBar: modebar, 
+        scrollZoom: false,
         toImageButtonOptions: {
             format, // can modify this to png, svg, jpeg, webp
             filename,
-            height: 800,
-            width: 600,
+            height: 600,
+            width: 700,
             scale: 1
         }
     }
