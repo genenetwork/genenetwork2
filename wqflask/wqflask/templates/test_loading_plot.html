@@ -15,7 +15,6 @@
 <script type="text/javascript">
 
 
-// using mock data
 
 let [loading_1,loading_2] = [[-0.554,-0.017,0.326,0.497,0.583],[0.052,0.635,-0.661,0.381,0.112]]  
 
@@ -43,13 +42,13 @@ let data = loading_1.map((val,i)=> {
 
 let layout = {
 
-  height: 600,  //fix
+  height: 600,
   width: 900,
   showlegend: false,
   title: 'Factor Loadings Plot',
   xaxis: {
     title: 'Factor (1)',
-    showgrid: true, //??
+    showgrid: true,
     zeroline: false,
     showline : true 
   },
@@ -57,7 +56,7 @@ let layout = {
     title: 'Factor (2)',
     showline: true,
     zeroline:false,
-    showgrid:true //?? 
+    showgrid:true
   },
 };
 
