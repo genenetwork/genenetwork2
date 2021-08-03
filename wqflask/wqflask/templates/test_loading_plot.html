@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+<body>
+
+	<div id="loadings_plot"></div>
+
+</body>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script type="text/javascript">
+
+
+// using mock data
+
+let [loading_1,loading_2] = [[-0.554,-0.017,0.326,0.497,0.583],[0.052,0.635,-0.661,0.381,0.112]]  
+
+let pca_traits = ["123_T1","123_T2","123_T3","234_T4","321_T5"]
+
+
+let data = loading_1.map((val,i)=> {
+  return  {
+    x: [0,val],
+    y: [0,loading_2[i]],
+    mode: 'lines+markers+text',
+    text : ['', pca_traits[i]],
+    textposition: 'top',
+    name : pca_traits[i],
+    marker: {
+    color: 'rgb(0, 0, 255)',
+    size: 8,
+  },
+    line: {
+    color: 'rgb(255, 0, 0)',
+    width: 1.3
+  }
+  }
+});
+
+let layout = {
+
+  height: 600,  //fix
+  width: 900,
+  showlegend: false,
+  title: 'Factor Loadings Plot',
+  xaxis: {
+    title: 'Factor (1)',
+    showgrid: true, //??
+    zeroline: false,
+    showline : true 
+  },
+  yaxis: {
+    title: 'Factor (2)',
+    showline: true,
+    zeroline:false,
+    showgrid:true //?? 
+  },
+};
+
+Plotly.newPlot('loadings_plot', data,layout);
+
+</script>
+</html>
