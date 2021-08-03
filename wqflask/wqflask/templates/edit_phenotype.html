@@ -2,8 +2,18 @@
 {% block title %}Trait Submission{% endblock %}
 {% block content %}
 <!-- Start of body -->
-Edit Trait for Published Database
-Submit Trait | Reset
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="container-fluid bg-{{ category }}">
+    <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<div class="page-header text-center">
+    <h1>Edit Trait for Published Database</h1>
+</div>
 
 {% if diff %}
 
@@ -53,7 +63,7 @@ Submit Trait | Reset
 
 {% endif %}
 
-<form id="edit-form" class="form-horizontal" method="post" action="/trait/update">
+<form id="edit-form" class="form-horizontal" method="post" action="/trait/update" enctype=multipart/form-data>
     <h2 class="text-center">Trait Information:</h2>
     <div class="form-group">
         <label for="pubmed-id" class="col-sm-2 control-label">Pubmed ID:</label>
@@ -207,10 +217,18 @@ Submit Trait | Reset
             <input name="old_sequence" class="changed" type="hidden" value="{{ publication.sequence |default('', true) }}"/>
         </div>
     </div>
-    <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
+    <div style="margin-left: 13%;">
+        <a href="/trait/{{ publish_xref.id_ }}/sampledata/{{ publish_xref.phenotype_id }}" class="btn btn-link btn-sm">
+            Sample Data(CSV Download)
+        </a>
+    </div>
+    <div class="form-group">
+        <input type = "file" class="col-sm-4 control-label" name = "file" />
+    </div>
+    <div class="controls center-block" style="width: max-content;">
         <input name="dataset-name" class="changed" type="hidden" value="{{ publish_xref.id_ }}"/>
-        <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
         <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
+        <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
         <input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
         <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2 changed" value="Submit Change">
         <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">

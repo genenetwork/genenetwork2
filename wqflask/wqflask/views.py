@@ -27,6 +27,7 @@ from zipfile import ZIP_DEFLATED
 
 from wqflask import app
 
+from gn3.commands import run_cmd
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -38,10 +39,13 @@ from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
+from gn3.db.traits import get_trait_csv_sample_data
+from gn3.db.traits import update_sample_data
 
 
 from flask import current_app
 from flask import g
+from flask import flash
 from flask import Response
 from flask import request
 from flask import make_response
@@ -432,9 +436,9 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/inbredset-id/<inbred_set_id>")
+@app.route("/trait/<name>/edit/phenotype-id/<phenotype_id>")
 @admin_login_required
-def edit_phenotype(name, inbred_set_id):
+def edit_phenotype(name, phenotype_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -443,7 +447,7 @@ def edit_phenotype(name, inbred_set_id):
         conn=conn,
         table="PublishXRef",
         where=PublishXRef(id_=name,
-                          inbred_set_id=inbred_set_id))
+                          phenotype_id=phenotype_id))
     phenotype_ = fetchone(
         conn=conn,
         table="Phenotype",
@@ -540,6 +544,68 @@ def update_phenotype():
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
+    TMPDIR = current_app.config.get("TMPDIR")
+    author = g.user_session.record.get(b'user_name')
+    if 'file' not in request.files:
+        flash("No sample-data has been uploaded", "warning")
+    else:
+        file_ = request.files['file']
+        trait_name = str(data_.get('dataset-name'))
+        phenotype_id = str(data_.get('phenotype-id', 35))
+        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
+        if not os.path.exists(SAMPLE_DATADIR):
+            os.makedirs(SAMPLE_DATADIR)
+        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                           "diffs")):
+            os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                     "diffs"))
+        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                           "updated")):
+            os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                     "updated"))
+        current_time = str(datetime.datetime.now().isoformat())
+        new_file_name = (os.path.join(TMPDIR,
+                                      "sample-data/updated/",
+                                      (f"{author.decode('utf-8')}."
+                                       f"{trait_name}.{phenotype_id}."
+                                       f"{current_time}.csv")))
+        uploaded_file_name = (os.path.join(
+            TMPDIR,
+            "sample-data/updated/",
+            (f"updated.{author.decode('utf-8')}."
+             f"{trait_name}.{phenotype_id}."
+             f"{current_time}.csv")))
+        file_.save(new_file_name)
+        publishdata_id = ""
+        lines = []
+        with open(new_file_name, "r") as f:
+            lines = f.read()
+            first_line = lines.split('\n', 1)[0]
+            publishdata_id = first_line.split("Id:")[-1].strip()
+        with open(new_file_name, "w") as f:
+            f.write(lines.split("\n\n")[-1])
+        csv_ = get_trait_csv_sample_data(conn=conn,
+                                         trait_name=str(trait_name),
+                                         phenotype_id=str(phenotype_id))
+        with open(uploaded_file_name, "w") as f_:
+            f_.write(csv_.split("\n\n")[-1])
+        r = run_cmd(cmd=("csvdiff "
+                         f"'{uploaded_file_name}' '{new_file_name}' "
+                         "--format json"))
+        diff_output = ("/tmp/sample-data/diffs/"
+                       f"{trait_name}.{author.decode('utf-8')}."
+                       f"{phenotype_id}.{current_time}.json")
+        with open(diff_output, "w") as f:
+            dict_ = json.loads(r.get("output"))
+            dict_.update({
+                "author": author.decode('utf-8'),
+                "publishdata_id": publishdata_id,
+                "dataset_id": data_.get("dataset-name"),
+                "timestamp": datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S")
+            })
+            f.write(json.dumps(dict_))
+        flash("Sample-data has been successfully uploaded", "success")
     # Run updates:
     phenotype_ = {
         "pre_pub_description": data_.get("pre-pub-desc"),
@@ -581,7 +647,6 @@ def update_phenotype():
         diff_data.update({"Publication": diff_from_dict(old={
             k: data_.get(f"old_{k}") for k, v in publication_.items()
             if v is not None}, new=publication_)})
-    author = g.user_session.record.get(b'user_name')
     if diff_data:
         diff_data.update({"dataset_id": data_.get("dataset-name")})
         diff_data.update({"author": author.decode('utf-8')})
@@ -592,8 +657,9 @@ def update_phenotype():
                data=MetadataAudit(dataset_id=data_.get("dataset-name"),
                                   editor=author.decode("utf-8"),
                                   json_data=json.dumps(diff_data)))
+        flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(f"/trait/{data_.get('dataset-name')}"
-                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
+                    f"/edit/phenotype-id/{data_.get('phenotype-id')}")
 
 
 @app.route("/probeset/update", methods=["POST"])
@@ -1296,8 +1362,6 @@ def browser_inputs():
 
     return flask.jsonify(file_contents)
 
-##########################################################################
-
 
 def json_default_handler(obj):
     """Based on http://stackoverflow.com/a/2680060/1175849"""
@@ -1313,3 +1377,110 @@ def json_default_handler(obj):
     else:
         raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj)))
+
+
+@app.route("/trait/<trait_name>/sampledata/<phenotype_id>")
+def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    csv_ = get_trait_csv_sample_data(conn, str(trait_name),
+                                     str(phenotype_id))
+    return Response(
+        csv_,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=myplot.csv"}
+    )
+
+
+@app.route("/admin/data-sample/diffs/")
+@admin_login_required
+def display_diffs_admin():
+    DIFF_DIR = "/tmp/sample-data/diffs"
+    files = []
+    if os.path.exists(DIFF_DIR):
+        files = os.listdir(DIFF_DIR)
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))),
+                       files)
+    return render_template("display_files_admin.html",
+                           files=files)
+
+
+@app.route("/user/data-sample/diffs/")
+def display_diffs_users():
+    DIFF_DIR = "/tmp/sample-data/diffs"
+    files = []
+    author = g.user_session.record.get(b'user_name').decode("utf-8")
+    if os.path.exists(DIFF_DIR):
+        files = os.listdir(DIFF_DIR)
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))) \
+                       and author in x,
+                       files)
+    return render_template("display_files_user.html",
+                           files=files)
+
+
+@app.route("/data-samples/approve/<name>")
+def approve_data(name):
+    sample_data = {}
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
+        sample_data = json.load(myfile)
+    PUBLISH_ID = sample_data.get("publishdata_id")
+    modifications = [d for d in sample_data.get("Modifications")]
+    row_counts = len(modifications)
+    for modification in modifications:
+        if modification.get("Current"):
+            (strain_id,
+             strain_name,
+             value, se, count) = modification.get("Current").split(",")
+            update_sample_data(
+                conn=conn,
+                strain_name=strain_name,
+                strain_id=int(strain_id),
+                publish_data_id=int(PUBLISH_ID),
+                value=value,
+                error=se,
+                count=int(count)
+            )
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(
+                       dataset_id=name.split(".")[0],  # use the dataset name
+                       editor=sample_data.get("author"),
+                       json_data=json.dumps(sample_data)))
+    if modifications:
+        # Once data is approved, rename it!
+        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
+                  os.path.join(f"{TMPDIR}/sample-data/diffs",
+                               f"{name}.approved"))
+        flash((f"Just updated data from: {name}; {row_counts} "
+               "row(s) modified!"),
+              "success")
+    return redirect("/admin/data-sample/diffs/")
+
+
+@app.route("/data-samples/reject/<name>")
+def reject_data(name):
+    TMPDIR = current_app.config.get("TMPDIR")
+    os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
+              os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           f"{name}.rejected"))
+    flash(f"{name} has been rejected!", "success")
+    return redirect("/admin/data-sample/diffs/")
+
+
+@app.route("/display-file/<name>")
+def display_file(name):
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
+        content = myfile.read()
+    return Response(content, mimetype='text/json')
