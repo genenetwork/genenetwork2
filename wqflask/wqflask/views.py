@@ -1450,7 +1450,7 @@ def approve_data(name):
                 publish_data_id=int(PUBLISH_ID),
                 value=value,
                 error=se,
-                count=int(count)
+                count=count
             )
             insert(conn,
                    table="metadata_audit",
