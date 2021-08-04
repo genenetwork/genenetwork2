@@ -283,6 +283,7 @@ class ShowTrait:
         hddn['method'] = "gemma"
         hddn['mapmethod_rqtl'] = "hk"
         hddn['mapmodel_rqtl'] = "normal"
+        hddn['pair_scan'] = ""
         hddn['selected_chr'] = -1
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
