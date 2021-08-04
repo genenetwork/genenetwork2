@@ -326,33 +326,8 @@ class RunMapping:
             self.no_results = True
         else:
             if self.pair_scan == True:
-                self.qtl_results = []
-                highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
-                for marker in results:
-                    if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                        if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                            highest_chr = marker['chr1']
-                        if 'lod_score' in list(marker.keys()):
-                            self.qtl_results.append(marker)
-
-                self.trimmed_markers = results
-
-                for qtl in enumerate(self.qtl_results):
-                    self.json_data['chr1'].append(str(qtl['chr1']))
-                    self.json_data['chr2'].append(str(qtl['chr2']))
-                    self.json_data['Mb'].append(qtl['Mb'])
-                    self.json_data['markernames'].append(qtl['name'])
-
-                self.js_data = dict(
-                    json_data=self.json_data,
-                    this_trait=self.this_trait.name,
-                    data_set=self.dataset.name,
-                    maf=self.maf,
-                    manhattan_plot=self.manhattan_plot,
-                    mapping_scale=self.mapping_scale,
-                    qtl_results=self.qtl_results
-                )
-
+                self.figure_data = results[0]
+                self.table_data = results[1]
             else:
                 self.qtl_results = []
                 self.results_for_browser = []
