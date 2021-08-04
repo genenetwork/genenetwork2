@@ -109,6 +109,7 @@ class RunMapping:
             self.mapping_results_path = "{}{}.csv".format(
                 webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
+        self.pair_scan = False
         self.manhattan_plot = False
         if 'manhattan_plot' in start_vars:
             if start_vars['manhattan_plot'].lower() != "false":
@@ -237,7 +238,6 @@ class RunMapping:
             else:
                 self.method = "em"
             self.model = start_vars['mapmodel_rqtl']
-            self.pair_scan = False
             if 'pair_scan' in start_vars:
                self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
