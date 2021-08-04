@@ -592,7 +592,7 @@ def update_phenotype():
         r = run_cmd(cmd=("csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
-        diff_output = ("/tmp/sample-data/diffs/"
+        diff_output = (f"{TMPDIR}/sample-data/diffs/"
                        f"{trait_name}.{author.decode('utf-8')}."
                        f"{phenotype_id}.{current_time}.json")
         with open(diff_output, "w") as f:
@@ -1398,7 +1398,8 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
 @app.route("/admin/data-sample/diffs/")
 @admin_login_required
 def display_diffs_admin():
-    DIFF_DIR = "/tmp/sample-data/diffs"
+    TMPDIR = current_app.config.get("TMPDIR")
+    DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
     files = []
     if os.path.exists(DIFF_DIR):
         files = os.listdir(DIFF_DIR)
@@ -1410,7 +1411,8 @@ def display_diffs_admin():
 
 @app.route("/user/data-sample/diffs/")
 def display_diffs_users():
-    DIFF_DIR = "/tmp/sample-data/diffs"
+    TMPDIR = current_app.config.get("TMPDIR")
+    DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
     files = []
     author = g.user_session.record.get(b'user_name').decode("utf-8")
     if os.path.exists(DIFF_DIR):
