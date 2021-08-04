@@ -179,7 +179,7 @@ $(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
       var form_data, url;
       url = "/loading";
       $('input[name=method]').val("rqtl_geno");
-      $('input[name=pair_scan]').val("");
+      $('input[name=pair_scan]').val("true");
       $('input[name=genofile]').val($('#genofile_rqtl_pair').val());
       $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_pair').val());
       $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_pair').val());
