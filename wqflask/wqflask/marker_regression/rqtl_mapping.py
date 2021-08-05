@@ -39,7 +39,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
     }
 
     if pair_scan:
-        post_data["pair_scan"] = True
+        post_data["pairscan"] = True
 
     if do_control == "true" and control_marker:
         post_data["control_marker"] = control_marker
