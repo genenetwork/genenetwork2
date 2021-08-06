@@ -520,6 +520,9 @@ class ShowTrait:
                                          sample_group_type='primary',
                                          header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
+            print("\nttttttttttttttttttttttttttttttttttttttttttttt\n")
+            print(self.sample_groups)
+            print("\nttttttttttttttttttttttttttttttttttttttttttttt\n")
 
         self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
