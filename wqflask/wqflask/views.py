@@ -1033,7 +1033,7 @@ def loading_page():
                     start_vars['dataset'], group_name=start_vars['group'])
             else:
                 dataset = create_dataset(start_vars['dataset'])
-            samples = start_vars['primary_samples'].split(",")
+            samples = dataset.group.samplelist
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
                     genofile_string = start_vars['genofile']
@@ -1178,9 +1178,8 @@ def mapping_results_page():
                 gn1_template_vars = display_mapping_results.DisplayMappingResults(
                     result).__dict__
 
-                with Bench("Rendering template"):
-                    rendered_template = render_template(
-                        "mapping_results.html", **gn1_template_vars)
+                rendered_template = render_template(
+                    "mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
