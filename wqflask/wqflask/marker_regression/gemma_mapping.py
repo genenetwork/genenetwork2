@@ -129,7 +129,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
 def gen_pheno_txt_file(this_dataset, genofile_name, vals):
     """Generates phenotype file for GEMMA"""
 
-    filename = "PHENO_" + generate_hash_of_string(this_dataset.name + str(vals))
+    filename = "PHENO_" + generate_hash_of_string(this_dataset.name + str(vals)).replace("/", "_")
 
     with open(f"{TEMPDIR}/gn2/{filename}.txt", "w") as outfile:
         for value in vals:
@@ -169,7 +169,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
                     this_covariate_data.append("-9")
         covariate_data_object.append(this_covariate_data)
 
-    filename = "COVAR_" + generate_hash_of_string(this_dataset.name + str(covariate_data_object))
+    filename = "COVAR_" + generate_hash_of_string(this_dataset.name + str(covariate_data_object)).replace("/", "_")
 
     with open((f"{flat_files('mapping')}/"
                f"{filename}.txt"),
