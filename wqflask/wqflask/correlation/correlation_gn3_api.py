@@ -18,7 +18,10 @@ from gn3.db_utils import database_connector
 def create_target_this_trait(start_vars):
     """this function creates the required trait and target dataset for correlation"""
 
-    this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
+    if start_vars['dataset'] == "Temp":
+        this_dataset = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
+    else:
+        this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
     target_dataset = data_set.create_dataset(
         dataset_name=start_vars['corr_dataset'])
     this_trait = create_trait(dataset=this_dataset,

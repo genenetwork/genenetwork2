@@ -30,7 +30,10 @@ def set_template_vars(start_vars, correlation_data):
     corr_type = start_vars['corr_type']
     corr_method = start_vars['corr_sample_method']
 
-    this_dataset_ob = create_dataset(dataset_name=start_vars['dataset'])
+    if start_vars['dataset'] == "Temp":
+        this_dataset_ob = create_dataset(dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
+    else:
+        this_dataset_ob = create_dataset(dataset_name=start_vars['dataset'])
     this_trait = create_trait(dataset=this_dataset_ob,
                               name=start_vars['trait_id'])
 
