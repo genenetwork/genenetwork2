@@ -39,6 +39,7 @@ from utility.redis_tools import get_redis_conn
 
 from gn3.computations.correlation_matrix import compute_pca
 from gn3.computations.correlation_matrix import compute_zscores
+from gn3.computations.correlation_matrix import compute_sort_eigens
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -167,9 +168,7 @@ class CorrelationMatrix:
 
         self.pca_works = "False"
         try:
-            corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
-            corr_eigen_value, corr_eigen_vectors = sortEigenVectors(
-                corr_result_eigen)
+            corr_eigen_value,corr_eigen_vectors = compute_sort_eigens(self.pca_corr_results)
 
             if self.do_PCA == True:
                 self.pca_works = "True"
