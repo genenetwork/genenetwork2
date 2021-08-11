@@ -23,8 +23,7 @@ import math
 import random
 import string
 
-import rpy2.robjects as ro
-from rpy2.robjects.packages import importr
+
 
 import numpy as np
 import scipy
@@ -190,21 +189,8 @@ class CorrelationMatrix:
                             sample_data=self.sample_data,)
 
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
-        base = importr('base')
-        stats = importr('stats')
-
-        corr_results_to_list = ro.FloatVector(
-            [item for sublist in self.pca_corr_results for item in sublist])
-
-        m = ro.r.matrix(corr_results_to_list, nrow=len(cols))
-        eigen = base.eigen(m)
-        pca = stats.princomp(m, cor="TRUE")
-        self.loadings = pca.rx('loadings')
-        self.scores = pca.rx('scores')
-        self.scale = pca.rx('scale')
-
         pca_obj,pca_scores = compute_pca(self.pca_corr_results)
-
+        self.scores =  pca_scores
 
         self.loadings = pca_obj.components_
 
@@ -241,22 +227,7 @@ class CorrelationMatrix:
             Redis.set(trait_id, this_vals_string, ex=THIRTY_DAYS)
             self.pca_trait_ids.append(trait_id)
 
-        return pca
-
-    def process_loadings(self):
-        loadings_array = []
-        loadings_row = []
-        for i in range(len(self.trait_list)):
-            loadings_row = []
-            if len(self.trait_list) > 2:
-                the_range = 3
-            else:
-                the_range = 2
-            for j in range(the_range):
-                position = i + len(self.trait_list) * j
-                loadings_row.append(self.loadings[0][position])
-            loadings_array.append(loadings_row)
-        return loadings_array
+        return pca_obj
 
 
 def process_factor_loadings(factor_loadings,trait_list_num):
