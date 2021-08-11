@@ -19,7 +19,6 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 import datetime
-import math
 import random
 import string
 
@@ -29,9 +28,7 @@ import scipy
 
 from base import data_set
 from base.webqtlConfig import GENERATED_TEXT_DIR
-from functools import reduce
-from functools import cmp_to_key
-from utility import webqtlUtil
+
 from utility import helper_functions
 from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
