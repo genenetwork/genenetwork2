@@ -38,6 +38,8 @@ from utility import helper_functions
 from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
 
+from gn3.computations.correlation_matrix import compute_pca
+
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
@@ -174,7 +176,7 @@ class CorrelationMatrix:
                 self.pca_trait_ids = []
                 pca = self.calculate_pca(
                     list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
-                self.loadings_array = self.process_loadings()
+                # self.loadings_array = self.process_loadings()
             else:
                 self.pca_works = "False"
         except:
@@ -200,6 +202,14 @@ class CorrelationMatrix:
         self.loadings = pca.rx('loadings')
         self.scores = pca.rx('scores')
         self.scale = pca.rx('scale')
+
+        pca_obj,pca_scores = compute_pca(self.pca_corr_results)
+
+
+        self.loadings = pca_obj.components_
+
+        self.loadings_array = process_factor_loadings(self.loadings,len(self.trait_list))
+
 
         trait_array = zScore(self.trait_data_array)
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
@@ -247,6 +257,18 @@ class CorrelationMatrix:
                 loadings_row.append(self.loadings[0][position])
             loadings_array.append(loadings_row)
         return loadings_array
+
+
+def process_factor_loadings(factor_loadings,trait_list_num):
+
+    target_columns = 3 if trait_list_num > 2 else 2
+
+    traits_loadings = list(factor_loadings.T)
+
+    table_row_loadings = [list(trait_loading[:target_columns])
+                          for trait_loading in traits_loadings]
+
+    return table_row_loadings
 
 
 def export_corr_matrix(corr_results):
