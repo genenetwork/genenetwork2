@@ -38,6 +38,7 @@ from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
 
 from gn3.computations.correlation_matrix import compute_pca
+from gn3.computations.correlation_matrix import compute_zscores
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -189,6 +190,7 @@ class CorrelationMatrix:
                             sample_data=self.sample_data,)
 
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
+
         pca_obj,pca_scores = compute_pca(self.pca_corr_results)
         self.scores =  pca_scores
 
@@ -197,7 +199,7 @@ class CorrelationMatrix:
         self.loadings_array = process_factor_loadings(self.loadings,len(self.trait_list))
 
 
-        trait_array = zScore(self.trait_data_array)
+        trait_array = compute_zscores(self.trait_data_array)
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
 
         pca_traits = []
@@ -279,27 +281,6 @@ def export_corr_matrix(corr_results):
             output_file.write("\n")
 
     return corr_matrix_filename, matrix_export_path
-
-
-def zScore(trait_data_array):
-    NN = len(trait_data_array[0])
-    if NN < 10:
-        return trait_data_array
-    else:
-        i = 0
-        for data in trait_data_array:
-            N = len(data)
-            S = reduce(lambda x, y: x + y, data, 0.)
-            SS = reduce(lambda x, y: x + y * y, data, 0.)
-            mean = S / N
-            var = SS - S * S / N
-            stdev = math.sqrt(var / (N - 1))
-            if stdev == 0:
-                stdev = 1e-100
-            data2 = [(x - mean) / stdev for x in data]
-            trait_data_array[i] = data2
-            i += 1
-        return trait_data_array
 
 
 def sortEigenVectors(vector):
