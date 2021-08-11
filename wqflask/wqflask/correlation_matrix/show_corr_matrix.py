@@ -24,7 +24,6 @@ import random
 import string
 
 
-
 import numpy as np
 import scipy
 
@@ -43,6 +42,7 @@ from gn3.computations.correlation_matrix import compute_sort_eigens
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
+
 
 class CorrelationMatrix:
 
@@ -168,14 +168,15 @@ class CorrelationMatrix:
 
         self.pca_works = "False"
         try:
-            corr_eigen_value,corr_eigen_vectors = compute_sort_eigens(self.pca_corr_results)
+            corr_eigen_value, corr_eigen_vectors = compute_sort_eigens(
+                self.pca_corr_results)
 
             if self.do_PCA == True:
                 self.pca_works = "True"
                 self.pca_trait_ids = []
                 pca = self.calculate_pca(
                     list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
-                # self.loadings_array = self.process_loadings()
+
             else:
                 self.pca_works = "False"
         except:
@@ -190,13 +191,13 @@ class CorrelationMatrix:
 
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
 
-        pca_obj,pca_scores = compute_pca(self.pca_corr_results)
-        self.scores =  pca_scores
+        pca_obj, pca_scores = compute_pca(self.pca_corr_results)
+        self.scores = pca_scores
 
         self.loadings = pca_obj.components_
 
-        self.loadings_array = process_factor_loadings(self.loadings,len(self.trait_list))
-
+        self.loadings_array = process_factor_loadings(
+            self.loadings, len(self.trait_list))
 
         trait_array = compute_zscores(self.trait_data_array)
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
@@ -231,7 +232,7 @@ class CorrelationMatrix:
         return pca_obj
 
 
-def process_factor_loadings(factor_loadings,trait_list_num):
+def process_factor_loadings(factor_loadings, trait_list_num):
 
     target_columns = 3 if trait_list_num > 2 else 2
 
@@ -255,11 +256,11 @@ def export_corr_matrix(corr_results):
         output_file.write("\n")
         output_file.write("Correlation ")
         for i, item in enumerate(corr_results[0]):
-            output_file.write("Trait" + str(i + 1) + ": " + \
+            output_file.write("Trait" + str(i + 1) + ": " +
                               str(item[0].dataset.name) + "::" + str(item[0].name) + "\t")
         output_file.write("\n")
         for i, row in enumerate(corr_results):
-            output_file.write("Trait" + str(i + 1) + ": " + \
+            output_file.write("Trait" + str(i + 1) + ": " +
                               str(row[0][0].dataset.name) + "::" + str(row[0][0].name) + "\t")
             for item in row:
                 output_file.write(str(item[1]) + "\t")
@@ -269,36 +270,14 @@ def export_corr_matrix(corr_results):
         output_file.write("\n")
         output_file.write("N ")
         for i, item in enumerate(corr_results[0]):
-            output_file.write("Trait" + str(i) + ": " + \
+            output_file.write("Trait" + str(i) + ": " +
                               str(item[0].dataset.name) + "::" + str(item[0].name) + "\t")
         output_file.write("\n")
         for i, row in enumerate(corr_results):
-            output_file.write("Trait" + str(i) + ": " + \
+            output_file.write("Trait" + str(i) + ": " +
                               str(row[0][0].dataset.name) + "::" + str(row[0][0].name) + "\t")
             for item in row:
                 output_file.write(str(item[2]) + "\t")
             output_file.write("\n")
 
     return corr_matrix_filename, matrix_export_path
-
-
-def sortEigenVectors(vector):
-    try:
-        eigenValues = vector[0].tolist()
-        eigenVectors = vector[1].T.tolist()
-        combines = []
-        i = 0
-        for item in eigenValues:
-            combines.append([eigenValues[i], eigenVectors[i]])
-            i += 1
-        sorted(combines, key=cmp_to_key(webqtlUtil.cmpEigenValue))
-        A = []
-        B = []
-        for item in combines:
-            A.append(item[0])
-            B.append(item[1])
-        sum = reduce(lambda x, y: x + y, A, 0.0)
-        A = [x * 100.0 / sum for x in A]
-        return [A, B]
-    except:
-        return []
