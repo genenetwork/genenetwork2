@@ -32,7 +32,7 @@ class SampleList:
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            # ZS: self.this_trait will be a list if it is a Temp trait
+            # self.this_trait will be a list if it is a Temp trait
             if isinstance(self.this_trait, list):
                 sample = webqtlCaseData.webqtlCaseData(name=sample_name)
                 if counter <= len(self.this_trait):
@@ -47,7 +47,7 @@ class SampleList:
                                 name=sample_name,
                                 value=float(self.this_trait[counter - 1]))
             else:
-                # ZS - If there's no value for the sample/strain,
+                # If there's no value for the sample/strain,
                 # create the sample object (so samples with no value
                 # are still displayed in the table)
                 try:
@@ -63,29 +63,29 @@ class SampleList:
 
             sample.this_id = str(counter)
 
-            # ZS: For extra attribute columns; currently only used by
+            # For extra attribute columns; currently only used by
             # several datasets
             if self.sample_attribute_values:
                 sample.extra_attributes = self.sample_attribute_values.get(
                     sample_name, {})
 
-                # ZS: Add a url so RRID case attributes can be displayed as links
-                if 'rrid' in sample.extra_attributes:
+                # Add a url so RRID case attributes can be displayed as links
+                if '36' in sample.extra_attributes:
                     if self.dataset.group.species == "mouse":
-                        if len(sample.extra_attributes['rrid'].split(":")) > 1:
-                            the_rrid = sample.extra_attributes['rrid'].split(":")[
+                        if len(sample.extra_attributes['36'].split(":")) > 1:
+                            the_rrid = sample.extra_attributes['36'].split(":")[
                                 1]
-                            sample.extra_attributes['rrid'] = [
-                                sample.extra_attributes['rrid']]
-                            sample.extra_attributes['rrid'].append(
+                            sample.extra_attributes['36'] = [
+                                sample.extra_attributes['36']]
+                            sample.extra_attributes['36'].append(
                                 webqtlConfig.RRID_MOUSE_URL % the_rrid)
                     elif self.dataset.group.species == "rat":
-                        if len(str(sample.extra_attributes['rrid'])):
-                            the_rrid = sample.extra_attributes['rrid'].split("_")[
+                        if len(str(sample.extra_attributes['36'])):
+                            the_rrid = sample.extra_attributes['36'].split("_")[
                                 1]
-                            sample.extra_attributes['rrid'] = [
-                                sample.extra_attributes['rrid']]
-                            sample.extra_attributes['rrid'].append(
+                            sample.extra_attributes['36'] = [
+                                sample.extra_attributes['36']]
+                            sample.extra_attributes['36'].append(
                                 webqtlConfig.RRID_RAT_URL % the_rrid)
 
             self.sample_list.append(sample)
@@ -128,12 +128,13 @@ class SampleList:
                         FROM CaseAttribute, CaseAttributeXRefNew
                         WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
                         AND CaseAttributeXRefNew.InbredSetId = %s
-                        ORDER BY lower(CaseAttribute.Name)''', (str(self.dataset.group.id),))
+                        ORDER BY CaseAttribute.Id''', (str(self.dataset.group.id),))
 
         self.attributes = {}
         for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
             key, name = attr
             self.attributes[key] = Bunch()
+            self.attributes[key].id = key
             self.attributes[key].name = name
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
@@ -168,10 +169,13 @@ class SampleList:
 
             for sample_name, items in itertools.groupby(results.fetchall(), lambda row: row.SampleName):
                 attribute_values = {}
+                # Make a list of attr IDs without values (that have values for other samples)
+                valueless_attr_ids = [self.attributes[key].id for key in self.attributes.keys()]
                 for item in items:
+                    valueless_attr_ids.remove(item.Id)
                     attribute_value = item.Value
 
-                    # ZS: If it's an int, turn it into one for sorting
+                    # If it's an int, turn it into one for sorting
                     # (for example, 101 would be lower than 80 if
                     # they're strings instead of ints)
                     try:
@@ -179,8 +183,10 @@ class SampleList:
                     except ValueError:
                         pass
 
-                    attribute_values[self.attributes[item.Id].name.lower(
-                    )] = attribute_value
+                    attribute_values[str(item.Id)] = attribute_value
+                for attr_id in valueless_attr_ids:
+                    attribute_values[str(attr_id)] = ""
+
                 self.sample_attribute_values[sample_name] = attribute_values
 
     def get_first_attr_col(self):
