@@ -93,7 +93,7 @@ build_columns = function() {
     );
   }
 
-  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].name.toLowerCase() > js_data.attributes[b].name.toLowerCase()) ? 1 : -1)
+  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].id > js_data.attributes[b].id) ? 1 : -1)
   for (i = 0; i < attr_keys.length; i++){
     column_list.push(
       {
@@ -101,7 +101,7 @@ build_columns = function() {
         'type': "natural",
         'data': null,
         'render': function(data, type, row, meta) {
-          attr_name = Object.keys(data.extra_attributes).sort()[meta.col - data.first_attr_col]
+          attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
 
           if (attr_name != null && attr_name != undefined){
             if (Array.isArray(data.extra_attributes[attr_name])){
