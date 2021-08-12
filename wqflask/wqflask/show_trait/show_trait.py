@@ -192,6 +192,7 @@ class ShowTrait:
                 [self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
 
         self.genofiles = self.dataset.group.get_genofiles()
+        self.study_samplelists = self.dataset.group.get_study_samplelists()
 
         # ZS: No need to grab scales from .geno file unless it's using
         # a mapping method that reads .geno files

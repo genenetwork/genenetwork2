@@ -398,6 +398,15 @@ class DatasetGroup:
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
+    def get_study_samplelists(self):
+        study_sample_file = "%s/study_sample_lists/%s.json" % (webqtlConfig.GENODIR, self.name)
+        try:
+            f = open(study_sample_file)
+        except:
+            return None
+        study_samples = json.load(f)
+        return study_samples
+
     def get_genofiles(self):
         jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
         try:
