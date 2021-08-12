@@ -399,7 +399,7 @@ class DatasetGroup:
             self.parlist = [maternal, paternal]
 
     def get_study_samplelists(self):
-        study_sample_file = "%s/study_sample_lists/%s.json" % (webqtlConfig.GENODIR, self.name)
+        study_sample_file = locate_ignore_error(self.name + ".json", 'study_sample_lists')
         try:
             f = open(study_sample_file)
         except:
