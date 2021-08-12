@@ -403,7 +403,7 @@ class DatasetGroup:
         try:
             f = open(study_sample_file)
         except:
-            return None
+            return []
         study_samples = json.load(f)
         return study_samples
 
