@@ -97,7 +97,7 @@ build_columns = function() {
   for (i = 0; i < attr_keys.length; i++){
     column_list.push(
       {
-        'title': "<div style='text-align: " + js_data.attributes[attr_keys[i]].alignment + "'>" + js_data.attributes[attr_keys[i]].name + "</div>",
+        'title': "<div title='" + js_data.attributes[attr_keys[i]].description + "' style='text-align: " + js_data.attributes[attr_keys[i]].alignment + "'>" + js_data.attributes[attr_keys[i]].name + "</div>",
         'type': "natural",
         'data': null,
         'render': function(data, type, row, meta) {

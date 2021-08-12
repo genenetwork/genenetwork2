@@ -124,18 +124,19 @@ class SampleList:
 
         # Get attribute names and distinct values for each attribute
         results = g.db.execute('''
-                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttributeXRefNew.Value
+                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttribute.Description, CaseAttributeXRefNew.Value
                         FROM CaseAttribute, CaseAttributeXRefNew
                         WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
                         AND CaseAttributeXRefNew.InbredSetId = %s
                         ORDER BY CaseAttribute.Id''', (str(self.dataset.group.id),))
 
         self.attributes = {}
-        for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name)):
-            key, name = attr
+        for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name, row.Description)):
+            key, name, description = attr
             self.attributes[key] = Bunch()
             self.attributes[key].id = key
             self.attributes[key].name = name
+            self.attributes[key].description = description
             self.attributes[key].distinct_values = [
                 item.Value for item in values]
             self.attributes[key].distinct_values = natural_sort(
