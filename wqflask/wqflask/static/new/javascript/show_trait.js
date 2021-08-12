@@ -718,9 +718,19 @@ block_by_index = function() {
 
 filter_by_study = function() {
   let this_study = $('#filter_study').val();
-  let block_group = $('#filter_study_group').val();
+
   let study_sample_data = JSON.parse($('input[name=study_samplelists]').val())
   let filter_samples = study_sample_data[parseInt(this_study)]['samples']
+
+  if ($('#filter_study_group').length){
+    let block_group = $('#filter_study_group').val();
+    if (block_group === "other") {
+      table_api = $('#samples_other').DataTable();
+    } else {
+      table_api = $('#samples_primary').DataTable();
+    }
+  }
+
   let sample_nodes = table_api.column(2).nodes().to$();
   let val_nodes = table_api.column(3).nodes().to$();
   for (i = 0; i < sample_nodes.length; i++) {
