@@ -192,7 +192,8 @@ class ShowTrait:
                 [self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
 
         self.genofiles = self.dataset.group.get_genofiles()
-        self.study_samplelists = self.dataset.group.get_study_samplelists()
+        study_samplelist_json = self.dataset.group.get_study_samplelists()
+        self.study_samplelists = [study["title"] for study in study_samplelist_json]
 
         # ZS: No need to grab scales from .geno file unless it's using
         # a mapping method that reads .geno files
@@ -281,6 +282,7 @@ class ShowTrait:
         hddn['selected_chr'] = -1
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
+        hddn['study_samplelists'] = json.dumps(study_samplelist_json)
         hddn['num_perm'] = 0
         hddn['categorical_vars'] = ""
         if categorical_var_list:
