@@ -50,9 +50,10 @@
       <label for="filter_study_select">Filter samples by study: </label>
       <select id="filter_study">
         {% for study in study_samplelists %}
-        <option value="{{ loop.index + 1 }}">{{ study }}</option>
+        <option value="{{ loop.index - 1 }}">{{ study }}</option>
         {% endfor %}
       </select>
+      {% if sample_groups|length != 1 %}
       <select id="filter_study_group" size="1">
         <option value="primary">
           {{ sample_group_types['samples_primary'] }}
@@ -61,6 +62,7 @@
           {{ sample_group_types['samples_other'] }}
         </option>
       </select>
+      {% endif %}
       <input type="button" id="filter_by_study" class="btn btn-danger" value="Filter">
     </div>
     {% endif %}
