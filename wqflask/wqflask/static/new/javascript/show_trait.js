@@ -98,9 +98,44 @@ sample_group_types = js_data.sample_group_types;
 $(".select_covariates").click(function () {
   open_covariate_selection();
 });
+
 $(".remove_covariates").click(function () {
-  $("input[name=covariates]").val("")
-  $(".selected-covariates").val("")
+  $(".selected-covariates option:selected").each(function() {
+    this_val = $(this).val();
+    $(".selected-covariates option").each(function(){
+      if ($(this).val() == this_val){
+        $(this).remove();
+      }
+    })
+    cofactor_count = $(".selected-covariates:first option").length
+    if (cofactor_count > 2 && cofactor_count < 11){
+      $(".selected-covariates").each(function() {
+        $(this).attr("size", $(".selected-covariates:first option").length)
+      });
+    } else if (cofactor_count > 10) {
+      $(".selected-covariates").each(function() {
+        $(this).attr("size", 10)
+      });
+    } else {
+      $(".selected-covariates").each(function() {
+        $(this).attr("size", 2)
+      });
+    }
+    if (cofactor_count == 0){
+      $(".selected-covariates").each(function() {
+        $(this).append($("<option/>", {
+          value: "",
+          text: "No covariates selected"
+        }))
+      })
+    }
+  });
+
+  covariates_list = [];
+  $(".selected-covariates:first option").each(function() {
+    covariates_list.push($(this).val());
+  })
+  $("input[name=covariates]").val(covariates_list.join(","))
 });
 
 open_trait_selection = function() {
