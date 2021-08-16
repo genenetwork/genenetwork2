@@ -65,10 +65,8 @@ if ( ! $.fn.DataTable.isDataTable( '#collection_table' ) ) {
 
 collection_click = function() {
   var this_collection_url;
-  console.log("Clicking on:", $(this));
   this_collection_url = $(this).find('.collection_name').prop("href");
   this_collection_url += "&json";
-  console.log("this_collection_url", this_collection_url);
   collection_list = $("#collections_holder").html();
   return $.ajax({
     dataType: "json",
@@ -79,32 +77,57 @@ collection_click = function() {
 
 submit_click = function() {
   var covariates_string = "";
-  var covariates_display_string = "";
+  var covariates_as_set = new Set();
+  $(".selected-covariates:first option").each(function() {
+    if ($(this).val() != ""){
+      covariates_as_set.add($(this).val() + "," + $(this).text());
+    }
+  });
   $('#collections_holder').find('input[type=checkbox]:checked').each(function() {
     var this_dataset, this_trait;
     this_trait = $(this).parents('tr').find('.trait').text();
     this_trait_display = $(this).parents('tr').find('.trait').data("display_name");
     this_description = $(this).parents('tr').find('.description').text();
-    console.log("this_trait is:", this_trait_display);
     this_dataset = $(this).parents('tr').find('.dataset').data("dataset");
-    console.log("this_dataset is:", this_dataset);
-    covariates_string += this_trait + ":" + this_dataset + ","
-    //this_covariate_display_string = this_trait + ": " + this_description
     this_covariate_display_string = this_trait_display
     if (this_covariate_display_string.length > 50) {
       this_covariate_display_string = this_covariate_display_string.substring(0, 45) + "..."
     }
-    covariates_display_string += this_covariate_display_string + "\n"
+    covariates_as_set.add(this_trait + ":" + this_dataset + "," + this_covariate_display_string)
   });
-  // Trim the last newline from display_string
-  covariates_display_string = covariates_display_string.replace(/\n$/, "")
 
-  // Trim the last comma
-  covariates_string = covariates_string.substring(0, covariates_string.length - 1)
-  //covariates_display_string = covariates_display_string.substring(0, covariates_display_string.length - 2)
+  covariates_as_list = Array.from(covariates_as_set)
 
-  $("input[name=covariates]").val(covariates_string)
-  $(".selected-covariates").val(covariates_display_string)
+  // Removed the starting "No covariates selected" option before adding options for each covariate
+  if (covariates_as_list.length > 0){
+    $(".selected-covariates option[value='']").each(function() {
+      $(this).remove();
+    });
+  }
+
+  $(".selected-covariates option").each(function() {
+    $(this).remove();
+  });
+
+  covariate_list_for_form = []
+  $.each(covariates_as_list, function (index, value) {
+    option_value = value.split(",")[0]
+    option_text = value.split(",")[1]
+    $(".selected-covariates").append($("<option/>", {
+      value: option_value,
+      text: option_text
+    }))
+    covariate_list_for_form.push(option_value)
+  });
+
+  $("input[name=covariates]").val(covariate_list_for_form.join(","));
+
+  cofactor_count = $(".selected-covariates:first option").length;
+  if (cofactor_count > 10){
+    $(".selected-covariates").attr("size", 10);
+  } else {
+    $(".selected-covariates").attr("size", cofactor_count);
+  }
 
   return $.colorbox.close();
 };
