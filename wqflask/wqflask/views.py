@@ -408,9 +408,9 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/phenotype-id/<phenotype_id>")
+@app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
 @admin_login_required
-def edit_phenotype(name, phenotype_id):
+def edit_phenotype(name, inbredset_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -419,7 +419,7 @@ def edit_phenotype(name, phenotype_id):
         conn=conn,
         table="PublishXRef",
         where=PublishXRef(id_=name,
-                          phenotype_id=phenotype_id))
+                          inbred_set_id=inbredset_id))
     phenotype_ = fetchone(
         conn=conn,
         table="Phenotype",
