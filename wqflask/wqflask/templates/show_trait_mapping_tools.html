@@ -77,7 +77,9 @@
                                 <button type="button" class="btn btn-default select-covar-button select_covariates">Select</button>
                                 <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
                               </div>
-                              <textarea rows="3" cols="50" readonly placeholder="No covariates selected" class="selected-covariates"></textarea>
+                              <select size="2" name="selected_covariates_gemma" class="form-control selected-covariates" multiple>
+                                  <option value="">No covariates selected</option>
+                              </select>
                               {% endif %}
                             </div>
                         </div>
@@ -320,7 +322,9 @@
                               <button type="button" class="btn btn-default select-covar-button select_covariates">Select</button>
                               <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
                             </div>
-                            <textarea rows="3" cols="50" readonly placeholder="No covariates selected" class="selected-covariates"></textarea>
+                            <select size="2" name="selected_covariates_rqtl" class="form-control selected-covariates" multiple>
+                                <option value="">No covariates selected</option>
+                            </select>
                             {% endif %}
                           </div>
                         </div>
