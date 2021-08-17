@@ -142,6 +142,7 @@ $(".remove_all_covariates").click(function() {
   $(".selected-covariates option").each(function() {
     $(this).remove();
   });
+  $(".selected-covariates").attr("size", 2)
   $("input[name=covariates]").val("");
 })
 
