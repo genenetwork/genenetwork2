@@ -5,7 +5,7 @@
         or add to an existing collection.</p>
     </div>
     <div class="modal-body" style="margin-left: 20px;">
-        <form action="/collections/new" target="_blank" data-validate="parsley" id="add_form">
+        <form action="/collections/new" target="_blank" data-validate="parsley" id="add_form" class="form-inline">
             {% if traits is defined %}
             <input type="hidden" name="traits" value="{{ traits }}" />
             {% else %}
@@ -14,10 +14,8 @@
             {% if collections|length > 0 %}
             <fieldset>
               <legend>1. Add to an existing collection</legend>
-              <div style="margin-left: 20px;">  
-                <!--<label>Existing collection name:</label>-->
-                <select name="existing_collection" class="form-control">
-                    <!--<option selected disabled>Select Collection</option>-->
+              <div style="margin-left: 20px;">
+                <select name="existing_collection" class="form-control" style="width: 80%;">
                 {% for col in collections %}
                     {% if loop.index == 1 %}
                     <option value="{{ col.id }}:{{ col.name }}" selected>{{ col.name }}</option>
@@ -26,8 +24,9 @@
                     {% endif %}
                 {% endfor %}
                 </select>
-                <br />
-                <button type="submit" name="add_to_existing" class="btn btn-primary">Add</button>
+                <input type="button" style="display: inline;" id="make_default" value="Make Default">
+              <br><br>
+              <button type="submit" name="add_to_existing" class="btn btn-primary">Add</button>
               </div>
             </fieldset>
             {% endif %}
@@ -35,7 +34,6 @@
             <fieldset>
               <legend>{% if collections|length > 0 %}2. {% else %}{% endif %}Create a new collection</legend>
               <div style="margin-left: 20px;">
-                <!--<label>Collection name:</label>-->
                 <input type="text" name="new_collection" placeholder=" Name of new collection..."
                     data-trigger="change" data-minlength="5" data-maxlength="50" style="width: 100%">
                 <button type="submit" name="create_new" class="btn btn-primary" style="margin-top: 20px;">Create collection</button>
@@ -52,6 +50,21 @@
   $('#add_form').parsley();
   $('#add_form').on('submit', function(){
     parent.jQuery.colorbox.close();
+  });
+
+  make_default = function() {
+    alert("The current collection is now your default collection.")
+    let uc_id = $('[name=existing_collection] option:selected').val().split(":")[0]
+    $.cookie('default_collection', uc_id, {
+        expires: 365,
+        path: '/'
+    });
+
+    let default_collection_id = $.cookie('default_collection');
+  };
+
+  $("#make_default").on("click", function(){
+    make_default();
   });
 
   apply_default = function() {
