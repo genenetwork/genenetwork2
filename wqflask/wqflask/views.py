@@ -466,7 +466,7 @@ def edit_phenotype(name, inbredset_id):
 
 
 @app.route("/trait/edit/probeset-name/<dataset_name>")
-# @admin_login_required
+@admin_login_required
 def edit_probeset(dataset_name):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
