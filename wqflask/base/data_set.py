@@ -396,6 +396,15 @@ class DatasetGroup:
         if maternal and paternal:
             self.parlist = [maternal, paternal]
 
+    def get_study_samplelists(self):
+        study_sample_file = locate_ignore_error(self.name + ".json", 'study_sample_lists')
+        try:
+            f = open(study_sample_file)
+        except:
+            return []
+        study_samples = json.load(f)
+        return study_samples
+
     def get_genofiles(self):
         jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
         try:

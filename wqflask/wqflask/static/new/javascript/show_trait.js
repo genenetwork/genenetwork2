@@ -713,9 +713,33 @@ block_by_index = function() {
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     val_nodes[index - 1].childNodes[0].value = "x";
-
   }
 };
+
+filter_by_study = function() {
+  let this_study = $('#filter_study').val();
+
+  let study_sample_data = JSON.parse($('input[name=study_samplelists]').val())
+  let filter_samples = study_sample_data[parseInt(this_study)]['samples']
+
+  if ($('#filter_study_group').length){
+    let block_group = $('#filter_study_group').val();
+    if (block_group === "other") {
+      table_api = $('#samples_other').DataTable();
+    } else {
+      table_api = $('#samples_primary').DataTable();
+    }
+  }
+
+  let sample_nodes = table_api.column(2).nodes().to$();
+  let val_nodes = table_api.column(3).nodes().to$();
+  for (i = 0; i < sample_nodes.length; i++) {
+    this_sample = sample_nodes[i].childNodes[0].innerText;
+    if (!filter_samples.includes(this_sample)){
+      val_nodes[i].childNodes[0].value = "x";
+    }
+  }
+}
 
 filter_by_value = function() {
   let filter_logic = $('#filter_logic').val();
@@ -1689,6 +1713,11 @@ $('#block_by_index').click(function(){
   block_by_index();
   edit_data_change();
 });
+
+$('#filter_by_study').click(function(){
+  filter_by_study();
+  edit_data_change();
+})
 
 $('#filter_by_value').click(function(){
   filter_by_value();
