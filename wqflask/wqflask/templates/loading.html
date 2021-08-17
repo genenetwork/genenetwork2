@@ -25,6 +25,8 @@
           <br>
           transformation = <b><i>{{ start_vars.transform }}</i></b>
           {% endif %}
+          <br>
+          hash of sample values = <b><i>{{ start_vars.vals_hash }}</i></b>
           <br><br>
           <b>Mapping Metadata</b>
           <br>
@@ -68,6 +70,29 @@
           <div style="text-align: center;">
             <img align="center" src="/static/gif/89.gif">
           </div>
+          {% if start_vars.vals_diff|length != 0 and start_vars.transform == "" %}
+          <br><br>
+          <button id="show_full_diff">Show Full Diff</button>
+          <br>
+          <div id="diff_table_container" style="display: none; height:200px; overflow:auto;">
+          <table class="table table-hover">
+            <thead>
+              <th>Sample</th>
+              <th>New Value</th>
+              <th>Old Value</th>
+            </thead>
+            <tbody>
+              {% for sample in start_vars.vals_diff %}
+              <tr>
+                <td>{{ sample }}</td>
+                <td>{{ start_vars.vals_diff[sample].new_val }}</td>
+                <td>{{ start_vars.vals_diff[sample].old_val }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -79,4 +104,15 @@
 
 $("#loading_form").attr("action", "{{ start_vars.form_url }}");
 setTimeout(function(){ $("#loading_form").submit()}, 350);
+
+$('#show_full_diff').click(function() {
+  if ($('#diff_table_container').is(':visible')){
+    $('#diff_table_container').hide();
+  } else {
+    $('#diff_table_container').show();
+  }
+})
+
+
+
 </script>
