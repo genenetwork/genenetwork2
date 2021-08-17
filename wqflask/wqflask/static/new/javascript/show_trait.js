@@ -138,6 +138,13 @@ $(".remove_covariates").click(function () {
   $("input[name=covariates]").val(covariates_list.join(","))
 });
 
+$(".remove_all_covariates").click(function() {
+  $(".selected-covariates option").each(function() {
+    $(this).remove();
+  });
+  $("input[name=covariates]").val("");
+})
+
 open_trait_selection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
     return function() {
