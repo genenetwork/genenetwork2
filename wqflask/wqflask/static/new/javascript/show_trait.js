@@ -651,13 +651,14 @@ $(".corr_compute").on("click", (function(_this) {
 create_value_dropdown = function(value) {
   return "<option val=" + value + ">" + value + "</option>";
 };
+
 populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
   sample_attributes = [];
 
   var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
-    return [key, js_data.attributes[key].name.toLowerCase()];
+    return [key, js_data.attributes[key].id];
   });
 
   attributes_as_list.sort(function(first, second) {
@@ -671,7 +672,7 @@ populate_sample_attributes_values_dropdown = function() {
   });
 
   for (i=0; i < attributes_as_list.length; i++) {
-    attribute_info = js_data.attributes[attributes_as_list[i][0]]
+    attribute_info = js_data.attributes[attributes_as_list[i][1]]
     sample_attributes.push(attribute_info.distinct_values);
   }
 
@@ -710,11 +711,13 @@ block_by_attribute_value = function() {
   let exclude_val_nodes = table_api.column(attribute_start_pos + parseInt(exclude_column)).nodes().to$();
 
   for (i = 0; i < exclude_val_nodes.length; i++) {
-    let this_col_value = exclude_val_nodes[i].childNodes[0].data;
-    let this_val_node = val_nodes[i].childNodes[0];
+    if (exclude_val_nodes[i].hasChildNodes()) {
+      let this_col_value = exclude_val_nodes[i].childNodes[0].data;
+      let this_val_node = val_nodes[i].childNodes[0];
 
-    if (this_col_value == exclude_by_value){
-      this_val_node.value = "x";
+      if (this_col_value == exclude_by_value){
+        this_val_node.value = "x";
+      }
     }
   }
 
