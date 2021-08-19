@@ -20,8 +20,12 @@ def app_config():
         import os
         app.config['SECRET_KEY'] = str(os.urandom(24))
     mode = WEBSERVER_MODE
-    if mode == "DEV" or mode == "DEBUG":
+    if mode in ["DEV", "DEBUG"]:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
+        if mode == "DEBUG":
+            from flask_debugtoolbar import DebugToolbarExtension
+            app.debug = True
+            toolbar = DebugToolbarExtension(app)
 
     print("==========================================")
 
