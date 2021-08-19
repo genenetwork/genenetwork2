@@ -818,7 +818,7 @@ filter_by_value = function() {
       var this_col_value = filter_val_nodes[i].childNodes[0].value;
     } else {
       if (filter_val_nodes[i].childNodes[0] !== undefined){
-        var this_col_value = filter_val_nodes[i].childNodes[0].data;
+        var this_col_value = filter_val_nodes[i].innerText;
       } else {
         continue
       }
