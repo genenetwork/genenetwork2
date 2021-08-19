@@ -74,10 +74,12 @@
         {% if js_data.se_exists %}
         <option value="stderr">SE</option>
         {% endif %}
-        {% for attribute in numerical_var_list %}
+        {% for attribute in sample_groups[0].attributes %}
+        {% if sample_groups[0].attributes[attribute].name in numerical_var_list %}
         <option value="{{ loop.index }}">
-          {{ attribute }}
+          {{ sample_groups[0].attributes[attribute].name }}
         </option>
+        {% endif %}
         {% endfor %}
       </select>
       {% endif %}
