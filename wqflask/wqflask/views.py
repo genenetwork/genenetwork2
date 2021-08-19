@@ -28,6 +28,7 @@ from zipfile import ZIP_DEFLATED
 from wqflask import app
 
 from gn3.commands import run_cmd
+from gn3.computations.gemma import generate_hash_of_string
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -63,6 +64,7 @@ from wqflask import server_side
 from base.data_set import create_dataset  # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
+from wqflask.show_trait.show_trait import get_diff_of_vals
 from wqflask.heatmap import heatmap
 from wqflask.external_tools import send_to_bnw
 from wqflask.external_tools import send_to_webgestalt
@@ -996,10 +998,10 @@ def loading_page():
             if key in wanted:
                 start_vars[key] = value
 
+        sample_vals_dict = json.loads(start_vars['sample_vals'])
         if 'n_samples' in start_vars:
             n_samples = int(start_vars['n_samples'])
         else:
-            sample_vals_dict = json.loads(start_vars['sample_vals'])
             if 'group' in start_vars:
                 dataset = create_dataset(
                     start_vars['dataset'], group_name=start_vars['group'])
@@ -1021,6 +1023,9 @@ def loading_page():
                         n_samples += 1
 
         start_vars['n_samples'] = n_samples
+        start_vars['vals_hash'] = generate_hash_of_string(str(sample_vals_dict))
+        start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
         start_vars_container['start_vars'] = start_vars
