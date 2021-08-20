@@ -1024,7 +1024,8 @@ def loading_page():
 
         start_vars['n_samples'] = n_samples
         start_vars['vals_hash'] = generate_hash_of_string(str(sample_vals_dict))
-        start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+        if start_vars['dataset'] != "Temp": # Currently can't get diff for temp traits
+            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
 
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
