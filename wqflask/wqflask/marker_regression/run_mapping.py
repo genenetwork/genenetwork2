@@ -220,7 +220,7 @@ class RunMapping:
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
         elif self.mapping_method == "rqtl_geno":
-            perm_strata = []
+            self.perm_strata = []
             if "perm_strata" in start_vars and "categorical_vars" in start_vars:
                 self.categorical_vars = start_vars["categorical_vars"].split(
                     ",")
@@ -229,7 +229,7 @@ class RunMapping:
                                                  sample_names=self.samples,
                                                  this_trait=self.this_trait)
 
-                    perm_strata = get_perm_strata(
+                    self.perm_strata = get_perm_strata(
                         self.this_trait, primary_samples, self.categorical_vars, self.samples)
             self.score_type = "LOD"
             self.control_marker = start_vars['control_marker']
@@ -243,10 +243,10 @@ class RunMapping:
             #    self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
-                    self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method, self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
+                    self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
             else:
                 results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method,
-                                                     self.num_perm, perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
+                                                     self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars:  # ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:
@@ -765,9 +765,9 @@ def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):
         if sample in list(sample_list.sample_attribute_values.keys()):
             combined_string = ""
             for var in categorical_vars:
-                if var.lower() in sample_list.sample_attribute_values[sample]:
+                if var in sample_list.sample_attribute_values[sample]:
                     combined_string += str(
-                        sample_list.sample_attribute_values[sample][var.lower()])
+                        sample_list.sample_attribute_values[sample][var])
                 else:
                     combined_string += "NA"
         else:

@@ -139,7 +139,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     max_D = max(data)
     min_D = min(data)
     # add by NL 06-20-2011: fix the error: when max_D is infinite, log function in detScale will go wrong
-    if max_D == float('inf') or max_D > webqtlConfig.MAXLRS:
+    if (max_D == float('inf') or max_D > webqtlConfig.MAXLRS) and min_D < webqtlConfig.MAXLRS:
         max_D = webqtlConfig.MAXLRS  # maximum LRS value
 
     xLow, xTop, stepX = detScale(min_D, max_D)
@@ -156,7 +156,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
         j += step
 
     for i, item in enumerate(data):
-        if item == float('inf') or item > webqtlConfig.MAXLRS:
+        if (item == float('inf') or item > webqtlConfig.MAXLRS) and min_D < webqtlConfig.MAXLRS:
             item = webqtlConfig.MAXLRS  # maximum LRS value
         j = int((item - xLow) / step)
         Count[j] += 1

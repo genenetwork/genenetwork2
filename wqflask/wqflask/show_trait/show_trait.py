@@ -701,7 +701,7 @@ def get_categorical_variables(this_trait, sample_list) -> list:
     if len(sample_list.attributes) > 0:
         for attribute in sample_list.attributes:
             if len(sample_list.attributes[attribute].distinct_values) < 10:
-                categorical_var_list.append(sample_list.attributes[attribute].name)
+                categorical_var_list.append(str(sample_list.attributes[attribute].id))
 
     return categorical_var_list
 
