@@ -44,7 +44,10 @@
         {% endif %}
         <input type="hidden" name="num_perm" value="{{ nperm }}">
         <input type="hidden" name="perm_info" value="">
+        {% if categorical_vars is defined %}
+        <input type="hidden" name="categorical_vars" value="{{ categorical_vars }}">
         <input type="hidden" name="perm_strata" value="{{ perm_strata }}">
+        {% endif %}
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
