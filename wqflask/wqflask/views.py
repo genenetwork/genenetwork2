@@ -1067,7 +1067,6 @@ def mapping_results_page():
         'num_perm',
         'permCheck',
         'perm_strata',
-        'strat_var',
         'categorical_vars',
         'perm_output',
         'num_bootstrap',
