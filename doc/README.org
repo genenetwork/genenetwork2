@@ -2,6 +2,7 @@
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
+ - [[#check-list][Check list]]
  - [[#installing-guix-packages][Installing Guix packages]]
  - [[#creating-a-gnu-guix-profile][Creating a GNU Guix profile]]
  - [[#running-gn2][Running GN2]]
@@ -37,6 +38,17 @@ tree. Current supported versions can be found as the SHA values of
 
 For a full view of runtime dependencies as defined by GNU Guix, see
 an example of the [[#gn2-dependency-graph][GN2 Dependency Graph]].
+
+* Check list
+
+To run GeneNetwork the following services need to function:
+
+1. [ ] GNU Guix with a guix profile for genenetwork2
+1. [ ] A path to the (static) genotype files
+1. [ ] Gn-proxy for authentication
+1. [ ] The genenetwork3 service
+1. [ ] Redis
+1. [ ] Mariadb
 
 * Installing Guix packages
 
@@ -107,15 +119,26 @@ Check out the source with git:
 Run GN2 with above Guix profile
 
 : export GN2_PROFILE=$HOME/opt/genenetwork2
-: env TMPDIR=$HOME/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/data/genenetwork/genotype_files SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 -gunicorn-dev
+: env TMPDIR=$HOME/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5012 GENENETWORK_FILES=/export/data/genenetwork/genotype_files SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 etc/default_settings.py -gunicorn-dev
 
 the debug and logging switches can be particularly useful when
 developing GN2. Location and files are the current ones for Penguin2.
 
+It may be useful to tunnel the web server to your local browser with
+an ssh tunnel:
+
+If you want to test a service running on the server on a certain
+port (say 8202) use
+
+  ssh -L 8202:127.0.0.1:8202 -f -N myname@penguin2.genenetwork.org
+
+And browse on your local machine to http://localhost:8202/
+
 * Run gn-proxy
 
 GeneNetwork requires a separate gn-proxy server which handles
-authorisation and access control. For instructions see the [[https://github.com/genenetwork/gn-proxy][README]].
+authorisation and access control. For instructions see the
+[[https://github.com/genenetwork/gn-proxy][README]]. Note it may already be running on our servers!
 
 * Run Redis
 
