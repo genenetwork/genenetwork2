@@ -2113,7 +2113,7 @@ class DisplayMappingResults:
                                 thisChr.append(
                                     [_locus.name, _locus.cM - Locus0CM])
                     else:
-                        for j in (0, nLoci / 4, nLoci / 2, nLoci * 3 / 4, -1):
+                        for j in (0, round(nLoci / 4), round(nLoci / 2), round(nLoci * 3 / 4), -1):
                             while _chr[j].name == ' - ':
                                 j += 1
                             if _chr[j].cM != preLpos:
