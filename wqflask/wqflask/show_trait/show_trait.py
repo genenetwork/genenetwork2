@@ -830,11 +830,11 @@ def get_diff_of_vals(new_vals: Dict, trait_id: str) -> Dict:
     diff_dict = {}
     for sample in shared_samples:
         try:
-            new_val = float(new_vals[sample])
+            new_val = round(float(new_vals[sample]), 3)
         except:
             new_val = "x"
         try:
-            old_val = float(old_vals[sample])
+            old_val = round(float(old_vals[sample]), 3)
         except:
             old_val = "x"
 
