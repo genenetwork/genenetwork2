@@ -300,7 +300,7 @@ class ShowTrait:
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
-        if len(self.scales_in_geno) < 2:
+        if len(self.scales_in_geno) < 2 and bool(self.scales_in_geno):
             hddn['mapping_scale'] = self.scales_in_geno[list(
                 self.scales_in_geno.keys())[0]][0][0]
 
