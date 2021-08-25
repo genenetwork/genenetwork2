@@ -229,6 +229,17 @@
                                 </select>
                             </div>
                         </div>
+                        {% else %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="scale_select" class="col-xs-3 control-label">Map Scale</label>
+                            <div class="col-xs-2 controls">
+                                <select id="scale_rqtl_geno" class="form-control scale-select">
+                                    {% for item in scales_in_geno[dataset.group.name + ".geno"] %}
+                                    <option value="{{ item[0] }}">{{ item[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         {% endif %}
                         <div class="mapping_method_fields form-group">
                             <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
