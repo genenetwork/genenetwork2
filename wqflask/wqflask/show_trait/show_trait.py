@@ -178,11 +178,11 @@ class ShowTrait:
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
-        categorical_var_list = []
+        self.categorical_var_list = []
         self.numerical_var_list = []
         if not self.temp_trait:
             # ZS: Only using first samplelist, since I think mapping only uses those samples
-            categorical_var_list = get_categorical_variables(
+            self.categorical_var_list = get_categorical_variables(
                 self.this_trait, self.sample_groups[0])
             self.numerical_var_list = get_numerical_variables(
                 self.this_trait, self.sample_groups[0])
@@ -287,8 +287,8 @@ class ShowTrait:
         hddn['study_samplelists'] = json.dumps(study_samplelist_json)
         hddn['num_perm'] = 0
         hddn['categorical_vars'] = ""
-        if categorical_var_list:
-            hddn['categorical_vars'] = ",".join(categorical_var_list)
+        if self.categorical_var_list:
+            hddn['categorical_vars'] = ",".join(self.categorical_var_list)
         hddn['manhattan_plot'] = ""
         hddn['control_marker'] = ""
         if not self.temp_trait:
@@ -323,7 +323,7 @@ class ShowTrait:
                        has_num_cases=self.has_num_cases,
                        attributes=self.sample_groups[0].attributes,
                        categorical_attr_exists=self.categorical_attr_exists,
-                       categorical_vars=",".join(categorical_var_list),
+                       categorical_vars=",".join(self.categorical_var_list),
                        num_values=self.num_values,
                        qnorm_values=self.qnorm_vals,
                        zscore_values=self.z_scores,
