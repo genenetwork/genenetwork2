@@ -529,7 +529,7 @@
         });
         {% endif %}
 
-        {% if mapping_method != "gemma" and mapping_method != "plink" %}
+        {% if mapping_method != "gemma" and mapping_method != "plink" and nperm > 0 and permChecked == "ON" %}
         $('#download_perm').click(function(){
           perm_info_dict = {
             perm_data: js_data.perm_results,
