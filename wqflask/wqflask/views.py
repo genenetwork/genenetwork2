@@ -1051,6 +1051,7 @@ def mapping_results_page():
         'samples',
         'vals',
         'sample_vals',
+        'vals_hash',
         'first_run',
         'output_files',
         'geno_db_exists',
