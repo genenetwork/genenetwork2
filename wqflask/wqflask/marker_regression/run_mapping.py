@@ -75,6 +75,7 @@ class RunMapping:
         self.vals = []
         self.samples = []
         self.sample_vals = start_vars['sample_vals']
+        self.vals_hash = start_vars['vals_hash']
         sample_val_dict = json.loads(self.sample_vals)
         samples = sample_val_dict.keys()
         if (len(genofile_samplelist) != 0):

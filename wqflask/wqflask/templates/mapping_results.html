@@ -34,6 +34,7 @@
         <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
         <input type="hidden" name="sample_vals" value="{{ sample_vals }}">
+        <input type="hidden" name="vals_hash" value="{{ vals_hash }}">
         <input type="hidden" name="n_samples" value="{{ n_samples }}">
         <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
@@ -67,7 +68,7 @@
               <h2>Map Viewer: Whole Genome</h2><br>
               <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
               <b>Database:</b> {{ dataset.fullname }}<br>
-              {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.name }}</a><br>
+              {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.display_name }}</a><br>
               {% if dataset.type == "ProbeSet" %}
               <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
               <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb<br>
