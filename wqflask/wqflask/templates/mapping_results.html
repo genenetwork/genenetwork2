@@ -73,7 +73,7 @@
               <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
               <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb<br>
               {% endif %}
-              {% if genofile_string is defined %}
+              {% if genofile_string != "" %}
               <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}
               {% endif %}
               <br>
