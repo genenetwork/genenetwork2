@@ -81,14 +81,12 @@ GeneNetwork2 with
 : source ~/opt/guix-pull/etc/profile
 : git clone https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics.git ~/guix-bioinformatics
 : cd ~/guix-bioinformatics
-: git pull
 : env GUIX_PACKAGE_PATH=$HOME/guix-bioinformatics guix package -i genenetwork2 -p ~/opt/genenetwork2
 
 you probably also need guix-past (the upstream channel for older packages):
 
 : git clone https://gitlab.inria.fr/guix-hpc/guix-past.git ~/guix-past
 : cd ~/guix-past
-: git pull
 : env GUIX_PACKAGE_PATH=$HOME/guix-bioinformatics:$HOME/guix-past/modules ~/opt/guix-pull/bin/guix package -i genenetwork2 -p ~/opt/genenetwork2
 
 ignore the warnings. Guix should install the software without trying
