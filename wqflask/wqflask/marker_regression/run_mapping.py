@@ -422,8 +422,9 @@ class RunMapping:
                 total_markers = len(self.qtl_results)
 
                 with Bench("Exporting Results"):
-                    export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
-                                           self.mapping_scale, self.score_type, self.transform, self.covariates, self.n_samples)
+                    export_mapping_results(self.dataset, self.this_trait, self.qtl_results,
+                                           self.mapping_results_path, self.mapping_scale, self.score_type,
+                                           self.transform, self.covariates, self.n_samples, self.vals_hash)
 
                 with Bench("Trimming Markers for Figure"):
                     if len(self.qtl_results) > 30000:
@@ -541,13 +542,15 @@ class RunMapping:
         return trimmed_genotype_data
 
 
-def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples):
+def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples, vals_hash):
     with open(results_path, "w+") as output_file:
         output_file.write(
             "Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
         output_file.write(
             "Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
         output_file.write("Data Set: " + dataset.fullname + "\n")
+        output_file.write("Trait: " + trait.display_name + "\n")
+        output_file.write("Trait Hash: " + vals_hash + "\n")
         output_file.write("N Samples: " + str(n_samples) + "\n")
         if len(transform) > 0:
             transform_text = "Transform - "
