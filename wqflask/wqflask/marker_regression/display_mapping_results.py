@@ -1206,7 +1206,7 @@ class DisplayMappingResults:
         if self.genofile_string == "":
             string4 = 'Genotype File: %s.geno' % self.dataset.group.name
         else:
-            string4 = 'Genotype File: %s' % self.genofile_string
+            string4 = 'Genotype File: %s' % self.genofile_string.split(":")[1]
 
         string6 = ''
         if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
