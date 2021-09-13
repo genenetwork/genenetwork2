@@ -1170,7 +1170,7 @@ def export_mapping_results():
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
                         mimetype='text/csv',
-                        headers={"Content-Disposition": "attachment;filename=mapping_results.csv"})
+                        headers={"Content-Disposition": "attachment;filename=" + os.path.basename(file_path)})
 
     return response
 
