@@ -1198,8 +1198,8 @@ class DisplayMappingResults:
                                          self.dataset.fullname)
 
 
-        current_datetime = datetime.datetime.now()
-        string1 = 'UTC Timestamp: %s' % (current_datetime.strftime("%b %d %Y %H:%M:%S"))
+        self.current_datetime = datetime.datetime.now().strftime("%b %d %Y %H:%M:%S")
+        string1 = 'UTC Timestamp: %s' % (self.current_datetime)
         string2 = 'Dataset: %s' % (dataset_label)
         string3 = 'Trait Hash: %s' % (self.vals_hash)
 

@@ -69,14 +69,15 @@
               <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
               <b>Database:</b> {{ dataset.fullname }}<br>
               {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.display_name }}</a><br>
+              <b>Trait Hash: </b> {{ vals_hash }}<br>
               {% if dataset.type == "ProbeSet" %}
               <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
               <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb<br>
               {% endif %}
               {% if genofile_string != "" %}
-              <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}
+              <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}<br>
               {% endif %}
-              <br>
+              <b>Current Date/Time:</b> {{ current_datetime }}<br>
               <br>
               <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
           </div>
