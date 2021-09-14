@@ -104,7 +104,7 @@ class RunMapping:
         if "results_path" in start_vars:
             self.mapping_results_path = start_vars['results_path']
         else:
-            mapping_results_filename = "_".join([self.dataset.group.name, self.vals_hash])
+            mapping_results_filename = "_".join([self.dataset.group.name, self.vals_hash]).replace("/", "_")
             self.mapping_results_path = "{}{}.csv".format(
                 webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
