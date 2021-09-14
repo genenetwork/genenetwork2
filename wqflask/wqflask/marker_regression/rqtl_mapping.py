@@ -61,6 +61,7 @@ def get_hash_of_textio(the_file: TextIO) -> str:
 
     the_file.seek(0)
     hash_of_file = hashlib.md5(the_file.read().encode()).hexdigest()
+    hash_of_file = hash_of_file.replace("/", "_") # Replace / with _ to prevent issue with filenames being translated to directories
 
     return hash_of_file
 
