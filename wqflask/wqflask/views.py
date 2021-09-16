@@ -633,7 +633,7 @@ def update_phenotype():
                                   json_data=json.dumps(diff_data)))
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(f"/trait/{data_.get('dataset-name')}"
-                    f"/edit/phenotype-id/{data_.get('phenotype-id')}")
+                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
 
 
 @app.route("/probeset/update", methods=["POST"])
