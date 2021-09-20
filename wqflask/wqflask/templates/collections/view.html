@@ -50,13 +50,16 @@
                     <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
                     <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Delete Rows</button>
                     <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
-		    <button id="clustered-heatmap"
-			    class="btn btn-main"
-			    data-url="{{heatmap_data_url}}"
-			    title="Generate heatmap from this collection">
-		      Clustered Heatmap
-		    </button>
                 </form>
+
+		<form id="heatmaps_form">
+		  <button id="clustered-heatmap"
+			  class="btn btn-main"
+			  data-url="{{heatmap_data_url}}"
+			  title="Generate heatmap from this collection">
+		    Clustered Heatmap
+		  </button>
+		</form>
             </div>
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
