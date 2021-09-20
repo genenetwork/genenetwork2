@@ -257,6 +257,10 @@
                 make_default();
             });
 
+	    $("#heatmaps_form").submit(function(e) {
+		e.preventDefault();
+	    });
+
 	    $("#clustered-heatmap").on("click", function() {
 		heatmap_url = $(this).attr("data-url")
 		console.log("heatmap url:", heatmap_url)
