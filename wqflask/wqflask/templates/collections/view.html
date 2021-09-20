@@ -257,7 +257,7 @@
                 make_default();
             });
 
-	    $("#clustered-heatmaps").on("click", function() {
+	    $("#clustered-heatmap").on("click", function() {
 		heatmap_url = $(this).attr("data-url")
 		console.log("heatmap url:", heatmap_url)
 		traits = $(".trait_checkbox:checked").map(function() {
