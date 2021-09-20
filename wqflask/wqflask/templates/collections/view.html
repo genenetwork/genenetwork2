@@ -253,6 +253,27 @@
             $("#make_default").on("click", function(){
                 make_default();
             });
+
+	    $("#clustered-heatmaps").on("click", function() {
+		heatmap_url = $(this).attr("data-url")
+		console.log("heatmap url:", heatmap_url)
+		traits = $(".trait_checkbox:checked").map(function() {
+		    return this.value
+		}).get();
+		console.log("SELECTED TRAITS", traits);
+		$.ajax({
+		    type: "POST",
+		    url: heatmap_url,
+		    contentType: "application/json",
+		    data: JSON.stringify({
+			"traits_names": traits
+		    }),
+		    dataType: "JSON",
+		    success: function(res) {
+			console.log("results:", res)
+		    }
+		});
+	    });
         });
     </script>
 
