@@ -219,7 +219,8 @@ def view_collection():
         json_version.append(jsonable(trait_ob))
 
     collection_info = dict(trait_obs=trait_obs,
-                           uc=uc)
+                           uc=uc,
+                           heatmap_data_url="http://localhost:8080/api/heatmaps/clustered")
 
     if "json" in params:
         return json.dumps(json_version)
