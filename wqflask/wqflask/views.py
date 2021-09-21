@@ -85,7 +85,7 @@ from wqflask.export_traits import export_search_results_csv
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
-from wqflask.decorators import admin_login_required
+from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
@@ -420,7 +420,7 @@ def submit_trait_form():
 
 
 @app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
-@admin_login_required
+@edit_access_required
 def edit_phenotype(name, inbredset_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -477,7 +477,7 @@ def edit_phenotype(name, inbredset_id):
 
 
 @app.route("/trait/edit/probeset-name/<dataset_name>")
-@admin_login_required
+@edit_access_required
 def edit_probeset(dataset_name):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -520,7 +520,7 @@ def edit_probeset(dataset_name):
 
 
 @app.route("/trait/update", methods=["POST"])
-@admin_login_required
+@edit_access_required
 def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -646,7 +646,7 @@ def update_phenotype():
 
 
 @app.route("/probeset/update", methods=["POST"])
-@admin_login_required
+@edit_access_required
 def update_probeset():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -1381,7 +1381,7 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
 
 
 @app.route("/admin/data-sample/diffs/")
-@admin_login_required
+@edit_access_required
 def display_diffs_admin():
     TMPDIR = current_app.config.get("TMPDIR")
     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
