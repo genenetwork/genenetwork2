@@ -3,7 +3,7 @@ from flask import g
 from functools import wraps
 
 
-def admin_login_required(f):
+def edit_access_required(f):
     """Use this for endpoints where admins are required"""
     @wraps(f)
     def wrap(*args, **kwargs):
