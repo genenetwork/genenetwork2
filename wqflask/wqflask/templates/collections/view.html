@@ -36,6 +36,15 @@
 
         <div>
             <br />
+	    <form id="heatmaps_form">
+	      <button id="clustered-heatmap"
+		      class="btn btn-primary"
+		      data-url="{{heatmap_data_url}}"
+		      title="Generate heatmap from this collection">
+		Clustered Heatmap
+	      </button>
+	    </form>
+
             <div class="collection-table-options">
                 <form id="export_form" method="POST" action="/export_traits_csv">
                     <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
@@ -51,15 +60,6 @@
                     <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Delete Rows</button>
                     <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
                 </form>
-
-		<form id="heatmaps_form">
-		  <button id="clustered-heatmap"
-			  class="btn btn-main"
-			  data-url="{{heatmap_data_url}}"
-			  title="Generate heatmap from this collection">
-		    Clustered Heatmap
-		  </button>
-		</form>
             </div>
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
@@ -128,8 +128,7 @@
                     </tbody>
 
                 </table>
-		<div id="plotly-testing-area"
-		     style="width:4000px;height:800px;">
+		<div id="clustered-heatmap-image-area">
 		</div>
             </div>
             <br />
@@ -267,17 +266,15 @@
 	    });
 
 	    function generate_clustered_heatmap(heatmap_data) {
-		image_area = document.getElementById("plotly-testing-area")
+		image_area = document.getElementById("clustered-heatmap-image-area")
 		Plotly.newPlot(image_area, heatmap_data)
 	    }
 
 	    $("#clustered-heatmap").on("click", function() {
 		heatmap_url = $(this).attr("data-url")
-		console.log("heatmap url:", heatmap_url)
 		traits = $(".trait_checkbox:checked").map(function() {
 		    return this.value
 		}).get();
-		console.log("SELECTED TRAITS", traits);
 		$.ajax({
 		    type: "POST",
 		    url: heatmap_url,
