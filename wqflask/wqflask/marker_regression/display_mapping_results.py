@@ -357,8 +357,7 @@ class DisplayMappingResults:
         if 'use_loco' in list(start_vars.keys()) and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
 
-        if 'reaper_version' in list(start_vars.keys()) and self.mapping_method == "reaper":
-            self.reaper_version = start_vars['reaper_version']
+        if self.mapping_method == "reaper":
             if 'output_files' in start_vars:
                 self.output_files = ",".join(
                     [(the_file if the_file is not None else "") for the_file in start_vars['output_files']])

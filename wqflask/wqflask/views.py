@@ -1097,7 +1097,6 @@ def mapping_results_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
         'temp_trait',
-        'reaper_version',
         'n_samples',
         'transform'
     )
