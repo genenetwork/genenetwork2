@@ -39,7 +39,7 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
     }
 
     if do_control == "true" and control_marker:
-        post_data["control_marker"] = control_marker
+        post_data["control"] = control_marker
 
     if not manhattan_plot:
         post_data["interval"] = True
