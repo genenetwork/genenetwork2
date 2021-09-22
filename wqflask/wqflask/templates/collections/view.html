@@ -128,6 +128,9 @@
                     </tbody>
 
                 </table>
+		<div id="plotly-testing-area"
+		     style="width:4000px;height:800px;">
+		</div>
             </div>
             <br />
         </div>
@@ -147,6 +150,8 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
+    <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
 
 
     <script language="javascript" type="text/javascript">
@@ -261,6 +266,11 @@
 		e.preventDefault();
 	    });
 
+	    function generate_clustered_heatmap(heatmap_data) {
+		image_area = document.getElementById("plotly-testing-area")
+		Plotly.newPlot(image_area, heatmap_data)
+	    }
+
 	    $("#clustered-heatmap").on("click", function() {
 		heatmap_url = $(this).attr("data-url")
 		console.log("heatmap url:", heatmap_url)
@@ -276,9 +286,7 @@
 			"traits_names": traits
 		    }),
 		    dataType: "JSON",
-		    success: function(res) {
-			console.log("results:", res)
-		    }
+		    success: generate_clustered_heatmap
 		});
 	    });
         });
