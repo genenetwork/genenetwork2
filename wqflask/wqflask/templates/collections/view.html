@@ -265,12 +265,20 @@
 		e.preventDefault();
 	    });
 
+	    function clear_heatmap_area() {
+		area = document.getElementById("clustered-heatmap-image-area");
+		area.querySelectorAll("svg").forEach(function(child) {
+		    child.remove();
+		});
+	    }
+
 	    function generate_clustered_heatmap(heatmap_data) {
 		image_area = document.getElementById("clustered-heatmap-image-area")
 		Plotly.newPlot(image_area, heatmap_data)
 	    }
 
 	    $("#clustered-heatmap").on("click", function() {
+		clear_heatmap_area();
 		heatmap_url = $(this).attr("data-url")
 		traits = $(".trait_checkbox:checked").map(function() {
 		    return this.value
