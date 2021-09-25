@@ -267,18 +267,49 @@
 
 	    function clear_heatmap_area() {
 		area = document.getElementById("clustered-heatmap-image-area");
-		area.querySelectorAll("svg").forEach(function(child) {
+		area.querySelectorAll("*").forEach(function(child) {
 		    child.remove();
 		});
 	    }
 
-	    function generate_clustered_heatmap(heatmap_data) {
+	    function generate_progress_indicator() {
+		count = 0;
+		default_message = "Computing"
+		return function() {
+		    message = default_message;
+		    if(count >= 10) {
+			count = 0;
+		    }
+		    for(i = 0; i < count; i++) {
+			message = message + " .";
+		    }
+		    clear_heatmap_area();
+		    $("#clustered-heatmap-image-area").append(
+			'<div class="alert alert-info"' +
+			    ' style="font-weigh: bold; font-size: 150%;">' +
+			    message + '</div>');
+		    count = count + 1;
+		};
+	    }
+
+	    function display_clustered_heatmap(heatmap_data) {
+		clear_heatmap_area();
 		image_area = document.getElementById("clustered-heatmap-image-area")
 		Plotly.newPlot(image_area, heatmap_data)
 	    }
 
+	    function process_clustered_heatmap_error(xhr, status, error) {
+		clear_heatmap_area()
+		$("#clustered-heatmap-image-area").append(
+		    $(
+			'<div class="alert alert-danger">ERROR: ' +
+			    xhr.responseJSON.message +
+			    '</div>'));
+	    }
+
 	    $("#clustered-heatmap").on("click", function() {
 		clear_heatmap_area();
+		intv = window.setInterval(generate_progress_indicator(), 300);
 		heatmap_url = $(this).attr("data-url")
 		traits = $(".trait_checkbox:checked").map(function() {
 		    return this.value
@@ -291,7 +322,14 @@
 			"traits_names": traits
 		    }),
 		    dataType: "JSON",
-		    success: generate_clustered_heatmap
+		    success: function(data, status, xhr) {
+			window.clearInterval(intv);
+			display_clustered_heatmap(data);
+		    },
+		    error: function(xhr, status, error) {
+			window.clearInterval(intv);
+			process_clustered_heatmap_error(xhr, status, error);
+		    }
 		});
 	    });
         });
