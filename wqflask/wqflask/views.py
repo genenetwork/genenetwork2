@@ -160,18 +160,26 @@ def shutdown_session(exception=None):
 
 
 @app.errorhandler(Exception)
-def handle_bad_request(e):
+def handle_generic_exceptions(e):
+    import werkzeug
     err_msg = str(e)
-    logger.error(err_msg)
-    logger.error(request.url)
-    # get the stack trace and send it to the logger
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    logger.error(traceback.format_exc())
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    formatted_lines = [request.url
-                       + " (" + time_str + ")"] + traceback.format_exc().splitlines()
+    # get the stack trace and send it to the logger
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    formatted_lines = {f"{request.url} ({time_str}) "
+                       f" {traceback.format_exc().splitlines()}"}
 
+    _message_templates = {
+        werkzeug.exceptions.NotFound: ("404: Not Found: "
+                                       f"{time_str}: {request.url}"),
+        werkzeug.exceptions.BadRequest: ("400: Bad Request: "
+                                         f"{time_str}: {request.url}"),
+        werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
+                                             f"{time_str}: {request.url}")}
+    # Default to the lengthy stack trace!
+    logger.error(_message_templates.get(exc_type,
+                                        formatted_lines))
     # Handle random animations
     # Use a cookie to have one animation on refresh
     animation = request.cookies.get(err_msg[:32])
