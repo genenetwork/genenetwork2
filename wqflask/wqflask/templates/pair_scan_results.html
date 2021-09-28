@@ -4,6 +4,7 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
 <link rel="stylesheet" type="text/css" href="/static/new/css/pair_scan.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 <link rel="stylesheet" type="text/css" href="/static/new/css/d3panels.css" />
 {% endblock %}
 
@@ -21,11 +22,43 @@
     <div class="qtlcharts" id="chart_container">
         <div id="pairscan_chart"></div>
     </div>
-    <div>
+    <div style="width: 1100px;">
         <h2>
             Results
         </h2>
         <table cellpadding="0" cellspacing="0" border="0" id="pair_scan_results" class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th colspan="3">Interval 1</th>
+                    <th rowspan="3">LOD</th>
+                    <th colspan="3">Interval 2</th>
+                </tr>
+                <tr>
+                    <th rowspan="2">Position</th>
+                    <th colspan="2">Flanking Markers</th>
+                    <th rowspan="2">Position</th>
+                    <th colspan="2">Flanking Markers</th>
+                </tr>
+                <tr>
+                    <th>Proximal</th>
+                    <th>Distal</th>
+                    <th>Proximal</th>
+                    <th>Distal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table_data %}
+                <tr>
+                    <td>{{ row.pos1 }}</td>
+                    <td>{{ row.proximal1 }}</td>
+                    <td>{{ row.distal1 }}</td>
+                    <td>{{ row.lod }}</td>
+                    <td>{{ row.pos2 }}</td>
+                    <td>{{ row.proximal2 }}</td>
+                    <td>{{ row.distal2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
@@ -35,13 +68,14 @@
 {% block js %}  
 
 <script>
-    figure_data = {{ figure_data | safe }}
+    var figure_data = {{ figure_data | safe }}
 </script>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="/static/new/javascript/d3panels.js"></script>
 
 <script type="text/javascript">
@@ -76,6 +110,18 @@ mychart = d3panels.lod2dheatmap({
 });
 
 mychart(d3.select('div#pairscan_chart'), figure_data);
+
+table_conf = {
+                "sDom": "itir",
+                "autoWidth": true,
+                "bSortClasses": false,
+                "order": [[3, "desc" ]],
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
+            }
+
+trait_table = $('#pair_scan_results').DataTable(table_conf);
 
 </script>
 
