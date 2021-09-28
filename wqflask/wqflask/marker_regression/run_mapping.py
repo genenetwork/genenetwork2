@@ -237,7 +237,8 @@ class RunMapping:
                 self.method = start_vars['mapmethod_rqtl']
             else:
                 self.method = "em"
-            self.model = start_vars['mapmodel_rqtl']
+            self.model = start_vars['mapmodel_rqtl_geno']
+            self.pair_scan = False
             if 'pair_scan' in start_vars:
                self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
