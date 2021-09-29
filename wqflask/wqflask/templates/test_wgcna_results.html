@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}WCGNA results{% endblock %}
+
+{% block content %} <!-- Start of body -->
+
+  <style type="text/css">
+    .container {
+      min-height: 100vh !important;
+      width: 100vw;
+
+    }
+    .grid_container {
+
+      /*width:250px;*/
+
+
+
+      width: 80vw;
+      margin:auto;
+      padding: 20px;
+
+
+      display: grid;
+      grid-template-columns: repeat(7,1fr);
+      /*grid-gap: 5px;*/
+      border: 1px solid black;
+      grid-column-gap: 20px;
+
+    }
+    .control_sft_column {
+      text-align: center;
+    }
+    .grid_container div:not(:last-child){
+      border-right: 1px solid #000;
+    }
+
+    .grid_container .control_sft_column h3{
+      font-weight: bold;
+      font-size: 18px;
+
+      /*border-right: 1px solid #;*/
+      /*background: forestgreen;*/
+    }
+
+    .control_net_colors{
+
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+     align-items: center;
+     text-align: center;
+    }
+
+
+    .control_mod_eigens {
+      display: grid;
+      grid-template-columns: repeat(2,200px);
+    }
+
+
+  </style>
+  <div class="container">
+
+
+   <div>
+   <div class="grid_container">
+   {% for key, value in results["data"]["output"]["soft_threshold"].items()%}
+
+    <div class="control_sft_column">
+      <h3>{{key}}</h3>
+      {% for val in value %}
+        <p>{{val|round(3)}}</p>
+
+      {% endfor %}
+      
+    </div>
+       {% endfor %}
+
+   </div>
+
+   <div>
+     <h3>Net colors</h3>
+     <div class="control_net_colors">
+     {% for key,value  in  results["data"]["output"]["net_colors"].items() %}
+     <div style="background-color:{{value}}">
+     <p>{{key}}</p>
+     <p >{{value}}</p>
+     </div>
+       
+     {% endfor %}
+
+     </div>
+    
+
+   </div>
+
+
+   <div>
+    <h2> Module eigen genes </h2>
+
+     <div>
+    {% for strain in results["data"]["input"]["sample_names"]%}
+    {{strain}}
+    {% endfor %}
+    {% for mod,values  in results["data"]["output"]["ModEigens"].items() %}
+      {{mod}} {{values}}
+
+    {% endfor %}
+
+   </div>
+
+   <div>
+              <a href="/tmp/{{ results['data']['output']['imageLoc'] }}">
+
+                dsffsdf
+                   <!--  <img alt="Embedded Image" src="data:image/png;base64,
+                    {% for elem in results['imgdata'] -%}
+                    {% print("%c"|format(elem)) %}
+                    {%- endfor %}
+                    " /> --></a>
+
+     
+   </div>
+ </div>
+   <!-- {{key}} -->
+
+
+  </div>
+
+
+  <script type="text/javascript">
+
+    var results = {{ results|safe }}
+
+    let {output} = results.data
+
+    let sft = output.soft_threshold
+
+    console.log(output)
+
+    console.log(results)
+
+    
+  </script>
+{% endblock %}
+
