@@ -1,146 +1,153 @@
 {% extends "base.html" %}
 {% block title %}WCGNA results{% endblock %}
-
-{% block content %} <!-- Start of body -->
-
-  <style type="text/css">
-    .container {
-      min-height: 100vh !important;
-      width: 100vw;
-
-    }
-    .grid_container {
-
-      /*width:250px;*/
+{% block content %}
+<!-- Start of body -->
 
 
 
-      width: 80vw;
-      margin:auto;
-      padding: 20px;
+<link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='xterm/css/xterm.min.css') }}" />
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='xterm/xterm.min.js') }}"></script>
+
+<style type="text/css">
+.container {
+    min-height: 100vh;
+    width: 100vw;
+    padding: 20px;
+
+}
+
+.grid_container {
 
 
-      display: grid;
-      grid-template-columns: repeat(7,1fr);
-      /*grid-gap: 5px;*/
-      border: 1px solid black;
-      grid-column-gap: 20px;
-
-    }
-    .control_sft_column {
-      text-align: center;
-    }
-    .grid_container div:not(:last-child){
-      border-right: 1px solid #000;
-    }
-
-    .grid_container .control_sft_column h3{
-      font-weight: bold;
-      font-size: 18px;
-
-      /*border-right: 1px solid #;*/
-      /*background: forestgreen;*/
-    }
-
-    .control_net_colors{
-
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: space-between;
-     align-items: center;
-     text-align: center;
-    }
+    width: 80vw;
+    margin: auto;
+    padding: 20px;
 
 
-    .control_mod_eigens {
-      display: grid;
-      grid-template-columns: repeat(2,200px);
-    }
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /*grid-gap: 5px;*/
+    border: 1px solid black;
+    grid-column-gap: 20px;
+
+}
+
+.control_sft_column {
+    text-align: center;
+}
+
+.grid_container div:not(:last-child) {
+    border-right: 1px solid #000;
+}
+
+.grid_container .control_sft_column h3 {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.control_net_colors {
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
 
 
-  </style>
-  <div class="container">
+.control_mod_eigens {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+}
 
+#terminal {
 
-   <div>
-   <div class="grid_container">
-   {% for key, value in results["data"]["output"]["soft_threshold"].items()%}
+    max-width: 768px;
 
-    <div class="control_sft_column">
-      <h3>{{key}}</h3>
-      {% for val in value %}
-        <p>{{val|round(3)}}</p>
+    margin: 10px;
 
-      {% endfor %}
-      
+}
+</style>
+<div class="container">
+    <div>
+        <div id="terminal">
+        </div>
     </div>
-       {% endfor %}
+    <div>
+        <div class="grid_container">
+            {% for key, value in results["data"]["output"]["soft_threshold"].items()%}
+            <div class="control_sft_column">
+                <h3>{{key}}</h3>
+                {% for val in value %}
+                <p>{{val|round(3)}}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <div>
+            <h3>Net colors</h3>
+            <div class="control_net_colors">
+                {% for key,value in results["data"]["output"]["net_colors"].items() %}
+                <div style="background-color:{{value}}">
+                    <p>{{key}}</p>
+                    <p>{{value}}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <h2> Module eigen genes </h2>
+            <div>
+                {% for strain in results["data"]["input"]["sample_names"]%}
+                {{strain}}
+                {% endfor %}
+                {% for mod,values in results["data"]["output"]["ModEigens"].items() %}
+                {{mod}} {{values}}
+                {% endfor %}
+            </div>
+            <!-- end -->
+            <div>
+                <a href="/tmp/{{ results['data']['output']['imageLoc'] }}">
+                    CLuster dendogram
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+var results = { { results | safe } }
 
-   </div>
+let terminal_output = results.output
+let { output } = results.data
 
-   <div>
-     <h3>Net colors</h3>
-     <div class="control_net_colors">
-     {% for key,value  in  results["data"]["output"]["net_colors"].items() %}
-     <div style="background-color:{{value}}">
-     <p>{{key}}</p>
-     <p >{{value}}</p>
-     </div>
-       
-     {% endfor %}
-
-     </div>
-    
-
-   </div>
-
-
-   <div>
-    <h2> Module eigen genes </h2>
-
-     <div>
-    {% for strain in results["data"]["input"]["sample_names"]%}
-    {{strain}}
-    {% endfor %}
-    {% for mod,values  in results["data"]["output"]["ModEigens"].items() %}
-      {{mod}} {{values}}
-
-    {% endfor %}
-
-   </div>
-
-   <div>
-              <a href="/tmp/{{ results['data']['output']['imageLoc'] }}">
-
-                dsffsdf
-                   <!--  <img alt="Embedded Image" src="data:image/png;base64,
-                    {% for elem in results['imgdata'] -%}
-                    {% print("%c"|format(elem)) %}
-                    {%- endfor %}
-                    " /> --></a>
-
-     
-   </div>
- </div>
-   <!-- {{key}} -->
-
-
-  </div>
+let sft = output.soft_threshold
+</script>
+<script>
 
 
-  <script type="text/javascript">
+function writeToTerminal(config, target_dom_id) {
+    // create instance
+    let term = new Terminal(config)
 
-    var results = {{ results|safe }}
+    term.open(document.getElementById(target_dom_id))
+    term.setOption("theme", {
+        background: "#300a24"
+    })
 
-    let {output} = results.data
+    return (terminal_output) => {
+      // todo add write delay
+        terminal_output.split('\n').forEach((line) => {
+            term.writeln(line)
+        });
+    }
 
-    let sft = output.soft_threshold
 
-    console.log(output)
+}
 
-    console.log(results)
 
-    
-  </script>
+
+ writeToTerminal({ cursorBlink: true, lineHeight: 1.2 }, "terminal")(terminal_output)
+
+</script>
 {% endblock %}
-
