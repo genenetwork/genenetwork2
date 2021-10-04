@@ -26,11 +26,13 @@ now results in::
 """
 
 import argparse
+import datetime
 import redis
 import json
 
 from typing import Dict, List, Optional, Set
 
+REDIS_CONN = redis.Redis(decode_responses=True)
 
 def create_group_data(users: Dict, target_group: str,
                       members: Optional[str] = None,
@@ -71,21 +73,26 @@ def create_group_data(users: Dict, target_group: str,
       me@test2.com, me@test3.com"
 
     """
-    _members = "".join(members.split()).split(",") if members else []
+
+    _members: List = "".join(members.split()).split(",") if members else []
     _admins: List = "".join(admins.split()).split(",") if admins else []
-    user_emails: Set = set()
-    for _, user_details in users.items():
+
+    user_ids: Dict = dict()
+    for user_id, user_details in users.items():
         _details = json.loads(user_details)
         if _details.get("email_address"):
-            user_emails.add(_details.get("email_address"))
-    print(user_emails)
+            user_ids[_details.get("email_address")] = user_id
+    print(user_ids)
     return {"key": "groups",
             "field": target_group,
             "value": json.dumps({
-                "admins": [admin for admin in _admins
-                           if admin in user_emails],
-                "members": [member for member in _members
-                            if member in user_emails]
+                "id": target_group,
+                "name": target_group,
+                "admins": [user_ids[admin] for admin in _admins
+                           if admin in user_ids],
+                "members": [user_ids[member] for member in _members
+                            if member in user_ids],
+                "changed_timestamp": datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
             })}
 
 
@@ -105,7 +112,6 @@ if __name__ == "__main__":
 
     members = args.members if args.members else None
     admins = args.admins if args.admins else None
-    REDIS_CONN = redis.Redis(decode_responses=True)
     USERS = REDIS_CONN.hgetall("users")
 
     if not any([members, admins]):
@@ -117,6 +123,12 @@ if __name__ == "__main__":
         target_group=args.group_name,
         members=members,
         admins=admins)
+
+    if not REDIS_CONN.hget("groups", data.get("field", "")):
+      updated_data = json.loads(data["value"])
+      updated_data["created_timestamp"] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+      data["value"] = json.dumps(updated_data)
+
     created_p = REDIS_CONN.hset(data.get("key", ""),
                                 data.get("field", ""),
                                 data.get("value", ""))
