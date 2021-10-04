@@ -32,8 +32,6 @@ import json
 
 from typing import Dict, List, Optional, Set
 
-REDIS_CONN = redis.Redis(decode_responses=True)
-
 def create_group_data(users: Dict, target_group: str,
                       members: Optional[str] = None,
                       admins: Optional[str] = None) -> Dict:
@@ -112,6 +110,8 @@ if __name__ == "__main__":
 
     members = args.members if args.members else None
     admins = args.admins if args.admins else None
+
+    REDIS_CONN = redis.Redis(decode_responses=True)
     USERS = REDIS_CONN.hgetall("users")
 
     if not any([members, admins]):
