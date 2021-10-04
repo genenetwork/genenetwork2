@@ -30,7 +30,6 @@ import redis
 import json
 
 from typing import Dict, List, Optional, Set
-from glom import glom  # type: ignore
 
 
 def create_group_data(users: Dict, target_group: str,
@@ -74,10 +73,12 @@ def create_group_data(users: Dict, target_group: str,
     """
     _members = "".join(members.split()).split(",") if members else []
     _admins: List = "".join(admins.split()).split(",") if admins else []
-
-    user_emails: Set = {glom(json.loads(user_details), "email_address")
-                        for _, user_details in users.items()}
-
+    user_emails: Set = set()
+    for _, user_details in users.items():
+        _details = json.loads(user_details)
+        if _details.get("email_address"):
+            user_emails.add(_details.get("email_address"))
+    print(user_emails)
     return {"key": "groups",
             "field": target_group,
             "value": json.dumps({
