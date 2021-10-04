@@ -125,6 +125,6 @@ if __name__ == "__main__":
                                         args.group_name))  # type: ignore
     if created_p:
         exit(f"\nSuccessfully created the group: '{args.group_name}'\n"
-             f"Data: {groups}\n")
+             f"`HGETALL groups {args.group_name}`: {groups}\n")
     exit("\nNo new group was created.\n"
-         f"Updated Data: {groups}\n")
+         f"`HGETALL groups {args.group_name}`: {groups}\n")
