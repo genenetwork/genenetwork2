@@ -104,9 +104,8 @@ if __name__ == "__main__":
 
     members = args.members if args.members else None
     admins = args.admins if args.admins else None
-    REDIS_CONN = redis.Redis()
-    USERS = {key.decode(): val.decode()
-             for key, val in REDIS_CONN.hgetall("users").items()}
+    REDIS_CONN = redis.Redis(decode_responses=True)
+    USERS = REDIS_CONN.hgetall("users")
 
     if not any([members, admins]):
         exit("\nExiting. Please provide a value for "
