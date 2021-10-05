@@ -81,10 +81,12 @@ class TestGemmaMapping(unittest.TestCase):
     def test_gen_pheno_txt_file(self):
         """add tests for generating pheno txt file"""
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
-            gen_pheno_txt_file(this_dataset={}, genofile_name="", vals=[
-                               "x", "w", "q", "we", "R"], trait_filename="fitr.re")
+            gen_pheno_txt_file(
+                this_dataset=AttributeSetter({"name": "A"}),
+                genofile_name="", vals=[
+                    "x", "w", "q", "we", "R"])
             mock_open.assert_called_once_with(
-                '/home/user/data/gn2/fitr.re.txt', 'w')
+                '/home/user/data/gn2/PHENO_KiAEKlCvM6iGTM9Kh_TAlQ.txt', 'w')
             filehandler = mock_open()
             values = ["x", "w", "q", "we", "R"]
             write_calls = [mock.call('NA\n'), mock.call('w\n'), mock.call(
@@ -112,7 +114,7 @@ class TestGemmaMapping(unittest.TestCase):
         create_trait.side_effect = create_trait_side_effect
 
         group = MockGroup({"name": "group_X", "samplelist": samplelist})
-        this_dataset = AttributeSetter({"group": group})
+        this_dataset = AttributeSetter({"group": group, "name": "A"})
         flat_files.return_value = "Home/Genenetwork"
 
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
@@ -132,7 +134,7 @@ class TestGemmaMapping(unittest.TestCase):
 
             flat_files.assert_called_once_with('mapping')
             mock_open.assert_called_once_with(
-                'Home/Genenetwork/group_X_covariates.txt', 'w')
+                'Home/Genenetwork/COVAR_anFZ_LfZYV0Ulywo+7tRCw.txt', 'w')
             filehandler = mock_open()
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
