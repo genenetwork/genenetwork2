@@ -1,53 +1,101 @@
 {% extends "base.html" %}
 {% block title %}WCGNA analysis{% endblock %}
-
-{% block content %} <!-- Start of body -->
-
+{% block content %}
+<!-- Start of body -->
+<style type="text/css">
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.14.1/css/xterm.css">
+<script src="https://cdn.jsdelivr.net/npm/xterm@4.14.1/lib/xterm.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 <div class="container">
-  <div class="col-md-6">
-<h1 class="mx-3 my-2 bg-warning"> WGCNA analysis parameters</h1>
-  {% if request.form['trait_list'].split(",")|length < 4 %}
-  <div class="alert alert-danger" role="alert">
-    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-    <span class="sr-only">Error:</span>
-    <h2>Too few phenotypes as input</h2>
-    Please make sure you select enough phenotypes / genes to perform WGCNA. Your collection needs to contain at least 4 different phenotypes. You provided {{request.form['trait_list'].split(',')|length}} phenotypes as input.
-  </div>
-  {% else %}
- <form class="col-md-12" action="/wgcna_results" method="post" class="form-horizontal">
-  <input type="hidden" name="trait_list" id="trait_list" value= "{{request.form['trait_list']}}">
-  <div class="form-group row ">
-    <label for="SoftThresholds" class="col-md-3 col-form-label col-form-label-sm">Soft threshhold</label>
-    <div class="col-md-9">
-      <input type="text" class="form-control form-control-md"  value="1,2,3,4,5,6,7,8,9" id="SoftThresholds"  name="SoftThresholds">
+    <div class="col-md-5">
+        <h1 class="mx-3 my-2 "> WGCNA analysis parameters</h1>
+        {% if request.form['trait_list'].split(",")|length < 4 %} <div class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            <h2>Too few phenotypes as input</h2>
+            Please make sure you select enough phenotypes / genes to perform WGCNA. Your collection needs to contain at least 4 different phenotypes. You provided {{request.form['trait_list'].split(',')|length}} phenotypes as input.
     </div>
-  </div>
-    <div class="form-group row ">
-    <label for="MinModuleSize" class="col-md-3 col-form-label col-form-label-sm">Minimum module size:</label>
-    <div class="col-md-9">
-      <input type="text" class="form-control form-control-md" id="MinModuleSize" value="MinModuleSize">
+    {% else %}
+    <form class="col-md-12" action="/wgcna_results" method="post" class="form-horizontal" id="wgcna_form">
+        <input type="hidden" name="trait_list" id="trait_list" value="{{request.form['trait_list']}}">
+        <div class="form-group row ">
+            <label for="SoftThresholds" class="col-md-3 col-form-label col-form-label-sm">Soft threshhold</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-md" value="1,2,3,4,5,6,7,8,9" id="SoftThresholds" name="SoftThresholds">
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label for="MinModuleSize" class="col-md-3 col-form-label col-form-label-sm">Minimum module size:</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-md" id="MinModuleSize" value="MinModuleSize">
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label for="TOMtype" class="col-md-3 col-form-label col-form-label-sm">TOMtype module size:</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-md" id="TOMtype" value="unsigned">
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label for="mergeCutHeight" class="col-md-3 col-form-label col-form-label-sm">mergeCutHeight size:</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-md" id="mergeCutHeight" value="0.25">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="text-center">
+                <input type="submit" class="btn btn-primary" value="Run WGCNA using these settings" />
+            </div>
+        </div>
+    </form>
+    {% endif %}
+</div>
+<div class="col-md-7">
+    <div class="col-md-10 mx-5">
+        <div id="terminal">
+        </div>
     </div>
-  </div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
-    <div class="form-group row ">
-    <label for="TOMtype" class="col-md-3 col-form-label col-form-label-sm">TOMtype module size:</label>
-    <div class="col-md-9">
-      <input type="text" class="form-control form-control-md" id="TOMtype" value="unsigned">
-    </div>
-  </div>
-    <div class="form-group row ">
-    <label for="mergeCutHeight" class="col-md-3 col-form-label col-form-label-sm">mergeCutHeight size:</label>
-    <div class="col-md-9">
-      <input type="text" class="form-control form-control-md" id="mergeCutHeight" value="0.25">
-    </div>
-  </div>
-    <div class="form-group">
-      <div class="text-center">
-        <input type="submit" class="btn btn-primary" value="Run WGCNA using these settings" />
-      </div>
-    </div>
-</form>
-  {% endif %}
-</div>
-</div>
+
+
+    let term = new Terminal({ cursorBlink: true, lineHeight: 1.3 });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById('terminal'));
+    term.setOption('theme', {
+        background: '#300a24'
+    });
+
+    term.writeln("Waiting for you to click the compute button....")
+
+    wgcnaForm = document.querySelector("#wgcna_form")
+
+    if (wgcnaForm) {
+
+        wgcnaForm.addEventListener("submit", (e) => {
+            term.writeln("Computation in process ......")
+        })
+
+        // open socket connection
+
+        const socket  = io(`${GN_SERVER_URL}`)
+        // add namespace
+        socket.on("output",({data})=>{
+
+          term.writeln(data)
+
+        })
+    } else {
+        term.writeln("Too few phenotypes as input must be >=4")
+    }
+
+
+});
+</script>
 {% endblock %}
