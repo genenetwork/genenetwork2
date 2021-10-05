@@ -233,25 +233,20 @@ class TestRunMapping(unittest.TestCase):
                 "c1": "c1_value",
                 "c2": "c2_value",
                 "w1": "w1_value"
-
             },
             "S2": {
                 "w1": "w2_value",
                 "w2": "w2_value"
-
             },
             "S3": {
 
                 "c1": "c1_value",
                 "c2": "c2_value"
-
             },
-
         }})
-
         results = get_perm_strata(this_trait={}, sample_list=sample_list,
                                   categorical_vars=categorical_vars, used_samples=used_samples)
-        self.assertEqual(results, [2, 1])
+        self.assertEqual(results, [1, 1])
 
     def test_get_chr_length(self):
         """test for getting chromosome length"""
