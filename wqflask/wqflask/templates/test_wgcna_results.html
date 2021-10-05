@@ -2,13 +2,17 @@
 {% block title %}WCGNA results{% endblock %}
 {% block content %}
 <!-- Start of body -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
+<style>
+#terminal {
 
+    max-width: 768px;
 
+    margin: 10px;
 
-<link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='xterm/css/xterm.min.css') }}" />
-
-<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='xterm/xterm.min.js') }}"></script>
-
+}
+</style>
 <style type="text/css">
 .container {
     min-height: 100vh;
@@ -59,14 +63,6 @@
 .control_mod_eigens {
     display: grid;
     grid-template-columns: repeat(2, 200px);
-}
-
-#terminal {
-
-    max-width: 768px;
-
-    margin: 10px;
-
 }
 </style>
 <div class="container">
@@ -122,32 +118,21 @@ let terminal_output = results.output
 let { output } = results.data
 
 let sft = output.soft_threshold
+
+
+console.log(results)
+console.log(terminal_output)
 </script>
 <script>
+let term = new Terminal({ cursorBlink: true, lineHeight: 1.2 });
+term.open(document.getElementById('terminal'));
+term.setOption('theme', {
+    background: '#300a24'
+});
 
-
-function writeToTerminal(config, target_dom_id) {
-    // create instance
-    let term = new Terminal(config)
-
-    term.open(document.getElementById(target_dom_id))
-    term.setOption("theme", {
-        background: "#300a24"
-    })
-
-    return (terminal_output) => {
-      // todo add write delay
-        terminal_output.split('\n').forEach((line) => {
-            term.writeln(line)
-        });
-    }
-
-
-}
-
-
-
- writeToTerminal({ cursorBlink: true, lineHeight: 1.2 }, "terminal")(terminal_output)
-
+terminal_output.split('\n').forEach((line) => {
+    term.writeln(line)
+});
 </script>
 {% endblock %}
+**
