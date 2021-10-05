@@ -277,7 +277,6 @@ class Markers:
             filtered_markers = []
             for marker in self.markers:
                 if marker['name'] in p_values:
-                    # logger.debug("marker {} IS in p_values".format(i))
                     marker['p_value'] = p_values[marker['name']]
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
@@ -298,7 +297,6 @@ class HumanMarkers(Markers):
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()
-            # logger.debug("splat:", splat)
             if len(specified_markers) > 0:
                 if splat[1] in specified_markers:
                     marker = {}
@@ -397,6 +395,15 @@ class DatasetGroup:
             self.f1list = [f1, f12]
         if maternal and paternal:
             self.parlist = [maternal, paternal]
+
+    def get_study_samplelists(self):
+        study_sample_file = locate_ignore_error(self.name + ".json", 'study_sample_lists')
+        try:
+            f = open(study_sample_file)
+        except:
+            return []
+        study_samples = json.load(f)
+        return study_samples
 
     def get_genofiles(self):
         jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
@@ -557,6 +564,7 @@ class DataSet:
         self.fullname = None
         self.type = None
         self.data_scale = None  # ZS: For example log2
+        self.accession_id = None
 
         self.setup()
 
@@ -572,6 +580,17 @@ class DataSet:
         if get_samplelist == True:
             self.group.get_samplelist()
         self.species = species.TheSpecies(self)
+
+    def as_dict(self):
+        return {
+            'name': self.name,
+            'shortname': self.shortname,
+            'fullname': self.fullname,
+            'type': self.type,
+            'data_scale': self.data_scale,
+            'group': self.group.name,
+            'accession_id': self.accession_id
+        }
 
     def get_accession_id(self):
         if self.type == "Publish":
@@ -725,7 +744,6 @@ class DataSet:
             and Strain.SpeciesId=Species.Id
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        logger.sql(query)
         results = dict(g.db.execute(query).fetchall())
         sample_ids = [results[item] for item in self.samplelist]
 
@@ -896,7 +914,6 @@ class PhenotypeDataSet(DataSet):
                         Geno.Name = '%s' and
                         Geno.SpeciesId = Species.Id
                 """ % (species, this_trait.locus)
-                logger.sql(query)
                 result = g.db.execute(query).fetchone()
 
                 if result:
@@ -926,7 +943,6 @@ class PhenotypeDataSet(DataSet):
                     Order BY
                             Strain.Name
                     """
-        logger.sql(query)
         results = g.db.execute(query, (trait, self.id)).fetchall()
         return results
 
@@ -993,7 +1009,6 @@ class GenotypeDataSet(DataSet):
                     Order BY
                             Strain.Name
                     """
-        logger.sql(query)
         results = g.db.execute(query,
                                (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
                                 trait, self.name)).fetchall()
@@ -1114,8 +1129,6 @@ class MrnaAssayDataSet(DataSet):
                 ProbeSet.Name = '%s'
             """ % (escape(str(this_trait.dataset.id)),
                    escape(this_trait.name)))
-
-            logger.sql(query)
             result = g.db.execute(query).fetchone()
 
             mean = result[0] if result else 0
@@ -1135,7 +1148,6 @@ class MrnaAssayDataSet(DataSet):
                         Geno.Name = '{}' and
                         Geno.SpeciesId = Species.Id
                 """.format(species, this_trait.locus)
-                logger.sql(query)
                 result = g.db.execute(query).fetchone()
 
                 if result:
@@ -1167,7 +1179,6 @@ class MrnaAssayDataSet(DataSet):
                     Order BY
                             Strain.Name
                     """ % (escape(trait), escape(self.name))
-        logger.sql(query)
         results = g.db.execute(query).fetchall()
         return results
 
@@ -1178,7 +1189,6 @@ class MrnaAssayDataSet(DataSet):
                     where ProbeSetXRef.ProbeSetFreezeId = %s and
                     ProbeSetXRef.ProbeSetId=ProbeSet.Id;
                 """ % (column_name, escape(str(self.id)))
-        logger.sql(query)
         results = g.db.execute(query).fetchall()
 
         return dict(results)
@@ -1212,7 +1222,6 @@ def geno_mrna_confidentiality(ob):
 
     query = '''SELECT Id, Name, FullName, confidentiality,
                         AuthorisedUsers FROM %s WHERE Name = "%s"''' % (dataset_table, ob.name)
-    logger.sql(query)
     result = g.db.execute(query)
 
     (dataset_id,

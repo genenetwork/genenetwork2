@@ -39,7 +39,7 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
     }
 
     if do_control == "true" and control_marker:
-        post_data["control_marker"] = control_marker
+        post_data["control"] = control_marker
 
     if not manhattan_plot:
         post_data["interval"] = True
@@ -61,6 +61,7 @@ def get_hash_of_textio(the_file: TextIO) -> str:
 
     the_file.seek(0)
     hash_of_file = hashlib.md5(the_file.read().encode()).hexdigest()
+    hash_of_file = hash_of_file.replace("/", "_") # Replace / with _ to prevent issue with filenames being translated to directories
 
     return hash_of_file
 
@@ -89,7 +90,7 @@ def write_phenotype_file(trait_name: str,
     for i, sample in enumerate(samples):
         this_row = [sample]
         if vals[i] != "x":
-            this_row.append(vals[i])
+            this_row.append(str(round(float(vals[i]), 3)))
         else:
             this_row.append("NA")
         for cofactor in cofactor_data:
@@ -126,7 +127,7 @@ def cofactors_to_dict(cofactors: str, dataset_ob, samples) -> Dict:
                 sample_data = trait_ob.data
                 for index, sample in enumerate(samples):
                     if sample in sample_data:
-                        sample_value = sample_data[sample].value
+                        sample_value = str(round(float(sample_data[sample].value), 3))
                         cofactor_dict[cofactor_name].append(sample_value)
                     else:
                         cofactor_dict[cofactor_name].append("NA")

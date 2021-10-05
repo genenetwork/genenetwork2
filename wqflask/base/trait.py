@@ -27,11 +27,13 @@ def create_trait(**kw):
 
     assert bool(kw.get('name')), "Needs trait name"
 
-    if kw.get('dataset_name'):
+    if bool(kw.get('dataset')):
+        dataset = kw.get('dataset')
+    else:
         if kw.get('dataset_name') != "Temp":
             dataset = create_dataset(kw.get('dataset_name'))
-    else:
-        dataset = kw.get('dataset')
+        else:
+            dataset = create_dataset("Temp", group_name=kw.get('group_name'))
 
     if dataset.type == 'Publish':
         permissions = check_resource_availability(
@@ -284,17 +286,19 @@ def get_sample_data():
         return None
 
 
-def jsonable(trait):
+def jsonable(trait, dataset=None):
     """Return a dict suitable for using as json
 
     Actual turning into json doesn't happen here though"""
 
-    dataset = create_dataset(dataset_name=trait.dataset.name,
-                             dataset_type=trait.dataset.type,
-                             group_name=trait.dataset.group.name)
+    if not dataset:
+        dataset = create_dataset(dataset_name=trait.dataset.name,
+                                dataset_type=trait.dataset.type,
+                                group_name=trait.dataset.group.name)
 
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
+                    view=trait.view,
                     symbol=trait.symbol,
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
@@ -308,37 +312,44 @@ def jsonable(trait):
     elif dataset.type == "Publish":
         if trait.pubmed_id:
             return dict(name=trait.name,
+                        view=trait.view,
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
+                        pubmed_id=trait.pubmed_id,
                         pubmed_text=trait.pubmed_text,
                         pubmed_link=trait.pubmed_link,
+                        mean=trait.mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
                         additive=trait.additive
                         )
         else:
             return dict(name=trait.name,
+                        view=trait.view,
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
+                        mean=trait.mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
                         additive=trait.additive
                         )
     elif dataset.type == "Geno":
         return dict(name=trait.name,
+                    view=trait.view,
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
                     location=trait.location_repr
                     )
     elif dataset.name == "Temp":
         return dict(name=trait.name,
+                    view=trait.view,
                     dataset="Temp",
                     dataset_name="Temp")
     else:

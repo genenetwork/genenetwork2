@@ -18,7 +18,10 @@ from gn3.db_utils import database_connector
 def create_target_this_trait(start_vars):
     """this function creates the required trait and target dataset for correlation"""
 
-    this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
+    if start_vars['dataset'] == "Temp":
+        this_dataset = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
+    else:
+        this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
     target_dataset = data_set.create_dataset(
         dataset_name=start_vars['corr_dataset'])
     this_trait = create_trait(dataset=this_dataset,
@@ -145,15 +148,9 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
 def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     sample_data = process_samples(
-        start_vars, this_dataset.group.samplelist)
+        start_vars, this_dataset.group.all_samples_ordered())
 
-    sample_data = test_process_data(this_trait, this_dataset, start_vars)
-
-
-    if target_dataset.type == "ProbeSet":
-        target_dataset.get_probeset_data(list(sample_data.keys()))
-    else:
-        target_dataset.get_trait_data(list(sample_data.keys()))
+    target_dataset.get_trait_data(list(sample_data.keys()))
     this_trait = retrieve_sample_data(this_trait, this_dataset)
     this_trait_data = {
         "trait_sample_data": sample_data,
@@ -165,8 +162,14 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
     return (this_trait_data, results)
 
 
-def compute_correlation(start_vars, method="pearson"):
-    """compute correlation for to call gn3  api"""
+def compute_correlation(start_vars, method="pearson", compute_all=False):
+    """Compute correlations using GN3 API
+
+    Keyword arguments:
+    start_vars -- All input from form; includes things like the trait/dataset names
+    method -- Correlation method to be used (pearson, spearman, or bicor)
+    compute_all -- Include sample, tissue, and literature correlations (when applicable)
+    """
     # pylint: disable-msg=too-many-locals
 
     corr_type = start_vars['corr_type']
@@ -196,17 +199,22 @@ def compute_correlation(start_vars, method="pearson"):
         if tissue_input is not None:
             (primary_tissue_data, target_tissue_data) = tissue_input
 
-        corr_input_data = {
-            "primary_tissue": primary_tissue_data,
-            "target_tissues_dict": target_tissue_data
-        }
-        correlation_results = compute_tissue_correlation(
-            primary_tissue_dict=corr_input_data["primary_tissue"],
-            target_tissues_data=corr_input_data[
-                "target_tissues_dict"],
-            corr_method=method
+            corr_input_data = {
+                "primary_tissue": primary_tissue_data,
+                "target_tissues_dict": target_tissue_data
+            }
+            correlation_results = compute_tissue_correlation(
+                primary_tissue_dict=corr_input_data["primary_tissue"],
+                target_tissues_data=corr_input_data[
+                    "target_tissues_dict"],
+                corr_method=method
 
-        )
+            )
+        else:
+            return {"correlation_results": [],
+                    "this_trait": this_trait.name,
+                    "target_dataset": start_vars['corr_dataset'],
+                    "return_results": corr_return_results}
 
     elif corr_type == "lit":
         (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
@@ -220,11 +228,9 @@ def compute_correlation(start_vars, method="pearson"):
 
     correlation_results = correlation_results[0:corr_return_results]
 
-    compute_all = True  # later to  be passed as argument
-
     if (compute_all):
-
-        correlation_results = compute_corr_for_top_results(correlation_results,
+        correlation_results = compute_corr_for_top_results(start_vars,
+                                                           correlation_results,
                                                            this_trait,
                                                            this_dataset,
                                                            target_dataset,
@@ -238,7 +244,8 @@ def compute_correlation(start_vars, method="pearson"):
     return correlation_data
 
 
-def compute_corr_for_top_results(correlation_results,
+def compute_corr_for_top_results(start_vars,
+                                 correlation_results,
                                  this_trait,
                                  this_dataset,
                                  target_dataset,
@@ -261,8 +268,12 @@ def compute_corr_for_top_results(correlation_results,
             correlation_results = merge_correlation_results(
                 correlation_results, lit_result)
 
-    if corr_type != "sample":
-        pass
+    if corr_type != "sample" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
+        sample_result = sample_for_trait_lists(
+            correlation_results, target_dataset, this_trait, this_dataset, start_vars)
+        if sample_result:
+            correlation_results = merge_correlation_results(
+                correlation_results, sample_result)
 
     return correlation_results
 
@@ -294,4 +305,3 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
             "symbol_tissue_vals_dict": corr_result_tissue_vals_dict
         }
         return (primary_tissue_data, target_tissue_data)
-    return None

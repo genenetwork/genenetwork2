@@ -17,9 +17,9 @@
             <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
         <div style="max-width: 100%;">
-          <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if dataset.accession_id != 'None' %}GN_AccessionId={{ dataset.accession_id }}{% else %}InfoPageName={{ dataset.name }}{% endif %}">{{ dataset.fullname }}</a>
+          <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if this_dataset.accession_id != 'None' %}GN_AccessionId={{ this_dataset.accession_id }}{% else %}InfoPageName={{ this_dataset.name }}{% endif %}">{{ this_dataset.fullname }}</a>
           dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id != 'None' %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
-          dataset. The top {{ return_number }} correlations ranked by the {{ formatted_corr_type }} are displayed.
+          dataset. The top {{ return_results }} correlations ranked by the {{ formatted_corr_type }} are displayed.
           You can resort this list by clicking the headers. Select the Record ID to open the trait data
           and analysis page.
           </p>
@@ -30,7 +30,7 @@
             <input type="hidden" name="form_url" value="" />
             <input type="hidden" name="trait_list" id="trait_list" value= "
             {% for this_trait in trait_list %}
-                {{ this_trait.name }}:{{ this_trait.dataset }},
+                {{ this_trait }}:{{ this_dataset.name }},
             {% endfor %}" >
             {% include 'tool_buttons.html' %}
           </form>
@@ -43,7 +43,7 @@
                 <button class="btn btn-success" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
                 <input type="hidden" name="database_name" id="database_name" value="None">
                 <input type="hidden" name="export_data" id="export_data" value="">
-                <input type="hidden" name="file_name" id="file_name" value="{{ this_trait.name }}_{{ dataset.name }}_correlation">
+                <input type="hidden" name="file_name" id="file_name" value="{{ this_trait.name }}_{{ this_dataset.name }}_correlation">
                 <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search Table For ...">
                 <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
                 <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
@@ -146,7 +146,7 @@
     
 
     <script type="text/javascript" charset="utf-8">
-        var table_json = {{ json_results | safe }}
+        var table_json = {{ table_json | safe }}
     </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -313,7 +313,7 @@
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
                         if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                         } else {
                           return data.sample_r
                         }
@@ -441,7 +441,7 @@
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
                         if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name== 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                         } else {
                           return data.sample_r
                         }
@@ -495,7 +495,7 @@
                       'orderSequence': [ "desc", "asc"],
                       'render': function(data, type, row, meta) {
                         if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if dataset.name == 'Temp' %}Temp_{{ dataset.group.name }}{% else %}{{ dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                         } else {
                           return data.sample_r
                         }

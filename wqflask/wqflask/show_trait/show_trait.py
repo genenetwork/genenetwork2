@@ -1,3 +1,5 @@
+from typing import Dict
+
 import string
 import datetime
 import uuid
@@ -176,11 +178,11 @@ class ShowTrait:
             self.sample_group_types['samples_primary'] = self.dataset.group.name
         sample_lists = [group.sample_list for group in self.sample_groups]
 
-        categorical_var_list = []
+        self.categorical_var_list = []
         self.numerical_var_list = []
         if not self.temp_trait:
             # ZS: Only using first samplelist, since I think mapping only uses those samples
-            categorical_var_list = get_categorical_variables(
+            self.categorical_var_list = get_categorical_variables(
                 self.this_trait, self.sample_groups[0])
             self.numerical_var_list = get_numerical_variables(
                 self.this_trait, self.sample_groups[0])
@@ -192,6 +194,8 @@ class ShowTrait:
                 [self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
 
         self.genofiles = self.dataset.group.get_genofiles()
+        study_samplelist_json = self.dataset.group.get_study_samplelists()
+        self.study_samplelists = [study["title"] for study in study_samplelist_json]
 
         # ZS: No need to grab scales from .geno file unless it's using
         # a mapping method that reads .geno files
@@ -280,10 +284,11 @@ class ShowTrait:
         hddn['selected_chr'] = -1
         hddn['mapping_display_all'] = True
         hddn['suggestive'] = 0
+        hddn['study_samplelists'] = json.dumps(study_samplelist_json)
         hddn['num_perm'] = 0
         hddn['categorical_vars'] = ""
-        if categorical_var_list:
-            hddn['categorical_vars'] = ",".join(categorical_var_list)
+        if self.categorical_var_list:
+            hddn['categorical_vars'] = ",".join(self.categorical_var_list)
         hddn['manhattan_plot'] = ""
         hddn['control_marker'] = ""
         if not self.temp_trait:
@@ -295,7 +300,7 @@ class ShowTrait:
         hddn['compare_traits'] = []
         hddn['export_data'] = ""
         hddn['export_format'] = "excel"
-        if len(self.scales_in_geno) < 2:
+        if len(self.scales_in_geno) < 2 and bool(self.scales_in_geno):
             hddn['mapping_scale'] = self.scales_in_geno[list(
                 self.scales_in_geno.keys())[0]][0][0]
 
@@ -318,7 +323,7 @@ class ShowTrait:
                        has_num_cases=self.has_num_cases,
                        attributes=self.sample_groups[0].attributes,
                        categorical_attr_exists=self.categorical_attr_exists,
-                       categorical_vars=",".join(categorical_var_list),
+                       categorical_vars=",".join(self.categorical_var_list),
                        num_values=self.num_values,
                        qnorm_values=self.qnorm_vals,
                        zscore_values=self.z_scores,
@@ -520,6 +525,9 @@ class ShowTrait:
                                          sample_group_type='primary',
                                          header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
+            print("\nttttttttttttttttttttttttttttttttttttttttttttt\n")
+            print(self.sample_groups)
+            print("\nttttttttttttttttttttttttttttttttttttttttttttt\n")
 
         self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
@@ -693,7 +701,7 @@ def get_categorical_variables(this_trait, sample_list) -> list:
     if len(sample_list.attributes) > 0:
         for attribute in sample_list.attributes:
             if len(sample_list.attributes[attribute].distinct_values) < 10:
-                categorical_var_list.append(sample_list.attributes[attribute].name)
+                categorical_var_list.append(str(sample_list.attributes[attribute].id))
 
     return categorical_var_list
 
@@ -799,3 +807,41 @@ def get_scales_from_genofile(file_location):
         return [["physic", "Mb"], ["morgan", "cM"]]
     else:
         return [["physic", "Mb"]]
+
+
+
+def get_diff_of_vals(new_vals: Dict, trait_id: str) -> Dict:
+    """ Get the diff between current sample values and the values in the DB
+
+    Given a dict of the changed values and the trait/dataset ID, return a Dict
+    with keys corresponding to each sample with a changed value and a value
+    that is a dict with keys for the old_value and new_value
+
+    """
+
+    trait_name = trait_id.split(":")[0]
+    dataset_name = trait_id.split(":")[1]
+    trait_ob = create_trait(name=trait_name, dataset_name=dataset_name)
+
+    old_vals = {sample : trait_ob.data[sample].value for sample in trait_ob.data}
+
+    shared_samples = set.union(set(new_vals.keys()), set(old_vals.keys()))
+
+    diff_dict = {}
+    for sample in shared_samples:
+        try:
+            new_val = round(float(new_vals[sample]), 3)
+        except:
+            new_val = "x"
+        try:
+            old_val = round(float(old_vals[sample]), 3)
+        except:
+            old_val = "x"
+
+        if new_val != old_val:
+            diff_dict[sample] = {
+                "new_val": new_val,
+                "old_val": old_val
+            }
+
+    return diff_dict

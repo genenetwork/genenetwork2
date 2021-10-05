@@ -27,6 +27,8 @@ from zipfile import ZIP_DEFLATED
 
 from wqflask import app
 
+from gn3.commands import run_cmd
+from gn3.computations.gemma import generate_hash_of_string
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -34,12 +36,17 @@ from gn3.db import insert
 from gn3.db import update
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
+from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
+from gn3.db.phenotypes import probeset_mapping
+from gn3.db.traits import get_trait_csv_sample_data
+from gn3.db.traits import update_sample_data
 
 
 from flask import current_app
 from flask import g
+from flask import flash
 from flask import Response
 from flask import request
 from flask import make_response
@@ -57,6 +64,7 @@ from wqflask import server_side
 from base.data_set import create_dataset  # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
+from wqflask.show_trait.show_trait import get_diff_of_vals
 from wqflask.heatmap import heatmap
 from wqflask.external_tools import send_to_bnw
 from wqflask.external_tools import send_to_webgestalt
@@ -65,7 +73,7 @@ from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import run_mapping
 from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
-from wqflask.correlation import show_corr_results
+from wqflask.correlation.show_corr_results import set_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
@@ -77,7 +85,7 @@ from wqflask.export_traits import export_search_results_csv
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
-from wqflask.decorators import admin_login_required
+from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
@@ -152,28 +160,37 @@ def shutdown_session(exception=None):
 
 
 @app.errorhandler(Exception)
-def handle_bad_request(e):
+def handle_generic_exceptions(e):
+    import werkzeug
     err_msg = str(e)
-    logger.error(err_msg)
-    logger.error(request.url)
-    # get the stack trace and send it to the logger
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    logger.error(traceback.format_exc())
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    formatted_lines = [request.url
-                       + " (" + time_str + ")"] + traceback.format_exc().splitlines()
+    # get the stack trace and send it to the logger
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    formatted_lines = {f"{request.url} ({time_str}) "
+                       f" {traceback.format_exc().splitlines()}"}
 
+    _message_templates = {
+        werkzeug.exceptions.NotFound: ("404: Not Found: "
+                                       f"{time_str}: {request.url}"),
+        werkzeug.exceptions.BadRequest: ("400: Bad Request: "
+                                         f"{time_str}: {request.url}"),
+        werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
+                                             f"{time_str}: {request.url}")}
+    # Default to the lengthy stack trace!
+    logger.error(_message_templates.get(exc_type,
+                                        formatted_lines))
     # Handle random animations
     # Use a cookie to have one animation on refresh
     animation = request.cookies.get(err_msg[:32])
     if not animation:
-        list = [fn for fn in os.listdir(
-            "./wqflask/static/gif/error") if fn.endswith(".gif")]
-        animation = random.choice(list)
+        animation = random.choice([fn for fn in os.listdir(
+            "./wqflask/static/gif/error") if fn.endswith(".gif")])
 
     resp = make_response(render_template("error.html", message=err_msg,
-                                         stack=formatted_lines, error_image=animation, version=GN_VERSION))
+                                         stack=formatted_lines,
+                                         error_image=animation,
+                                         version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32], animation)
@@ -300,6 +317,7 @@ def gsearchact():
     elif type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
+
 @app.route("/gsearch_table", methods=('GET',))
 def gsearchtable():
     logger.info(request.url)
@@ -313,6 +331,7 @@ def gsearchtable():
     ).get_page()
 
     return flask.jsonify(current_page)
+
 
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
@@ -357,20 +376,6 @@ def wcgna_setup():
     return render_template("wgcna_setup.html", **request.form)
 
 
-# @app.route("/wgcna_results", methods=('POST',))
-# def wcgna_results():
-#     logger.info("In wgcna, request.form is:", request.form)
-#     logger.info(request.url)
-#     # Start R, load the package and pointers and create the analysis
-#     wgcna = wgcna_analysis.WGCNA()
-#     # Start the analysis, a wgcnaA object should be a separate long running thread
-#     wgcnaA = wgcna.run_analysis(request.form)
-#     # After the analysis is finished store the result
-#     result = wgcna.process_results(wgcnaA)
-#     # Display them using the template
-#     return render_template("wgcna_results.html", **result)
-
-
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     # We are going to get additional user input for the analysis
@@ -378,20 +383,6 @@ def ctl_setup():
     logger.info(request.url)
     # Display them using the template
     return render_template("ctl_setup.html", **request.form)
-
-
-# @app.route("/ctl_results", methods=('POST',))
-# def ctl_results():
-#     logger.info("In ctl, request.form is:", request.form)
-#     logger.info(request.url)
-#     # Start R, load the package and pointers and create the analysis
-#     ctl = ctl_analysis.CTL()
-#     # Start the analysis, a ctlA object should be a separate long running thread
-#     ctlA = ctl.run_analysis(request.form)
-#     # After the analysis is finished store the result
-#     result = ctl.process_results(ctlA)
-#     # Display them using the template
-#     return render_template("ctl_results.html", **result)
 
 
 @app.route("/intro")
@@ -428,9 +419,9 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/<inbred_set_id>")
-@admin_login_required
-def edit_trait(name, inbred_set_id):
+@app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
+@edit_access_required
+def edit_phenotype(name, inbredset_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -439,7 +430,7 @@ def edit_trait(name, inbred_set_id):
         conn=conn,
         table="PublishXRef",
         where=PublishXRef(id_=name,
-                          inbred_set_id=inbred_set_id))
+                          inbred_set_id=inbredset_id))
     phenotype_ = fetchone(
         conn=conn,
         table="Phenotype",
@@ -476,7 +467,7 @@ def edit_trait(name, inbred_set_id):
     if len(diff_data) > 0:
         diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return render_template(
-        "edit_trait.html",
+        "edit_phenotype.html",
         diff=diff_data_,
         publish_xref=publish_xref,
         phenotype=phenotype_,
@@ -485,13 +476,119 @@ def edit_trait(name, inbred_set_id):
     )
 
 
+@app.route("/trait/edit/probeset-name/<dataset_name>")
+@edit_access_required
+def edit_probeset(dataset_name):
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    probeset_ = fetchone(conn=conn,
+                         table="ProbeSet",
+                         columns=list(probeset_mapping.values()),
+                         where=Probeset(name=dataset_name))
+    json_data = fetchall(
+        conn,
+        "metadata_audit",
+        where=MetadataAudit(dataset_id=probeset_.id_))
+    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
+    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
+    diff_data = []
+    for data in json_data:
+        json_ = json.loads(data.json_data)
+        timestamp = json_.get("timestamp")
+        author = json_.get("author")
+        for key, value in json_.items():
+            if isinstance(value, dict):
+                for field, data_ in value.items():
+                    diff_data.append(
+                        Diff(author=author,
+                             diff=Edit(field,
+                                       data_.get("old"),
+                                       data_.get("new"),
+                                       "\n".join(difflib.ndiff(
+                                           [data_.get("old")],
+                                           [data_.get("new")]))),
+                             timestamp=timestamp))
+    diff_data_ = None
+    if len(diff_data) > 0:
+        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
+    return render_template(
+        "edit_probeset.html",
+        diff=diff_data_,
+        probeset=probeset_)
+
+
 @app.route("/trait/update", methods=["POST"])
-def update_trait():
+@edit_access_required
+def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
+    TMPDIR = current_app.config.get("TMPDIR")
+    author = g.user_session.record.get(b'user_name')
+    if 'file' not in request.files:
+        flash("No sample-data has been uploaded", "warning")
+    else:
+        file_ = request.files['file']
+        trait_name = str(data_.get('dataset-name'))
+        phenotype_id = str(data_.get('phenotype-id', 35))
+        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
+        if not os.path.exists(SAMPLE_DATADIR):
+            os.makedirs(SAMPLE_DATADIR)
+        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                           "diffs")):
+            os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                     "diffs"))
+        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                           "updated")):
+            os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                     "updated"))
+        current_time = str(datetime.datetime.now().isoformat())
+        new_file_name = (os.path.join(TMPDIR,
+                                      "sample-data/updated/",
+                                      (f"{author.decode('utf-8')}."
+                                       f"{trait_name}.{phenotype_id}."
+                                       f"{current_time}.csv")))
+        uploaded_file_name = (os.path.join(
+            TMPDIR,
+            "sample-data/updated/",
+            (f"updated.{author.decode('utf-8')}."
+             f"{trait_name}.{phenotype_id}."
+             f"{current_time}.csv")))
+        file_.save(new_file_name)
+        publishdata_id = ""
+        lines = []
+        with open(new_file_name, "r") as f:
+            lines = f.read()
+            first_line = lines.split('\n', 1)[0]
+            publishdata_id = first_line.split("Id:")[-1].strip()
+        with open(new_file_name, "w") as f:
+            f.write(lines.split("\n\n")[-1])
+        csv_ = get_trait_csv_sample_data(conn=conn,
+                                         trait_name=str(trait_name),
+                                         phenotype_id=str(phenotype_id))
+        with open(uploaded_file_name, "w") as f_:
+            f_.write(csv_.split("\n\n")[-1])
+        r = run_cmd(cmd=("csvdiff "
+                         f"'{uploaded_file_name}' '{new_file_name}' "
+                         "--format json"))
+        diff_output = (f"{TMPDIR}/sample-data/diffs/"
+                       f"{trait_name}.{author.decode('utf-8')}."
+                       f"{phenotype_id}.{current_time}.json")
+        with open(diff_output, "w") as f:
+            dict_ = json.loads(r.get("output"))
+            dict_.update({
+                "author": author.decode('utf-8'),
+                "publishdata_id": publishdata_id,
+                "dataset_id": data_.get("dataset-name"),
+                "timestamp": datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S")
+            })
+            f.write(json.dumps(dict_))
+        flash("Sample-data has been successfully uploaded", "success")
     # Run updates:
     phenotype_ = {
         "pre_pub_description": data_.get("pre-pub-desc"),
@@ -533,7 +630,6 @@ def update_trait():
         diff_data.update({"Publication": diff_from_dict(old={
             k: data_.get(f"old_{k}") for k, v in publication_.items()
             if v is not None}, new=publication_)})
-    author = g.user_session.record.get(b'user_name')
     if diff_data:
         diff_data.update({"dataset_id": data_.get("dataset-name")})
         diff_data.update({"author": author.decode('utf-8')})
@@ -544,7 +640,66 @@ def update_trait():
                data=MetadataAudit(dataset_id=data_.get("dataset-name"),
                                   editor=author.decode("utf-8"),
                                   json_data=json.dumps(diff_data)))
-    return redirect("/trait/10007/edit/1")
+        flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
+    return redirect(f"/trait/{data_.get('dataset-name')}"
+                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
+
+
+@app.route("/probeset/update", methods=["POST"])
+@edit_access_required
+def update_probeset():
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    data_ = request.form.to_dict()
+    probeset_ = {
+        "id_": data_.get("id"),
+        "symbol": data_.get("symbol"),
+        "description": data_.get("description"),
+        "probe_target_description": data_.get("probe_target_description"),
+        "chr_": data_.get("chr"),
+        "mb": data_.get("mb"),
+        "alias": data_.get("alias"),
+        "geneid": data_.get("geneid"),
+        "homologeneid": data_.get("homologeneid"),
+        "unigeneid": data_.get("unigeneid"),
+        "omim": data_.get("OMIM"),
+        "refseq_transcriptid": data_.get("refseq_transcriptid"),
+        "blatseq": data_.get("blatseq"),
+        "targetseq": data_.get("targetseq"),
+        "strand_probe": data_.get("Strand_Probe"),
+        "probe_set_target_region": data_.get("probe_set_target_region"),
+        "probe_set_specificity": data_.get("probe_set_specificity"),
+        "probe_set_blat_score": data_.get("probe_set_blat_score"),
+        "probe_set_blat_mb_start": data_.get("probe_set_blat_mb_start"),
+        "probe_set_blat_mb_end": data_.get("probe_set_blat_mb_end"),
+        "probe_set_strand": data_.get("probe_set_strand"),
+        "probe_set_note_by_rw": data_.get("probe_set_note_by_rw"),
+        "flag": data_.get("flag")
+    }
+    updated_probeset = update(
+        conn, "ProbeSet",
+        data=Probeset(**probeset_),
+        where=Probeset(id_=data_.get("id")))
+
+    diff_data = {}
+    author = g.user_session.record.get(b'user_name')
+    if updated_probeset:
+        diff_data.update({"Probeset": diff_from_dict(old={
+            k: data_.get(f"old_{k}") for k, v in probeset_.items()
+            if v is not None}, new=probeset_)})
+    if diff_data:
+        diff_data.update({"probeset_name": data_.get("probeset_name")})
+        diff_data.update({"author": author.decode('utf-8')})
+        diff_data.update({"timestamp": datetime.datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S")})
+        insert(conn,
+               table="metadata_audit",
+               data=MetadataAudit(dataset_id=data_.get("id"),
+                                  editor=author.decode("utf-8"),
+                                  json_data=json.dumps(diff_data)))
+    return redirect(f"/trait/edit/probeset-name/{data_.get('probeset_name')}")
 
 
 @app.route("/create_temp_trait", methods=('POST',))
@@ -852,16 +1007,16 @@ def loading_page():
             if key in wanted:
                 start_vars[key] = value
 
+        sample_vals_dict = json.loads(start_vars['sample_vals'])
         if 'n_samples' in start_vars:
             n_samples = int(start_vars['n_samples'])
         else:
-            sample_vals_dict = json.loads(start_vars['sample_vals'])
             if 'group' in start_vars:
                 dataset = create_dataset(
                     start_vars['dataset'], group_name=start_vars['group'])
             else:
                 dataset = create_dataset(start_vars['dataset'])
-            samples = start_vars['primary_samples'].split(",")
+            samples = dataset.group.samplelist
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
                     genofile_string = start_vars['genofile']
@@ -877,6 +1032,10 @@ def loading_page():
                         n_samples += 1
 
         start_vars['n_samples'] = n_samples
+        start_vars['vals_hash'] = generate_hash_of_string(str(sample_vals_dict))
+        if start_vars['dataset'] != "Temp": # Currently can't get diff for temp traits
+            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
         start_vars_container['start_vars'] = start_vars
@@ -901,6 +1060,7 @@ def mapping_results_page():
         'samples',
         'vals',
         'sample_vals',
+        'vals_hash',
         'first_run',
         'output_files',
         'geno_db_exists',
@@ -917,7 +1077,6 @@ def mapping_results_page():
         'num_perm',
         'permCheck',
         'perm_strata',
-        'strat_var',
         'categorical_vars',
         'perm_output',
         'num_bootstrap',
@@ -947,7 +1106,6 @@ def mapping_results_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
         'temp_trait',
-        'reaper_version',
         'n_samples',
         'transform'
     )
@@ -1006,9 +1164,8 @@ def mapping_results_page():
                 gn1_template_vars = display_mapping_results.DisplayMappingResults(
                     result).__dict__
 
-                with Bench("Rendering template"):
-                    rendered_template = render_template(
-                        "mapping_results.html", **gn1_template_vars)
+                rendered_template = render_template(
+                    "mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
@@ -1021,7 +1178,7 @@ def export_mapping_results():
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
                         mimetype='text/csv',
-                        headers={"Content-Disposition": "attachment;filename=mapping_results.csv"})
+                        headers={"Content-Disposition": "attachment;filename=" + os.path.basename(file_path)})
 
     return response
 
@@ -1082,22 +1239,17 @@ def network_graph_page():
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
-    logger.info("In corr_compute, request.form is:", pf(request.form))
-    logger.info(request.url)
-    template_vars = show_corr_results.CorrelationResults(request.form)
-    return render_template("correlation_page.html", **template_vars.__dict__)
-
-    # to test/disable the new  correlation api uncomment these lines
-
-    # correlation_results = compute_correlation(request.form)
-    # return render_template("test_correlation_page.html", correlation_results=correlation_results)
+    correlation_results = compute_correlation(request.form, compute_all=True)
+    correlation_results = set_template_vars(request.form, correlation_results)
+    return render_template("correlation_page.html", **correlation_results)
 
 
 @app.route("/test_corr_compute", methods=["POST"])
 def test_corr_compute_page():
-    correlation_data = compute_correlation(request.form)
+    correlation_data = compute_correlation(request.form, compute_all=True)
     return render_template("test_correlation_page.html", **correlation_data)
-    
+
+
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     logger.info("In corr_matrix, request.form is:", pf(request.form))
@@ -1195,8 +1347,6 @@ def browser_inputs():
 
     return flask.jsonify(file_contents)
 
-##########################################################################
-
 
 def json_default_handler(obj):
     """Based on http://stackoverflow.com/a/2680060/1175849"""
@@ -1212,3 +1362,112 @@ def json_default_handler(obj):
     else:
         raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj)))
+
+
+@app.route("/trait/<trait_name>/sampledata/<phenotype_id>")
+def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    csv_ = get_trait_csv_sample_data(conn, str(trait_name),
+                                     str(phenotype_id))
+    return Response(
+        csv_,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=myplot.csv"}
+    )
+
+
+@app.route("/admin/data-sample/diffs/")
+@edit_access_required
+def display_diffs_admin():
+    TMPDIR = current_app.config.get("TMPDIR")
+    DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
+    files = []
+    if os.path.exists(DIFF_DIR):
+        files = os.listdir(DIFF_DIR)
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))),
+                       files)
+    return render_template("display_files_admin.html",
+                           files=files)
+
+
+@app.route("/user/data-sample/diffs/")
+def display_diffs_users():
+    TMPDIR = current_app.config.get("TMPDIR")
+    DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
+    files = []
+    author = g.user_session.record.get(b'user_name').decode("utf-8")
+    if os.path.exists(DIFF_DIR):
+        files = os.listdir(DIFF_DIR)
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))) \
+                       and author in x,
+                       files)
+    return render_template("display_files_user.html",
+                           files=files)
+
+
+@app.route("/data-samples/approve/<name>")
+def approve_data(name):
+    sample_data = {}
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
+        sample_data = json.load(myfile)
+    PUBLISH_ID = sample_data.get("publishdata_id")
+    modifications = [d for d in sample_data.get("Modifications")]
+    row_counts = len(modifications)
+    for modification in modifications:
+        if modification.get("Current"):
+            (strain_id,
+             strain_name,
+             value, se, count) = modification.get("Current").split(",")
+            update_sample_data(
+                conn=conn,
+                strain_name=strain_name,
+                strain_id=int(strain_id),
+                publish_data_id=int(PUBLISH_ID),
+                value=value,
+                error=se,
+                count=count
+            )
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(
+                       dataset_id=name.split(".")[0],  # use the dataset name
+                       editor=sample_data.get("author"),
+                       json_data=json.dumps(sample_data)))
+    if modifications:
+        # Once data is approved, rename it!
+        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
+                  os.path.join(f"{TMPDIR}/sample-data/diffs",
+                               f"{name}.approved"))
+        flash((f"Just updated data from: {name}; {row_counts} "
+               "row(s) modified!"),
+              "success")
+    return redirect("/admin/data-sample/diffs/")
+
+
+@app.route("/data-samples/reject/<name>")
+def reject_data(name):
+    TMPDIR = current_app.config.get("TMPDIR")
+    os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
+              os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           f"{name}.rejected"))
+    flash(f"{name} has been rejected!", "success")
+    return redirect("/admin/data-sample/diffs/")
+
+
+@app.route("/display-file/<name>")
+def display_file(name):
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
+        content = myfile.read()
+    return Response(content, mimetype='text/json')

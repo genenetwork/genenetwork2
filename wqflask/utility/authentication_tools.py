@@ -11,7 +11,6 @@ from utility.redis_tools import (get_redis_conn,
                                  add_resource)
 Redis = get_redis_conn()
 
-
 def check_resource_availability(dataset, trait_id=None):
     # At least for now assume temporary entered traits are accessible
     if type(dataset) == str or dataset.type == "Temp":
@@ -133,12 +132,17 @@ def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
         else:
             resource_id = get_resource_id(dataset, trait_id)
 
-    if g.user_session.user_id in Redis.smembers("super_users"):
+    try:
+        user_id = g.user_session.user_id.encode('utf-8')
+    except:
+        user_id = g.user_session.user_id
+
+    if user_id in Redis.smembers("super_users"):
         return "owner"
 
     resource_info = get_resource_info(resource_id)
     if resource_info:
-        if g.user_session.user_id == resource_info['owner_id']:
+        if user_id == resource_info['owner_id']:
             return "owner"
         else:
             return check_admin(resource_id)

@@ -54,6 +54,7 @@
                 A total of {{ results|count }} records were found.
         </p>
 
+        {% if results|count > 0 %}
         {% if go_term is not none %}
         <p><b>The associated genes include:</b><br><br>{% for word in search_terms %}{{ word.search_term[0] }}{% endfor %}</p>
         {% endif %}
@@ -134,8 +135,11 @@
           </div>
         </div>
         {% endif %}
+        {% else %}
+        <br>
+        <button type="button" onclick="window.location.href='/'">Return To Index Page</button>
+        {% endif %}
     </div>
-
     <div id="myModal"></div>
 
 <!-- End of body -->
@@ -172,6 +176,7 @@
                 return params;
             };
 
+            {% if results|count > 0 %}
             var tableId = "trait_table";
 
             var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
@@ -501,6 +506,7 @@
                 var table = $('#' + tableId).DataTable();
                 table.colReorder.reset()
             });
+            {% endif %}
 
             submit_special = function(url) {
                 $("#trait_submission_form").attr("action", url);

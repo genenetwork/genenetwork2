@@ -159,10 +159,10 @@ div.normalize-div {
 }
 
 div.mapping-main {
-  min-width: 1200px;
+  min-width: 1400px;
 }
 div.mapping-options {
-  min-width: 500px;
+  min-width: 700px;
 }
 
 div.covar-options {
@@ -194,7 +194,7 @@ div.select-covar-div {
 .selected-covariates {
   overflow-y: scroll;
   resize: none;
-  width: 200px;
+  width: 400px;
 }
 
 .cofactor-input {
@@ -258,4 +258,34 @@ input.trait-value-input {
 
 div.inline-div {
   display: inline;
+}
+
+/* div.colorbox_border {
+  border: 1px solid grey;
+} */
+div#cboxContent {
+  /* box-shadow:
+  0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+  0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+  0 12.5px 10px rgba(0, 0, 0, 0.06),
+  0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+  0 41.8px 33.4px rgba(0, 0, 0, 0.086),
+  0 100px 80px rgba(0, 0, 0, 0.12) */
+
+  padding: 10px 10px 5px 10px;
+
+  -moz-box-shadow: 3px 3px 5px #535353;
+  -webkit-box-shadow: 3px 3px 5px #535353;
+  box-shadow: 3px 3px 5px #535353;
+
+  -moz-border-radius: 6px 6px 6px 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px 6px 6px 6px;
+
+  /* border: 2px solid grey; */
+}
+
+#cboxClose {
+  margin-right: 5px;
+  margin-bottom: 2px;
 }

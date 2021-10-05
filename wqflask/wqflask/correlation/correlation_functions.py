@@ -21,15 +21,10 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 #
 # Created by GeneNetwork Core Team 2010/08/10
-#
-# Last updated by NL 2011/03/23
 
-import math
-import string
 
 from base.mrna_assay_tissue_data import MrnaAssayTissueData
-
-from flask import Flask, g
+from gn3.computations.correlations import compute_corr_coeff_p_value
 
 
 #####################################################################################
@@ -45,31 +40,14 @@ from flask import Flask, g
 # the same tissue order
 #####################################################################################
 
-def cal_zero_order_corr_for_tiss(primaryValue=[], targetValue=[], method='pearson'):
 
-    N = len(primaryValue)
-    # R_primary = rpy2.robjects.FloatVector(list(range(len(primaryValue))))
-    # for i in range(len(primaryValue)):
-    #     R_primary[i] = primaryValue[i]
+def cal_zero_order_corr_for_tiss(primary_values, target_values, method="pearson"):
+    """function use calls gn3 to compute corr,p_val"""
 
-    # R_target = rpy2.robjects.FloatVector(list(range(len(targetValue))))
-    # for i in range(len(targetValue)):
-    #     R_target[i] = targetValue[i]
+    (corr_coeff, p_val) = compute_corr_coeff_p_value(
+        primary_values=primary_values, target_values=target_values, corr_method=method)
 
-    # R_corr_test = rpy2.robjects.r['cor.test']
-    # if method == 'spearman':
-    #     R_result = R_corr_test(R_primary, R_target, method='spearman')
-    # else:
-    #     R_result = R_corr_test(R_primary, R_target)
-
-    # corr_result = []
-    # corr_result.append(R_result[3][0])
-    # corr_result.append(N)
-    # corr_result.append(R_result[2][0])
-
-    return [None, N, None]
-    # return corr_result
-
+    return (corr_coeff, len(primary_values), p_val)
 
 ########################################################################################################
 # input: cursor, symbolList (list), dataIdDict(Dict): key is symbol
@@ -80,8 +58,9 @@ def cal_zero_order_corr_for_tiss(primaryValue=[], targetValue=[], method='pearso
 #          then call getSymbolValuePairDict function and merge the results.
 ########################################################################################################
 
+
 def get_trait_symbol_and_tissue_values(symbol_list=None):
     tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
-    if len(tissue_data.gene_symbols) >0:
+    if len(tissue_data.gene_symbols) > 0:
         results = tissue_data.get_symbol_values_pairs()
-        return results 
+        return results

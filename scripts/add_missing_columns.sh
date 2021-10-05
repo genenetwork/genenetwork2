@@ -13,6 +13,9 @@
  ALTER TABLE PublishXRef
  ADD mean double AFTER DataId;
 
+ ALTER TABLE CaseAttribute
+ ADD Description varchar(255) AFTER Name;
+
  -- This takes some time
  ALTER TABLE ProbeSet
  ADD UniProtID varchar(20) AFTER ProteinName;

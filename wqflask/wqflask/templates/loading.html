@@ -12,6 +12,8 @@
           {% if start_vars.tool_used == "Mapping" %}
           <h1>Computing the Maps</h1>
           <br>
+          <b>Time Elapsed:</b> <span class="timer"></span>
+          <br>
           <b>Trait Metadata</b>
           <br>
           species = <b><i>{{ start_vars.species[0] | upper }}{{ start_vars.species[1:] }}</i></b>
@@ -25,6 +27,8 @@
           <br>
           transformation = <b><i>{{ start_vars.transform }}</i></b>
           {% endif %}
+          <br>
+          hash of sample values = <b><i>{{ start_vars.vals_hash }}</i></b>
           <br><br>
           <b>Mapping Metadata</b>
           <br>
@@ -68,6 +72,29 @@
           <div style="text-align: center;">
             <img align="center" src="/static/gif/89.gif">
           </div>
+          {% if start_vars.vals_diff|length != 0 and start_vars.transform == "" %}
+          <br><br>
+          <button id="show_full_diff">Show Full Diff</button>
+          <br>
+          <div id="diff_table_container" style="display: none; height:200px; overflow:auto;">
+          <table class="table table-hover">
+            <thead>
+              <th>Sample</th>
+              <th>New Value</th>
+              <th>Old Value</th>
+            </thead>
+            <tbody>
+              {% for sample in start_vars.vals_diff %}
+              <tr>
+                <td>{{ sample }}</td>
+                <td>{{ start_vars.vals_diff[sample].new_val }}</td>
+                <td>{{ start_vars.vals_diff[sample].old_val }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -76,6 +103,30 @@
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
 <script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>
 <script  type="text/javascript">
+$('#show_full_diff').click(function() {
+  if ($('#diff_table_container').is(':visible')){
+    $('#diff_table_container').hide();
+  } else {
+    $('#diff_table_container').show();
+  }
+})
+
+var start = new Date;
+
+setInterval(function() {
+  minutes = Math.floor((new Date - start) / 1000 / 60)
+  seconds = Math.round(((new Date - start) / 1000) % 60)
+  if (seconds < 10 && minutes >= 1){
+    seconds_text = "0" + seconds.toString()
+  } else {
+    seconds_text = seconds.toString()
+  }
+  if (minutes < 1) {
+    $('.timer').text(seconds_text + " seconds");
+  } else {
+    $('.timer').text(minutes.toString() + ":" + seconds_text);
+  }
+}, 100);
 
 $("#loading_form").attr("action", "{{ start_vars.form_url }}");
 setTimeout(function(){ $("#loading_form").submit()}, 350);
