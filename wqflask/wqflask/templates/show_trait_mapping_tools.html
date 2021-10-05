@@ -367,27 +367,6 @@
                         </div>
                         {% endif %}
                         <div class="mapping_method_fields form-group">
-                            <label for="mapping_permutations" class="col-xs-3 control-label">Permutations</label>
-                            <div class="col-xs-4 controls">
-                                <input name="num_perm_rqtl_pair" value="200" type="text" class="form-control">
-                            </div>
-                        </div>
-                        {% if sample_groups[0].attributes|length > 0 %}
-                        <div class="mapping_method_fields form-group">
-                            <label class="col-xs-3 control-label">Stratified</label>
-                            <div class="col-xs-6 controls">
-                                <label class="radio-inline">
-                                    <input type="radio" name="perm_strata" value="True" checked=""> 
-                                    Yes
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="perm_strata" value="False" >
-                                    No
-                               </label>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="mapping_method_fields form-group">
                             <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
                             <div class="col-xs-6 controls">
                               <input name="control_rqtl_pair" value="{% if dataset.type == 'ProbeSet' and this_trait.locus_chr != '' %}{{ nearest_marker }}{% endif %}" type="text" class="form-control cofactor-input" />
