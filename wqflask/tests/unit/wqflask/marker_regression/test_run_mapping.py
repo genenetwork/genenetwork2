@@ -47,7 +47,7 @@ class TestRunMapping(unittest.TestCase):
 
         self.chromosomes = AttributeSetter({"chromosomes": chromosomes})
         self.trait = AttributeSetter(
-            {"symbol": "IGFI", "chr": "X1", "mb": 123313})
+            {"symbol": "IGFI", "chr": "X1", "mb": 123313, "display_name": "Test Name"})
 
     def tearDown(self):
         self.dataset = AttributeSetter(
