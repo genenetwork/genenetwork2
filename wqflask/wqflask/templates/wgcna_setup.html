@@ -84,11 +84,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // open socket connection
 
-        const socket  = io(`${GN_SERVER_URL}`)
+        const socket = io(`${GN_SERVER_URL}`)
         // add namespace
-        socket.on("output",({data})=>{
+        socket.on("output", ({ data }) => {
 
-          term.writeln(data)
+            term.writeln(data)
 
         })
     } else {
