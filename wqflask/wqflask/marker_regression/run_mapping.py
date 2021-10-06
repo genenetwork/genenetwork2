@@ -271,47 +271,32 @@ class RunMapping:
                     self.bootCheck = False
                     self.num_bootstrap = 0
 
-            self.reaper_version = start_vars['reaper_version']
-
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             logger.info("Running qtlreaper")
 
-            if self.reaper_version == "new":
-                self.first_run = True
-                self.output_files = None
-                # ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
-                if 'first_run' in start_vars:
-                    self.first_run = False
-                    if 'output_files' in start_vars:
-                        self.output_files = start_vars['output_files'].split(
-                            ",")
+            self.first_run = True
+            self.output_files = None
+            # ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
+            if 'first_run' in start_vars:
+                self.first_run = False
+                if 'output_files' in start_vars:
+                    self.output_files = start_vars['output_files'].split(
+                        ",")
 
-                results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
-                                                                                                                                                       self.dataset,
-                                                                                                                                                       self.samples,
-                                                                                                                                                       self.vals,
-                                                                                                                                                       self.json_data,
-                                                                                                                                                       self.num_perm,
-                                                                                                                                                       self.bootCheck,
-                                                                                                                                                       self.num_bootstrap,
-                                                                                                                                                       self.do_control,
-                                                                                                                                                       self.control_marker,
-                                                                                                                                                       self.manhattan_plot,
-                                                                                                                                                       self.first_run,
-                                                                                                                                                       self.output_files)
-            else:
-                results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_original_reaper(self.this_trait,
-                                                                                                                                                             self.dataset,
-                                                                                                                                                             self.samples,
-                                                                                                                                                             self.vals,
-                                                                                                                                                             self.json_data,
-                                                                                                                                                             self.num_perm,
-                                                                                                                                                             self.bootCheck,
-                                                                                                                                                             self.num_bootstrap,
-                                                                                                                                                             self.do_control,
-                                                                                                                                                             self.control_marker,
-                                                                                                                                                             self.manhattan_plot)
+            results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
+                                                                                                                                                    self.dataset,
+                                                                                                                                                    self.samples,
+                                                                                                                                                    self.vals,
+                                                                                                                                                    self.json_data,
+                                                                                                                                                    self.num_perm,
+                                                                                                                                                    self.bootCheck,
+                                                                                                                                                    self.num_bootstrap,
+                                                                                                                                                    self.do_control,
+                                                                                                                                                    self.control_marker,
+                                                                                                                                                    self.manhattan_plot,
+                                                                                                                                                    self.first_run,
+                                                                                                                                                    self.output_files)
         elif self.mapping_method == "plink":
             self.score_type = "-logP"
             self.manhattan_plot = True

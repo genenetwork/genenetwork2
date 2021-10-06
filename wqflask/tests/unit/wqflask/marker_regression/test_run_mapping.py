@@ -47,7 +47,7 @@ class TestRunMapping(unittest.TestCase):
 
         self.chromosomes = AttributeSetter({"chromosomes": chromosomes})
         self.trait = AttributeSetter(
-            {"symbol": "IGFI", "chr": "X1", "mb": 123313})
+            {"symbol": "IGFI", "chr": "X1", "mb": 123313, "display_name": "Test Name"})
 
     def tearDown(self):
         self.dataset = AttributeSetter(
@@ -181,12 +181,15 @@ class TestRunMapping(unittest.TestCase):
             with mock.patch("wqflask.marker_regression.run_mapping.datetime.datetime", new=datetime_mock):
                 export_mapping_results(dataset=self.dataset, trait=self.trait, markers=markers,
                                        results_path="~/results", mapping_scale="physic", score_type="-log(p)",
-                                       transform="qnorm", covariates="Dataset1:Trait1,Dataset2:Trait2", n_samples="100")
+                                       transform="qnorm", covariates="Dataset1:Trait1,Dataset2:Trait2", n_samples="100",
+                                       vals_hash="")
 
                 write_calls = [
                     mock.call('Time/Date: 09/01/19 / 10:12:12\n'),
                     mock.call('Population: Human GP1_\n'), mock.call(
                         'Data Set: dataser_1\n'),
+                    mock.call('Trait: Test Name\n'),
+                    mock.call('Trait Hash: \n'),
                     mock.call('N Samples: 100\n'), mock.call(
                         'Transform - Quantile Normalized\n'),
                     mock.call('Gene Symbol: IGFI\n'), mock.call(
@@ -232,25 +235,20 @@ class TestRunMapping(unittest.TestCase):
                 "c1": "c1_value",
                 "c2": "c2_value",
                 "w1": "w1_value"
-
             },
             "S2": {
                 "w1": "w2_value",
                 "w2": "w2_value"
-
             },
             "S3": {
 
                 "c1": "c1_value",
                 "c2": "c2_value"
-
             },
-
         }})
-
         results = get_perm_strata(this_trait={}, sample_list=sample_list,
                                   categorical_vars=categorical_vars, used_samples=used_samples)
-        self.assertEqual(results, [2, 1])
+        self.assertEqual(results, [1, 1])
 
     def test_get_chr_length(self):
         """test for getting chromosome length"""
