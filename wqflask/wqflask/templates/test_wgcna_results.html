@@ -2,8 +2,17 @@
 {% block title %}WCGNA results{% endblock %}
 {% block content %}
 <!-- Start of body -->
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+
+
+
+
+
+
+
 <style>
 #terminal {
 
@@ -82,7 +91,7 @@
             {% endfor %}
         </div>
         <div>
-            <h3>Net colors</h3>
+<!--             <h3>Net colors</h3>
             <div class="control_net_colors">
                 {% for key,value in results["data"]["output"]["net_colors"].items() %}
                 <div style="background-color:{{value}}">
@@ -90,18 +99,10 @@
                     <p>{{value}}</p>
                 </div>
                 {% endfor %}
-            </div>
+            </div> -->
         </div>
         <div>
-            <h2> Module eigen genes </h2>
-            <div>
-                {% for strain in results["data"]["input"]["sample_names"]%}
-                {{strain}}
-                {% endfor %}
-                {% for mod,values in results["data"]["output"]["ModEigens"].items() %}
-                {{mod}} {{values}}
-                {% endfor %}
-            </div>
+            
             <!-- end -->
             <div>
                 <a href="/tmp/{{ results['data']['output']['imageLoc'] }}">
@@ -109,30 +110,63 @@
                 </a>
             </div>
         </div>
+
+        <div>
+            <h2 style="text-align:center;"> Module eigen genes </h2>
+            <table id="example" class="display" width="80vw"></table>
+        </div>
     </div>
 </div>
-<script type="text/javascript">
-var results = { { results | safe } }
 
-let terminal_output = results.output
-let { output } = results.data
+{% endblock %}
 
-let sft = output.soft_threshold
+{% block js %}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
 
-console.log(results)
-console.log(terminal_output)
-</script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+
 <script>
+let results = {{results|safe}}
+
+let terminalOutput = results.output
+
 let term = new Terminal({ cursorBlink: true, lineHeight: 1.2 });
 term.open(document.getElementById('terminal'));
 term.setOption('theme', {
     background: '#300a24'
 });
 
-terminal_output.split('\n').forEach((line) => {
+terminalOutput.split('\n').forEach((line) => {
     term.writeln(line)
 });
 </script>
+
+<script type="text/javascript">
+
+
+
+let {col_names,mod_dataset} = {{data|safe}}
+
+$(document).ready(function(){
+    $('#example').DataTable( {
+        data: mod_dataset,
+        columns: col_names.map((name)=>{
+            return {
+                title:name
+            }
+        })
+    } );
+})
+
+
+
+</script>
+
+
+
+
+
 {% endblock %}
-**
