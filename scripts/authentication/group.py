@@ -133,7 +133,8 @@ if __name__ == "__main__":
 
     if not REDIS_CONN.hget("groups", data.get("field")):
         updated_data = json.loads(data["value"])
-        updated_data["created_timestamp"] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_data["created_timestamp"] = timestamp
         data["value"] = json.dumps(updated_data)
 
     created_p = REDIS_CONN.hset(data.get("key", ""),
