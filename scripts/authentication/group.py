@@ -41,6 +41,9 @@ def create_group_data(users: Dict, target_group: str,
     "field", and "value" that can be used in a redis hash as follows:
     HSET key field value
 
+    The "field" return value is a unique-id that is used to
+    distinguish the groups.
+
     Parameters:
 
     - `users`: a list of users for example:
