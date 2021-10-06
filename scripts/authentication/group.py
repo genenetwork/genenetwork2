@@ -31,7 +31,8 @@ import redis
 import json
 import uuid
 
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional, Set
+
 
 def create_group_data(users: Dict, target_group: str,
                       members: Optional[str] = None,
