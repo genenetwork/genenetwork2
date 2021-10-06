@@ -145,7 +145,7 @@ if __name__ == "__main__":
                                 data.get("value", ""))
 
     groups = json.loads(REDIS_CONN.hget("groups",
-                                        args.group_name))  # type: ignore
+                                        data.get("field")))  # type: ignore
     if created_p:
         exit(f"\nSuccessfully created the group: '{args.group_name}'\n"
              f"`HGETALL groups {args.group_name}`: {groups}\n")
