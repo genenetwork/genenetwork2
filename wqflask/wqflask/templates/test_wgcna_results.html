@@ -23,6 +23,8 @@
 }
 </style>
 <style type="text/css">
+
+
 .container {
     min-height: 100vh;
     width: 100vw;
@@ -73,6 +75,13 @@
     display: grid;
     grid-template-columns: repeat(2, 200px);
 }
+
+.control-image{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80vw;
+}
 </style>
 <div class="container">
     <div>
@@ -104,11 +113,12 @@
         <div>
             
             <!-- end -->
-            <div>
-                <a href="/tmp/{{ results['data']['output']['imageLoc'] }}">
-                    CLuster dendogram
-                </a>
+            {% if image["image_generated"] %}
+            <div >
+                <img class="control-image" src="data:image/jpeg;base64,{{ image['image_data']| safe }}">
             </div>
+
+            {% endif %}
         </div>
 
         <div>
@@ -161,12 +171,5 @@ $(document).ready(function(){
     } );
 })
 
-
-
 </script>
-
-
-
-
-
 {% endblock %}
