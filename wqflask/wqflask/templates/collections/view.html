@@ -37,6 +37,19 @@
         <div>
             <br />
 	    <form id="heatmaps_form">
+	      <fieldset>
+		<legend>Heatmap Orientation</legend>
+		<label for="heatmap-orient-vertical">Vertical</label>
+		<input id="heatmap-orient-vertical"
+		       type="radio"
+		       name="vertical"
+		       value="true" />
+		<label for="heatmap-orient-horizontal">Horizontal</label>
+		<input id="heatmap-orient-horizontal"
+		       type="radio"
+		       name="vertical"
+		       value="false" />
+	      </fieldset>
 	      <button id="clustered-heatmap"
 		      class="btn btn-primary"
 		      data-url="{{heatmap_data_url}}"
@@ -310,6 +323,8 @@
 	    $("#clustered-heatmap").on("click", function() {
 		clear_heatmap_area();
 		intv = window.setInterval(generate_progress_indicator(), 300);
+		vert_element = document.getElementById("heatmap-orient-vertical");
+		vert_true = vert_element == null ? false : vert_element.checked;
 		heatmap_url = $(this).attr("data-url")
 		traits = $(".trait_checkbox:checked").map(function() {
 		    return this.value
@@ -319,7 +334,8 @@
 		    url: heatmap_url,
 		    contentType: "application/json",
 		    data: JSON.stringify({
-			"traits_names": traits
+			"traits_names": traits,
+			"vertical": vert_true
 		    }),
 		    dataType: "JSON",
 		    success: function(data, status, xhr) {
