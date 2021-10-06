@@ -63,12 +63,16 @@ def recover_hash(name: str, file_path: str, set_function) -> bool:
 if __name__ == "__main__":
     # Initialising the parser CLI arguments
     parser = argparse.ArgumentParser()
+    parser.add_argument("--group-id",
+                        help="Add the group id to all resources")
     parser.add_argument("--restore",
                         help="Restore from a given backup")
     parser.add_argument("--enable-backup", action="store_true",
                         help="Create a back up before edits")
     args = parser.parse_args()
 
+    if not args.group_id:
+        exit("Please specify the group-id!\n")
     if args.restore:
         if recover_hash(name="resources",
                         file_path=args.back_up,
@@ -92,8 +96,8 @@ if __name__ == "__main__":
 
     for resource_id, resource in RESOURCES.items():
         _resource = json.loads(resource)  # str -> dict conversion
-        _resource["group_masks"] = {"editors": {"metadata": "edit",
-                                                "data": "edit"}}
+        _resource["group_masks"] = {args.group_id: {"metadata": "edit",
+                                                    "data": "edit"}}
         REDIS_CONN.hset("resources",
                         resource_id,
                         json.dumps(_resource))
