@@ -254,8 +254,6 @@
                 } );
                 {% endif %}
 
-                $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'orange')
-
                 $('.edit_sample_checkbox:checkbox').change(function() {
                     if ($(this).is(":checked")) {
                         if (!$(this).closest('tr').hasClass('selected')) {
