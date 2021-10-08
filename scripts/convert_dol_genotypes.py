@@ -7,6 +7,7 @@ geno_dir = "/home/zas1024/gn2-zach/DO_genotypes/"
 markers_file = "/home/zas1024/gn2-zach/DO_genotypes/SNP_Map.txt"
 gn_geno_path = "/home/zas1024/gn2-zach/DO_genotypes/DOL.geno"
 
+# Iterate through the SNP_Map.txt file to get marker positions
 marker_data = {}
 with open(markers_file, "r") as markers_fh:
     for i, line in enumerate(markers_fh):
@@ -19,6 +20,7 @@ with open(markers_file, "r") as markers_fh:
             this_marker['pos'] = f'{float(line_items[3])/1000000:.6f}'
             marker_data[line_items[1]] = this_marker
 
+# Iterate through R/qtl2 format genotype files and pull out the samplelist and genotypes for each marker
 sample_names = []
 for filename in os.listdir(geno_dir):
     if "gm4qtl2_geno" in filename:
@@ -32,17 +34,7 @@ for filename in os.listdir(geno_dir):
                 elif i > 3:
                     marker_data[line_items[0]]['genotypes'] = ["X" if item.strip() == "-" else item.strip() for item in line_items[1:]]
 
-def sort_func(e):
-    try:
-        return int(e['chr'])
-    except:
-        if e['chr'] == "X":
-            return 20
-        elif e['chr'] == "Y":
-            return 21
-        elif e['chr'] == "M":
-            return 22
-
+# Generate list of marker obs to iterate through when writing to .geno file
 marker_list = []
 for key, value in marker_data.items():
     if 'genotypes' in value:
@@ -54,8 +46,22 @@ for key, value in marker_data.items():
         }
         marker_list.append(this_marker)
 
+def sort_func(e):
+    """For ensuring that X/Y chromosomes/mitochondria are sorted to the end correctly"""
+    try:
+        return float((e['chr']))*1000 + float(e['pos'])
+    except:
+        if e['chr'] == "X":
+            return 20000 + float(e['pos'])
+        elif e['chr'] == "Y":
+            return 21000 + float(e['pos'])
+        elif e['chr'] == "M":
+            return 22000 + float(e['pos'])
+
+# Sort markers by chromosome
 marker_list.sort(key=sort_func)
 
+# Write lines to .geno file
 with open(gn_geno_path, "w") as gn_geno_fh:
     gn_geno_fh.write("\t".join((["Chr", "Locus", "cM", "Mb"] + sample_names)))
     for marker in marker_list:
