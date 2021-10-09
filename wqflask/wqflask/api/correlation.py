@@ -9,7 +9,6 @@ from utility.db_tools import escape
 from wqflask.correlation import correlation_functions
 
 
-
 def do_correlation(start_vars):
     assert('db' in start_vars)
     assert('target_db' in start_vars)
@@ -26,7 +25,6 @@ def do_correlation(start_vars):
 
     corr_results = calculate_results(
         this_trait, this_dataset, target_dataset, corr_params)
-    #corr_results = collections.OrderedDict(sorted(corr_results.items(), key=lambda t: -abs(t[1][0])))
 
     final_results = []
     for _trait_counter, trait in enumerate(list(corr_results.keys())[:corr_params['return_count']]):
@@ -54,11 +52,7 @@ def do_correlation(start_vars):
                 "#_strains": num_overlap,
                 "p_value": sample_p
             }
-
         final_results.append(result_dict)
-
-    # json_corr_results = generate_corr_json(final_corr_results, this_trait, this_dataset, target_dataset, for_api = True)
-
     return final_results
 
 

@@ -8,14 +8,14 @@ from flask import Flask
 from typing import Tuple
 from urllib.parse import urlparse
 from utility import formatting
-from wqflask.markdown_routes import glossary_blueprint
-from wqflask.markdown_routes import references_blueprint
-from wqflask.markdown_routes import links_blueprint
-from wqflask.markdown_routes import policies_blueprint
-from wqflask.markdown_routes import environments_blueprint
-from wqflask.markdown_routes import facilities_blueprint
-from wqflask.markdown_routes import blogs_blueprint
-from wqflask.markdown_routes import news_blueprint
+from wqflask.api.markdown import glossary_blueprint
+from wqflask.api.markdown import references_blueprint
+from wqflask.api.markdown import links_blueprint
+from wqflask.api.markdown import policies_blueprint
+from wqflask.api.markdown import environments_blueprint
+from wqflask.api.markdown import facilities_blueprint
+from wqflask.api.markdown import blogs_blueprint
+from wqflask.api.markdown import news_blueprint
 
 app = Flask(__name__)
 

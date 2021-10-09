@@ -1,10 +1,10 @@
-"""Test functions in markdown utils"""
+"""Test functions for wqflask/api/markdown.py"""
 
 import unittest
 from unittest import mock
 
 from dataclasses import dataclass
-from wqflask.markdown_routes import render_markdown
+from wqflask.api.markdown import render_markdown
 
 
 @dataclass
@@ -24,9 +24,9 @@ This is another sub-heading"""
 
 
 class TestMarkdownRoutesFunctions(unittest.TestCase):
-    """Test cases for functions in markdown_routes"""
+    """Test cases for functions in markdown"""
 
-    @mock.patch('wqflask.markdown_routes.requests.get')
+    @mock.patch('wqflask.api.markdown.requests.get')
     def test_render_markdown_when_fetching_locally(self, requests_mock):
         requests_mock.return_value = MockRequests404()
         markdown_content = render_markdown("general/glossary/glossary.md")
@@ -38,7 +38,7 @@ class TestMarkdownRoutesFunctions(unittest.TestCase):
         self.assertRegexpMatches(markdown_content,
                                  "Content for general/glossary/glossary.md not available.")
 
-    @mock.patch('wqflask.markdown_routes.requests.get')
+    @mock.patch('wqflask.api.markdown.requests.get')
     def test_render_markdown_when_fetching_remotely(self, requests_mock):
         requests_mock.return_value = MockRequests200()
         markdown_content = render_markdown("general/glossary/glossary.md")
