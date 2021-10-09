@@ -3,7 +3,6 @@ and process data to be rendered by datatables
 """
 
 
-
 def process_wgcna_data(response):
     """function for processing modeigene genes
     for create row data for datataba"""
@@ -23,5 +22,12 @@ def process_wgcna_data(response):
     }
 
 
-def process_image():
-    pass
+def process_image(response):
+    """function to process image check if byte string is empty"""
+    image_data = response["output"]["image_data"]
+    return ({
+        "image_generated": True,
+        "image_data": image_data
+    } if image_data else {
+        "image_generated": False
+    })
