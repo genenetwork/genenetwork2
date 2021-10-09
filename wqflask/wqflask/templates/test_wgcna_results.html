@@ -8,20 +8,6 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
 
 
-
-
-
-
-
-<style>
-#terminal {
-
-    max-width: 768px;
-
-    margin: 10px;
-
-}
-</style>
 <style type="text/css">
 
 
@@ -85,11 +71,10 @@
 </style>
 <div class="container">
     <div>
-        <div id="terminal">
-        </div>
-    </div>
-    <div>
-        <div class="grid_container">
+        <div >
+            <h2 style="text-align:center">Soft Thresholds </h2>
+            <div class="grid_container">
+
             {% for key, value in results["data"]["output"]["soft_threshold"].items()%}
             <div class="control_sft_column">
                 <h3>{{key}}</h3>
@@ -98,9 +83,10 @@
                 {% endfor %}
             </div>
             {% endfor %}
+            </div>
         </div>
-        <div>
-<!--             <h3>Net colors</h3>
+<!--         <div>
+            <h3>Net colors</h3>
             <div class="control_net_colors">
                 {% for key,value in results["data"]["output"]["net_colors"].items() %}
                 <div style="background-color:{{value}}">
@@ -108,8 +94,8 @@
                     <p>{{value}}</p>
                 </div>
                 {% endfor %}
-            </div> -->
-        </div>
+            </div>
+        </div> -->
         <div>
             
             <!-- end -->
@@ -119,11 +105,20 @@
             </div>
 
             {% endif %}
+                <div >
+                <img class="control-image" src="data:image/jpeg;base64,{{ results['data']['output']['image_data2']| safe }}">
+            </div>
         </div>
 
         <div>
             <h2 style="text-align:center;"> Module eigen genes </h2>
-            <table id="example" class="display" width="80vw"></table>
+            <table id="eigens" class="display" width="80vw"></table>
+        </div>
+
+        <div>
+            <h2 style="text-align:center;">Phenotype modules </h2>
+
+             <table id="phenos" class="display"  width="40vw" ></table>
         </div>
     </div>
 </div>
@@ -138,30 +133,23 @@
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 
-<script>
-let results = {{results|safe}}
-
-let terminalOutput = results.output
-
-let term = new Terminal({ cursorBlink: true, lineHeight: 1.2 });
-term.open(document.getElementById('terminal'));
-term.setOption('theme', {
-    background: '#300a24'
-});
-
-terminalOutput.split('\n').forEach((line) => {
-    term.writeln(line)
-});
-</script>
 
 <script type="text/javascript">
 
 
+let results = {{results|safe}}
+
+let phenoModules = results["data"]["output"]["net_colors"]
+let phenotypes = Array.from(Object.keys(phenoModules));
+let phenoMods = Object.values(phenoModules)
+console.log(phenotypes)
+
+
+console.log(typeof phenotypes);
+
 
 let {col_names,mod_dataset} = {{data|safe}}
-
-$(document).ready(function(){
-    $('#example').DataTable( {
+    $('#eigens').DataTable( {
         data: mod_dataset,
         columns: col_names.map((name)=>{
             return {
@@ -169,7 +157,19 @@ $(document).ready(function(){
             }
         })
     } );
-})
+    $('#phenos').DataTable( {
+        data:phenotypes.map((phenoName,idx)=>{
+            console.log(phenoName)
+            return [phenoName,phenoMods[idx]]
+        }),
+        columns: [{
+            title:"Phenotypes"
+        },
+        {
+        title: "Modules"
+        }]
+    } );
+
 
 </script>
 {% endblock %}
