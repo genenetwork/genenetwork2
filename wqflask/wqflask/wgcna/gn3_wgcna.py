@@ -1,6 +1,7 @@
 """module contains code to consume gn3-wgcna api
 and process data to be rendered by datatables
 """
+from typing import SimpleNamespace
 from utility.helper_functions import get_trait_db_obs
 
 
@@ -85,3 +86,33 @@ def process_image(response):
     } if image_data else {
         "image_generated": False
     })
+
+
+def run_wgcna(form_data):
+    """function to run wgcna"""
+
+    wgcna_api = f"{GN3_URL}/api/wgcna/run_wgcna"
+
+    # parse form data
+
+    trait_dataset = fetch_trait_data(form_data)
+
+    response = requests.post(wgcna_api, {
+        "socket_id": form_data.get("socket_id"),  # streaming disabled
+        "sample_names": list(set(strains)),
+        "trait_names": form_traits,
+        "trait_sample_data": form_strains,
+        "TOMtype": form_data["TOMtype"],
+        "minModuleSize": int(form_data["MinModuleSize"]),
+        "corType": form_data["corType"]
+
+    }
+    ).json()
+
+    if response.status_code == 200:
+        return {
+            {"results": response,
+             "data": process_wgcna_data(response),
+             "image": process_image(response)
+             }
+        }
