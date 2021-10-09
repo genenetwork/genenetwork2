@@ -7,12 +7,6 @@ from types import SimpleNamespace
 from utility.helper_functions import get_trait_db_obs
 
 
-def validate_form(requestform):
-    return {
-        ""
-    }
-
-
 def fetch_trait_data(requestform):
     """fetch trait data"""
     db_obj = SimpleNamespace()
