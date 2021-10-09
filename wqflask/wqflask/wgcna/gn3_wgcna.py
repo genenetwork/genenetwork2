@@ -3,6 +3,16 @@ and process data to be rendered by datatables
 """
 
 
+def fetch_trait_data(requestform):
+    """fetch trait data"""
+    db_obj = SimpleNamespace()
+    get_trait_db_obs(db_obj,
+                     [trait.strip()
+                      for trait in requestform['trait_list'].split(',')])
+
+    return process_dataset(db_obj.trait_list)
+
+
 def process_wgcna_data(response):
     """function for processing modeigene genes
     for create row data for datataba"""
