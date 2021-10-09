@@ -80,127 +80,69 @@
           crossorigin="anonymous"></script>
 <script>
 // document.addEventListener('DOMContentLoaded', function() {
+let term = new Terminal({
+    cursorBlink: true,
+    lineHeight: 1.3,
+    scrollback: true,
+    macOptionIsMeta: true
+});
+
+let termDebugs = {
+    general: "Computation process to be displayed here....",
+    success: "Computation in process ......",
+    fail: "Too few phenotypes as input must be >=4"
+}
+
+const fitAddon = new FitAddon.FitAddon()
+term.loadAddon(fitAddon)
+
+term.open(document.getElementById('terminal'));
+term.setOption('theme', {
+    background: '#300a24'
+});
+term.writeln(termDebugs.general)
+
+wgcnaForm = document.querySelector("#wgcna_form")
+
+const socket = io("http://127.0.0.1:8081") //issue gn3 private
+const attachAddon = new AttachAddon.AttachAddon(socket);
+
+term.loadAddon(attachAddon);
+
+fitAddon.fit()
+term.onData((data) => {
+    term.write(data)
+})
 
 
-    let term = new Terminal({ cursorBlink: true, lineHeight: 1.3,scrollback:true,macOptionIsMeta:true});
+if (wgcnaForm) {
+} else {
+    term.writeln(termDebugs.fail)
+}
 
-    let termDebugs = {
-        general: "Computation process to be displayed here....",
-        success: "Computation in process ......",
-        fail: "Too few phenotypes as input must be >=4"
-    }
-
-    const fitAddon = new FitAddon.FitAddon()
-    term.loadAddon(fitAddon)
-
-    term.open(document.getElementById('terminal'));
-    term.setOption('theme', {
-        background: '#300a24'
-    });
-    // term.onData((data) => {uk
-    //     console.log("key pressed in browser:", data);
-    //     // socket.emit("pty-input", { input: data });
-    //     term.write(data)
-    //   });
-
-    term.writeln(termDebugs.general)
-
-    wgcnaForm = document.querySelector("#wgcna_form")
-
-    const socket = io("http://127.0.0.1:8081") //issue gn3 private
-    const attachAddon = new AttachAddon.AttachAddon(socket);
-    
-    term.loadAddon(attachAddon);
-
-    fitAddon.fit()
-
-    term.onData((data)=>{
-        console.log(data)
-    })
-
-
-    if (wgcnaForm) {
-
-        console.log(term)
-        console.log(socket)
-
-
-
-
-
-        // socket.on("connect",()=>{
-        //   console.log("connected")
-        //   socket.emit("my_event")
-        // })
-
-        // socket.on("output", (data) => {
-
-        //     console.log(data)
-        //     console.log("received ddata")
-
-        // })
-    } else {
-        term.writeln(termDebugs.fail)
-    }
-
-
-
-
-    socket.on("connect",()=>{
-        console.log(socket.id)
-        // socket.emit("user_connection")
+socket.on("connect", () => {
     $("#wgcna_form").append(`<input type="hidden" name="socket_id" value=${socket.id}>`);
-    })
- 
-                 socket.on("output",(msg)=>{
-            let {data} = msg
-            term.writeln(data)
-        })
+})
 
+socket.on("output", ({
+    data
+}) => {
+    term.writeln(data)
+})
 
+$(document).on('submit', '#wgcna_form', function(e) {
+    term.writeln(termDebugs.success)
 
-    $(document).on('submit','#wgcna_form',function(e)
-                   {
-
-    console.log(`the socket id is ${socket.id}`)
-
-      term.writeln(termDebugs.success)
-
-      e.preventDefault();
-      var form = $(this);
-      $.ajax({
-        type:'POST',
-        url:'/wgcna_results',
-        data:form.serialize(),
-
-        success:function(){},
-        success:function(data){
-            // console.log(data)
+    e.preventDefault();
+    var form = $(this);
+    $.ajax({
+        type: 'POST',
+        url: '/wgcna_results',
+        data: form.serialize(),
+        success: function(data) {
             document.write(data)
-            // document.write()
-            // window.location.href = "test_wgcna_results.html"
-            // console.log(data)
-
         }
-        // success:function(data, textStatus)
-        // {
-
-        //     // console.log(event)
-        //     // console.log(data)
-        //     // document.write(data);
-        //     console.log(data)
-        //   // alert('saved');
-        //   // console.log(data.redirect)
-        // }
-      })
-    });
-
-
-
-
-
-
-
-// });
+    })
+});
 </script>
 {% endblock %}
