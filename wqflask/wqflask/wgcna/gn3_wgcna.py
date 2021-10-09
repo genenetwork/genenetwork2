@@ -1,8 +1,16 @@
 """module contains code to consume gn3-wgcna api
 and process data to be rendered by datatables
 """
-from typing import SimpleNamespace
+
+import requests
+from types import SimpleNamespace
 from utility.helper_functions import get_trait_db_obs
+
+
+def validate_form(requestform):
+    return {
+        ""
+    }
 
 
 def fetch_trait_data(requestform):
@@ -31,30 +39,14 @@ def process_dataset(trait_list):
         for strain in trait[0].data:
             strains.append(strain)
             input_data[trait[0].name][strain] = trait[0].data[strain].value
+        # "sample_names": list(set(strains)),
+        # "trait_names": form_traits,
+        # "trait_sample_data": form_strains,
 
     return {
-        "wgcna_input": input_data
-    }
-
-    def process_dataset(trait_list):
-    """process datasets and strains"""
-
-    input_data = {}
-    traits = []
-    strains = []
-
-    # xtodo unique traits and strains
-
-    for trait in trait_list:
-        traits.append(trait[0].name)
-
-        input_data[trait[0].name] = {}
-        for strain in trait[0].data:
-            strains.append(strain)
-            input_data[trait[0].name][strain] = trait[0].data[strain].value
-
-    return {
-        "wgcna_input": input_data
+        "input": input_data,
+        "trait_names": traits,
+        "sample_names": strains
     }
 
 
@@ -91,28 +83,26 @@ def process_image(response):
 def run_wgcna(form_data):
     """function to run wgcna"""
 
+    GN3_URL = "http://127.0.0.1:8081"
+
     wgcna_api = f"{GN3_URL}/api/wgcna/run_wgcna"
 
     # parse form data
 
     trait_dataset = fetch_trait_data(form_data)
+    form_data["minModuleSize"] = int(form_data["MinModuleSize"])
 
-    response = requests.post(wgcna_api, {
-        "socket_id": form_data.get("socket_id"),  # streaming disabled
-        "sample_names": list(set(strains)),
-        "trait_names": form_traits,
-        "trait_sample_data": form_strains,
-        "TOMtype": form_data["TOMtype"],
-        "minModuleSize": int(form_data["MinModuleSize"]),
-        "corType": form_data["corType"]
+    response = requests.post(wgcna_api, json={
+        "sample_names": list(set(trait_dataset["sample_names"])),
+        "trait_names": trait_dataset["trait_names"],
+        "trait_sample_data": list(trait_dataset["input"].values()),
+        **form_data
 
     }
     ).json()
 
-    if response.status_code == 200:
-        return {
-            {"results": response,
-             "data": process_wgcna_data(response),
-             "image": process_image(response)
-             }
-        }
+    return {
+        "results": response,
+        "data": process_wgcna_data(response["data"]),
+        "image": process_image(response["data"])
+    }
