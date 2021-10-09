@@ -39,8 +39,8 @@ from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
-from gn3.db.traits import get_trait_csv_sample_data
-from gn3.db.traits import update_sample_data
+# from gn3.db.traits import get_trait_csv_sample_data
+# from gn3.db.traits import update_sample_data
 
 
 from flask import current_app
@@ -77,6 +77,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
 # from wqflask.ctl import ctl_analysis
+from wqflask.wgcna.gn3_wgcna import run_wgcna
 from wqflask.snp_browser import snp_browser
 from wqflask.search_results import SearchResultPage
 from wqflask.export_traits import export_search_results_csv
@@ -365,18 +366,11 @@ def wcgna_setup():
     return render_template("wgcna_setup.html", **request.form)
 
 
-# @app.route("/wgcna_results", methods=('POST',))
-# def wcgna_results():
-#     logger.info("In wgcna, request.form is:", request.form)
-#     logger.info(request.url)
-#     # Start R, load the package and pointers and create the analysis
-#     wgcna = wgcna_analysis.WGCNA()
-#     # Start the analysis, a wgcnaA object should be a separate long running thread
-#     wgcnaA = wgcna.run_analysis(request.form)
-#     # After the analysis is finished store the result
-#     result = wgcna.process_results(wgcnaA)
-#     # Display them using the template
-#     return render_template("wgcna_results.html", **result)
+@app.route("/wgcna_results", methods=('POST',))
+def wcgna_results():
+    """call the gn3 api to get wgcna response data"""
+    results = run_wgcna(dict(request.form))
+    return render_template("test_wgcna_results.html", **results)
 
 
 @app.route("/ctl_setup", methods=('POST',))
