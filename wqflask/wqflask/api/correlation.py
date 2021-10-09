@@ -15,9 +15,6 @@ from wqflask.correlation import correlation_functions
 from utility import webqtlUtil, helper_functions, corr_result_helpers
 from utility.benchmark import Bench
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 def do_correlation(start_vars):
     assert('db' in start_vars)
