@@ -1,19 +1,13 @@
 import collections
-
 import scipy
-
-from utility.db_tools import escape
-
-from flask import g
 
 from base import data_set
 from base.trait import create_trait, retrieve_sample_data
-
-from wqflask.correlation.show_corr_results import generate_corr_json
+from flask import g
+from utility import corr_result_helpers
+from utility.db_tools import escape
 from wqflask.correlation import correlation_functions
 
-from utility import webqtlUtil, helper_functions, corr_result_helpers
-from utility.benchmark import Bench
 
 
 def do_correlation(start_vars):
