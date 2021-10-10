@@ -35,29 +35,42 @@
                 <input type="text" class="form-control form-control-md" id="MinModuleSize" value="30" name="MinModuleSize">
             </div>
         </div>
-        <div class="form-group row ">
-            <label for="TOMtype" class="col-md-3 col-form-label col-form-label-sm">TOMtype:</label>
-            <div class="col-md-9">
-                <input type="text" class="form-control form-control-md" id="TOMtype" value="unsigned" name="TOMtype">
-            </div>
+
+        <div class="form-group row">
+          <label for="TOMtype" class="col-md-3 col-form-label col-form-label-sm">TOMtype:</label>
+          <div class="col-md-9">
+            <select class="form-control" id="TOMtype" name="TOMtype">
+            <option value="unsigned">unsigned</option>
+            <option value="signed">signed</option>
+          </select>
+          </div>
+
         </div>
         <div class="form-group row ">
-            <label for="mergeCutHeight" class="col-md-3 col-form-label col-form-label-sm">mergeCutHeight size:</label>
+            <label for="mergeCutHeight" class="col-md-3 col-form-label col-form-label-sm">mergeCutHeight:</label>
             <div class="col-md-9">
                 <input type="text" class="form-control form-control-md" id="mergeCutHeight" value="0.25" name="mergeCutHeight">
             </div>
         </div>
-        <div class="form-group row ">
-            <label for="corType" class="col-md-3 col-form-label col-form-label-sm">corType:</label>
-            <div class="col-md-9">
-                <input type="text" class="form-control form-control-md" id="corType" value="pearson" name="corType">
-            </div>
+
+        <div class="form-group row">
+          <label for="corType" class="col-md-3 col-form-label col-form-label-sm">corType:</label>
+          <div class="col-md-9">
+            <select class="form-control  col-md-9" id="corType" name="corType">
+            <option value="pearson">pearson</option>
+            <option value="bicor">bicor</option>
+          </select>
+          </div>
+
         </div>
         <div class="form-group">
             <div class="text-center">
                 <input type="submit" class="btn btn-primary" value="Run WGCNA using these settings" />
             </div>
         </div>
+
+
+
     </form>
     {% endif %}
 </div>
