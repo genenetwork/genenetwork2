@@ -85,20 +85,9 @@
             {% endfor %}
             </div>
         </div>
-<!--         <div>
-            <h3>Net colors</h3>
-            <div class="control_net_colors">
-                {% for key,value in results["data"]["output"]["net_colors"].items() %}
-                <div style="background-color:{{value}}">
-                    <p>{{key}}</p>
-                    <p>{{value}}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div> -->
+
         <div>
-            
-            <!-- end -->
+        
             {% if image["image_generated"] %}
             <div >
                 <img class="control-image" src="data:image/jpeg;base64,{{ image['image_data']| safe }}">
@@ -140,13 +129,8 @@
 let results = {{results|safe}}
 
 let phenoModules = results["data"]["output"]["net_colors"]
-let phenotypes = Array.from(Object.keys(phenoModules));
+let phenotypes = Object.keys(phenoModules)
 let phenoMods = Object.values(phenoModules)
-console.log(phenotypes)
-
-
-console.log(typeof phenotypes);
-
 
 let {col_names,mod_dataset} = {{data|safe}}
     $('#eigens').DataTable( {
@@ -159,7 +143,6 @@ let {col_names,mod_dataset} = {{data|safe}}
     } );
     $('#phenos').DataTable( {
         data:phenotypes.map((phenoName,idx)=>{
-            console.log(phenoName)
             return [phenoName,phenoMods[idx]]
         }),
         columns: [{
