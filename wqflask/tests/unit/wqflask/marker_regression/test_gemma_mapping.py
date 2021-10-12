@@ -134,7 +134,7 @@ class TestGemmaMapping(unittest.TestCase):
 
             flat_files.assert_called_once_with('mapping')
             mock_open.assert_called_once_with(
-                'Home/Genenetwork/COVAR_anFZ_LfZYV0Ulywo+7tRCw.txt', 'w')
+                'Home/Genenetwork/COVAR_npKxIOnq3azWdgYixtd9IQ.txt', 'w')
             filehandler = mock_open()
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
