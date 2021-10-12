@@ -112,7 +112,7 @@ class TestGemmaMapping(unittest.TestCase):
         create_trait.side_effect = create_trait_side_effect
 
         group = MockGroup({"name": "group_X", "samplelist": samplelist})
-        this_dataset = AttributeSetter({"group": group})
+        this_dataset = AttributeSetter({"group": group, "name": "dataset1_name"})
         flat_files.return_value = "Home/Genenetwork"
 
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
