@@ -43,7 +43,7 @@ class TestRunMapping(unittest.TestCase):
             })
         }
         self.dataset = AttributeSetter(
-            {"fullname": "dataser_1", "group": self.group, "type": "ProbeSet"})
+            {"fullname": "dataset_1", "group": self.group, "type": "ProbeSet"})
 
         self.chromosomes = AttributeSetter({"chromosomes": chromosomes})
         self.trait = AttributeSetter(
@@ -180,37 +180,36 @@ class TestRunMapping(unittest.TestCase):
 
             with mock.patch("wqflask.marker_regression.run_mapping.datetime.datetime", new=datetime_mock):
                 export_mapping_results(dataset=self.dataset, trait=self.trait, markers=markers,
-                                       results_path="~/results", mapping_scale="physic", score_type="-log(p)",
-                                       transform="qnorm", covariates="Dataset1:Trait1,Dataset2:Trait2", n_samples="100",
-                                       vals_hash="")
+                                       results_path="~/results", mapping_method="gemma", mapping_scale="physic",
+                                       score_type="-logP", transform="qnorm",
+                                       covariates="Dataset1:Trait1,Dataset2:Trait2",
+                                       n_samples="100", vals_hash="")
 
                 write_calls = [
                     mock.call('Time/Date: 09/01/19 / 10:12:12\n'),
                     mock.call('Population: Human GP1_\n'), mock.call(
-                        'Data Set: dataser_1\n'),
+                        'Data Set: dataset_1\n'),
                     mock.call('Trait: Test Name\n'),
                     mock.call('Trait Hash: \n'),
-                    mock.call('N Samples: 100\n'), mock.call(
-                        'Transform - Quantile Normalized\n'),
+                    mock.call('N Samples: 100\n'),
+                    mock.call('Mapping Tool: gemma\n'),
+                    mock.call('Transform - Quantile Normalized\n'),
                     mock.call('Gene Symbol: IGFI\n'), mock.call(
                         'Location: X1 @ 123313 Mb\n'),
                     mock.call('Cofactors (dataset - trait):\n'),
                     mock.call('Trait1 - Dataset1\n'),
                     mock.call('Trait2 - Dataset2\n'),
                     mock.call('\n'), mock.call('Name,Chr,'),
-                    mock.call('Mb,-log(p)'), mock.call('Cm,-log(p)'),
+                    mock.call('Mb,-logP'),
                     mock.call(',Additive'), mock.call(',Dominance'),
                     mock.call('\n'), mock.call('MK1,C1,'),
-                    mock.call('12000,'), mock.call('1,'),
-                    mock.call('3'), mock.call(',VA'),
-                    mock.call(',TT'), mock.call('\n'),
-                    mock.call('MK2,C2,'), mock.call('10000,'),
-                    mock.call('15,'), mock.call('7'),
+                    mock.call('12000,'), mock.call('3'),
+                    mock.call(',VA'), mock.call(',TT'),
+                    mock.call('\n'), mock.call('MK2,C2,'),
+                    mock.call('10000,'), mock.call('7'),
                     mock.call('\n'), mock.call('MK1,C3,'),
-                    mock.call('1,'), mock.call('45,'),
-                    mock.call('7'), mock.call(',VE'),
-                    mock.call(',Tt')
-
+                    mock.call('1,'), mock.call('7'),
+                    mock.call(',VE'), mock.call(',Tt')
                 ]
                 mock_open.assert_called_once_with("~/results", "w+")
                 filehandler = mock_open()
