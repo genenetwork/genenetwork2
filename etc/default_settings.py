@@ -26,6 +26,9 @@ import sys
 
 GN_VERSION = open("../etc/VERSION", "r").read()
 
+# Redis
+REDIS_URL = "redis://:@localhost:6379/0"
+
 # ---- MySQL
 
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
