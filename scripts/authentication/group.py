@@ -29,8 +29,10 @@ import argparse
 import datetime
 import redis
 import json
+import uuid
 
-from typing import Dict, List, Optional, Set
+from typing import Dict, Optional, Set
+
 
 def create_group_data(users: Dict, target_group: str,
                       members: Optional[str] = None,
@@ -38,6 +40,9 @@ def create_group_data(users: Dict, target_group: str,
     """Return a dictionary that contains the following keys: "key",
     "field", and "value" that can be used in a redis hash as follows:
     HSET key field value
+
+    The "field" return value is a unique-id that is used to
+    distinguish the groups.
 
     Parameters:
 
@@ -71,26 +76,31 @@ def create_group_data(users: Dict, target_group: str,
       me@test2.com, me@test3.com"
 
     """
+    # Emails
+    _members: Set = set("".join(members.split()).split(",")
+                        if members else [])
+    _admins: Set = set("".join(admins.split()).split(",")
+                       if admins else [])
 
-    _members: List = "".join(members.split()).split(",") if members else []
-    _admins: List = "".join(admins.split()).split(",") if admins else []
+    # Unique IDs
+    member_ids: Set = set()
+    admin_ids: Set = set()
 
-    user_ids: Dict = dict()
     for user_id, user_details in users.items():
         _details = json.loads(user_details)
-        if _details.get("email_address"):
-            user_ids[_details.get("email_address")] = user_id
-    print(user_ids)
+        if _details.get("email_address") in _members:
+            member_ids.add(user_id)
+        if _details.get("email_address") in _admins:
+            admin_ids.add(user_id)
+
+    timestamp: str = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
     return {"key": "groups",
-            "field": target_group,
+            "field": str(uuid.uuid4()),
             "value": json.dumps({
-                "id": target_group,
                 "name": target_group,
-                "admins": [user_ids[admin] for admin in _admins
-                           if admin in user_ids],
-                "members": [user_ids[member] for member in _members
-                            if member in user_ids],
-                "changed_timestamp": datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+                "admins": list(admin_ids),
+                "members": list(member_ids),
+                "changed_timestamp": timestamp,
             })}
 
 
@@ -124,17 +134,18 @@ if __name__ == "__main__":
         members=members,
         admins=admins)
 
-    if not REDIS_CONN.hget("groups", data.get("field", "")):
-      updated_data = json.loads(data["value"])
-      updated_data["created_timestamp"] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
-      data["value"] = json.dumps(updated_data)
+    if not REDIS_CONN.hget("groups", data.get("field")):
+        updated_data = json.loads(data["value"])
+        timestamp = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_data["created_timestamp"] = timestamp
+        data["value"] = json.dumps(updated_data)
 
     created_p = REDIS_CONN.hset(data.get("key", ""),
                                 data.get("field", ""),
                                 data.get("value", ""))
 
     groups = json.loads(REDIS_CONN.hget("groups",
-                                        args.group_name))  # type: ignore
+                                        data.get("field")))  # type: ignore
     if created_p:
         exit(f"\nSuccessfully created the group: '{args.group_name}'\n"
              f"`HGETALL groups {args.group_name}`: {groups}\n")

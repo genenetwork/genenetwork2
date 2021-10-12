@@ -191,6 +191,7 @@ function loadDataTable(first_run=false, table_id, table_data){
       $(row).addClass("value_se");
       if (data.outlier) {
         $(row).addClass("outlier");
+        $(row).attr("style", "background-color: orange;");
       }
       $('td', row).eq(1).addClass("column_name-Index")
       $('td', row).eq(2).addClass("column_name-Sample")
@@ -261,7 +262,6 @@ function loadDataTable(first_run=false, table_id, table_data){
     cell.innerHTML = i+1;
     } );
   } ).draw();
-
 
   if (first_run){
     $('#' + table_type.toLowerCase() + '_container').css("width", String($('#' + table_id).width() + 17) + "px");

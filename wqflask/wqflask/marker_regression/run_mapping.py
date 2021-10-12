@@ -104,7 +104,7 @@ class RunMapping:
         if "results_path" in start_vars:
             self.mapping_results_path = start_vars['results_path']
         else:
-            mapping_results_filename = "_".join([self.dataset.group.name, self.vals_hash]).replace("/", "_")
+            mapping_results_filename = "_".join([self.dataset.group.name, self.mapping_method, self.vals_hash]).replace("/", "_")
             self.mapping_results_path = "{}{}.csv".format(
                 webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
@@ -405,8 +405,8 @@ class RunMapping:
                 total_markers = len(self.qtl_results)
 
                 with Bench("Exporting Results"):
-                    export_mapping_results(self.dataset, self.this_trait, self.qtl_results,
-                                           self.mapping_results_path, self.mapping_scale, self.score_type,
+                    export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
+                                           self.mapping_method, self.mapping_scale, self.score_type,
                                            self.transform, self.covariates, self.n_samples, self.vals_hash)
 
                 with Bench("Trimming Markers for Figure"):
@@ -525,7 +525,11 @@ class RunMapping:
         return trimmed_genotype_data
 
 
-def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples, vals_hash):
+def export_mapping_results(dataset, trait, markers, results_path, mapping_method, mapping_scale, score_type, transform, covariates, n_samples, vals_hash):
+    if mapping_scale == "physic":
+        scale_string = "Mb"
+    else:
+        scale_string = "cM"
     with open(results_path, "w+") as output_file:
         output_file.write(
             "Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
@@ -535,6 +539,7 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
         output_file.write("Trait: " + trait.display_name + "\n")
         output_file.write("Trait Hash: " + vals_hash + "\n")
         output_file.write("N Samples: " + str(n_samples) + "\n")
+        output_file.write("Mapping Tool: " + str(mapping_method) + "\n")
         if len(transform) > 0:
             transform_text = "Transform - "
             if transform == "qnorm":
@@ -564,10 +569,7 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
         output_file.write("Name,Chr,")
         if score_type.lower() == "-logP":
             score_type = "-logP"
-        if 'Mb' in markers[0]:
-            output_file.write("Mb," + score_type)
-        if 'cM' in markers[0]:
-            output_file.write("Cm," + score_type)
+        output_file.write(scale_string + "," + score_type)
         if "additive" in list(markers[0].keys()):
             output_file.write(",Additive")
         if "dominance" in list(markers[0].keys()):
@@ -575,11 +577,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
         output_file.write("\n")
         for i, marker in enumerate(markers):
             output_file.write(marker['name'] + "," + str(marker['chr']) + ",")
-            if 'Mb' in marker:
-                output_file.write(str(marker['Mb']) + ",")
-            if 'cM' in marker:
-                output_file.write(str(marker['cM']) + ",")
-            if "lod_score" in marker.keys():
+            output_file.write(str(marker[scale_string]) + ",")
+            if score_type == "-logP":
                 output_file.write(str(marker['lod_score']))
             else:
                 output_file.write(str(marker['lrs_value']))
