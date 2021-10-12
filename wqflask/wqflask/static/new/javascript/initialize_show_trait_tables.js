@@ -130,6 +130,7 @@ var primary_table = $('#samples_primary').DataTable( {
       $(row).addClass("value_se");
       if (data.outlier) {
         $(row).addClass("outlier");
+        $(row).attr("style", "background-color: orange;");
       }
       $('td', row).eq(1).addClass("column_name-Index")
       $('td', row).eq(2).addClass("column_name-Sample")
@@ -189,6 +190,7 @@ if (js_data.sample_lists.length > 1){
         $(row).addClass("value_se");
         if (data.outlier) {
           $(row).addClass("outlier");
+          $(row).attr("style", "background-color: orange;");
         }
         $('td', row).eq(1).addClass("column_name-Index")
         $('td', row).eq(2).addClass("column_name-Sample")

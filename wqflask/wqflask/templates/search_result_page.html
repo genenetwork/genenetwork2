@@ -53,6 +53,7 @@
                 A total of {{ results|count }} records were found.
         </p>
 
+        {% if results|count > 0 %}
         {% if go_term is not none %}
         <p><b>The associated genes include:</b><br><br>{% for word in search_terms %}{{ word.search_term[0] }}{% endfor %}</p>
         {% endif %}
@@ -133,8 +134,11 @@
           </div>
         </div>
         {% endif %}
+        {% else %}
+        <br>
+        <button type="button" onclick="window.location.href='/'">Return To Index Page</button>
+        {% endif %}
     </div>
-
     <div id="myModal"></div>
 
 <!-- End of body -->
@@ -171,6 +175,7 @@
                 return params;
             };
 
+            {% if results|count > 0 %}
             //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
             trait_table = $('#trait_table').DataTable( {
                 'drawCallback': function( settings ) {
@@ -412,6 +417,7 @@
                 var table = $('#trait_table').DataTable();
                 table.colReorder.reset()
             });
+            {% endif %}
 
             submit_special = function(url) {
                 $("#trait_submission_form").attr("action", url);

@@ -85,7 +85,7 @@ from wqflask.export_traits import export_search_results_csv
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
-from wqflask.decorators import admin_login_required
+from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
@@ -160,28 +160,37 @@ def shutdown_session(exception=None):
 
 
 @app.errorhandler(Exception)
-def handle_bad_request(e):
+def handle_generic_exceptions(e):
+    import werkzeug
     err_msg = str(e)
-    logger.error(err_msg)
-    logger.error(request.url)
-    # get the stack trace and send it to the logger
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    logger.error(traceback.format_exc())
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    formatted_lines = [request.url
-                       + " (" + time_str + ")"] + traceback.format_exc().splitlines()
+    # get the stack trace and send it to the logger
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    formatted_lines = {f"{request.url} ({time_str}) "
+                       f" {traceback.format_exc().splitlines()}"}
 
+    _message_templates = {
+        werkzeug.exceptions.NotFound: ("404: Not Found: "
+                                       f"{time_str}: {request.url}"),
+        werkzeug.exceptions.BadRequest: ("400: Bad Request: "
+                                         f"{time_str}: {request.url}"),
+        werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
+                                             f"{time_str}: {request.url}")}
+    # Default to the lengthy stack trace!
+    logger.error(_message_templates.get(exc_type,
+                                        formatted_lines))
     # Handle random animations
     # Use a cookie to have one animation on refresh
     animation = request.cookies.get(err_msg[:32])
     if not animation:
-        list = [fn for fn in os.listdir(
-            "./wqflask/static/gif/error") if fn.endswith(".gif")]
-        animation = random.choice(list)
+        animation = random.choice([fn for fn in os.listdir(
+            "./wqflask/static/gif/error") if fn.endswith(".gif")])
 
     resp = make_response(render_template("error.html", message=err_msg,
-                                         stack=formatted_lines, error_image=animation, version=GN_VERSION))
+                                         stack=formatted_lines,
+                                         error_image=animation,
+                                         version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32], animation)
@@ -411,7 +420,7 @@ def submit_trait_form():
 
 
 @app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
-@admin_login_required
+@edit_access_required
 def edit_phenotype(name, inbredset_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -468,7 +477,7 @@ def edit_phenotype(name, inbredset_id):
 
 
 @app.route("/trait/edit/probeset-name/<dataset_name>")
-@admin_login_required
+@edit_access_required
 def edit_probeset(dataset_name):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -511,7 +520,7 @@ def edit_probeset(dataset_name):
 
 
 @app.route("/trait/update", methods=["POST"])
-@admin_login_required
+@edit_access_required
 def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -633,11 +642,11 @@ def update_phenotype():
                                   json_data=json.dumps(diff_data)))
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(f"/trait/{data_.get('dataset-name')}"
-                    f"/edit/phenotype-id/{data_.get('phenotype-id')}")
+                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
 
 
 @app.route("/probeset/update", methods=["POST"])
-@admin_login_required
+@edit_access_required
 def update_probeset():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -1051,6 +1060,7 @@ def mapping_results_page():
         'samples',
         'vals',
         'sample_vals',
+        'vals_hash',
         'first_run',
         'output_files',
         'geno_db_exists',
@@ -1096,7 +1106,6 @@ def mapping_results_page():
         'mapmethod_rqtl',
         'mapmodel_rqtl',
         'temp_trait',
-        'reaper_version',
         'n_samples',
         'transform'
     )
@@ -1161,7 +1170,7 @@ def export_mapping_results():
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
                         mimetype='text/csv',
-                        headers={"Content-Disposition": "attachment;filename=mapping_results.csv"})
+                        headers={"Content-Disposition": "attachment;filename=" + os.path.basename(file_path)})
 
     return response
 
@@ -1364,7 +1373,7 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
 
 
 @app.route("/admin/data-sample/diffs/")
-@admin_login_required
+@edit_access_required
 def display_diffs_admin():
     TMPDIR = current_app.config.get("TMPDIR")
     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"

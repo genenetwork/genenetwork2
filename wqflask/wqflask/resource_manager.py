@@ -8,8 +8,6 @@ from wqflask import app
 from utility.authentication_tools import check_owner_or_admin
 from utility.redis_tools import get_resource_info, get_group_info, get_groups_like_unique_column, get_user_id, get_user_by_unique_column, get_users_like_unique_column, add_access_mask, add_resource, change_resource_owner
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 
 @app.route("/resources/manage", methods=('GET', 'POST'))

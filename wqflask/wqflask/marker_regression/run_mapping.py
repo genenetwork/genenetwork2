@@ -75,6 +75,7 @@ class RunMapping:
         self.vals = []
         self.samples = []
         self.sample_vals = start_vars['sample_vals']
+        self.vals_hash = start_vars['vals_hash']
         sample_val_dict = json.loads(self.sample_vals)
         samples = sample_val_dict.keys()
         if (len(genofile_samplelist) != 0):
@@ -103,9 +104,7 @@ class RunMapping:
         if "results_path" in start_vars:
             self.mapping_results_path = start_vars['results_path']
         else:
-            mapping_results_filename = self.dataset.group.name + "_" + \
-                ''.join(random.choice(string.ascii_uppercase + string.digits)
-                        for _ in range(6))
+            mapping_results_filename = "_".join([self.dataset.group.name, self.mapping_method, self.vals_hash]).replace("/", "_")
             self.mapping_results_path = "{}{}.csv".format(
                 webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
@@ -272,47 +271,32 @@ class RunMapping:
                     self.bootCheck = False
                     self.num_bootstrap = 0
 
-            self.reaper_version = start_vars['reaper_version']
-
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             logger.info("Running qtlreaper")
 
-            if self.reaper_version == "new":
-                self.first_run = True
-                self.output_files = None
-                # ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
-                if 'first_run' in start_vars:
-                    self.first_run = False
-                    if 'output_files' in start_vars:
-                        self.output_files = start_vars['output_files'].split(
-                            ",")
+            self.first_run = True
+            self.output_files = None
+            # ZS: check if first run so existing result files can be used if it isn't (for example zooming on a chromosome, etc)
+            if 'first_run' in start_vars:
+                self.first_run = False
+                if 'output_files' in start_vars:
+                    self.output_files = start_vars['output_files'].split(
+                        ",")
 
-                results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
-                                                                                                                                                       self.dataset,
-                                                                                                                                                       self.samples,
-                                                                                                                                                       self.vals,
-                                                                                                                                                       self.json_data,
-                                                                                                                                                       self.num_perm,
-                                                                                                                                                       self.bootCheck,
-                                                                                                                                                       self.num_bootstrap,
-                                                                                                                                                       self.do_control,
-                                                                                                                                                       self.control_marker,
-                                                                                                                                                       self.manhattan_plot,
-                                                                                                                                                       self.first_run,
-                                                                                                                                                       self.output_files)
-            else:
-                results, self.json_data, self.perm_output, self.suggestive, self.significant, self.bootstrap_results = qtlreaper_mapping.run_original_reaper(self.this_trait,
-                                                                                                                                                             self.dataset,
-                                                                                                                                                             self.samples,
-                                                                                                                                                             self.vals,
-                                                                                                                                                             self.json_data,
-                                                                                                                                                             self.num_perm,
-                                                                                                                                                             self.bootCheck,
-                                                                                                                                                             self.num_bootstrap,
-                                                                                                                                                             self.do_control,
-                                                                                                                                                             self.control_marker,
-                                                                                                                                                             self.manhattan_plot)
+            results, self.perm_output, self.suggestive, self.significant, self.bootstrap_results, self.output_files = qtlreaper_mapping.run_reaper(self.this_trait,
+                                                                                                                                                    self.dataset,
+                                                                                                                                                    self.samples,
+                                                                                                                                                    self.vals,
+                                                                                                                                                    self.json_data,
+                                                                                                                                                    self.num_perm,
+                                                                                                                                                    self.bootCheck,
+                                                                                                                                                    self.num_bootstrap,
+                                                                                                                                                    self.do_control,
+                                                                                                                                                    self.control_marker,
+                                                                                                                                                    self.manhattan_plot,
+                                                                                                                                                    self.first_run,
+                                                                                                                                                    self.output_files)
         elif self.mapping_method == "plink":
             self.score_type = "-logP"
             self.manhattan_plot = True
@@ -397,7 +381,8 @@ class RunMapping:
 
                 with Bench("Exporting Results"):
                     export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
-                                           self.mapping_scale, self.score_type, self.transform, self.covariates, self.n_samples)
+                                           self.mapping_method, self.mapping_scale, self.score_type,
+                                           self.transform, self.covariates, self.n_samples, self.vals_hash)
 
                 with Bench("Trimming Markers for Figure"):
                     if len(self.qtl_results) > 30000:
@@ -515,14 +500,21 @@ class RunMapping:
         return trimmed_genotype_data
 
 
-def export_mapping_results(dataset, trait, markers, results_path, mapping_scale, score_type, transform, covariates, n_samples):
+def export_mapping_results(dataset, trait, markers, results_path, mapping_method, mapping_scale, score_type, transform, covariates, n_samples, vals_hash):
+    if mapping_scale == "physic":
+        scale_string = "Mb"
+    else:
+        scale_string = "cM"
     with open(results_path, "w+") as output_file:
         output_file.write(
             "Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")
         output_file.write(
             "Population: " + dataset.group.species.title() + " " + dataset.group.name + "\n")
         output_file.write("Data Set: " + dataset.fullname + "\n")
+        output_file.write("Trait: " + trait.display_name + "\n")
+        output_file.write("Trait Hash: " + vals_hash + "\n")
         output_file.write("N Samples: " + str(n_samples) + "\n")
+        output_file.write("Mapping Tool: " + str(mapping_method) + "\n")
         if len(transform) > 0:
             transform_text = "Transform - "
             if transform == "qnorm":
@@ -552,10 +544,7 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
         output_file.write("Name,Chr,")
         if score_type.lower() == "-logP":
             score_type = "-logP"
-        if 'Mb' in markers[0]:
-            output_file.write("Mb," + score_type)
-        if 'cM' in markers[0]:
-            output_file.write("Cm," + score_type)
+        output_file.write(scale_string + "," + score_type)
         if "additive" in list(markers[0].keys()):
             output_file.write(",Additive")
         if "dominance" in list(markers[0].keys()):
@@ -563,11 +552,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_scale,
         output_file.write("\n")
         for i, marker in enumerate(markers):
             output_file.write(marker['name'] + "," + str(marker['chr']) + ",")
-            if 'Mb' in marker:
-                output_file.write(str(marker['Mb']) + ",")
-            if 'cM' in marker:
-                output_file.write(str(marker['cM']) + ",")
-            if "lod_score" in marker.keys():
+            output_file.write(str(marker[scale_string]) + ",")
+            if score_type == "-logP":
                 output_file.write(str(marker['lod_score']))
             else:
                 output_file.write(str(marker['lrs_value']))
