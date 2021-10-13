@@ -148,14 +148,9 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
 def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     sample_data = process_samples(
-        start_vars, this_dataset.group.samplelist)
+        start_vars, this_dataset.group.all_samples_ordered())
 
-    sample_data = test_process_data(this_trait, this_dataset, start_vars)
-
-    if target_dataset.type == "ProbeSet":
-        target_dataset.get_probeset_data(list(sample_data.keys()))
-    else:
-        target_dataset.get_trait_data(list(sample_data.keys()))
+    target_dataset.get_trait_data(list(sample_data.keys()))
     this_trait = retrieve_sample_data(this_trait, this_dataset)
     this_trait_data = {
         "trait_sample_data": sample_data,

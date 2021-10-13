@@ -55,11 +55,11 @@ jobs:
         GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
         etc/default_settings.py -c -m unittest discover -v
 
-    - name: Test for Broken Links
-      run: |
-        env GN2_PROFILE=/gn2-profile \
-        TMPDIR=/tmp\
-        WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
-        GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
-        etc/default_settings.py -c \
-        $PWD/test/requests/links_scraper/genelinks.py
+    # - name: Test for Broken Links
+    #   run: |
+    #     env GN2_PROFILE=/gn2-profile \
+    #     TMPDIR=/tmp\
+    #     WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
+    #     GENENETWORK_FILES=/genotype_files/ bin/genenetwork2 \
+    #     etc/default_settings.py -c \
+    #     $PWD/test/requests/links_scraper/genelinks.py

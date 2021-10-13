@@ -28,13 +28,6 @@ which will be added to a base mariaDB image.
 First create the gn2 tar archive by running:
 
 #+begin_src sh
-# For the Python 2 version:
-env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
-    ./pre-inst-env guix pack --no-grafts\
-    -S /gn2-profile=/ \
-    screen python2-genenetwork2
-
-# For the Python 3 version:
 env GUIX_PACKAGE_PATH="/home/bonface/projects/guix-bioinformatics:/home/bonface/projects/guix-past/modules" \
     ./pre-inst-env guix pack --no-grafts\
     -S /gn2-profile=/ \

@@ -24,6 +24,7 @@
 #
 # Last updated by Zach 12/14/2010
 
+import datetime
 import string
 from math import *
 from PIL import Image
@@ -271,6 +272,7 @@ class DisplayMappingResults:
         # Needing for form submission when doing single chr
         # mapping or remapping after changing options
         self.sample_vals = start_vars['sample_vals']
+        self.vals_hash= start_vars['vals_hash']
         self.sample_vals_dict = json.loads(self.sample_vals)
 
         self.transform = start_vars['transform']
@@ -355,8 +357,7 @@ class DisplayMappingResults:
         if 'use_loco' in list(start_vars.keys()) and self.mapping_method == "gemma":
             self.use_loco = start_vars['use_loco']
 
-        if 'reaper_version' in list(start_vars.keys()) and self.mapping_method == "reaper":
-            self.reaper_version = start_vars['reaper_version']
+        if self.mapping_method == "reaper":
             if 'output_files' in start_vars:
                 self.output_files = ",".join(
                     [(the_file if the_file is not None else "") for the_file in start_vars['output_files']])
@@ -651,7 +652,7 @@ class DisplayMappingResults:
             btminfo.append(
                 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
 
-    def plotIntMapping(self, canvas, offset=(80, 120, 90, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
+    def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
         # calculating margins
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
@@ -661,7 +662,7 @@ class DisplayMappingResults:
             if self.legendChecked:
                 yTopOffset += 10
                 if self.covariates != "" and self.controlLocus and self.doControl != "false":
-                    yTopOffset += 20
+                    yTopOffset += 25
                 if len(self.transform) > 0:
                     yTopOffset += 5
             else:
@@ -1195,43 +1196,47 @@ class DisplayMappingResults:
             dataset_label = "%s - %s" % (self.dataset.group.name,
                                          self.dataset.fullname)
 
-        string1 = 'Dataset: %s' % (dataset_label)
+
+        self.current_datetime = datetime.datetime.now().strftime("%b %d %Y %H:%M:%S")
+        string1 = 'UTC Timestamp: %s' % (self.current_datetime)
+        string2 = 'Dataset: %s' % (dataset_label)
+        string3 = 'Trait Hash: %s' % (self.vals_hash)
 
         if self.genofile_string == "":
-            string2 = 'Genotype File: %s.geno' % self.dataset.group.name
+            string4 = 'Genotype File: %s.geno' % self.dataset.group.name
         else:
-            string2 = 'Genotype File: %s' % self.genofile_string
+            string4 = 'Genotype File: %s' % self.genofile_string.split(":")[1]
 
-        string4 = ''
+        string6 = ''
         if self.mapping_method == "gemma" or self.mapping_method == "gemma_bimbam":
             if self.use_loco == "True":
-                string3 = 'Using GEMMA mapping method with LOCO and '
+                string5 = 'Using GEMMA mapping method with LOCO and '
             else:
-                string3 = 'Using GEMMA mapping method with '
+                string5 = 'Using GEMMA mapping method with '
             if self.covariates != "":
-                string3 += 'the cofactors below:'
+                string5 += 'the cofactors below:'
                 cofactor_names = ", ".join(
                     [covar.split(":")[0] for covar in self.covariates.split(",")])
-                string4 = cofactor_names
+                string6 = cofactor_names
             else:
-                string3 += 'no cofactors'
+                string5 += 'no cofactors'
         elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
-            string3 = 'Using R/qtl mapping method with '
+            string5 = 'Using R/qtl mapping method with '
             if self.covariates != "":
-                string3 += 'the cofactors below:'
+                string5 += 'the cofactors below:'
                 cofactor_names = ", ".join(
                     [covar.split(":")[0] for covar in self.covariates.split(",")])
-                string4 = cofactor_names
+                string6 = cofactor_names
             elif self.controlLocus and self.doControl != "false":
-                string3 += '%s as control' % self.controlLocus
+                string5 += '%s as control' % self.controlLocus
             else:
-                string3 += 'no cofactors'
+                string5 += 'no cofactors'
         else:
-            string3 = 'Using Haldane mapping function with '
+            string5 = 'Using Haldane mapping function with '
             if self.controlLocus and self.doControl != "false":
-                string3 += '%s as control' % self.controlLocus
+                string5 += '%s as control' % self.controlLocus
             else:
-                string3 += 'no control for other QTLs'
+                string5 += 'no control for other QTLs'
 
         y_constant = 10
         if self.this_trait.name:
@@ -1243,24 +1248,26 @@ class DisplayMappingResults:
 
             if self.this_trait.symbol:
                 identification += "Trait: %s - %s" % (
-                    self.this_trait.name, self.this_trait.symbol)
+                    self.this_trait.display_name, self.this_trait.symbol)
             elif self.dataset.type == "Publish":
                 if self.this_trait.post_publication_abbreviation:
                     identification += "Trait: %s - %s" % (
-                        self.this_trait.name, self.this_trait.post_publication_abbreviation)
+                        self.this_trait.display_name, self.this_trait.post_publication_abbreviation)
                 elif self.this_trait.pre_publication_abbreviation:
                     identification += "Trait: %s - %s" % (
-                        self.this_trait.name, self.this_trait.pre_publication_abbreviation)
+                        self.this_trait.display_name, self.this_trait.pre_publication_abbreviation)
                 else:
-                    identification += "Trait: %s" % (self.this_trait.name)
+                    identification += "Trait: %s" % (self.this_trait.display_name)
             else:
-                identification += "Trait: %s" % (self.this_trait.name)
+                identification += "Trait: %s" % (self.this_trait.display_name)
             identification += " with %s samples" % (self.n_samples)
 
             d = 4 + max(
                 im_drawer.textsize(identification, font=labelFont)[0],
                 im_drawer.textsize(string1, font=labelFont)[0],
-                im_drawer.textsize(string2, font=labelFont)[0])
+                im_drawer.textsize(string2, font=labelFont)[0],
+                im_drawer.textsize(string3, font=labelFont)[0],
+                im_drawer.textsize(string4, font=labelFont)[0])
             im_drawer.text(
                 text=identification,
                 xy=(xLeftOffset, y_constant * fontZoom), font=labelFont,
@@ -1269,7 +1276,9 @@ class DisplayMappingResults:
         else:
             d = 4 + max(
                 im_drawer.textsize(string1, font=labelFont)[0],
-                im_drawer.textsize(string2, font=labelFont)[0])
+                im_drawer.textsize(string2, font=labelFont)[0],
+                im_drawer.textsize(string3, font=labelFont)[0],
+                im_drawer.textsize(string4, font=labelFont)[0])
 
         if len(self.transform) > 0:
             transform_text = "Transform - "
@@ -1296,14 +1305,22 @@ class DisplayMappingResults:
             text=string2, xy=(xLeftOffset, y_constant * fontZoom),
             font=labelFont, fill=labelColor)
         y_constant += 15
-        if string3 != '':
+        im_drawer.text(
+            text=string3, xy=(xLeftOffset, y_constant * fontZoom),
+            font=labelFont, fill=labelColor)
+        y_constant += 15
+        im_drawer.text(
+            text=string4, xy=(xLeftOffset, y_constant * fontZoom),
+            font=labelFont, fill=labelColor)
+        y_constant += 15
+        if string4 != '':
             im_drawer.text(
-                text=string3, xy=(xLeftOffset, y_constant * fontZoom),
+                text=string5, xy=(xLeftOffset, y_constant * fontZoom),
                 font=labelFont, fill=labelColor)
             y_constant += 15
-            if string4 != '':
+            if string5 != '':
                 im_drawer.text(
-                    text=string4, xy=(xLeftOffset, y_constant * fontZoom),
+                    text=string6, xy=(xLeftOffset, y_constant * fontZoom),
                     font=labelFont, fill=labelColor)
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
@@ -2113,7 +2130,7 @@ class DisplayMappingResults:
                                 thisChr.append(
                                     [_locus.name, _locus.cM - Locus0CM])
                     else:
-                        for j in (0, nLoci / 4, nLoci / 2, nLoci * 3 / 4, -1):
+                        for j in (0, round(nLoci / 4), round(nLoci / 2), round(nLoci * 3 / 4), -1):
                             while _chr[j].name == ' - ':
                                 j += 1
                             if _chr[j].cM != preLpos:

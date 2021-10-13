@@ -93,15 +93,15 @@ build_columns = function() {
     );
   }
 
-  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].name.toLowerCase() > js_data.attributes[b].name.toLowerCase()) ? 1 : -1)
+  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].id > js_data.attributes[b].id) ? 1 : -1)
   for (i = 0; i < attr_keys.length; i++){
     column_list.push(
       {
-        'title': "<div style='text-align: " + js_data.attributes[attr_keys[i]].alignment + "'>" + js_data.attributes[attr_keys[i]].name + "</div>",
+        'title': "<div title='" + js_data.attributes[attr_keys[i]].description + "' style='text-align: " + js_data.attributes[attr_keys[i]].alignment + "'>" + js_data.attributes[attr_keys[i]].name + "</div>",
         'type': "natural",
         'data': null,
         'render': function(data, type, row, meta) {
-          attr_name = Object.keys(data.extra_attributes).sort()[meta.col - data.first_attr_col]
+          attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
 
           if (attr_name != null && attr_name != undefined){
             if (Array.isArray(data.extra_attributes[attr_name])){
@@ -130,6 +130,7 @@ var primary_table = $('#samples_primary').DataTable( {
       $(row).addClass("value_se");
       if (data.outlier) {
         $(row).addClass("outlier");
+        $(row).attr("style", "background-color: orange;");
       }
       $('td', row).eq(1).addClass("column_name-Index")
       $('td', row).eq(2).addClass("column_name-Sample")
@@ -189,6 +190,7 @@ if (js_data.sample_lists.length > 1){
         $(row).addClass("value_se");
         if (data.outlier) {
           $(row).addClass("outlier");
+          $(row).attr("style", "background-color: orange;");
         }
         $('td', row).eq(1).addClass("column_name-Index")
         $('td', row).eq(2).addClass("column_name-Sample")

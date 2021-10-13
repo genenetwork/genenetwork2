@@ -1,12 +1,13 @@
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2) [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
 [![Actions Status](https://github.com/genenetwork/genenetwork2/workflows/tests/badge.svg)](https://github.com/genenetwork/genenetwork2/actions)
 
+
 # GeneNetwork
 
 This repository contains the current source code for GeneNetwork (GN)
 (https://www.genenetwork.org/ (version 2). GN2 is a Web
-2.0-style framework that includes data and computational tools for online genetics and genomic analysis of 
-many different populations and many types of molecular, cellular, and physiological data. 
+2.0-style framework that includes data and computational tools for online genetics and genomic analysis of
+many different populations and many types of molecular, cellular, and physiological data.
 The system is used by scientists and clinians in the field of precision health care and systems genetics.
 GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL (https://genenetwork.org/references/).
 
@@ -26,7 +27,7 @@ interface
 genenetwork2
 ```
 
-(default is http://localhost:5003/). A quick example is
+A quick example is
 
 ```sh
 env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 GENENETWORK_FILES=~/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev

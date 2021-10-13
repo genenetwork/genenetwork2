@@ -27,11 +27,13 @@ def create_trait(**kw):
 
     assert bool(kw.get('name')), "Needs trait name"
 
-    if kw.get('dataset_name'):
+    if bool(kw.get('dataset')):
+        dataset = kw.get('dataset')
+    else:
         if kw.get('dataset_name') != "Temp":
             dataset = create_dataset(kw.get('dataset_name'))
-    else:
-        dataset = kw.get('dataset')
+        else:
+            dataset = create_dataset("Temp", group_name=kw.get('group_name'))
 
     if dataset.type == 'Publish':
         permissions = check_resource_availability(

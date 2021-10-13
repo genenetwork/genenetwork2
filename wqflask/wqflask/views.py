@@ -28,6 +28,7 @@ from zipfile import ZIP_DEFLATED
 from wqflask import app
 
 from gn3.commands import run_cmd
+from gn3.computations.gemma import generate_hash_of_string
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -63,6 +64,7 @@ from wqflask import server_side
 from base.data_set import create_dataset  # Used by YAML in marker_regression
 from wqflask.show_trait import show_trait
 from wqflask.show_trait import export_trait_data
+from wqflask.show_trait.show_trait import get_diff_of_vals
 from wqflask.heatmap import heatmap
 from wqflask.external_tools import send_to_bnw
 from wqflask.external_tools import send_to_webgestalt
@@ -84,7 +86,7 @@ from wqflask.export_traits import export_search_results_csv
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
-from wqflask.decorators import admin_login_required
+from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
@@ -159,28 +161,37 @@ def shutdown_session(exception=None):
 
 
 @app.errorhandler(Exception)
-def handle_bad_request(e):
+def handle_generic_exceptions(e):
+    import werkzeug
     err_msg = str(e)
-    logger.error(err_msg)
-    logger.error(request.url)
-    # get the stack trace and send it to the logger
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    logger.error(traceback.format_exc())
     now = datetime.datetime.utcnow()
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    formatted_lines = [request.url
-                       + " (" + time_str + ")"] + traceback.format_exc().splitlines()
+    # get the stack trace and send it to the logger
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    formatted_lines = {f"{request.url} ({time_str}) "
+                       f" {traceback.format_exc().splitlines()}"}
 
+    _message_templates = {
+        werkzeug.exceptions.NotFound: ("404: Not Found: "
+                                       f"{time_str}: {request.url}"),
+        werkzeug.exceptions.BadRequest: ("400: Bad Request: "
+                                         f"{time_str}: {request.url}"),
+        werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
+                                             f"{time_str}: {request.url}")}
+    # Default to the lengthy stack trace!
+    logger.error(_message_templates.get(exc_type,
+                                        formatted_lines))
     # Handle random animations
     # Use a cookie to have one animation on refresh
     animation = request.cookies.get(err_msg[:32])
     if not animation:
-        list = [fn for fn in os.listdir(
-            "./wqflask/static/gif/error") if fn.endswith(".gif")]
-        animation = random.choice(list)
+        animation = random.choice([fn for fn in os.listdir(
+            "./wqflask/static/gif/error") if fn.endswith(".gif")])
 
     resp = make_response(render_template("error.html", message=err_msg,
-                                         stack=formatted_lines, error_image=animation, version=GN_VERSION))
+                                         stack=formatted_lines,
+                                         error_image=animation,
+                                         version=GN_VERSION))
 
     # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32], animation)
@@ -372,7 +383,6 @@ def wcgna_results():
     results = run_wgcna(dict(request.form))
     return render_template("test_wgcna_results.html", **results)
 
-
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     # We are going to get additional user input for the analysis
@@ -380,20 +390,6 @@ def ctl_setup():
     logger.info(request.url)
     # Display them using the template
     return render_template("ctl_setup.html", **request.form)
-
-
-# @app.route("/ctl_results", methods=('POST',))
-# def ctl_results():
-#     logger.info("In ctl, request.form is:", request.form)
-#     logger.info(request.url)
-#     # Start R, load the package and pointers and create the analysis
-#     ctl = ctl_analysis.CTL()
-#     # Start the analysis, a ctlA object should be a separate long running thread
-#     ctlA = ctl.run_analysis(request.form)
-#     # After the analysis is finished store the result
-#     result = ctl.process_results(ctlA)
-#     # Display them using the template
-#     return render_template("ctl_results.html", **result)
 
 
 @app.route("/intro")
@@ -430,9 +426,9 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/phenotype-id/<phenotype_id>")
-@admin_login_required
-def edit_phenotype(name, phenotype_id):
+@app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
+@edit_access_required
+def edit_phenotype(name, inbredset_id):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
                            passwd=current_app.config.get("DB_PASS"),
@@ -441,7 +437,7 @@ def edit_phenotype(name, phenotype_id):
         conn=conn,
         table="PublishXRef",
         where=PublishXRef(id_=name,
-                          phenotype_id=phenotype_id))
+                          inbred_set_id=inbredset_id))
     phenotype_ = fetchone(
         conn=conn,
         table="Phenotype",
@@ -488,7 +484,7 @@ def edit_phenotype(name, phenotype_id):
 
 
 @app.route("/trait/edit/probeset-name/<dataset_name>")
-# @admin_login_required
+@edit_access_required
 def edit_probeset(dataset_name):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -531,7 +527,7 @@ def edit_probeset(dataset_name):
 
 
 @app.route("/trait/update", methods=["POST"])
-@admin_login_required
+@edit_access_required
 def update_phenotype():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -653,11 +649,11 @@ def update_phenotype():
                                   json_data=json.dumps(diff_data)))
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(f"/trait/{data_.get('dataset-name')}"
-                    f"/edit/phenotype-id/{data_.get('phenotype-id')}")
+                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
 
 
 @app.route("/probeset/update", methods=["POST"])
-@admin_login_required
+@edit_access_required
 def update_probeset():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -1018,10 +1014,10 @@ def loading_page():
             if key in wanted:
                 start_vars[key] = value
 
+        sample_vals_dict = json.loads(start_vars['sample_vals'])
         if 'n_samples' in start_vars:
             n_samples = int(start_vars['n_samples'])
         else:
-            sample_vals_dict = json.loads(start_vars['sample_vals'])
             if 'group' in start_vars:
                 dataset = create_dataset(
                     start_vars['dataset'], group_name=start_vars['group'])
@@ -1043,6 +1039,10 @@ def loading_page():
                         n_samples += 1
 
         start_vars['n_samples'] = n_samples
+        start_vars['vals_hash'] = generate_hash_of_string(str(sample_vals_dict))
+        if start_vars['dataset'] != "Temp": # Currently can't get diff for temp traits
+            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
         start_vars_container['start_vars'] = start_vars
@@ -1067,6 +1067,7 @@ def mapping_results_page():
         'samples',
         'vals',
         'sample_vals',
+        'vals_hash',
         'first_run',
         'output_files',
         'geno_db_exists',
@@ -1083,7 +1084,6 @@ def mapping_results_page():
         'num_perm',
         'permCheck',
         'perm_strata',
-        'strat_var',
         'categorical_vars',
         'perm_output',
         'num_bootstrap',
@@ -1113,7 +1113,6 @@ def mapping_results_page():
         'mapmethod_rqtl_geno',
         'mapmodel_rqtl_geno',
         'temp_trait',
-        'reaper_version',
         'n_samples',
         'transform'
     )
@@ -1186,7 +1185,7 @@ def export_mapping_results():
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
                         mimetype='text/csv',
-                        headers={"Content-Disposition": "attachment;filename=mapping_results.csv"})
+                        headers={"Content-Disposition": "attachment;filename=" + os.path.basename(file_path)})
 
     return response
 
@@ -1389,7 +1388,7 @@ def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
 
 
 @app.route("/admin/data-sample/diffs/")
-@admin_login_required
+@edit_access_required
 def display_diffs_admin():
     TMPDIR = current_app.config.get("TMPDIR")
     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
