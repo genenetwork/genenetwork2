@@ -230,7 +230,7 @@ class RunMapping:
 
                     self.perm_strata = get_perm_strata(
                         self.this_trait, primary_samples, self.categorical_vars, self.samples)
-            self.score_type = "LOD"
+            self.score_type = "-logP"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
             if 'mapmethod_rqtl_geno' in start_vars:
