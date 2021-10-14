@@ -12,6 +12,7 @@ from flask import flash
 from wqflask import app
 from utility import hmac
 from utility.formatting import numify
+from utility.tools import GN_SERVER_URL
 from utility.redis_tools import get_redis_conn
 
 from base.trait import create_trait
@@ -218,8 +219,10 @@ def view_collection():
 
         json_version.append(jsonable(trait_ob))
 
-    collection_info = dict(trait_obs=trait_obs,
-                           uc=uc)
+    collection_info = dict(
+        trait_obs=trait_obs,
+        uc=uc,
+        heatmap_data_url=f"{GN_SERVER_URL}api/heatmaps/clustered")
 
     if "json" in params:
         return json.dumps(json_version)
