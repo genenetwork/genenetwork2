@@ -66,16 +66,19 @@ def get_user_membership(conn: redis.Redis, user_id: str,
 
 
 def get_user_access_roles(conn: redis.Redis,
-                          resource_id: str,
+                          resource_info: Dict,
                           user_id: str) -> Dict:
     """Get the highest access roles for a given user
 
     Args:
-      - conn: A redis connection with `decoded_responses == True`.
-      - resource_id: The unique id of a given resource.
+      - conn: A redis connection with the responses decoded.
+      - resource_info: A dict containing details(metadata) about a
+        given resource.
+      - user_id: The unique id of a given user.
 
     Returns:
       A dict indicating the highest access role the user has.
+
     """
     # This is the default access role
     access_role = {
@@ -83,7 +86,6 @@ def get_user_access_roles(conn: redis.Redis,
         "metadata": [DataRole.NO_ACCESS],
         "admin": [AdminRole.NOT_ADMIN],
     }
-    resource_info = json.loads(conn.hget('resources', resource_id))
 
     # Check the resource's default mask
     if default_mask := resource_info.get("default_mask"):
