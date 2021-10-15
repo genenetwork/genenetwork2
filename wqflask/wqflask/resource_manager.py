@@ -2,7 +2,7 @@ import redis
 import json
 import functools
 
-from enum import Enum
+from enum import Enum, unique
 
 
 
@@ -23,8 +23,18 @@ class OrderedEnum(Enum):
         return NotImplemented
 
 
+@unique
+class DataRole(OrderedEnum):
+    NO_ACCESS = "no-access"
+    VIEW = "view"
+    EDIT = "edit"
 
 
+@unique
+class AdminRole(OrderedEnum):
+    NOT_ADMIN = "not-admin"
+    EDIT_ACCESS = "edit-access"
+    EDIT_ADMINS = "edit-admins"
 
 def get_user_membership(conn: redis.Redis, user_id: str,
                         group_id: str) -> Dict:
