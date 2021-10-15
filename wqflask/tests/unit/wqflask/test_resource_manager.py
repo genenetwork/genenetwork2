@@ -58,18 +58,26 @@ class TestCheckUserAccessRole(unittest.TestCase):
     """Test cases for `get_user_access_roles`"""
 
     def setUp(self):
+        self.resource_info = {
+            "owner_id": "8ad942fe-490d-453e-bd37",
+            "default_mask": {
+                "data": "no-access",
+                "metadata": "no-access",
+                "admin": "not-admin",
+            },
+            "group_masks": {
+                "7fa95d07-0e2d-4bc5-b47c-448fdc1260b2": {
+                    "metadata": "edit",
+                    "data": "edit",
+                }},
+            "name": "_14329",
+            "data": {
+                "dataset": 1,
+                "trait": 14329,
+            },
+            "type": "dataset-publish",
+            }
         conn = mock.MagicMock()
-        conn.hget.return_value = (
-            '{"owner_id": "8ad942fe-490d-453e-bd37", '
-            '"default_mask": {"data": "no-access", '
-            '"metadata": "no-access", '
-            '"admin": "not-admin"}, '
-            '"group_masks": '
-            '{"7fa95d07-0e2d-4bc5-b47c-448fdc1260b2": '
-            '{"metadata": "edit", "data": "edit"}}, '
-            '"name": "_14329", "'
-            'data": {"dataset": 1, "trait": 14329}, '
-            '"type": "dataset-publish"}')
 
         conn.hgetall.return_value = {
             '7fa95d07-0e2d-4bc5-b47c-448fdc1260b2': (
@@ -85,7 +93,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
         """Test that the right access roles are set"""
         self.assertEqual(get_user_access_roles(
             conn=self.conn,
-            resource_id="",  # Can be anything
+            resource_info=self.resource_info,
             user_id="8ad942fe-490d-453e-bd37"),
                          {"data": DataRole.EDIT,
                           "metadata": DataRole.EDIT,
@@ -94,7 +102,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
     def test_get_user_access_default_mask(self):
         self.assertEqual(get_user_access_roles(
             conn=self.conn,
-            resource_id="",  # Can be anything
+            resource_info=self.resource_info,
             user_id=""),
                          {"data": DataRole.NO_ACCESS,
                           "metadata": DataRole.NO_ACCESS,
@@ -103,7 +111,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
     def test_get_user_access_group_mask(self):
         self.assertEqual(get_user_access_roles(
             conn=self.conn,
-            resource_id="",  # Can be anything
+            resource_info=self.resource_info,
             user_id="8ad942fe-490d-453e-bd37-56f252e41603"),
                          {"data": DataRole.EDIT,
                           "metadata": DataRole.EDIT,
