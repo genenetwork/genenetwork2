@@ -63,4 +63,52 @@ def get_user_membership(conn: redis.Redis, user_id: str,
                 results["member"] = True
             break
     return results
+
+
+def get_user_access_roles(conn: redis.Redis,
+                          resource_id: str,
+                          user_id: str) -> Dict:
+    """Get the highest access roles for a given user
+
+    Args:
+      - conn: A redis connection with `decoded_responses == True`.
+      - resource_id: The unique id of a given resource.
+
+    Returns:
+      A dict indicating the highest access role the user has.
+    """
+    # This is the default access role
+    access_role = {
+        "data": [DataRole.NO_ACCESS],
+        "metadata": [DataRole.NO_ACCESS],
+        "admin": [AdminRole.NOT_ADMIN],
+    }
+    resource_info = json.loads(conn.hget('resources', resource_id))
+
+    # Check the resource's default mask
+    if default_mask := resource_info.get("default_mask"):
+        access_role["data"].append(DataRole(default_mask.get("data")))
+        access_role["metadata"].append(DataRole(default_mask.get("metadata")))
+        access_role["admin"].append(AdminRole(default_mask.get("admin")))
+
+    # Then check if the user is the owner Check with Zach and Rob if
+    # the owner, be default should, as the lowest access_roles, edit
+    # access
+    if resource_info.get("owner_id") == user_id:
+        access_role["data"].append(DataRole.EDIT)
+        access_role["metadata"].append(DataRole.EDIT)
+        access_role["admin"].append(AdminRole.EDIT_ACCESS)
+
+    # Check the group mask. If the user is in that group mask, use the
+    # access roles for that group
+    if group_masks := resource_info.get("group_masks"):
+        for group_id, roles in group_masks.items():
+            user_membership = get_user_membership(conn=conn,
+                                                  user_id=user_id,
+                                                  group_id=group_id)
+            if any(user_membership.values()):
+                access_role["data"].append(DataRole(roles.get("data")))
+                access_role["metadata"].append(
+                    DataRole(roles.get("metadata")))
+    return {k: max(v) for k, v in access_role.items()}
     admin_status = check_owner_or_admin(resource_id=resource_id)
