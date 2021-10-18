@@ -40,19 +40,19 @@
                         <div class="form-group" style="padding-left: 20px;">
                             <label for="group_name" class="col-xs-3" style="float: left; font-size: 18px;">Resource Name:</label>
                             <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
-                                {{ resource_info.name }}
+                                {{ resource_info.get('name') }}
                             </div>
                         </div>
-                        {% if admin_status == "owner" %}
+                        {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
                         <div class="form-group" style="padding-left: 20px;">
                             <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">Open to Public:</label>
                             <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
                                 <label class="radio-inline">
-                                    <input type="radio" name="open_to_public" value="True" {% if default_mask != 'no-access' %}checked{% endif %}>
+                                    <input type="radio" name="open_to_public" value="True" {{ 'checked' if DATA_ACCESS > DataRole.NO_ACCESS }}>
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="open_to_public" value="False" {% if default_mask == 'no-access' %}checked{% endif %}>
+                                    <input type="radio" name="open_to_public" value="False" {{ 'checked' if DATA_ACCESS == DataRole.NO_ACCESS }}>
                                     No
                             </label>
                             </div>
@@ -67,17 +67,18 @@
                     </div>
                 </fieldset>
             </div>
-            {% if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access" %}
+            {% if ADMIN_STATUS > AdminRole.NOT_ADMIN %}
             <div style="min-width: 600px; max-width: 800px;">
                 <hr>
                 <button id="add_group_to_resource" class="btn btn-primary" style="margin-bottom: 30px;" data-url="/resources/add_group">Add Group</button>
                 <br>
-                {% if group_masks|length > 0 %}
+                {% if resource_info.get('group_masks', [])|length > 0 %}
                 <h2>Current Group Permissions</h2>
                 <hr>
                 <table id="groups_table" class="table-hover table-striped cell-border">
                     <thead>
                         <tr>
+                            <th>Id</th>
                             <th>Name</th>
                             <th>Data</th>
                             <th>Metadata</th>
@@ -85,9 +86,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for key, value in group_masks.items() %}
+                        {% for key, value in resource_info.get('group_masks').items() %}
                         <tr>
                             <td>{{ value.name }}</td>
+                            <td>{{ value.group_name}}</td>
                             <td>{{ value.data }}</td>
                             <td>{{ value.metadata }}</td>
                             <td>{{ value.admin }}</td>
