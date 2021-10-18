@@ -78,17 +78,15 @@
                             <th>Name</th>
                             <th>Data</th>
                             <th>Metadata</th>
-                            <th>Admin</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for key, value in resource_info.get('group_masks').items() %}
                         <tr>
-                            <td>{{ value.name }}</td>
+                            <td>{{ key }}</td>
                             <td>{{ value.group_name}}</td>
                             <td>{{ value.data }}</td>
                             <td>{{ value.metadata }}</td>
-                            <td>{{ value.admin }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -101,12 +99,9 @@
         </form>
     </div>
 
-
-
 <!-- End of body -->
 
 {% endblock %}
-
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 
