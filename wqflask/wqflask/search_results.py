@@ -122,8 +122,8 @@ class SearchResultPage:
 
             trait_dict['display_name'] = result[0]
             if self.dataset.type == "Publish":
-                if self.dataset.group.code:
-                    trait_dict['display_name'] = self.dataset.group.code + "_" + str(result[0])
+                if result[10]:
+                    trait_dict['display_name'] = str(result[10]) + "_" + str(result[0])
 
             trait_dict['dataset'] = self.dataset.name
             trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
@@ -186,7 +186,11 @@ class SearchResultPage:
             # Convert any bytes in dict to a normal utf-8 string
             for key in trait_dict.keys():
                 if isinstance(trait_dict[key], bytes):
-                    trait_dict[key] = trait_dict[key].decode('utf-8')
+                    try:
+                        trait_dict[key] = trait_dict[key].decode('utf-8')
+                    except UnicodeDecodeError:
+                        trait_dict[key] = trait_dict[key].decode('latin-1')
+
             trait_list.append(trait_dict)
 
         if self.results:
