@@ -4,6 +4,7 @@ from math import *
 import time
 import re
 import requests
+from types import SimpleNamespace
 
 from pprint import pformat as pf
 
@@ -11,6 +12,7 @@ import json
 
 from base.data_set import create_dataset
 from base.trait import create_trait
+from base.webqtlConfig import PUBMEDLINK_URL
 from wqflask import parser
 from wqflask import do_search
 from db import webqtlDatabaseFunction
@@ -18,12 +20,12 @@ from db import webqtlDatabaseFunction
 from flask import Flask, g
 
 from utility import hmac, helper_functions
+from utility.authentication_tools import check_resource_availability
 from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_str
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
-
 
 class SearchResultPage:
     #maxReturn = 3000
@@ -40,9 +42,7 @@ class SearchResultPage:
 
         self.uc_id = uuid.uuid4()
         self.go_term = None
-        logger.debug("uc_id:", self.uc_id)  # contains a unique id
 
-        logger.debug("kw is:", kw)         # dict containing search terms
         if kw['search_terms_or']:
             self.and_or = "or"
             self.search_terms = kw['search_terms_or']
@@ -55,7 +55,7 @@ class SearchResultPage:
         rx = re.compile(
             r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
-            logger.info("Regex failed search")
+            logger.debug("Regex failed search")
             self.search_term_exists = False
             return
         else:
@@ -72,9 +72,8 @@ class SearchResultPage:
 
         assert(is_str(kw.get('dataset')))
         self.dataset = create_dataset(kw['dataset'], dataset_type)
-        logger.debug("search_terms:", self.search_terms)
 
-        # ZS: I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
+        # I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
         try:
             self.search()
         except:
@@ -97,76 +96,102 @@ class SearchResultPage:
         trait_list = []
         json_trait_list = []
 
-        species = webqtlDatabaseFunction.retrieve_species(
-            self.dataset.group.name)
         # result_set represents the results for each search term; a search of
         # "shh grin2b" would have two sets of results, one for each term
+
+        if self.dataset.type == "ProbeSet":
+            self.header_data_names = ['index', 'display_name', 'symbol', 'description', 'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
+        elif self.dataset.type == "Publish":
+            self.header_data_names = ['index', 'display_name', 'description', 'mean', 'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
+        elif self.dataset.type == "Geno":
+            self.header_data_names = ['index', 'display_name', 'location']
 
         for index, result in enumerate(self.results):
             if not result:
                 continue
 
-            #### Excel file needs to be generated ####
-
             trait_dict = {}
-            trait_id = result[0]
-            this_trait = create_trait(
-                dataset=self.dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
-            if this_trait:
-                trait_dict['index'] = index + 1
-                trait_dict['name'] = this_trait.name
-                if this_trait.dataset.type == "Publish":
-                    trait_dict['display_name'] = this_trait.display_name
+            trait_dict['index'] = index + 1
+            trait_dict['name'] = result[0]
+
+            #ZS: Check permissions on a trait-by-trait basis for phenotype traits
+            if self.dataset.type == "Publish":
+                permissions = check_resource_availability(self.dataset, trait_dict['name'])
+                if "view" not in permissions['data']:
+                    continue
+
+            trait_dict['display_name'] = result[0]
+            if self.dataset.type == "Publish":
+                if result[10]:
+                    trait_dict['display_name'] = str(result[10]) + "_" + str(result[0])
+
+            trait_dict['dataset'] = self.dataset.name
+            trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
+            if self.dataset.type == "ProbeSet":
+                trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
+                description_text = "N/A" if result[4] is None or str(result[4]) == "" else trait_dict['symbol']
+
+                target_string = result[5]
+                description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
+                trait_dict['description'] = description_display
+
+                trait_dict['location'] = "N/A"
+                if (result[6] is not None) and (result[6] != "") and (result[7] is not None) and (result[7] != 0):
+                    trait_dict['location'] = f"Chr{result[6]}: {float(result[7]):.6f}"
+
+                trait_dict['mean'] = "N/A" if result[8] is None or result[8] == "" else f"{result[8]:.3f}"
+                trait_dict['additive'] = "N/A" if result[12] is None or result[12] == "" else f"{result[12]:.3f}"
+                trait_dict['lod_score'] = "N/A" if result[9] is None or result[9] == "" else f"{float(result[9]) / 4.61:.1f}"
+                trait_dict['lrs_location'] = "N/A" if result[13] is None or result[13] == "" or result[14] is None else f"Chr{result[13]}: {float(result[14]):.6f}"
+            elif self.dataset.type == "Geno":
+                trait_dict['location'] = "N/A"
+                if (result[4] != "NULL" and result[4] != "") and (result[5] != 0):
+                    trait_dict['location'] = f"Chr{result[4]}: {float(result[5]):.6f}"
+            elif self.dataset.type == "Publish":
+                trait_dict['description'] = "N/A"
+                trait_dict['pubmed_id'] = "N/A"
+                trait_dict['pubmed_link'] = "N/A"
+                trait_dict['pubmed_text'] = "N/A"
+                trait_dict['mean'] = "N/A"
+                trait_dict['additive'] = "N/A"
+                pre_pub_description = "N/A" if result[1] is None else result[1].strip()
+                post_pub_description = "N/A" if result[2] is None else result[2].strip()
+                if result[5] != "NULL" and result[5] != None:
+                    trait_dict['pubmed_id'] = result[5]
+                    trait_dict['pubmed_link'] = PUBMEDLINK_URL % trait_dict['pubmed_id']
+                    trait_dict['description'] = post_pub_description
                 else:
-                    trait_dict['display_name'] = this_trait.name
-                trait_dict['dataset'] = this_trait.dataset.name
-                trait_dict['hmac'] = hmac.data_hmac(
-                    '{}:{}'.format(this_trait.name, this_trait.dataset.name))
-                if this_trait.dataset.type == "ProbeSet":
-                    trait_dict['symbol'] = this_trait.symbol if this_trait.symbol else "N/A"
-                    trait_dict['description'] = "N/A"
-                    if this_trait.description_display:
-                        trait_dict['description'] = this_trait.description_display
-                    trait_dict['location'] = this_trait.location_repr
-                    trait_dict['mean'] = "N/A"
-                    trait_dict['additive'] = "N/A"
-                    if this_trait.mean != "" and this_trait.mean != None:
-                        trait_dict['mean'] = f"{this_trait.mean:.3f}"
+                    trait_dict['description'] = pre_pub_description
+
+                if result[4].isdigit():
+                    trait_dict['pubmed_text'] = result[4]
+
+                trait_dict['authors'] = result[3]
+
+                if result[6] != "" and result[6] != None:
+                    trait_dict['mean'] = f"{result[6]:.3f}"
+
+                try:
+                    trait_dict['lod_score'] = f"{float(result[7]) / 4.61:.1f}"
+                except:
+                    trait_dict['lod_score'] = "N/A"
+
+                try:
+                    trait_dict['lrs_location'] = f"Chr{result[11]}: {float(result[12]):.6f}"
+                except:
+                    trait_dict['lrs_location'] = "N/A"
+
+                trait_dict['additive'] = "N/A" if not result[8] else f"{result[8]:.3f}"
+
+            # Convert any bytes in dict to a normal utf-8 string
+            for key in trait_dict.keys():
+                if isinstance(trait_dict[key], bytes):
                     try:
-                        trait_dict['lod_score'] = f"{float(this_trait.LRS_score_repr) / 4.61:.1f}"
-                    except:
-                        trait_dict['lod_score'] = "N/A"
-                    trait_dict['lrs_location'] = this_trait.LRS_location_repr
-                    if this_trait.additive != "":
-                        trait_dict['additive'] = f"{this_trait.additive:.3f}"
-                elif this_trait.dataset.type == "Geno":
-                    trait_dict['location'] = this_trait.location_repr
-                elif this_trait.dataset.type == "Publish":
-                    trait_dict['description'] = "N/A"
-                    if this_trait.description_display:
-                        trait_dict['description'] = this_trait.description_display
-                    trait_dict['authors'] = this_trait.authors
-                    trait_dict['pubmed_id'] = "N/A"
-                    if this_trait.pubmed_id:
-                        trait_dict['pubmed_id'] = this_trait.pubmed_id
-                        trait_dict['pubmed_link'] = this_trait.pubmed_link
-                    trait_dict['pubmed_text'] = this_trait.pubmed_text
-                    trait_dict['mean'] = "N/A"
-                    if this_trait.mean != "" and this_trait.mean != None:
-                        trait_dict['mean'] = f"{this_trait.mean:.3f}"
-                    try:
-                        trait_dict['lod_score'] = f"{float(this_trait.LRS_score_repr) / 4.61:.1f}"
-                    except:
-                        trait_dict['lod_score'] = "N/A"
-                    trait_dict['lrs_location'] = this_trait.LRS_location_repr
-                    trait_dict['additive'] = "N/A"
-                    if this_trait.additive != "":
-                        trait_dict['additive'] = f"{this_trait.additive:.3f}"
-                # Convert any bytes in dict to a normal utf-8 string
-                for key in trait_dict.keys():
-                    if isinstance(trait_dict[key], bytes):
                         trait_dict[key] = trait_dict[key].decode('utf-8')
-                trait_list.append(trait_dict)
+                    except UnicodeDecodeError:
+                        trait_dict[key] = trait_dict[key].decode('latin-1')
+
+            trait_list.append(trait_dict)
 
         if self.results:
             self.max_widths = {}
@@ -179,23 +204,15 @@ class SearchResultPage:
                         self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
             self.wide_columns_exist = False
-            if this_trait.dataset.type == "Publish":
+            if self.dataset.type == "Publish":
                 if (self.max_widths['display_name'] > 25 or self.max_widths['description'] > 100 or self.max_widths['authors']> 80):
                     self.wide_columns_exist = True
-            if this_trait.dataset.type == "ProbeSet":
+            if self.dataset.type == "ProbeSet":
                 if (self.max_widths['display_name'] > 25 or self.max_widths['symbol'] > 25 or self.max_widths['description'] > 100):
                     self.wide_columns_exist = True
 
-        self.trait_list = trait_list
 
-        if self.dataset.type == "ProbeSet":
-            self.header_data_names = ['index', 'display_name', 'symbol', 'description',
-                                      'location', 'mean', 'lrs_score', 'lrs_location', 'additive']
-        elif self.dataset.type == "Publish":
-            self.header_data_names = ['index', 'display_name', 'description', 'mean',
-                                      'authors', 'pubmed_text', 'lrs_score', 'lrs_location', 'additive']
-        elif self.dataset.type == "Geno":
-            self.header_data_names = ['index', 'display_name', 'location']
+        self.trait_list = trait_list
 
     def search(self):
         """
@@ -203,14 +220,12 @@ class SearchResultPage:
 
         """
         self.search_terms = parser.parse(self.search_terms)
-        logger.debug("After parsing:", self.search_terms)
 
         combined_from_clause = ""
         combined_where_clause = ""
         # The same table can't be referenced twice in the from clause
         previous_from_clauses = []
 
-        logger.debug("len(search_terms)>1")
         symbol_list = []
         if self.dataset.type == "ProbeSet":
             for a_search in self.search_terms:

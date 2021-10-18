@@ -81,16 +81,31 @@ class MrnaAssaySearch(DoSearch):
 
     DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
-    base_query = """SELECT distinct ProbeSet.Name as TNAME,
-                0 as thistable,
-                ProbeSetXRef.Mean as TMEAN,
-                ProbeSetXRef.LRS as TLRS,
-                ProbeSetXRef.PVALUE as TPVALUE,
-                ProbeSet.Chr_num as TCHR_NUM,
-                ProbeSet.Mb as TMB,
-                ProbeSet.Symbol as TSYMBOL,
-                ProbeSet.name_num as TNAME_NUM
-                FROM ProbeSetXRef, ProbeSet """
+    base_query = """
+                SELECT
+                ProbeSetFreeze.`Name`,
+                ProbeSetFreeze.`FullName`,
+                ProbeSet.`Name`,
+                ProbeSet.`Symbol`,
+                CAST(ProbeSet.`description` AS BINARY),
+                CAST(ProbeSet.`Probe_Target_Description` AS BINARY),
+                ProbeSet.`Chr`,
+                ProbeSet.`Mb`,
+                ProbeSetXRef.`Mean`,
+                ProbeSetXRef.`LRS`,
+                ProbeSetXRef.`Locus`,
+                ProbeSetXRef.`pValue`,
+                ProbeSetXRef.`additive`,
+                Geno.`Chr` as geno_chr,
+                Geno.`Mb` as geno_mb
+                FROM Species
+                INNER JOIN InbredSet ON InbredSet.`SpeciesId`= Species.`Id`
+                INNER JOIN ProbeFreeze ON ProbeFreeze.`InbredSetId` = InbredSet.`Id`
+                INNER JOIN Tissue ON ProbeFreeze.`TissueId` = Tissue.`Id`
+                INNER JOIN ProbeSetFreeze ON ProbeSetFreeze.`ProbeFreezeId` = ProbeFreeze.`Id`
+                INNER JOIN ProbeSetXRef ON ProbeSetXRef.`ProbeSetFreezeId` = ProbeSetFreeze.`Id`
+                INNER JOIN ProbeSet ON ProbeSet.`Id` = ProbeSetXRef.`ProbeSetId`
+                LEFT JOIN Geno ON ProbeSetXRef.`Locus` = Geno.`Name` AND Geno.`SpeciesId` = Species.`Id` """
 
     header_fields = ['Index',
                      'Record',
@@ -193,10 +208,25 @@ class PhenotypeSearch(DoSearch):
     DoSearch.search_types['Publish'] = "PhenotypeSearch"
 
     base_query = """SELECT PublishXRef.Id,
-                PublishFreeze.createtime as thistable,
-                Publication.PubMed_ID as Publication_PubMed_ID,
-                Phenotype.Post_publication_description as Phenotype_Name
-                FROM Phenotype, PublishFreeze, Publication, PublishXRef """
+                CAST(Phenotype.`Pre_publication_description` AS BINARY),
+                CAST(Phenotype.`Post_publication_description` AS BINARY),
+                Publication.`Authors`,
+                Publication.`Year`,
+                Publication.`PubMed_ID`,
+                PublishXRef.`mean`,
+                PublishXRef.`LRS`,
+                PublishXRef.`additive`,
+                PublishXRef.`Locus`,
+                InbredSet.`InbredSetCode`,
+                Geno.`Chr`,
+                Geno.`Mb`
+                FROM Species
+                INNER JOIN InbredSet ON InbredSet.`SpeciesId` = Species.`Id`
+                INNER JOIN PublishXRef ON PublishXRef.`InbredSetId` = InbredSet.`Id`
+                INNER JOIN PublishFreeze ON PublishFreeze.`InbredSetId` = InbredSet.`Id`
+                INNER JOIN Publication ON Publication.`Id` = PublishXRef.`PublicationId`
+                INNER JOIN Phenotype ON Phenotype.`Id` = PublishXRef.`PhenotypeId`
+                LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id """
 
     search_fields = ('Phenotype.Post_publication_description',
                      'Phenotype.Pre_publication_description',
@@ -382,12 +412,10 @@ class RifSearch(MrnaAssaySearch):
     DoSearch.search_types['ProbeSet_RIF'] = "RifSearch"
 
     def get_from_clause(self):
-        return ", GeneRIF_BASIC "
+        return f" INNER JOIN GeneRIF_BASIC ON GeneRIF_BASIC.`symbol` = { self.dataset.type }.`symbol` "
 
     def get_where_clause(self):
-        where_clause = """( %s.symbol = GeneRIF_BASIC.symbol and
-            MATCH (GeneRIF_BASIC.comment)
-            AGAINST ('+%s' IN BOOLEAN MODE)) """ % (self.dataset.type, self.search_term[0])
+        where_clause = f"(MATCH (GeneRIF_BASIC.comment) AGAINST ('+{ self.search_term[0] }' IN BOOLEAN MODE)) "
 
         return where_clause
 
