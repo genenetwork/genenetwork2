@@ -113,4 +113,3 @@ def get_user_access_roles(conn: redis.Redis,
                 access_role["metadata"].append(
                     DataRole(roles.get("metadata")))
     return {k: max(v) for k, v in access_role.items()}
-    admin_status = check_owner_or_admin(resource_id=resource_id)
