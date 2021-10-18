@@ -7,7 +7,6 @@
 {% block content %}
 <!-- Start of body -->
     <div class="container">
-        {{ flash_me() }}
         <div class="page-header" style="display: inline-block;">
             <h1>Resource Manager</h1>
             <h3>{% if owner_name is not none %}Current Owner: {{ owner_name }}{% endif %} {% if admin_status == "owner" %}<button id="change_owner" class="btn btn-danger" data-url="/resources/change_owner" style="margin-left: 20px;">Change Owner</button>{% endif %}</h3>
