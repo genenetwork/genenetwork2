@@ -7,9 +7,30 @@
 {% block content %}
 <!-- Start of body -->
     <div class="container">
+        {% set DATA_ACCESS = access_role.get('data') %}
+        {% set METADATA_ACCESS = access_role.get('metadata') %}
+        {% set ADMIN_STATUS = access_role.get('admin') %}
+
         <div class="page-header" style="display: inline-block;">
             <h1>Resource Manager</h1>
-            <h3>{% if owner_name is not none %}Current Owner: {{ owner_name }}{% endif %} {% if admin_status == "owner" %}<button id="change_owner" class="btn btn-danger" data-url="/resources/change_owner" style="margin-left: 20px;">Change Owner</button>{% endif %}</h3>
+            <h3>
+                {% if resource_info.get('owner_id') != 'none'%}
+                {% set user_details = resource_info.get('owner_details') %}
+                Current Owner: {{ user_details.get('full_name') }}
+                {% if user_details.get('organization') %}
+                <br/> Organization {{ user_details.get('organization')}}
+                {% endif %}
+                {% endif %}
+
+                {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
+                <button id="change_owner"
+                        class="btn btn-danger"
+                        data-url="/resources/change_owner"
+                        style="margin-left: 20px;">
+                    Change Owner
+                </button>
+                {% endif %}
+            </h3>
         </div>
         <form id="manage_resource" action="/resources/manage" method="POST">
             <input type="hidden" name="resource_id" value="{{ resource_id }}">
