@@ -113,3 +113,42 @@ def get_user_access_roles(conn: redis.Redis,
                 access_role["metadata"].append(
                     DataRole(roles.get("metadata")))
     return {k: max(v) for k, v in access_role.items()}
+
+
+def add_extra_resource_metadata(conn: redis.Redis, resource: Dict) -> Dict:
+    """If resource['owner_id'] exists, add metadata about that user. Also,
+if the resource contains group masks, add the group name into the
+resource dict. Note that resource['owner_id'] and the group masks are
+unique identifiers so they aren't human readable names.
+
+    Args:
+      - conn: A redis connection with the responses decoded.
+      - resource: A dict containing details(metadata) about a
+        given resource.
+
+    Returns:
+      An embellished dictionary with the human readable names of the
+    group masks and the owner id if it was set.
+
+    """
+    # Embellish the resource information with owner details if the
+    # owner is set
+    if (owner_id := resource.get("owner_id", "none").lower()) == "none":
+        resource["owner_id"] = None
+        resource["owner_details"] = None
+    else:
+        user_details = json.loads(conn.hget("users", owner_id))
+        resource["owner_details"] = {
+            "email_address": user_details.get("email_address"),
+            "full_name": user_details.get("full_name"),
+            "organization": user_details.get("organization"),
+        }
+
+    # Embellish the resources information with the group name if the
+    # group masks are present
+    if groups := resource.get('group_masks', {}):
+        for group_id in groups.keys():
+            resource['group_masks'][group_id]["group_name"] = (
+                json.loads(conn.hget("groups", group_id)).get('name'))
+    return resource
+
