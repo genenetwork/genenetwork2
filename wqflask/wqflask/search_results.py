@@ -25,11 +25,9 @@ from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_str
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
-from utility.benchmark import Bench
-
-class SearchResultPage(object):
+class SearchResultPage:
     #maxReturn = 3000
 
     def __init__(self, kw):
@@ -54,9 +52,10 @@ class SearchResultPage(object):
         search = self.search_terms
         self.original_search_string = self.search_terms
         # check for dodgy search terms
-        rx = re.compile(r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
+        rx = re.compile(
+            r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
-            logger.info("Regex failed search")
+            logger.debug("Regex failed search")
             self.search_term_exists = False
             return
         else:
@@ -74,12 +73,11 @@ class SearchResultPage(object):
         assert(is_str(kw.get('dataset')))
         self.dataset = create_dataset(kw['dataset'], dataset_type)
 
-        #ZS: I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
+        # I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
         try:
-            with Bench("Doing Query"):
-                self.search()
+            self.search()
         except:
-           self.search_term_exists = False
+            self.search_term_exists = False
 
         self.too_many_results = False
         if self.search_term_exists:
@@ -191,6 +189,24 @@ class SearchResultPage(object):
                     trait_dict[key] = trait_dict[key].decode('utf-8')
             trait_list.append(trait_dict)
 
+        if self.results:
+            self.max_widths = {}
+            for i, trait in enumerate(trait_list):
+                for key in trait.keys():
+                    if key == "authors":
+                        authors_string = ",".join(str(trait[key]).split(",")[:6]) + ", et al."
+                        self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+                    else:
+                        self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+
+            self.wide_columns_exist = False
+            if this_trait.dataset.type == "Publish":
+                if (self.max_widths['display_name'] > 25 or self.max_widths['description'] > 100 or self.max_widths['authors']> 80):
+                    self.wide_columns_exist = True
+            if this_trait.dataset.type == "ProbeSet":
+                if (self.max_widths['display_name'] > 25 or self.max_widths['symbol'] > 25 or self.max_widths['description'] > 100):
+                    self.wide_columns_exist = True
+
         self.trait_list = trait_list
 
     def search(self):
@@ -202,7 +218,8 @@ class SearchResultPage(object):
 
         combined_from_clause = ""
         combined_where_clause = ""
-        previous_from_clauses = [] #The same table can't be referenced twice in the from clause
+        # The same table can't be referenced twice in the from clause
+        previous_from_clauses = []
 
         symbol_list = []
         if self.dataset.type == "ProbeSet":
@@ -215,7 +232,8 @@ class SearchResultPage(object):
             for i, a_search in enumerate(alias_terms):
                 the_search = self.get_search_ob(a_search)
                 if the_search != None:
-                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    get_from_clause = getattr(
+                        the_search, "get_from_clause", None)
                     if callable(get_from_clause):
                         from_clause = the_search.get_from_clause()
                         if from_clause in previous_from_clauses:
@@ -239,7 +257,8 @@ class SearchResultPage(object):
             else:
                 the_search = self.get_search_ob(a_search)
                 if the_search != None:
-                    get_from_clause = getattr(the_search, "get_from_clause", None)
+                    get_from_clause = getattr(
+                        the_search, "get_from_clause", None)
                     if callable(get_from_clause):
                         from_clause = the_search.get_from_clause()
                         if from_clause in previous_from_clauses:
@@ -249,7 +268,7 @@ class SearchResultPage(object):
                             combined_from_clause += from_clause
                     where_clause = the_search.get_where_clause()
                     combined_where_clause += "(" + where_clause + ")"
-                    if (i+1) < len(self.search_terms):
+                    if (i + 1) < len(self.search_terms):
                         if self.and_or == "and":
                             combined_where_clause += "AND"
                         else:
@@ -258,7 +277,8 @@ class SearchResultPage(object):
                     self.search_term_exists = False
         if self.search_term_exists:
             combined_where_clause = "(" + combined_where_clause + ")"
-            final_query = the_search.compile_final_query(combined_from_clause, combined_where_clause)
+            final_query = the_search.compile_final_query(
+                combined_from_clause, combined_where_clause)
             results = the_search.execute(final_query)
             self.results.extend(results)
 
@@ -280,13 +300,14 @@ class SearchResultPage(object):
         if search_ob:
             search_class = getattr(do_search, search_ob)
             the_search = search_class(search_term,
-                                    search_operator,
-                                    self.dataset,
-                                    search_type['key']
-                                    )
+                                      search_operator,
+                                      self.dataset,
+                                      search_type['key']
+                                      )
             return the_search
         else:
             return None
+
 
 def get_GO_symbols(a_search):
     query = """SELECT genes
@@ -305,12 +326,14 @@ def get_GO_symbols(a_search):
 
     return new_terms
 
+
 def insert_newlines(string, every=64):
     """ This is because it is seemingly impossible to change the width of the description column, so I'm just manually adding line breaks """
     lines = []
     for i in range(0, len(string), every):
-        lines.append(string[i:i+every])
+        lines.append(string[i:i + every])
     return '\n'.join(lines)
+
 
 def get_aliases(symbol_list, species):
 
@@ -326,7 +349,8 @@ def get_aliases(symbol_list, species):
     symbols_string = ",".join(updated_symbols)
 
     filtered_aliases = []
-    response = requests.get(GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
+    response = requests.get(
+        GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
     if response:
         alias_lists = json.loads(response.content)
         seen = set()
@@ -340,10 +364,9 @@ def get_aliases(symbol_list, species):
 
     search_terms = []
     for alias in filtered_aliases:
-        the_search_term = {'key':         None,
+        the_search_term = {'key': None,
                            'search_term': [alias],
-                           'separator' :  None}
+                           'separator': None}
         search_terms.append(the_search_term)
 
     return search_terms
-

@@ -5,6 +5,7 @@ from functools import cmp_to_key
 from base.trait import create_trait
 from base import data_set
 
+
 def export_sample_table(targs):
 
     sample_data = json.loads(targs['export_data'])
@@ -28,6 +29,7 @@ def export_sample_table(targs):
 
     return trait_name, final_sample_data
 
+
 def get_export_metadata(trait_id, dataset_name):
     dataset = data_set.create_dataset(dataset_name)
     this_trait = create_trait(dataset=dataset,
@@ -38,16 +40,23 @@ def get_export_metadata(trait_id, dataset_name):
     metadata = []
     if dataset.type == "Publish":
         metadata.append(["Phenotype ID: " + trait_id])
-        metadata.append(["Phenotype URL: " + "http://genenetwork.org/show_trait?trait_id=" + trait_id + "&dataset=" + dataset_name])
+        metadata.append(["Phenotype URL: " + "http://genenetwork.org/show_trait?trait_id=" + \
+                         trait_id + "&dataset=" + dataset_name])
         metadata.append(["Group: " + dataset.group.name])
-        metadata.append(["Phenotype: " + this_trait.description_display.replace(",", "\",\"")])
-        metadata.append(["Authors: " + (this_trait.authors if this_trait.authors else "N/A")])
-        metadata.append(["Title: " + (this_trait.title if this_trait.title else "N/A")])
-        metadata.append(["Journal: " + (this_trait.journal if this_trait.journal else "N/A")])
-        metadata.append(["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset.name])
+        metadata.append(
+            ["Phenotype: " + this_trait.description_display.replace(",", "\",\"")])
+        metadata.append(
+            ["Authors: " + (this_trait.authors if this_trait.authors else "N/A")])
+        metadata.append(
+            ["Title: " + (this_trait.title if this_trait.title else "N/A")])
+        metadata.append(
+            ["Journal: " + (this_trait.journal if this_trait.journal else "N/A")])
+        metadata.append(
+            ["Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset.name])
     else:
         metadata.append(["Record ID: " + trait_id])
-        metadata.append(["Trait URL: " + "http://genenetwork.org/show_trait?trait_id=" + trait_id + "&dataset=" + dataset_name])
+        metadata.append(["Trait URL: " + "http://genenetwork.org/show_trait?trait_id=" + \
+                         trait_id + "&dataset=" + dataset_name])
         if this_trait.symbol:
             metadata.append(["Symbol: " + this_trait.symbol])
         metadata.append(["Dataset: " + dataset.name])
@@ -63,6 +72,7 @@ def dict_to_sorted_list(dictionary):
     sorted_list = sorted(sorted_list, key=cmp_to_key(cmp_samples))
     sorted_values = [item[1] for item in sorted_list]
     return sorted_values
+
 
 def cmp_samples(a, b):
     if b[0] == 'name':

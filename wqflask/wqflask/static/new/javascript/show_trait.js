@@ -98,10 +98,53 @@ sample_group_types = js_data.sample_group_types;
 $(".select_covariates").click(function () {
   open_covariate_selection();
 });
+
 $(".remove_covariates").click(function () {
-  $("input[name=covariates]").val("")
-  $(".selected-covariates").val("")
+  $(".selected-covariates option:selected").each(function() {
+    this_val = $(this).val();
+    $(".selected-covariates option").each(function(){
+      if ($(this).val() == this_val){
+        $(this).remove();
+      }
+    })
+    cofactor_count = $(".selected-covariates:first option").length
+    if (cofactor_count > 2 && cofactor_count < 11){
+      $(".selected-covariates").each(function() {
+        $(this).attr("size", $(".selected-covariates:first option").length)
+      });
+    } else if (cofactor_count > 10) {
+      $(".selected-covariates").each(function() {
+        $(this).attr("size", 10)
+      });
+    } else {
+      $(".selected-covariates").each(function() {
+        $(this).attr("size", 2)
+      });
+    }
+    if (cofactor_count == 0){
+      $(".selected-covariates").each(function() {
+        $(this).append($("<option/>", {
+          value: "",
+          text: "No covariates selected"
+        }))
+      })
+    }
+  });
+
+  covariates_list = [];
+  $(".selected-covariates:first option").each(function() {
+    covariates_list.push($(this).val());
+  })
+  $("input[name=covariates]").val(covariates_list.join(","))
 });
+
+$(".remove_all_covariates").click(function() {
+  $(".selected-covariates option").each(function() {
+    $(this).remove();
+  });
+  $(".selected-covariates").attr("size", 2)
+  $("input[name=covariates]").val("");
+})
 
 open_trait_selection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
@@ -585,6 +628,16 @@ get_table_contents_for_form_submit = function(form_id) {
 var corr_input_list = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
+$(".test_corr_compute").on("click", (function(_this) {
+  return function() {
+    $('input[name=tool_used]').val("Correlation");
+    $('input[name=form_url]').val("/test_corr_compute");
+    $('input[name=wanted_inputs]').val(corr_input_list.join(","));
+    url = "/loading";
+    return submit_special(url);
+  };
+})(this));
+
 $(".corr_compute").on("click", (function(_this) {
   return function() {
     $('input[name=tool_used]').val("Correlation");
@@ -598,13 +651,14 @@ $(".corr_compute").on("click", (function(_this) {
 create_value_dropdown = function(value) {
   return "<option val=" + value + ">" + value + "</option>";
 };
+
 populate_sample_attributes_values_dropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
   sample_attributes = [];
 
   var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
-    return [key, js_data.attributes[key].name.toLowerCase()];
+    return [key, js_data.attributes[key].id];
   });
 
   attributes_as_list.sort(function(first, second) {
@@ -618,7 +672,7 @@ populate_sample_attributes_values_dropdown = function() {
   });
 
   for (i=0; i < attributes_as_list.length; i++) {
-    attribute_info = js_data.attributes[attributes_as_list[i][0]]
+    attribute_info = js_data.attributes[attributes_as_list[i][1]]
     sample_attributes.push(attribute_info.distinct_values);
   }
 
@@ -634,7 +688,7 @@ populate_sample_attributes_values_dropdown = function() {
   return _results;
 };
 
-if (Object.keys(js_data.attributes).length){
+if (js_data.categorical_attr_exists == "true"){
   populate_sample_attributes_values_dropdown();
 }
 
@@ -657,11 +711,13 @@ block_by_attribute_value = function() {
   let exclude_val_nodes = table_api.column(attribute_start_pos + parseInt(exclude_column)).nodes().to$();
 
   for (i = 0; i < exclude_val_nodes.length; i++) {
-    let this_col_value = exclude_val_nodes[i].childNodes[0].data;
-    let this_val_node = val_nodes[i].childNodes[0];
+    if (exclude_val_nodes[i].hasChildNodes()) {
+      let this_col_value = exclude_val_nodes[i].childNodes[0].data;
+      let this_val_node = val_nodes[i].childNodes[0];
 
-    if (this_col_value == exclude_by_value){
-      this_val_node.value = "x";
+      if (this_col_value == exclude_by_value){
+        this_val_node.value = "x";
+      }
     }
   }
 
@@ -703,9 +759,33 @@ block_by_index = function() {
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     val_nodes[index - 1].childNodes[0].value = "x";
-
   }
 };
+
+filter_by_study = function() {
+  let this_study = $('#filter_study').val();
+
+  let study_sample_data = JSON.parse($('input[name=study_samplelists]').val())
+  let filter_samples = study_sample_data[parseInt(this_study)]['samples']
+
+  if ($('#filter_study_group').length){
+    let block_group = $('#filter_study_group').val();
+    if (block_group === "other") {
+      table_api = $('#samples_other').DataTable();
+    } else {
+      table_api = $('#samples_primary').DataTable();
+    }
+  }
+
+  let sample_nodes = table_api.column(2).nodes().to$();
+  let val_nodes = table_api.column(3).nodes().to$();
+  for (i = 0; i < sample_nodes.length; i++) {
+    this_sample = sample_nodes[i].childNodes[0].innerText;
+    if (!filter_samples.includes(this_sample)){
+      val_nodes[i].childNodes[0].value = "x";
+    }
+  }
+}
 
 filter_by_value = function() {
   let filter_logic = $('#filter_logic').val();
@@ -737,7 +817,11 @@ filter_by_value = function() {
     if (filter_column == "value" || filter_column == "stderr"){
       var this_col_value = filter_val_nodes[i].childNodes[0].value;
     } else {
-      var this_col_value = filter_val_nodes[i].childNodes[0].data;
+      if (filter_val_nodes[i].childNodes[0] !== undefined){
+        var this_col_value = filter_val_nodes[i].innerText;
+      } else {
+        continue
+      }
     }
     let this_val_node = val_nodes[i].childNodes[0];
 
@@ -1675,6 +1759,11 @@ $('#block_by_index').click(function(){
   block_by_index();
   edit_data_change();
 });
+
+$('#filter_by_study').click(function(){
+  filter_by_study();
+  edit_data_change();
+})
 
 $('#filter_by_value').click(function(){
   filter_by_value();

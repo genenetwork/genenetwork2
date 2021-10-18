@@ -12,8 +12,9 @@ class AttributeSetter:
     def __init__(self, obj):
         for key, val in obj.items():
             setattr(self, key, val)
-class TestPlinkMapping(unittest.TestCase):
 
+
+class TestPlinkMapping(unittest.TestCase):
 
     def test_build_line_list(self):
         """test for building line list"""

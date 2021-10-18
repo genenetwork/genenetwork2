@@ -2,7 +2,9 @@
 
 * Table of Contents                                                     :TOC:
  - [[#introduction][Introduction]]
- - [[#install][Install]]
+ - [[#check-list][Check list]]
+ - [[#installing-guix-packages][Installing Guix packages]]
+ - [[#creating-a-gnu-guix-profile][Creating a GNU Guix profile]]
  - [[#running-gn2][Running GN2]]
  - [[#run-gn-proxy][Run gn-proxy]]
  - [[#run-redis][Run Redis]]
@@ -37,32 +39,106 @@ tree. Current supported versions can be found as the SHA values of
 For a full view of runtime dependencies as defined by GNU Guix, see
 an example of the [[#gn2-dependency-graph][GN2 Dependency Graph]].
 
-* Install
+* Check list
+
+To run GeneNetwork the following services need to function:
+
+1. [ ] GNU Guix with a guix profile for genenetwork2
+1. [ ] A path to the (static) genotype files
+1. [ ] Gn-proxy for authentication
+1. [ ] The genenetwork3 service
+1. [ ] Redis
+1. [ ] Mariadb
+
+* Installing Guix packages
 
 Make sure to install GNU Guix using the binary download instructions
 on the main website. Follow the instructions on
 [[GUIX-Reproducible-from-source.org]] to download pre-built binaries. Note
-the download amounts to several GBs of data.
+the download amounts to several GBs of data. Debian-derived distros
+may support
+
+: apt-get install guix
+
+* Creating a GNU Guix profile
+
+We run a GNU Guix channel with packages at [[https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics][guix-bioinformatics]]. The
+README has instructions for hosting a channel, but typically we use
+the GUIX_PACKAGE_PATH instead. First upgrade to a recent guix with
+
+: mkdir ~/opt
+: guix pull -p ~/opt/guix-pull
+
+It should upgrade (ignore the locales warnings).  You can optionally
+specify the specific git checkout of guix with
+
+: guix pull -p ~/opt/guix-pull --commit=f04883d
+
+which is useful when you ned to roll back to an earlier version
+(sometimes our channel goes out of sync). Next, we install
+GeneNetwork2 with
+
+: source ~/opt/guix-pull/etc/profile
+: git clone https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics.git ~/guix-bioinformatics
+: cd ~/guix-bioinformatics
+: git pull
+: env GUIX_PACKAGE_PATH=$HOME/guix-bioinformatics guix package -i genenetwork2 -p ~/opt/genenetwork2
+
+you probably also need guix-past (the upstream channel for older packages):
+
+: git clone https://gitlab.inria.fr/guix-hpc/guix-past.git ~/guix-past
+: cd ~/guix-past
+: git pull
+: env GUIX_PACKAGE_PATH=$HOME/guix-bioinformatics:$HOME/guix-past/modules ~/opt/guix-pull/bin/guix package -i genenetwork2 -p ~/opt/genenetwork2
+
+ignore the warnings. Guix should install the software without trying
+to build everything. If you system insists on building all packages,
+try the `--dry-run` switch and fix the [[https://guix.gnu.org/manual/en/html_node/Substitute-Server-Authorization.html][substitutes]]. You may add the
+`--substitute-urls="http://guix.genenetwork.org https://ci.guix.gnu.org https://mirror.hydra.gnu.org"` switch.
+
+The guix.genenetwork.org has most of our packages pre-built(!). To use
+it on your own machine the public key is
+
+#+begin_src scheme
+(public-key
+ (ecc
+  (curve Ed25519)
+  (q #E50F005E6DA2F85749B9AA62C8E86BB551CE2B541DC578C4DBE613B39EC9E750#)))
+#+end_src
+
+Once we have a GNU Guix profile, a running database (see below) and the file storage,
+we should be ready to fire up GeneNetwork:
 
 * Running GN2
 
-Default settings for GN2 are listed in a file called
-[[../etc/default_settings.py][default_settings.py]]. You can copy this file and pass it as a new
-parameter to the genenetwork2 command, e.g.
+Check out the source with git:
 
-: genenetwork2 mysettings.py
+: git clone git@github.com:genenetwork/genenetwork2.git
+: cd genenetwork2
 
-or you can set environment variables to override individual parameters, e.g.
+Run GN2 with above Guix profile
 
-: env SERVER_PORT=5004 SQL_URI=mysql://user:pwd@dbhostname/db_webqtl genenetwork2
+: export GN2_PROFILE=$HOME/opt/genenetwork2
+: env TMPDIR=$HOME/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5012 GENENETWORK_FILES=/export/data/genenetwork/genotype_files SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 etc/default_settings.py -gunicorn-dev
 
 the debug and logging switches can be particularly useful when
-developing GN2.
+developing GN2. Location and files are the current ones for Penguin2.
+
+It may be useful to tunnel the web server to your local browser with
+an ssh tunnel:
+
+If you want to test a service running on the server on a certain
+port (say 8202) use
+
+  ssh -L 8202:127.0.0.1:8202 -f -N myname@penguin2.genenetwork.org
+
+And browse on your local machine to http://localhost:8202/
 
 * Run gn-proxy
 
 GeneNetwork requires a separate gn-proxy server which handles
-authorisation and access control. For instructions see the [[https://github.com/genenetwork/gn-proxy][README]].
+authorisation and access control. For instructions see the
+[[https://github.com/genenetwork/gn-proxy][README]]. Note it may already be running on our servers!
 
 * Run Redis
 

@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -22,11 +22,13 @@ from base.trait import GeneralTrait
 from utility import helper_functions, corr_result_helpers
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
-class SendToBNW(object):
+
+class SendToBNW:
     def __init__(self, start_vars):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                         for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         trait_samples_list = []
@@ -38,9 +40,10 @@ class SendToBNW(object):
             trait1_samples = list(this_sample_data.keys())
             trait_samples_list.append(trait1_samples)
 
-        shared_samples = list(set(trait_samples_list[0]).intersection(*trait_samples_list))
+        shared_samples = list(
+            set(trait_samples_list[0]).intersection(*trait_samples_list))
 
-        self.form_value = "" #ZS: string that is passed to BNW through form
+        self.form_value = ""  # ZS: string that is passed to BNW through form
         values_list = []
         for trait_db in self.trait_list:
             this_trait = trait_db[0]

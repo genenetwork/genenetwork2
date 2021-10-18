@@ -326,4 +326,15 @@ $(function() {
       } );
   }
 
+  apply_default = function() {
+    let default_collection_id = $.cookie('default_collection');
+    if (default_collection_id) {
+      let the_option = $('[name=existing_collection] option').filter(function() {
+        return ($(this).text().split(":")[0] == default_collection_id);
+      })
+      the_option.prop('selected', true);
+    }
+  }
+  apply_default();
+
 });

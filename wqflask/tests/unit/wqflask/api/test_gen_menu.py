@@ -2,9 +2,7 @@
 import unittest
 from unittest import mock
 
-from wqflask import app
 from wqflask.api.gen_menu import gen_dropdown_json
-from wqflask.api.gen_menu import get_species
 from wqflask.api.gen_menu import get_groups
 from wqflask.api.gen_menu import get_types
 from wqflask.api.gen_menu import get_datasets
@@ -18,8 +16,6 @@ class TestGenMenu(unittest.TestCase):
     """Tests for the gen_menu module"""
 
     def setUp(self):
-        self.app_context = app.app_context()
-        self.app_context.push()
         self.test_group = {
             'mouse': [
                 ['H_T1',
@@ -70,212 +66,225 @@ class TestGenMenu(unittest.TestCase):
             }
         }
 
-    def tearDown(self):
-        self.app_context.pop()
-
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_get_species(self, db_mock):
-        """Test that assertion is raised when dataset and dataset_name
-        are defined"""
-        db_mock.db.execute.return_value.fetchall.return_value = (
-            ('human', 'Human'),
-            ('mouse', 'Mouse'))
-        self.assertEqual(get_species(),
-                         [['human', 'Human'], ['mouse', 'Mouse']])
-        db_mock.db.execute.assert_called_once_with(
-            "SELECT Name, MenuName FROM Species ORDER BY OrderId"
-        )
-
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_get_groups(self, db_mock):
+    def test_get_groups(self):
         """Test that species groups are grouped correctly"""
-        db_mock.db.execute.return_value.fetchall.side_effect = [
-            # Mouse
-            (('BXD', 'BXD', None),
-             ('HLC', 'Liver: Normal Gene Expression with Genotypes (Merck)',
-              'Test')),
-            # Human
-            (('H_T1', "H_T", "DescriptionA"),
-             ('H_T2', "H_T'", None))
-        ]
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchall.side_effect = [
+                # Mouse
+                (('BXD', 'BXD', None),
+                 ('HLC', ('Liver: Normal Gene Expression '
+                          'with Genotypes (Merck)'),
+                  'Test')),
+                # Human
+                (('H_T1', "H_T", "DescriptionA"),
+                 ('H_T2', "H_T'", None))
+            ]
+            self.assertEqual(get_groups([["human", "Human"],
+                                         ["mouse", "Mouse"]],
+                                        db_mock),
+                             self.test_group)
 
-        self.assertEqual(get_groups([["human", "Human"], ["mouse", "Mouse"]]),
-                         self.test_group)
+            for name in ["mouse", "human"]:
+                cursor.execute.assert_any_call(
+                    ("SELECT InbredSet.Name, InbredSet.FullName, "
+                     "IFNULL(InbredSet.Family, 'None') "
+                     "FROM InbredSet, Species WHERE Species.Name "
+                     "= '{}' AND InbredSet.SpeciesId = Species.Id GROUP by "
+                     "InbredSet.Name ORDER BY IFNULL(InbredSet.FamilyOrder, "
+                     "InbredSet.FullName) ASC, IFNULL(InbredSet.Family, "
+                     "InbredSet.FullName) ASC, InbredSet.FullName ASC, "
+                     "InbredSet.MenuOrderId ASC").format(name)
+                )
 
-        for name in ["mouse", "human"]:
-            db_mock.db.execute.assert_any_call(
-                ("SELECT InbredSet.Name, InbredSet.FullName, " +
-                 "IFNULL(InbredSet.Family, 'None') " +
-                 "FROM InbredSet, Species WHERE Species.Name " +
-                 "= '{}' AND InbredSet.SpeciesId = Species.Id GROUP by " +
-                 "InbredSet.Name ORDER BY IFNULL(InbredSet.FamilyOrder, " +
-                 "InbredSet.FullName) ASC, IFNULL(InbredSet.Family, " +
-                 "InbredSet.FullName) ASC, InbredSet.FullName ASC, " +
-                 "InbredSet.MenuOrderId ASC").format(name)
+    def test_phenotypes_exist_called_with_correct_query(self):
+        """Test that phenotypes_exist is called with the correct query"""
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchone.return_value = None
+            phenotypes_exist("test", db_mock)
+            cursor.execute.assert_called_with(
+                "SELECT Name FROM PublishFreeze "
+                "WHERE PublishFreeze.Name = 'testPublish'"
             )
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_phenotypes_exist_called_with_correct_query(self, db_mock):
-        """Test that phenotypes_exist is called with the correct query"""
-        db_mock.db.execute.return_value.fetchone.return_value = None
-        phenotypes_exist("test")
-        db_mock.db.execute.assert_called_with(
-            "SELECT Name FROM PublishFreeze "
-            "WHERE PublishFreeze.Name = 'testPublish'"
-        )
-
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_phenotypes_exist_with_falsy_values(self, db_mock):
+    def test_phenotypes_exist_with_falsy_values(self):
         """Test that phenotype check returns correctly when given
         a None value"""
-        for x in [None, False, (), [], ""]:
-            db_mock.db.execute.return_value.fetchone.return_value = x
-            self.assertFalse(phenotypes_exist("test"))
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            for x in [None, False, (), [], ""]:
+                cursor.fetchone.return_value = x
+            self.assertFalse(phenotypes_exist("test", db_mock))
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_phenotypes_exist_with_truthy_value(self, db_mock):
-        """Test that phenotype check returns correctly when given Truthy """
-        for x in ["x", ("result"), ["result"], [1]]:
-            db_mock.db.execute.return_value.fetchone.return_value = (x)
-            self.assertTrue(phenotypes_exist("test"))
+    def test_phenotypes_exist_with_truthy_value(self):
+        """Test that phenotype check returns correctly when given Truthy"""
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as conn:
+            with conn.cursor() as cursor:
+                for x in ["x", ("result"), ["result"], [1]]:
+                    cursor.fetchone.return_value = (x)
+                self.assertTrue(phenotypes_exist("test", db_mock))
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_genotypes_exist_called_with_correct_query(self, db_mock):
+    def test_genotypes_exist_called_with_correct_query(self):
         """Test that genotypes_exist is called with the correct query"""
-        db_mock.db.execute.return_value.fetchone.return_value = None
-        genotypes_exist("test")
-        db_mock.db.execute.assert_called_with(
-            "SELECT Name FROM GenoFreeze WHERE GenoFreeze.Name = 'testGeno'"
-        )
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchone.return_value = None
+            genotypes_exist("test", db_mock)
+            cursor.execute.assert_called_with(
+                "SELECT Name FROM GenoFreeze WHERE "
+                "GenoFreeze.Name = 'testGeno'"
+            )
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_genotypes_exist_with_falsy_values(self, db_mock):
-        """Test that genotype check returns correctly when given
-        a None value"""
-        for x in [None, False, (), [], ""]:
-            db_mock.db.execute.return_value.fetchone.return_value = x
-            self.assertFalse(genotypes_exist("test"))
+    def test_genotypes_exist_with_falsy_values(self):
+        """Test that genotype check returns correctly when given a None value
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_genotypes_exist_with_truthy_value(self, db_mock):
+        """
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            for x in [None, False, (), [], ""]:
+                cursor.fetchone.return_value = x
+                self.assertFalse(genotypes_exist("test", db_mock))
+
+    def test_genotypes_exist_with_truthy_value(self):
         """Test that genotype check returns correctly when given Truthy """
-        for x in ["x", ("result"), ["result"], [1]]:
-            db_mock.db.execute.return_value.fetchone.return_value = (x)
-            self.assertTrue(phenotypes_exist("test"))
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            for x in ["x", ("result"), ["result"], [1]]:
+                cursor.fetchone.return_value = (x)
+                self.assertTrue(phenotypes_exist("test", db_mock))
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_build_datasets_with_type_phenotypes(self, db_mock):
+    def test_build_datasets_with_type_phenotypes(self):
         """Test that correct dataset is returned for a phenotype type"""
-        db_mock.db.execute.return_value.fetchall.return_value = (
-            (602, "BXDPublish", "BXD Published Phenotypes"),
-        )
-        self.assertEqual(build_datasets("Mouse", "BXD", "Phenotypes"),
-                         [['602', "BXDPublish", "BXD Published Phenotypes"]])
-        db_mock.db.execute.assert_called_with(
-            "SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, " +
-            "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, " +
-            "InbredSet WHERE InbredSet.Name = 'BXD' AND " +
-            "PublishFreeze.InbredSetId = InbredSet.Id AND " +
-            "InfoFiles.InfoPageName = PublishFreeze.Name " +
-            "ORDER BY PublishFreeze.CreateTime ASC"
-        )
-        self.assertEqual(build_datasets("Mouse", "MDP", "Phenotypes"),
-                         [['602', "BXDPublish", "Mouse Phenome Database"]])
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchall.return_value = (
+                (602, "BXDPublish", "BXD Published Phenotypes"),
+            )
+            self.assertEqual(build_datasets("Mouse", "BXD",
+                                            "Phenotypes", db_mock),
+                             [['602', "BXDPublish",
+                               "BXD Published Phenotypes"]])
+            cursor.execute.assert_called_with(
+                "SELECT InfoFiles.GN_AccesionId, PublishFreeze.Name, "
+                + "PublishFreeze.FullName FROM InfoFiles, PublishFreeze, "
+                + "InbredSet WHERE InbredSet.Name = 'BXD' AND "
+                + "PublishFreeze.InbredSetId = InbredSet.Id AND "
+                + "InfoFiles.InfoPageName = PublishFreeze.Name "
+                + "ORDER BY PublishFreeze.CreateTime ASC"
+            )
+            self.assertEqual(build_datasets("Mouse", "MDP",
+                                            "Phenotypes", db_mock),
+                             [['602', "BXDPublish",
+                               "Mouse Phenome Database"]])
 
-        db_mock.db.execute.return_value.fetchall.return_value = ()
-        db_mock.db.execute.return_value.fetchone.return_value = (
-            "BXDPublish", "Mouse Phenome Database"
-        )
-        self.assertEqual(build_datasets("Mouse", "MDP", "Phenotypes"),
-                         [["None", "BXDPublish", "Mouse Phenome Database"]])
+            cursor.fetchall.return_value = ()
+            cursor.fetchone.return_value = (
+                "BXDPublish", "Mouse Phenome Database"
+            )
+            self.assertEqual(build_datasets("Mouse", "MDP",
+                                            "Phenotypes", db_mock),
+                             [["None", "BXDPublish",
+                               "Mouse Phenome Database"]])
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_build_datasets_with_type_phenotypes_and_no_results(self, db_mock):
+    def test_build_datasets_with_type_phenotypes_and_no_results(self):
         """Test that correct dataset is returned for a phenotype type with no
         results
 
         """
-        db_mock.db.execute.return_value.fetchall.return_value = None
-        db_mock.db.execute.return_value.fetchone.return_value = (121,
-                                                                 "text value")
-        self.assertEqual(build_datasets("Mouse", "BXD", "Phenotypes"),
-                         [["None", "121", "text value"]])
-        db_mock.db.execute.assert_called_with(
-            "SELECT PublishFreeze.Name, PublishFreeze.FullName "
-            "FROM PublishFreeze, InbredSet "
-            "WHERE InbredSet.Name = 'BXD' AND "
-            "PublishFreeze.InbredSetId = InbredSet.Id "
-            "ORDER BY PublishFreeze.CreateTime ASC"
-        )
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchall.return_value = None
+            cursor.fetchone.return_value = (121,
+                                            "text value")
+            self.assertEqual(build_datasets("Mouse", "BXD",
+                                            "Phenotypes", db_mock),
+                             [["None", "121",
+                               "text value"]])
+            cursor.execute.assert_called_with(
+                "SELECT PublishFreeze.Name, PublishFreeze.FullName "
+                "FROM PublishFreeze, InbredSet "
+                "WHERE InbredSet.Name = 'BXD' AND "
+                "PublishFreeze.InbredSetId = InbredSet.Id "
+                "ORDER BY PublishFreeze.CreateTime ASC"
+            )
 
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_build_datasets_with_type_genotypes(self, db_mock):
+    def test_build_datasets_with_type_genotypes(self):
         """Test that correct dataset is returned for a phenotype type"""
-        db_mock.db.execute.return_value.fetchone.return_value = (
-            635, "HLCPublish", "HLC Published Genotypes"
-        )
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchone.return_value = (
+                635, "HLCPublish", "HLC Published Genotypes"
+            )
+            self.assertEqual(build_datasets("Mouse", "HLC",
+                                            "Genotypes", db_mock),
+                             [["635", "HLCGeno", "HLC Genotypes"]])
+            cursor.execute.assert_called_with(
+                "SELECT InfoFiles.GN_AccesionId FROM InfoFiles, "
+                "GenoFreeze, InbredSet WHERE InbredSet.Name = 'HLC' AND "
+                "GenoFreeze.InbredSetId = InbredSet.Id AND "
+                "InfoFiles.InfoPageName = GenoFreeze.ShortName "
+                "ORDER BY GenoFreeze.CreateTime DESC"
+            )
+            cursor.fetchone.return_value = ()
+            self.assertEqual(build_datasets("Mouse", "HLC",
+                                            "Genotypes", db_mock),
+                             [["None", "HLCGeno", "HLC Genotypes"]])
 
-        self.assertEqual(build_datasets("Mouse", "HLC", "Genotypes"),
-                         [["635", "HLCGeno", "HLC Genotypes"]])
-        db_mock.db.execute.assert_called_with(
-            "SELECT InfoFiles.GN_AccesionId FROM InfoFiles, "
-            "GenoFreeze, InbredSet WHERE InbredSet.Name = 'HLC' AND "
-            "GenoFreeze.InbredSetId = InbredSet.Id AND "
-            "InfoFiles.InfoPageName = GenoFreeze.ShortName " +
-            "ORDER BY GenoFreeze.CreateTime DESC"
-        )
-        db_mock.db.execute.return_value.fetchone.return_value = ()
-        self.assertEqual(build_datasets("Mouse", "HLC", "Genotypes"),
-                         [["None", "HLCGeno", "HLC Genotypes"]])
-
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_build_datasets_with_type_mrna(self, db_mock):
+    def test_build_datasets_with_type_mrna(self):
         """Test that correct dataset is returned for a mRNA
         expression/ Probeset"""
-        db_mock.db.execute.return_value.fetchall.return_value = (
-            (112, "HC_M2_0606_P",
-             "Hippocampus Consortium M430v2 (Jun06) PDNN"), )
-        self.assertEqual(build_datasets("Mouse", "HLC", "mRNA"), [[
-            "112", 'HC_M2_0606_P', "Hippocampus Consortium M430v2 (Jun06) PDNN"
-        ]])
-        db_mock.db.execute.assert_called_once_with(
-            "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, " +
-            "ProbeSetFreeze.FullName FROM ProbeSetFreeze, " +
-            "ProbeFreeze, InbredSet, Tissue, Species WHERE " +
-            "Species.Name = 'Mouse' AND Species.Id = " +
-            "InbredSet.SpeciesId AND InbredSet.Name = 'HLC' AND " +
-            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND " +
-            "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = " +
-            "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id AND " +
-            "ProbeSetFreeze.public > 0 " +
-            "ORDER BY -ProbeSetFreeze.OrderList DESC, ProbeSetFreeze.CreateTime DESC")
+        db_mock = mock.MagicMock()
+        with db_mock.cursor() as cursor:
+            cursor.fetchall.return_value = (
+                (112, "HC_M2_0606_P",
+                 "Hippocampus Consortium M430v2 (Jun06) PDNN"), )
+            self.assertEqual(build_datasets("Mouse",
+                                            "HLC", "mRNA", db_mock),
+                             [["112", 'HC_M2_0606_P',
+                               "Hippocampus Consortium M430v2 (Jun06) PDNN"
+                               ]])
+            cursor.execute.assert_called_once_with(
+                "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, "
+                "ProbeSetFreeze.FullName FROM ProbeSetFreeze, "
+                "ProbeFreeze, InbredSet, Tissue, Species WHERE "
+                "Species.Name = 'Mouse' AND Species.Id = "
+                "InbredSet.SpeciesId AND InbredSet.Name = 'HLC' AND "
+                "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id AND "
+                "Tissue.Name = 'mRNA' AND ProbeFreeze.TissueId = "
+                "Tissue.Id AND ProbeFreeze.InbredSetId = InbredSet.Id AND "
+                "ProbeSetFreeze.public > 0 "
+                "ORDER BY -ProbeSetFreeze.OrderList DESC, "
+                "ProbeSetFreeze.CreateTime DESC")
 
     @mock.patch('wqflask.api.gen_menu.build_datasets')
-    @mock.patch('wqflask.api.gen_menu.g')
-    def test_build_types(self, db_mock, datasets_mock):
+    def test_build_types(self, datasets_mock):
         """Test that correct tissue metadata is returned"""
+        db_mock = mock.MagicMock()
         datasets_mock.return_value = [
             ["112", 'HC_M2_0606_P',
                 "Hippocampus Consortium M430v2 (Jun06) PDNN"]
         ]
-        db_mock.db.execute.return_value.fetchall.return_value = (
-            ('Mouse Tissue'), ('Human Tissue'), ('Rat Tissue')
-        )
-        self.assertEqual(build_types('mouse', 'random group'),
-                         [['M', 'M', 'Molecular Traits'],
-                          ['H', 'H', 'Molecular Traits'],
-                          ['R', 'R', 'Molecular Traits']])
-        db_mock.db.execute.assert_called_once_with(
-            "SELECT DISTINCT Tissue.Name " +
-            "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, " +
-            "Tissue, Species WHERE Species.Name = 'mouse' " +
-            "AND Species.Id = InbredSet.SpeciesId AND " +
-            "InbredSet.Name = 'random group' AND " +
-            "ProbeFreeze.TissueId = Tissue.Id AND " +
-            "ProbeFreeze.InbredSetId = InbredSet.Id AND " +
-            "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id " +
-            "ORDER BY Tissue.Name"
-        )
+        with db_mock.cursor() as cursor:
+            cursor.fetchall.return_value = (
+                ('Mouse Tissue'), ('Human Tissue'), ('Rat Tissue')
+            )
+            self.assertEqual(build_types('mouse', 'random group', db_mock),
+                             [['M', 'M', 'Molecular Traits'],
+                              ['H', 'H', 'Molecular Traits'],
+                              ['R', 'R', 'Molecular Traits']])
+            cursor.execute.assert_called_once_with(
+                "SELECT DISTINCT Tissue.Name "
+                "FROM ProbeFreeze, ProbeSetFreeze, InbredSet, "
+                "Tissue, Species WHERE Species.Name = 'mouse' "
+                "AND Species.Id = InbredSet.SpeciesId AND "
+                "InbredSet.Name = 'random group' AND "
+                "ProbeFreeze.TissueId = Tissue.Id AND "
+                "ProbeFreeze.InbredSetId = InbredSet.Id AND "
+                "ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+                "ORDER BY Tissue.Name"
+            )
 
     @mock.patch('wqflask.api.gen_menu.build_types')
     @mock.patch('wqflask.api.gen_menu.genotypes_exist')
@@ -297,7 +306,9 @@ class TestGenMenu(unittest.TestCase):
         build_types_mock.return_value = [
             ['M', 'M', 'Molecular Trait Datasets']
         ]
-        self.assertEqual(get_types(self.test_group), expected_result)
+        self.assertEqual(get_types(self.test_group,
+                                   mock.MagicMock()),
+                         expected_result)
 
     @mock.patch('wqflask.api.gen_menu.build_types')
     @mock.patch('wqflask.api.gen_menu.genotypes_exist')
@@ -315,10 +326,8 @@ class TestGenMenu(unittest.TestCase):
         genotypes_exist_mock.return_value = False
 
         build_types_mock.return_value = []
-        self.assertEqual(get_types(self.test_group), {
-            'mouse': {},
-            'human': {}
-        })
+        self.assertEqual(get_types(self.test_group, mock.MagicMock()),
+                         {'mouse': {}, 'human': {}})
 
     @mock.patch('wqflask.api.gen_menu.build_types')
     @mock.patch('wqflask.api.gen_menu.genotypes_exist')
@@ -345,7 +354,7 @@ class TestGenMenu(unittest.TestCase):
             'human': {
                 'HLC': [['M', 'M', 'Molecular Trait Datasets']],
                 'BXD': [['M', 'M', 'Molecular Trait Datasets']]}}
-        self.assertEqual(get_types(self.test_group),
+        self.assertEqual(get_types(self.test_group, mock.MagicMock()),
                          expected_result)
 
     @mock.patch('wqflask.api.gen_menu.build_datasets')
@@ -367,7 +376,7 @@ class TestGenMenu(unittest.TestCase):
                       'BXD': {'Genotypes': 'Test',
                               'M': 'Test',
                               'Phenotypes': 'Test'}}}
-        self.assertEqual(get_datasets(self.test_type),
+        self.assertEqual(get_datasets(self.test_type, mock.MagicMock()),
                          expected_result)
 
     @mock.patch('wqflask.api.gen_menu.build_datasets')
@@ -381,13 +390,13 @@ class TestGenMenu(unittest.TestCase):
                 'H_T1': {}},
             'human': {'HLC': {},
                       'BXD': {}}}
-        self.assertEqual(get_datasets(self.test_type),
+        self.assertEqual(get_datasets(self.test_type, mock.MagicMock()),
                          expected_result)
 
     @mock.patch('wqflask.api.gen_menu.get_datasets')
     @mock.patch('wqflask.api.gen_menu.get_types')
     @mock.patch('wqflask.api.gen_menu.get_groups')
-    @mock.patch('wqflask.api.gen_menu.get_species')
+    @mock.patch('wqflask.api.gen_menu.get_all_species')
     def test_gen_dropdown_json(self,
                                species_mock,
                                groups_mock,
@@ -411,4 +420,4 @@ class TestGenMenu(unittest.TestCase):
             'groups': ['groupA', 'groupB', 'groupC', 'groupD'],
             'species': ['speciesA', 'speciesB', 'speciesC', 'speciesD']}
 
-        self.assertEqual(gen_dropdown_json(), expected_result)
+        self.assertEqual(gen_dropdown_json(mock.MagicMock()), expected_result)

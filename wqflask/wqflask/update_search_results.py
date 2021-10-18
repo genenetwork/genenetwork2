@@ -10,7 +10,8 @@ from utility.benchmark import Bench
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
-class GSearch(object):
+
+class GSearch:
 
     def __init__(self, kw):
         self.type = kw['type']
@@ -51,10 +52,12 @@ class GSearch(object):
             self.trait_list = []
             with Bench("Creating trait objects"):
                 for line in re:
-                    dataset = create_dataset(line[3], "ProbeSet", get_samplelist=False)
+                    dataset = create_dataset(
+                        line[3], "ProbeSet", get_samplelist=False)
                     trait_id = line[4]
-                    #with Bench("Building trait object"):
-                    this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+                    # with Bench("Building trait object"):
+                    this_trait = GeneralTrait(
+                        dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     self.trait_list.append(this_trait)
 
         elif self.type == "phenotype":
@@ -96,7 +99,8 @@ class GSearch(object):
                 for line in re:
                     dataset = create_dataset(line[2], "Publish")
                     trait_id = line[3]
-                    this_trait = GeneralTrait(dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+                    this_trait = GeneralTrait(
+                        dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
                     self.trait_list.append(this_trait)
 
         self.results = self.convert_to_json()
@@ -108,8 +112,8 @@ class GSearch(object):
         json_dict['data'] = []
 
         for i, trait in enumerate(self.trait_list):
-            trait_row = { "checkbox": "<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
-                         "index": i+1,
+            trait_row = {"checkbox": "<INPUT TYPE=\"checkbox\" NAME=\"searchResult\" class=\"checkbox trait_checkbox\" style=\"transform: scale(1.5);\" VALUE=\"{}:{}\">".format(trait.name, trait.dataset.name),
+                         "index": i + 1,
                          "species": trait.dataset.group.species,
                          "group": trait.dataset.group.name,
                          "tissue": trait.dataset.tissue,

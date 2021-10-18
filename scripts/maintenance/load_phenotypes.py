@@ -1,3 +1,11 @@
+# Load Python3 environment with GN2 utilities:
+#
+#   source /usr/local/guix-profiles/gn-latest-20210512/etc/profile
+#
+# and run
+#
+#   python load_phenotypes.py [args...] 
+
 import sys
 import csv
 
@@ -9,35 +17,34 @@ def main(argv):
     config = utilities.get_config(argv[1])
     print("config:")
     for item in config.items('config'):
-        print(("\t%s" % (str(item))))
+        print("\t%s" % (str(item)))
     # var
     inbredsetid = config.get('config', 'inbredsetid')
-    print(("inbredsetid: %s" % inbredsetid))
+    print("inbredsetid: %s" % inbredsetid)
     species = datastructure.get_species(inbredsetid)
     speciesid = species[0]
-    print(("speciesid: %s" % speciesid))
+    print("speciesid: %s" % speciesid)
     dataid = datastructure.get_nextdataid_phenotype()
-    print(("next data id: %s" % dataid))
+    print("next data id: %s" % dataid)
     cursor, con = utilities.get_cursor()
     # datafile
     datafile = open(config.get('config', 'datafile'), 'r')
     phenotypedata = csv.reader(datafile, delimiter='\t', quotechar='"')
-    phenotypedata_head = next(phenotypedata)
-    print(("phenotypedata head:\n\t%s" % phenotypedata_head))
+    phenotypedata_head = phenotypedata.next()
+    print("phenotypedata head:\n\t%s" % phenotypedata_head)
     strainnames = phenotypedata_head[1:]
     strains = datastructure.get_strains_bynames(inbredsetid=inbredsetid, strainnames=strainnames, updatestrainxref="yes")
     # metafile
     metafile = open(config.get('config', 'metafile'), 'r')
     phenotypemeta = csv.reader(metafile, delimiter='\t', quotechar='"')
-    phenotypemeta_head = next(phenotypemeta)
-    print(("phenotypemeta head:\n\t%s" % phenotypemeta_head))
-    print()
+    phenotypemeta_head = phenotypemeta.next()
+    print("phenotypemeta head:\n\t%s" % phenotypemeta_head)
     # load
     for metarow in phenotypemeta:
         #
-        datarow_value = next(phenotypedata)
-        datarow_se = next(phenotypedata)
-        datarow_n = next(phenotypedata)
+        datarow_value = phenotypedata.next()
+        datarow_se = phenotypedata.next()
+        datarow_n = phenotypedata.next()
         # Phenotype
         sql = """
             INSERT INTO Phenotype
@@ -67,7 +74,7 @@ def main(argv):
             ))
         rowcount = cursor.rowcount
         phenotypeid = con.insert_id()
-        print(("INSERT INTO Phenotype: %d record: %d" % (rowcount, phenotypeid)))
+        print("INSERT INTO Phenotype: %d record: %d" % (rowcount, phenotypeid))
         # Publication
         publicationid = None # reset
         pubmed_id = utilities.to_db_string(metarow[0], None)
@@ -81,7 +88,7 @@ def main(argv):
             re = cursor.fetchone()
             if re:
                 publicationid = re[0]
-                print(("get Publication record: %d" % publicationid))
+                print("get Publication record: %d" % publicationid)
         if not publicationid:
             sql = """
                 INSERT INTO Publication
@@ -109,7 +116,7 @@ def main(argv):
                 ))
             rowcount = cursor.rowcount
             publicationid = con.insert_id()
-            print(("INSERT INTO Publication: %d record: %d" % (rowcount, publicationid)))
+            print("INSERT INTO Publication: %d record: %d" % (rowcount, publicationid))
         # data
         for index, strain in enumerate(strains):
             #
@@ -158,14 +165,14 @@ def main(argv):
         cursor.execute(sql, (inbredsetid, phenotypeid, publicationid, dataid, ""))
         rowcount = cursor.rowcount
         publishxrefid = con.insert_id()
-        print(("INSERT INTO PublishXRef: %d record: %d" % (rowcount, publishxrefid)))
+        print("INSERT INTO PublishXRef: %d record: %d" % (rowcount, publishxrefid))
         # for loop next
         dataid += 1
-        print()
+        print
     # release
     con.close()
 
 if __name__ == "__main__":
-    print(("command line arguments:\n\t%s" % sys.argv))
+    print("command line arguments:\n\t%s" % sys.argv)
     main(sys.argv)
     print("exit successfully")

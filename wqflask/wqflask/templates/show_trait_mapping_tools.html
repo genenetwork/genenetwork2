@@ -39,7 +39,7 @@
                         {% if genofiles and genofiles|length>0 %}
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div class="col-xs-8 controls">
+                            <div class="col-xs-6 controls">
                                 <select id="genofile_gemma" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -74,17 +74,20 @@
                               No collections available. Please add traits to a collection to use them as covariates.
                               {% else %}
                               <div class="select-covar-div">
-                                <button type="button" class="btn btn-default select-covar-button select_covariates">Select</button>
+                                <button type="button" class="btn btn-success select-covar-button select_covariates">Select</button>
                                 <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
+                                <button type="button" class="btn btn-danger select-covar-button remove_all_covariates">Clear</button>
                               </div>
-                              <textarea rows="3" cols="50" readonly placeholder="No covariates selected" class="selected-covariates"></textarea>
+                              <select size="2" name="selected_covariates_gemma" class="form-control selected-covariates" multiple>
+                                  <option value="">No covariates selected</option>
+                              </select>
                               {% endif %}
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
                           <label class="col-xs-3 control-label"></label>
                           <div class="col-xs-6">
-                            <button id="gemma_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression" value="Compute">Compute</button>
+                            <button id="gemma_compute" type="button" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression" value="Compute">Compute</button>
                           </div>
                         </div>
                     </div>
@@ -92,15 +95,6 @@
                 {% elif mapping_method == "QTLReaper" %}
                 <div class="tab-pane" id="interval_mapping">
                     <div class="form-horizontal section-form-div">
-                        <div class="mapping_method_fields form-group">
-                            <label for="reaper_version" class="col-xs-3 control-label">Version<sup><a href="https://github.com/chfi/rust-qtlreaper" target="_blank" title="'New' is the new qtlreaper implementation written in RUST by Christian Fischer. 'Original' corresponds to the original version written in C.">?</a></sup></label>
-                            <div class="col-xs-3 controls">
-                                <select name="reaper_version" class="form-control reaper-ver-select">
-                                    <option value="new">New</option>
-                                    <option value="original">Original</option>
-                                </select>
-                            </div>
-                        </div>
                         <div class="mapping_method_fields form-group">
                             <label for="chr_select" class="col-xs-3 control-label">Chromosome</label>
                             <div class="col-xs-2 controls">
@@ -124,7 +118,7 @@
                         </div>
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div class="col-xs-4 controls">
+                            <div class="col-xs-6 controls">
                                 <select id="genofile_reaper" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
@@ -187,7 +181,7 @@
                         <div class="mapping_method_fields form-group">
                             <label class="col-xs-3 control-label"></label>
                             <div class="col-xs-6">
-                              <button id="interval_mapping_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping" value="Compute">Compute</button>
+                              <button id="interval_mapping_compute" type="button" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Interval Mapping" value="Compute">Compute</button>
                             </div>
                         </div>
                     </div>
@@ -218,10 +212,21 @@
                         </div>
                         <div class="mapping_method_fields form-group">
                             <label for="genofiles" class="col-xs-3 control-label">Genotypes</label>
-                            <div class="col-xs-4 controls">
+                            <div class="col-xs-6 controls">
                                 <select id="genofile_rqtl_geno" class="form-control">
                                     {% for item in genofiles %}
                                     <option value="{{item['location']}}:{{item['title']}}">{{item['title']}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="mapping_method_fields form-group">
+                            <label for="scale_select" class="col-xs-3 control-label">Map Scale</label>
+                            <div class="col-xs-2 controls">
+                                <select id="scale_rqtl_geno" class="form-control scale-select">
+                                    {% for item in scales_in_geno[dataset.group.name + ".geno"] %}
+                                    <option value="{{ item[0] }}">{{ item[1] }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -248,21 +253,6 @@
                             </div>
                         </div>
                         {% endif %}
-                        <div class="mapping_method_fields form-group">
-                            <label for="control_for" class="col-xs-3 control-label">Control&nbsp;for</label>
-                            <div class="col-xs-6 controls">
-                              <input name="control_rqtl_geno" value="{% if dataset.type == 'ProbeSet' and this_trait.locus_chr != '' %}{{ nearest_marker }}{% endif %}" type="text" class="form-control cofactor-input" />
-                              <label class="radio-inline">
-                                  <input type="radio" name="do_control_rqtl" value="true">
-                                  Yes
-                              </label>
-                              <label class="radio-inline">
-                                  <input type="radio" name="do_control_rqtl" value="false" checked="">
-                                  No
-                              </label>
-                            </div>
-                        </div>
-
                         <div class="mapping_method_fields form-group">
                             <label for="mapmodel_rqtl_geno" class="col-xs-3 control-label">Model</label>
                             <div class="col-xs-4 controls">
@@ -317,17 +307,20 @@
                             No collections available. Please add traits to a collection to use them as covariates.
                             {% else %}
                             <div class="select-covar-div">
-                              <button type="button" class="btn btn-default select-covar-button select_covariates">Select</button>
+                              <button type="button" class="btn btn-success select-covar-button select_covariates">Select</button>
                               <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
+                              <button type="button" class="btn btn-danger select-covar-button remove_all_covariates">Clear</button>
                             </div>
-                            <textarea rows="3" cols="50" readonly placeholder="No covariates selected" class="selected-covariates"></textarea>
+                            <select size="2" name="selected_covariates_rqtl" class="form-control selected-covariates" multiple>
+                                <option value="">No covariates selected</option>
+                            </select>
                             {% endif %}
                           </div>
                         </div>
                         <div class="mapping_method_fields form-group">
                             <label class="col-xs-3 control-label"></label>
                             <div class="col-xs-6 controls">
-                              <button id="rqtl_geno_compute" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression" value="Compute">Compute</button>
+                              <button id="rqtl_geno_compute" type="button" class="btn submit_special btn-success" data-url="/marker_regression" title="Compute Marker Regression" value="Compute">Compute</button>
                             </div>
                         </div>
                     </div>

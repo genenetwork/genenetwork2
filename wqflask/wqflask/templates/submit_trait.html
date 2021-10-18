@@ -14,7 +14,7 @@
                         <h2 style="color: #5a5a5a;">Introduction</h2>
                         <hr>
                         <p>The trait values that you enter are statistically compared with verified genotypes collected at a set of microsatellite markers in each RI set. The markers are drawn from a set of over 750, but for each set redundant markers have been removed, preferentially retaining those that are most informative.</p>
-                        <p>These error-checked RI mapping data match theoretical expectations for RI strain sets. The cumulative adjusted length of the RI maps are approximately 1400 cM, a value that matches those of both MIT maps and Chromosome Committee Report maps. See our full description of the genetic data collected as part of the WebQTL project.</p>
+                        <p>These error-checked RI mapping data match theoretical expectations for RI strain sets. The cumulative adjusted length of the RI maps are approximately 1400 cM, a value that matches those of both MIT maps and Chromosome Committee Report maps. See our <a target="_blank" href="http://www.nervenet.org/papers/BXN.html">full description</a> of the genetic data collected as part of the WebQTL project.</p>
                     </div>
                 </section>
                 <br>
@@ -53,7 +53,7 @@
                             </div>
                           </div>
                         </div>
-                        <div style="padding-bottom: 50px;" class="form-horizontal">
+                        <div style="padding-bottom: 50px; margin-bottom:400px" class="form-horizontal">
                           <h3>2. Enter Trait Data:</h3>
                           <h4 style="color:red;">File uploading isn't enabled yet, but is coming soon.</h4>
                           <br>
@@ -61,18 +61,6 @@
                             <img src="/static/new/images/step2.gif">
                           </div>
                           <div class="col-xs-10">
-                            <!--
-                            <div class="form-group" style="padding-left: 15px;">
-                              <p>
-                                 <b>From a File:</b> You can enter data by entering a file name here. The file should contain a series of numbers representing trait values. 
-                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each progeny individual
-	                         or recombinant inbred line. Represent missing values with a non-numeric character such as "x". If you have chosen a recombinant inbred set,
-                                 when you submit your data will be displayed in a form where you can confirm and/or edit them. If you enter a file name here, any data that
-                                 you paste into the next section will be ignored.
-                              </p>
-                              <input type="file" name="trait_file" style="border-width: 1px; border-style: solid; border-color: #999999;">
-                            </div>
-                            -->
                             <div class="form-group" style="padding-left: 15px;">
                               <p>
                                  <b>Paste or Type Multiple Values:</b> You can enter data by pasting a series of numbers representing trait values into this area. 
@@ -87,6 +75,24 @@
                           <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
                             <input type="submit" style="width: 110px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Trait">
                             <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
+                          </div>
+                        </div>
+                        <div style="padding-bottom: 50px;" class="form-horizontal">
+                            <h3>3. Enable Use of Trait Variance:</h3>
+                            <div class="col-xs-2" style=""display: flex; align-items: center;">
+                                <img src="/static/new/images/step3.gif">
+                            </div>
+                                                      <div class="col-xs-10">
+                            <div class="form-group" style="padding-left: 15px;">
+                              <p>
+                                  <b>Name Your Trait:</b> <span style="color:red;">(optional)</span>
+                              </p>
+                              <textarea name="trait_name" rows="1" cols="30"></textarea>
+                            </div>
+                          </div>
+                          <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
+                              <input type="submit" style="width: 110px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Trait">
+                              <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
                           </div>
                         </div>
                 </section>

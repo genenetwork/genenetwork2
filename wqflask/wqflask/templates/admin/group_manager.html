@@ -81,7 +81,7 @@
                         <tr>
                             <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
                             <td>{{ loop.index }}</td>
-                            <td>{{ group.name }}</td>
+                            <td><a href="/groups/view?id={{ group.id }}">{{ group.name }}</a></td>
                             <td>{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>

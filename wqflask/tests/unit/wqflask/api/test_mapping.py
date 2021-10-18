@@ -58,7 +58,7 @@ class TestMapping(unittest.TestCase):
 
         self.assertEqual(results_2, expected_results)
 
-    @mock.patch("wqflask.api.mapping.rqtl_mapping.run_rqtl_geno")
+    @mock.patch("wqflask.api.mapping.rqtl_mapping.run_rqtl")
     @mock.patch("wqflask.api.mapping.gemma_mapping.run_gemma")
     @mock.patch("wqflask.api.mapping.initialize_parameters")
     @mock.patch("wqflask.api.mapping.retrieve_sample_data")

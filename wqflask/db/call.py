@@ -4,7 +4,9 @@ from flask import g
 
 import string
 try:  # Python2 support
-    import urllib.request, urllib.error, urllib.parse
+    import urllib.request
+    import urllib.error
+    import urllib.parse
 except:
     import urllib2
 import json
@@ -12,9 +14,10 @@ from utility.tools import USE_GN_SERVER, LOG_SQL, GN_SERVER_URL
 from utility.benchmark import Bench
 
 from utility.logger import getLogger
-logger = getLogger(__name__ )
+logger = getLogger(__name__)
 
 # from inspect import stack
+
 
 def fetch1(query, path=None, func=None):
     """Fetch one result as a Tuple using either a SQL query or the URI
@@ -35,6 +38,7 @@ GN_SERVER result when set (which should return a Tuple)
     else:
         return fetchone(query)
 
+
 def fetchone(query):
     """Return tuple containing one row by calling SQL directly (the
 original fetchone, but with logging)
@@ -45,6 +49,7 @@ original fetchone, but with logging)
             res = g.db.execute(query)
             return res.fetchone()
         return logger.sql(query, helper)
+
 
 def fetchall(query):
     """Return row iterator by calling SQL directly (the
@@ -57,6 +62,7 @@ original fetchall, but with logging)
             return res.fetchall()
         return logger.sql(query, helper)
 
+
 def gn_server(path):
     """Return JSON record by calling GN_SERVER
 
@@ -64,9 +70,9 @@ def gn_server(path):
     with Bench("GN_SERVER", LOG_SQL):
         res = ()
         try:
-            res = urllib.request.urlopen(GN_SERVER_URL+path)
+            res = urllib.request.urlopen(GN_SERVER_URL + path)
         except:
-            res = urllib2.urlopen(GN_SERVER_URL+path)
+            res = urllib2.urlopen(GN_SERVER_URL + path)
         rest = res.read()
         res2 = json.loads(rest)
         logger.debug(res2)

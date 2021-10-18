@@ -5,6 +5,7 @@ from unittest import mock
 from utility.authentication_tools import check_resource_availability
 from utility.authentication_tools import add_new_resource
 
+
 class TestResponse:
     """Mock Test Response after a request"""
     @property
@@ -18,7 +19,7 @@ class TestUser:
     @property
     def user_id(self):
         """Mockes user id. Used in Flask.g.user_session.user_id"""
-        return "Jane"
+        return b"Jane"
 
 
 class TestUserSession:

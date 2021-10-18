@@ -17,8 +17,9 @@
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         {% if temp_trait is defined %}
         <input type="hidden" name="temp_trait" value="{{ temp_trait }}">
-        <input type="hidden" name="group" value="{{ group }}">
         {% endif %}
+        <input type="hidden" name="group" value="{{ dataset.group.name }}">
+        <input type="hidden" name="species" value="{{ dataset.group.species }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
         <input type="hidden" name="dataset" value="{{ dataset.name }}">
         <input type="hidden" name="genofile" value="{{ genofile_string }}">
@@ -33,6 +34,7 @@
         <input type="hidden" name="results_path" value="{{ mapping_results_path }}">
         <input type="hidden" name="method" value="{{ mapping_method }}">
         <input type="hidden" name="sample_vals" value="{{ sample_vals }}">
+        <input type="hidden" name="vals_hash" value="{{ vals_hash }}">
         <input type="hidden" name="n_samples" value="{{ n_samples }}">
         <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
@@ -43,7 +45,12 @@
         {% endif %}
         <input type="hidden" name="num_perm" value="{{ nperm }}">
         <input type="hidden" name="perm_info" value="">
-        <input type="hidden" name="perm_strata" value="{{ perm_strata }}">
+        {% if categorical_vars is defined %}
+        <input type="hidden" name="categorical_vars" value="{{ categorical_vars|join(',') }}">
+        {% endif %}
+        {% if perm_strata is defined %}
+        <input type="hidden" name="perm_strata" value="True">
+        {% endif %}
         <input type="hidden" name="num_bootstrap" value="{{ nboot }}">
         <input type="hidden" name="do_control" value="{{ doControl }}">
         <input type="hidden" name="control_marker" value="{{ controlLocus }}">
@@ -61,17 +68,18 @@
               <h2>Map Viewer: Whole Genome</h2><br>
               <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
               <b>Database:</b> {{ dataset.fullname }}<br>
-              {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.name }}</a><br>
+              {% if dataset.type == "ProbeSet" %}<b>Trait ID:</b>{% else %}<b>Record ID:</b>{% endif %} <a href="/show_trait?trait_id={{ this_trait.name }}&dataset={{ dataset.name }}">{{ this_trait.display_name }}</a><br>
+              <b>Trait Hash: </b> {{ vals_hash }}<br>
               {% if dataset.type == "ProbeSet" %}
               <b>Gene Symbol:</b> <i>{{ this_trait.symbol }}</i><br>
               <b>Location:</b> Chr {{ this_trait.chr }} @ {{ this_trait.mb }} Mb<br>
               {% endif %}
-              {% if genofile_string is defined %}
-              <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}
+              {% if genofile_string != "" %}
+              <b>Genotypes:</b> {{ genofile_string.split(":")[1] }}<br>
               {% endif %}
+              <b>Current Date/Time:</b> {{ current_datetime }}<br>
               <br>
-              <br>
-              <a id="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
+              <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
           </div>
           <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -247,6 +255,7 @@
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
         {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
+        <button class="btn btn-default export_mapping_results" >Download <span class="glyphicon glyphicon-download"></span></button>
         <br />
         <br />
           <div id="table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
@@ -355,7 +364,9 @@
     {% endif %}
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="https://cdn.datatables.net/buttons/1.0.0/js/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='purescript-genome-browser/js/purescript-genetics-browser.js') }}"></script>
@@ -372,6 +383,7 @@
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
             console.time("Creating table");
+
             {% if selectedChr == -1 %}
             $('#trait_table').DataTable( {
                 "drawCallback": function( settings ) {
@@ -406,13 +418,12 @@
                   "info": "Showing from _START_ to _END_ of " + js_data.total_markers + " records",
                 },
                 "order": [[1, "asc" ]],
-                "sDom": "iRZtir",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "deferRender": true,
+                "sDom": "itir",
+                "autoWidth": true,
                 "bSortClasses": false,
-                "scrollCollapse": false,
-                "paging": false
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
             } );
             {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
             $('#trait_table').dataTable( {
@@ -479,7 +490,7 @@
 
         var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
-                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'control_marker_db', 'do_control', 'genofile',
+                            'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'do_control', 'genofile',
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                             'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'n_samples']
 
@@ -520,13 +531,13 @@
         });
         {% endif %}
 
-        {% if mapping_method != "gemma" and mapping_method != "plink" %}
+        {% if mapping_method != "gemma" and mapping_method != "plink" and nperm > 0 and permChecked == "ON" %}
         $('#download_perm').click(function(){
           perm_info_dict = {
             perm_data: js_data.perm_results,
             num_perm: "{{ nperm }}",
             trait_name: "{{ this_trait.display_name }}",
-            trait_description: "{{ this_trait.description_display }}",
+            trait_description: `{{ this_trait.description_display }}`,
             cofactors: "{{ covariates }}",
             n_samples: {{ n_samples }},
             n_genotypes: {{ qtl_results|length }},
@@ -611,7 +622,7 @@
             return $('#marker_regression_form').submit();
         }
 
-        $('#export_mapping_results').click(export_mapping_results);
+        $('.export_mapping_results').click(export_mapping_results);
 
         $('#browser_tab').click(function() {
           $('#gn1_map_options').css("display", "none")

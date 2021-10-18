@@ -1,0 +1,34 @@
+#+STARTUP: inlineimages
+#+TITLE: Heatmap Generation
+#+AUTHOR: Muriithi Frederick Muriuki
+
+* Generating Heatmaps
+
+Like a lot of other features, the heatmap generation requires an existing collection. If none exists, see [[][Creating a new collection]] for how to create a new collection.
+
+Once you have a collection, you can navigate to the collections page by clicking on the "Collections" link in the header
+
+
+[[./images/gn2_header_collections.png]]
+
+From that page, pick the collection that you want to work with by clicking on its name on the collections table.
+
+That takes you to that collection's page, where you can select the data that you want to use to generate the heatmap.
+
+** Selecting Orientation
+
+Once you have selected the data, select the orientation of the heatmap you want generated. You do this by selecting either *"vertical"* or *"horizontal"* in the heatmaps form:
+
+[[./images/heatmap_form.png]]
+
+Once you have selected the orientation, click on the "Generate Heatmap" button as in the image above.
+
+The heatmap generation might take a while, but once it is done, an image shows up above the data table.
+
+** Downloading the PNG copy of the Heatmap
+
+Once the heatmap image is shown, hovering over it, displays some tools to interact with the image.
+
+To download, hover over the heatmap image, and click on the "Download plot as png" icon as shown.
+
+[[./images/heatmap_with_hover_tools.png]]

@@ -72,7 +72,8 @@ class TestTraits(unittest.TestCase):
         mock_get.return_value = get_return_obj
         results = get_ncbi_summary(trait)
         mock_exists.assert_called_once()
-        mock_get.assert_called_once_with(f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={trait.geneid}&retmode=json")
+        mock_get.assert_called_once_with(
+            f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={trait.geneid}&retmode=json")
 
         self.assertEqual(results, "this is a summary of the geneid")
 
@@ -241,7 +242,6 @@ class TestTraits(unittest.TestCase):
         expected_results = {f"{file_location}": [["physic", "Mb"]]}
         self.assertEqual(get_genotype_scales(file_location), expected_results)
         mock_get_scales.assert_called_once_with(file_location)
-
 
     @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
     def test_get_scales_from_genofile_found(self, mock_ignore_location):

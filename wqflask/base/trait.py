@@ -27,11 +27,13 @@ def create_trait(**kw):
 
     assert bool(kw.get('name')), "Needs trait name"
 
-    if kw.get('dataset_name'):
+    if bool(kw.get('dataset')):
+        dataset = kw.get('dataset')
+    else:
         if kw.get('dataset_name') != "Temp":
             dataset = create_dataset(kw.get('dataset_name'))
-    else:
-        dataset = kw.get('dataset')
+        else:
+            dataset = create_dataset("Temp", group_name=kw.get('group_name'))
 
     if dataset.type == 'Publish':
         permissions = check_resource_availability(
@@ -51,7 +53,7 @@ def create_trait(**kw):
         return None
 
 
-class GeneralTrait(object):
+class GeneralTrait:
     """
     Trait class defines a trait in webqtl, can be either Microarray,
     Published phenotype, genotype, or user input trait
@@ -284,17 +286,19 @@ def get_sample_data():
         return None
 
 
-def jsonable(trait):
+def jsonable(trait, dataset=None):
     """Return a dict suitable for using as json
 
     Actual turning into json doesn't happen here though"""
 
-    dataset = create_dataset(dataset_name=trait.dataset.name,
-                             dataset_type=trait.dataset.type,
-                             group_name=trait.dataset.group.name)
+    if not dataset:
+        dataset = create_dataset(dataset_name=trait.dataset.name,
+                                dataset_type=trait.dataset.type,
+                                group_name=trait.dataset.group.name)
 
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
+                    view=trait.view,
                     symbol=trait.symbol,
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
@@ -308,103 +312,46 @@ def jsonable(trait):
     elif dataset.type == "Publish":
         if trait.pubmed_id:
             return dict(name=trait.name,
+                        view=trait.view,
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
+                        pubmed_id=trait.pubmed_id,
                         pubmed_text=trait.pubmed_text,
                         pubmed_link=trait.pubmed_link,
+                        mean=trait.mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
                         additive=trait.additive
                         )
         else:
             return dict(name=trait.name,
+                        view=trait.view,
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
+                        mean=trait.mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
                         additive=trait.additive
                         )
     elif dataset.type == "Geno":
         return dict(name=trait.name,
+                    view=trait.view,
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
                     location=trait.location_repr
                     )
-    else:
-        return dict()
-
-
-def jsonable_table_row(trait, dataset_name, index):
-    """Return a list suitable for json and intended to be displayed in a table
-
-    Actual turning into json doesn't happen here though"""
-
-    dataset = create_dataset(dataset_name)
-
-    if dataset.type == "ProbeSet":
-        if trait.mean == "":
-            mean = "N/A"
-        else:
-            mean = "%.3f" % round(float(trait.mean), 2)
-        if trait.additive == "":
-            additive = "N/A"
-        else:
-            additive = "%.3f" % round(float(trait.additive), 2)
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                index,
-                '<a href="/show_trait?trait_id=' +
-                str(trait.name)+'&dataset='+dataset.name +
-                '">'+str(trait.name)+'</a>',
-                trait.symbol,
-                trait.description_display,
-                trait.location_repr,
-                mean,
-                trait.LRS_score_repr,
-                trait.LRS_location_repr,
-                additive]
-    elif dataset.type == "Publish":
-        if trait.additive == "":
-            additive = "N/A"
-        else:
-            additive = "%.2f" % round(float(trait.additive), 2)
-        if trait.pubmed_id:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                    index,
-                    '<a href="/show_trait?trait_id=' +
-                    str(trait.name)+'&dataset='+dataset.name +
-                    '">'+str(trait.name)+'</a>',
-                    trait.description_display,
-                    trait.authors,
-                    '<a href="' + trait.pubmed_link + '">' + trait.pubmed_text + '</href>',
-                    trait.LRS_score_repr,
-                    trait.LRS_location_repr,
-                    additive]
-        else:
-            return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                    index,
-                    '<a href="/show_trait?trait_id=' +
-                    str(trait.name)+'&dataset='+dataset.name +
-                    '">'+str(trait.name)+'</a>',
-                    trait.description_display,
-                    trait.authors,
-                    trait.pubmed_text,
-                    trait.LRS_score_repr,
-                    trait.LRS_location_repr,
-                    additive]
-    elif dataset.type == "Geno":
-        return ['<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + hmac.data_hmac('{}:{}'.format(str(trait.name), dataset.name)) + '">',
-                index,
-                '<a href="/show_trait?trait_id=' +
-                str(trait.name)+'&dataset='+dataset.name +
-                '">'+str(trait.name)+'</a>',
-                trait.location_repr]
+    elif dataset.name == "Temp":
+        return dict(name=trait.name,
+                    view=trait.view,
+                    dataset="Temp",
+                    dataset_name="Temp")
     else:
         return dict()
 
@@ -516,10 +463,11 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             # If the dataset is confidential and the user has access to confidential
             # phenotype traits, then display the pre-publication description instead
             # of the post-publication description
-            trait.description_display = ""
+            trait.description_display = "N/A"
             if not trait.pubmed_id:
                 trait.abbreviation = trait.pre_publication_abbreviation
-                trait.description_display = trait.pre_publication_description
+                if trait.pre_publication_description:
+                    trait.description_display = trait.pre_publication_description
             else:
                 trait.abbreviation = trait.post_publication_abbreviation
                 if description:
@@ -542,9 +490,9 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
             else:
                 description_display = trait.symbol
 
-            if (str(description_display or "") != "" and
-                description_display != 'N/A' and
-                    str(target_string or "") != "" and target_string != 'None'):
+            if (str(description_display or "") != ""
+                and description_display != 'N/A'
+                    and str(target_string or "") != "" and target_string != 'None'):
                 description_display = description_display + '; ' + target_string.strip()
 
             # Save it for the jinja2 template
@@ -638,6 +586,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 if str(trait.lrs or "") != "":
                     trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
     else:
-        raise KeyError(repr(trait.name) +
-                       ' information is not found in the database.')
+        raise KeyError(repr(trait.name)
+                       + ' information is not found in the database.')
     return trait

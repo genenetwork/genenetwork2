@@ -13,14 +13,17 @@ sys.path.append("..")
 import os
 import glob
 
-class GenerateKinshipMatrices(object):
+
+class GenerateKinshipMatrices:
     def __init__(self, group_name, geno_file, pheno_file):
         self.group_name = group_name
         self.geno_file = geno_file
         self.pheno_file = pheno_file
-    
+
     def generate_kinship(self):
-        gemma_command = "/gnu/store/xhzgjr0jvakxv6h3blj8z496xjig69b0-profile/bin/gemma -g " + self.geno_file + " -p " + self.pheno_file + " -gk 1 -outdir /home/zas1024/genotype_files/genotype/bimbam/ -o " + self.group_name
+        gemma_command = "/gnu/store/xhzgjr0jvakxv6h3blj8z496xjig69b0-profile/bin/gemma -g " + self.geno_file + \
+            " -p " + self.pheno_file + \
+            " -gk 1 -outdir /home/zas1024/genotype_files/genotype/bimbam/ -o " + self.group_name
         print("command:", gemma_command)
         os.system(gemma_command)
 
@@ -33,9 +36,12 @@ class GenerateKinshipMatrices(object):
             group_name = ".".join(input_file.split('.')[:-1])
             if group_name == "HSNIH-Palmer":
                 continue
-            geno_input_file = os.path.join(bimbam_dir, group_name + "_geno.txt")
-            pheno_input_file = os.path.join(bimbam_dir, group_name + "_pheno.txt")
-            convertob = GenerateKinshipMatrices(group_name, geno_input_file, pheno_input_file)
+            geno_input_file = os.path.join(
+                bimbam_dir, group_name + "_geno.txt")
+            pheno_input_file = os.path.join(
+                bimbam_dir, group_name + "_pheno.txt")
+            convertob = GenerateKinshipMatrices(
+                group_name, geno_input_file, pheno_input_file)
             try:
                 convertob.generate_kinship()
             except EmptyConfigurations as why:
@@ -46,15 +52,15 @@ class GenerateKinshipMatrices(object):
                 print("  Exception:", why)
                 print(traceback.print_exc())
                 print("    Found in row %s at tabular column %s" % (convertob.latest_row_pos,
-                                                                convertob.latest_col_pos))
+                                                                    convertob.latest_col_pos))
                 print("    Column is:", convertob.latest_col_value)
                 print("    Row is:", convertob.latest_row_value)
                 break
-    
-    
-if __name__=="__main__":
+
+
+if __name__ == "__main__":
     Geno_Directory = """/export/local/home/zas1024/genotype_files/genotype/"""
     Bimbam_Directory = """/export/local/home/zas1024/genotype_files/genotype/bimbam/"""
     GenerateKinshipMatrices.process_all(Geno_Directory, Bimbam_Directory)
-    
-    #./gemma -g /home/zas1024/genotype_files/genotype/bimbam/BXD_geno.txt -p /home/zas1024/genotype_files/genotype/bimbam/BXD_pheno.txt -gk 1 -o BXD
+
+    # ./gemma -g /home/zas1024/genotype_files/genotype/bimbam/BXD_geno.txt -p /home/zas1024/genotype_files/genotype/bimbam/BXD_pheno.txt -gk 1 -o BXD

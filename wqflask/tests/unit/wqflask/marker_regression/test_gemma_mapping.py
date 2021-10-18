@@ -47,11 +47,11 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
     @mock.patch("wqflask.marker_regression.gemma_mapping.os")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
-    def test_run_gemma_firstrun_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files,mock_parse_loco):
+    def test_run_gemma_firstrun_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files, mock_parse_loco):
         """add tests for run_gemma where first run is set to true"""
-        this_chromosomes={}
+        this_chromosomes = {}
         for i in range(1, 5):
-            this_chromosomes[f'CH{i}']=(AttributeSetter({"name": f"CH{i}"}))
+            this_chromosomes[f'CH{i}'] = (AttributeSetter({"name": f"CH{i}"}))
         chromosomes = AttributeSetter({"chromosomes": this_chromosomes})
 
         dataset_group = MockGroup(
@@ -68,9 +68,10 @@ class TestGemmaMapping(unittest.TestCase):
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
         ], vals=[], covariates="", use_loco=True)
-        self.assertEqual(mock_os.system.call_count,2)
+        self.assertEqual(mock_os.system.call_count, 2)
         mock_gen_pheno_txt.assert_called_once()
-        mock_parse_loco.assert_called_once_with(dataset, "GP1_GWA_RRRRRR",True)
+        mock_parse_loco.assert_called_once_with(
+            dataset, "GP1_GWA_RRRRRR", True)
         mock_os.path.isfile.assert_called_once_with(
             ('/home/user/imgfile_output.assoc.txt'))
         self.assertEqual(mock_flat_files.call_count, 4)
@@ -80,10 +81,12 @@ class TestGemmaMapping(unittest.TestCase):
     def test_gen_pheno_txt_file(self):
         """add tests for generating pheno txt file"""
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
-            gen_pheno_txt_file(this_dataset={}, genofile_name="", vals=[
-                               "x", "w", "q", "we", "R"], trait_filename="fitr.re")
+            gen_pheno_txt_file(
+                this_dataset=AttributeSetter({"name": "A"}),
+                genofile_name="", vals=[
+                    "x", "w", "q", "we", "R"])
             mock_open.assert_called_once_with(
-                '/home/user/data/gn2/fitr.re.txt', 'w')
+                '/home/user/data/gn2/PHENO_KiAEKlCvM6iGTM9Kh_TAlQ.txt', 'w')
             filehandler = mock_open()
             values = ["x", "w", "q", "we", "R"]
             write_calls = [mock.call('NA\n'), mock.call('w\n'), mock.call(
@@ -102,7 +105,8 @@ class TestGemmaMapping(unittest.TestCase):
         create_trait_side_effect = []
 
         for i in range(4):
-            create_dataset_side_effect.append(AttributeSetter({"name": f'name_{i}'}))
+            create_dataset_side_effect.append(
+                AttributeSetter({"name": f'name_{i}'}))
             create_trait_side_effect.append(
                 AttributeSetter({"data": [f'data_{i}']}))
 
@@ -110,7 +114,7 @@ class TestGemmaMapping(unittest.TestCase):
         create_trait.side_effect = create_trait_side_effect
 
         group = MockGroup({"name": "group_X", "samplelist": samplelist})
-        this_dataset = AttributeSetter({"group": group})
+        this_dataset = AttributeSetter({"group": group, "name": "A"})
         flat_files.return_value = "Home/Genenetwork"
 
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
@@ -130,7 +134,7 @@ class TestGemmaMapping(unittest.TestCase):
 
             flat_files.assert_called_once_with('mapping')
             mock_open.assert_called_once_with(
-                'Home/Genenetwork/group_X_covariates.txt', 'w')
+                'Home/Genenetwork/COVAR_anFZ_LfZYV0Ulywo+7tRCw.txt', 'w')
             filehandler = mock_open()
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
@@ -144,7 +148,7 @@ class TestGemmaMapping(unittest.TestCase):
             "files": [["file_name", "user", "~/file1"],
                       ["file_name", "user", "~/file2"]]
         }
-        return_file="""X/Y\tM1\t28.457155\tQ\tE\tA\tMMB\t23.3\tW\t0.9\t0.85\t
+        return_file = """X/Y\tM1\t28.457155\tQ\tE\tA\tMMB\t23.3\tW\t0.9\t0.85\t
 chr4\tM2\t12\tQ\tE\tMMB\tR\t24\tW\t0.87\t0.5
 Y\tM4\t12\tQ\tE\tMMB\tR\t11.6\tW\t0.21\t0.7
 X\tM5\t12\tQ\tE\tMMB\tR\t21.1\tW\t0.65\t0.6"""
@@ -159,11 +163,14 @@ X\tM5\t12\tQ\tE\tMMB\tR\t21.1\tW\t0.65\t0.6"""
             mock_open.side_effect = handles
             results = parse_loco_output(
                 this_dataset={}, gwa_output_filename=".xw/")
-            expected_results= [
-            {'name': 'M1', 'chr': 'X/Y', 'Mb': 2.8457155e-05, 'p_value': 0.85, 'additive': 23.3, 'lod_score': 0.07058107428570727},
-            {'name': 'M2', 'chr': 4, 'Mb': 1.2e-05, 'p_value': 0.5, 'additive': 24.0, 'lod_score': 0.3010299956639812},
-            {'name': 'M4', 'chr': 'Y', 'Mb': 1.2e-05, 'p_value': 0.7, 'additive': 11.6, 'lod_score': 0.1549019599857432},
-            {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': 21.1, 'lod_score': 0.22184874961635637}]
+            expected_results = [
+                {'name': 'M1', 'chr': 'X/Y', 'Mb': 2.8457155e-05, 'p_value': 0.85,
+                 'additive': 23.3, 'lod_score': 0.07058107428570727},
+                {'name': 'M2', 'chr': 4, 'Mb': 1.2e-05, 'p_value': 0.5,
+                 'additive': 24.0, 'lod_score': 0.3010299956639812},
+                {'name': 'M4', 'chr': 'Y', 'Mb': 1.2e-05, 'p_value': 0.7,
+                 'additive': 11.6, 'lod_score': 0.1549019599857432},
+                {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': 21.1, 'lod_score': 0.22184874961635637}]
 
             self.assertEqual(expected_results, results)
 

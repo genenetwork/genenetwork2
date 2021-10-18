@@ -62,5 +62,5 @@ class GeneralObject:
         return s
 
     def __eq__(self, other):
-        return (len(list(self.__dict__.keys())) ==
-                len(list(other.__dict__.keys())))
+        return (len(list(self.__dict__.keys()))
+                == len(list(other.__dict__.keys())))

@@ -1,4 +1,4 @@
-## Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
+# Copyright (C) University of Tennessee Health Science Center, Memphis, TN.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU Affero General Public License
@@ -27,11 +27,13 @@ from base.species import TheSpecies
 from utility import helper_functions, corr_result_helpers
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
-class SendToGeneWeaver(object):
+
+class SendToGeneWeaver:
     def __init__(self, start_vars):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                         for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.chip_name = test_chip(self.trait_list)
@@ -52,11 +54,12 @@ class SendToGeneWeaver(object):
             trait_name_list = get_trait_name_list(self.trait_list)
 
             self.hidden_vars = {
-                                 'client': "genenetwork",
-                                 'species': species_name,
-                                 'idtype': self.chip_name,
-                                 'list': ",".join(trait_name_list),
-                               }
+                'client': "genenetwork",
+                'species': species_name,
+                'idtype': self.chip_name,
+                'list': ",".join(trait_name_list),
+            }
+
 
 def get_trait_name_list(trait_list):
     name_list = []
@@ -64,6 +67,7 @@ def get_trait_name_list(trait_list):
         name_list.append(trait_db[0].name)
 
     return name_list
+
 
 def test_chip(trait_list):
     final_chip_name = ""
@@ -74,7 +78,7 @@ def test_chip(trait_list):
                                  FROM GeneChip, ProbeFreeze, ProbeSetFreeze
                                  WHERE GeneChip.Id = ProbeFreeze.ChipId and
                                      ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                                     ProbeSetFreeze.Name = '%s'"""  % dataset.name).fetchone()
+                                     ProbeSetFreeze.Name = '%s'""" % dataset.name).fetchone()
 
         if result:
             chip_name = result[0]

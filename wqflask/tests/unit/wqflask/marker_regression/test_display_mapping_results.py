@@ -9,6 +9,7 @@ from wqflask.marker_regression.display_mapping_results import (
 
 class TestDisplayMappingResults(unittest.TestCase):
     """Basic Methods to test Mapping Results"""
+
     def test_pil_colors(self):
         """Test that colors use PILLOW color format"""
         self.assertEqual(DisplayMappingResults.CLICKABLE_WEBQTL_REGION_COLOR,
@@ -17,6 +18,7 @@ class TestDisplayMappingResults(unittest.TestCase):
 
 class TestHtmlGenWrapper(unittest.TestCase):
     """Test Wrapper around HTMLGen"""
+
     def test_create_image(self):
         """Test HT.Image method"""
         self.assertEqual(
@@ -37,7 +39,8 @@ class TestHtmlGenWrapper(unittest.TestCase):
             cgi="/testing/",
             enctype='multipart/form-data',
             name="formName",
-            submit=HtmlGenWrapper.create_input_tag(type_='hidden', name='Default_Name')
+            submit=HtmlGenWrapper.create_input_tag(
+                type_='hidden', name='Default_Name')
         )
         test_image = HtmlGenWrapper.create_image_tag(
             src="test.png",

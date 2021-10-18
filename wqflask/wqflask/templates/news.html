@@ -1,21 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}{{title}}{% endblock %}
+{% block title %}News{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
 
 {% block content %}
-<div class="container">
-	<h3>{{title}}</h3>
-	<table class="table" style="width: 600px;">
-		<tbody>
-		{% for newsitem in newslist %}
-			<tr>
-				<td style="width: 90px; text-wrap:none;" nowrap>
-					<span style="font-weight: bold;">{{newsitem.date}}</span>
-				</td>
-				<td>{{newsitem.details|safe}}</td>
-			</tr>
-		{% endfor %}
-		</tbody>
-	</table>
+
+ <div class="github-btn-container">
+    <div class="github-btn">
+        <a href="https://github.com/genenetwork/gn-docs/blob/master/general/news/news.md">
+            Edit Text
+            <img src="/static/images/edit.png">
+        </a>
+    </div>
 </div>
+<div id="markdown" class="container">
+   {{ rendered_markdown|safe }}
+
+</div>
+
 {% endblock %}

@@ -55,16 +55,17 @@ from pprint import pformat as pf
 
 #conn = Engine.connect()
 
+
 def parse_db_uri():
     """Converts a database URI to the db name, host name, user name, and password"""
 
     parsed_uri = urllib.parse.urlparse(SQL_URI)
 
     db_conn_info = dict(
-                        db = parsed_uri.path[1:],
-                        host = parsed_uri.hostname,
-                        user = parsed_uri.username,
-                        passwd = parsed_uri.password)
+        db=parsed_uri.path[1:],
+        host=parsed_uri.hostname,
+        user=parsed_uri.username,
+        passwd=parsed_uri.password)
 
     print(db_conn_info)
     return db_conn_info
@@ -119,21 +120,23 @@ def get_types(groups):
                 else:
                     if not phenotypes_exist(group_name) and not genotypes_exist(group_name):
                         types[species].pop(group_name, None)
-                        groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
-            else: #ZS: This whole else statement might be unnecessary, need to check
+                        groups[species] = tuple(
+                            group for group in groups[species] if group[0] != group_name)
+            else:  # ZS: This whole else statement might be unnecessary, need to check
                 types_list = build_types(species, group_name)
                 if len(types_list) > 0:
                     types[species][group_name] = types_list
                 else:
                     types[species].pop(group_name, None)
-                    groups[species] = tuple(group for group in groups[species] if group[0] != group_name)
+                    groups[species] = tuple(
+                        group for group in groups[species] if group[0] != group_name)
     return types
 
 
 def phenotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from PublishFreeze
-                      where PublishFreeze.Name = '%s'""" % (group_name+"Publish"))
+                      where PublishFreeze.Name = '%s'""" % (group_name + "Publish"))
 
     results = Cursor.fetchone()
     #print("RESULTS:", results)
@@ -142,11 +145,12 @@ def phenotypes_exist(group_name):
         return True
     else:
         return False
+
 
 def genotypes_exist(group_name):
     #print("group_name:", group_name)
     Cursor.execute("""select Name from GenoFreeze
-                      where GenoFreeze.Name = '%s'""" % (group_name+"Geno"))
+                      where GenoFreeze.Name = '%s'""" % (group_name + "Geno"))
 
     results = Cursor.fetchone()
     #print("RESULTS:", results)
@@ -155,6 +159,7 @@ def genotypes_exist(group_name):
         return True
     else:
         return False
+
 
 def build_types(species, group):
     """Fetches tissues
@@ -183,6 +188,7 @@ def build_types(species, group):
                 results.append((result[0], result[0]))
 
     return results
+
 
 def get_datasets(types):
     """Build datasets list"""
@@ -246,7 +252,7 @@ def build_datasets(species, group, type_name):
         dataset_text = "%s Genotypes" % group
         datasets.append((dataset_id, dataset_value, dataset_text))
 
-    else: # for mRNA expression/ProbeSet
+    else:  # for mRNA expression/ProbeSet
         Cursor.execute("""select ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName from
                     ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue, Species where
                     Species.Name = '%s' and Species.Id = InbredSet.SpeciesId and
@@ -307,6 +313,7 @@ def _test_it():
     #print("build_types:", pf(types))
     datasets = build_datasets("Mouse", "BXD", "Hippocampus")
     #print("build_datasets:", pf(datasets))
+
 
 if __name__ == '__main__':
     Conn = MySQLdb.Connect(**parse_db_uri())

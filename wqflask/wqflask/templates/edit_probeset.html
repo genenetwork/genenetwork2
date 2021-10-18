@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block title %}Trait Submission{% endblock %}
+{% block content %}
+<!-- Start of body -->
+Edit Trait for Probeset
+Submit Trait | Reset
+
+{% if diff %}
+
+<div class="container">
+    <details class="col-sm-12 col-md-10 col-lg-12">
+    <summary>
+        <h2>Update History</h2>
+    </summary>
+    <table class="table">
+    <tbody>
+        <tr>
+            <th>Timestamp</th>
+            <th>Editor</th>
+            <th>Field</th>
+            <th>Diff</th>
+        </tr>
+        {% set ns = namespace(display_cell=True) %}
+
+        {% for timestamp, group in diff %}
+        {% set ns.display_cell = True %}
+        {% for i in group %}
+        <tr>
+            {% if ns.display_cell and i.timestamp == timestamp %}
+
+            {% set author = i.author %}
+            {% set timestamp_ = i.timestamp %}
+
+            {% else %}
+
+            {% set author = "" %}
+            {% set timestamp_ = "" %}
+
+            {% endif %}
+            <td>{{ timestamp_ }}</td>
+	    <td>{{ author }}</td>
+	    <td>{{ i.diff.field }}</td>
+            <td><pre>{{ i.diff.diff }}</pre></td>
+            {% set ns.display_cell = False %}
+	</tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+    </table>
+    </details>
+
+</div>
+
+{% endif %}
+
+<form id="edit-form" class="form-horizontal" method="post" action="/probeset/update">
+    <h2 class="text-center">Probeset Information:</h2>
+    <div class="form-group">
+        <label for="symbol" class="col-sm-2 control-label">Symbol:</label>
+        <div class="col-sm-4">
+            <textarea name="symbol" class="form-control" rows="1">{{ probeset.symbol |default('', true) }}</textarea>
+            <input name="old_symbol" class="changed" type="hidden" value="{{ probeset.symbol |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="description" class="col-sm-2 control-label">Description:</label>
+        <div class="col-sm-5">
+            <textarea name="description" class="form-control" rows="3">{{ probeset.description |default('', true) }}</textarea>
+            <input name="old_description" class="changed" type="hidden" value="{{ probeset.description |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_target_description" class="col-sm-2 control-label">Probe Target Description:</label>
+        <div class="col-sm-4">
+            <textarea name="probe_target_description" class="form-control" rows="4">{{ probeset.probe_target_description |default('', true) }}</textarea>
+            <input name="old_probe_target_description" class="changed" type="hidden" value="{{ probeset.probe_target_description |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="chr" class="col-sm-2 control-label">Chr:</label>
+        <div class="col-sm-4">
+            <textarea name="chr" class="form-control" rows="1">{{ probeset.chr_ |default('', true) }}</textarea>
+            <input name="old_chr_" class="changed" type="hidden" value="{{ probeset.chr_ |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="mb" class="col-sm-2 control-label">Mb:</label>
+        <div class="col-sm-4">
+            <textarea name="mb" class="form-control" rows="1">{{ probeset.mb |default('', true) }}</textarea>
+            <input name="old_mb" class="changed" type="hidden" value="{{ probeset.mb |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="alias" class="col-sm-2 control-label">
+            Alias:
+        </label>
+        <div class="col-sm-4">
+            <textarea name="alias" class="form-control" rows="1">{{ probeset.alias |default('', true) }}</textarea>
+            <input name="old_alias" class="changed" type="hidden" value="{{ probeset.alias |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="geneid" class="col-sm-2 control-label">
+            Gene Id:
+        </label>
+        <div class="col-sm-4">
+            <textarea name="geneid" class="form-control" rows="1">{{ probeset.geneid |default('', true) }}</textarea>
+            <input name="old_geneid" class="changed" type="hidden" value="{{ probeset.geneid |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="homologeneid" class="col-sm-2 control-label">
+            Homolegene Id:
+        </label>
+        <div class="col-sm-4">
+            <textarea name="homologeneid" class="form-control" rows="1">{{ probeset.homologeneid |default('', true) }}</textarea>
+            <input name="old_homologeneid" class="changed" type="hidden" value="{{ probeset.homologeneid |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="unigeneid" class="col-sm-2 control-label">
+            Unigene Id:
+        </label>
+        <div class="col-sm-4">
+            <textarea name="unigeneid" class="form-control" rows="1">{{ probeset.unigeneid |default('', true) }}</textarea>
+            <input name="old_unigeneid" class="changed" type="hidden" value="{{ probeset.unigeneid |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="omim" class="col-sm-2 control-label">OMIM:</label>
+        <div class="col-sm-4">
+            <textarea name="omim" class="form-control" rows="1">{{ probeset.omim |default('', true) }}</textarea>
+            <input name="old_omim" class="changed" type="hidden" value="{{ probeset.omim |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="refseq_transcriptid" class="col-sm-2 control-label">
+            Refseq TranscriptId:
+        </label>
+        <div class="col-sm-4">
+            <textarea name="refseq_transcriptid" class="form-control" rows="1">{{ probeset.refseq_transcriptid |default('', true) }}</textarea>
+            <input name="old_refseq_transcriptid" class="changed" type="hidden" value="{{ probeset.refseq_transcriptid |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="blatseq" class="col-sm-2 control-label">BlatSeq:</label>
+        <div class="col-sm-8">
+            <textarea name="blatseq" class="form-control" rows="6">{{ probeset.blatseq |default('', true) }}</textarea>
+            <input name="old_blatseq" class="changed" type="hidden" value="{{ probeset.blatseq |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="targetseq" class="col-sm-2 control-label">TargetSeq:</label>
+        <div class="col-sm-8">
+            <textarea name="targetseq" class="form-control" rows="6">{{ probeset.targetseq |default('', true) }}</textarea>
+            <input name="old_targetseq" class="changed" type="hidden" value="{{ probeset.targetseq |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="strand_probe" class="col-sm-2 control-label">Strand Probe:</label>
+        <div class="col-sm-2">
+            <textarea name="strand_probe" class="form-control" rows="1">{{ probeset.strand_probe |default('', true) }}</textarea>
+            <input name="old_strand_probe" class="changed" type="hidden" value="{{ probeset.strand_probe |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_target_region" class="col-sm-2 control-label">Probe Set Target Region:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_target_region" class="form-control" rows="1">{{ probeset.probe_set_target_region |default('', true) }}</textarea>
+            <input name="old_probe_set_target_region" class="changed" type="hidden" value="{{ probeset.probe_set_target_region_ |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_specificity" class="col-sm-2 control-label">Probeset Specificity:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_specificity" class="form-control" rows="1">{{ probeset.probe_set_specificity |default('', true) }}</textarea>
+            <input name="old_probe_set_specificity" class="changed" type="hidden" value="{{ probeset.probe_set_specificity |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_blat_score" class="col-sm-2 control-label">Probeset Blat Score:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_blat_score" class="form-control" rows="1">{{ probeset.probe_set_blat_score |default('', true) }}</textarea>
+            <input name="old_probe_set_blat_score" class="changed" type="hidden" value="{{ probeset.probe_set_blat_score |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_blat_mb_start" class="col-sm-2 control-label">
+            Probeset Blat Mb Start:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_blat_mb_start" class="form-control" rows="1">{{ probeset.probe_set_blat_mb_start |default('', true) }}</textarea>
+            <input name="old_probe_set_blat_mb_start" class="changed" type="hidden" value="{{ probeset.probe_set_blat_mb_start |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_blat_mb_end" class="col-sm-2 control-label">Probeset Blat Mb End:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_blat_mb_end" class="form-control" rows="6">{{ probeset.probe_set_blat_mb_end |default('', true) }}</textarea>
+            <input name="old_probe_set_blat_mb_end" class="changed" type="hidden" value="{{ probeset.probe_set_blat_mb_end |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_strand" class="col-sm-2 control-label">Probeset Strand:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_strand" class="form-control" rows="6">{{ probeset.probe_set_strand |default('', true) }}</textarea>
+            <input name="old_probe_set_strand" class="changed" type="hidden" value="{{ probeset.probe_set_strand |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="probe_set_note_by_rw" class="col-sm-2 control-label">Probeset Strand:</label>
+        <div class="col-sm-8">
+            <textarea name="probe_set_note_by_rw" class="form-control" rows="6">{{ probeset.probe_set_note_by_rw |default('', true) }}</textarea>
+            <input name="old_probe_set_note_by_rw" class="changed" type="hidden" value="{{ probeset.probe_set_note_by_rw |default('', true) }}"/>
+        </div>
+    </div>
+    <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
+        <input name="id" class="changed" type="hidden" value="{{ probeset.id_ }}"/>
+        <input name="old_id_" class="changed" type="hidden" value="{{ probeset.id_ }}"/>
+        <input name="probeset_name" class="changed" type="hidden" value="{{ probeset.name }}"/>
+        <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2 changed" value="Submit Change">
+        <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">
+    </div>
+</form>
+
+{%endblock%}
+
+{% block js %}
+<script>
+ gn_server_url = "{{ gn_server_url }}";
+ function MarkAsChanged(){
+     $(this).addClass("changed");
+ }
+ $(":input").blur(MarkAsChanged).change(MarkAsChanged);
+
+ $("input[type=submit]").click(function(){
+     $(":input:not(.changed)").attr("disabled", "disabled");
+ });
+</script>
+{% endblock %}

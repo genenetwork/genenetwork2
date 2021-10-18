@@ -26,7 +26,9 @@ def is_redis_available():
 
 
 def load_json_from_redis(item_list, column_value):
-    return json.loads(item_list[str.encode(column_value)])
+    if type(column_value) == str:
+        column_value = str.encode(column_value)
+    return json.loads(item_list[column_value])
 
 
 def get_user_id(column_name, column_value):
@@ -125,20 +127,20 @@ def check_verification_code(code):
 
 
 def get_user_groups(user_id):
-    # ZS: Get the groups where a user is an admin or a member and
+    # Get the groups where a user is an admin or a member and
     # return lists corresponding to those two sets of groups
-    admin_group_ids = []  # ZS: Group IDs where user is an admin
-    user_group_ids = []  # ZS: Group IDs where user is a regular user
+    admin_group_ids = []  # Group IDs where user is an admin
+    user_group_ids = []  # Group IDs where user is a regular user
     groups_list = Redis.hgetall("groups")
-    for key in groups_list:
+    for group_id, group_details in groups_list.items():
         try:
-            group_ob = json.loads(groups_list[key])
-            group_admins = set(group_ob['admins'])
-            group_members = set(group_ob['members'])
+            _details = json.loads(group_details)
+            group_admins = set([this_admin if this_admin else None for this_admin in _details['admins']])
+            group_members = set([this_member if this_member else None for this_member in _details['members']])
             if user_id in group_admins:
-                admin_group_ids.append(group_ob['id'])
+                admin_group_ids.append(group_id)
             elif user_id in group_members:
-                user_group_ids.append(group_ob['id'])
+                user_group_ids.append(group_id)
             else:
                 continue
         except:
@@ -203,7 +205,8 @@ def get_groups_like_unique_column(column_name, column_value):
                         if column_value in group_info[column_name]:
                             matched_groups.append(group_info)
         else:
-            matched_groups.append(load_json_from_redis(group_list, column_value))
+            matched_groups.append(
+                load_json_from_redis(group_list, column_value))
 
     return matched_groups
 

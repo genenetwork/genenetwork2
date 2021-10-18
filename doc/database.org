@@ -1339,7 +1339,8 @@ The SNP count info for the BXD is calculated like this
             startMb += stepMb
 #+end_src
 
-select * from BXDSnpPosition limit 5;
+: select * from BXDSnpPosition limit 5;
+
 +------+-----------+-----------+----------+
 | Chr  | StrainId1 | StrainId2 | Mb       |
 +------+-----------+-----------+----------+
@@ -1368,3 +1369,150 @@ mysql> select * from SnpSource limit 5;
 Empty set (0.00 sec)
 
 Hmmm. This is the test database. Then there are the plink files and VCF files.
+
+* Optimize SQL?
+
+We were facing some issues with slow queries. A query
+was really slow on Penguin2:
+
+: time mysql -u webqtlout -pwebqtlout db_webqtl < ~/chunk.sql  > /dev/null
+: real    0m13.082s
+: user    0m0.292s
+: sys     0m0.032s
+
+Runs in 1s on Tux01 and 13s on P2, why is that? The gist of it
+was increasing an InnoDB cache size(!)
+
+Interestingly, Penguin2 is running InnoDB on a much slower storage.
+It has more indices that Tux01(?!). Probably due to things we have
+been trying to make the datatables faster.
+
+Meanwhile the query is one with many joins:
+
+#+begin_src sql
+SELECT ProbeSet.Name,ProbeSetXRef.DataId, T4.value, T5.value, T6.value, T7.value, T8.value, T9.value, T10.value, T11.value, T12.value, T14.value, T15.value, T17.value, T18.value, T19.value, T20.value, T21.value, T22.value, T24.value, T25.value, T26.value, T28.value, T29.value, T30.value, T31.value, T35.value, T36.value, T37.value, T39.value, T98.value, T99.value, T100.value, T103.value, T487.value, T105.value, T106.value, T110.value FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)
+  left join ProbeSetData as T4 on T4.Id = ProbeSetXRef.DataId
+  and T4.StrainId=4
+  (...)
+  left join ProbeSetData as T110 on T110.Id = ProbeSetXRef.DataId
+  and T110.StrainId=110
+  WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
+  and ProbeSetFreeze.Name = 'HC_M2_0606_P'
+  and ProbeSet.Id = ProbeSetXRef.ProbeSetId
+  order by ProbeSet.Id
+#+end_src
+
+And is blazingly fast on Tux01 and (now) fast enough on Penguin2.
+
+First I checked the tables for indices and storage type. Next I
+checked the difference in configuration.
+
+** Check tables
+
+Tables (ProbeSetData, ProbeSet, ProbeSetXRef, ProbeSetFreeze)
+
+*** ProbeSetData
+
+Same on Tux01 and P2:
+
+: show indexes from ProbeSetData ;
+
+| Table        | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
+|--------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------|
+| ProbeSetData |          0 | DataId   |            1 | Id          | A         |    47769944 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetData |          0 | DataId   |            2 | StrainId    | A         |  5111384047 | NULL     | NULL   |      | BTREE      |         |               |
+
+*** ProbeSetFreeze
+
+Tux01 has less indexes than P2(!):
+
+| Table          | Non_unique | Key_name  | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
+|----------------+------------+-----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------|
+| ProbeSetFreeze |          0 | PRIMARY   |            1 | Id          | A         |         911 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          0 | FullName  |            1 | FullName    | A         |         911 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          0 | Name      |            1 | Name        | A         |         911 | NULL     | NULL   | YES  | BTREE      |         |               |
+| ProbeSetFreeze |          1 | NameIndex |            1 | Name2       | A         |         911 | NULL     | NULL   |      | BTREE      |         |               |
+: 4 rows in set (0.000 sec)
+
+| Table          | Non_unique | Key_name        | Seq_in_index | Column_name     | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
+|----------------+------------+-----------------+--------------+-----------------+-----------+-------------+----------+--------+------+------------+---------+---------------|
+| ProbeSetFreeze |          0 | PRIMARY         |            1 | Id              | A         |         883 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          0 | FullName        |            1 | FullName        | A         |         883 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          0 | Name            |            1 | Name            | A         |         883 | NULL     | NULL   | YES  | BTREE      |         |               |
+| ProbeSetFreeze |          1 | NameIndex       |            1 | Name2           | A         |         883 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          1 | ShortName       |            1 | ShortName       | A         |         883 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          1 | ProbeFreezeId   |            1 | ProbeFreezeId   | A         |         441 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          1 | conf_and_public |            1 | confidentiality | A         |           3 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetFreeze |          1 | conf_and_public |            2 | public          | A         |           4 | NULL     | NULL   |      | BTREE      |         |               |
+: 8 rows in set (0.00 sec)
+
+*** ProbeSet
+
+Identical indexes
+
+*** ProbeSetXRef
+
+Tux01 has less indexes than P2(!):
+
+: MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
+| Table        | Non_unique | Key_name   | Seq_in_index | Column_name      | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
+|--------------+------------+------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------|
+| ProbeSetXRef |          0 | ProbeSetId |            1 | ProbeSetFreezeId | A         |         885 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          0 | ProbeSetId |            2 | ProbeSetId       | A         |    47713039 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          0 | DataId_IDX |            1 | DataId           | A         |    47713039 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          1 | Locus_IDX  |            1 | Locus            | A         |    15904346 | NULL     | NULL   | YES  | BTREE      |         |               |
+: 4 rows in set (0.000 sec)
+
+
+
+: MariaDB [db_webqtl]> show indexes from ProbeSetXRef ;
+| Table        | Non_unique | Key_name    | Seq_in_index | Column_name      | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
+|--------------+------------+-------------+--------------+------------------+-----------+-------------+----------+--------+------+------------+---------+---------------|
+| ProbeSetXRef |          0 | ProbeSetId  |            1 | ProbeSetFreezeId | A         |         856 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          0 | ProbeSetId  |            2 | ProbeSetId       | A         |    46412145 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          0 | DataId_IDX  |            1 | DataId           | A         |    46412145 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          1 | ProbeSetId1 |            1 | ProbeSetId       | A         |     5156905 | NULL     | NULL   |      | BTREE      |         |               |
+| ProbeSetXRef |          1 | Locus       |            1 | Locus            | A         |    23206072 | NULL     | NULL   | YES  | BTREE      |         |               |
+: 5 rows in set (0.00 sec)
+
+** Check storage
+
+The database in Tux01 is mounted on NVME. On Penguin2 it
+is slower SATA with RAID5.
+
+Also on Penguin2 the following tables are using InnoDB instead of
+MyISAM
+
+#+begin_src sh
+-rw-rw---- 1 mysql mysql     79691776 Oct 15  2019 AccessLog.ibd
+-rw-rw---- 1 mysql mysql       196608 Oct 24  2019 Docs.ibd
+-rw-rw---- 1 mysql mysql  63673729024 Jul 10  2020 GenoData.ibd
+-rw-rw---- 1 mysql mysql  34787557376 Jul  9  2020 ProbeData.ibd
+-rw-rw---- 1 mysql mysql 254690721792 Jul 10  2020 ProbeSetData.ibd
+-rw-rw---- 1 mysql mysql  32103202816 Jul  9  2020 SnpAll.ibd
+-rw-rw---- 1 mysql mysql        98304 May  6  2020 TraitMetadata.ibd
+#+end_src
+
+This [[https://www.liquidweb.com/kb/mysql-performance-myisam-vs-innodb/][article]] suggests that myISAM will be faster for our use case.
+
+** Configuration
+
+There was one setting on Tux01 missing on P2
+
+: +innodb_buffer_pool_size=1024M
+
+Running the same query twice (so you can see the warmup after
+a restart of MariaDB)
+
+#+begin_src sh
+penguin2:/etc$ time mysql -u webqtlout -pwebqtlout db_webqtl < ~/chunk.sql  > ~/test.out
+real    0m4.253s
+user    0m0.276s
+sys     0m0.040s
+penguin2:/etc$ time mysql -u webqtlout -pwebqtlout db_webqtl < ~/chunk.sql  > ~/test.out
+real    0m2.633s
+user    0m0.296s
+sys     0m0.028s
+#+end_src
+
+That is much better :)

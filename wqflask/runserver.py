@@ -23,6 +23,9 @@ app_config()
 werkzeug_logger = logging.getLogger('werkzeug')
 
 if WEBSERVER_MODE == 'DEBUG':
+    from flask_debugtoolbar import DebugToolbarExtension
+    app.debug = True
+    toolbar = DebugToolbarExtension(app)
     app.run(host='0.0.0.0',
             port=SERVER_PORT,
             debug=True,

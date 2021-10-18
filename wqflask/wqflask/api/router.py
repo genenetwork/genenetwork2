@@ -6,11 +6,13 @@ import csv
 import json
 import datetime
 import requests
+import MySQLdb
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
 
 import flask
+from flask import current_app
 from flask import g
 from flask import request
 from flask import make_response
@@ -23,46 +25,51 @@ from wqflask.api import correlation, mapping, gen_menu
 from utility.tools import flat_files
 
 import utility.logger
-logger = utility.logger.getLogger(__name__ )
+logger = utility.logger.getLogger(__name__)
 
 version = "pre1"
 
+
 @app.route("/api/v_{}/".format(version))
 def hello_world():
-    return flask.jsonify({"hello":"world"})
+    return flask.jsonify({"hello": "world"})
+
 
 @app.route("/api/v_{}/species".format(version))
 def get_species_list():
-    results = g.db.execute("SELECT SpeciesId, Name, FullName, TaxonomyId FROM Species;")
+    results = g.db.execute(
+        "SELECT SpeciesId, Name, FullName, TaxonomyId FROM Species;")
     the_species = results.fetchall()
     species_list = []
     for species in the_species:
         species_dict = {
-          "Id"         : species[0],
-          "Name"       : species[1],
-          "FullName"   : species[2],
-          "TaxonomyId" : species[3]
+            "Id": species[0],
+            "Name": species[1],
+            "FullName": species[2],
+            "TaxonomyId": species[3]
         }
         species_list.append(species_dict)
 
     return flask.jsonify(species_list)
 
+
 @app.route("/api/v_{}/species/<path:species_name>".format(version))
 @app.route("/api/v_{}/species/<path:species_name>.<path:file_format>".format(version))
-def get_species_info(species_name, file_format = "json"):
+def get_species_info(species_name, file_format="json"):
     results = g.db.execute("""SELECT SpeciesId, Name, FullName, TaxonomyId 
                               FROM Species 
                               WHERE (Name="{0}" OR FullName="{0}" OR SpeciesName="{0}");""".format(species_name))
 
     the_species = results.fetchone()
-    species_dict = { 
-      "Id"         : the_species[0],
-      "Name"       : the_species[1],
-      "FullName"   : the_species[2],
-      "TaxonomyId" : the_species[3]
+    species_dict = {
+        "Id": the_species[0],
+        "Name": the_species[1],
+        "FullName": the_species[2],
+        "TaxonomyId": the_species[3]
     }
-    
+
     return flask.jsonify(species_dict)
+
 
 @app.route("/api/v_{}/groups".format(version))
 @app.route("/api/v_{}/groups/<path:species_name>".format(version))
@@ -87,14 +94,14 @@ def get_groups_list(species_name=None):
         groups_list = []
         for group in the_groups:
             group_dict = {
-              "Id"              : group[0],
-              "SpeciesId"       : group[1],
-              "DisplayName"     : group[2],
-              "Name"            : group[3],
-              "FullName"        : group[4],
-              "public"          : group[5],
-              "MappingMethodId" : group[6],
-              "GeneticType"     : group[7]
+                "Id": group[0],
+                "SpeciesId": group[1],
+                "DisplayName": group[2],
+                "Name": group[3],
+                "FullName": group[4],
+                "public": group[5],
+                "MappingMethodId": group[6],
+                "GeneticType": group[7]
             }
             groups_list.append(group_dict)
 
@@ -102,11 +109,12 @@ def get_groups_list(species_name=None):
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/group/<path:group_name>".format(version))
 @app.route("/api/v_{}/group/<path:group_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>".format(version))
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>.<path:file_format>".format(version))
-def get_group_info(group_name, species_name = None, file_format = "json"):
+def get_group_info(group_name, species_name=None, file_format="json"):
     if species_name:
         results = g.db.execute("""SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, InbredSet.InbredSetName, 
                                          InbredSet.Name, InbredSet.FullName, InbredSet.public, 
@@ -131,19 +139,20 @@ def get_group_info(group_name, species_name = None, file_format = "json"):
     group = results.fetchone()
     if group:
         group_dict = {
-          "Id"              : group[0],
-          "SpeciesId"       : group[1],
-          "DisplayName"     : group[2],
-          "Name"            : group[3],
-          "FullName"        : group[4],
-          "public"          : group[5],
-          "MappingMethodId" : group[6],
-          "GeneticType"     : group[7]
+            "Id": group[0],
+            "SpeciesId": group[1],
+            "DisplayName": group[2],
+            "Name": group[3],
+            "FullName": group[4],
+            "public": group[5],
+            "MappingMethodId": group[6],
+            "GeneticType": group[7]
         }
 
         return flask.jsonify(group_dict)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/datasets/<path:group_name>".format(version))
 @app.route("/api/v_{}/datasets/<path:species_name>/<path:group_name>".format(version))
@@ -179,17 +188,17 @@ def get_datasets_for_group(group_name, species_name=None):
         datasets_list = []
         for dataset in the_datasets:
             dataset_dict = {
-              "Id"                 : dataset[0],
-              "ProbeFreezeId"      : dataset[1],
-              "AvgID"              : dataset[2],
-              "Short_Abbreviation" : dataset[3],
-              "Long_Abbreviation"  : dataset[4],
-              "FullName"           : dataset[5],
-              "ShortName"          : dataset[6],
-              "CreateTime"         : dataset[7],
-              "public"             : dataset[8],
-              "confidentiality"    : dataset[9],
-              "DataScale"          : dataset[10]
+                "Id": dataset[0],
+                "ProbeFreezeId": dataset[1],
+                "AvgID": dataset[2],
+                "Short_Abbreviation": dataset[3],
+                "Long_Abbreviation": dataset[4],
+                "FullName": dataset[5],
+                "ShortName": dataset[6],
+                "CreateTime": dataset[7],
+                "public": dataset[8],
+                "confidentiality": dataset[9],
+                "DataScale": dataset[10]
             }
             datasets_list.append(dataset_dict)
 
@@ -197,14 +206,15 @@ def get_datasets_for_group(group_name, species_name=None):
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/dataset/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/dataset/<path:dataset_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/dataset/<path:group_name>/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/dataset/<path:group_name>/<path:dataset_name>.<path:file_format>".format(version))
-def get_dataset_info(dataset_name, group_name = None, file_format="json"):
-    #ZS: First get ProbeSet (mRNA expression) datasets and then get Phenotype datasets
+def get_dataset_info(dataset_name, group_name=None, file_format="json"):
+    # ZS: First get ProbeSet (mRNA expression) datasets and then get Phenotype datasets
 
-    datasets_list = [] #ZS: I figure I might as well return a list if there are multiple matches, though I don"t know if this will actually happen in practice
+    datasets_list = []  # ZS: I figure I might as well return a list if there are multiple matches, though I don"t know if this will actually happen in practice
 
     probeset_query = """
                 SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName,
@@ -235,16 +245,16 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
 
     if dataset:
         dataset_dict = {
-          "dataset_type" : "mRNA expression",
-          "id"           : dataset[0],
-          "name"         : dataset[1],
-          "full_name"    : dataset[2],
-          "short_name"   : dataset[3],
-          "data_scale"   : dataset[4],
-          "tissue_id"    : dataset[5],
-          "tissue"       : dataset[6],
-          "public"       : dataset[7],
-          "confidential" : dataset[8]
+            "dataset_type": "mRNA expression",
+            "id": dataset[0],
+            "name": dataset[1],
+            "full_name": dataset[2],
+            "short_name": dataset[3],
+            "data_scale": dataset[4],
+            "tissue_id": dataset[5],
+            "tissue": dataset[6],
+            "public": dataset[7],
+            "confidential": dataset[8]
         }
 
         datasets_list.append(dataset_dict)
@@ -272,25 +282,25 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
         if dataset:
             if dataset[5]:
                 dataset_dict = {
-                  "dataset_type" : "phenotype",
-                  "id"           : dataset[0],
-                  "name"         : dataset[1],
-                  "description"  : dataset[2],
-                  "pubmed_id"    : dataset[5],
-                  "title"        : dataset[6],
-                  "year"         : dataset[7]
+                    "dataset_type": "phenotype",
+                    "id": dataset[0],
+                    "name": dataset[1],
+                    "description": dataset[2],
+                    "pubmed_id": dataset[5],
+                    "title": dataset[6],
+                    "year": dataset[7]
                 }
             elif dataset[4]:
                 dataset_dict = {
-                  "dataset_type" : "phenotype",
-                  "id"           : dataset[0],
-                  "name"         : dataset[3],
-                  "description"  : dataset[4]
+                    "dataset_type": "phenotype",
+                    "id": dataset[0],
+                    "name": dataset[3],
+                    "description": dataset[4]
                 }
             else:
                 dataset_dict = {
-                  "dataset_type" : "phenotype",
-                  "id"           : dataset[0]
+                    "dataset_type": "phenotype",
+                    "id": dataset[0]
                 }
 
             datasets_list.append(dataset_dict)
@@ -302,10 +312,12 @@ def get_dataset_info(dataset_name, group_name = None, file_format="json"):
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
 @app.route("/api/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
-def fetch_traits(dataset_name, file_format = "json"):
-    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
+def fetch_traits(dataset_name, file_format="json"):
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(
+        dataset_name, request.args)
     if ("ids_only" in request.args) and (len(trait_ids) > 0):
         if file_format == "json":
             filename = dataset_name + "_trait_ids.json"
@@ -353,7 +365,8 @@ def fetch_traits(dataset_name, file_format = "json"):
                                 ProbeSet.Id
                         """
 
-                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb", "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
+                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb",
+                              "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
             elif data_type == "Geno":
                 query = """
                             SELECT
@@ -370,7 +383,8 @@ def fetch_traits(dataset_name, file_format = "json"):
                                 Geno.Id
                         """
 
-                field_list = ["Id", "Name", "Marker_Name", "Chr", "Mb", "Sequence", "Source"]
+                field_list = ["Id", "Name", "Marker_Name",
+                              "Chr", "Mb", "Sequence", "Source"]
             else:
                 query = """
                             SELECT
@@ -386,7 +400,8 @@ def fetch_traits(dataset_name, file_format = "json"):
                                 PublishXRef.Id
                         """
 
-                field_list = ["Id", "PhenotypeId", "PublicationId", "Locus", "LRS", "Additive", "Sequence"]
+                field_list = ["Id", "PhenotypeId", "PublicationId",
+                              "Locus", "LRS", "Additive", "Sequence"]
 
             if 'limit_to' in request.args:
                 limit_number = request.args['limit_to']
@@ -430,10 +445,12 @@ def fetch_traits(dataset_name, file_format = "json"):
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/sample_data/<path:dataset_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
-def all_sample_data(dataset_name, file_format = "csv"):
-    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(dataset_name, request.args)
+def all_sample_data(dataset_name, file_format="csv"):
+    trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(
+        dataset_name, request.args)
 
     if len(trait_ids) > 0:
         sample_list = get_samplelist(dataset_name)
@@ -536,9 +553,10 @@ def all_sample_data(dataset_name, file_format = "csv"):
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
-def trait_sample_data(dataset_name, trait_name, file_format = "json"):
+def trait_sample_data(dataset_name, trait_name, file_format="json"):
     probeset_query = """
                         SELECT
                             Strain.Name, Strain.Name2, ProbeSetData.value, ProbeSetData.Id, ProbeSetSE.error
@@ -563,10 +581,10 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
         sample_list = []
         for sample in sample_data:
             sample_dict = {
-              "sample_name": sample[0],
-              "sample_name_2": sample[1],
-              "value": sample[2],
-              "data_id": sample[3],
+                "sample_name": sample[0],
+                "sample_name_2": sample[1],
+                "value": sample[2],
+                "data_id": sample[3],
             }
             if sample[4]:
                 sample_dict["se"] = sample[4]
@@ -610,10 +628,10 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
             sample_list = []
             for sample in sample_data:
                 sample_dict = {
-                  "sample_name"   : sample[0],
-                  "sample_name_2" : sample[1],
-                  "value"         : sample[2],
-                  "data_id"       : sample[3]
+                    "sample_name": sample[0],
+                    "sample_name_2": sample[1],
+                    "value": sample[2],
+                    "data_id": sample[3]
                 }
                 if sample[4]:
                     sample_dict["se"] = sample[4]
@@ -623,13 +641,14 @@ def trait_sample_data(dataset_name, trait_name, file_format = "json"):
 
             return flask.jsonify(sample_list)
         else:
-            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="") 
+            return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/trait/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
-def get_trait_info(dataset_name, trait_name, file_format = "json"):
+def get_trait_info(dataset_name, trait_name, file_format="json"):
     probeset_query = """
                         SELECT
                             ProbeSet.Id, ProbeSet.Name, ProbeSet.Symbol, ProbeSet.description, ProbeSet.Chr, ProbeSet.Mb, ProbeSet.alias,
@@ -648,26 +667,27 @@ def get_trait_info(dataset_name, trait_name, file_format = "json"):
     trait_info = probeset_results.fetchone()
     if trait_info:
         trait_dict = {
-            "id"          : trait_info[0],
-            "name"        : trait_info[1],
-            "symbol"      : trait_info[2],
-            "description" : trait_info[3],
-            "chr"         : trait_info[4],
-            "mb"          : trait_info[5],
-            "alias"       :trait_info[6],
-            "mean"        : trait_info[7],
-            "se"          : trait_info[8],
-            "locus"       : trait_info[9],
-            "lrs"         : trait_info[10],
-            "p_value"     : trait_info[11],
-            "additive"    : trait_info[12]
+            "id": trait_info[0],
+            "name": trait_info[1],
+            "symbol": trait_info[2],
+            "description": trait_info[3],
+            "chr": trait_info[4],
+            "mb": trait_info[5],
+            "alias": trait_info[6],
+            "mean": trait_info[7],
+            "se": trait_info[8],
+            "locus": trait_info[9],
+            "lrs": trait_info[10],
+            "p_value": trait_info[11],
+            "additive": trait_info[12]
         }
 
         return flask.jsonify(trait_dict)
     else:
-        if "Publish" in dataset_name: #ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
+        # ZS: Check if the user input the dataset_name as BXDPublish, etc (which is always going to be the group name + "Publish"
+        if "Publish" in dataset_name:
             dataset_name = dataset_name.replace("Publish", "")
-        
+
         group_id = get_group_id(dataset_name)
         pheno_query = """
                          SELECT
@@ -684,24 +704,27 @@ def get_trait_info(dataset_name, trait_name, file_format = "json"):
         trait_info = pheno_results.fetchone()
         if trait_info:
             trait_dict = {
-                "id"       : trait_info[0],
-                "locus"    : trait_info[1],
-                "lrs"      : trait_info[2],
-                "additive" : trait_info[3]
+                "id": trait_info[0],
+                "locus": trait_info[1],
+                "lrs": trait_info[2],
+                "additive": trait_info[3]
             }
 
             return flask.jsonify(trait_dict)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
+
 @app.route("/api/v_{}/correlation".format(version), methods=("GET",))
 def get_corr_results():
     results = correlation.do_correlation(request.args)
 
     if len(results) > 0:
-        return flask.jsonify(results) #ZS: I think flask.jsonify expects a dict/list instead of JSON
+        # ZS: I think flask.jsonify expects a dict/list instead of JSON
+        return flask.jsonify(results)
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/mapping".format(version), methods=("GET",))
 def get_mapping_results():
@@ -725,6 +748,7 @@ def get_mapping_results():
             return return_error(code=415, source=request.url_rule.rule, title="Unsupported Format", details="")
     else:
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
+
 
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>.zip".format(version))
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>".format(version))
@@ -754,7 +778,8 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                         output_lines.append(line.split())
                         i += 1
 
-            csv_writer = csv.writer(si, delimiter = "\t", escapechar = "\\", quoting = csv.QUOTE_NONE)
+            csv_writer = csv.writer(
+                si, delimiter="\t", escapechar="\\", quoting=csv.QUOTE_NONE)
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
     elif file_format == "rqtl2":
@@ -765,18 +790,23 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
             filename = group_name
 
         if os.path.isfile("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name)):
-            yaml_file = json.load(open("{0}/{1}.json".format(flat_files("genotype/rqtl2"), group_name)))
+            yaml_file = json.load(
+                open("{0}/{1}.json".format(flat_files("genotype/rqtl2"), group_name)))
             yaml_file["geno"] = filename + "_geno.csv"
             yaml_file["gmap"] = filename + "_gmap.csv"
             yaml_file["pheno"] = filename + "_pheno.csv"
             config_file = [filename + ".json", json.dumps(yaml_file)]
             #config_file = [filename + ".yaml", open("{0}/{1}.yaml".format(flat_files("genotype/rqtl2"), group_name))]
-            geno_file = [filename + "_geno.csv", open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
-            gmap_file = [filename + "_gmap.csv", open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
+            geno_file = [filename + "_geno.csv",
+                         open("{0}/{1}_geno.csv".format(flat_files("genotype/rqtl2"), group_name))]
+            gmap_file = [filename + "_gmap.csv",
+                         open("{0}/{1}_gmap.csv".format(flat_files("genotype/rqtl2"), group_name))]
             if dataset_name:
-                phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
+                phenotypes = requests.get(
+                    "http://gn2.genenetwork.org/api/v_pre1/sample_data/" + dataset_name)
             else:
-                phenotypes = requests.get("http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
+                phenotypes = requests.get(
+                    "http://gn2.genenetwork.org/api/v_pre1/sample_data/" + group_name + "Publish")
 
             with ZipFile(memory_file, 'w', compression=ZIP_DEFLATED) as zf:
                 zf.writestr(config_file[0], config_file[1])
@@ -799,10 +829,11 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
                 for line in genofile:
                     if limit_num and i >= limit_num:
                         break
-                    output_lines.append([line.strip() for line in line.split(",")])
+                    output_lines.append([line.strip()
+                                         for line in line.split(",")])
                     i += 1
 
-            csv_writer = csv.writer(si, delimiter = ",")
+            csv_writer = csv.writer(si, delimiter=",")
         else:
             return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
@@ -813,26 +844,33 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
 
     return output
 
+
 @app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
-    results = gen_menu.gen_dropdown_json()
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    results = gen_menu.gen_dropdown_json(conn)
 
     if len(results) > 0:
         return flask.jsonify(results)
     else:
         return return_error(code=500, source=request.url_rule.rule, title="Some error occurred", details="")
 
+
 def return_error(code, source, title, details):
     json_ob = {"errors": [
         {
             "status": code,
-            "source": { "pointer": source },
-            "title" : title,
+            "source": {"pointer": source},
+            "title": title,
             "detail": details
         }
     ]}
 
     return flask.jsonify(json_ob)
+
 
 def get_dataset_trait_ids(dataset_name, start_vars):
 
@@ -842,8 +880,8 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         limit_string = ""
 
     if "Geno" in dataset_name:
-        data_type = "Geno" #ZS: Need to pass back the dataset type
-        query =    """
+        data_type = "Geno"  # ZS: Need to pass back the dataset type
+        query = """
                             SELECT
                                 GenoXRef.GenoId, Geno.Name, GenoXRef.GenoFreezeId
                             FROM
@@ -866,7 +904,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         data_type = "Publish"
         dataset_name = dataset_name.replace("Publish", "")
         dataset_id = get_group_id(dataset_name)
-        
+
         query = """
                          SELECT
                              PublishXRef.PhenotypeId, PublishXRef.Id, InbredSet.InbredSetCode
@@ -881,7 +919,8 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         results = g.db.execute(query).fetchall()
 
         trait_ids = [result[0] for result in results]
-        trait_names = [str(result[2]) + "_" + str(result[1]) for result in results]
+        trait_names = [str(result[2]) + "_" + str(result[1])
+                       for result in results]
 
         return trait_ids, trait_names, data_type, dataset_id
 
@@ -906,6 +945,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         dataset_id = results[0][2]
         return trait_ids, trait_names, data_type, dataset_id
 
+
 def get_samplelist(dataset_name):
     group_id = get_group_id_from_dataset(dataset_name)
 
@@ -915,12 +955,13 @@ def get_samplelist(dataset_name):
                WHERE StrainXRef.StrainId = Strain.Id AND
                      StrainXRef.InbredSetId = {}
             """.format(group_id)
-    
+
     results = g.db.execute(query).fetchall()
-    
+
     samplelist = [result[0] for result in results]
 
     return samplelist
+
 
 def get_group_id_from_dataset(dataset_name):
     if "Publish" in dataset_name:
@@ -961,6 +1002,7 @@ def get_group_id_from_dataset(dataset_name):
         return result[0]
     else:
         return None
+
 
 def get_group_id(group_name):
     query = """

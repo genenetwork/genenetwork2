@@ -31,7 +31,7 @@ def check_resource_availability(dataset, trait_id=None):
 
     # ZS: Check if super-user - we should probably come up with some
     # way to integrate this into the proxy
-    if str.encode(g.user_session.user_id) in Redis.smembers("super_users"):
+    if g.user_session.user_id in Redis.smembers("super_users"):
         return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
@@ -132,12 +132,17 @@ def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
         else:
             resource_id = get_resource_id(dataset, trait_id)
 
-    if str.encode(g.user_session.user_id) in Redis.smembers("super_users"):
+    try:
+        user_id = g.user_session.user_id.encode('utf-8')
+    except:
+        user_id = g.user_session.user_id
+
+    if user_id in Redis.smembers("super_users"):
         return "owner"
 
     resource_info = get_resource_info(resource_id)
     if resource_info:
-        if g.user_session.user_id == resource_info['owner_id']:
+        if user_id == resource_info['owner_id']:
             return "owner"
         else:
             return check_admin(resource_id)

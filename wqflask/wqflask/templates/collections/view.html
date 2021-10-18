@@ -14,6 +14,7 @@
             <span id="collection_name">{{ uc.name }}</span>
             <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
             <button class="btn btn-default" style="display: inline;" id="change_collection_name">Change Collection Name</button>
+            <button class="btn btn-default" style="display: inline;" id="make_default">Make Default</button>
         </h1>
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
@@ -35,6 +36,28 @@
 
         <div>
             <br />
+	    <form id="heatmaps_form">
+	      <fieldset>
+		<legend>Heatmap Orientation</legend>
+		<label for="heatmap-orient-vertical">Vertical</label>
+		<input id="heatmap-orient-vertical"
+		       type="radio"
+		       name="vertical"
+		       value="true" />
+		<label for="heatmap-orient-horizontal">Horizontal</label>
+		<input id="heatmap-orient-horizontal"
+		       type="radio"
+		       name="vertical"
+		       value="false" />
+	      </fieldset>
+	      <button id="clustered-heatmap"
+		      class="btn btn-primary"
+		      data-url="{{heatmap_data_url}}"
+		      title="Generate heatmap from this collection">
+		Generate Heatmap
+	      </button>
+	    </form>
+
             <div class="collection-table-options">
                 <form id="export_form" method="POST" action="/export_traits_csv">
                     <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
@@ -48,9 +71,11 @@
                     <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
                     <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
                     <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Delete Rows</button>
-                    <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" title="Delete this collection" > Delete Collection</button>
+                    <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" type="button" title="Delete this collection" > Delete Collection</button>
                 </form>
             </div>
+	    <div id="clustered-heatmap-image-area">
+	    </div>
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
@@ -137,6 +162,8 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+
+    <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
 
 
     <script language="javascript" type="text/javascript">
@@ -231,6 +258,96 @@
                     $('#collection_name').css('display', 'inline');
                 }
             });
+
+            make_default = function() {
+                alert("The current collection is now your default collection.")
+                let uc_id = $('#uc_id').val();
+                $.cookie('default_collection', uc_id, {
+                    expires: 365,
+                    path: '/'
+                });
+
+                let default_collection_id = $.cookie('default_collection');
+            };
+
+            $("#make_default").on("click", function(){
+                make_default();
+            });
+
+	    $("#heatmaps_form").submit(function(e) {
+		e.preventDefault();
+	    });
+
+	    function clear_heatmap_area() {
+		area = document.getElementById("clustered-heatmap-image-area");
+		area.querySelectorAll("*").forEach(function(child) {
+		    child.remove();
+		});
+	    }
+
+	    function generate_progress_indicator() {
+		count = 0;
+		default_message = "Computing"
+		return function() {
+		    message = default_message;
+		    if(count >= 10) {
+			count = 0;
+		    }
+		    for(i = 0; i < count; i++) {
+			message = message + " .";
+		    }
+		    clear_heatmap_area();
+		    $("#clustered-heatmap-image-area").append(
+			'<div class="alert alert-info"' +
+			    ' style="font-weigh: bold; font-size: 150%;">' +
+			    message + '</div>');
+		    count = count + 1;
+		};
+	    }
+
+	    function display_clustered_heatmap(heatmap_data) {
+		clear_heatmap_area();
+		image_area = document.getElementById("clustered-heatmap-image-area")
+		Plotly.newPlot(image_area, heatmap_data)
+	    }
+
+	    function process_clustered_heatmap_error(xhr, status, error) {
+		clear_heatmap_area()
+		$("#clustered-heatmap-image-area").append(
+		    $(
+			'<div class="alert alert-danger">ERROR: ' +
+			    xhr.responseJSON.message +
+			    '</div>'));
+	    }
+
+	    $("#clustered-heatmap").on("click", function() {
+		clear_heatmap_area();
+		intv = window.setInterval(generate_progress_indicator(), 300);
+		vert_element = document.getElementById("heatmap-orient-vertical");
+		vert_true = vert_element == null ? false : vert_element.checked;
+		heatmap_url = $(this).attr("data-url")
+		traits = $(".trait_checkbox:checked").map(function() {
+		    return this.value
+		}).get();
+		$.ajax({
+		    type: "POST",
+		    url: heatmap_url,
+		    contentType: "application/json",
+		    data: JSON.stringify({
+			"traits_names": traits,
+			"vertical": vert_true
+		    }),
+		    dataType: "JSON",
+		    success: function(data, status, xhr) {
+			window.clearInterval(intv);
+			display_clustered_heatmap(data);
+		    },
+		    error: function(xhr, status, error) {
+			window.clearInterval(intv);
+			process_clustered_heatmap_error(xhr, status, error);
+		    }
+		});
+	    });
         });
     </script>
 

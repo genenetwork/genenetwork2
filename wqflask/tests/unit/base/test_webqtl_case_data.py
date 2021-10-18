@@ -4,15 +4,16 @@ import unittest
 from wqflask import app  # Required because of utility.tools in webqtlCaseData.py
 from base.webqtlCaseData import webqtlCaseData
 
+
 class TestWebqtlCaseData(unittest.TestCase):
     """Tests for WebqtlCaseData class"""
 
     def setUp(self):
         self.w = webqtlCaseData(name="Test",
-                           value=0,
-                           variance=0.0,
-                           num_cases=10,
-                           name2="Test2")
+                                value=0,
+                                variance=0.0,
+                                num_cases=10,
+                                name2="Test2")
 
     def test_webqtl_case_data_repr(self):
         self.assertEqual(
