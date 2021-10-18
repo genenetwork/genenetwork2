@@ -4,9 +4,14 @@ import functools
 
 from enum import Enum, unique
 
-
+from flask import Blueprint
+from flask import current_app
+from flask import g
+from flask import render_template
 
 from typing import Dict
+
+from wqflask.decorators import login_required
 
 
 @functools.total_ordering
@@ -35,6 +40,10 @@ class AdminRole(OrderedEnum):
     NOT_ADMIN = "not-admin"
     EDIT_ACCESS = "edit-access"
     EDIT_ADMINS = "edit-admins"
+
+
+resource_management = Blueprint('resource_management', __name__)
+
 
 def get_user_membership(conn: redis.Redis, user_id: str,
                         group_id: str) -> Dict:
@@ -152,3 +161,28 @@ unique identifiers so they aren't human readable names.
                 json.loads(conn.hget("groups", group_id)).get('name'))
     return resource
 
+
+@resource_management.route("/resources/<resource_id>")
+@login_required
+def manage_resource(resource_id: str):
+    user_id = (g.user_session.record.get(b"user_id",
+                                         b"").decode("utf-8") or
+               g.user_session.record.get("user_id", ""))
+    redis_conn = redis.from_url(
+        current_app.config["REDIS_URL"],
+        decode_responses=True)
+
+    # Abort early if the resource can't be found
+    if not (resource := redis_conn.hget("resources", resource_id)):
+        return f"Resource: {resource_id} Not Found!", 401
+
+    return render_template(
+        "admin/manage_resource.html",
+        resource_info=(embellished_resource:=add_extra_resource_metadata(
+            conn=redis_conn,
+            resource=json.loads(resource))),
+        access_role=get_user_access_roles(
+            conn=redis_conn,
+            resource_info=embellished_resource,
+            user_id=user_id),
+        DataRole=DataRole, AdminRole=AdminRole)

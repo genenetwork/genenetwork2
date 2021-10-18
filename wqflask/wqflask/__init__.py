@@ -8,6 +8,9 @@ from flask import Flask
 from typing import Tuple
 from urllib.parse import urlparse
 from utility import formatting
+
+from wqflask.resource_manager import resource_management
+
 from wqflask.api.markdown import glossary_blueprint
 from wqflask.api.markdown import references_blueprint
 from wqflask.api.markdown import links_blueprint
@@ -54,6 +57,8 @@ app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
 app.register_blueprint(news_blueprint, url_prefix="/news")
+
+app.register_blueprint(resource_management, url_prefix="/resource-management")
 
 
 @app.before_request
