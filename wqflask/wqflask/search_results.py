@@ -200,12 +200,13 @@ class SearchResultPage:
                         self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
             self.wide_columns_exist = False
-            if this_trait.dataset.type == "Publish":
+            if self.dataset.type == "Publish":
                 if (self.max_widths['display_name'] > 25 or self.max_widths['description'] > 100 or self.max_widths['authors']> 80):
                     self.wide_columns_exist = True
-            if this_trait.dataset.type == "ProbeSet":
+            if self.dataset.type == "ProbeSet":
                 if (self.max_widths['display_name'] > 25 or self.max_widths['symbol'] > 25 or self.max_widths['description'] > 100):
                     self.wide_columns_exist = True
+
 
         self.trait_list = trait_list
 
