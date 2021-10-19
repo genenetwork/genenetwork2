@@ -24,8 +24,12 @@
             </button>
             {% endif %}
             {% endif %}
-            <input type="hidden" name="resource_id" value="{{ resource_id }}">
-            <div style="min-width: 600px; max-width: 800px;">
+    </section>
+
+    <section class="container" style="margin-top: 2em;">
+        <form class="container-fluid" action="/resource-management/resources/{{ resource_info.get('resource_id') }}/make-public" method="POST">
+            <input type="hidden" name="resource_id" value="{{ resource_info.get('resource_id') }}">
+            <div>
                 <fieldset>
                     <div class="form-horizontal" style="width: 900px; margin-bottom: 50px;">
                         <div class="form-group" style="padding-left: 20px;">
@@ -35,15 +39,16 @@
                             </div>
                         </div>
                         {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
+                        {% set is_open_to_public = DataRole(resource_info.get('default_mask').get('data')) > DataRole.NO_ACCESS %}
                         <div class="form-group" style="padding-left: 20px;">
                             <label for="user_email" class="col-xs-3" style="float: left; font-size: 18px;">Open to Public:</label>
                             <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
                                 <label class="radio-inline">
-                                    <input type="radio" name="open_to_public" value="True" {{ 'checked' if DATA_ACCESS > DataRole.NO_ACCESS }}>
+                                    <input type="radio" name="open_to_public" value="True" {{ 'checked' if is_open_to_public }}>
                                     Yes
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="open_to_public" value="False" {{ 'checked' if DATA_ACCESS == DataRole.NO_ACCESS }}>
+                                    <input type="radio" name="open_to_public" value="False" {{ 'checked' if not is_open_to_public }}>
                                     No
                             </label>
                             </div>
@@ -51,7 +56,7 @@
                         <div class="form-group" style="padding-left: 20px;">
                             <label class="col-xs-3" style="float: left; font-size: 18px;"></label>
                             <div class="controls input-append col-xs-9" style="display: flex; padding-left: 20px; float: left;">
-                                <button id="save_changes" class="btn btn-primary" data-url="/resources/change_default_privileges">Save Changes</button>
+                                <button id="save_changes" class="btn btn-primary" data-url="/resource-management/resources/change_default_privileges">Save Changes</button>
                             </div>
                         </div>
                         {% endif %}
@@ -92,7 +97,7 @@
             </div>
             {% endif %}
         </form>
-    </div>
+    </section>
 
 <!-- End of body -->
 
