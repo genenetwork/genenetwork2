@@ -150,8 +150,9 @@ def view_resource(resource_id: str):
 
     return render_template(
         "admin/manage_resource.html",
-        resource_info=(embellished_resource:=add_extra_resource_metadata(
+        resource_info=(embellished_resource := add_extra_resource_metadata(
             conn=redis_conn,
+            resource_id=resource_id,
             resource=json.loads(resource))),
         access_role=get_user_access_roles(
             conn=redis_conn,
