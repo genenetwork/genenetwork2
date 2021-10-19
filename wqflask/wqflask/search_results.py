@@ -112,7 +112,7 @@ class SearchResultPage:
 
             trait_dict = {}
             trait_dict['index'] = index + 1
-            trait_dict['name'] = result[0]
+            trait_dict['name'] = result[2]
 
             #ZS: Check permissions on a trait-by-trait basis for phenotype traits
             if self.dataset.type == "Publish":
