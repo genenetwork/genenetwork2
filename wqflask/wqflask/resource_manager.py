@@ -96,7 +96,9 @@ def get_user_access_roles(conn: redis.Redis,
     return {k: max(v) for k, v in access_role.items()}
 
 
-def add_extra_resource_metadata(conn: redis.Redis, resource: Dict) -> Dict:
+def add_extra_resource_metadata(conn: redis.Redis,
+                                resource_id: str,
+                                resource: Dict) -> Dict:
     """If resource['owner_id'] exists, add metadata about that user. Also,
 if the resource contains group masks, add the group name into the
 resource dict. Note that resource['owner_id'] and the group masks are
@@ -104,14 +106,17 @@ unique identifiers so they aren't human readable names.
 
     Args:
       - conn: A redis connection with the responses decoded.
+      - resource_id: The unique identifier of the resource.
       - resource: A dict containing details(metadata) about a
         given resource.
 
     Returns:
-      An embellished dictionary with the human readable names of the
-    group masks and the owner id if it was set.
+      An embellished dictionary with its resource id; the human
+    readable names of the group masks; and the owner id if it was set.
 
     """
+    resource["resource_id"] = resource_id
+
     # Embellish the resource information with owner details if the
     # owner is set
     if (owner_id := resource.get("owner_id", "none").lower()) == "none":
