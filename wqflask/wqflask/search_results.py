@@ -112,22 +112,11 @@ class SearchResultPage:
 
             trait_dict = {}
             trait_dict['index'] = index + 1
-            trait_dict['name'] = result[2]
-
-            #ZS: Check permissions on a trait-by-trait basis for phenotype traits
-            if self.dataset.type == "Publish":
-                permissions = check_resource_availability(self.dataset, trait_dict['name'])
-                if "view" not in permissions['data']:
-                    continue
-
-            trait_dict['display_name'] = result[0]
-            if self.dataset.type == "Publish":
-                if result[10]:
-                    trait_dict['display_name'] = str(result[10]) + "_" + str(result[0])
 
             trait_dict['dataset'] = self.dataset.name
-            trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
             if self.dataset.type == "ProbeSet":
+                trait_dict['display_name'] = result[2]
+                trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))
                 trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
                 description_text = "N/A" if result[4] is None or str(result[4]) == "" else trait_dict['symbol']
 
@@ -144,10 +133,21 @@ class SearchResultPage:
                 trait_dict['lod_score'] = "N/A" if result[9] is None or result[9] == "" else f"{float(result[9]) / 4.61:.1f}"
                 trait_dict['lrs_location'] = "N/A" if result[13] is None or result[13] == "" or result[14] is None else f"Chr{result[13]}: {float(result[14]):.6f}"
             elif self.dataset.type == "Geno":
+                trait_dict['display_name'] = str(result[0])
+                trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))
                 trait_dict['location'] = "N/A"
                 if (result[4] != "NULL" and result[4] != "") and (result[5] != 0):
                     trait_dict['location'] = f"Chr{result[4]}: {float(result[5]):.6f}"
             elif self.dataset.type == "Publish":
+                # Check permissions on a trait-by-trait basis for phenotype traits
+                trait_dict['name'] = trait_dict['display_name'] = str(result[0])
+                trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
+                permissions = check_resource_availability(self.dataset, trait_dict['display_name'])
+                if "view" not in permissions['data']:
+                    continue
+
+                if result[10]:
+                    trait_dict['display_name'] = str(result[10]) + "_" + str(result[0])
                 trait_dict['description'] = "N/A"
                 trait_dict['pubmed_id'] = "N/A"
                 trait_dict['pubmed_link'] = "N/A"
