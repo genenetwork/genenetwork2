@@ -38,14 +38,14 @@ from datetime import datetime
 def recover_hash(name: str, file_path: str, set_function) -> bool:
     """Recover back-ups using the `set_function`
 
-    Parameters:
+    Args:
+      - name: Redis hash where `file_path` will be restored
+      - file_path: File path where redis hash is sourced from
+      - set_function: Function used to do the Redis backup for
+        example: HSET
 
-    - `name`: Redis hash where `file_path` will be restored
-
-    - `file_path`: File path where redis hash is sourced from
-
-    - `set_function`: Function used to do the Redis backup for
-      example: HSET
+    Returns:
+      A boolean indicating whether the function ran successfully.
 
     """
     try:
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         _resource = json.loads(resource)  # str -> dict conversion
         _resource["group_masks"] = {args.group_id: {"metadata": "edit",
                                                     "data": "edit",
-                                                    "admin": "edit-admins"}}
+                                                    "admin": "not-admin"}}
         REDIS_CONN.hset("resources",
                         resource_id,
                         json.dumps(_resource))
