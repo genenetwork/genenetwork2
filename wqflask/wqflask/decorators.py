@@ -14,7 +14,7 @@ import requests
 def create_hmac(data: str, secret: str) -> str:
     return hmac.new(bytearray(secret, "latin-1"),
                     bytearray(data, "utf-8"),
-                    hashlib.sha1).hexdigest[:20]
+                    hashlib.sha1).hexdigest()[:20]
 
 
 def login_required(f):
