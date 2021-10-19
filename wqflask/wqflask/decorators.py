@@ -6,6 +6,7 @@ import redis
 from flask import current_app, g
 from typing import Dict
 from functools import wraps
+from wqflask.access_roles import DataRole
 
 import json
 import requests
@@ -33,7 +34,7 @@ def login_required(f):
 
 
 def edit_access_required(f):
-    """Use this for endpoints where admins are required"""
+    """Use this for endpoints where people with admin or edit privileges are required"""
     @wraps(f)
     def wrap(*args, **kwargs):
         resource_id: str = ""
@@ -48,6 +49,8 @@ def edit_access_required(f):
                 data=("dataset-probeset:"
                       f"{kwargs.get('dataset_name')}"),
                 secret=current_app.config.get("SECRET_HMAC_CODE"))
+        if kwargs.get("resource_id"):  # The resource_id is already provided
+            resource_id = kwargs.get("resource_id")
         response: Dict = {}
         try:
             _user_id = g.user_session.record.get(b"user_id",
@@ -57,8 +60,8 @@ def edit_access_required(f):
                                 f"{resource_id}&user={_user_id}").content)
         except:
             response = {}
-
-        if "edit" not in response.get("data", []):
-            return "You need to be admin", 401
+        if max([DataRole(role) for role in response.get(
+                "data", ["no-access"])]) < DataRole.EDIT:
+            return "You need to have edit access", 401
         return f(*args, **kwargs)
     return wrap
