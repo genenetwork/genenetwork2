@@ -136,7 +136,7 @@ unique identifiers so they aren't human readable names.
 
 @resource_management.route("/resources/<resource_id>")
 @login_required
-def manage_resource(resource_id: str):
+def view_resource(resource_id: str):
     user_id = (g.user_session.record.get(b"user_id",
                                          b"").decode("utf-8") or
                g.user_session.record.get("user_id", ""))
