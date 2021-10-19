@@ -1,8 +1,6 @@
 import redis
 import json
-import functools
 
-from enum import Enum, unique
 
 from flask import Blueprint
 from flask import current_app
@@ -12,34 +10,8 @@ from flask import render_template
 from typing import Dict
 
 from wqflask.decorators import login_required
-
-
-@functools.total_ordering
-class OrderedEnum(Enum):
-    @classmethod
-    @functools.lru_cache(None)
-    def _member_list(cls):
-        return list(cls)
-
-    def __lt__(self, other):
-        if self.__class__ is other.__class__:
-            member_list = self.__class__._member_list()
-            return member_list.index(self) < member_list.index(other)
-        return NotImplemented
-
-
-@unique
-class DataRole(OrderedEnum):
-    NO_ACCESS = "no-access"
-    VIEW = "view"
-    EDIT = "edit"
-
-
-@unique
-class AdminRole(OrderedEnum):
-    NOT_ADMIN = "not-admin"
-    EDIT_ACCESS = "edit-access"
-    EDIT_ADMINS = "edit-admins"
+from wqflask.access_roles import AdminRole
+from wqflask.access_roles import DataRole
 
 
 resource_management = Blueprint('resource_management', __name__)
