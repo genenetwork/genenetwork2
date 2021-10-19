@@ -6,9 +6,13 @@ from flask import Blueprint
 from flask import current_app
 from flask import g
 from flask import render_template
+from flask import redirect
+from flask import request
+from flask import url_for
 
 from typing import Dict
 
+from wqflask.decorators import edit_access_required
 from wqflask.decorators import login_required
 from wqflask.access_roles import AdminRole
 from wqflask.access_roles import DataRole
@@ -164,3 +168,33 @@ def view_resource(resource_id: str):
             resource_info=embellished_resource,
             user_id=user_id),
         DataRole=DataRole, AdminRole=AdminRole)
+
+
+@resource_management.route("/resources/<resource_id>/make-public",
+                           methods=('POST',))
+@edit_access_required
+@login_required
+def update_resource_publicity(resource_id: str):
+    redis_conn = redis.from_url(
+        current_app.config["REDIS_URL"],
+        decode_responses=True)
+    resource_info = json.loads(redis_conn.hget("resources", resource_id))
+
+    if (is_open_to_public := request
+        .form
+        .to_dict()
+        .get("open_to_public")) == "True":
+        resource_info['default_mask'] = {
+            'data': DataRole.VIEW.value,
+            'admin': AdminRole.NOT_ADMIN.value,
+            'metadata': DataRole.VIEW.value,
+        }
+    elif is_open_to_public == "False":
+        resource_info['default_mask'] = {
+            'data': DataRole.NO_ACCESS.value,
+            'admin': AdminRole.NOT_ADMIN.value,
+            'metadata': DataRole.NO_ACCESS.value,
+        }
+    redis_conn.hset("resources", resource_id, json.dumps(resource_info))
+    return redirect(url_for("resource_management.view_resource",
+                            resource_id=resource_id))
