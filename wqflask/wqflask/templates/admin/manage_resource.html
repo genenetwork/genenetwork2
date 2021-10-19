@@ -6,29 +6,24 @@
         {% set DATA_ACCESS = access_role.get('data') %}
         {% set METADATA_ACCESS = access_role.get('metadata') %}
         {% set ADMIN_STATUS = access_role.get('admin') %}
-
-        <div class="page-header" style="display: inline-block;">
             <h1>Resource Manager</h1>
+            {% if resource_info.get('owner_id') != 'none'%}
+            {% set user_details = resource_info.get('owner_details') %}
             <h3>
-                {% if resource_info.get('owner_id') != 'none'%}
-                {% set user_details = resource_info.get('owner_details') %}
                 Current Owner: {{ user_details.get('full_name') }}
-                {% if user_details.get('organization') %}
-                <br/> Organization {{ user_details.get('organization')}}
-                {% endif %}
-                {% endif %}
-
-                {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
-                <button id="change_owner"
-                        class="btn btn-danger"
-                        data-url="/resources/change_owner"
-                        style="margin-left: 20px;">
-                    Change Owner
-                </button>
-                {% endif %}
             </h3>
-        </div>
-        <form id="manage_resource" action="/resources/manage" method="POST">
+            {% if user_details.get('organization') %}
+            <h3>
+                Organization: {{ user_details.get('organization')}}
+            </h3>
+            {% endif %}
+            {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
+            <button class="btn btn-danger"
+                    data-url="/resource-management/resources/change_owner">
+                Change Owner
+            </button>
+            {% endif %}
+            {% endif %}
             <input type="hidden" name="resource_id" value="{{ resource_id }}">
             <div style="min-width: 600px; max-width: 800px;">
                 <fieldset>
