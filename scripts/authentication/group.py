@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """A script for adding users to a specific group.
 
 Example:
