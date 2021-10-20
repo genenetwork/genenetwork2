@@ -1,6 +1,6 @@
 import redis
 import json
-
+import requests
 
 from flask import Blueprint
 from flask import current_app
@@ -10,6 +10,7 @@ from flask import redirect
 from flask import request
 from flask import url_for
 
+from urllib.parse import urljoin
 from typing import Dict
 
 from wqflask.decorators import edit_access_required
@@ -50,54 +51,33 @@ def get_user_membership(conn: redis.Redis, user_id: str,
     return results
 
 
-def get_user_access_roles(conn: redis.Redis,
-                          resource_info: Dict,
-                          user_id: str) -> Dict:
+def get_user_access_roles(
+        resource_id: str,
+        user_id: str,
+        gn_proxy_url: str="http://localhost:8080") -> Dict:
     """Get the highest access roles for a given user
 
     Args:
-      - conn: A redis connection with the responses decoded.
-      - resource_info: A dict containing details(metadata) about a
-        given resource.
+      - resource_id: The unique id of a given resource.
       - user_id: The unique id of a given user.
+      - gn_proxy_url: The URL where gn-proxy is running.
 
     Returns:
       A dict indicating the highest access role the user has.
 
     """
-    # This is the default access role
-    access_role = {
-        "data": [DataRole.NO_ACCESS],
-        "metadata": [DataRole.NO_ACCESS],
-        "admin": [AdminRole.NOT_ADMIN],
-    }
-
-    # Check the resource's default mask
-    if default_mask := resource_info.get("default_mask"):
-        access_role["data"].append(DataRole(default_mask.get("data")))
-        access_role["metadata"].append(DataRole(default_mask.get("metadata")))
-        access_role["admin"].append(AdminRole(default_mask.get("admin")))
-
-    # Then check if the user is the owner Check with Zach and Rob if
-    # the owner, be default should, as the lowest access_roles, edit
-    # access
-    if resource_info.get("owner_id") == user_id:
-        access_role["data"].append(DataRole.EDIT)
-        access_role["metadata"].append(DataRole.EDIT)
-        access_role["admin"].append(AdminRole.EDIT_ACCESS)
-
-    # Check the group mask. If the user is in that group mask, use the
-    # access roles for that group
-    if group_masks := resource_info.get("group_masks"):
-        for group_id, roles in group_masks.items():
-            user_membership = get_user_membership(conn=conn,
-                                                  user_id=user_id,
-                                                  group_id=group_id)
-            if any(user_membership.values()):
-                access_role["data"].append(DataRole(roles.get("data")))
-                access_role["metadata"].append(
-                    DataRole(roles.get("metadata")))
-    return {k: max(v) for k, v in access_role.items()}
+    role_mapping = {}
+    for x, y in zip(DataRole, AdminRole):
+        role_mapping.update({x.value: x, })
+        role_mapping.update({y.value: y, })
+    access_role = {}
+    for key, value in json.loads(
+        requests.get(urljoin(
+            gn_proxy_url,
+            ("available?resource="
+             f"{resource_id}&user={user_id}"))).content).items():
+        access_role[key] = max(map(lambda x: role_mapping[x], value))
+    return access_role
 
 
 def add_extra_resource_metadata(conn: redis.Redis,
@@ -152,21 +132,20 @@ def view_resource(resource_id: str):
     redis_conn = redis.from_url(
         current_app.config["REDIS_URL"],
         decode_responses=True)
-
     # Abort early if the resource can't be found
     if not (resource := redis_conn.hget("resources", resource_id)):
         return f"Resource: {resource_id} Not Found!", 401
 
     return render_template(
         "admin/manage_resource.html",
-        resource_info=(embellished_resource := add_extra_resource_metadata(
+        resource_info=(add_extra_resource_metadata(
             conn=redis_conn,
             resource_id=resource_id,
             resource=json.loads(resource))),
         access_role=get_user_access_roles(
-            conn=redis_conn,
-            resource_info=embellished_resource,
-            user_id=user_id),
+            resource_id=resource_id,
+            user_id=user_id,
+            gn_proxy_url=current_app.config.get("GN2_PROXY")),
         DataRole=DataRole, AdminRole=AdminRole)
 
 
@@ -183,7 +162,7 @@ def update_resource_publicity(resource_id: str):
     if (is_open_to_public := request
         .form
         .to_dict()
-        .get("open_to_public")) == "True":
+            .get("open_to_public")) == "True":
         resource_info['default_mask'] = {
             'data': DataRole.VIEW.value,
             'admin': AdminRole.NOT_ADMIN.value,
