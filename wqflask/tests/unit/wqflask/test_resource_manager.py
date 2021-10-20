@@ -1,4 +1,5 @@
 """Test cases for wqflask/resource_manager.py"""
+import json
 import unittest
 
 from unittest import mock
@@ -57,62 +58,37 @@ class TestGetUserMembership(unittest.TestCase):
 class TestCheckUserAccessRole(unittest.TestCase):
     """Test cases for `get_user_access_roles`"""
 
-    def setUp(self):
-        self.resource_info = {
-            "owner_id": "8ad942fe-490d-453e-bd37",
-            "default_mask": {
-                "data": "no-access",
-                "metadata": "no-access",
-                "admin": "not-admin",
-            },
-            "group_masks": {
-                "7fa95d07-0e2d-4bc5-b47c-448fdc1260b2": {
-                    "metadata": "edit",
-                    "data": "edit",
-                }},
-            "name": "_14329",
-            "data": {
-                "dataset": 1,
-                "trait": 14329,
-            },
-            "type": "dataset-publish",
-            }
-        conn = mock.MagicMock()
-
-        conn.hgetall.return_value = {
-            '7fa95d07-0e2d-4bc5-b47c-448fdc1260b2': (
-                '{"name": "editors", '
-                '"admins": ["8ad942fe-490d-453e-bd37-56f252e41604", "rand"], '
-                '"members": ["8ad942fe-490d-453e-bd37-56f252e41603", '
-                '"rand"], '
-                '"changed_timestamp": "Oct 06 2021 06:39PM", '
-                '"created_timestamp": "Oct 06 2021 06:39PM"}')}
-        self.conn = conn
-
-    def test_get_user_access_when_owner(self):
+    @mock.patch("wqflask.resource_manager.requests.get")
+    def test_edit_access(self, requests_mock):
         """Test that the right access roles are set"""
+        response = mock.PropertyMock(return_value=json.dumps(
+            {
+                'data': ['no-access', 'view', 'edit', ],
+                'metadata': ['no-access', 'view', 'edit', ],
+                'admin': ['not-admin', 'edit-access', ],
+            }
+        ))
+        type(requests_mock.return_value).content = response
         self.assertEqual(get_user_access_roles(
-            conn=self.conn,
-            resource_info=self.resource_info,
+            resource_id="0196d92e1665091f202f",
             user_id="8ad942fe-490d-453e-bd37"),
-                         {"data": DataRole.EDIT,
-                          "metadata": DataRole.EDIT,
-                          "admin": AdminRole.EDIT_ACCESS})
+            {"data": DataRole.EDIT,
+             "metadata": DataRole.EDIT,
+             "admin": AdminRole.EDIT_ACCESS})
 
-    def test_get_user_access_default_mask(self):
+    @mock.patch("wqflask.resource_manager.requests.get")
+    def test_no_access(self, requests_mock):
+        response = mock.PropertyMock(return_value=json.dumps(
+            {
+                'data': ['no-access', ],
+                'metadata': ['no-access', ],
+                'admin': ['not-admin', ],
+            }
+        ))
+        type(requests_mock.return_value).content = response
         self.assertEqual(get_user_access_roles(
-            conn=self.conn,
-            resource_info=self.resource_info,
+            resource_id="0196d92e1665091f202f",
             user_id=""),
-                         {"data": DataRole.NO_ACCESS,
-                          "metadata": DataRole.NO_ACCESS,
-                          "admin": AdminRole.NOT_ADMIN})
-
-    def test_get_user_access_group_mask(self):
-        self.assertEqual(get_user_access_roles(
-            conn=self.conn,
-            resource_info=self.resource_info,
-            user_id="8ad942fe-490d-453e-bd37-56f252e41603"),
-                         {"data": DataRole.EDIT,
-                          "metadata": DataRole.EDIT,
-                          "admin": AdminRole.NOT_ADMIN})
+            {"data": DataRole.NO_ACCESS,
+             "metadata": DataRole.NO_ACCESS,
+             "admin": AdminRole.NOT_ADMIN})
