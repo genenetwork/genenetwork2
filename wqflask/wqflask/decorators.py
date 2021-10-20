@@ -88,7 +88,7 @@ def edit_admins_access_required(f):
         except:
             response = {}
         if max([AdminRole(role) for role in response.get(
-                "data", ["not-admin"])]) >= AdminRole.EDIT_ADMINS:
+                "admin", ["not-admin"])]) < AdminRole.EDIT_ADMINS:
             return "You need to have edit-admins access", 401
         return f(*args, **kwargs)
     return wrap
