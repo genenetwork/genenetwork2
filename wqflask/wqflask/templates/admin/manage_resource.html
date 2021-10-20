@@ -19,7 +19,7 @@
             {% endif %}
             {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
             <button class="btn btn-danger"
-                    data-url="/resource-management/resources/change_owner">
+                    data-url="/resource-management/resources/{{ resource_info.get('resource_id') }}/change_owner">
                 Change Owner
             </button>
             {% endif %}
