@@ -29,6 +29,9 @@ GN_VERSION = open("../etc/VERSION", "r").read()
 # Redis
 REDIS_URL = "redis://:@localhost:6379/0"
 
+# gn2-proxy
+GN2_PROXY = "http://localhost:8080"
+
 # ---- MySQL
 
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"

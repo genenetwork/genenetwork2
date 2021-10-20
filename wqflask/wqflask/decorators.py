@@ -5,6 +5,7 @@ import redis
 
 from flask import current_app, g
 from typing import Dict
+from urllib.parse import urljoin
 from functools import wraps
 from wqflask.access_roles import DataRole
 
@@ -56,8 +57,10 @@ def edit_access_required(f):
             _user_id = g.user_session.record.get(b"user_id",
                                                  "").decode("utf-8")
             response = json.loads(
-                requests.get(GN_PROXY_URL + "available?resource="
-                                f"{resource_id}&user={_user_id}").content)
+                requests.get(urljoin(
+                    current_app.config.get("GN2_PROXY"),
+                    ("available?resource="
+                     f"{resource_id}&user={_user_id}"))).content)
         except:
             response = {}
         if max([DataRole(role) for role in response.get(
