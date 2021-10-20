@@ -7,6 +7,7 @@ from flask import current_app, g
 from typing import Dict
 from urllib.parse import urljoin
 from functools import wraps
+from wqflask.access_roles import AdminRole
 from wqflask.access_roles import DataRole
 
 import json
@@ -68,3 +69,27 @@ def edit_access_required(f):
             return "You need to have edit access", 401
         return f(*args, **kwargs)
     return wrap
+
+
+def edit_admins_access_required(f):
+    """Use this for endpoints where ownership of a resource is required"""
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        resource_id: str = kwargs.get("resource_id", "")
+        response: Dict = {}
+        try:
+            _user_id = g.user_session.record.get(b"user_id",
+                                                 "").decode("utf-8")
+            response = json.loads(
+                requests.get(urljoin(
+                    current_app.config.get("GN2_PROXY"),
+                    ("available?resource="
+                     f"{resource_id}&user={_user_id}"))).content)
+        except:
+            response = {}
+        if max([AdminRole(role) for role in response.get(
+                "data", ["not-admin"])]) >= AdminRole.EDIT_ADMINS:
+            return "You need to have edit-admins access", 401
+        return f(*args, **kwargs)
+    return wrap
+
