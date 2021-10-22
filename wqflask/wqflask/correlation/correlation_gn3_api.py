@@ -65,7 +65,7 @@ def process_samples(start_vars, sample_names, excluded_samples=None):
         excluded_samples = ()
         sample_vals_dict = json.loads(start_vars["sample_vals"])
         for sample in sample_names:
-            if sample not in excluded_samples:
+            if sample not in excluded_samples and sample in sample_vals_dict:
                 val = sample_vals_dict[sample]
                 if not val.strip().lower() == "x":
                     sample_data[str(sample)] = float(val)
