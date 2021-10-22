@@ -20,7 +20,7 @@
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from db.call import fetchall, fetchone, fetch1
 from utility.logger import getLogger
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
@@ -397,7 +397,8 @@ class DatasetGroup:
             self.parlist = [maternal, paternal]
 
     def get_study_samplelists(self):
-        study_sample_file = locate_ignore_error(self.name + ".json", 'study_sample_lists')
+        study_sample_file = locate_ignore_error(
+            self.name + ".json", 'study_sample_lists')
         try:
             f = open(study_sample_file)
         except:
@@ -446,7 +447,6 @@ class DatasetGroup:
         '''Read genotype from .geno file instead of database'''
         # genotype_1 is Dataset Object without parents and f1
         # genotype_2 is Dataset Object with parents and f1 (not for intercross)
-
 
         # reaper barfs on unicode filenames, so here we ensure it's a string
         if self.genofile:
@@ -726,7 +726,6 @@ class DataSet:
         data_results = self.chunk_dataset(query_results, len(sample_ids))
         self.samplelist = sorted_samplelist
         self.trait_data = data_results
-        
 
     def get_trait_data(self, sample_list=None):
         if sample_list:
@@ -1242,3 +1241,27 @@ def geno_mrna_confidentiality(ob):
 
     if confidential:
         return True
+
+
+def check_if_dataset_modified(dataset_name, cached_timestamp):
+    """function to check if the dataset has been modified"""
+    last_modified = "query results"
+    return (cached_timestamp == last_modified_timestamp)
+
+
+def cache_dataset_results(dataset_name: str, query_results: List):
+    """function to cache dataset query results to file"""
+    # check if file exists clear if it does
+    # aslo check for the timestamp
+    # hash for unique name ??? are dataset name unique
+    # data computations actions
+    # store the file path on redis
+
+    # hash functiob
+
+    file_path = os.path.join(TMPDIR, f"{dataset_name}.json")
+
+    query_results = [list(results) for result in query_results]
+
+    with open(file_path, "w") as file_handler:
+        json.dump(query_results, file_handler)
