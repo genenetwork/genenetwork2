@@ -1243,10 +1243,12 @@ def geno_mrna_confidentiality(ob):
         return True
 
 
-def check_if_dataset_modified(dataset_name: str, cached_timestamp):
-    """function to check if the dataset has been modified"""
-    last_modified = "query results"
-    return (cached_timestamp == last_modified_timestamp)
+def generate_hash_file(dataset_name: str, dataset_timestamp: str):
+    """given the trait_name generate a unique name for this"""
+
+    string_unicode = f"{dataset_name}{dataset_timestamp}".encode()
+    md5hash = hashlib.md5(str2hash.encode(string_unicode))
+    return md5hash.hexdigest()
 
 
 def cache_dataset_results(dataset_name: str, query_results: List):
@@ -1259,23 +1261,27 @@ def cache_dataset_results(dataset_name: str, query_results: List):
 
     # hash functiob
 
-    file_path = os.path.join(TMPDIR, f"{dataset_name}.json")
+    file_name = generate_hash_file(dataset_name, "dataset_timestamp")
+
+    file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
     query_results = [list(results) for result in query_results]
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
 
+
 def fetch_cached_results(dataset_name: str):
     """function to fetch the cached results"""
-    file_path = os.path.join(TMPDIR, f"{dataset_name}.json")
+
+    file_name = generate_hash_file(dataset_name,)
+    file_path = os.path.join(TMPDIR, f"{file_path}.json")
 
     try:
         with open(file_path) as file_handler:
             data = json.load(file_handler)
             # check if table has been modified
-            if check_if_dataset_modified(dataset_name["timestamp"]):
-                return data[dataset_name]
+            return data
     except FileNotFoundError:
         # take actions continue to fetch dataset results and fetch results
         pass
