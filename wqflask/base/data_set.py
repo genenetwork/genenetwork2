@@ -1243,7 +1243,7 @@ def geno_mrna_confidentiality(ob):
         return True
 
 
-def check_if_dataset_modified(dataset_name, cached_timestamp):
+def check_if_dataset_modified(dataset_name: str, cached_timestamp):
     """function to check if the dataset has been modified"""
     last_modified = "query results"
     return (cached_timestamp == last_modified_timestamp)
@@ -1265,3 +1265,17 @@ def cache_dataset_results(dataset_name: str, query_results: List):
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
+
+def fetch_cached_results(dataset_name: str):
+    """function to fetch the cached results"""
+    file_path = os.path.join(TMPDIR, f"{dataset_name}.json")
+
+    try:
+        with open(file_path) as file_handler:
+            data = json.load(file_handler)
+            # check if table has been modified
+            if check_if_dataset_modified(dataset_name["timestamp"]):
+                return data[dataset_name]
+    except FileNotFoundError:
+        # take actions continue to fetch dataset results and fetch results
+        pass
