@@ -97,7 +97,8 @@ if __name__ == "__main__":
     for resource_id, resource in RESOURCES.items():
         _resource = json.loads(resource)  # str -> dict conversion
         _resource["group_masks"] = {args.group_id: {"metadata": "edit",
-                                                    "data": "edit"}}
+                                                    "data": "edit",
+                                                    "admin": "edit-admins"}}
         REDIS_CONN.hset("resources",
                         resource_id,
                         json.dumps(_resource))
