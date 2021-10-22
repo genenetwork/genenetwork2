@@ -3,6 +3,7 @@ from flask import g
 from typing import Dict
 from functools import wraps
 from utility.hmac import hmac_creation
+from utility.tools import GN_PROXY_URL
 
 import json
 import requests
@@ -25,11 +26,11 @@ def edit_access_required(f):
             _user_id = g.user_session.record.get(b"user_id",
                                                  "").decode("utf-8")
             response = json.loads(
-                requests.get("http://localhost:8080/"
-                             "available?resource="
-                             f"{resource_id}&user={_user_id}").content)
+                requests.get(GN_PROXY_URL + "available?resource="
+                                f"{resource_id}&user={_user_id}").content)
         except:
             response = {}
+
         if "edit" not in response.get("data", []):
             return "You need to be admin", 401
         return f(*args, **kwargs)
