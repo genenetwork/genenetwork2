@@ -39,6 +39,7 @@ from db import webqtlDatabaseFunction
 from base import species
 from base import webqtlConfig
 from flask import Flask, g
+from base.webqtlConfig import TMPDIR
 import os
 import math
 import string
@@ -50,6 +51,7 @@ import requests
 import gzip
 import pickle as pickle
 import itertools
+import hashlib
 
 from redis import Redis
 
@@ -751,54 +753,64 @@ class DataSet:
         # Postgres doesn't have that limit, so we can get rid of this after we transition
         chunk_size = 50
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
-        trait_sample_data = []
-        for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
-            if self.type == "Publish":
-                dataset_type = "Phenotype"
-            else:
-                dataset_type = self.type
-            temp = ['T%s.value' % item for item in sample_ids_step]
-            if self.type == "Publish":
-                query = "SELECT {}XRef.Id,".format(escape(self.type))
-            else:
-                query = "SELECT {}.Name,".format(escape(dataset_type))
-            data_start_pos = 1
-            query += ', '.join(temp)
-            query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
-                                                                     self.type,
-                                                                     self.type))
+        cached_results = fetch_cached_results(self.name)
+        # cached_results =    None
+        if cached_results is None:
+            trait_sample_data = []
+            for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+                if self.type == "Publish":
+                    dataset_type = "Phenotype"
+                else:
+                    dataset_type = self.type
+                temp = ['T%s.value' % item for item in sample_ids_step]
+                if self.type == "Publish":
+                    query = "SELECT {}XRef.Id,".format(escape(self.type))
+                else:
+                    query = "SELECT {}.Name,".format(escape(dataset_type))
+                data_start_pos = 1
+                query += ', '.join(temp)
+                query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
+                                                                         self.type,
+                                                                         self.type))
 
-            for item in sample_ids_step:
-                query += """
-                        left join {}Data as T{} on T{}.Id = {}XRef.DataId
-                        and T{}.StrainId={}\n
-                        """.format(*mescape(self.type, item, item, self.type, item, item))
+                for item in sample_ids_step:
+                    query += """
+                            left join {}Data as T{} on T{}.Id = {}XRef.DataId
+                            and T{}.StrainId={}\n
+                            """.format(*mescape(self.type, item, item, self.type, item, item))
 
-            if self.type == "Publish":
-                query += """
-                        WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
-                        and {}Freeze.Name = '{}'
-                        and {}.Id = {}XRef.{}Id
-                        order by {}.Id
-                        """.format(*mescape(self.type, self.type, self.type, self.name,
-                                            dataset_type, self.type, dataset_type, dataset_type))
-            else:
-                query += """
-                        WHERE {}XRef.{}FreezeId = {}Freeze.Id
-                        and {}Freeze.Name = '{}'
-                        and {}.Id = {}XRef.{}Id
-                        order by {}.Id
-                        """.format(*mescape(self.type, self.type, self.type, self.type,
-                                            self.name, dataset_type, self.type, self.type, dataset_type))
+                if self.type == "Publish":
+                    query += """
+                            WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
+                            and {}Freeze.Name = '{}'
+                            and {}.Id = {}XRef.{}Id
+                            order by {}.Id
+                            """.format(*mescape(self.type, self.type, self.type, self.name,
+                                                dataset_type, self.type, dataset_type, dataset_type))
+                else:
+                    query += """
+                            WHERE {}XRef.{}FreezeId = {}Freeze.Id
+                            and {}Freeze.Name = '{}'
+                            and {}.Id = {}XRef.{}Id
+                            order by {}.Id
+                            """.format(*mescape(self.type, self.type, self.type, self.type,
+                                                self.name, dataset_type, self.type, self.type, dataset_type))
 
-            results = g.db.execute(query).fetchall()
-            trait_sample_data.append(results)
+                results = g.db.execute(query).fetchall()
+                trait_sample_data.append([list(result) for result in results])
+
+            cache_dataset_results(
+                self.name, "cached_time_stamp", trait_sample_data)
+
+        else:
+            trait_sample_data = cached_results
 
         trait_count = len(trait_sample_data[0])
         self.trait_data = collections.defaultdict(list)
 
         # put all of the separate data together into a dictionary where the keys are
         # trait names and values are lists of sample values
+        data_start_pos = 1
         for trait_counter in range(trait_count):
             trait_name = trait_sample_data[0][trait_counter][0]
             for chunk_counter in range(int(number_chunks)):
@@ -1247,25 +1259,19 @@ def generate_hash_file(dataset_name: str, dataset_timestamp: str):
     """given the trait_name generate a unique name for this"""
 
     string_unicode = f"{dataset_name}{dataset_timestamp}".encode()
-    md5hash = hashlib.md5(str2hash.encode(string_unicode))
+    md5hash = hashlib.md5(string_unicode)
     return md5hash.hexdigest()
 
 
-def cache_dataset_results(dataset_name: str, query_results: List):
+def cache_dataset_results(dataset_name: str, dataset_timestamp: str, query_results: List):
     """function to cache dataset query results to file"""
-    # check if file exists clear if it does
-    # aslo check for the timestamp
-    # hash for unique name ??? are dataset name unique
     # data computations actions
     # store the file path on redis
 
-    # hash functiob
 
-    file_name = generate_hash_file(dataset_name, "dataset_timestamp")
+    file_name = generate_hash_file(dataset_name, dataset_timestamp)
 
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
-
-    query_results = [list(results) for result in query_results]
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
@@ -1273,13 +1279,14 @@ def cache_dataset_results(dataset_name: str, query_results: List):
 
 def fetch_cached_results(dataset_name: str):
     """function to fetch the cached results"""
+    # store the timestamp in redis
 
-    file_name = generate_hash_file(dataset_name,)
-    file_path = os.path.join(TMPDIR, f"{file_path}.json")
-
+    file_name = generate_hash_file(dataset_name, "cached_time_stamp")
+    file_path = os.path.join(TMPDIR, f"{file_name}.json")
     try:
-        with open(file_path) as file_handler:
+        with open(file_path, "r") as file_handler:
             data = json.load(file_handler)
+            # print(file_handler)
             # check if table has been modified
             return data
     except FileNotFoundError:
