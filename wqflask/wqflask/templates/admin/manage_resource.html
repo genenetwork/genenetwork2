@@ -2,7 +2,8 @@
 {% block title %}Resource Manager{% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <div class="container">
+<div class="container">
+    {{ flash_me() }}
         {% set DATA_ACCESS = access_role.get('data') %}
         {% set METADATA_ACCESS = access_role.get('metadata') %}
         {% set ADMIN_STATUS = access_role.get('admin') %}

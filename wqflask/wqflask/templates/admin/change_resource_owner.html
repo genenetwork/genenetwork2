@@ -10,8 +10,7 @@
         <div class="page-header">
             <h1>Search for user to assign ownership to:</h1>
         </div>
-        <form id="change_owner_form" action="/resources/change_owner" method="POST">
-            <input type="hidden" name="resource_id" value="{{ resource_id }}">
+        <form id="change_owner_form" action="/resource-management/resources/{{ resource_id }}/change-owner" method="POST">
             <div style="min-width: 600px; max-width: 800px;">
                 <fieldset>
                     <div class="form-horizontal" style="width: 900px;">
