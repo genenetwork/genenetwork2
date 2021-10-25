@@ -67,9 +67,8 @@
         })
 
         populate_users = function(json_user_list){
-            var user_list = JSON.parse(json_user_list)
-
-            var the_html = ""
+            let user_list = JSON.parse(json_user_list)
+            let the_html = ""
             if (user_list.length > 0){
                 the_html += "<table id='users_table' style='padding-top: 10px; width: 100%;' class='table-hover table-striped cell-border'>";
                 the_html += "<thead><tr><th></th><th>Index</th><th>Name</th><th>E-mail Address</th><th>Organization</th></tr></thead>";
