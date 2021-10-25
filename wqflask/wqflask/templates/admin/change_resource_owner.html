@@ -68,40 +68,40 @@
 
         populate_users = function(json_user_list){
             let user_list = JSON.parse(json_user_list)
-            let the_html = ""
+            let searchResultsHtml = ""
             if (user_list.length > 0){
-                the_html += "<table id='users_table' style='padding-top: 10px; width: 100%;' class='table-hover table-striped cell-border'>";
-                the_html += "<thead><tr><th></th><th>Index</th><th>Name</th><th>E-mail Address</th><th>Organization</th></tr></thead>";
-                the_html += "<tbody>";
+                searchResultsHtml += "<table id='users_table' style='padding-top: 10px; width: 100%;' class='table-hover table-striped cell-border'>";
+                searchResultsHtml += "<thead><tr><th></th><th>Index</th><th>Name</th><th>E-mail Address</th><th>Organization</th></tr></thead>";
+                searchResultsHtml += "<tbody>";
                 for (_i = 0, _len = user_list.length; _i < _len; _i++) {
                     this_user = user_list[_i]
-                    the_html += "<tr>";
-                    the_html += "<td align='center' class='select_user'><input type='radio' name='new_owner' value='" + this_user.user_id + "'></td>";
-                    the_html += "<td>" + (_i + 1).toString() + "</td>"
+                    searchResultsHtml += "<tr>";
+                    searchResultsHtml += "<td align='center' class='select_user'><input type='radio' name='new_owner' value='" + this_user.user_id + "'></td>";
+                    searchResultsHtml += "<td>" + (_i + 1).toString() + "</td>"
                     if ("full_name" in this_user) {
-                        the_html += "<td>" + this_user.full_name + "</td>";
+                        searchResultsHtml += "<td>" + this_user.full_name + "</td>";
                     } else {
-                        the_html += "<td>N/A</td>"
+                        searchResultsHtml += "<td>N/A</td>"
                     }
                     if ("email_address" in this_user) {
-                        the_html += "<td>" + this_user.email_address + "</td>";
+                        searchResultsHtml += "<td>" + this_user.email_address + "</td>";
                     } else {
-                        the_html += "<td>N/A</td>"
+                        searchResultsHtml += "<td>N/A</td>"
                     }
                     if ("organization" in this_user) {
-                        the_html += "<td>" + this_user.organization + "</td>";
+                        searchResultsHtml += "<td>" + this_user.organization + "</td>";
                     } else {
-                        the_html += "<td>N/A</td>"
+                        searchResultsHtml += "<td>N/A</td>"
                     }
-                    the_html += "</tr>"
+                    searchResultsHtml += "</tr>"
                 }
-                the_html += "</tbody>";
-                the_html += "</table>";
+                searchResultsHtml += "</tbody>";
+                searchResultsHtml += "</table>";
             } else {
-                the_html = "<span>No users were found matching the entered criteria.</span>"
+                searchResultsHtml = "<span>No users were found matching the entered criteria.</span>"
             }
 
-            $('#user_results').html(the_html)
+            $('#user_results').html(searchResultsHtml)
             if (user_list.length > 0){
                 $('#users_table').dataTable({
                     'order': [[1, "asc" ]],
