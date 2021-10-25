@@ -118,7 +118,6 @@
           };
         };
         data = [make_data('samples_primary'), make_data('samples_other')];
-        console.log("THE DATA IS:", data);
         d3.select("#prob_plot_container svg").datum(data).call(chart);
         if (js_data.trait_symbol != null) {
             $("#prob_plot_title").html("<h3>" + js_data.trait_symbol + ": " + js_data.trait_id + "</h3>");

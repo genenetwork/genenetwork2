@@ -1,14 +1,8 @@
-from __future__ import print_function, division, absolute_import
-
 import datetime
 import time
 import uuid
 
 import simplejson as json
-
-import redis # used for collections
-Redis = redis.StrictRedis()
-
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
                    redirect, flash, abort)
@@ -17,7 +11,8 @@ from wqflask import app
 from utility import hmac
 
 #from utility.elasticsearch_tools import get_elasticsearch_connection
-from utility.redis_tools import get_user_id, get_user_by_unique_column, get_user_collections, save_collections
+from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
+Redis = get_redis_conn()
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -25,16 +20,24 @@ logger = getLogger(__name__)
 THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
+
 @app.before_request
 def get_user_session():
     logger.info("@app.before_request get_session")
     g.user_session = UserSession()
+    # ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
+    if not g.user_session:
+        response = make_response(redirect(url_for('login')))
+        response.set_cookie('session_id_v2', '', expires=0)
+        return response
+
 
 @app.after_request
 def set_user_session(response):
     if hasattr(g, 'user_session'):
         if not request.cookies.get(g.user_session.cookie_name):
-            response.set_cookie(g.user_session.cookie_name, g.user_session.cookie)
+            response.set_cookie(g.user_session.cookie_name,
+                                g.user_session.cookie)
     return response
 
 
@@ -42,8 +45,10 @@ def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
     assert len(the_uuid) == 36, "Is session_id a uuid?"
     assert separator == ":", "Expected a : here"
-    assert the_signature == hmac.hmac_creation(the_uuid), "Uh-oh, someone tampering with the cookie?"
+    assert the_signature == hmac.hmac_creation(
+        the_uuid), "Uh-oh, someone tampering with the cookie?"
     return the_uuid
+
 
 def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
@@ -52,7 +57,23 @@ def create_signed_cookie():
     logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
 
-class UserSession(object):
+
+@app.route("/user/manage", methods=('GET', 'POST'))
+def manage_user():
+    params = request.form if request.form else request.args
+    if 'new_full_name' in params:
+        set_user_attribute(g.user_session.user_id,
+                           'full_name', params['new_full_name'])
+    if 'new_organization' in params:
+        set_user_attribute(g.user_session.user_id,
+                           'organization', params['new_organization'])
+
+    user_details = get_user_by_unique_column("user_id", g.user_session.user_id)
+
+    return render_template("admin/manage_user.html", user_details=user_details)
+
+
+class UserSession:
     """Logged in user handling"""
 
     user_cookie_name = 'session_id_v2'
@@ -78,28 +99,26 @@ class UserSession(object):
         self.session_id = session_id
         self.record = Redis.hgetall(self.redis_key)
 
-        #ZS: If user correctled logged in but their session expired
-        #ZS: Need to test this by setting the time-out to be really short or something
+        # ZS: If user correctled logged in but their session expired
+        # ZS: Need to test this by setting the time-out to be really short or something
         if not self.record or self.record == []:
             if user_cookie:
                 self.logged_in = False
-                self.record = dict(login_time = time.time(),
-                                    user_type = "anon",
-                                    user_id = str(uuid.uuid4()))
+                self.record = dict(login_time=time.time(),
+                                   user_type="anon",
+                                   user_id=str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
-                response = make_response(redirect(url_for('login')))
-                response.set_cookie(self.user_cookie_name, '', expires=0)
 
-                ########### Grrr...this won't work because of the way flask handles cookies
+                # Grrr...this won't work because of the way flask handles cookies
                 # Delete the cookie
-                flash("Due to inactivity your session has expired. If you'd like please login again.")
-                return response
-                #return
+                flash(
+                    "Due to inactivity your session has expired. If you'd like please login again.")
+                return None
             else:
-                self.record = dict(login_time = time.time(),
-                                    user_type = "anon",
-                                    user_id = str(uuid.uuid4()))
+                self.record = dict(login_time=time.time(),
+                                   user_type="anon",
+                                   user_id=str(uuid.uuid4()))
                 Redis.hmset(self.redis_key, self.record)
                 Redis.expire(self.redis_key, THIRTY_DAYS)
         else:
@@ -113,28 +132,30 @@ class UserSession(object):
 
         if Redis.ttl(self.redis_key) < session_time:
             # (Almost) everytime the user does something we extend the session_id in Redis...
-            logger.debug("Extending ttl...")
             Redis.expire(self.redis_key, session_time)
 
     @property
     def user_id(self):
         """Shortcut to the user_id"""
-        if 'user_id' not in self.record:
-            self.record['user_id'] = str(uuid.uuid4())
+        if b'user_id' not in self.record:
+            self.record[b'user_id'] = str(uuid.uuid4())
 
-        return self.record['user_id']
+        try:
+            return self.record[b'user_id'].decode("utf-8")
+        except:
+            return self.record[b'user_id']
 
     @property
     def redis_user_id(self):
         """User id from Redis (need to check if this is the same as the id stored in self.records)"""
 
-        #ZS: This part is a bit weird. Some accounts used to not have saved user ids, and in the process of testing I think I created some duplicate accounts for myself.
-        #ZS: Accounts should automatically generate user_ids if they don't already have one now, so this might not be necessary for anything other than my account's collections
+        # ZS: This part is a bit weird. Some accounts used to not have saved user ids, and in the process of testing I think I created some duplicate accounts for myself.
+        # ZS: Accounts should automatically generate user_ids if they don't already have one now, so this might not be necessary for anything other than my account's collections
 
         if 'user_email_address' in self.record:
             user_email = self.record['user_email_address']
 
-            #ZS: Get user's collections if they exist
+            # ZS: Get user's collections if they exist
             user_id = None
             user_id = get_user_id("email_address", user_email)
         elif 'user_id' in self.record:
@@ -143,7 +164,7 @@ class UserSession(object):
             user_github_id = self.record['github_id']
             user_id = None
             user_id = get_user_id("github_id", user_github_id)
-        else: #ZS: Anonymous user
+        else:  # ZS: Anonymous user
             return None
 
         return user_id
@@ -160,26 +181,28 @@ class UserSession(object):
     def user_collections(self):
         """List of user's collections"""
 
-        #ZS: Get user's collections if they exist
+        # ZS: Get user's collections if they exist
         collections = get_user_collections(self.user_id)
-        collections = [item for item in collections if item['name'] != "Your Default Collection"] + [item for item in collections if item['name'] == "Your Default Collection"] #ZS: Ensure Default Collection is last in list
+        collections = [item for item in collections if item['name'] != "Your Default Collection"] + \
+            [item for item in collections if item['name']
+                == "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
         return collections
 
     @property
     def num_collections(self):
         """Number of user's collections"""
 
-        return len(self.user_collections)
+        return len([item for item in self.user_collections if item['num_members'] > 0])
 
     def add_collection(self, collection_name, traits):
         """Add collection into Redis"""
 
-        collection_dict = {'id': unicode(uuid.uuid4()),
+        collection_dict = {'id': str(uuid.uuid4()),
                            'name': collection_name,
                            'created_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'changed_timestamp': datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p'),
                            'num_members': len(traits),
-                           'members': list(traits) }
+                           'members': list(traits)}
 
         current_collections = self.user_collections
         current_collections.append(collection_dict)
@@ -218,12 +241,14 @@ class UserSession(object):
         this_collection = self.get_collection_by_id(collection_id)
 
         updated_collection = this_collection
-        current_members_minus_new = [member for member in this_collection['members'] if member not in traits_to_add]
+        current_members_minus_new = [
+            member for member in this_collection['members'] if member not in traits_to_add]
         updated_traits = traits_to_add + current_members_minus_new
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
-        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime(
+            '%b %d %Y %I:%M%p')
 
         updated_collections = []
         for collection in self.user_collections:
@@ -249,7 +274,8 @@ class UserSession(object):
 
         updated_collection['members'] = updated_traits
         updated_collection['num_members'] = len(updated_traits)
-        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+        updated_collection['changed_timestamp'] = datetime.datetime.utcnow().strftime(
+            '%b %d %Y %I:%M%p')
 
         updated_collections = []
         for collection in self.user_collections:
@@ -292,5 +318,3 @@ class UserSession(object):
         # And more importantly delete the redis record
         Redis.delete(self.redis_key)
         self.logged_in = False
-
-

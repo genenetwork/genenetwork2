@@ -16,7 +16,7 @@
 			{{content|safe}}
         </textarea>
         <button class="submit_changes" style="margin-top: 20px;">Submit Changes</button>
-        <script src="/static/packages/ckeditor/ckeditor.js"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='ckeditor/ckeditor.js') }}"></script>
         <script type="text/javascript">
             CKEDITOR.replace('ckcontent',	{
                 height: '650px',

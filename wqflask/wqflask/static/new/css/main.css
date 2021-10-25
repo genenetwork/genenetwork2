@@ -34,3 +34,7 @@
         overflow: hidden!important;
     }
 }
+
+.checkbox {
+    min-height: 20px;
+}

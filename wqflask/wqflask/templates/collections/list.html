@@ -2,7 +2,7 @@
 {% block title %}Your Collections{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/packages/DataTables/extensions/buttons.bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonsBootstrap/css/buttons.bootstrap.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
@@ -42,6 +42,7 @@
 
             <tbody>
             {% for uc in collections %}
+                {% if uc.num_members > 0 %}
                 <tr class="collection_line">
                     <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                     <td align="right">{{ loop.index }}
@@ -50,6 +51,7 @@
                     <td>{{ uc.changed_timestamp }}</td>
                     <td align="right">{{ uc.num_members }}</td>
                 </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
         </table>
@@ -64,19 +66,25 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/timeago.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/js_external/jszip.min.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/js/dataTables.naturalSort.js"></script>
-    <script language="javascript" type="text/javascript" src="/static/new/packages/DataTables/extensions/dataTables.buttons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script>
             $('#trait_table').dataTable( {
                 "drawCallback": function( settings ) {
                      $('#trait_table tr').click(function(event) {
-                         if (event.target.type !== 'checkbox') {
-                             $(':checkbox', this).trigger('click');
-                         }
+                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                          var obj =$(this).find('input');
+                          obj.prop('checked', !obj.is(':checked'));
+                        }
+                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                          $(this).removeClass("selected")
+                        } else if (event.target.tagName.toLowerCase() !== 'a') {
+                          $(this).addClass("selected")
+                        }
                      });
                 },
                 "buttons": [ 'copy', 'csv', 'excel' ],

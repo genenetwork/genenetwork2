@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-from __future__ import absolute_import, print_function, division
-
 import sys
 
 # sys.path.insert(0, "..") - why?
@@ -25,9 +23,11 @@ def get_cursor():
     cursor = con.cursor()
     return cursor
 
+
 def show_progress(process, counter):
     if counter % 1000 == 0:
         print("{}: {}".format(process, counter))
+
 
 def get_strains(cursor):
     cursor.execute("""select Strain.Name
@@ -43,6 +43,7 @@ def get_strains(cursor):
         print(" -", strain)
 
     return strains
+
 
 def get_probeset_vals(cursor, dataset_name):
     cursor.execute(""" select ProbeSet.Id, ProbeSet.Name
@@ -79,10 +80,11 @@ def get_probeset_vals(cursor, dataset_name):
 
     return probeset_vals
 
+
 def trim_strains(strains, probeset_vals):
     trimmed_strains = []
     #print("probeset_vals is:", pf(probeset_vals))
-    first_probeset = list(probeset_vals.itervalues())[0]
+    first_probeset = list(probeset_vals.values())[0]
     print("\n**** first_probeset is:", pf(first_probeset))
     for strain in strains:
         print("\n**** strain is:", pf(strain))
@@ -90,6 +92,7 @@ def trim_strains(strains, probeset_vals):
             trimmed_strains.append(strain)
     print("trimmed_strains:", pf(trimmed_strains))
     return trimmed_strains
+
 
 def write_data_matrix_file(strains, probeset_vals, filename):
     with open(filename, "wb") as fh:
@@ -105,10 +108,12 @@ def write_data_matrix_file(strains, probeset_vals, filename):
             csv_writer.writerow(row_data)
             show_progress("Writing", counter)
 
+
 def main():
-    filename = os.path.expanduser("~/gene/wqflask/maintenance/" +
-                "ProbeSetFreezeId_210_FullName_Eye_AXBXA_Illumina_V6.2" +
-                "(Oct08)_RankInv_Beta.txt")
+    filename = os.path.expanduser(
+        "~/gene/wqflask/maintenance/"
+        "ProbeSetFreezeId_210_FullName_Eye_AXBXA_Illumina_V6.2"
+        "(Oct08)_RankInv_Beta.txt")
     dataset_name = "Eye_AXBXA_1008_RankInv"
 
     cursor = get_cursor()
@@ -118,6 +123,7 @@ def main():
     print("Finished getting probeset_vals")
     trimmed_strains = trim_strains(strains, probeset_vals)
     write_data_matrix_file(trimmed_strains, probeset_vals, filename)
+
 
 if __name__ == '__main__':
     main()

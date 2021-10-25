@@ -1,6 +1,5 @@
-from __future__ import absolute_import, print_function, division
+from MySQLdb import escape_string as escape_
 
-from MySQLdb import escape_string as escape
 
 def create_in_clause(items):
     """Create an in clause for mysql"""
@@ -8,8 +7,11 @@ def create_in_clause(items):
     in_clause = '( {} )'.format(in_clause)
     return in_clause
 
+
 def mescape(*items):
     """Multiple escape"""
-    escaped = [escape(str(item)) for item in items]
-    #print("escaped is:", escaped)
-    return escaped
+    return [escape_(str(item)).decode('utf8') for item in items]
+
+
+def escape(string_):
+    return escape_(string_).decode('utf8')

@@ -1,69 +1,41 @@
-from __future__ import absolute_import, print_function, division
-
-import sys
-# sys.path.append(".") Never in a running webserver
-
 import string
-import cPickle
 import os
-import datetime
-import time
-import pp
-import math
 import random
-import collections
-import resource
-
-import scipy
-import numpy as np
-
-from pprint import pformat as pf
-
-import reaper
-
-from base.trait import GeneralTrait
-from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import helper_functions
-from utility import Plot, Bunch
-from utility import temp_data
+
 from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
-
-from MySQLdb import escape_string as escape
-
-import cPickle as pickle
-import simplejson as json
-
-from pprint import pformat as pf
-
 from redis import Redis
+from flask import Flask, g
+from utility.logger import getLogger
+
 Redis = Redis()
 
-from flask import Flask, g
+logger = getLogger(__name__)
 
-from utility.logger import getLogger
-logger = getLogger(__name__ )
 
-class Heatmap(object):
+class Heatmap:
 
     def __init__(self, start_vars, temp_uuid):
-        trait_db_list = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        trait_db_list = [trait.strip()
+                         for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
 
         self.temp_uuid = temp_uuid
         self.num_permutations = 5000
         self.dataset = self.trait_list[0][1]
 
-        self.json_data = {} #The dictionary that will be used to create the json object that contains all the data needed to create the figure
+        self.json_data = {}  # The dictionary that will be used to create the json object that contains all the data needed to create the figure
 
         self.all_sample_list = []
         self.traits = []
 
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
-        for key in self.species.chromosomes.chromosomes.keys():
-            chrnames.append([self.species.chromosomes.chromosomes[key].name, self.species.chromosomes.chromosomes[key].mb_length])
+        for key in list(self.species.chromosomes.chromosomes.keys()):
+            chrnames.append([self.species.chromosomes.chromosomes[key].name,
+                             self.species.chromosomes.chromosomes[key].mb_length])
 
         for trait_db in self.trait_list:
 
@@ -95,7 +67,7 @@ class Heatmap(object):
         pos = []
         markernames = []
 
-        for trait in self.trait_results.keys():
+        for trait in list(self.trait_results.keys()):
             lodnames.append(trait)
 
         self.dataset.group.get_markers()
@@ -114,7 +86,7 @@ class Heatmap(object):
             self.json_data[trait] = self.trait_results[trait]
 
         self.js_data = dict(
-            json_data = self.json_data
+            json_data=self.json_data
         )
 
     def gen_reaper_results(self):
@@ -138,19 +110,22 @@ class Heatmap(object):
                     trimmed_samples.append(str(samples[i]))
                     trimmed_values.append(values[i])
 
-            trait_filename = str(this_trait.name) + "_" + str(self.dataset.name) + "_pheno"
+            trait_filename = str(this_trait.name) + "_" + \
+                str(self.dataset.name) + "_pheno"
             gen_pheno_txt_file(trimmed_samples, trimmed_values, trait_filename)
 
-            output_filename = self.dataset.group.name + "_GWA_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            output_filename = self.dataset.group.name + "_GWA_" + \
+                ''.join(random.choice(string.ascii_uppercase + string.digits)
+                        for _ in range(6))
 
             reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt -n 1000 -o {4}{5}.txt'.format(flat_files('genotype'),
-                                                                                                                    genofile_name,
-                                                                                                                    TEMPDIR,
-                                                                                                                    trait_filename,
-                                                                                                                    webqtlConfig.GENERATED_IMAGE_DIR,
-                                                                                                                    output_filename)
+                                                                                                                           genofile_name,
+                                                                                                                           TEMPDIR,
+                                                                                                                           trait_filename,
+                                                                                                                           webqtlConfig.GENERATED_IMAGE_DIR,
+                                                                                                                           output_filename)
 
-            os.system(reaper_command)                                                                                                        
+            os.system(reaper_command)
 
             reaper_results = parse_reaper_output(output_filename)
 
@@ -159,9 +134,12 @@ class Heatmap(object):
             self.trait_results[this_trait.name] = []
             for qtl in reaper_results:
                 if qtl['additive'] > 0:
-                    self.trait_results[this_trait.name].append(-float(qtl['lrs_value']))
+                    self.trait_results[this_trait.name].append(
+                        -float(qtl['lrs_value']))
                 else:
-                    self.trait_results[this_trait.name].append(float(qtl['lrs_value']))
+                    self.trait_results[this_trait.name].append(
+                        float(qtl['lrs_value']))
+
 
 def gen_pheno_txt_file(samples, vals, filename):
     """Generates phenotype file for GEMMA"""
@@ -181,6 +159,7 @@ def gen_pheno_txt_file(samples, vals, filename):
         outfile.write("T1\t")
         values_string = "\t".join(filtered_vals_list)
         outfile.write(values_string)
+
 
 def parse_reaper_output(gwa_filename):
     included_markers = []

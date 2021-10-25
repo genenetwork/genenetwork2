@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 import datetime
 import time
 
@@ -10,9 +8,11 @@ Redis = StrictRedis()
 
 import mailer
 
+
 def timestamp():
     ts = datetime.datetime.utcnow()
     return ts.isoformat()
+
 
 def main():
     while True:
@@ -31,7 +31,6 @@ def main():
             # Todo: Truncate mail_processed when it gets to long
             Redis.rpush("mail_processed", msg)
             process_message(msg)
-
 
 
 def process_message(msg):

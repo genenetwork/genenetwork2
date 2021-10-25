@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Trait Submission{% endblock %}
+{% block content %}
+<!-- Start of body -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="container-fluid bg-{{ category }}">
+    <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+Show files for approval
+
+<div>
+    <ul>
+        {% for file in files %}
+        <li><a href="/display-file/{{ file }}" target="_blank">{{ file }}</a><br/>
+            <button><a href="/data-samples/reject/{{ file }}">Reject</a></button></li>
+        {% endfor %}
+    </ul>
+</div>
+{%endblock%}
+
+{% block js %}
+<script>
+ gn_server_url = "{{ gn_server_url }}";
+
+</script>
+{% endblock %}

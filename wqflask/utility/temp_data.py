@@ -1,9 +1,9 @@
-from __future__ import print_function, division, absolute_import
 from redis import Redis
 
 import simplejson as json
 
-class TempData(object):
+
+class TempData:
 
     def __init__(self, temp_uuid):
         self.temp_uuid = temp_uuid
@@ -12,7 +12,7 @@ class TempData(object):
 
     def store(self, field, value):
         self.redis.hset(self.key, field, value)
-        self.redis.expire(self.key, 60*15)  # Expire in 15 minutes
+        self.redis.expire(self.key, 60 * 15)  # Expire in 15 minutes
 
     def get_all(self):
         return self.redis.hgetall(self.key)
@@ -20,6 +20,6 @@ class TempData(object):
 
 if __name__ == "__main__":
     redis = Redis()
-    for key in redis.keys():
+    for key in list(redis.keys()):
         for field in redis.hkeys(key):
             print("{}.{}={}".format(key, field, redis.hget(key, field)))

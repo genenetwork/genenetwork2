@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Glossary{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
+
+{% block content %}
+
+<div class="github-btn-container">
+    <div class="github-btn">
+        <a href="https://github.com/genenetwork/gn-docs/blob/master/general/glossary/glossary.md">
+            Edit Text
+            <img src="/static/images/edit.png">
+        </a>
+    </div>
+</div>
+<div id="markdown" class="container">
+	
+    {{ rendered_markdown|safe }}
+</div>
+{% endblock %}

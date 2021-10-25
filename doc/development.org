@@ -41,3 +41,58 @@ JS_GN_PATH (3) is for development purposes. By default is is set to
 $HOME/genenetwork/javascript. Say you are working on an updated
 version of a JS module not yet in (1) you can simply check out that
 module in that path and it should show up.
+
+* Python modules
+
+Python modules are automatically found in the Guix profile.
+
+For development purposes it may be useful to try some Python package.
+Obviously this is only a temporary measure and when you decide to
+include the package it should be packaged in [[http://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics][our GNU Guix software
+stack]]!
+
+To add packages you need to make sure the correct Python is used (currently
+Python 2.7) to install a package. E.g..
+
+#+BEGIN_SRC sh
+python --version
+  Python 2.7.16
+pip --version
+  pip 18.1 from /usr/lib/python2.7/dist-packages/pip (python 2.7)
+#+END_SRC
+
+You can install a Python package locally with pip, e.g.
+
+#+BEGIN_SRC sh
+pip install hjson
+#+END_SRC
+
+This installed in ~$HOME/.local/lib/python3.8/site-packages~. To add
+the search path for GeneNetwork use the environment variable
+
+#+BEGIN_SRC sh
+export PYTHON_GN_PATH=$HOME/.local/lib/python3.8/site-packages
+#+END_SRC
+
+Now you should be able to do
+
+#+BEGIN_SRC python
+import hjson
+#+END_SRC
+
+In fact you can kick off a Python shell with something like
+
+#+BEGIN_SRC python
+env SERVER_PORT=5013 WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
+  SQL_URI=mysql://gn2:webqtl@localhost/db_webqtl_s \
+  GN2_PROFILE=~/opt/genenetwork2 \
+  ./bin/genenetwork2 ./etc/default_settings.py -c
+Python 2.7.17 (default, Jan  1 1970, 00:00:01)
+[GCC 7.5.0] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import hjson
+#+END_SRC
+
+It should now also work in GN2.
+
+* TODO External tools

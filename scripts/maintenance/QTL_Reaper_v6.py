@@ -7,7 +7,7 @@ import reaper
 import MySQLdb
 import time
 
-con = MySQLdb.Connect(db='db_webqtl',user='username',passwd='', host="localhost")
+con = MySQLdb.Connect(db='db_webqtl', user='username', passwd='', host="localhost")
 cursor = con.cursor()
 
 genotypeDir = '/gnshare/gn/web/genotypes/'
@@ -23,7 +23,7 @@ for item in results:
 ProbeSetFreezeIds=sys.argv[1:]
 if ProbeSetFreezeIds:
 	#####convert the Ids to integer
-	ProbeSetFreezeIds=map(int, ProbeSetFreezeIds)
+	ProbeSetFreezeIds=list(map(int, ProbeSetFreezeIds))
 
 else:
 	#####get all of the dataset that need be updated
@@ -53,7 +53,7 @@ for ProbeSetFreezeId in ProbeSetFreezeIds:
 	#if InbredSetId==12:
 	#	InbredSetId=2
 
-	print ProbeSetFreezeId, InbredSets[InbredSetId]
+	print((ProbeSetFreezeId, InbredSets[InbredSetId]))
 
 	genotype_1.read(InbredSets[InbredSetId])
 	locuses = []
@@ -102,7 +102,7 @@ for ProbeSetFreezeId in ProbeSetFreezeIds:
 
 		kj += 1
 		if kj%1000==0:
-			print ProbeSetFreezeId, InbredSets[InbredSetId],kj
+			print((ProbeSetFreezeId, InbredSets[InbredSetId], kj))
 
 
-	print ProbeSetFreezeIds
+	print(ProbeSetFreezeIds)

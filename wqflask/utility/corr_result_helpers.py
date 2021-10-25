@@ -14,15 +14,11 @@ def normalize_values(a_values, b_values):
     min_length = min(len(a_values), len(b_values))
     a_new = []
     b_new = []
-    for counter in range(min_length):
-        if (a_values[counter] or a_values[counter] == 0) and (b_values[counter] or b_values[counter] == 0):
-            a_new.append(a_values[counter])
-            b_new.append(b_values[counter])
-
-    num_overlap = len(a_new)
-    assert num_overlap == len(b_new), "Lengths should be the same"
-
-    return a_new, b_new, num_overlap
+    for a, b in zip(a_values, b_values):
+        if not (a == None or b == None):
+            a_new.append(a)
+            b_new.append(b)
+    return a_new, b_new, len(a_new)
 
 
 def common_keys(a_samples, b_samples):
@@ -37,20 +33,10 @@ def common_keys(a_samples, b_samples):
 
 def normalize_values_with_samples(a_samples, b_samples):
     common_samples = common_keys(a_samples, b_samples)
-
     a_new = {}
     b_new = {}
     for sample in common_samples:
         a_new[sample] = a_samples[sample]
         b_new[sample] = b_samples[sample]
 
-    num_overlap = len(a_new)
-    assert num_overlap == len(b_new), "Lengths should be the same"
-
-    return a_new, b_new, num_overlap
-
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    return a_new, b_new, len(a_new)

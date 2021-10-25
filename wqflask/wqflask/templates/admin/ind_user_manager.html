@@ -103,7 +103,7 @@
 
 {% block js %}
 
-    <script type="text/javascript" src="/static/packages/smart-time-ago/lib/timeago.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/timeago.min.js') }}"></script>
     <script>
         $('body').timeago();
     </script>

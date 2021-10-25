@@ -1,10 +1,7 @@
-from __future__ import absolute_import, print_function, division
-import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
 from flask import g
 
-class News(object):
+
+class News:
 
     def __init__(self):
         sql = """
