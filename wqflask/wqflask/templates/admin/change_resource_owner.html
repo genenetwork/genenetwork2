@@ -57,7 +57,7 @@
         $('#find_users').click(function() {
             $.ajax({
                 method: "POST",
-                url: "/search_for_users",
+                url: "/resource-management/{{ resource_id }}/users/search",
                 data: {
                     user_name: $('input[name=user_name]').val(),
                     user_email: $('input[name=user_email]').val()
