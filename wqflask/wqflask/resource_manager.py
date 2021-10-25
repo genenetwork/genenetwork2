@@ -14,6 +14,7 @@ from urllib.parse import urljoin
 from typing import Dict
 
 from wqflask.decorators import edit_access_required
+from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
 from wqflask.access_roles import AdminRole
 from wqflask.access_roles import DataRole
@@ -177,3 +178,12 @@ def update_resource_publicity(resource_id: str):
     redis_conn.hset("resources", resource_id, json.dumps(resource_info))
     return redirect(url_for("resource_management.view_resource",
                             resource_id=resource_id))
+
+
+@resource_management.route("/resources/<resource_id>/change-owner")
+@edit_admins_access_required
+@login_required
+def view_resource_owner(resource_id: str):
+    return render_template(
+        "admin/change_resource_owner.html",
+        resource_id=resource_id)
