@@ -19,10 +19,10 @@
             </h3>
             {% endif %}
             {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
-            <button class="btn btn-danger"
-                    data-url="/resource-management/resources/{{ resource_info.get('resource_id') }}/change_owner">
+            <a class="btn btn-danger" target="_blank"
+               href="/resource-management/resources/{{ resource_info.get('resource_id') }}/change-owner">
                 Change Owner
-            </button>
+            </a>
             {% endif %}
             {% endif %}
     </section>
