@@ -2,16 +2,250 @@
 {% block title %}Tutorials/Primers{% endblock %}
 {% block content %}
 
-<Table width= "100%" cellSpacing=0 cellPadding=5><TR>
-<!-- Body Start from Here -->
-<TD valign="top" height="200" width="100%">
-	<P class="title"><H2>Tutorials/Primers</H2></P>
-	<UL>
-		<LI><A HREF="http://www.nervenet.org/tutorials/HS_Rat_Using_GeneNetwork_21Apr2020v7.pptx">Statistical and genetic functions, 
-and initial mapping results for Rat GWAS P50 as implemented in GeneNetwork.org</A><P></P>
-	</UL>
-	<P></P>
-</TD>
-</TR></TABLE>
+<head>
+    <title>GeneNetwork Webinar Series, Tutorials and Short Video Tours</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--    <link rel="stylesheet" href="uikit-3/css/uikit.min.css" />-->
+<!--    <script src="uikit-3/js/uikit.min.js"></script>-->
+<!--    <script src="uikit-3/js/uikit-icons.min.js"></script>-->
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit-icons.min.js"></script>
+
+    <!-- DataTables-->
+    <!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/cr-1.5.2/datatables.min.css"/>-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
+
+   <!-- <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/cr-1.5.2/datatables.min.js"></script>-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+ <script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+
+</head>
+<body>
+
+   <div class="row">
+            <!--<div class="col-lg-12">
+            <p>Primary Sponsor</p>
+               <img class="img-responsive" src="images/illumina_logo.jpg" alt=""> <h2 class="page-header">Program (Preliminary)</h2>
+            </div>-->
+            <div class="col-lg-12">
+
+                <ul id="myTab" class="nav nav-tabs nav-justified">
+                    <li class="active"><a href="#service-one" data-toggle="tab"><i class="fa fa-file-text-o"></i>Webinar Series</a>
+                    </li>
+                    <li class=""><a href="#service-two" data-toggle="tab"><i class="fa fa-file-text-o"></i>Short Video Tours</a>
+                    </li>
+                    <li class=""><a href="#service-three" data-toggle="tab"><i class="fa fa-file-text-o"></i>Tutorials</a>
+                    </li>
+                    <li class=""><a href="#service-four" data-toggle="tab"><i class="fa fa-file-text-o"></i>Documentation</a>
+                    </li>
+                </ul>
+
+               <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active in" id="service-one">
+                         <table id="myTable" class="display">
+        <thead>
+        <tr>
+            <th>Title/Description</th>
+            <th>Presentation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><p><h3>Webinar #01 - Introduction to Quantitative Trait Loci (QTL) Analysis</h3>
+            <p><i>Friday, May 8th, 2020<br>
+			10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT</i></p>
+		<p>Goals of this webinar (trait variance to QTL):</p>
+            <ul>
+              <li>Define quantitative trait locus (QTL)</li>
+              <li>Explain how genome scans can help find QTL</li>
+              </ul>
+              <p>Presented by:<br>
+Dr. Saunak Sen<br>
+Professor and Chief of Biostatistics<br>
+Department of Preventative Medicine<br>
+University of Tennessee Health Science Center
+</p>
+<p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-05-08/README.md">Link to course material</a>
+</p></td>
+            <td>
+           <iframe width="560" height="315" src="https://www.youtube.com/embed/leY3kPmnLaI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+        <tr>
+            <td><p><h3>Webinar #02 - Mapping Addiction and Behavioral Traits and Getting at Causal Gene Variants with GeneNetwork</h3>
+            <p><i>Friday, May 22nd. 2020
+		10am PDT/ 11am MDT/ 12pm CDT/ 1pm EDT</i>
+</p>
+		<p>Goals of this webinar (QTL to gene variant):</p>
+            <ul>
+              <li>Demonstrate mapping a quantitative trait using GeneNetwork (GN)</li>
+              <li>Explore GN tools to identify genes and genetics variants related to a QTL</li>
+              </ul>
+              <p>Presented by:<br>
+Dr. Rob Williams<br>
+Professor and Chair<br>
+Department of Genetics, Genomics, and Informatics<br>
+University of Tennessee Health Science Center
+</p><p><a href="https://github.com/OSGA-OPAR/quant-genetics-webinars/blob/master/2020-05-22/README.md">Link to course material</a>
+</p></td>
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/LwpXzLHX9aM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+    
+         <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>Data structure, disease risk, GXE, and causal modeling</h3>
+            <p><i>Friday, November 20th at 9am PDT/ 11pm CDT/ 12pm EDT<br>
+                  1-hour presentation followed by 30 minutes of discussion</i>
+    
+		<p>Human disease is mainly due to complex interactions between genetic and environmental factors (GXE). We need to acquire the right "smart" data types—coherent and multiplicative data—required to make accurate predictions about risk and outcome for  n = 1 individuals—a daunting task.  We have developed large families of fully sequenced mice that mirror the genetic complexity of humans. We are using these Reference Populations to generate multiplicatively useful data and to build and test causal quantitative models of disease mechanisms with a special focus on diseases of aging, addiction, and neurological and psychiatric disease. 
+
+<p>Speaker Bio: Robert (Rob) W. Williams received a BA in neuroscience from UC Santa Cruz (1975) and a Ph.D. in system physiology at UC Davis with Leo M. Chalupa (1983). He did postdoctoral work in developmental neurobiology at Yale School of Medicine with Pasko Rakic where he developed novel stereological methods to estimate cell populations in brain. In 2013 Williams established the Department of Genetics, Genomics and Informatics at UTHSC. He holds the UT Oak Ridge National Laboratory Governor’s Chair in Computational Genomics. Williams is director of the Complex Trait Community (www.complextrait.org) and editor-in-chief of Frontiers in Neurogenomics. One of Williams’ more notable contributions is in the field of systems neurogenetics and experimental precision medicine. He and his research collaborators have built GeneNetwork (www.genenetwork.org), an online resource of data and analysis code that is used as a platform for experimental precision medicine.</p>
+              
+              <p>Presented by:<br>
+Dr. Rob Williams<br>
+Professor and Chair<br>
+Department of Genetics, Genomics, and Informatics<br>
+University of Tennessee Health Science Center
+</p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="https://bit.ly/osga_2020-11-20">https://bit.ly/osga_2020-11-20</a>-->
+<!--<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223). -->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/4ZhnXU8gV44" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+        </tbody>
+    </table>
+
+<script>
+$('#myTable').dataTable( {
+  "lengthMenu": [ 50, 75, 100 ]
+} );
+</script>
+                    </div>
+                    <div class="tab-pane fade" id="service-two">
+                        <table id="myTable2" class="display">
+        <thead>
+        <tr>
+            <th>Title/Description</th>
+            <th>Presentation</th>
+        </tr>
+        </thead>
+        <tbody>
+            
+         <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>#01- Introduction to Gene Network</h3>
+            <p><i>Please note that this tutorial is based on GeneNetwork v1</i>
+
+<p>GeneNetwork is a group of linked data sets and tools used to study complex networks of genes, molecules, and higher order gene function and phenotypes. GeneNetwork combines more than 25 years of legacy data generated by hundreds of scientists together with sequence data (SNPs) and massive transcriptome data sets (expression genetic or eQTL data sets). The quantitative trait locus (QTL) mapping module that is built into GN is optimized for fast on-line analysis of traits that are controlled by combinations of gene variants and environmental factors. GeneNetwork can be used to study humans, mice (BXD, AXB, LXS, etc.), rats (HXB), Drosophila, and plant species (barley and Arabidopsis). Most of these population data sets are linked with dense genetic maps (genotypes) that can be used to locate the genetic modifiers that cause differences in expression and phenotypes, including disease susceptibility.
+
+<p>Users are welcome to enter their own private data directly into GeneNetwork to exploit the full range of analytic tools and to map modulators in a powerful environment. This combination of data and fast analytic functions enable users to study relations between sequence variants, molecular networks, and function.</p>
+              
+              <p>Presented by:<br>
+Dr. Rob Williams<br>
+Professor and Chair<br>
+Department of Genetics, Genomics, and Informatics<br>
+University of Tennessee Health Science Center
+</p>
+<!--<p>There is no fee associated with this webinar, but users are asked to register to receive the Zoom link and password.
+Registration: <a href="https://bit.ly/osga_2020-11-20">https://bit.ly/osga_2020-11-20</a>-->
+<!--<p>This webinar series is sponsored by the NIDA Center of Excellence in Omics, Systems Genetics, and the Addictome (P30 DA044223). -->
+</td>
+            <!--<td><strong>After the presentation, the recording will be made available here.</strong></td>-->
+            <td><iframe width="560" height="315" src="https://www.youtube.com/embed/B3g_0q-ldJ8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></iframe>
+        </tr>
+        <!--WEBINAR ENDS HERE-->
+        
+        <!--NEW WEBINAR STARTS HERE-->
+        <tr>
+            <td><p><h3>#02 - How to search in GeneNetwork</h3>
+</td>
+            <td>
+           <iframe width="560" height="315" src="https://www.youtube.com/embed/5exnkka5Tso" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></td>
+        </tr>
+         <!--WEBINAR ENDS HERE-->
+        </tbody>
+    </table>
+
+<script>
+$('#myTable2').dataTable( {
+  "lengthMenu": [ 50, 75, 100 ]
+} );
+</script>
+                    </div>
+                    <div class="tab-pane fade" id="service-three">
+                         <table id="myTable3" class="display">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Speaker</th>
+            <th>Video link</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr><td>Diallel Crosses, Artificial Intelligence, and Mouse Models of Alzheimer’s Disease</td>
+            <td>David G. Ashbrook<br>Assistant Professor<br>University of Tennessee Health Science Center</td>
+            <td><a href="https://www.youtube.com/watch?v=HKfYc8CJwqM">YouTube link</a></td>
+        </tr>
+
+        
+                </tbody>
+    </table>
+        <script>
+$('#myTable3').dataTable( {
+  "lengthMenu": [ 50, 75, 100 ]
+} );
+</script>
+                    </div>
+                    
+                     <div class="tab-pane fade" id="service-four">
+                         <table id="myTable4" class="display">
+        <thead>
+        <tr>
+            <th>Title</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr><td><a href="https://www.biorxiv.org/content/10.1101/2020.12.23.424047v1">GeneNetwork: a continuously updated tool for systems genetics analyses</a></td></tr>
+        <tr><td><a href="https://www.biorxiv.org/content/10.1101/2021.05.24.445383v1">Old data and friends improve with age: Advancements with the updated tools of GeneNetwork</a></td></tr>
+        
+                </tbody>
+    </table>
+        <script>
+$('#myTable4').dataTable( {
+  "lengthMenu": [ 50, 75, 100 ]
+} );
+</script>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+</div>
+
+        <hr>
+
+
+
+    </div>
+    <!-- /.container -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+</body>
+
 
 {% endblock %}
+
