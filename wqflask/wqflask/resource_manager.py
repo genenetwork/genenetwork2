@@ -1,23 +1,24 @@
-import redis
 import json
+import redis
 import requests
 
 from flask import Blueprint
 from flask import current_app
+from flask import flash
 from flask import g
-from flask import render_template
 from flask import redirect
+from flask import render_template
 from flask import request
 from flask import url_for
 
-from urllib.parse import urljoin
 from typing import Dict, Tuple
+from urllib.parse import urljoin
 
+from wqflask.access_roles import AdminRole
+from wqflask.access_roles import DataRole
 from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
-from wqflask.access_roles import AdminRole
-from wqflask.access_roles import DataRole
 
 
 resource_management = Blueprint('resource_management', __name__)
@@ -55,7 +56,7 @@ def get_user_membership(conn: redis.Redis, user_id: str,
 def get_user_access_roles(
         resource_id: str,
         user_id: str,
-        gn_proxy_url: str="http://localhost:8080") -> Dict:
+        gn_proxy_url: str = "http://localhost:8080") -> Dict:
     """Get the highest access roles for a given user
 
     Args:
@@ -189,6 +190,23 @@ def view_resource_owner(resource_id: str):
         resource_id=resource_id)
 
 
+@resource_management.route("/resources/<resource_id>/change-owner",
+                           methods=('POST',))
+@edit_admins_access_required
+@login_required
+def change_owner(resource_id: str):
+    if user_id := request.form.get("new_owner"):
+        redis_conn = redis.from_url(
+            current_app.config["REDIS_URL"],
+            decode_responses=True)
+        resource = json.loads(redis_conn.hget("resources", resource_id))
+        resource["owner_id"] = user_id
+        redis_conn.hset("resources", resource_id, json.dumps(resource))
+        flash("The resource's owner has been changed.", "alert-info")
+    return redirect(url_for("resource_management.view_resource",
+                            resource_id=resource_id))
+
+
 @resource_management.route("<resource_id>/users/search", methods=('POST',))
 @edit_admins_access_required
 @login_required
@@ -204,4 +222,3 @@ def search_user(resource_id: str):
                       q in user.get("full_name")):
                 results[user.get("user_id", "")] = user
     return json.dumps(tuple(results.values()))
-
