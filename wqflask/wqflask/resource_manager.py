@@ -11,7 +11,7 @@ from flask import request
 from flask import url_for
 
 from urllib.parse import urljoin
-from typing import Dict
+from typing import Dict, Tuple
 
 from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
@@ -187,3 +187,21 @@ def view_resource_owner(resource_id: str):
     return render_template(
         "admin/change_resource_owner.html",
         resource_id=resource_id)
+
+
+@resource_management.route("<resource_id>/users/search", methods=('POST',))
+@edit_admins_access_required
+@login_required
+def search_user(resource_id: str):
+    results = {}
+    for user in (users := redis.from_url(
+            current_app.config["REDIS_URL"],
+            decode_responses=True).hgetall("users")):
+        user = json.loads(users[user])
+        for q in (request.form.get("user_name"),
+                  request.form.get("user_email")):
+            if q and (q in user.get("email_address") or
+                      q in user.get("full_name")):
+                results[user.get("user_id", "")] = user
+    return json.dumps(tuple(results.values()))
+
