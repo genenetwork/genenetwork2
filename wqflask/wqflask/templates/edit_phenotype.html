@@ -62,8 +62,7 @@
 </div>
 
 {% endif %}
-
-<form id="edit-form" class="form-horizontal" method="post" action="/trait/update" enctype=multipart/form-data>
+<form id="edit-form" class="form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{ publish_xref.id_ }}/update?resource-id={{ resource_id }}" enctype=multipart/form-data>
     <h2 class="text-center">Trait Information:</h2>
     <div class="form-group">
         <label for="pubmed-id" class="col-sm-2 control-label">Pubmed ID:</label>
@@ -226,7 +225,6 @@
         <input type = "file" class="col-sm-4 control-label" name = "file" />
     </div>
     <div class="controls center-block" style="width: max-content;">
-        <input name="dataset-name" class="changed" type="hidden" value="{{ publish_xref.id_ }}"/>
         <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
         <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
         <input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
