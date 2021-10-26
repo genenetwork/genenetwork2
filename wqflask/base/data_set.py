@@ -52,6 +52,7 @@ import gzip
 import pickle as pickle
 import itertools
 import hashlib
+import datetime
 
 from redis import Redis
 
@@ -753,7 +754,7 @@ class DataSet:
         # Postgres doesn't have that limit, so we can get rid of this after we transition
         chunk_size = 50
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
-        cached_results = fetch_cached_results(self.name)
+        cached_results = fetch_cached_results(self.name, self.type)
         # cached_results =    None
         if cached_results is None:
             trait_sample_data = []
@@ -800,7 +801,7 @@ class DataSet:
                 trait_sample_data.append([list(result) for result in results])
 
             cache_dataset_results(
-                self.name, "cached_time_stamp", trait_sample_data)
+                self.name, self.type, trait_sample_data)
 
         else:
             trait_sample_data = cached_results
@@ -1260,42 +1261,48 @@ def query_table_timestamp(dataset_type: str):
 
     # computation data and actions
 
-    query_update_time = """
+    query_update_time = f"""
                     SELECT UPDATE_TIME FROM   information_schema.tables
                     WHERE  TABLE_SCHEMA = 'db_webqtl'
-                    AND TABLE_NAME = 'ProbeSetData'
+                    AND TABLE_NAME = '{dataset_type}Data'
                 """
 
-    # store the timestamp in redis
-    return g.db.execute(query_update_time).fetchone()
+    # store the timestamp in redis=
+    date_time_obj = g.db.execute(query_update_time).fetchone()[0]
+
+    f = "%Y-%m-%d %H:%M:%S"
+    return date_time_obj.strftime(f)
 
 
 def generate_hash_file(dataset_name: str, dataset_timestamp: str):
     """given the trait_name generate a unique name for this"""
-
     string_unicode = f"{dataset_name}{dataset_timestamp}".encode()
     md5hash = hashlib.md5(string_unicode)
     return md5hash.hexdigest()
 
 
-def cache_dataset_results(dataset_name: str, dataset_timestamp: str, query_results: List):
+def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: List):
     """function to cache dataset query results to file"""
     # data computations actions
     # store the file path on redis
 
-    file_name = generate_hash_file(dataset_name, dataset_timestamp)
+    table_timestamp = query_table_timestamp(dataset_type)
 
+    results = r.set(f"{dataset_type}timestamp", table_timestamp)
+
+    file_name = generate_hash_file(dataset_name, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
 
 
-def fetch_cached_results(dataset_name: str):
+def fetch_cached_results(dataset_name: str, dataset_type: str):
     """function to fetch the cached results"""
-    # store the timestamp in redis
 
-    file_name = generate_hash_file(dataset_name, "cached_time_stamp")
+    table_timestamp = r.get(f"{dataset_type}timestamp").decode("utf-8")
+
+    file_name = generate_hash_file(dataset_name, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
