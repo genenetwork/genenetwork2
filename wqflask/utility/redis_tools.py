@@ -4,6 +4,7 @@ import datetime
 
 import redis  # used for collections
 
+from deprecated import deprecated
 from utility.hmac import hmac_creation
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -55,30 +56,6 @@ def get_user_by_unique_column(column_name, column_value):
         item_details = load_json_from_redis(user_list, column_value)
 
     return item_details
-
-
-def get_users_like_unique_column(column_name, column_value):
-    """Like previous function, but this only checks if the input is a
-    subset of a field and can return multiple results
-
-    """
-    matched_users = []
-
-    if column_value != "":
-        user_list = Redis.hgetall("users")
-        if column_name != "user_id":
-            for key in user_list:
-                user_ob = json.loads(user_list[key])
-                if "user_id" not in user_ob:
-                    set_user_attribute(key, "user_id", key)
-                    user_ob["user_id"] = key
-                if column_name in user_ob:
-                    if column_value in user_ob[column_name]:
-                        matched_users.append(user_ob)
-        else:
-            matched_users.append(load_json_from_redis(user_list, column_value))
-
-    return matched_users
 
 
 def set_user_attribute(user_id, column_name, column_value):
@@ -163,52 +140,6 @@ def get_group_info(group_id):
         group_info = json.loads(group_json)
 
     return group_info
-
-
-def get_group_by_unique_column(column_name, column_value):
-    """ Get group by column; not sure if there's a faster way to do this """
-
-    matched_groups = []
-
-    all_group_list = Redis.hgetall("groups")
-    for key in all_group_list:
-        group_info = json.loads(all_group_list[key])
-        # ZS: Since these fields are lists, search in the list
-        if column_name == "admins" or column_name == "members":
-            if column_value in group_info[column_name]:
-                matched_groups.append(group_info)
-        else:
-            if group_info[column_name] == column_value:
-                matched_groups.append(group_info)
-
-    return matched_groups
-
-
-def get_groups_like_unique_column(column_name, column_value):
-    """Like previous function, but this only checks if the input is a
-    subset of a field and can return multiple results
-
-    """
-    matched_groups = []
-
-    if column_value != "":
-        group_list = Redis.hgetall("groups")
-        if column_name != "group_id":
-            for key in group_list:
-                group_info = json.loads(group_list[key])
-                # ZS: Since these fields are lists, search in the list
-                if column_name == "admins" or column_name == "members":
-                    if column_value in group_info[column_name]:
-                        matched_groups.append(group_info)
-                else:
-                    if column_name in group_info:
-                        if column_value in group_info[column_name]:
-                            matched_groups.append(group_info)
-        else:
-            matched_groups.append(
-                load_json_from_redis(group_list, column_value))
-
-    return matched_groups
 
 
 def create_group(admin_user_ids, member_user_ids=[],
@@ -321,6 +252,7 @@ def get_resource_id(dataset, trait_id=None):
     return resource_id
 
 
+@deprecated
 def get_resource_info(resource_id):
     resource_info = Redis.hget("resources", resource_id)
     if resource_info:
@@ -352,11 +284,3 @@ def add_access_mask(resource_id, group_id, access_mask):
     Redis.hset("resources", resource_id, json.dumps(the_resource))
 
     return the_resource
-
-
-def change_resource_owner(resource_id, new_owner_id):
-    the_resource = get_resource_info(resource_id)
-    the_resource['owner_id'] = new_owner_id
-
-    Redis.delete("resource")
-    Redis.hset("resources", resource_id, json.dumps(the_resource))

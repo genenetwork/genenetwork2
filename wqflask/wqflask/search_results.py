@@ -120,7 +120,7 @@ class SearchResultPage:
                 trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
                 description_text = "N/A" if result[4] is None or str(result[4]) == "" else trait_dict['symbol']
 
-                target_string = result[5]
+                target_string = result[5].decode('utf-8') if result[5] else ""
                 description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
                 trait_dict['description'] = description_display
 

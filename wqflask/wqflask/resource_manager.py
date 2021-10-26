@@ -1,144 +1,224 @@
 import json
+import redis
+import requests
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash)
+from flask import Blueprint
+from flask import current_app
+from flask import flash
+from flask import g
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import url_for
 
-from wqflask import app
+from typing import Dict, Tuple
+from urllib.parse import urljoin
 
-from utility.authentication_tools import check_owner_or_admin
-from utility.redis_tools import get_resource_info, get_group_info, get_groups_like_unique_column, get_user_id, get_user_by_unique_column, get_users_like_unique_column, add_access_mask, add_resource, change_resource_owner
-
-
-
-@app.route("/resources/manage", methods=('GET', 'POST'))
-def manage_resource():
-    params = request.form if request.form else request.args
-    if 'resource_id' in request.args:
-        resource_id = request.args['resource_id']
-        admin_status = check_owner_or_admin(resource_id=resource_id)
-
-        resource_info = get_resource_info(resource_id)
-        group_masks = resource_info['group_masks']
-        group_masks_with_names = get_group_names(group_masks)
-        default_mask = resource_info['default_mask']['data']
-        owner_id = resource_info['owner_id']
-
-        owner_display_name = None
-        if owner_id != "none":
-            try:  # ZS: User IDs are sometimes stored in Redis as bytes and sometimes as strings, so this is just to avoid any errors for the time being
-                owner_id = str.encode(owner_id)
-            except:
-                pass
-            owner_info = get_user_by_unique_column("user_id", owner_id)
-            if 'name' in owner_info:
-                owner_display_name = owner_info['full_name']
-            elif 'user_name' in owner_info:
-                owner_display_name = owner_info['user_name']
-            elif 'email_address' in owner_info:
-                owner_display_name = owner_info['email_address']
-
-        return render_template("admin/manage_resource.html", owner_name=owner_display_name, resource_id=resource_id, resource_info=resource_info, default_mask=default_mask, group_masks=group_masks_with_names, admin_status=admin_status)
+from wqflask.access_roles import AdminRole
+from wqflask.access_roles import DataRole
+from wqflask.decorators import edit_access_required
+from wqflask.decorators import edit_admins_access_required
+from wqflask.decorators import login_required
 
 
-@app.route("/search_for_users", methods=('POST',))
-def search_for_user():
-    params = request.form
-    user_list = []
-    user_list += get_users_like_unique_column("full_name", params['user_name'])
-    user_list += get_users_like_unique_column(
-        "email_address", params['user_email'])
-
-    return json.dumps(user_list)
+resource_management = Blueprint('resource_management', __name__)
 
 
-@app.route("/search_for_groups", methods=('POST',))
-def search_for_groups():
-    params = request.form
-    group_list = []
-    group_list += get_groups_like_unique_column("id", params['group_id'])
-    group_list += get_groups_like_unique_column("name", params['group_name'])
+def get_user_membership(conn: redis.Redis, user_id: str,
+                        group_id: str) -> Dict:
+    """Return a dictionary that indicates whether the `user_id` is a
+    member or admin of `group_id`.
 
-    user_list = []
-    user_list += get_users_like_unique_column("full_name", params['user_name'])
-    user_list += get_users_like_unique_column(
-        "email_address", params['user_email'])
-    for user in user_list:
-        group_list += get_groups_like_unique_column("admins", user['user_id'])
-        group_list += get_groups_like_unique_column("members", user['user_id'])
+    Args:
+      - conn: a Redis Connection with the responses decoded.
+      - user_id: a user's unique id
+        e.g. '8ad942fe-490d-453e-bd37-56f252e41603'
+      - group_id: a group's unique id
+      e.g. '7fa95d07-0e2d-4bc5-b47c-448fdc1260b2'
 
-    return json.dumps(group_list)
+    Returns:
+      A dict indicating whether the user is an admin or a member of
+      the group: {"member": True, "admin": False}
+
+    """
+    results = {"member": False, "admin": False}
+    for key, value in conn.hgetall('groups').items():
+        if key == group_id:
+            group_info = json.loads(value)
+            if user_id in group_info.get("admins"):
+                results["admin"] = True
+            if user_id in group_info.get("members"):
+                results["member"] = True
+            break
+    return results
 
 
-@app.route("/resources/change_owner", methods=('POST',))
-def change_owner():
-    resource_id = request.form['resource_id']
-    if 'new_owner' in request.form:
-        admin_status = check_owner_or_admin(resource_id=resource_id)
-        if admin_status == "owner":
-            new_owner_id = request.form['new_owner']
-            change_resource_owner(resource_id, new_owner_id)
-            flash("The resource's owner has beeen changed.", "alert-info")
-            return redirect(url_for("manage_resource", resource_id=resource_id))
-        else:
-            flash("You lack the permissions to make this change.", "error")
-            return redirect(url_for("manage_resource", resource_id=resource_id))
+def get_user_access_roles(
+        resource_id: str,
+        user_id: str,
+        gn_proxy_url: str = "http://localhost:8080") -> Dict:
+    """Get the highest access roles for a given user
+
+    Args:
+      - resource_id: The unique id of a given resource.
+      - user_id: The unique id of a given user.
+      - gn_proxy_url: The URL where gn-proxy is running.
+
+    Returns:
+      A dict indicating the highest access role the user has.
+
+    """
+    role_mapping = {}
+    for x, y in zip(DataRole, AdminRole):
+        role_mapping.update({x.value: x, })
+        role_mapping.update({y.value: y, })
+    access_role = {}
+    for key, value in json.loads(
+        requests.get(urljoin(
+            gn_proxy_url,
+            ("available?resource="
+             f"{resource_id}&user={user_id}"))).content).items():
+        access_role[key] = max(map(lambda x: role_mapping[x], value))
+    return access_role
+
+
+def add_extra_resource_metadata(conn: redis.Redis,
+                                resource_id: str,
+                                resource: Dict) -> Dict:
+    """If resource['owner_id'] exists, add metadata about that user. Also,
+if the resource contains group masks, add the group name into the
+resource dict. Note that resource['owner_id'] and the group masks are
+unique identifiers so they aren't human readable names.
+
+    Args:
+      - conn: A redis connection with the responses decoded.
+      - resource_id: The unique identifier of the resource.
+      - resource: A dict containing details(metadata) about a
+        given resource.
+
+    Returns:
+      An embellished dictionary with its resource id; the human
+    readable names of the group masks; and the owner id if it was set.
+
+    """
+    resource["resource_id"] = resource_id
+
+    # Embellish the resource information with owner details if the
+    # owner is set
+    if (owner_id := resource.get("owner_id", "none").lower()) == "none":
+        resource["owner_id"] = None
+        resource["owner_details"] = None
     else:
-        return render_template("admin/change_resource_owner.html", resource_id=resource_id)
+        user_details = json.loads(conn.hget("users", owner_id))
+        resource["owner_details"] = {
+            "email_address": user_details.get("email_address"),
+            "full_name": user_details.get("full_name"),
+            "organization": user_details.get("organization"),
+        }
+
+    # Embellish the resources information with the group name if the
+    # group masks are present
+    if groups := resource.get('group_masks', {}):
+        for group_id in groups.keys():
+            resource['group_masks'][group_id]["group_name"] = (
+                json.loads(conn.hget("groups", group_id)).get('name'))
+    return resource
 
 
-@app.route("/resources/change_default_privileges", methods=('POST',))
-def change_default_privileges():
-    resource_id = request.form['resource_id']
-    admin_status = check_owner_or_admin(resource_id=resource_id)
-    if admin_status == "owner" or admin_status == "edit-admins":
-        resource_info = get_resource_info(resource_id)
-        default_mask = resource_info['default_mask']
-        if request.form['open_to_public'] == "True":
-            default_mask['data'] = 'view'
-        else:
-            default_mask['data'] = 'no-access'
-        resource_info['default_mask'] = default_mask
-        add_resource(resource_info)
-        flash("Your changes have been saved.", "alert-info")
-        return redirect(url_for("manage_resource", resource_id=resource_id))
-    else:
-        return redirect(url_for("no_access_page"))
+@resource_management.route("/resources/<resource_id>")
+@login_required
+def view_resource(resource_id: str):
+    user_id = (g.user_session.record.get(b"user_id",
+                                         b"").decode("utf-8") or
+               g.user_session.record.get("user_id", ""))
+    redis_conn = redis.from_url(
+        current_app.config["REDIS_URL"],
+        decode_responses=True)
+    # Abort early if the resource can't be found
+    if not (resource := redis_conn.hget("resources", resource_id)):
+        return f"Resource: {resource_id} Not Found!", 401
+
+    return render_template(
+        "admin/manage_resource.html",
+        resource_info=(add_extra_resource_metadata(
+            conn=redis_conn,
+            resource_id=resource_id,
+            resource=json.loads(resource))),
+        access_role=get_user_access_roles(
+            resource_id=resource_id,
+            user_id=user_id,
+            gn_proxy_url=current_app.config.get("GN2_PROXY")),
+        DataRole=DataRole, AdminRole=AdminRole)
 
 
-@app.route("/resources/add_group", methods=('POST',))
-def add_group_to_resource():
-    resource_id = request.form['resource_id']
-    admin_status = check_owner_or_admin(resource_id=resource_id)
-    if admin_status == "owner" or admin_status == "edit-admins" or admin_status == "edit-access":
-        if 'selected_group' in request.form:
-            group_id = request.form['selected_group']
-            resource_info = get_resource_info(resource_id)
-            default_privileges = resource_info['default_mask']
-            return render_template("admin/set_group_privileges.html", resource_id=resource_id, group_id=group_id, default_privileges=default_privileges)
-        elif all(key in request.form for key in ('data_privilege', 'metadata_privilege', 'admin_privilege')):
-            group_id = request.form['group_id']
-            group_name = get_group_info(group_id)['name']
-            access_mask = {
-                'data': request.form['data_privilege'],
-                'metadata': request.form['metadata_privilege'],
-                'admin': request.form['admin_privilege']
-            }
-            add_access_mask(resource_id, group_id, access_mask)
-            flash("Privileges have been added for group {}.".format(
-                group_name), "alert-info")
-            return redirect(url_for("manage_resource", resource_id=resource_id))
-        else:
-            return render_template("admin/search_for_groups.html", resource_id=resource_id)
-    else:
-        return redirect(url_for("no_access_page"))
+@resource_management.route("/resources/<resource_id>/make-public",
+                           methods=('POST',))
+@edit_access_required
+@login_required
+def update_resource_publicity(resource_id: str):
+    redis_conn = redis.from_url(
+        current_app.config["REDIS_URL"],
+        decode_responses=True)
+    resource_info = json.loads(redis_conn.hget("resources", resource_id))
+
+    if (is_open_to_public := request
+        .form
+        .to_dict()
+            .get("open_to_public")) == "True":
+        resource_info['default_mask'] = {
+            'data': DataRole.VIEW.value,
+            'admin': AdminRole.NOT_ADMIN.value,
+            'metadata': DataRole.VIEW.value,
+        }
+    elif is_open_to_public == "False":
+        resource_info['default_mask'] = {
+            'data': DataRole.NO_ACCESS.value,
+            'admin': AdminRole.NOT_ADMIN.value,
+            'metadata': DataRole.NO_ACCESS.value,
+        }
+    redis_conn.hset("resources", resource_id, json.dumps(resource_info))
+    return redirect(url_for("resource_management.view_resource",
+                            resource_id=resource_id))
 
 
-def get_group_names(group_masks):
-    group_masks_with_names = {}
-    for group_id, group_mask in list(group_masks.items()):
-        this_mask = group_mask
-        group_name = get_group_info(group_id)['name']
-        this_mask['name'] = group_name
-        group_masks_with_names[group_id] = this_mask
+@resource_management.route("/resources/<resource_id>/change-owner")
+@edit_admins_access_required
+@login_required
+def view_resource_owner(resource_id: str):
+    return render_template(
+        "admin/change_resource_owner.html",
+        resource_id=resource_id)
 
-    return group_masks_with_names
+
+@resource_management.route("/resources/<resource_id>/change-owner",
+                           methods=('POST',))
+@edit_admins_access_required
+@login_required
+def change_owner(resource_id: str):
+    if user_id := request.form.get("new_owner"):
+        redis_conn = redis.from_url(
+            current_app.config["REDIS_URL"],
+            decode_responses=True)
+        resource = json.loads(redis_conn.hget("resources", resource_id))
+        resource["owner_id"] = user_id
+        redis_conn.hset("resources", resource_id, json.dumps(resource))
+        flash("The resource's owner has been changed.", "alert-info")
+    return redirect(url_for("resource_management.view_resource",
+                            resource_id=resource_id))
+
+
+@resource_management.route("<resource_id>/users/search", methods=('POST',))
+@edit_admins_access_required
+@login_required
+def search_user(resource_id: str):
+    results = {}
+    for user in (users := redis.from_url(
+            current_app.config["REDIS_URL"],
+            decode_responses=True).hgetall("users")):
+        user = json.loads(users[user])
+        for q in (request.form.get("user_name"),
+                  request.form.get("user_email")):
+            if q and (q in user.get("email_address") or
+                      q in user.get("full_name")):
+                results[user.get("user_id", "")] = user
+    return json.dumps(tuple(results.values()))

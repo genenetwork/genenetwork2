@@ -1,22 +1,12 @@
 import collections
-
 import scipy
-
-from utility.db_tools import escape
-
-from flask import g
 
 from base import data_set
 from base.trait import create_trait, retrieve_sample_data
-
-from wqflask.correlation.show_corr_results import generate_corr_json
+from flask import g
+from utility import corr_result_helpers
+from utility.db_tools import escape
 from wqflask.correlation import correlation_functions
-
-from utility import webqtlUtil, helper_functions, corr_result_helpers
-from utility.benchmark import Bench
-
-import utility.logger
-logger = utility.logger.getLogger(__name__)
 
 
 def do_correlation(start_vars):
@@ -35,7 +25,6 @@ def do_correlation(start_vars):
 
     corr_results = calculate_results(
         this_trait, this_dataset, target_dataset, corr_params)
-    #corr_results = collections.OrderedDict(sorted(corr_results.items(), key=lambda t: -abs(t[1][0])))
 
     final_results = []
     for _trait_counter, trait in enumerate(list(corr_results.keys())[:corr_params['return_count']]):
@@ -63,11 +52,7 @@ def do_correlation(start_vars):
                 "#_strains": num_overlap,
                 "p_value": sample_p
             }
-
         final_results.append(result_dict)
-
-    # json_corr_results = generate_corr_json(final_corr_results, this_trait, this_dataset, target_dataset, for_api = True)
-
     return final_results
 
 
