@@ -22,7 +22,6 @@ from utility.authentication_tools import check_owner_or_admin
 from utility.tools import locate_ignore_error
 from utility.tools import GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
-from utility.logger import getLogger
 
 from wqflask.access_roles import AdminRole
 from wqflask.access_roles import DataRole
@@ -30,8 +29,6 @@ from wqflask.resource_manager import get_user_access_roles
 
 Redis = get_redis_conn()
 ONE_YEAR = 60 * 60 * 24 * 365
-
-logger = getLogger(__name__)
 
 ###############################################
 #
@@ -610,7 +607,6 @@ def get_nearest_marker(this_trait, this_db):
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name + "Geno", this_mb)
-    logger.sql(query)
     result = g.db.execute(query).fetchall()
 
     if result == []:
