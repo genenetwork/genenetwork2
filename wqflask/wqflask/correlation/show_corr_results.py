@@ -19,9 +19,12 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 import json
+import os
+from pathlib import Path
 
 from base.trait import create_trait, jsonable
 from base.data_set import create_dataset
+from base.webqtlConfig import TMPDIR
 
 from utility import hmac
 
@@ -82,13 +85,31 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
     corr_results = correlation_data['correlation_results']
     results_list = []
+
+    file_name = f"{target_dataset['name']}_metadata.json"
+
+    file_path = os.path.join(TMPDIR, file_name)
+    new_traits_metadata = {}
+
+    try:
+        with open(file_path,"r+") as file_handler:
+            dataset_metadata = json.load(file_handler)
+
+    except FileNotFoundError:
+        Path(file_path).touch(exist_ok=True)
+        dataset_metadata = {}
+
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
         trait = trait_dict[trait_name]
-        target_trait_ob = create_trait(dataset=target_dataset_ob,
-                                       name=trait_name,
-                                       get_qtl_info=True)
-        target_trait = jsonable(target_trait_ob, target_dataset_ob)
+
+        target_trait = dataset_metadata.get(trait_name)
+        if  target_trait is None: 
+            target_trait_ob = create_trait(dataset=target_dataset_ob,
+                                           name=trait_name,
+                                           get_qtl_info=True)
+            target_trait = jsonable(target_trait_ob, target_dataset_ob)
+            new_traits_metadata[trait_name] = target_trait
         if target_trait['view'] == False:
             continue
         results_dict = {}
@@ -163,6 +184,12 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
         results_list.append(results_dict)
 
+
+    if bool(new_traits_metadata):
+        # that means new traits exists
+        dataset_metadata.update(new_traits_metadata)
+        with open(file_path,"w+") as file_handler:
+            json.dump(dataset_metadata, file_handler)
     return json.dumps(results_list)
 
 
