@@ -4,7 +4,6 @@ import MySQLdb
 import array
 import base64
 import csv
-import difflib
 import datetime
 import flask
 import io  # Todo: Use cStringIO?
@@ -20,8 +19,6 @@ import traceback
 import uuid
 import xlsxwriter
 
-from itertools import groupby
-from collections import namedtuple
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 
@@ -30,19 +27,12 @@ from wqflask import app
 from gn3.commands import run_cmd
 from gn3.computations.gemma import generate_hash_of_string
 from gn3.db import diff_from_dict
-from gn3.db import fetchall
-from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
-from gn3.db.phenotypes import PublishXRef
-from gn3.db.phenotypes import probeset_mapping
-# from gn3.db.traits import get_trait_csv_sample_data
-# from gn3.db.traits import update_sample_data
-
 
 from flask import current_app
 from flask import g
@@ -426,106 +416,6 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
-@edit_access_required
-def edit_phenotype(name, inbredset_id):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    publish_xref = fetchone(
-        conn=conn,
-        table="PublishXRef",
-        where=PublishXRef(id_=name,
-                          inbred_set_id=inbredset_id))
-    phenotype_ = fetchone(
-        conn=conn,
-        table="Phenotype",
-        where=Phenotype(id_=publish_xref.phenotype_id))
-    publication_ = fetchone(
-        conn=conn,
-        table="Publication",
-        where=Publication(id_=publish_xref.publication_id))
-    json_data = fetchall(
-        conn,
-        "metadata_audit",
-        where=MetadataAudit(dataset_id=publish_xref.id_))
-
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(author=author,
-                             diff=Edit(field,
-                                       data_.get("old"),
-                                       data_.get("new"),
-                                       "\n".join(difflib.ndiff(
-                                           [data_.get("old")],
-                                           [data_.get("new")]))),
-                             timestamp=timestamp))
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
-    return render_template(
-        "edit_phenotype.html",
-        diff=diff_data_,
-        publish_xref=publish_xref,
-        phenotype=phenotype_,
-        publication=publication_,
-        version=GN_VERSION,
-    )
-
-
-@app.route("/trait/edit/probeset-name/<dataset_name>")
-@edit_access_required
-def edit_probeset(dataset_name):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    probeset_ = fetchone(conn=conn,
-                         table="ProbeSet",
-                         columns=list(probeset_mapping.values()),
-                         where=Probeset(name=dataset_name))
-    json_data = fetchall(
-        conn,
-        "metadata_audit",
-        where=MetadataAudit(dataset_id=probeset_.id_))
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(author=author,
-                             diff=Edit(field,
-                                       data_.get("old"),
-                                       data_.get("new"),
-                                       "\n".join(difflib.ndiff(
-                                           [data_.get("old")],
-                                           [data_.get("new")]))),
-                             timestamp=timestamp))
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
-    return render_template(
-        "edit_probeset.html",
-        diff=diff_data_,
-        probeset=probeset_)
-
-
 @app.route("/trait/update", methods=["POST"])
 @edit_access_required
 def update_phenotype():
@@ -653,7 +543,6 @@ def update_phenotype():
 
 
 @app.route("/probeset/update", methods=["POST"])
-@edit_access_required
 def update_probeset():
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -691,7 +580,9 @@ def update_probeset():
         where=Probeset(id_=data_.get("id")))
 
     diff_data = {}
-    author = g.user_session.record.get(b'user_name')
+    author = (g.user_session.record.get(b"user_id",
+                                         b"").decode("utf-8") or
+              g.user_session.record.get("user_id", ""))
     if updated_probeset:
         diff_data.update({"Probeset": diff_from_dict(old={
             k: data_.get(f"old_{k}") for k, v in probeset_.items()
