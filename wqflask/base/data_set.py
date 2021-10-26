@@ -1255,6 +1255,21 @@ def geno_mrna_confidentiality(ob):
         return True
 
 
+def query_table_timestamp(dataset_type: str):
+    """function to query the update timestamp of a given dataset_type"""
+
+    # computation data and actions
+
+    query_update_time = """
+                    SELECT UPDATE_TIME FROM   information_schema.tables
+                    WHERE  TABLE_SCHEMA = 'db_webqtl'
+                    AND TABLE_NAME = 'ProbeSetData'
+                """
+
+    # store the timestamp in redis
+    return g.db.execute(query_update_time).fetchone()
+
+
 def generate_hash_file(dataset_name: str, dataset_timestamp: str):
     """given the trait_name generate a unique name for this"""
 
@@ -1267,7 +1282,6 @@ def cache_dataset_results(dataset_name: str, dataset_timestamp: str, query_resul
     """function to cache dataset query results to file"""
     # data computations actions
     # store the file path on redis
-
 
     file_name = generate_hash_file(dataset_name, dataset_timestamp)
 
@@ -1285,10 +1299,8 @@ def fetch_cached_results(dataset_name: str):
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
-            data = json.load(file_handler)
-            # print(file_handler)
-            # check if table has been modified
-            return data
+
+            return json.load(file_handler)
     except FileNotFoundError:
         # take actions continue to fetch dataset results and fetch results
         pass
