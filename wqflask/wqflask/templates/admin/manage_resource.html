@@ -8,7 +8,7 @@
         {% set METADATA_ACCESS = access_role.get('metadata') %}
         {% set ADMIN_STATUS = access_role.get('admin') %}
             <h1>Resource Manager</h1>
-            {% if resource_info.get('owner_id') != 'none'%}
+            {% if resource_info.get('owner_id') %}
             {% set user_details = resource_info.get('owner_details') %}
             <h3>
                 Current Owner: {{ user_details.get('full_name') }}
