@@ -416,64 +416,6 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/probeset/update", methods=["POST"])
-def update_probeset():
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    data_ = request.form.to_dict()
-    probeset_ = {
-        "id_": data_.get("id"),
-        "symbol": data_.get("symbol"),
-        "description": data_.get("description"),
-        "probe_target_description": data_.get("probe_target_description"),
-        "chr_": data_.get("chr"),
-        "mb": data_.get("mb"),
-        "alias": data_.get("alias"),
-        "geneid": data_.get("geneid"),
-        "homologeneid": data_.get("homologeneid"),
-        "unigeneid": data_.get("unigeneid"),
-        "omim": data_.get("OMIM"),
-        "refseq_transcriptid": data_.get("refseq_transcriptid"),
-        "blatseq": data_.get("blatseq"),
-        "targetseq": data_.get("targetseq"),
-        "strand_probe": data_.get("Strand_Probe"),
-        "probe_set_target_region": data_.get("probe_set_target_region"),
-        "probe_set_specificity": data_.get("probe_set_specificity"),
-        "probe_set_blat_score": data_.get("probe_set_blat_score"),
-        "probe_set_blat_mb_start": data_.get("probe_set_blat_mb_start"),
-        "probe_set_blat_mb_end": data_.get("probe_set_blat_mb_end"),
-        "probe_set_strand": data_.get("probe_set_strand"),
-        "probe_set_note_by_rw": data_.get("probe_set_note_by_rw"),
-        "flag": data_.get("flag")
-    }
-    updated_probeset = update(
-        conn, "ProbeSet",
-        data=Probeset(**probeset_),
-        where=Probeset(id_=data_.get("id")))
-
-    diff_data = {}
-    author = (g.user_session.record.get(b"user_id",
-                                         b"").decode("utf-8") or
-              g.user_session.record.get("user_id", ""))
-    if updated_probeset:
-        diff_data.update({"Probeset": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in probeset_.items()
-            if v is not None}, new=probeset_)})
-    if diff_data:
-        diff_data.update({"probeset_name": data_.get("probeset_name")})
-        diff_data.update({"author": author.decode('utf-8')})
-        diff_data.update({"timestamp": datetime.datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S")})
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(dataset_id=data_.get("id"),
-                                  editor=author.decode("utf-8"),
-                                  json_data=json.dumps(diff_data)))
-    return redirect(f"/trait/edit/probeset-name/{data_.get('probeset_name')}")
-
-
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     logger.info(request.url)
