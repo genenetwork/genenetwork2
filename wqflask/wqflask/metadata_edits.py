@@ -148,6 +148,7 @@ def display_probeset_metadata(name: str):
         "edit_probeset.html",
         diff=_d.get("diff"),
         probeset=_d.get("probeset"),
+        name=name,
         resource_id=request.args.get("resource-id"),
         version=os.environ.get("GN_VERSION"),
     )
