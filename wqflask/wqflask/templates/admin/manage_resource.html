@@ -27,6 +27,7 @@
             {% endif %}
             {% endif %}
     </section>
+    {% set ADMIN_STATUS = access_role.get('admin') %}
 
     <section class="container" style="margin-top: 2em;">
         <form class="container-fluid" action="/resource-management/resources/{{ resource_info.get('resource_id') }}/make-public" method="POST">
