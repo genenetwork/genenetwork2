@@ -16,9 +16,9 @@ def login_required(f):
     """Use this for endpoints where login is required"""
     @wraps(f)
     def wrap(*args, **kwargs):
-        user_id = (g.user_session.record.get(b"user_id",
-                                             b"").decode("utf-8") or
-                   g.user_session.record.get("user_id", ""))
+        user_id = ((g.user_session.record.get(b"user_id") or
+                    b"").decode("utf-8")
+                   or g.user_session.record.get("user_id") or "")
         redis_conn = redis.from_url(current_app.config["REDIS_URL"],
                                     decode_responses=True)
         if not redis_conn.hget("users", user_id):
@@ -38,15 +38,14 @@ def edit_access_required(f):
             resource_id = kwargs.get("resource_id")
         response: Dict = {}
         try:
-            _user_id = (g.user_session.record.get(b"user_id",
-                                                  b"").decode("utf-8") or
-                        g.user_session.record.get("user_id", ""))
+            user_id = ((g.user_session.record.get(b"user_id") or
+                        b"").decode("utf-8")
+                       or g.user_session.record.get("user_id") or "")
             response = json.loads(
                 requests.get(urljoin(
                     current_app.config.get("GN2_PROXY"),
                     ("available?resource="
-                     f"{resource_id}&user={_user_id}"))).content)
-
+                     f"{resource_id}&user={user_id}"))).content)
         except:
             response = {}
         if max([DataRole(role) for role in response.get(
@@ -63,14 +62,14 @@ def edit_admins_access_required(f):
         resource_id: str = kwargs.get("resource_id", "")
         response: Dict = {}
         try:
-            _user_id = (g.user_session.record.get(b"user_id",
-                                                  b"").decode("utf-8") or
-                        g.user_session.record.get("user_id", ""))
+            user_id = ((g.user_session.record.get(b"user_id") or
+                        b"").decode("utf-8")
+                       or g.user_session.record.get("user_id") or "")
             response = json.loads(
                 requests.get(urljoin(
                     current_app.config.get("GN2_PROXY"),
                     ("available?resource="
-                     f"{resource_id}&user={_user_id}"))).content)
+                     f"{resource_id}&user={user_id}"))).content)
         except:
             response = {}
         if max([AdminRole(role) for role in response.get(
