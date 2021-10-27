@@ -240,7 +240,7 @@
         {% endif %}
 
         {% if this_trait.dataset.type == 'ProbeSet' %}
-        <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('/datasets/traits/{{ this_trait.name }}resource-id={{ resource_id }}', '_blank')">Edit</button>
+        <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('/datasets/traits/{{ this_trait.name }}?resource-id={{ resource_id }}', '_blank')">Edit</button>
         {% endif %}
         {% if admin_status.get('metadata', DataRole.VIEW) > DataRole.VIEW %}
         <button type="button" id="edit_resource" class="btn btn-success" title="Edit Privileges" onclick="window.open('/resource-management/resources/{{ resource_id }}', '_blank')">Edit Privileges</button>
