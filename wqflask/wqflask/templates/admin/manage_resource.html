@@ -5,29 +5,29 @@
 <div class="container">
     <section>
     {{ flash_me() }}
-        {% set DATA_ACCESS = access_role.get('data') %}
-        {% set METADATA_ACCESS = access_role.get('metadata') %}
-        {% set ADMIN_STATUS = access_role.get('admin') %}
-            <h1>Resource Manager</h1>
-            {% if resource_info.get('owner_id') %}
-            {% set user_details = resource_info.get('owner_details') %}
-            <h3>
-                Current Owner: {{ user_details.get('full_name') }}
-            </h3>
-            {% if user_details.get('organization') %}
-            <h3>
-                Organization: {{ user_details.get('organization')}}
-            </h3>
-            {% endif %}
-            {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
-            <a class="btn btn-danger" target="_blank"
-               href="/resource-management/resources/{{ resource_info.get('resource_id') }}/change-owner">
-                Change Owner
-            </a>
-            {% endif %}
-            {% endif %}
-    </section>
+    {% set DATA_ACCESS = access_role.get('data') %}
+    {% set METADATA_ACCESS = access_role.get('metadata') %}
     {% set ADMIN_STATUS = access_role.get('admin') %}
+    {% set ADMIN_STATUS = access_role.get('admin') %}
+    <h1>Resource Manager</h1>
+    {% if resource_info.get('owner_id') %}
+    {% set user_details = resource_info.get('owner_details') %}
+    <h3>
+        Current Owner: {{ user_details.get('full_name') }}
+    </h3>
+    {% if user_details.get('organization') %}
+    <h3>
+        Organization: {{ user_details.get('organization')}}
+    </h3>
+    {% endif %}
+    {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
+    <a class="btn btn-danger" target="_blank"
+       href="/resource-management/resources/{{ resource_info.get('resource_id') }}/change-owner">
+        Change Owner
+    </a>
+    {% endif %}
+    {% endif %}
+        </section>
 
     <section class="container" style="margin-top: 2em;">
         <form class="container-fluid" action="/resource-management/resources/{{ resource_info.get('resource_id') }}/make-public" method="POST">
@@ -53,7 +53,7 @@
                                 <label class="radio-inline">
                                     <input type="radio" name="open_to_public" value="False" {{ 'checked' if not is_open_to_public }}>
                                     No
-                            </label>
+                                </label>
                             </div>
                         </div>
                         <div class="form-group" style="padding-left: 20px;">
@@ -100,25 +100,25 @@
             </div>
             {% endif %}
         </form>
-    </section>
+        </section>
 
-<!-- End of body -->
+    <!-- End of body -->
 
-{% endblock %}
-{% block js %}
+    {% endblock %}
+    {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 
     <script type="text/javascript" charset="utf-8">
-        $('#add_group_to_resource, #save_changes, #change_owner').click(function(){
-            url = $(this).data("url");
-            $('#manage_resource').attr("action", url)
-            $('#manage_resource').submit()
-        })
+     $('#add_group_to_resource, #save_changes, #change_owner').click(function(){
+         url = $(this).data("url");
+         $('#manage_resource').attr("action", url)
+         $('#manage_resource').submit()
+     })
 
-        {% if group_masks|length > 0 %}
-        $('#groups_table').dataTable({
-            'sDom': 'tr',
-        });
-        {% endif %}
+     {% if group_masks|length > 0 %}
+     $('#groups_table').dataTable({
+         'sDom': 'tr',
+     });
+     {% endif %}
     </script>
-{% endblock %}
+    {% endblock %}
