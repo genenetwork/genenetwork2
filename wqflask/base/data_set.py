@@ -1263,7 +1263,7 @@ def query_table_timestamp(dataset_type: str):
 
     query_update_time = f"""
                     SELECT UPDATE_TIME FROM   information_schema.tables
-                    WHERE  TABLE_SCHEMA = 'db_webqtl'
+                    WHERE  TABLE_SCHEMA = 'db_webqtl_s'
                     AND TABLE_NAME = '{dataset_type}Data'
                 """
 
@@ -1300,7 +1300,12 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
 def fetch_cached_results(dataset_name: str, dataset_type: str):
     """function to fetch the cached results"""
 
-    table_timestamp = r.get(f"{dataset_type}timestamp").decode("utf-8")
+    table_timestamp = r.get(f"{dataset_type}timestamp")
+
+    if table_timestamp is not None:
+        table_timestamp = table_timestamp.decode("utf-8")
+    else:
+        table_timestamp = ""
 
     file_name = generate_hash_file(dataset_name, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
