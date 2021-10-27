@@ -3,6 +3,7 @@
 {% block content %}
 <!-- Start of body -->
 <div class="container">
+    <section>
     {{ flash_me() }}
         {% set DATA_ACCESS = access_role.get('data') %}
         {% set METADATA_ACCESS = access_role.get('metadata') %}
