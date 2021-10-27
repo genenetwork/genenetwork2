@@ -281,7 +281,7 @@ def update_phenotype(dataset_id: str, name: str):
                     f"?resource-id={request.args.get('resource-id')}")
 
 
-@metadata_edit.route("/traits/<name>", methods=["POST"])
+@metadata_edit.route("/traits/<name>", methods=("POST",))
 @edit_access_required
 def update_probeset(name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
