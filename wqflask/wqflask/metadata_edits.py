@@ -116,7 +116,7 @@ def edit_probeset(conn, name):
     }
 
 
-@metadata_edit.route("/<dataset_id>/traits/<name>/edit")
+@metadata_edit.route("/<dataset_id>/traits/<name>")
 @edit_access_required
 def display_phenotype_metadata(dataset_id: str, name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
@@ -136,7 +136,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
     )
 
 
-@metadata_edit.route("/traits/<name>/edit")
+@metadata_edit.route("/traits/<name>")
 @edit_access_required
 def display_probeset_metadata(name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
@@ -153,7 +153,7 @@ def display_probeset_metadata(name: str):
     )
 
 
-@metadata_edit.route("/<dataset_id>/traits/<name>/update", methods=("POST",))
+@metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
 @edit_access_required
 def update_phenotype(dataset_id: str, name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
@@ -276,5 +276,5 @@ def update_phenotype(dataset_id: str, name: str):
                                   editor=author,
                                   json_data=json.dumps(diff_data)))
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
-    return redirect(f"/datasets/{dataset_id}/traits/{name}/edit"
+    return redirect(f"/datasets/{dataset_id}/traits/{name}"
                     f"?resource-id={request.args.get('resource-id')}")

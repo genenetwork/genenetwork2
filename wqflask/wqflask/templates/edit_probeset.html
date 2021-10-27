@@ -53,7 +53,7 @@ Submit Trait | Reset
 
 {% endif %}
 
-<form id="edit-form" class="form-horizontal" method="post" action="/probeset/update">
+<form id="edit-form" class="form-horizontal" method="post" action="/datasets/traits/{{ dataset_id }}?resource-id={{ resource_id }}>
     <h2 class="text-center">Probeset Information:</h2>
     <div class="form-group">
         <label for="symbol" class="col-sm-2 control-label">Symbol:</label>
