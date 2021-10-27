@@ -162,9 +162,8 @@ def update_phenotype(dataset_id: str, name: str):
                            host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
     TMPDIR = current_app.config.get("TMPDIR")
-    author = (g.user_session.record.get(b"user_id",
-                                        b"").decode("utf-8") or
-              g.user_session.record.get("user_id", ""))
+    author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+               or g.user_session.record.get("user_id") or "")
     phenotype_id = str(data_.get('phenotype-id'))
     if 'file' not in request.files:
         flash("No sample-data has been uploaded", "warning")
