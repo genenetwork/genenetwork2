@@ -332,7 +332,7 @@ def update_probeset(name: str):
         insert(conn,
                table="metadata_audit",
                data=MetadataAudit(dataset_id=data_.get("id"),
-                                  editor=author.decode("utf-8"),
+                                  editor=author,
                                   json_data=json.dumps(diff_data)))
     return redirect(f"/datasets/traits/{name}"
                     f"?resource-id={request.args.get('resource-id')}")
