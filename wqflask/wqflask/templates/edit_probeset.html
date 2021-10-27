@@ -9,52 +9,52 @@ Submit Trait | Reset
 
 <div class="container">
     <details class="col-sm-12 col-md-10 col-lg-12">
-    <summary>
-        <h2>Update History</h2>
-    </summary>
-    <table class="table">
-    <tbody>
-        <tr>
-            <th>Timestamp</th>
-            <th>Editor</th>
-            <th>Field</th>
-            <th>Diff</th>
-        </tr>
-        {% set ns = namespace(display_cell=True) %}
+        <summary>
+            <h2>Update History</h2>
+        </summary>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Editor</th>
+                    <th>Field</th>
+                    <th>Diff</th>
+                </tr>
+                {% set ns = namespace(display_cell=True) %}
 
-        {% for timestamp, group in diff %}
-        {% set ns.display_cell = True %}
-        {% for i in group %}
-        <tr>
-            {% if ns.display_cell and i.timestamp == timestamp %}
+                {% for timestamp, group in diff %}
+                {% set ns.display_cell = True %}
+                {% for i in group %}
+                <tr>
+                    {% if ns.display_cell and i.timestamp == timestamp %}
 
-            {% set author = i.author %}
-            {% set timestamp_ = i.timestamp %}
+                    {% set author = i.author %}
+                    {% set timestamp_ = i.timestamp %}
 
-            {% else %}
+                    {% else %}
 
-            {% set author = "" %}
-            {% set timestamp_ = "" %}
+                    {% set author = "" %}
+                    {% set timestamp_ = "" %}
 
-            {% endif %}
-            <td>{{ timestamp_ }}</td>
-	    <td>{{ author }}</td>
-	    <td>{{ i.diff.field }}</td>
-            <td><pre>{{ i.diff.diff }}</pre></td>
-            {% set ns.display_cell = False %}
-	</tr>
-        {% endfor %}
-        {% endfor %}
-    </tbody>
-    </table>
+                    {% endif %}
+                    <td>{{ timestamp_ }}</td>
+	            <td>{{ author }}</td>
+	            <td>{{ i.diff.field }}</td>
+                    <td><pre>{{ i.diff.diff }}</pre></td>
+                    {% set ns.display_cell = False %}
+	        </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
     </details>
 
 </div>
 
 {% endif %}
 
-<form id="edit-form" class="form-horizontal" method="post" action="/datasets/traits/{{ dataset_id }}?resource-id={{ resource_id }}>
-    <h2 class="text-center">Probeset Information:</h2>
+<form id="edit-form" class="form-horizontal" method="post" action="/datasets/traits/{{ name }}?resource-id={{ resource_id }}">
+          <h2 class="text-center">Probeset Information:</h2>
     <div class="form-group">
         <label for="symbol" class="col-sm-2 control-label">Symbol:</label>
         <div class="col-sm-4">
