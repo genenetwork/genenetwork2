@@ -28,7 +28,8 @@ def login_required(f):
 
 
 def edit_access_required(f):
-    """Use this for endpoints where people with admin or edit privileges are required"""
+    """Use this for endpoints where people with admin or edit privileges
+are required"""
     @wraps(f)
     def wrap(*args, **kwargs):
         resource_id: str = ""
