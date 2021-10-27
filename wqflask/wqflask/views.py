@@ -608,9 +608,8 @@ def export_perm_data():
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
-    user_id = (g.user_session.record.get(b"user_id",
-                                         b"").decode("utf-8") or
-               g.user_session.record.get("user_id", ""))
+    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+               or g.user_session.record.get("user_id") or "")
     template_vars = show_trait.ShowTrait(user_id=user_id,
                                          kw=request.form)
     template_vars.js_data = json.dumps(template_vars.js_data,
@@ -621,9 +620,8 @@ def show_temp_trait_page():
 
 @app.route("/show_trait")
 def show_trait_page():
-    user_id = (g.user_session.record.get(b"user_id",
-                                         b"").decode("utf-8") or
-               g.user_session.record.get("user_id", ""))
+    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+               or g.user_session.record.get("user_id") or "")
     template_vars = show_trait.ShowTrait(user_id=user_id,
                                          kw=request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
