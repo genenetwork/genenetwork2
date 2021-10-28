@@ -9,7 +9,7 @@ from typing import Tuple
 from urllib.parse import urlparse
 from utility import formatting
 
-from wqflask.access_roles import DataRole, AdminRole
+from gn3.authentication import DataRole, AdminRole
 from wqflask.resource_manager import resource_management
 
 from wqflask.metadata_edits import metadata_edit

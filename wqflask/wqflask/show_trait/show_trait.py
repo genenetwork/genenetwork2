@@ -23,9 +23,9 @@ from utility.tools import locate_ignore_error
 from utility.tools import GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
 
-from wqflask.access_roles import AdminRole
-from wqflask.access_roles import DataRole
-from wqflask.resource_manager import get_user_access_roles
+from gn3.authentication import AdminRole
+from gn3.authentication import DataRole
+from gn3.authentication import get_highest_user_access_role
 
 Redis = get_redis_conn()
 ONE_YEAR = 60 * 60 * 24 * 365
@@ -73,7 +73,7 @@ class ShowTrait:
             self.trait_vals = Redis.get(self.trait_id).split()
         self.resource_id = get_resource_id(self.dataset,
                                            self.trait_id)
-        self.admin_status = get_user_access_roles(
+        self.admin_status = get_highest_user_access_role(
                 user_id=user_id,
                 resource_id=(self.resource_id or ""),
                 gn_proxy_url=GN_PROXY_URL)

@@ -5,8 +5,8 @@ from flask import current_app, g, redirect, request, url_for
 from typing import Dict
 from urllib.parse import urljoin
 from functools import wraps
-from wqflask.access_roles import AdminRole
-from wqflask.access_roles import DataRole
+from gn3.authentication import AdminRole
+from gn3.authentication import DataRole
 
 import json
 import requests

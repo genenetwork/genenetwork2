@@ -11,75 +11,21 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+from gn3.authentication import AdminRole
+from gn3.authentication import DataRole
+from gn3.authentication import get_user_membership
+from gn3.authentication import get_highest_user_access_role
+
 from typing import Dict, Tuple
 from urllib.parse import urljoin
 
-from wqflask.access_roles import AdminRole
-from wqflask.access_roles import DataRole
+
 from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
 
 
 resource_management = Blueprint('resource_management', __name__)
-
-
-def get_user_membership(conn: redis.Redis, user_id: str,
-                        group_id: str) -> Dict:
-    """Return a dictionary that indicates whether the `user_id` is a
-    member or admin of `group_id`.
-
-    Args:
-      - conn: a Redis Connection with the responses decoded.
-      - user_id: a user's unique id
-        e.g. '8ad942fe-490d-453e-bd37-56f252e41603'
-      - group_id: a group's unique id
-      e.g. '7fa95d07-0e2d-4bc5-b47c-448fdc1260b2'
-
-    Returns:
-      A dict indicating whether the user is an admin or a member of
-      the group: {"member": True, "admin": False}
-
-    """
-    results = {"member": False, "admin": False}
-    for key, value in conn.hgetall('groups').items():
-        if key == group_id:
-            group_info = json.loads(value)
-            if user_id in group_info.get("admins"):
-                results["admin"] = True
-            if user_id in group_info.get("members"):
-                results["member"] = True
-            break
-    return results
-
-
-def get_user_access_roles(
-        resource_id: str,
-        user_id: str,
-        gn_proxy_url: str = "http://localhost:8080") -> Dict:
-    """Get the highest access roles for a given user
-
-    Args:
-      - resource_id: The unique id of a given resource.
-      - user_id: The unique id of a given user.
-      - gn_proxy_url: The URL where gn-proxy is running.
-
-    Returns:
-      A dict indicating the highest access role the user has.
-
-    """
-    role_mapping = {}
-    for x, y in zip(DataRole, AdminRole):
-        role_mapping.update({x.value: x, })
-        role_mapping.update({y.value: y, })
-    access_role = {}
-    for key, value in json.loads(
-        requests.get(urljoin(
-            gn_proxy_url,
-            ("available?resource="
-             f"{resource_id}&user={user_id}"))).content).items():
-        access_role[key] = max(map(lambda x: role_mapping[x], value))
-    return access_role
 
 
 def add_extra_resource_metadata(conn: redis.Redis,
@@ -144,7 +90,7 @@ def view_resource(resource_id: str):
             conn=redis_conn,
             resource_id=resource_id,
             resource=json.loads(resource))),
-        access_role=get_user_access_roles(
+        access_role=get_highest_user_access_role(
             resource_id=resource_id,
             user_id=user_id,
             gn_proxy_url=current_app.config.get("GN2_PROXY")))
