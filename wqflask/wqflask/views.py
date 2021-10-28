@@ -1055,22 +1055,6 @@ def json_default_handler(obj):
             type(obj), repr(obj)))
 
 
-@app.route("/trait/<trait_name>/sampledata/<phenotype_id>")
-def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    csv_ = get_trait_csv_sample_data(conn, str(trait_name),
-                                     str(phenotype_id))
-    return Response(
-        csv_,
-        mimetype="text/csv",
-        headers={"Content-disposition":
-                 "attachment; filename=myplot.csv"}
-    )
-
-
 @app.route("/admin/data-sample/diffs/")
 @edit_access_required
 def display_diffs_admin():
