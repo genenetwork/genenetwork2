@@ -43,7 +43,6 @@ def dummy(args_obj, parser):
 
 def integration_tests(args_obj, parser):
     gn2_url = args_obj.host
-    es_url = app.config.get("ELASTICSEARCH_HOST")+":"+str(app.config.get("ELASTICSEARCH_PORT"))
     run_integration_tests(gn2_url, es_url)
 
 def initTest(klass, gn2_url, es_url):

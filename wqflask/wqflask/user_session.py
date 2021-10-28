@@ -10,7 +10,6 @@ from flask import (Flask, g, render_template, url_for, request, make_response,
 from wqflask import app
 from utility import hmac
 
-#from utility.elasticsearch_tools import get_elasticsearch_connection
 from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
 Redis = get_redis_conn()
 
