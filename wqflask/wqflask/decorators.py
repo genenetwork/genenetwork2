@@ -1,7 +1,7 @@
 """This module contains gn2 decorators"""
 import redis
 
-from flask import current_app, g, request
+from flask import current_app, g, redirect, request, url_for
 from typing import Dict
 from urllib.parse import urljoin
 from functools import wraps
@@ -51,7 +51,7 @@ are required"""
             response = {}
         if max([DataRole(role) for role in response.get(
                 "data", ["no-access"])]) < DataRole.EDIT:
-            return "You need to have edit access", 401
+            return redirect(url_for("no_access_page"))
         return f(*args, **kwargs)
     return wrap
 
@@ -75,6 +75,6 @@ def edit_admins_access_required(f):
             response = {}
         if max([AdminRole(role) for role in response.get(
                 "admin", ["not-admin"])]) < AdminRole.EDIT_ADMINS:
-            return "You need to have edit-admins access", 401
+            return redirect(url_for("no_access_page"))
         return f(*args, **kwargs)
     return wrap
