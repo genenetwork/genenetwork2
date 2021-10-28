@@ -7,7 +7,7 @@ import difflib
 
 from collections import namedtuple
 from flask import (Blueprint, current_app, redirect,
-                   flash, g, render_template, request)
+                   flash, g, render_template, request, Response)
 from itertools import groupby
 
 from wqflask.decorators import edit_access_required
@@ -343,3 +343,18 @@ def update_probeset(name: str):
     return redirect(f"/datasets/traits/{name}"
                     f"?resource-id={request.args.get('resource-id')}")
 
+
+@metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
+def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
+    return Response(
+        get_trait_csv_sample_data(
+            conn=MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                                 user=current_app.config.get("DB_USER"),
+                                 passwd=current_app.config.get("DB_PASS"),
+                                 host=current_app.config.get("DB_HOST")),
+            trait_name=str(dataset_id),
+            phenotype_id=str(phenotype_id)),
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=myplot.csv"}
+    )
