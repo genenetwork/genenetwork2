@@ -115,29 +115,6 @@ def connect_db():
             SQL_URI, encoding="latin1")
 
 
-@app.before_request
-def check_access_permissions():
-    if 'dataset' in request.args:
-        permissions = DEFAULT_PRIVILEGES
-        if request.args['dataset'] != "Temp":
-            dataset = create_dataset(request.args['dataset'])
-
-            if dataset.type == "Temp":
-                permissions = DEFAULT_PRIVILEGES
-            elif 'trait_id' in request.args:
-                permissions = check_resource_availability(
-                    dataset, request.args['trait_id'])
-            elif dataset.type != "Publish":
-                permissions = check_resource_availability(dataset)
-
-        if type(permissions['data']) is list:
-            if 'view' not in permissions['data']:
-                return redirect(url_for("no_access_page"))
-        else:
-            if permissions['data'] == 'no-access':
-                return redirect(url_for("no_access_page"))
-
-
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
