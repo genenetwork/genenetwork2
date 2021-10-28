@@ -5,14 +5,10 @@ import urllib.parse
 
 import numpy as np
 import pandas as pd
-from elasticsearch import Elasticsearch, TransportError
-from elasticsearch.helpers import bulk
 
 from flask import Flask, g, request
 
 from wqflask import app
-from utility.elasticsearch_tools import get_elasticsearch_connection
-from utility.tools import ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, SQL_URI
 
 
 def parse_db_uri():
@@ -105,20 +101,6 @@ def set_data(dataset_name):
 if __name__ == '__main__':
     Conn = MySQLdb.Connect(**parse_db_uri())
     Cursor = Conn.cursor()
-
-    # es = Elasticsearch([{
-    #    "host": ELASTICSEARCH_HOST, "port": ELASTICSEARCH_PORT
-    # }], timeout=60) if (ELASTICSEARCH_HOST and ELASTICSEARCH_PORT) else None
-
-    es = get_elasticsearch_connection(for_user=False)
-
-    #input_filename = "/home/zas1024/cfw_data/" + sys.argv[1] + ".txt"
-    #input_df = create_dataframe(input_filename)
-    #output_df = quantileNormalize(input_df)
-
-    #output_df.to_csv('quant_norm.csv', sep='\t')
-
-    #out_filename = sys.argv[1][:-4] + '_quantnorm.txt'
 
     success, _ = bulk(es, set_data(sys.argv[1]))
 

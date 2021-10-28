@@ -287,6 +287,7 @@ JS_GN_PATH = get_setting('JS_GN_PATH')
 
 GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
+GITHUB_AUTH_URL = ""
 if GITHUB_CLIENT_ID != 'UNKNOWN' and GITHUB_CLIENT_SECRET:
     GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id=" + \
                       GITHUB_CLIENT_ID + "&client_secret=" + GITHUB_CLIENT_SECRET
@@ -301,10 +302,6 @@ if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
         "&redirect_uri=" + GN2_BRANCH_URL + "n/login/orcid_oauth2"
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
-ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
-ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
-# import utility.elasticsearch_tools as es
-# es.test_elasticsearch_connection()
 
 SMTP_CONNECT = get_setting('SMTP_CONNECT')
 SMTP_USERNAME = get_setting('SMTP_USERNAME')
