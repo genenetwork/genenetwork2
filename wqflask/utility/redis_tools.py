@@ -4,7 +4,6 @@ import datetime
 
 import redis  # used for collections
 
-from deprecated import deprecated
 from utility.hmac import hmac_creation
 from utility.logger import getLogger
 logger = getLogger(__name__)
@@ -252,7 +251,6 @@ def get_resource_id(dataset, trait_id=None):
     return resource_id
 
 
-@deprecated
 def get_resource_info(resource_id):
     resource_info = Redis.hget("resources", resource_id)
     if resource_info:

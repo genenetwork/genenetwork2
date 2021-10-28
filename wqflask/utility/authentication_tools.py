@@ -1,7 +1,6 @@
 import json
 import requests
 
-from deprecated import deprecated
 from flask import g
 from base import webqtlConfig
 
@@ -127,7 +126,6 @@ def check_owner(dataset=None, trait_id=None, resource_id=None):
     return False
 
 
-@deprecated
 def check_owner_or_admin(dataset=None, trait_id=None, resource_id=None):
     if not resource_id:
         if dataset.type == "Temp":
