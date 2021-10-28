@@ -170,12 +170,10 @@ def update_phenotype(dataset_id: str, name: str):
     author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
                or g.user_session.record.get("user_id") or "")
     phenotype_id = str(data_.get('phenotype-id'))
-    if 'file' not in request.files:
+    if not (file_ := request.files.get("file")):
         flash("No sample-data has been uploaded", "warning")
     else:
-        file_ = request.files['file']
-        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
-        if not os.path.exists(SAMPLE_DATADIR):
+        if not os.path.exists(SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data")):
             os.makedirs(SAMPLE_DATADIR)
         if not os.path.exists(os.path.join(SAMPLE_DATADIR,
                                            "diffs")):
@@ -189,7 +187,7 @@ def update_phenotype(dataset_id: str, name: str):
         new_file_name = (os.path.join(TMPDIR,
                                       "sample-data/updated/",
                                       (f"{author}."
-                                       f"{name}.{phenotype_id}."
+                                       f"{request.args.get('resource-id')}."
                                        f"{current_time}.csv")))
         uploaded_file_name = (os.path.join(
             TMPDIR,
