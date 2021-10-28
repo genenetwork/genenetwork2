@@ -11,6 +11,7 @@ from flask import (Blueprint, current_app, redirect,
 from itertools import groupby
 
 from wqflask.decorators import edit_access_required
+from wqflask.decorators import login_required
 
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
@@ -118,6 +119,7 @@ def edit_probeset(conn, name):
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
 @edit_access_required
+@login_required
 def display_phenotype_metadata(dataset_id: str, name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -138,6 +140,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
 @metadata_edit.route("/traits/<name>")
 @edit_access_required
+@login_required
 def display_probeset_metadata(name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -156,6 +159,7 @@ def display_probeset_metadata(name: str):
 
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
 @edit_access_required
+@login_required
 def update_phenotype(dataset_id: str, name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
@@ -283,6 +287,7 @@ def update_phenotype(dataset_id: str, name: str):
 
 @metadata_edit.route("/traits/<name>", methods=("POST",))
 @edit_access_required
+@login_required
 def update_probeset(name: str):
     conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
                            user=current_app.config.get("DB_USER"),
