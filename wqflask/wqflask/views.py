@@ -109,17 +109,14 @@ logger = utility.logger.getLogger(__name__)
 
 @app.before_request
 def connect_db():
-    logger.info("@app.before_request connect_db")
     db = getattr(g, '_database', None)
     if db is None:
         g.db = g._database = sqlalchemy.create_engine(
             SQL_URI, encoding="latin1")
-        logger.debug(g.db)
 
 
 @app.before_request
 def check_access_permissions():
-    logger.debug("@app.before_request check_access_permissions")
     if 'dataset' in request.args:
         permissions = DEFAULT_PRIVILEGES
         if request.args['dataset'] != "Temp":
@@ -145,7 +142,6 @@ def check_access_permissions():
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
-        logger.debug("remove db_session")
         db_session.remove()
         g.db = None
 

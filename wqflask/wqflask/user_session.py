@@ -22,7 +22,6 @@ THIRTY_DAYS = 60 * 60 * 24 * 30
 
 @app.before_request
 def get_user_session():
-    logger.info("@app.before_request get_session")
     g.user_session = UserSession()
     # ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
     if not g.user_session:
