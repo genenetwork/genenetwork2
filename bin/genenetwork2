@@ -101,13 +101,6 @@ fi
 export GN2_SETTINGS=$settings     # Python
 echo GN2_SETTINGS=$settings
 
-# This is a temporary hack to inject ES - should have added python2-elasticsearch package to guix instead
-# if [ -z $ELASTICSEARCH_PROFILE ]; then
-#     echo -e "WARNING: Elastic Search profile has not been set - use ELASTICSEARCH_PROFILE";
-# else
-#     PYTHONPATH="$PYTHONPATH${PYTHONPATH:+:}$ELASTICSEARCH_PROFILE/lib/python3.8/site-packages"
-# fi
-
 if [ -z $GN2_PROFILE ] ; then
     echo "WARNING: GN2_PROFILE has not been set - you need the environment, so I hope you know what you are doing!"
     export GN2_PROFILE=$(dirname $(dirname $(which genenetwork2)))

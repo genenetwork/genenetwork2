@@ -20,14 +20,15 @@ from base import data_set
 from utility import helper_functions
 from utility.authentication_tools import check_owner_or_admin
 from utility.tools import locate_ignore_error
+from utility.tools import GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
-from utility.logger import getLogger
 
+from wqflask.access_roles import AdminRole
+from wqflask.access_roles import DataRole
+from wqflask.resource_manager import get_user_access_roles
 
 Redis = get_redis_conn()
 ONE_YEAR = 60 * 60 * 24 * 365
-
-logger = getLogger(__name__)
 
 ###############################################
 #
@@ -38,14 +39,11 @@ logger = getLogger(__name__)
 
 
 class ShowTrait:
-    def __init__(self, kw):
+    def __init__(self, user_id, kw):
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
             helper_functions.get_species_dataset_trait(self, kw)
-            self.resource_id = get_resource_id(self.dataset, self.trait_id)
-            self.admin_status = check_owner_or_admin(
-                resource_id=self.resource_id)
         elif 'group' in kw:
             self.temp_trait = True
             self.trait_id = "Temp_" + kw['species'] + "_" + kw['group'] + \
@@ -62,9 +60,6 @@ class ShowTrait:
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
-
-            self.admin_status = check_owner_or_admin(
-                dataset=self.dataset, trait_id=self.trait_id)
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
@@ -75,11 +70,13 @@ class ShowTrait:
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
-
             self.trait_vals = Redis.get(self.trait_id).split()
-            self.admin_status = check_owner_or_admin(
-                dataset=self.dataset, trait_id=self.trait_id)
-
+        self.resource_id = get_resource_id(self.dataset,
+                                           self.trait_id)
+        self.admin_status = get_user_access_roles(
+                user_id=user_id,
+                resource_id=(self.resource_id or ""),
+                gn_proxy_url=GN_PROXY_URL)
         # ZS: Get verify/rna-seq link URLs
         try:
             blatsequence = self.this_trait.blatseq
@@ -525,10 +522,6 @@ class ShowTrait:
                                          sample_group_type='primary',
                                          header="%s Only" % (self.dataset.group.name))
             self.sample_groups = (primary_samples,)
-            print("\nttttttttttttttttttttttttttttttttttttttttttttt\n")
-            print(self.sample_groups)
-            print("\nttttttttttttttttttttttttttttttttttttttttttttt\n")
-
         self.primary_sample_names = primary_sample_names
         self.dataset.group.allsamples = all_samples_ordered
 
@@ -614,7 +607,6 @@ def get_nearest_marker(this_trait, this_db):
                      GenoFreeze.Id = GenoXRef.GenoFreezeId AND
                      GenoFreeze.Name = '{}'
                ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name + "Geno", this_mb)
-    logger.sql(query)
     result = g.db.execute(query).fetchall()
 
     if result == []:

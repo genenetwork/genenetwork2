@@ -147,8 +147,7 @@ def view_resource(resource_id: str):
         access_role=get_user_access_roles(
             resource_id=resource_id,
             user_id=user_id,
-            gn_proxy_url=current_app.config.get("GN2_PROXY")),
-        DataRole=DataRole, AdminRole=AdminRole)
+            gn_proxy_url=current_app.config.get("GN2_PROXY")))
 
 
 @resource_management.route("/resources/<resource_id>/make-public",

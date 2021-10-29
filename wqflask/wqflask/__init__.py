@@ -9,7 +9,10 @@ from typing import Tuple
 from urllib.parse import urlparse
 from utility import formatting
 
+from wqflask.access_roles import DataRole, AdminRole
 from wqflask.resource_manager import resource_management
+
+from wqflask.metadata_edits import metadata_edit
 
 from wqflask.api.markdown import glossary_blueprint
 from wqflask.api.markdown import references_blueprint
@@ -60,11 +63,22 @@ app.register_blueprint(news_blueprint, url_prefix="/news")
 
 app.register_blueprint(resource_management, url_prefix="/resource-management")
 
+app.register_blueprint(metadata_edit, url_prefix="/datasets/")
 
 @app.before_request
 def before_request():
     g.request_start_time = time.time()
     g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
+
+
+@app.context_processor
+def include_admin_role_class():
+    return {'AdminRole': AdminRole}
+
+
+@app.context_processor
+def include_data_role_class():
+    return {'DataRole': DataRole}
 
 
 from wqflask.api import router

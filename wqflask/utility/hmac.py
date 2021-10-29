@@ -1,14 +1,11 @@
 import hmac
 import hashlib
 
-from deprecated import deprecated
 from flask import url_for
 
 from wqflask import app
 
 
-@deprecated("This function leads to circular imports. "
-            "If possible use wqflask.decorators.create_hmac instead.")
 def hmac_creation(stringy):
     """Helper function to create the actual hmac"""
 
