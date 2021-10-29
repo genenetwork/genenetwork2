@@ -3,7 +3,7 @@ import os
 import json
 import datetime
 import difflib
-
+import redis
 
 from collections import namedtuple
 from flask import (Blueprint, current_app, redirect,
@@ -184,17 +184,13 @@ def update_phenotype(dataset_id: str, name: str):
             os.makedirs(os.path.join(SAMPLE_DATADIR,
                                      "updated"))
         current_time = str(datetime.datetime.now().isoformat())
+        _file_name = (f"{request.args.get('resource-id')}."
+                      f"{current_time}.csv")
         new_file_name = (os.path.join(TMPDIR,
-                                      "sample-data/updated/",
-                                      (f"{author}."
-                                       f"{request.args.get('resource-id')}."
-                                       f"{current_time}.csv")))
+                                      f"sample-data/updated/{_file_name}.csv"))
         uploaded_file_name = (os.path.join(
-            TMPDIR,
-            "sample-data/updated/",
-            (f"updated.{author}."
-             f"{request.args.get('resource-id')}."
-             f"{current_time}.csv")))
+            TMPDIR, "sample-data/updated/updated.",
+            f"{_file_name}.csv"))
         file_.save(new_file_name)
         publishdata_id = ""
         lines = []
@@ -213,8 +209,7 @@ def update_phenotype(dataset_id: str, name: str):
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
         diff_output = (f"{TMPDIR}/sample-data/diffs/"
-                       f"{author}.{request.args.get('resource-id')}."
-                       f"{current_time}.json")
+                       f"{_file_name}.json")
         with open(diff_output, "w") as f:
             dict_ = json.loads(r.get("output"))
             dict_.update({
@@ -343,6 +338,7 @@ def update_probeset(name: str):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
+@login_required
 def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
     return Response(
         get_trait_csv_sample_data(
@@ -356,3 +352,31 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
         headers={"Content-disposition":
                  "attachment; filename=myplot.csv"}
     )
+
+
+# @metadata_edit.route("/diffs")
+# @login_required
+# def display_diffs_admin():
+#     TMPDIR = current_app.config.get("TMPDIR")
+#     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
+#     approved_files, rejected_files, files = {}, {}, {}
+#     user_id = ((g.user_session.record.get(b"user_id") or
+#                         b"").decode("utf-8")
+#                or g.user_session.record.get("user_id") or "")
+#     redis_conn = redis.from_url(current_app.config["REDIS_URL"],
+#                                     decode_responses=True)
+#     if os.path.exists(DIFF_DIR):
+#         for name in os.listdir(DIFF_DIR):
+#             if name.endswith(".approved"):
+                
+#                 approved_file.update{
+                    
+#                 }
+#                 approved_files.add(name)
+#             elif name.endswith(".rejected"):
+#                 approved_files.add(name)
+#             else:
+#                 files.append(name)
+#     return render_template("display_files_admin.html",
+#                            files=files)
+# http://localhost:5004/datasets/diffs/admin
