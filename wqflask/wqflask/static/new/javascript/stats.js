@@ -33,7 +33,8 @@ Stats = (function() {
     var is_odd, median_position, the_values_sorted;
     is_odd = this.the_values.length % 2;
     median_position = Math.floor(this.the_values.length / 2);
-    the_values_sorted = this.the_values.sort(function(a, b) {
+    let the_vals = [...this.the_values] // To prevent this.the_values from being sorted; there might be a better way to do this
+    the_values_sorted = the_vals.sort(function(a, b) {
       return a - b;
     });
     if (is_odd) {

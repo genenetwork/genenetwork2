@@ -55,6 +55,7 @@ class SampleList:
                 except KeyError:
                     sample = webqtlCaseData.webqtlCaseData(name=sample_name)
 
+            sample.original_value = sample.value # This is to store the initial value so the value can be changed on the trait page
             sample.extra_info = {}
             if (self.dataset.group.name == 'AXBXA'
                     and sample_name in ('AXB18/19/20', 'AXB13/14', 'BXA8/17')):

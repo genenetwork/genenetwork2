@@ -479,14 +479,35 @@ fetch_sample_values = function() {
   return sample_val_dict;
 }
 
+
+$(document).on('focusout', '.edit_sample_value', function(){
+  new_value = $(this).val();
+  row_id = $(this).parents('tr').attr('id')
+
+  if (new_value && row_id && (is_number(new_value) || new_value == "x")){
+    table_api = $("#samples_" + row_id.split("_")[0].toLowerCase()).DataTable();
+    row_number = parseInt(row_id.split("_")[1]);
+    row_data = table_api.row(row_number).data();
+    if (is_number(new_value)){
+      row_data.value = parseFloat(new_value)
+    } else {
+      row_data.value = "x"
+    }
+    table_api.row(row_number - 1).data(row_data);
+  }
+
+  edit_data_change();
+});
+
 edit_data_change = function() {
-  var already_seen, checkbox, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
+  var already_seen, sample_sets, table, tables, _i, _j, _len;
   already_seen = {};
   sample_sets = {
     samples_primary: new Stats([]),
     samples_other: new Stats([]),
     samples_all: new Stats([])
   };
+
   root.selected_samples = {
     samples_primary: {},
     samples_other: {},
@@ -494,22 +515,22 @@ edit_data_change = function() {
   };
 
   tables = ['samples_primary', 'samples_other'];
+  all_sample_vals = new Array();
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
     if ($('#' + table).length){
       table_api = $('#' + table).DataTable();
-      sample_vals = [];
-      name_nodes = table_api.column(2).nodes().to$();
-      val_nodes = table_api.column(3).nodes().to$();
-      var_nodes = table_api.column(5).nodes().to$();
-      for (_j = 0; _j < val_nodes.length; _j++){
-        sample_val = val_nodes[_j].childNodes[0].value
-        sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
-        if (is_number(sample_val) && sample_val !== "") {
+      table_rows = table_api.rows().data()
+
+      sample_vals = []
+      for (_j = 0; _j < table_rows.length; _j++){
+        sample_name = $.trim(table_rows[_j].name)
+        sample_val = table_rows[_j].value;
+        sample_var = table_rows[_j].variance;
+        if (is_number(sample_val) && (sample_val || sample_val == 0)) {
           sample_val = parseFloat(sample_val);
-          sample_sets[table].add_value(sample_val);
+          sample_vals.push(sample_val)
           try {
-            sample_var = var_nodes[_j].childNodes[0].value
             if (is_number(sample_var)) {
               sample_var = parseFloat(sample_var)
             } else {
@@ -518,21 +539,24 @@ edit_data_change = function() {
           } catch {
             sample_var = null;
           }
+
           sample_dict = {
             value: sample_val,
             variance: sample_var
           }
           root.selected_samples[table][sample_name] = sample_dict;
           if (!(sample_name in already_seen)) {
-            sample_sets['samples_all'].add_value(sample_val);
             root.selected_samples['samples_all'][sample_name] = sample_dict;
+            all_sample_vals.push(sample_val)
             already_seen[sample_name] = true;
           }
         }
       }
+      sample_sets[table] = new Stats(sample_vals)
     }
-
   }
+
+  sample_sets['samples_all'] = new Stats(all_sample_vals)
 
   update_stat_values(sample_sets);
 
@@ -901,6 +925,11 @@ reset_samples_table = function() {
     table = tables[_i];
     if ($('#' + table).length) {
       table_api = $('#' + table).DataTable();
+      table_api.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+        var data = this.data();
+        data.value = data.original_value
+      });
+
       val_nodes = table_api.column(3).nodes().to$();
       for (i = 0; i < val_nodes.length; i++) {
         this_node = val_nodes[i].childNodes[0];
@@ -913,7 +942,6 @@ reset_samples_table = function() {
           this_node.value = this_node.attributes["data-value"].value;
         }
       }
-      table_api.draw();
     }
   }
 };

@@ -50,7 +50,7 @@ build_columns = function() {
         if (data.value == null) {
             return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
         } else {
-            return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=' + js_data.max_digits[0] + '>'
+            return '<input type="text" data-value="' + data.original_value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=' + js_data.max_digits[0] + '>'
         }
       }
     }
@@ -168,8 +168,6 @@ if (js_data.sample_lists.length > 1){
 
 function loadDataTable(first_run=false, table_id, table_data){
 
-  console.log("COL DEFS:", columnDefs)
-
   if (!first_run){
     setUserColumnsDefWidths(table_id);
   }
@@ -181,11 +179,6 @@ function loadDataTable(first_run=false, table_id, table_data){
   }
 
   table_settings = {
-    'initComplete': function(settings, json) {
-    $('.edit_sample_value').change(function() {
-        edit_data_change();
-    });
-    },
     'createdRow': function ( row, data, index ) {
       $(row).attr('id', table_type + "_" + data.this_id)
       $(row).addClass("value_se");
