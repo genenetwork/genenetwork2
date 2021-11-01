@@ -3,10 +3,10 @@ import json
 import unittest
 
 from unittest import mock
-from wqflask.resource_manager import get_user_membership
-from wqflask.resource_manager import get_user_access_roles
-from wqflask.resource_manager import DataRole
-from wqflask.resource_manager import AdminRole
+from gn3.authentication import get_user_membership
+from gn3.authentication import get_highest_user_access_role
+from gn3.authentication import DataRole
+from gn3.authentication import AdminRole
 
 
 class TestGetUserMembership(unittest.TestCase):
@@ -56,7 +56,7 @@ class TestGetUserMembership(unittest.TestCase):
 
 
 class TestCheckUserAccessRole(unittest.TestCase):
-    """Test cases for `get_user_access_roles`"""
+    """Test cases for `get_highest_user_access_role`"""
 
     @mock.patch("wqflask.resource_manager.requests.get")
     def test_edit_access(self, requests_mock):
@@ -69,7 +69,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
             }
         ))
         type(requests_mock.return_value).content = response
-        self.assertEqual(get_user_access_roles(
+        self.assertEqual(get_highest_user_access_role(
             resource_id="0196d92e1665091f202f",
             user_id="8ad942fe-490d-453e-bd37"),
             {"data": DataRole.EDIT,
@@ -86,7 +86,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
             }
         ))
         type(requests_mock.return_value).content = response
-        self.assertEqual(get_user_access_roles(
+        self.assertEqual(get_highest_user_access_role(
             resource_id="0196d92e1665091f202f",
             user_id=""),
             {"data": DataRole.NO_ACCESS,
