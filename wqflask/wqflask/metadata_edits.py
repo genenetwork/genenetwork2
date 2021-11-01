@@ -49,6 +49,45 @@ from gn3.db.traits import update_sample_data
 metadata_edit = Blueprint('metadata_edit', __name__)
 
 
+def _get_diffs(diff_dir: str,
+               user_id: str,
+               redis_conn: redis.Redis,
+               gn_proxy_url: str):
+    def __get_file_metadata(file_name: str) -> Dict:
+        author, resource_id, time_stamp, *_ = file_name.split(".")
+
+        return {
+            "resource_id": resource_id,
+            "file_name": file_name,
+            "author": json.loads(redis_conn.hget("users",
+                                                 author)).get("full_name"),
+            "time_stamp": time_stamp,
+            "roles": get_highest_user_access_role(
+                resource_id=resource_id,
+                user_id=user_id,
+                gn_proxy_url=gn_proxy_url),
+        }
+
+    approved, rejected, waiting = [], [], []
+    if os.path.exists(diff_dir):
+        for name in os.listdir(diff_dir):
+            file_metadata = __get_file_metadata(file_name=name)
+            admin_status = file_metadata["roles"].get("admin")
+            append_p = (user_id in name or
+                        admin_status > AdminRole.EDIT_ACCESS)
+            if name.endswith(".rejected") and append_p:
+                rejected.append(__get_file_metadata(file_name=name))
+            elif name.endswith(".approved") and append_p:
+                approved.append(__get_file_metadata(file_name=name))
+            elif append_p:  # Normal file
+                waiting.append(__get_file_metadata(file_name=name))
+    return {
+        "approved": approved,
+        "rejected": rejected,
+        "waiting": waiting,
+    }
+
+
 def edit_phenotype(conn, name, dataset_id):
     publish_xref = fetchone(
         conn=conn,
@@ -185,7 +224,7 @@ def update_phenotype(dataset_id: str, name: str):
     data_ = request.form.to_dict()
     TMPDIR = current_app.config.get("TMPDIR")
     author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-               or g.user_session.record.get("user_id") or "")
+              or g.user_session.record.get("user_id") or "")
     phenotype_id = str(data_.get('phenotype-id'))
     if not (file_ := request.files.get("file")):
         flash("No sample-data has been uploaded", "warning")
@@ -201,13 +240,13 @@ def update_phenotype(dataset_id: str, name: str):
             os.makedirs(os.path.join(SAMPLE_DATADIR,
                                      "updated"))
         current_time = str(datetime.datetime.now().isoformat())
-        _file_name = (f"{request.args.get('resource-id')}."
-                      f"{current_time}.csv")
+        _file_name = (f"{author}.{request.args.get('resource-id')}."
+                      f"{current_time}")
         new_file_name = (os.path.join(TMPDIR,
                                       f"sample-data/updated/{_file_name}.csv"))
         uploaded_file_name = (os.path.join(
-            TMPDIR, "sample-data/updated/updated.",
-            f"{_file_name}.csv"))
+            TMPDIR, "sample-data/updated/",
+            f"{_file_name}.csv.uploaded"))
         file_.save(new_file_name)
         publishdata_id = ""
         lines = []
@@ -331,7 +370,7 @@ def update_probeset(name: str):
     }
     diff_data = {}
     author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-               or g.user_session.record.get("user_id") or "")
+              or g.user_session.record.get("user_id") or "")
     if (updated_probeset := update(
             conn, "ProbeSet",
             data=Probeset(**probeset_),
@@ -371,29 +410,88 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
     )
 
 
-# @metadata_edit.route("/diffs")
-# @login_required
-# def display_diffs_admin():
-#     TMPDIR = current_app.config.get("TMPDIR")
-#     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
-#     approved_files, rejected_files, files = {}, {}, {}
-#     user_id = ((g.user_session.record.get(b"user_id") or
-#                         b"").decode("utf-8")
-#                or g.user_session.record.get("user_id") or "")
-#     redis_conn = redis.from_url(current_app.config["REDIS_URL"],
-#                                     decode_responses=True)
-#     if os.path.exists(DIFF_DIR):
-#         for name in os.listdir(DIFF_DIR):
-#             if name.endswith(".approved"):
-                
-#                 approved_file.update{
-                    
-#                 }
-#                 approved_files.add(name)
-#             elif name.endswith(".rejected"):
-#                 approved_files.add(name)
-#             else:
-#                 files.append(name)
-#     return render_template("display_files_admin.html",
-#                            files=files)
-# http://localhost:5004/datasets/diffs/admin
+@metadata_edit.route("/diffs")
+@login_required
+def list_diffs():
+    files = _get_diffs(
+        diff_dir=f"{current_app.config.get('TMPDIR')}/sample-data/diffs",
+        user_id=((g.user_session.record.get(b"user_id") or
+                  b"").decode("utf-8")
+                 or g.user_session.record.get("user_id") or ""),
+        redis_conn=redis.from_url(current_app.config["REDIS_URL"],
+                                  decode_responses=True),
+        gn_proxy_url=current_app.config.get("GN2_PROXY"))
+    return render_template(
+            "display_files.html",
+            approved=files.get("approved"),
+            rejected=files.get("rejected"),
+            waiting=files.get("waiting"))
+
+
+@metadata_edit.route("/diffs/<name>")
+def show_diff(name):
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           name), 'r') as myfile:
+        content = myfile.read()
+    return Response(content, mimetype='text/json')
+
+# http://localhost:5004/datasets/diffs
+@metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
+@edit_admins_access_required
+@login_required
+def reject_data(resource_id: str, file_name: str):
+    TMPDIR = current_app.config.get("TMPDIR")
+    os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
+              os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           f"{file_name}.rejected"))
+    flash(f"{file_name} has been rejected!", "success")
+    return redirect(url_for('metadata_edit.list_diffs'))
+
+
+@metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
+@edit_admins_access_required
+@login_required
+def approve_data(resource_id:str, file_name: str):
+    sample_data = {file_name: str}
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           file_name), 'r') as myfile:
+        sample_data = json.load(myfile)
+    PUBLISH_ID = sample_data.get("publishdata_id")
+    modifications = [d for d in sample_data.get("Modifications")]
+    row_counts = len(modifications)
+    for modification in modifications:
+        if modification.get("Current"):
+            (strain_id,
+             strain_name,
+             value, se, count) = modification.get("Current").split(",")
+            update_sample_data(
+                conn=conn,
+                strain_name=strain_name,
+                strain_id=int(strain_id),
+                publish_data_id=int(PUBLISH_ID),
+                value=value,
+                error=se,
+                count=count
+            )
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(
+                       dataset_id=name.split(".")[0],  # use the dataset name
+                       editor=sample_data.get("author"),
+                       json_data=json.dumps(sample_data)))
+    if modifications:
+        # Once data is approved, rename it!
+        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
+                  os.path.join(f"{TMPDIR}/sample-data/diffs",
+                               f"{file_name}.approved"))
+        flash((f"Just updated data from: {file_name}; {row_counts} "
+               "row(s) modified!"),
+              "success")
+    return redirect(url_for('metadata_edit.list_diffs'))
+
