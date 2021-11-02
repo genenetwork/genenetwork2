@@ -167,9 +167,6 @@ if (js_data.sample_lists.length > 1){
 }
 
 function loadDataTable(first_run=false, table_id, table_data){
-
-  console.log("COL DEFS:", columnDefs)
-
   if (!first_run){
     setUserColumnsDefWidths(table_id);
   }
@@ -222,7 +219,6 @@ function loadDataTable(first_run=false, table_id, table_data){
     "sDom": "iti",
     "destroy": true,
     "autoWidth": false,
-    "deferRender": true,
     "bSortClasses": false,
     "scrollY": "100vh",
     "scrollCollapse": true,
