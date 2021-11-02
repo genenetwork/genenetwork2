@@ -178,11 +178,6 @@ function loadDataTable(first_run=false, table_id, table_data){
   }
 
   table_settings = {
-    'initComplete': function(settings, json) {
-    $('.edit_sample_value').change(function() {
-        edit_data_change();
-    });
-    },
     'createdRow': function ( row, data, index ) {
       $(row).attr('id', table_type + "_" + data.this_id)
       $(row).addClass("value_se");
