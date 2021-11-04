@@ -462,9 +462,7 @@ def approve_data(resource_id:str, file_name: str):
     with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
                            file_name), 'r') as myfile:
         sample_data = json.load(myfile)
-    PUBLISH_ID = sample_data.get("publishdata_id")
     modifications = [d for d in sample_data.get("Modifications")]
-    row_counts = len(modifications)
     for modification in modifications:
         if modification.get("Current"):
             (strain_id,
@@ -474,7 +472,7 @@ def approve_data(resource_id:str, file_name: str):
                 conn=conn,
                 strain_name=strain_name,
                 strain_id=int(strain_id),
-                publish_data_id=int(PUBLISH_ID),
+                publish_data_id=int(sample_data.get("publishdata_id")),
                 value=value,
                 error=se,
                 count=count
@@ -490,7 +488,7 @@ def approve_data(resource_id:str, file_name: str):
         os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
                   os.path.join(f"{TMPDIR}/sample-data/diffs",
                                f"{file_name}.approved"))
-        flash((f"Just updated data from: {file_name}; {row_counts} "
+        flash((f"Just updated data from: {file_name}; {len(modifications)} "
                "row(s) modified!"),
               "success")
     return redirect(url_for('metadata_edit.list_diffs'))
