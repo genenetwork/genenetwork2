@@ -271,7 +271,7 @@ def update_phenotype(dataset_id: str, name: str):
             dict_.update({
                 "author": author,
                 "publishdata_id": publishdata_id,
-                "dataset_id": data_.get("dataset-name"),
+                "dataset_id": name,
                 "timestamp": datetime.datetime.now().strftime(
                     "%Y-%m-%d %H:%M:%S")
             })
@@ -480,7 +480,7 @@ def approve_data(resource_id:str, file_name: str):
             insert(conn,
                    table="metadata_audit",
                    data=MetadataAudit(
-                       dataset_id=name.split(".")[0],  # use the dataset name
+                       dataset_id=sample_data.get("dataset_id"),
                        editor=sample_data.get("author"),
                        json_data=json.dumps(sample_data)))
     if modifications:
