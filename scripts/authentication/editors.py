@@ -24,7 +24,7 @@ if __name__ == "__main__":
                 {
                     "name": "editors",
                     "admins": [],
-                    "members": ["labwilliams@gmail.com"],
+                    "members": ["8ad942fe-490d-453e-bd37-56f252e41603"],
                     "changed_timestamp": timestamp,
                 }))
 
