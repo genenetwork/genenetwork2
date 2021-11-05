@@ -25,6 +25,7 @@ if __name__ == "__main__":
                     "name": "editors",
                     "admins": [],
                     "members": ["8ad942fe-490d-453e-bd37-56f252e41603"],
+                    "created_timestamp": timestamp,
                     "changed_timestamp": timestamp,
                 }))
 
