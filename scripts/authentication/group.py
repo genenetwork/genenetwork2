@@ -123,6 +123,7 @@ def create_group_data(users: Dict, target_group: str,
                 "name": target_group,
                 "admins": list(admin_ids),
                 "members": list(member_ids),
+                "created_timestamp": timestamp,
                 "changed_timestamp": timestamp,
             })}
 
