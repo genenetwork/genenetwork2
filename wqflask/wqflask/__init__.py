@@ -23,6 +23,8 @@ from wqflask.api.markdown import facilities_blueprint
 from wqflask.api.markdown import blogs_blueprint
 from wqflask.api.markdown import news_blueprint
 
+from wqflask.jupyter_notebooks import jupyter_notebooks
+
 app = Flask(__name__)
 
 
@@ -60,6 +62,7 @@ app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
 app.register_blueprint(news_blueprint, url_prefix="/news")
+app.register_blueprint(jupyter_notebooks, url_prefix="jupyter_notebooks")
 
 app.register_blueprint(resource_management, url_prefix="/resource-management")
 

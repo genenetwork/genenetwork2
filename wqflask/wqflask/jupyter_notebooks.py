@@ -2,8 +2,8 @@ from Flask import BluePrint, render_template
 
 jupyter_notebooks = Blueprint('jupyter_notebooks', __name__)
 
-@jupyter_notebooks.route("/jupyter-notebooks-launcher", methods=("GET",))
-def jupyter_notebooks_launcher():
+@jupyter_notebooks.route("/launcher", methods=("GET",))
+def launcher():
     links = (
     {
         "main_url": "http://notebook.genenetwork.org/51091/tree?",
