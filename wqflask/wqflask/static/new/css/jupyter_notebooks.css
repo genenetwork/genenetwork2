@@ -1,3 +1,7 @@
+.jupyter-links {
+    padding: 1.5em;
+}
+
 .jupyter-links:nth-of-type(2n) {
     background: #EEEEEE;
 }
