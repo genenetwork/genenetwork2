@@ -1,4 +1,4 @@
-from Flask import BluePrint, render_template
+from flask import Blueprint, render_template
 
 jupyter_notebooks = Blueprint('jupyter_notebooks', __name__)
 
