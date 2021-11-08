@@ -1,0 +1,16 @@
+.jupyter-links {
+    padding: 1.5em;
+}
+
+.jupyter-links:nth-of-type(2n) {
+    background: #EEEEEE;
+}
+
+.jupyter-links .main-link {
+    font-size: larger;
+    display: block;
+}
+
+.jupyter-links .src-link {
+    font-size: smaller;
+}
