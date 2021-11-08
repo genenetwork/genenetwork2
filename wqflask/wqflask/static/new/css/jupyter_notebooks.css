@@ -1,4 +1,4 @@
-.jupyter-links .main-link:nth-of-type(2n) {
+.jupyter-links:nth-of-type(2n) {
     background: #EEEEEE;
 }
 
