@@ -17,7 +17,10 @@
                         Create Group
                     </button>
                 </a>
-                <button type="button" id="remove_groups" class="btn btn-primary" data-url="/groups/remove">Remove Selected Groups</button>
+                <button type="button" id="remove_groups" class="btn btn-primary"
+                        data-url="{{ url_for('group_management.delete_groups') }}">
+                    Remove Selected Groups
+                </button>
             </div>
             {% endif %}
         </div>
