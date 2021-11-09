@@ -38,6 +38,9 @@
                                 <th>Name</th>
                                 <th>Email Address</th>
                                 <th>Organization</th>
+                                {% if is_admin %}
+                                <th>UID</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -48,6 +51,9 @@
                                 <td>{% if 'full_name' in admin %}{{ admin.full_name }}{% elif 'name' in admin %}{{ admin.name }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'email_address' in admin %}{{ admin.email_address }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'organization' in admin %}{{ admin.organization }}{% else %}N/A{% endif %}</td>
+                                {% if is_admin %}
+                                <td>{{admin.user_id}}</td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -75,6 +81,9 @@
                                 <th>Name</th>
                                 <th>Email Address</th>
                                 <th>Organization</th>
+                                {% if is_admin %}
+                                <th>UID</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -85,6 +94,10 @@
                                 <td>{% if 'full_name' in member %}{{ member.full_name }}{% elif 'name' in admin %}{{ admin.name }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'email_address' in member %}{{ member.email_address }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'organization' in member %}{{ member.organization }}{% else %}N/A{% endif %}</td>
+                                {% if is_admin %}
+                                <td>{{ member }}</td>
+                                {% endif %}
+
                             </tr>
                             {% endfor %}
                         </tbody>
