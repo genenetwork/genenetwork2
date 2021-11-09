@@ -7,6 +7,7 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
+{% set GROUP_URL = url_for('group_management.view_group', group_id=guid) %}
     <div class="container">
         <div class="page-header">
             <h1>
@@ -57,7 +58,7 @@
                             <input type="text" size="60" name="admin_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="/groups/add_admins">Add Admin(s)</button>
+                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="{{ GROUP_URL }}">Add Admin(s)</button>
                     </div>
                     {% endif %}
                 </div>
@@ -94,7 +95,7 @@
                             <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="/groups/add_members">Add Member(s)</button>
+                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="{{ GROUP_URL }}">Add Member(s)</button>
                     </div>
                     {% endif %}
                     {% else %}
@@ -230,7 +231,7 @@
                     new_name = $('input[name=new_group_name]').val()
                     $.ajax({
                         type: "POST",
-                        url: "/groups/change_name",
+                        url: "{{ GROUP_URL }} ",
                         data: {
                             group_id: $('input[name=group_id]').val(),
                             new_name: new_name
