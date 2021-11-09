@@ -14,7 +14,7 @@
                 <input type="text" name="new_group_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ group_info.name }}"> 
                 <button class="btn btn-default" style="display: inline;" id="change_group_name">Change Group Name</button>
             </h1>
-            {% if user_is_admin == true %}
+            {% if is_admin %}
             <div style="display: inline;">
                 <button type="button" id="remove_users" class="btn btn-danger" data-url="/groups/remove_users">Remove Selected Users from Group</button>
             </div>
@@ -51,7 +51,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% if user_is_admin == true %}
+                    {% if is_admin %}
                     <div style="margin-top: 20px;">
                             <span>E-mail of user to add to admins (multiple e-mails can be added separated by commas):</span>
                             <input type="text" size="60" name="admin_emails_to_add" placeholder="Enter E-mail(s)" value="">
@@ -88,7 +88,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% if user_is_admin == true %}
+                    {% if is_admin %}
                     <div style="margin-top: 20px;">
                             <span>E-mail of user to add to members (multiple e-mails can be added separated by commas):</span>
                             <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
@@ -99,7 +99,7 @@
                     {% endif %}
                     {% else %}
                     There are currently no members in this group.
-                    {% if user_is_admin == true %}
+                    {% if is_admin %}
                     <div style="margin-top: 20px;">
                             <span>E-mail of user to add to members (multiple e-mails can be added separated by commas):</span>
                             <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
