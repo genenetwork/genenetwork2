@@ -11,8 +11,8 @@
     <div class="container">
         <div class="page-header">
             <h1>
-                <span id="group_name">{{ group_info.name }}</span>
                 <input type="text" name="new_group_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ group_info.name }}"> 
+                <span id="group_name">Name: {{ group_info.name }}</span>
                 <button class="btn btn-default" style="display: inline;" id="change_group_name">Change Group Name</button>
             </h1>
             {% if is_admin %}
