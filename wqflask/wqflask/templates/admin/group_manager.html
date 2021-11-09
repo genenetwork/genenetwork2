@@ -58,11 +58,12 @@
                         <tr>
                             <td><input type="checkbox" name="group_id" value="{{ group.id }}"></td>
                             <td align="right">{{ loop.index }}</td>
-                            <td><a href="/groups/view?id={{ group.id }}">{{ group.name }}</a></td>
+                            {% set group_url = url_for('group_management.view_group', group_id=group.uuid) %}
+                            <td><a href="{{ group_url  }}">{{ group.name }}</a></td>
                             <td align="right">{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
-                            <td>{{ group.id }}</td>
+                            <td>{{ group.uuid }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -92,7 +93,8 @@
                         <tr>
                             <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
                             <td>{{ loop.index }}</td>
-                            <td><a href="/groups/view?id={{ group.id }}">{{ group.name }}</a></td>
+                            {% set group_url = url_for('group_management.view_group', group_id=group.uuid) %}
+                            <td><a href="{{ group_url }}">{{ group.name }}</a></td>
                             <td>{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
