@@ -18,7 +18,7 @@ group_management = Blueprint("group_management", __name__)
 
 @group_management.route("/groups")
 @login_required
-def view_groups():
+def display_groups():
     groups = get_groups_by_user_uid(
         user_uid=(g.user_session.record.get(b"user_id",
                                             b"").decode("utf-8") or
@@ -69,7 +69,7 @@ def create_new_group():
                      group_name=group_name,
                      member_user_uids=list(members_uid),
                      admin_user_uids=list(admins_uid))
-        return redirect(url_for('group_management.view_groups'))
+        return redirect(url_for('group_management.display_groups'))
     return redirect(url_for('group_management.create_groups'))
 
 
