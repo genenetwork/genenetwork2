@@ -40,10 +40,15 @@ ONE_YEAR = 60 * 60 * 24 * 365
 
 class ShowTrait:
     def __init__(self, user_id, kw):
+        self.admin_status = None
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
             self.trait_id = kw['trait_id']
             helper_functions.get_species_dataset_trait(self, kw)
+            self.admin_status = get_highest_user_access_role(
+                    user_id=user_id,
+                    resource_id=(self.resource_id or ""),
+                    gn_proxy_url=GN_PROXY_URL)
         elif 'group' in kw:
             self.temp_trait = True
             self.trait_id = "Temp_" + kw['species'] + "_" + kw['group'] + \
@@ -73,10 +78,7 @@ class ShowTrait:
             self.trait_vals = Redis.get(self.trait_id).split()
         self.resource_id = get_resource_id(self.dataset,
                                            self.trait_id)
-        self.admin_status = get_highest_user_access_role(
-                user_id=user_id,
-                resource_id=(self.resource_id or ""),
-                gn_proxy_url=GN_PROXY_URL)
+
         # ZS: Get verify/rna-seq link URLs
         try:
             blatsequence = self.this_trait.blatseq
