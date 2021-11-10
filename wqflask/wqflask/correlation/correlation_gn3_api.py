@@ -1,5 +1,7 @@
 """module that calls the gn3 api's to do the correlation """
 import json
+import time
+from functools import wraps
 
 from wqflask.correlation import correlation_functions
 
@@ -9,6 +11,7 @@ from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
 from gn3.computations.correlations import compute_all_sample_correlation
+from gn3.computations.correlations import fast_compute_all_sample_correlation
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.correlations import compute_tissue_correlation
@@ -19,9 +22,11 @@ def create_target_this_trait(start_vars):
     """this function creates the required trait and target dataset for correlation"""
 
     if start_vars['dataset'] == "Temp":
-        this_dataset = data_set.create_dataset(dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
+        this_dataset = data_set.create_dataset(
+            dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
     else:
-        this_dataset = data_set.create_dataset(dataset_name=start_vars['dataset'])
+        this_dataset = data_set.create_dataset(
+            dataset_name=start_vars['dataset'])
     target_dataset = data_set.create_dataset(
         dataset_name=start_vars['corr_dataset'])
     this_trait = create_trait(dataset=this_dataset,
@@ -187,10 +192,10 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     if corr_type == "sample":
         (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
-        correlation_results = compute_all_sample_correlation(corr_method=method,
-                                                             this_trait=this_trait_data,
-                                                             target_dataset=target_dataset_data)
 
+        correlation_results = fast_compute_all_sample_correlation(corr_method=method,
+                                                                  this_trait=this_trait_data,
+                                                                  target_dataset=target_dataset_data)
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
         tissue_input = get_tissue_correlation_input(
