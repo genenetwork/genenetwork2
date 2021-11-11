@@ -1,89 +1,91 @@
-"""module contains the code to do the 
-precomputations of sample data between
-two entire datasets"""
 
-import json
-from typing import List
-from base import data_set
+import os
+import hashlib
 
-from gn3.computations.correlations import compute_all_sample_correlation
-from gn3.computations.correlations import fast_compute_all_sample_correlation
-from gn3.computations.correlations import map_shared_keys_to_values
+from base.data_set import query_table_timestamp
+from base.webqtlConfig import TMPDIR
 
 
-def get_dataset_dict_data(dataset_obj):
-    """function to get the dataset data mapped to key"""
-    dataset_obj.get_trait_data(dataset_obj.group.all_samples_ordered())
-    return map_shared_keys_to_values(dataset_obj.samplelist,
-                                     dataset_obj.trait_data)
+def generate_filename(**kwargs):
+    """generate unique filename"""
+
+    base_dataset_name = kwargs["base_dataset"]
+    target_dataset_name = kwargs["target_dataset"]
+    base_timestamp = kwargs["base_timestamp"]
+    target_dataset_timestamp = kwargs["target_timestamp"]
+
+    string_unicode = f"{base_dataset_name}{target_dataset_name}{base_timestamp}{target_dataset_timestamp}sample_corr_compute".encode()
+    hashlib.md5(string_unicode).hexdigest()
 
 
-def fetch_datasets(base_dataset_name: str, target_dataset_name: str) ->List:
-    """query to fetch create datasets and fetch traits
-    all traits of a dataset"""
+def cache_compute_results(start_vars,
+    base_dataset_type,
+    correlation_results,
+    trait_name):
+    # pass
 
-    # doesnt work for temp
+    # init assumption only caching probeset type
+    # fix redis;issue potential redis_cache!=current_timestamp
+    base_timestamp = r.get(f"{base_dataset_type}timestamp")
 
-    base_dataset = data_set.create_dataset(dataset_name=base_dataset_name)
+    if base_timestamp is None:
+        # fetch the timestamp
+        base_timestamp = target_dataset_timestamp = query_table_timestamp(
+            dataset_type)
 
-    target_dataset = data_set.create_dataset(dataset_name=target_dataset_name)
-    # replace with map
+        r.set(f"{dataset_type}timestamp", target_dataset_timestamp)
 
-    return (map(get_dataset_dict_data,
-                [base_dataset, target_dataset]))
+    file_name = generate_filename(
+        base_dataset_name, target_dataset_name,
+        base_timestamp, target_dataset_timestamp)
 
+    file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
-# in the base dataset we just need the traits
-def pre_compute_sample_correlation(base_dataset: List,
-                                   target_dataset: List) -> List:
-    """function compute the correlation between the
-    a whole dataset against a target
-    input: target&base_dataset(contains traits and sample results)
-    output: list containing the computed results
+       try:
 
-    precaution:function is expensive;targets only Exon and
-    """
+            with open(file_path, "r+") as json_handler:
 
-    results = []
+                results = json.load(json_handler)
 
-    for trait_info in base_dataset:
+                if results.get(trait_name) is not None:
+                    results.update({trait_name: correlation_results})
 
-        result = fast_compute_all_sample_correlation(corr_method="pearson",
-                                                     this_trait=trait_info,
-                                                     target_dataset=target_dataset)
+                json.dump(results, json_handler)
 
-        # results.append(fast_compute_all_sample_correlation(corr_method="pearson",
-        #                                                    this_trait=trait_info,
-        #                                                    target_dataset=target_dataset))
-        print("finished")
-        print(result)
+        except FileNotFoundError:
+            with open(file_path, "w") as json_handler:
+                json.dump({trait_name: correlation_results}, json_handler)
 
-    return results
+def fetch_precompute_results(base_dataset_name,target_dataset_name,trait_name):
+    """function to check for precomputed  results"""
 
+    # check for redis timestamp
 
-def cache_to_file(base_dataset_name: str, target_dataset_name: str):
-    """function to cache the results to file"""
+    # fix rely on the fact correlation run oftenly probeset is set
 
-    # validate the datasets expiry first
-
-    base_dataset_data, target_dataset_data = [list(dataset) for dataset in list(
-        fetch_datasets(base_dataset_name, target_dataset_name))]
-
-    # print(target_dataset_data)
-
-    try:
-        # with open("unique_file_name.json", "w") as file_handler:
-        # file_handler.write()
-
-        dataset_correlation_results = pre_compute_sample_correlation(
-            base_dataset_data, target_dataset_data)
-        print(dataset_correlation_results)
-
-        # json.dump(dataset_correlation_results, file_handler)
-    except Exception as error:
-        raise error
+    base_timestamp = target_dataset_timestamp =  r.get(dataset_type)
 
 
-def check_cached_files_validity():
-    """function to check the validity of cached files"""
-    pass
+    if base_timestamp is None:
+        return
+
+    else:
+        file_name = generate_filename(
+        base_dataset_name, target_dataset_name,
+        base_timestamp, target_dataset_timestamp)
+
+        try:
+            with open(file_path,"r") as json_handler:
+                correlation_results = json.load(json_handler)
+
+                return correlation_results.get(trait_name)
+
+        except FileNotFoundError:
+            pass
+
+
+
+
+
+
+
