@@ -15,7 +15,7 @@ def generate_filename(**kwargs):
     target_dataset_timestamp = kwargs["target_timestamp"]
 
     string_unicode = f"{base_dataset_name}{target_dataset_name}{base_timestamp}{target_dataset_timestamp}sample_corr_compute".encode()
-    hashlib.md5(string_unicode).hexdigest()
+    return hashlib.md5(string_unicode).hexdigest()
 
 
 def cache_compute_results(start_vars,
