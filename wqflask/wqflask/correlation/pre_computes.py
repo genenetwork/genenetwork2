@@ -47,7 +47,7 @@ def cache_compute_results(start_vars,
 
                 results = json.load(json_handler)
 
-                if results.get(trait_name) is not None:
+                if results.get(trait_name) is  None:
                     results.update({trait_name: correlation_results})
 
                 json.dump(results, json_handler)
