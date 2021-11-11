@@ -1,5 +1,6 @@
 import json
 import redis
+import datetime
 
 from flask import current_app
 from flask import Blueprint
@@ -87,4 +88,70 @@ def delete_groups():
             # A user who is an admin can delete things
             if user_uid in group_info.get("admins"):
                 conn.hdel("groups", group_uid)
-    return redirect(url_for('group_management.view_groups'))
+    return redirect(url_for('group_management.display_groups'))
+
+
+@group_management.route("/groups/<group_id>")
+@login_required
+def view_group(group_id: str):
+    conn = redis.from_url(current_app.config["REDIS_URL"],
+                          decode_responses=True)
+    user_uid = (g.user_session.record.get(b"user_id", b"").decode("utf-8") or
+                g.user_session.record.get("user_id", ""))
+
+    resource_info = []
+    for resource_uid, resource in conn.hgetall("resources").items():
+        resource = json.loads(resource)
+        if group_id in (group_mask := resource.get("group_masks")):
+            __dict = {}
+            for val in group_mask.values():
+                __dict.update(val)
+            __dict.update({
+                "id": resource_uid,
+                "name": resource.get("name"),
+            })
+            resource_info.append(__dict)
+    group_info = json.loads(conn.hget("groups",
+                                      group_id))
+    group_info["guid"] = group_id
+
+    return render_template(
+         "admin/view_group.html",
+         group_info=group_info,
+         admins=[get_user_info_by_key(key="user_id",
+                                      value=user_id,
+                                      conn=conn)
+                 for user_id in group_info.get("admins")],
+         members=[get_user_info_by_key(key="user_id",
+                                      value=user_id,
+                                      conn=conn)
+                 for user_id in group_info.get("members")],
+         is_admin = (True if user_uid in group_info.get("admins") else False),
+         resources=resource_info)
+            
+
+@group_management.route("/groups/<group_id>", methods=("POST",))
+def update_group(group_id: str):
+    conn = redis.from_url(current_app.config["REDIS_URL"],
+                          decode_responses=True)
+    user_uid = (g.user_session.record.get(b"user_id", b"").decode("utf-8") or
+                g.user_session.record.get("user_id", ""))
+    group = json.loads(conn.hget("groups", group_id))
+    timestamp = group["changed_timestamp"]
+    timestamp_ = datetime.datetime.utcnow().strftime('%b %d %Y %I:%M%p')
+    if user_uid in group.get("admins"):
+        if name := request.form.get("new_name"):
+            group["name"] = name
+            group["changed_timestamp"] = timestamp_
+        if admins := request.form.get("admin_emails_to_add"):
+            group["admins"] = list(set(admins.split(":") +
+                                       group.get("admins")))
+            group["changed_timestamp"] = timestamp_
+        if members := request.form.get("member_emails_to_add"):
+            print(f"\n+++++\n{members}\n+++++\n")
+            group["members"] = list(set(members.split(":") +
+                                        group.get("members")))
+            group["changed_timestamp"] = timestamp_
+        conn.hset("groups", group_id, json.dumps(group))
+    return redirect(url_for('group_management.view_group',
+                            group_id=group_id))
