@@ -6,12 +6,14 @@ import json
 from typing import List
 from base import data_set
 
+from gn3.computations.correlations import compute_all_sample_correlation
 from gn3.computations.correlations import fast_compute_all_sample_correlation
 from gn3.computations.correlations import map_shared_keys_to_values
 
+
 def get_dataset_dict_data(dataset_obj):
     """function to get the dataset data mapped to key"""
-    dataset_obj.get_trait_data()
+    dataset_obj.get_trait_data(dataset_obj.group.all_samples_ordered())
     return map_shared_keys_to_values(dataset_obj.samplelist,
                                      dataset_obj.trait_data)
 
@@ -42,11 +44,21 @@ def pre_compute_sample_correlation(base_dataset: List,
     precaution:function is expensive;targets only Exon and
     """
 
+    results = []
+
     for trait_info in base_dataset:
 
-        yield fast_compute_all_sample_correlation(corr_method="pearson",
-                                                  this_trait=trait_info,
-                                                  target_dataset=target_dataset)
+        result = fast_compute_all_sample_correlation(corr_method="pearson",
+                                                     this_trait=trait_info,
+                                                     target_dataset=target_dataset)
+
+        # results.append(fast_compute_all_sample_correlation(corr_method="pearson",
+        #                                                    this_trait=trait_info,
+        #                                                    target_dataset=target_dataset))
+        print("finished")
+        print(result)
+
+    return results
 
 
 def cache_to_file(base_dataset_name: str, target_dataset_name: str):
@@ -57,16 +69,21 @@ def cache_to_file(base_dataset_name: str, target_dataset_name: str):
     base_dataset_data, target_dataset_data = [list(dataset) for dataset in list(
         fetch_datasets(base_dataset_name, target_dataset_name))]
 
+    # print(target_dataset_data)
 
     try:
-        with open("unique_file_name.json", "w") as file_handler:
-        file_handler.write()
+        # with open("unique_file_name.json", "w") as file_handler:
+        # file_handler.write()
 
-        dataset_correlation_results = list(pre_compute_sample_correlation(
-            base_dataset_data, target_dataset_data))
-
+        dataset_correlation_results = pre_compute_sample_correlation(
+            base_dataset_data, target_dataset_data)
         print(dataset_correlation_results)
 
-        json.dump(dataset_correlation_results, file_handler)
+        # json.dump(dataset_correlation_results, file_handler)
     except Exception as error:
         raise error
+
+
+def check_cached_files_validity():
+    """function to check the validity of cached files"""
+    pass
