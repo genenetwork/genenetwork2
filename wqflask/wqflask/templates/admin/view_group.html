@@ -7,8 +7,9 @@
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-{% set GROUP_URL = url_for('group_management.view_group', group_id=guid) %}
-    <div class="container">
+{% set GROUP_URL = url_for('group_management.view_group', group_id=group_info.guid) %}
+{% set UPDATE_GROUP_URL = url_for('group_management.update_group', group_id=group_info.guid) %}
+<div class="container">
         <div class="page-header">
             <h1>
                 <span id="group_name">Name: {{ group_info.name }}</span>
@@ -23,7 +24,7 @@
             </div>
             {% endif %}
         </div>
-        <form id="group_form" action="/groups/view" method="POST">
+        <form id="group_form" action="{{ UPDATE_GROUP_URL }}" method="POST">
             <input type="hidden" name="group_id" value="{{ group_info.id }}">
             <input type="hidden" name="selected_admin_ids" value="">
             <input type="hidden" name="selected_member_ids" value="">
@@ -66,7 +67,7 @@
                             <input type="text" size="60" name="admin_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="{{ GROUP_URL }}">Add Admin(s)</button>
+                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="{{ UPDATE_GROUP_URL }}">Add Admin(s)</button>
                     </div>
                     {% endif %}
                 </div>
@@ -126,7 +127,7 @@
                             <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="/groups/add_members">Add Member(s)</button>
+                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="{{ GROUP_URL }}">Add Member(s)</button>
                     </div>
                     {% endif %}
                     {% endif %}
@@ -240,6 +241,7 @@
 
             $("#add_admins, #add_members").on("click", function() {
                 url = $(this).data("url");
+                console.log(url)
                 return submit_special(url)
             });
 
