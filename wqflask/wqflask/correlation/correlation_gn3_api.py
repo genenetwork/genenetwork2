@@ -290,7 +290,7 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
     """Gets tissue expression values for the primary trait and target tissues values"""
     primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
         symbol_list=[this_trait.symbol])
-    if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
+    if this_trait.symbol  and this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
         primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
         )]
         corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
