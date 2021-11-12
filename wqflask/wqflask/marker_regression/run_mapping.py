@@ -556,7 +556,8 @@ def export_mapping_results(dataset, trait, markers, results_path, mapping_method
                 transform_text = ""
             output_file.write(transform_text + "\n")
         if dataset.type == "ProbeSet":
-            output_file.write("Gene Symbol: " + trait.symbol + "\n")
+            if trait.symbol:
+                output_file.write("Gene Symbol: " + trait.symbol + "\n")
             output_file.write("Location: " + str(trait.chr) + \
                               " @ " + str(trait.mb) + " Mb\n")
         if len(covariates) > 0:
