@@ -62,8 +62,10 @@ class SearchResultPage:
             self.search_term_exists = True
 
         self.results = []
+        max_result_count = 100000 # max number of results to display
         type = kw.get('type')
         if type == "Phenotypes":     # split datatype on type field
+            max_result_count = 50000
             dataset_type = "Publish"
         elif type == "Genotypes":
             dataset_type = "Geno"
@@ -81,7 +83,7 @@ class SearchResultPage:
 
         self.too_many_results = False
         if self.search_term_exists:
-            if len(self.results) > 50000:
+            if len(self.results) > max_result_count:
                 self.trait_list = []
                 self.too_many_results = True
             else:
