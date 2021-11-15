@@ -4,7 +4,8 @@ import time
 from functools import wraps
 
 from wqflask.correlation import correlation_functions
-
+from wqflask.correlation.pre_computes import fetch_precompute_results
+from wqflask.correlation.pre_computes import cache_compute_results
 from base import data_set
 
 from base.trait import create_trait
@@ -193,9 +194,21 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
         (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
 
-        correlation_results = fast_compute_all_sample_correlation(corr_method=method,
-                                                                  this_trait=this_trait_data,
-                                                                  target_dataset=target_dataset_data)
+        correlation_results = fetch_precompute_results(
+            this_dataset.name, target_dataset.name, this_dataset.type, this_trait.name)
+
+        if correlation_results is None:
+            correlation_results = fast_compute_all_sample_correlation(corr_method=method,
+                                                                      this_trait=this_trait_data,
+                                                                      target_dataset=target_dataset_data)
+
+            cache_compute_results(this_dataset.type,
+                                  this_dataset.name,
+                                  target_dataset.name,
+                                  corr_method,
+                                  correlation_results,
+                                  this_trait.name)
+
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
         tissue_input = get_tissue_correlation_input(
@@ -295,7 +308,7 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
     """Gets tissue expression values for the primary trait and target tissues values"""
     primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
         symbol_list=[this_trait.symbol])
-    if this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
+    if this_trait.symbol and this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
         primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
         )]
         corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
