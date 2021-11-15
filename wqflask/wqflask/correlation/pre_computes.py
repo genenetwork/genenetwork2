@@ -86,7 +86,6 @@ def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_typ
 
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
-    results = None
 
     try:
         with open(file_path, "r+") as json_handler:
@@ -130,15 +129,19 @@ def get_datasets_data(base_dataset, target_dataset_data):
     """required to pass data in a given format to the pre compute
     function
 
+    (works for bxd only probeset datasets)
+
+    # fix issue with fetching of the datasets
+
     output:two dicts for datasets with key==trait and value==strains
     """
+    samples_fetched = base_dataset.group.all_samples_ordered()
     target_traits_data = target_dataset.get_trait_data(
-        base_dataset.group.all_samples_ordered())
+        samples_fetched)
 
     base_traits_data = base_dataset.get_trait_data(
-        base_dataset.group.all_samples_ordered())
+        samples_fetched)
 
-    samples_fetched = base_dataset.group.all_samples_ordered()
 
     target_results = map_shared_keys_to_values(
         samples_fetched, target_traits_data)
