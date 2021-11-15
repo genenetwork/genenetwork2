@@ -4,6 +4,7 @@ import hashlib
 
 from base.data_set import query_table_timestamp
 from base.webqtlConfig import TMPDIR
+from json.decoder import JSONDecodeError
 from redis import Redis
 
 r = Redis()
@@ -26,35 +27,49 @@ def cache_compute_results(base_dataset_type,
 
     # init assumption only caching probeset type
     # fix redis;issue potential redis_cache!=current_timestamp
-    base_timestamp = r.get(f"{base_dataset_type}timestamp")
 
-    if base_timestamp is None:
-        # fetch the timestamp
-        base_timestamp = query_table_timestamp(
-            base_dataset_type)
-        r.set(f"{base_dataset_type}timestamp", base_timestamp)
+    base_timestamp = query_table_timestamp(base_dataset_type)
+
+    r.set(f"{base_dataset_type}timestamp", base_timestamp)
 
     target_dataset_timestamp = base_timestamp
+
+
 
     file_name = generate_filename(
         base_dataset_name, target_dataset_name,
         base_timestamp, target_dataset_timestamp)
 
-    file_path = os.path.join(TMPDIR, f"{file_name}.json")
+
+    file_path = os.path.join(TMPDIR,f"{file_name}.json")
+
 
     try:
+        with open(file_path,"r+") as json_file_handler:
+            data = json.load(json_file_handler)
 
-        with open(file_path, "r+") as json_handler:
+            data[trait_name] = correlation_results
 
-            results = json.load(json_handler)
-            results[trait_name] = correlation_results
+            json_file_handler.seek(0)
 
-            json.dump(results, json_handler)
+            json.dump(data,json_file_handler)
 
+            json_file_handler.truncate()
+        
     except FileNotFoundError:
+        with open(file_path,"w+") as file_handler:
+            data = {}
+            data[trait_name] =correlation_results
 
-        with open(file_path, "w+") as write_json_handler:
-            json.dump({trait_name: correlation_results}, write_json_handler)
+            json.dump(data,file_handler)
+
+
+
+    # create the file only if it does not exists
+
+    # else open the file to cache the results
+
+    
 
 
 def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_type, trait_name):
@@ -65,9 +80,11 @@ def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_typ
     # fix rely on the fact correlation run oftenly probeset is set
 
     base_timestamp = target_dataset_timestamp = r.get(f"{dataset_type}timestamp")
-
     if base_timestamp is None:
         return
+
+    else:
+        base_timestamp = target_dataset_timestamp = base_timestamp.decode("utf-8")
 
     file_name = generate_filename(
         base_dataset_name, target_dataset_name,
@@ -75,10 +92,14 @@ def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_typ
 
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
+    results = None
+
     try:
-        with open(file_path, "r") as json_handler:
+        with open(file_path, "r+") as json_handler:
             correlation_results = json.load(json_handler)
-            return correlation_results.get(trait_name)
+            # print(correlation_results)
+
+        return correlation_results.get(trait_name)
 
     except FileNotFoundError:
         pass
