@@ -108,17 +108,20 @@ def pre_compute_dataset_vs_dataset(base_dataset, target_dataset, corr_method):
     """
     dataset_correlation_results = {}
 
-    for (trait_name, strain_values) in target_dataset.trait_data:
+    target_traits_data, base_traits_data = get_datasets_data(
+        base_dataset, target_dataset_data)
+
+    for (primary_trait_name, strain_values) in base_traits_data:
 
         this_trait_data = {
             "trait_sample_data": strain_values,
-            "trait_id": trait_name
+            "trait_id": primary_trait_name
         }
 
         trait_correlation_result = fast_compute_all_sample_correlation(
-            corr_method=corr_method, this_trait=this_trait_data, target_dataset=target_dataset_data)
+            corr_method=corr_method, this_trait=this_trait_data, target_dataset=target_traits_data)
 
-        dataset_correlation_results[trait_name] = trait_correlation_result
+        dataset_correlation_results[primary_trait_name] = trait_correlation_result
 
     return dataset_correlation_results
 
