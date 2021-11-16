@@ -810,7 +810,7 @@ class DataSet:
                 trait_name = trait_sample_data[0][trait_counter][0]
                 for chunk_counter in range(int(number_chunks)):
                     self.trait_data[trait_name] += (
-                    trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
+                        trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
             cache_dataset_results(
                 self.name, self.type, self.trait_data)
@@ -818,6 +818,8 @@ class DataSet:
         else:
 
             self.trait_data = cached_results
+
+
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
 
@@ -1291,7 +1293,7 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
 
     results = r.set(f"{dataset_type}timestamp", table_timestamp)
 
-    file_name = generate_hash_file(dataset_name, table_timestamp)
+    file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
     with open(file_path, "w") as file_handler:
@@ -1308,7 +1310,7 @@ def fetch_cached_results(dataset_name: str, dataset_type: str):
     else:
         table_timestamp = ""
 
-    file_name = generate_hash_file(dataset_name, table_timestamp)
+    file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
