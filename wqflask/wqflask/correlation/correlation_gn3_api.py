@@ -194,20 +194,8 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
         (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
 
-        correlation_results = fetch_precompute_results(
-            this_dataset.name, target_dataset.name, this_dataset.type, this_trait.name)
-
-        if correlation_results is None:
-            correlation_results = fast_compute_all_sample_correlation(corr_method=method,
-                                                                      this_trait=this_trait_data,
-                                                                      target_dataset=target_dataset_data)
-
-            cache_compute_results(this_dataset.type,
-                                  this_dataset.name,
-                                  target_dataset.name,
-                                  corr_method,
-                                  correlation_results,
-                                  this_trait.name)
+        correlation_results = compute_all_sample_correlation(
+            corr_method=method, this_trait=this_trait_data, target_dataset=target_dataset_data)
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
