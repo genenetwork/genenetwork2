@@ -1263,7 +1263,7 @@ def query_table_timestamp(dataset_type: str):
     # computation data and actions
 
     query_update_time = f"""
-                    SELECT UPDATE_TIME FROM   information_schema.tables
+                    SELECT UPDATE_TIME FROM   information_schfema.tables
                     WHERE  TABLE_SCHEMA = 'db_webqtl_s'
                     AND TABLE_NAME = '{dataset_type}Data'
                 """
@@ -1275,7 +1275,7 @@ def query_table_timestamp(dataset_type: str):
     return date_time_obj.strftime(f)
 
 
-def generate_hash_file(dataset_name: str, dataset_timestamp: str):
+def generate_hash_file(dataset_name: str, dataset_type: str, dataset_timestamp: str):
     """given the trait_name generate a unique name for this"""
     string_unicode = f"{dataset_name}{dataset_timestamp}".encode()
     md5hash = hashlib.md5(string_unicode)
@@ -1317,5 +1317,4 @@ def fetch_cached_results(dataset_name: str, dataset_type: str):
 
             return json.load(file_handler)
     except FileNotFoundError:
-        # take actions continue to fetch dataset results and fetch results
         pass
