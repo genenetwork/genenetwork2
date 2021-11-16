@@ -747,9 +747,7 @@ class DataSet:
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
         results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results.get(item) for item in self.samplelist]
-
-        sample_ids = [ids for ids in sample_ids if ids is not None]
+        sample_ids = [results.get(item) for item in self.samplelist if item is not None]
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
@@ -1263,7 +1261,7 @@ def query_table_timestamp(dataset_type: str):
     # computation data and actions
 
     query_update_time = f"""
-                    SELECT UPDATE_TIME FROM   information_schfema.tables
+                    SELECT UPDATE_TIME FROM   information_schema.tables
                     WHERE  TABLE_SCHEMA = 'db_webqtl_s'
                     AND TABLE_NAME = '{dataset_type}Data'
                 """
