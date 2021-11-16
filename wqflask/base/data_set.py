@@ -1263,7 +1263,7 @@ def query_table_timestamp(dataset_type: str):
 
     query_update_time = f"""
                     SELECT UPDATE_TIME FROM   information_schema.tables
-                    WHERE  TABLE_SCHEMA = 'db_webqtl_s'
+                    WHERE  TABLE_SCHEMA = 'db_webqtl'
                     AND TABLE_NAME = '{dataset_type}Data'
                 """
 
