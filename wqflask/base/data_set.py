@@ -747,7 +747,9 @@ class DataSet:
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
         results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results[item] for item in self.samplelist]
+        sample_ids = [results.get(item) for item in self.samplelist]
+
+        sample_ids = [ids for ids in sample_ids if ids is not None]
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
@@ -800,25 +802,22 @@ class DataSet:
                 results = g.db.execute(query).fetchall()
                 trait_sample_data.append([list(result) for result in results])
 
-            cache_dataset_results(
-                self.name, self.type, trait_sample_data)
+            trait_count = len(trait_sample_data[0])
+            self.trait_data = collections.defaultdict(list)
 
-        else:
-            trait_sample_data = cached_results
-
-        trait_count = len(trait_sample_data[0])
-        self.trait_data = collections.defaultdict(list)
-
-        # put all of the separate data together into a dictionary where the keys are
-        # trait names and values are lists of sample values
-        data_start_pos = 1
-        for trait_counter in range(trait_count):
-            trait_name = trait_sample_data[0][trait_counter][0]
-            for chunk_counter in range(int(number_chunks)):
-                self.trait_data[trait_name] += (
+            data_start_pos = 1
+            for trait_counter in range(trait_count):
+                trait_name = trait_sample_data[0][trait_counter][0]
+                for chunk_counter in range(int(number_chunks)):
+                    self.trait_data[trait_name] += (
                     trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
+            cache_dataset_results(
+                self.name, self.type, self.trait_data)
 
+        else:
+
+            self.trait_data = cached_results
 class PhenotypeDataSet(DataSet):
     DS_NAME_MAP['Publish'] = 'PhenotypeDataSet'
 
@@ -1282,7 +1281,9 @@ def generate_hash_file(dataset_name: str, dataset_timestamp: str):
 
 
 def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: List):
-    """function to cache dataset query results to file"""
+    """function to cache dataset query results to file
+    input dataset_name and type query_results(already processed in default dict format)
+    """
     # data computations actions
     # store the file path on redis
 
