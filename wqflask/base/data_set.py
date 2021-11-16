@@ -755,7 +755,7 @@ class DataSet:
         chunk_size = 50
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
         cached_results = fetch_cached_results(self.name, self.type)
-        # cached_results =    None
+
         if cached_results is None:
             trait_sample_data = []
             for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
@@ -1309,10 +1309,9 @@ def fetch_cached_results(dataset_name: str, dataset_type: str):
 
     file_name = generate_hash_file(dataset_name, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
-    try:
-        with open(file_path, "r") as file_handler:
-
+    with open(file_path, "r") as file_handler:
+        try:
             return json.load(file_handler)
-    except FileNotFoundError:
-        # take actions continue to fetch dataset results and fetch results
-        pass
+        except FileNotFoundError:
+            # take actions continue to fetch dataset results and fetch results
+            return None

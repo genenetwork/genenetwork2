@@ -91,13 +91,13 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
     file_path = os.path.join(TMPDIR, file_name)
     new_traits_metadata = {}
 
-    try:
-        with open(file_path,"r+") as file_handler:
-            dataset_metadata = json.load(file_handler)
 
-    except FileNotFoundError:
-        Path(file_path).touch(exist_ok=True)
-        dataset_metadata = {}
+    with open(file_path,"r+") as file_handler:
+        try:
+            dataset_metadata = json.load(file_handler)
+        except FileNotFoundError:
+            Path(file_path).touch(exist_ok=True)
+            dataset_metadata = {}
 
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
