@@ -1258,12 +1258,12 @@ def geno_mrna_confidentiality(ob):
         return True
 
 
-
 def parse_db_url():
     parsed_db = urlparse(SQL_URI)
 
     return (parsed_db.hostname, parsed_db.username,
             parsed_db.password, parsed_db.path[1:])
+
 
 def query_table_timestamp(dataset_type: str):
     """function to query the update timestamp of a given dataset_type"""
@@ -1271,18 +1271,14 @@ def query_table_timestamp(dataset_type: str):
     # computation data and actions
 
     fetch_db_name = parse_db_url()
-
     query_update_time = f"""
                     SELECT UPDATE_TIME FROM   information_schema.tables
-                    WHERE  TABLE_SCHEMA = {fetch_db_name[-1]}
+                    WHERE  TABLE_SCHEMA = '{fetch_db_name[-1]}'
                     AND TABLE_NAME = '{dataset_type}Data'
                 """
 
-    # store the timestamp in redis=
     date_time_obj = g.db.execute(query_update_time).fetchone()[0]
-
-    f = "%Y-%m-%d %H:%M:%S"
-    return date_time_obj.strftime(f)
+    return date_time_obj.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def generate_hash_file(dataset_name: str, dataset_type: str, dataset_timestamp: str):
@@ -1300,6 +1296,7 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
     # store the file path on redis
 
     table_timestamp = query_table_timestamp(dataset_type)
+
 
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
