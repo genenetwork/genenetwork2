@@ -1,6 +1,7 @@
 import json
 import os
 import hashlib
+from pathlib import Path
 
 from base.data_set import query_table_timestamp
 from base.webqtlConfig import TMPDIR
@@ -25,8 +26,22 @@ def fetch_all_cached_metadata(dataset_name):
         Path(file_path).touch(exist_ok=True)
         return {}
 
-    return dataset_metadata
+    return (file_path, dataset_metadata)
 
+    if bool(new_traits_metadata):
+        # that means new traits exists
+        dataset_metadata.update(new_traits_metadata)
+        with open(file_path, "w+") as file_handler:
+            json.dump(dataset_metadata, file_handler)
+
+
+def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_path: str):
+    """function to cache the new traits metadata"""
+
+    if bool(new_traits_metadata):
+        dataset_metadata.update(new_traits_metadata)
+        with open(file_path,"w+") as file_handler:
+            json.dump(dataset_metadata,file_handler)
 
 
 def generate_filename(base_dataset_name, target_dataset_name, base_timestamp, target_dataset_timestamp):
