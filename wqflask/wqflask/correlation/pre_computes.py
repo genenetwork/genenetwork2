@@ -9,6 +9,25 @@ from redis import Redis
 
 r = Redis()
 
+# code to isolate metadata caching
+
+
+def fetch_all_cached_metadata(dataset_name):
+    """in a gvein dataset fetch all the traits metadata"""
+    file_name = f"{dataset_name}_metadata.json"
+
+    file_path = os.path.join(TMPDIR, file_name)
+
+    with open(file_path, "r+") as file_handler:
+        dataset_metadata = json.load(file_handler)
+
+    except FileNotFoundError:
+        Path(file_path).touch(exist_ok=True)
+        return {}
+
+    return dataset_metadata
+
+
 
 def generate_filename(base_dataset_name, target_dataset_name, base_timestamp, target_dataset_timestamp):
     """generate unique filename"""
@@ -60,17 +79,9 @@ def cache_compute_results(base_dataset_type,
 
             json.dump(data, file_handler)
 
-    # create the file only if it does not exists
-
-    # else open the file to cache the results
-
 
 def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_type, trait_name):
     """function to check for precomputed  results"""
-
-    # check for redis timestamp
-
-    # fix rely on the fact correlation run oftenly probeset is set
 
     base_timestamp = target_dataset_timestamp = r.get(f"{dataset_type}timestamp")
     if base_timestamp is None:
@@ -86,11 +97,9 @@ def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_typ
 
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
-
     try:
         with open(file_path, "r+") as json_handler:
             correlation_results = json.load(json_handler)
-            # print(correlation_results)
 
         return correlation_results.get(trait_name)
 
@@ -131,8 +140,6 @@ def get_datasets_data(base_dataset, target_dataset_data):
 
     (works for bxd only probeset datasets)
 
-    # fix issue with fetching of the datasets
-
     output:two dicts for datasets with key==trait and value==strains
     """
     samples_fetched = base_dataset.group.all_samples_ordered()
@@ -141,7 +148,6 @@ def get_datasets_data(base_dataset, target_dataset_data):
 
     base_traits_data = base_dataset.get_trait_data(
         samples_fetched)
-
 
     target_results = map_shared_keys_to_values(
         samples_fetched, target_traits_data)
