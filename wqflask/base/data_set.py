@@ -40,6 +40,7 @@ from base import species
 from base import webqtlConfig
 from flask import Flask, g
 from base.webqtlConfig import TMPDIR
+from gn3.db_utils import parse_db_url
 import os
 import math
 import string
@@ -747,7 +748,8 @@ class DataSet:
             and Species.name = '{}'
             """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
         results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results.get(item) for item in self.samplelist if item is not None]
+        sample_ids = [results.get(item)
+                      for item in self.samplelist if item is not None]
 
         # MySQL limits the number of tables that can be used in a join to 61,
         # so we break the sample ids into smaller chunks
@@ -1260,9 +1262,11 @@ def query_table_timestamp(dataset_type: str):
 
     # computation data and actions
 
+    fetch_db_name = parse_db_url()
+
     query_update_time = f"""
                     SELECT UPDATE_TIME FROM   information_schema.tables
-                    WHERE  TABLE_SCHEMA = 'db_webqtl_s'
+                    WHERE  TABLE_SCHEMA = {fetch_db_name[-1]}
                     AND TABLE_NAME = '{dataset_type}Data'
                 """
 
