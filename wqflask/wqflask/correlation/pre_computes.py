@@ -13,8 +13,9 @@ def fetch_all_cached_metadata(dataset_name):
 
     file_path = os.path.join(TMPDIR, file_name)
 
-    with open(file_path, "r+") as file_handler:
-        dataset_metadata = json.load(file_handler)
+    try:
+        with open(file_path, "r+") as file_handler:
+            dataset_metadata = json.load(file_handler)
 
     except FileNotFoundError:
         Path(file_path).touch(exist_ok=True)
@@ -30,6 +31,13 @@ def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_
         dataset_metadata.update(new_traits_metadata)
         with open(file_path, "w+") as file_handler:
             json.dump(dataset_metadata, file_handler)
+
+
+def generate_file_name(*args, prefix=""):
+    """given a list of args generate a unique filename"""
+
+    string_unicode = f"{*args,}{prefix}".encode()
+    return hashlib.md5(string_unicode).hexdigest()
 
 
 def generate_filename(base_dataset_name, target_dataset_name, base_timestamp, target_dataset_timestamp):
