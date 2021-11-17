@@ -1301,8 +1301,6 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
 
     table_timestamp = query_table_timestamp(dataset_type)
 
-    results = r.set(f"{dataset_type}timestamp", table_timestamp)
-
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
@@ -1313,12 +1311,7 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
 def fetch_cached_results(dataset_name: str, dataset_type: str):
     """function to fetch the cached results"""
 
-    table_timestamp = r.get(f"{dataset_type}timestamp")
-
-    if table_timestamp is not None:
-        table_timestamp = table_timestamp.decode("utf-8")
-    else:
-        table_timestamp = ""
+    table_timestamp = query_table_timestamp(dataset_type)
 
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
