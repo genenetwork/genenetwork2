@@ -5,12 +5,6 @@ from pathlib import Path
 
 from base.data_set import query_table_timestamp
 from base.webqtlConfig import TMPDIR
-from json.decoder import JSONDecodeError
-from redis import Redis
-
-r = Redis()
-
-# code to isolate metadata caching
 
 
 def fetch_all_cached_metadata(dataset_name):
@@ -28,20 +22,14 @@ def fetch_all_cached_metadata(dataset_name):
 
     return (file_path, dataset_metadata)
 
-    if bool(new_traits_metadata):
-        # that means new traits exists
-        dataset_metadata.update(new_traits_metadata)
-        with open(file_path, "w+") as file_handler:
-            json.dump(dataset_metadata, file_handler)
-
 
 def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_path: str):
     """function to cache the new traits metadata"""
 
     if bool(new_traits_metadata):
         dataset_metadata.update(new_traits_metadata)
-        with open(file_path,"w+") as file_handler:
-            json.dump(dataset_metadata,file_handler)
+        with open(file_path, "w+") as file_handler:
+            json.dump(dataset_metadata, file_handler)
 
 
 def generate_filename(base_dataset_name, target_dataset_name, base_timestamp, target_dataset_timestamp):
@@ -98,14 +86,8 @@ def cache_compute_results(base_dataset_type,
 def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_type, trait_name):
     """function to check for precomputed  results"""
 
-    base_timestamp = target_dataset_timestamp = r.get(f"{dataset_type}timestamp")
-    if base_timestamp is None:
-        return
-
-    else:
-        base_timestamp = target_dataset_timestamp = base_timestamp.decode(
-            "utf-8")
-
+    base_timestamp = target_dataset_timestamp = query_table_timestamp(
+        dataset_type)
     file_name = generate_filename(
         base_dataset_name, target_dataset_name,
         base_timestamp, target_dataset_timestamp)
