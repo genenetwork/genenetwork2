@@ -89,7 +89,7 @@ class GSearch:
                     if line[7]:
                         this_trait['description'] = line[7].decode(
                             'utf-8', 'replace')
-                    this_trait['location_repr'] = 'N/A'
+                    this_trait['location_repr'] = "N/A"
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (
                             line[8], float(line[9]))
