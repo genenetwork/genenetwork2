@@ -40,7 +40,8 @@ from base import species
 from base import webqtlConfig
 from flask import Flask, g
 from base.webqtlConfig import TMPDIR
-from gn3.db_utils import parse_db_url
+from urllib.parse import urlparse
+from utility.tools import SQL_URI
 import os
 import math
 import string
@@ -1256,6 +1257,13 @@ def geno_mrna_confidentiality(ob):
     if confidential:
         return True
 
+
+
+def parse_db_url():
+    parsed_db = urlparse(SQL_URI)
+
+    return (parsed_db.hostname, parsed_db.username,
+            parsed_db.password, parsed_db.path[1:])
 
 def query_table_timestamp(dataset_type: str):
     """function to query the update timestamp of a given dataset_type"""
