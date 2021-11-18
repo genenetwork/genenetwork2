@@ -9,7 +9,7 @@ from base.webqtlConfig import TMPDIR
 
 def fetch_all_cached_metadata(dataset_name):
     """in a gvein dataset fetch all the traits metadata"""
-    file_name = f"{dataset_name}_metadata.json"
+    file_name = generate_file_name(dataset_name, suffix="metadata")
 
     file_path = os.path.join(TMPDIR, file_name)
 
@@ -33,11 +33,11 @@ def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_
             json.dump(dataset_metadata, file_handler)
 
 
-def generate_file_name(*args, prefix=""):
+def generate_file_name(*args, suffix="", file_ext="json"):
     """given a list of args generate a unique filename"""
 
-    string_unicode = f"{*args,}{prefix}".encode()
-    return hashlib.md5(string_unicode).hexdigest()
+    string_unicode = f"{*args,}".encode()
+    return f"{hashlib.md5(string_unicode).hexdigest()}_{suffix}.{file_ext}"
 
 
 def generate_filename(base_dataset_name, target_dataset_name, base_timestamp, target_dataset_timestamp):
@@ -65,11 +65,12 @@ def cache_compute_results(base_dataset_type,
 
     target_dataset_timestamp = base_timestamp
 
-    file_name = generate_filename(
+    file_name = generate_file_name(
         base_dataset_name, target_dataset_name,
-        base_timestamp, target_dataset_timestamp)
+        base_timestamp, target_dataset_timestamp,
+        suffix="corr_precomputes")
 
-    file_path = os.path.join(TMPDIR, f"{file_name}.json")
+    file_path = os.path.join(TMPDIR, file_name)
 
     try:
         with open(file_path, "r+") as json_file_handler:
@@ -91,16 +92,20 @@ def cache_compute_results(base_dataset_type,
             json.dump(data, file_handler)
 
 
-def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_type, trait_name):
+def fetch_precompute_results(base_dataset_name,
+                             target_dataset_name,
+                             dataset_type,
+                             trait_name):
     """function to check for precomputed  results"""
 
     base_timestamp = target_dataset_timestamp = query_table_timestamp(
         dataset_type)
-    file_name = generate_filename(
+    file_name = generate_file_name(
         base_dataset_name, target_dataset_name,
-        base_timestamp, target_dataset_timestamp)
+        base_timestamp, target_dataset_timestamp,
+        suffix="corr_precomputes")
 
-    file_path = os.path.join(TMPDIR, f"{file_name}.json")
+    file_path = os.path.join(TMPDIR, file_name)
 
     try:
         with open(file_path, "r+") as json_handler:
@@ -112,7 +117,9 @@ def fetch_precompute_results(base_dataset_name, target_dataset_name, dataset_typ
         pass
 
 
-def pre_compute_dataset_vs_dataset(base_dataset, target_dataset, corr_method):
+def pre_compute_dataset_vs_dataset(base_dataset,
+                                   target_dataset,
+                                   corr_method):
     """compute sample correlation between dataset vs dataset
     wn:heavy function should be invoked less frequently
     input:datasets_data(two dicts),corr_method
@@ -131,8 +138,10 @@ def pre_compute_dataset_vs_dataset(base_dataset, target_dataset, corr_method):
             "trait_id": primary_trait_name
         }
 
-        trait_correlation_result = fast_compute_all_sample_correlation(
-            corr_method=corr_method, this_trait=this_trait_data, target_dataset=target_traits_data)
+        trait_correlation_result = compute_all_sample_correlation(
+            corr_method=corr_method,
+            this_trait=this_trait_data,
+            target_dataset=target_traits_data)
 
         dataset_correlation_results[primary_trait_name] = trait_correlation_result
 
