@@ -26,6 +26,9 @@ from base.trait import create_trait, jsonable
 from base.data_set import create_dataset
 from base.webqtlConfig import TMPDIR
 
+from wqflask.correlation.pre_computes import fetch_all_cached_metadata
+from wqflask.correlation.pre_computes import cache_new_traits_metadata
+
 from utility import hmac
 
 
@@ -34,7 +37,8 @@ def set_template_vars(start_vars, correlation_data):
     corr_method = start_vars['corr_sample_method']
 
     if start_vars['dataset'] == "Temp":
-        this_dataset_ob = create_dataset(dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
+        this_dataset_ob = create_dataset(
+            dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
     else:
         this_dataset_ob = create_dataset(dataset_name=start_vars['dataset'])
     this_trait = create_trait(dataset=this_dataset_ob,
@@ -86,25 +90,17 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
     corr_results = correlation_data['correlation_results']
     results_list = []
 
-    file_name = f"{target_dataset['name']}_metadata.json"
-
-    file_path = os.path.join(TMPDIR, file_name)
     new_traits_metadata = {}
 
-    try:
-        with open(file_path,"r+") as file_handler:
-            dataset_metadata = json.load(file_handler)
-
-    except FileNotFoundError:
-        Path(file_path).touch(exist_ok=True)
-        dataset_metadata = {}
+    (file_path, dataset_metadata) = fetch_all_cached_metadata(
+        target_dataset['name'])
 
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
         trait = trait_dict[trait_name]
 
         target_trait = dataset_metadata.get(trait_name)
-        if  target_trait is None: 
+        if target_trait is None:
             target_trait_ob = create_trait(dataset=target_dataset_ob,
                                            name=trait_name,
                                            get_qtl_info=True)
@@ -184,12 +180,9 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
         results_list.append(results_dict)
 
-
-    if bool(new_traits_metadata):
-        # that means new traits exists
-        dataset_metadata.update(new_traits_metadata)
-        with open(file_path,"w+") as file_handler:
-            json.dump(dataset_metadata, file_handler)
+    cache_new_traits_metadata(dataset_metadata,
+                              new_traits_metadata,
+                              file_path)
     return json.dumps(results_list)
 
 

@@ -16,12 +16,11 @@ def fetch_all_cached_metadata(dataset_name):
     try:
         with open(file_path, "r+") as file_handler:
             dataset_metadata = json.load(file_handler)
+            return (file_path, dataset_metadata)
 
     except FileNotFoundError:
         Path(file_path).touch(exist_ok=True)
-        return {}
-
-    return (file_path, dataset_metadata)
+        return (file_path, {})
 
 
 def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_path: str):
@@ -46,15 +45,9 @@ def cache_compute_results(base_dataset_type,
                           corr_method,
                           correlation_results,
                           trait_name):
-    # pass
     """function to cache correlation results for heavy computations"""
 
-    # init assumption only caching probeset type
-    # fix redis;issue potential redis_cache!=current_timestamp
-
     base_timestamp = query_table_timestamp(base_dataset_type)
-
-    r.set(f"{base_dataset_type}timestamp", base_timestamp)
 
     target_dataset_timestamp = base_timestamp
 
