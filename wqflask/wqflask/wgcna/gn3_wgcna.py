@@ -26,7 +26,6 @@ def process_dataset(trait_list):
     traits = []
     strains = []
 
-    # xtodo unique traits and strains
 
     for trait in trait_list:
         traits.append(trait[0].name)
