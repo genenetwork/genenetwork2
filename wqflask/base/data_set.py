@@ -758,7 +758,6 @@ class DataSet:
         chunk_size = 50
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
         cached_results = fetch_cached_results(self.name, self.type)
-        # cached_results =    None
         if cached_results is None:
             trait_sample_data = []
             for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
