@@ -428,9 +428,15 @@ def list_diffs():
         gn_proxy_url=current_app.config.get("GN2_PROXY"))
     return render_template(
             "display_files.html",
-            approved=files.get("approved"),
-            rejected=files.get("rejected"),
-            waiting=files.get("waiting"))
+            approved=sorted(files.get("approved"),
+                            reverse=True,
+                            key=lambda d: d.get("time_stamp")),
+            rejected=sorted(files.get("rejected"),
+                            reverse=True,
+                            key=lambda d: d.get("time_stamp")),
+            waiting=sorted(files.get("waiting"),
+                           reverse=True,
+                           key=lambda d: d.get("time_stamp")))
 
 
 @metadata_edit.route("/diffs/<name>")
