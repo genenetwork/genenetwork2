@@ -28,8 +28,9 @@ def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_
 
     if bool(new_traits_metadata):
         dataset_metadata.update(new_traits_metadata)
-        with open(file_path, "w+") as file_handler:
-            json.dump(dataset_metadata, file_handler)
+             
+    with open(file_path, "w+") as file_handler:
+        json.dump(dataset_metadata, file_handler)
 
 
 def generate_filename(*args, suffix="", file_ext="json"):
