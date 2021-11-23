@@ -101,11 +101,11 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
         target_trait = dataset_metadata.get(trait_name)
         if target_trait is None:
+
             target_trait_ob = create_trait(dataset=target_dataset_ob,
                                            name=trait_name,
                                            get_qtl_info=True)
             target_trait = jsonable(target_trait_ob, target_dataset_ob)
-            new_traits_metadata[trait_name] = target_trait
         if target_trait['view'] == False:
             continue
         results_dict = {}
@@ -183,6 +183,7 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
     cache_new_traits_metadata(dataset_metadata,
                               new_traits_metadata,
                               file_path)
+
     return json.dumps(results_list)
 
 

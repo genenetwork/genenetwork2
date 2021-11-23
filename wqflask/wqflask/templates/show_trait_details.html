@@ -234,9 +234,9 @@
         {% endif %}
         {% endif %}
         <button type="button" id="view_in_gn1" class="btn btn-primary" title="View Trait in GN1" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?cmd=show&db={{ this_trait.dataset.name }}&probeset={{ this_trait.name }}', '_blank')">Go to GN1</button>
-        {% if admin_status.get('metadata', DataRole.VIEW) > DataRole.VIEW %}
+        {% if admin_status != None and admin_status.get('metadata', DataRole.VIEW) > DataRole.VIEW %}
         {% if this_trait.dataset.type == 'Publish' %}
-        <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('/datasets/{{ this_trait.dataset.id }}/traits/{{ this_trait.name }}?resource-id={{ resource_id }}', '_blank')">Edit</button>
+        <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('/datasets/{{ this_trait.dataset.group.id }}/traits/{{ this_trait.name }}?resource-id={{ resource_id }}', '_blank')">Edit</button>
         {% endif %}
 
         {% if this_trait.dataset.type == 'ProbeSet' %}

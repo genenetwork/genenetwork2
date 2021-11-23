@@ -1,26 +1,30 @@
 {% extends "base.html" %}
 {% block title %}View and Edit Group{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
 {% block content %}
 <!-- Start of body -->
-    <div class="container">
+{% set GROUP_URL = url_for('group_management.view_group', group_id=group_info.guid) %}
+{% set UPDATE_GROUP_URL = url_for('group_management.update_group', group_id=group_info.guid) %}
+<div class="container">
         <div class="page-header">
             <h1>
-                <span id="group_name">{{ group_info.name }}</span>
-                <input type="text" name="new_group_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ group_info.name }}"> 
+                <span id="group_name">Name: {{ group_info.name }}</span>
+                <input type="text" name="new_group_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ group_info.name }}">
+                {% if is_admin %}
                 <button class="btn btn-default" style="display: inline;" id="change_group_name">Change Group Name</button>
+                {% endif %}
             </h1>
-            {% if user_is_admin == true %}
+            {% if is_admin %}
             <div style="display: inline;">
                 <button type="button" id="remove_users" class="btn btn-danger" data-url="/groups/remove_users">Remove Selected Users from Group</button>
             </div>
             {% endif %}
         </div>
-        <form id="group_form" action="/groups/view" method="POST">
+        <form id="group_form" action="{{ UPDATE_GROUP_URL }}" method="POST">
             <input type="hidden" name="group_id" value="{{ group_info.id }}">
             <input type="hidden" name="selected_admin_ids" value="">
             <input type="hidden" name="selected_member_ids" value="">
@@ -37,6 +41,9 @@
                                 <th>Name</th>
                                 <th>Email Address</th>
                                 <th>Organization</th>
+                                {% if is_admin %}
+                                <th>UID</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -47,17 +54,20 @@
                                 <td>{% if 'full_name' in admin %}{{ admin.full_name }}{% elif 'name' in admin %}{{ admin.name }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'email_address' in admin %}{{ admin.email_address }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'organization' in admin %}{{ admin.organization }}{% else %}N/A{% endif %}</td>
+                                {% if is_admin %}
+                                <td>{{admin.user_id}}</td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% if user_is_admin == true %}
+                    {% if is_admin %}
                     <div style="margin-top: 20px;">
                             <span>E-mail of user to add to admins (multiple e-mails can be added separated by commas):</span>
                             <input type="text" size="60" name="admin_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="/groups/add_admins">Add Admin(s)</button>
+                        <button type="button" id="add_admins" class="btn btn-primary" data-usertype="admin" data-url="{{ UPDATE_GROUP_URL }}">Add Admin(s)</button>
                     </div>
                     {% endif %}
                 </div>
@@ -74,38 +84,50 @@
                                 <th>Name</th>
                                 <th>Email Address</th>
                                 <th>Organization</th>
+                                {% if is_admin %}
+                                <th>UID</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for member in members %}
                             <tr>
-                                <td style="text-align: center; padding: 0px 10px 2px 10px;"><input type="checkbox" name="member_id" value="{{ member.user_id }}"></td>
+                                
+                                <td style="text-align: center; padding: 0px 10px 2px 10px;">
+                                    {% if is_admin %}
+                                    <input type="checkbox" name="member_id" value="{{ member.user_id }}">
+                                    {% endif %}
+                                </td>
                                 <td align="right">{{ loop.index }}</td>
                                 <td>{% if 'full_name' in member %}{{ member.full_name }}{% elif 'name' in admin %}{{ admin.name }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'email_address' in member %}{{ member.email_address }}{% else %}N/A{% endif %}</td>
                                 <td>{% if 'organization' in member %}{{ member.organization }}{% else %}N/A{% endif %}</td>
+                                {% if is_admin %}
+                                <td>{{ member }}</td>
+                                {% endif %}
+
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% if user_is_admin == true %}
+                    {% if is_admin %}
                     <div style="margin-top: 20px;">
                             <span>E-mail of user to add to members (multiple e-mails can be added separated by commas):</span>
                             <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="/groups/add_members">Add Member(s)</button>
+                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="{{ GROUP_URL }}">Add Member(s)</button>
                     </div>
                     {% endif %}
                     {% else %}
                     There are currently no members in this group.
-                    {% if user_is_admin == true %}
+                    {% if is_admin %}
                     <div style="margin-top: 20px;">
                             <span>E-mail of user to add to members (multiple e-mails can be added separated by commas):</span>
                             <input type="text" size="60" name="member_emails_to_add" placeholder="Enter E-mail(s)" value="">
                     </div>
                     <div style="margin-bottom: 30px; margin-top: 20px;">
-                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="/groups/add_members">Add Member(s)</button>
+                        <button type="button" id="add_members" class="btn btn-primary" data-usertype="member" data-url="{{ GROUP_URL }}">Add Member(s)</button>
                     </div>
                     {% endif %}
                     {% endif %}
@@ -219,6 +241,7 @@
 
             $("#add_admins, #add_members").on("click", function() {
                 url = $(this).data("url");
+                console.log(url)
                 return submit_special(url)
             });
 
@@ -230,7 +253,7 @@
                     new_name = $('input[name=new_group_name]').val()
                     $.ajax({
                         type: "POST",
-                        url: "/groups/change_name",
+                        url: "{{ GROUP_URL }} ",
                         data: {
                             group_id: $('input[name=group_id]').val(),
                             new_name: new_name

@@ -16,19 +16,18 @@ $('#clear_members').click(function(){
 
 
 function add_emails(user_type){
-    var email_address = $('input[name=user_email]').val();
-    var email_list_string = $('input[name=' + user_type + '_emails_to_add]').val().trim()
-    console.log(email_list_string)
+    let email_address = $('input[name=user_email]').val();
+    let email_list_string = $('input[name=' + user_type + '_emails_to_add]').val().trim()
     if (email_list_string == ""){
-        var email_set = new Set();
+        let email_set = new Set();
     } else {
-        var email_set = new Set(email_list_string.split(","))
+        let email_set = new Set(email_list_string.split(","))
     }
     email_set.add(email_address)
 
     $('input[name=' + user_type + '_emails_to_add]').val(Array.from(email_set).join(','))
 
-    var emails_display_string = Array.from(email_set).join('\n')
+    let emails_display_string = Array.from(email_set).join('\n')
     $('.added_' + user_type + 's').val(emails_display_string)
 }
 

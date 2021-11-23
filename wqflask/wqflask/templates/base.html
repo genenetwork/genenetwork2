@@ -22,6 +22,12 @@
     <!--<link rel="stylesheet" type="text/css" href="/static/new/css/main.css"  />-->
     <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css"  />
     <link rel="stylesheet" type="text/css" href="/static/new/css/broken_links.css"  />
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
 
 
     {% block css %}
@@ -87,7 +93,7 @@
                                   <li><a href="https://systems-genetics.org/">Systems Genetics PheWAS</a></li>
                                   <li><a href="http://ucscbrowser.genenetwork.org/">Genome Browser</a></li>
                                   <li><a href="http://power.genenetwork.org">BXD Power Calculator</a></li>
-                                  <li><a href="url_for('jupyter_notebooks.launcher')">Jupyter Notebook Launcher</a></li>
+                                  <li><a href="{{url_for('jupyter_notebooks.launcher')}}">Jupyter Notebooks</a></li>
                                   <li><a href="http://datafiles.genenetwork.org">Interplanetary File System</a></li>
                                 </ul>
                         </li>
@@ -227,6 +233,7 @@
             <a href="http://www.neuinfo.org" target="_blank">
                 <img src="/static/new/images/Nif.png" alt="Registered with Nif" border="0">
             </a>
+            <script type="text/javascript" src="//rf.revolvermaps.com/0/0/8.js?i=526mdlpknyd&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=33" async="async"></script>
         </div>
       </div>
     </footer>

@@ -64,7 +64,7 @@ def test_process_data(this_trait, dataset, start_vars):
     return sample_data
 
 
-def process_samples(start_vars,sample_names = [],excluded_samples = []):
+def process_samples(start_vars, sample_names=[], excluded_samples=[]):
     """code to fetch correct samples"""
     sample_data = {}
     sample_vals_dict = json.loads(start_vars["sample_vals"])
@@ -82,7 +82,6 @@ def process_samples(start_vars,sample_names = [],excluded_samples = []):
                 if not val.strip().lower() == "x":
                     sample_data[str(sample)] = float(val)
     return sample_data
-
 
 
 def merge_correlation_results(correlation_results, target_correlation_results):
@@ -167,7 +166,7 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
 
     elif corr_samples_group == "samples_other":
         sample_data = process_samples(
-            start_vars, excluded_samples = this_dataset.group.samplelist)
+            start_vars, excluded_samples=this_dataset.group.samplelist)
 
     else:
         sample_data = process_samples(start_vars)
@@ -316,6 +315,7 @@ def get_tissue_correlation_input(this_trait, trait_symbol_dict):
     primary_trait_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(
         symbol_list=[this_trait.symbol])
     if this_trait.symbol and this_trait.symbol.lower() in primary_trait_tissue_vals_dict:
+
         primary_trait_tissue_values = primary_trait_tissue_vals_dict[this_trait.symbol.lower(
         )]
         corr_result_tissue_vals_dict = correlation_functions.get_trait_symbol_and_tissue_values(

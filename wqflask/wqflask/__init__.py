@@ -10,8 +10,9 @@ from urllib.parse import urlparse
 from utility import formatting
 
 from gn3.authentication import DataRole, AdminRole
-from wqflask.resource_manager import resource_management
 
+from wqflask.group_manager import group_management
+from wqflask.resource_manager import resource_management
 from wqflask.metadata_edits import metadata_edit
 
 from wqflask.api.markdown import glossary_blueprint
@@ -65,8 +66,8 @@ app.register_blueprint(news_blueprint, url_prefix="/news")
 app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
 
 app.register_blueprint(resource_management, url_prefix="/resource-management")
-
 app.register_blueprint(metadata_edit, url_prefix="/datasets/")
+app.register_blueprint(group_management, url_prefix="/group-management")
 
 @app.before_request
 def before_request():

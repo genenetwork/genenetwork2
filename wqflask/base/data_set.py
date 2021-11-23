@@ -757,6 +757,7 @@ class DataSet:
         # Postgres doesn't have that limit, so we can get rid of this after we transition
         chunk_size = 50
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+
         cached_results = fetch_cached_results(self.name, self.type)
         if cached_results is None:
             trait_sample_data = []
@@ -814,7 +815,6 @@ class DataSet:
 
             cache_dataset_results(
                 self.name, self.type, self.trait_data)
-
         else:
 
             self.trait_data = cached_results

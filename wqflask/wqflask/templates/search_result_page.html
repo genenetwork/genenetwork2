@@ -176,7 +176,7 @@
                 return params;
             };
 
-            {% if results|count > 0 %}
+            {% if results|count > 0  and not too_many_results %}
             var tableId = "trait_table";
 
             var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount

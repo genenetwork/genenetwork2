@@ -12,8 +12,15 @@
             <h1>Manage Groups</h1>
             {% if admin_groups|length != 0 or member_groups|length != 0 %}
             <div style="display: inline;">
-                <button type="button" id="create_group" class="btn btn-primary" data-url="/groups/create">Create Group</button>
-                <button type="button" id="remove_groups" class="btn btn-primary" data-url="/groups/remove">Remove Selected Groups</button>
+                <a href="{{ url_for('group_management.view_create_group_page') }}" target="_blank">
+                    <button type="button" class="btn btn-primary">
+                        Create Group
+                    </button>
+                </a>
+                <button type="button" id="remove_groups" class="btn btn-primary"
+                        data-url="{{ url_for('group_management.delete_groups') }}">
+                    Remove Selected Groups
+                </button>
             </div>
             {% endif %}
         </div>
@@ -23,7 +30,11 @@
                 {% if admin_groups|length == 0 and member_groups|length == 0 %}
                 <h4>You currently aren't a member or admin of any groups.</h4>
                 <br>
-                <button type="button" id="create_group" class="btn btn-primary" data-url="/groups/create">Create a new group</button>
+                <a href="{{ url_for('group_management.view_create_group_page') }}" target="_blank">
+                    <button type="button" class="btn btn-primary">
+                        Create Group
+                    </button>
+                </a>
                 {% else %}
                 <div style="margin-top: 20px;"><h2>Admin Groups</h2></div>
                 <hr>
@@ -47,11 +58,12 @@
                         <tr>
                             <td><input type="checkbox" name="group_id" value="{{ group.id }}"></td>
                             <td align="right">{{ loop.index }}</td>
-                            <td><a href="/groups/view?id={{ group.id }}">{{ group.name }}</a></td>
+                            {% set group_url = url_for('group_management.view_group', group_id=group.uuid) %}
+                            <td><a href="{{ group_url  }}">{{ group.name }}</a></td>
                             <td align="right">{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
-                            <td>{{ group.id }}</td>
+                            <td>{{ group.uuid }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -81,7 +93,8 @@
                         <tr>
                             <td><input type="checkbox" name="read" value="{{ group.id }}"></td>
                             <td>{{ loop.index }}</td>
-                            <td><a href="/groups/view?id={{ group.id }}">{{ group.name }}</a></td>
+                            {% set group_url = url_for('group_management.view_group', group_id=group.uuid) %}
+                            <td><a href="{{ group_url }}">{{ group.name }}</a></td>
                             <td>{{ group.admins|length + group.members|length }}</td>
                             <td>{{ group.created_timestamp }}</td>
                             <td>{{ group.changed_timestamp }}</td>
@@ -118,11 +131,6 @@
                 $("#groups_form").attr("action", url);
                 return $("#groups_form").submit();
             };
-
-            $("#create_group").on("click", function() {
-                url = $(this).data("url")
-                return submit_special(url)
-            });
 
             $("#remove_groups").on("click", function() {
                 url = $(this).data("url")

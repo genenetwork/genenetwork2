@@ -4,7 +4,9 @@ and process data to be rendered by datatables
 
 import requests
 from types import SimpleNamespace
+
 from utility.helper_functions import get_trait_db_obs
+from utility.tools import GN_SERVER_URL
 
 
 def fetch_trait_data(requestform):
@@ -24,7 +26,6 @@ def process_dataset(trait_list):
     traits = []
     strains = []
 
-    # xtodo unique traits and strains
 
     for trait in trait_list:
         traits.append(trait[0].name)
@@ -33,9 +34,6 @@ def process_dataset(trait_list):
         for strain in trait[0].data:
             strains.append(strain)
             input_data[trait[0].name][strain] = trait[0].data[strain].value
-        # "sample_names": list(set(strains)),
-        # "trait_names": form_traits,
-        # "trait_sample_data": form_strains,
 
     return {
         "input": input_data,
@@ -77,9 +75,7 @@ def process_image(response):
 def run_wgcna(form_data):
     """function to run wgcna"""
 
-    GN3_URL = "http://127.0.0.1:8081"
-
-    wgcna_api = f"{GN3_URL}/api/wgcna/run_wgcna"
+    wgcna_api = f"{GN_SERVER_URL}api/wgcna/run_wgcna"
 
     # parse form data
 
