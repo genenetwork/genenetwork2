@@ -64,18 +64,25 @@ def test_process_data(this_trait, dataset, start_vars):
     return sample_data
 
 
-def process_samples(start_vars, sample_names, excluded_samples=None):
-    """process samples"""
+def process_samples(start_vars,sample_names = [],excluded_samples = []):
+    """code to fetch correct samples"""
     sample_data = {}
-    if not excluded_samples:
-        excluded_samples = ()
-        sample_vals_dict = json.loads(start_vars["sample_vals"])
+    sample_vals_dict = json.loads(start_vars["sample_vals"])
+    if sample_names:
         for sample in sample_names:
-            if sample not in excluded_samples and sample in sample_vals_dict:
+            if sample in sample_vals_dict and sample not in excluded_samples:
+                val = sample_vals_dict[sample]
+                if not val.strip().lower() == "x":
+                    sample_data[str(sample)] = float(val)
+
+    else:
+        for sample in sample_vals_dict.keys():
+            if sample not in excluded_samples:
                 val = sample_vals_dict[sample]
                 if not val.strip().lower() == "x":
                     sample_data[str(sample)] = float(val)
     return sample_data
+
 
 
 def merge_correlation_results(correlation_results, target_correlation_results):
@@ -152,6 +159,18 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
 
 
 def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
+
+    corr_samples_group = start_vars["corr_samples_group"]
+    if corr_samples_group == "samples_primary":
+        sample_data = process_samples(
+            start_vars, this_dataset.group.all_samples_ordered())
+
+    elif corr_samples_group == "samples_other":
+        sample_data = process_samples(
+            start_vars, excluded_samples = this_dataset.group.samplelist)
+
+    else:
+        sample_data = process_samples(start_vars)
 
     sample_data = process_samples(
         start_vars, this_dataset.group.all_samples_ordered())
