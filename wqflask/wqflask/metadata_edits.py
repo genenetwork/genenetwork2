@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import re
 
 from collections import namedtuple
 from itertools import groupby
@@ -250,17 +251,21 @@ def update_phenotype(dataset_id: str, name: str):
         file_.save(new_file_name)
         publishdata_id = ""
         lines = []
+        split_point = ""
         with open(new_file_name, "r") as f:
             lines = f.read()
-            first_line = lines.split('\n', 1)[0]
-            publishdata_id = first_line.split("Id:")[-1].strip()
+            for line in lines.split("\n"):
+                if "# Publish Data Id:" in line:
+                    split_point = line
+                    publishdata_id = re.findall(r'\b\d+\b', line)[0]
+                    break
         with open(new_file_name, "w") as f:
-            f.write(lines.split("\n\n")[-1])
+            f.write(lines.split(f"{split_point}\n")[-1].strip())
         csv_ = get_trait_csv_sample_data(conn=conn,
                                          trait_name=str(name),
                                          phenotype_id=str(phenotype_id))
         with open(uploaded_file_name, "w") as f_:
-            f_.write(csv_.split("\n\n")[-1])
+            f_.write(csv_.split(str(publishdata_id))[-1].strip())
         r = run_cmd(cmd=("csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
