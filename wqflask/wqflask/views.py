@@ -398,12 +398,9 @@ def create_temp_trait():
 @app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
-    logger.info("In export_trait_excel")
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     trait_name, sample_data = export_trait_data.export_sample_table(
         request.form)
-
+    app.logger.info(request.url)
     logger.info("sample_data - type: %s -- size: %s" %
                 (type(sample_data), len(sample_data)))
 

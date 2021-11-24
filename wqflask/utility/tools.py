@@ -194,7 +194,6 @@ def locate(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
-            logger.info("Found: file " + lookfor + "\n")
             return lookfor
         else:
             raise Exception("Can not locate " + lookfor)
@@ -220,9 +219,7 @@ def locate_ignore_error(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
-            logger.debug("Found: file " + name + "\n")
             return lookfor
-    logger.info("WARNING: file " + name + " not found\n")
     return None
 
 
