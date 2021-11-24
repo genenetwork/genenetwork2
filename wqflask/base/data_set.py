@@ -429,8 +429,6 @@ class DatasetGroup:
         if result is not None:
             self.samplelist = json.loads(result)
         else:
-            logger.debug("Cache not hit")
-
             genotype_fn = locate_ignore_error(self.name + ".geno", 'genotype')
             if genotype_fn:
                 self.samplelist = get_group_samplelists.get_samplelist(
