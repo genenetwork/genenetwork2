@@ -45,6 +45,8 @@ from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
 from gn3.db.traits import get_trait_csv_sample_data
 from gn3.db.traits import update_sample_data
+from gn3.db.traits import delete_sample_data
+from gn3.db.traits import insert_sample_data
 
 
 metadata_edit = Blueprint('metadata_edit', __name__)
@@ -249,23 +251,11 @@ def update_phenotype(dataset_id: str, name: str):
             TMPDIR, "sample-data/updated/",
             f"{_file_name}.csv.uploaded"))
         file_.save(new_file_name)
-        publishdata_id = ""
-        lines = []
-        split_point = ""
-        with open(new_file_name, "r") as f:
-            lines = f.read()
-            for line in lines.split("\n"):
-                if "# Publish Data Id:" in line:
-                    split_point = line
-                    publishdata_id = re.findall(r'\b\d+\b', line)[0]
-                    break
-        with open(new_file_name, "w") as f:
-            f.write(lines.split(f"{split_point}\n")[-1].strip())
-        csv_ = get_trait_csv_sample_data(conn=conn,
-                                         trait_name=str(name),
-                                         phenotype_id=str(phenotype_id))
         with open(uploaded_file_name, "w") as f_:
-            f_.write(csv_.split(str(publishdata_id))[-1].strip())
+            f_.write(get_trait_csv_sample_data(
+                conn=conn,
+                trait_name=str(name),
+                phenotype_id=str(phenotype_id)))
         r = run_cmd(cmd=("csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
@@ -274,9 +264,9 @@ def update_phenotype(dataset_id: str, name: str):
         with open(diff_output, "w") as f:
             dict_ = json.loads(r.get("output"))
             dict_.update({
+                "trait_name": str(name),
+                "phenotype_id": str(phenotype_id),
                 "author": author,
-                "publishdata_id": publishdata_id,
-                "dataset_id": name,
                 "timestamp": datetime.datetime.now().strftime(
                     "%Y-%m-%d %H:%M:%S")
             })
@@ -324,11 +314,16 @@ def update_phenotype(dataset_id: str, name: str):
             k: data_.get(f"old_{k}") for k, v in publication_.items()
             if v is not None}, new=publication_)})
     if diff_data:
-        diff_data.update({"dataset_id": name})
-        diff_data.update({"resource_id": request.args.get('resource-id')})
-        diff_data.update({"author": author})
-        diff_data.update({"timestamp": datetime.datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S")})
+        diff_data.update({
+            "phenotype_id": str(phenotype_id),
+            "dataset_id": name,
+            "resource_id": request.args.get('resource-id'),
+            "author": author,
+            "timestamp": (datetime
+                          .datetime
+                          .now()
+                          .strftime("%Y-%m-%d %H:%M:%S")),
+        })
         insert(conn,
                table="metadata_audit",
                data=MetadataAudit(dataset_id=name,
@@ -473,34 +468,54 @@ def approve_data(resource_id:str, file_name: str):
     with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
                            file_name), 'r') as myfile:
         sample_data = json.load(myfile)
-    modifications = [d for d in sample_data.get("Modifications")]
-    for modification in modifications:
+    for modification in (
+            modifications := [d for d in sample_data.get("Modifications")]):
         if modification.get("Current"):
-            (strain_id,
-             strain_name,
+            (strain_name,
              value, se, count) = modification.get("Current").split(",")
             update_sample_data(
                 conn=conn,
+                trait_name=sample_data.get("trait_name"),
                 strain_name=strain_name,
-                strain_id=int(strain_id),
-                publish_data_id=int(sample_data.get("publishdata_id")),
+                phenotype_id=int(sample_data.get("phenotype_id")),
                 value=value,
                 error=se,
-                count=count
-            )
-            insert(conn,
-                   table="metadata_audit",
-                   data=MetadataAudit(
-                       dataset_id=sample_data.get("dataset_id"),
-                       editor=sample_data.get("author"),
-                       json_data=json.dumps(sample_data)))
-    if modifications:
+                count=count)
+    for deletion in (deletions := [d for d in sample_data.get("Deletions")]):
+        strain_name, _, _, _ = deletion.split(",")
+        delete_sample_data(
+            conn=conn,
+            trait_name=sample_data.get("trait_name"),
+            strain_name=strain_name,
+            phenotype_id=int(sample_data.get("phenotype_id")))
+    for insertion in (
+            insertions := [d for d in sample_data.get("Additions")]):
+        (strain_name,
+         value, se, count) = insertion.split(",")
+        insert_sample_data(
+            conn=conn,
+            trait_name=sample_data.get("trait_name"),
+            strain_name=strain_name,
+            phenotype_id=int(sample_data.get("phenotype_id")),
+            value=value,
+            error=se,
+            count=count)
+
+    if any([any(modifications), any(deletions), any(insertions)]):
+        insert(conn,
+               table="metadata_audit",
+               data=MetadataAudit(
+                   dataset_id=sample_data.get("trait_name"),
+                   editor=sample_data.get("author"),
+                   json_data=json.dumps(sample_data)))
         # Once data is approved, rename it!
         os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
                   os.path.join(f"{TMPDIR}/sample-data/diffs",
                                f"{file_name}.approved"))
-        flash((f"Just updated data from: {file_name}; {len(modifications)} "
-               "row(s) modified!"),
+        flash((f"Just updated data from: {file_name};\n"
+               f"# Modifications: {len(modifications)}; "
+               f"# Additions: {len(insertions)}; "
+               f"# Deletions: {len(deletions)}"),
               "success")
     return redirect(url_for('metadata_edit.list_diffs'))
 
