@@ -447,7 +447,7 @@ def show_diff(name):
         content = myfile.read()
     return Response(content, mimetype='text/json')
 
-# http://localhost:5004/datasets/diffs
+
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
 @edit_admins_access_required
 @login_required
