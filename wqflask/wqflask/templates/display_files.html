@@ -58,6 +58,31 @@
     </div>
     {% endif %}
 
+    {% if approved %}
+    <div class="row">
+        Approved Data:
+        <div class="table-responsive">
+            <table class="table m-0">
+                <thead>
+                    <th scope="col">Resource Id</</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">TimeStamp</th>
+                </thead>
+                <tbody>
+                    {% for data in approved %}
+                    <tr>
+                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
+                        <td>{{ data.get("author")}}</td>
+                        <td>{{ data.get("time_stamp")}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
     {% if rejected %}
     <div class="row">
         Rejected Files:
@@ -83,30 +108,6 @@
             </div>
     {% endif %}
 
-    {% if approved %}
-    <div class="row">
-        Approved Data:
-        <div class="table-responsive">
-            <table class="table m-0">
-                <thead>
-                    <th scope="col">Resource Id</</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">TimeStamp</th>
-                </thead>
-                <tbody>
-                    {% for data in approved %}
-                    <tr>
-                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
-                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
-                        <td>{{ data.get("author")}}</td>
-                        <td>{{ data.get("time_stamp")}}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    {% endif %}
 </div>
 
 {%endblock%}
