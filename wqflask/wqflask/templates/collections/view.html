@@ -36,27 +36,27 @@
 
         <div>
             <br />
-	    <form id="heatmaps_form">
-	      <fieldset>
-		<legend>Heatmap Orientation</legend>
-		<label for="heatmap-orient-vertical">Vertical</label>
-		<input id="heatmap-orient-vertical"
-		       type="radio"
-		       name="vertical"
-		       value="true" />
-		<label for="heatmap-orient-horizontal">Horizontal</label>
-		<input id="heatmap-orient-horizontal"
-		       type="radio"
-		       name="vertical"
-		       value="false" />
-	      </fieldset>
-	      <button id="clustered-heatmap"
-		      class="btn btn-primary"
-		      data-url="{{heatmap_data_url}}"
-		      title="Generate heatmap from this collection">
-		Generate Heatmap
-	      </button>
-	    </form>
+            <form id="heatmaps_form">
+            <fieldset>
+            <legend>Heatmap Orientation</legend>
+            <label for="heatmap-orient-vertical">Vertical</label>
+            <input id="heatmap-orient-vertical"
+                type="radio"
+                name="vertical"
+                value="true" />
+            <label for="heatmap-orient-horizontal">Horizontal</label>
+            <input id="heatmap-orient-horizontal"
+                type="radio"
+                name="vertical"
+                value="false" />
+            </fieldset>
+            <button id="clustered-heatmap"
+                class="btn btn-primary"
+                data-url="{{heatmap_data_url}}"
+                title="Generate heatmap from this collection">
+            Generate Heatmap
+            </button>
+            </form>
 
             <div class="collection-table-options">
                 <form id="export_form" method="POST" action="/export_traits_csv">
@@ -74,8 +74,8 @@
                     <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" type="button" title="Delete this collection" > Delete Collection</button>
                 </form>
             </div>
-	    <div id="clustered-heatmap-image-area">
-	    </div>
+            <div id="clustered-heatmap-image-area">
+            </div>
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
