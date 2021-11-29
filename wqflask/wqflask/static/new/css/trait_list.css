@@ -51,3 +51,12 @@ div.dts div.dataTables_scrollBody table {
 div.dts div.dataTables_paginate,div.dts div.dataTables_length{
     display:none
 }
+
+input.load_file {
+    display: inline;
+    background-color: #f5f5f5;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #999999;
+    margin-left: 20px;
+}
