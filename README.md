@@ -109,6 +109,18 @@ alias runcmd="time env GN2_PROFILE=~/opt/gn-latest TMPDIR=//tmp SERVER_PORT=5004
 
 Replace some of the env variables as per your use case.
 
+### Troubleshooting
+
+If the menu does not pop up check your `GN2_BASE_URL`. E.g.
+
+```
+curl http://gn2-pjotr.genenetwork.org/api/v_pre1/gen_dropdown
+```
+
+check the logs. If there is ERROR 1054 (42S22): Unknown column
+'InbredSet.Family' in 'field list' it may be you are trying the small
+database.
+
 ## Documentation
 
 User documentation can be found
