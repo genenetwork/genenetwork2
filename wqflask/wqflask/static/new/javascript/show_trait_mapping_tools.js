@@ -177,6 +177,7 @@ $(".gemma-tab, #gemma_compute").on("click", (function(_this) {
       var form_data, url;
       url = "/loading";
       $('input[name=method]').val("gemma");
+      $('input[name=mapping_scale]').val('physic');
       $('input[name=selected_chr]').val($('#chr_gemma').val());
       $('input[name=num_perm]').val(0);
       $('input[name=genofile]').val($('#genofile_gemma').val());
