@@ -2580,6 +2580,8 @@ class DisplayMappingResults:
                     if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
                         Xc = startPosX + endMb * plotXScale
                     else:
+                        if qtlresult['Mb'] - startMb < 0:
+                            continue
                         Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
 
                 # updated by NL 06-18-2011:
