@@ -6,7 +6,7 @@ import requests
 from types import SimpleNamespace
 
 from utility.helper_functions import get_trait_db_obs
-from utility.tools import GN_SERVER_URL
+from utility.tools import GN3_LOCAL_URL
 
 
 def fetch_trait_data(requestform):
@@ -75,12 +75,20 @@ def process_image(response):
 def run_wgcna(form_data):
     """function to run wgcna"""
 
-    wgcna_api = f"{GN_SERVER_URL}api/wgcna/run_wgcna"
+    wgcna_api = f"{GN3_LOCAL_URL}/api/wgcna/run_wgcna"
 
     # parse form data
 
     trait_dataset = fetch_trait_data(form_data)
     form_data["minModuleSize"] = int(form_data["MinModuleSize"])
+
+
+
+
+    form_data["SoftThresholds"]  = [int(threshold.strip())
+                      for threshold in form_data['SoftThresholds'].rstrip().split(",")]
+
+
 
     response = requests.post(wgcna_api, json={
         "sample_names": list(set(trait_dataset["sample_names"])),
@@ -90,6 +98,7 @@ def run_wgcna(form_data):
 
     }
     ).json()
+
 
     return {
         "results": response,
