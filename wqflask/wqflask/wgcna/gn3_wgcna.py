@@ -26,7 +26,6 @@ def process_dataset(trait_list):
     traits = []
     strains = []
 
-
     for trait in trait_list:
         traits.append(trait[0].name)
 
@@ -82,26 +81,36 @@ def run_wgcna(form_data):
     trait_dataset = fetch_trait_data(form_data)
     form_data["minModuleSize"] = int(form_data["MinModuleSize"])
 
+    form_data["SoftThresholds"] = [int(threshold.strip())
+                                   for threshold in form_data['SoftThresholds'].rstrip().split(",")]
 
+    try:
 
+        response = requests.post(wgcna_api, json={
+            "sample_names": list(set(trait_dataset["sample_names"])),
+            "trait_names": trait_dataset["trait_names"],
+            "trait_sample_data": list(trait_dataset["input"].values()),
+            **form_data
 
-    form_data["SoftThresholds"]  = [int(threshold.strip())
-                      for threshold in form_data['SoftThresholds'].rstrip().split(",")]
+        }
+        )
 
+        status_code = response.status_code
+        response = response.json()
 
+        if status_code != 200:
+            return {
+                "error": response
+            }
 
-    response = requests.post(wgcna_api, json={
-        "sample_names": list(set(trait_dataset["sample_names"])),
-        "trait_names": trait_dataset["trait_names"],
-        "trait_sample_data": list(trait_dataset["input"].values()),
-        **form_data
+        return {
+            "error": 'null',
+            "results": response,
+            "data": process_wgcna_data(response["data"]),
+            "image": process_image(response["data"])
+        }
 
-    }
-    ).json()
-
-
-    return {
-        "results": response,
-        "data": process_wgcna_data(response["data"]),
-        "image": process_image(response["data"])
-    }
+    except requests.exceptions.ConnectionError:
+        return {
+            "error": "A connection error to perform computation occurred"
+        }
