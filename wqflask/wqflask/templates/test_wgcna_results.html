@@ -70,6 +70,10 @@
 }
 </style>
 <div class="container">
+    {% if  error!='null' %}
+     <h4 style="text-align: center;">{{error}}</h4>
+
+    {% else %}
     <div>
         <div >
             <h2 style="text-align:center">Soft Thresholds </h2>
@@ -110,6 +114,9 @@
              <table id="phenos" class="display"  width="40vw" ></table>
         </div>
     </div>
+
+{% endif %}
+
 </div>
 
 {% endblock %}
