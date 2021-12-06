@@ -1,0 +1,199 @@
+{%extends "base.html"%}
+
+{%block content%}
+<div class="container">
+  <form id="partial-correlations-form"
+	method="POST"
+	action="{{url_for('partial_correlations')}}">
+    {%with messages = get_flashed_messages(with_categories=true)%}
+    {%if messages:%}
+    <ul class=flashes>
+      {%for category, message in messages:%}
+      <li class="{{category}}">{{message}}</li>
+      {%endfor%}
+    </ul>
+    {%endif%}
+    {%endwith%}
+
+    <input type="hidden" name="step" id="step-indicator" value="{{step}}" />
+    <input type="hidden"
+	   name="traits_list"
+	   value="{% for trait in traits_list %}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{% endfor %}">
+
+    {%if primary_trait:%}
+    <input type="hidden"
+	   name="primary_trait"
+	   value="{{primary_trait['name']}}:::{{primary_trait['dataset']}}:::{{primary_trait['symbol']}}:::{{primary_trait['description']}}:::{{primary_trait['data_hmac']}}"
+	   id="trait_{{primary_trait['data_hmac']}}" />
+    <p>
+      Primary Trait: {{primary_trait["name"]}}&nbsp;-&nbsp;
+      {{primary_trait["symbol"]}}&nbsp;-&nbsp;{{primary_trait["description"]}}
+    </p>
+    {%endif%}
+
+    {%if control_traits:%}
+    <input type="hidden"
+	   name="control_traits"
+	   value="{%for trait in control_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{%endfor%}" />
+    <p>
+      Control Traits:
+      <ul>
+	{%for trait in control_traits:%}
+	<li>
+	  {{trait["name"]}}&nbsp;-&nbsp;{{trait["symbol"]}}&nbsp;-&nbsp;
+	  {{trait["description"]}}</li>
+	{%endfor%}
+      </ul>
+    </p>
+    {%endif%}
+
+    {%if target_traits:%}
+    <input type="hidden"
+	   name="target_traits"
+	   value="{%for trait in target_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}},{%endfor%}" />
+        <p>
+      Target Traits:
+      <ul>
+	{%for trait in target_traits:%}
+	<li>
+	  {{trait["name"]}}&nbsp;-&nbsp;{{trait["symbol"]}}&nbsp;-&nbsp;
+	  {{trait["description"]}}</li>
+	{%endfor%}
+      </ul>
+    </p>
+    {%endif%}
+
+
+
+    {%if step == "select-primary":%}
+    <p>Please select the primary trait (X)</p>
+    {%for trait in traits_list:%}
+    <div class="form-group">
+      <input type="radio"
+	     name="primary_trait"
+	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
+	     id="trait_{{trait['data_hmac']}}" />
+      <label for="trait_{{trait['data_hmac']}}">
+	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
+      </label>
+    </div>
+    {%endfor%}
+    <button type="submit" class="btn btn-primary">
+      Next: Select Control Traits
+    </button>
+    {%endif%}
+
+
+
+    {%if step == "select-controls":%}
+
+    <p>Select a maximum of three (3) control traits (Z)</p>
+    {%for trait in traits_list:%}
+    <div class="form-group">
+      <input type="checkbox"
+	     name="control_traits[]"
+	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
+	     id="trait_{{trait['data_hmac']}}" />
+      <label for="trait_{{trait['data_hmac']}}">
+	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
+      </label>
+    </div>
+    {%endfor%}
+    <button type="submit" class="btn btn-primary">
+      Next: Select Target Traits
+    </button>
+    {%endif%}
+
+
+
+    {%if step == "select-targets":%}
+    <p>Select at least one target trait (Y)</p>
+    {%for trait in traits_list:%}
+    <div class="form-group">
+      <input type="checkbox"
+	     name="target_traits[]"
+	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
+	     checked="checked"
+	     id="trait_{{trait['data_hmac']}}" />
+      <label for="trait_{{trait['data_hmac']}}">
+	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
+      </label>
+    </div>
+    {%endfor%}
+    <button type="submit" class="btn btn-primary">
+      Next: Select Correlation Method
+    </button>
+    {%endif%}
+
+
+
+    {%if step == "select-corr-method":%}
+    <div class="form-group">
+      <label for="target-db-input">Choose Database</label>
+      <select id="target-db-input" required="required" name="target_db">
+	{%if target_dbs:%}
+	{%for item in target_dbs:%}
+	{%if "description" in item.keys():%}
+        <option value="{{item['value']}}">{{item['description']}}</option>
+	{%else:%}
+	{%for group, opts in item.items()%}
+	{%if opts | length > 0:%}
+	<optgroup label="{{group}} ------">
+	  {%for item2 in opts:%}
+	  <option value="{{item2['value']}}">{{item2['description']}}</option>
+	  {%endfor%}
+	</optgroup>
+	{%endif%}
+	{%endfor%}
+	{%endif%}
+	{%endfor%}
+	{%endif%}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="corr-method-input">Compute</label>
+      <select id="corr-method-input" required="required" name="method">
+	<option value="Genetic Correlation, Pearson's r">
+	  Genetic Correlation, Pearson's r</option>
+	<option value="Genetic Correlation, Spearman's rho">
+	  Genetic Correlation, Spearman's rho</option>
+	<option value="SGO Literature Correlation">
+	  SGO Literature Correlation</option>
+	<option value="Tissue Correlation, Pearson's r">
+	  Tissue Correlation, Pearson's r</option>
+	<option value="Tissue Correlation, Spearman's rho">
+	  Tissue Correlation, Spearman's rho</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="criteria-input">Return</label>
+      <select id="criteria-input" required="required" name="criteria" size="1">
+	<option value="100">top 100</option>
+	<option value="200">top 200</option>
+	<option value="500" selected="selected">top 500</option>
+	<option value="1000">top 1000</option>
+	<option value="2000">top 2000</option>
+	<option value="5000">top 5000</option>
+	<option value="10000">top 10000</option>
+	<option value="15000">top 15000</option>
+	<option value="20000">top 20000</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      Run Partial Correlation
+    </button>
+    {%endif%}
+
+    {%if step == "run-correlation":%}
+    <input type="hidden" name="selected_method" value="{{method}}" />
+    <input type="hidden" name="selected_target_db" value="{{target_db}}" />
+    <input type="hidden" name="selected_criteria" value="{{criteria}}" />
+
+    {{corr_results}}
+    {%endif%}
+  </form>
+</div>
+{%endblock%}

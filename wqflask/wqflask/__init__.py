@@ -98,3 +98,4 @@ from wqflask import user_login
 from wqflask import user_session
 
 import wqflask.views
+import wqflask.partial_correlations_views
