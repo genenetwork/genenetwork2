@@ -149,6 +149,8 @@ fi
 # We may change this one:
 export PYTHONPATH=$PYTHON_GN_PATH:$GN2_BASE_DIR/wqflask:$GN3_PYTHONPATH:$PYTHONPATH
 
+export PYTHONPATH="${GN3_DEV_REPO_PATH:+$GN3_DEV_REPO_PATH:}:${PYTHONPATH}"
+
 # Our UNIX TMPDIR defaults to /tmp - change this on a shared server
 if [ -z $TMPDIR ]; then
     TMPDIR="/tmp"
