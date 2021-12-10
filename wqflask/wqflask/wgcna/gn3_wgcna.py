@@ -98,12 +98,7 @@ def run_wgcna(form_data):
         status_code = response.status_code
         response = response.json()
 
-        if status_code != 200:
-            return {
-                "error": response
-            }
-
-        return {
+        return {"error": response} if status_code != 200 else {
             "error": 'null',
             "results": response,
             "data": process_wgcna_data(response["data"]),
