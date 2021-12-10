@@ -1,0 +1,30 @@
+#partial-correlations-form {
+    width: 100%;
+    display: grid;
+    grid-column-gap: 1em;
+}
+
+#main-form {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+
+#form-display-area {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
+
+.label-element-combo {
+    width: 100%;
+    display: grid;
+}
+
+.with-trait > label {
+    width: 80%;
+    grid-column-start: 2;
+}
+
+.with-trait > input {
+    width: 20%;
+    grid-column-start: 2;
+}

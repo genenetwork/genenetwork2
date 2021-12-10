@@ -1,10 +1,17 @@
 {%extends "base.html"%}
 
+{%block title%}Partial Correlations:{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css" href="/static/new/css/partial_correlations.css" />
+{%endblock%}
+
 {%block content%}
-<div class="container">
-  <form id="partial-correlations-form"
-	method="POST"
-	action="{{url_for('partial_correlations')}}">
+<form id="partial-correlations-form"
+      method="POST"
+      action="{{url_for('partial_correlations')}}">
+
+  <div id="main-form">
     {%with messages = get_flashed_messages(with_categories=true)%}
     {%if messages:%}
     <ul class=flashes>
@@ -15,60 +22,10 @@
     {%endif%}
     {%endwith%}
 
-    <input type="hidden" name="step" id="step-indicator" value="{{step}}" />
-    <input type="hidden"
-	   name="traits_list"
-	   value="{% for trait in traits_list %}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{% endfor %}">
-
-    {%if primary_trait:%}
-    <input type="hidden"
-	   name="primary_trait"
-	   value="{{primary_trait['name']}}:::{{primary_trait['dataset']}}:::{{primary_trait['symbol']}}:::{{primary_trait['description']}}:::{{primary_trait['data_hmac']}}"
-	   id="trait_{{primary_trait['data_hmac']}}" />
-    <p>
-      Primary Trait: {{primary_trait["name"]}}&nbsp;-&nbsp;
-      {{primary_trait["symbol"]}}&nbsp;-&nbsp;{{primary_trait["description"]}}
-    </p>
-    {%endif%}
-
-    {%if control_traits:%}
-    <input type="hidden"
-	   name="control_traits"
-	   value="{%for trait in control_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{%endfor%}" />
-    <p>
-      Control Traits:
-      <ul>
-	{%for trait in control_traits:%}
-	<li>
-	  {{trait["name"]}}&nbsp;-&nbsp;{{trait["symbol"]}}&nbsp;-&nbsp;
-	  {{trait["description"]}}</li>
-	{%endfor%}
-      </ul>
-    </p>
-    {%endif%}
-
-    {%if target_traits:%}
-    <input type="hidden"
-	   name="target_traits"
-	   value="{%for trait in target_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}},{%endfor%}" />
-        <p>
-      Target Traits:
-      <ul>
-	{%for trait in target_traits:%}
-	<li>
-	  {{trait["name"]}}&nbsp;-&nbsp;{{trait["symbol"]}}&nbsp;-&nbsp;
-	  {{trait["description"]}}</li>
-	{%endfor%}
-      </ul>
-    </p>
-    {%endif%}
-
-
-
     {%if step == "select-primary":%}
     <p>Please select the primary trait (X)</p>
     {%for trait in traits_list:%}
-    <div class="form-group">
+    <div class="label-element-combo with-trait">
       <input type="radio"
 	     name="primary_trait"
 	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
@@ -89,7 +46,7 @@
 
     <p>Select a maximum of three (3) control traits (Z)</p>
     {%for trait in traits_list:%}
-    <div class="form-group">
+    <div class="label-element-combo">
       <input type="checkbox"
 	     name="control_traits[]"
 	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
@@ -109,7 +66,7 @@
     {%if step == "select-targets":%}
     <p>Select at least one target trait (Y)</p>
     {%for trait in traits_list:%}
-    <div class="form-group">
+    <div class="label-element-combo">
       <input type="checkbox"
 	     name="target_traits[]"
 	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
@@ -128,7 +85,7 @@
 
 
     {%if step == "select-corr-method":%}
-    <div class="form-group">
+    <div class="label-element-combo">
       <label for="target-db-input">Choose Database</label>
       <select id="target-db-input" required="required" name="target_db">
 	{%if target_dbs:%}
@@ -151,7 +108,7 @@
       </select>
     </div>
 
-    <div class="form-group">
+    <div class="label-element-combo">
       <label for="corr-method-input">Compute</label>
       <select id="corr-method-input" required="required" name="method">
 	<option value="Genetic Correlation, Pearson's r">
@@ -167,7 +124,7 @@
       </select>
     </div>
 
-    <div class="form-group">
+    <div class="label-element-combo">
       <label for="criteria-input">Return</label>
       <select id="criteria-input" required="required" name="criteria" size="1">
 	<option value="100">top 100</option>
@@ -194,6 +151,65 @@
 
     {{corr_results}}
     {%endif%}
-  </form>
-</div>
+  </div>
+
+  <div id="form-display-area">
+    <input type="hidden" name="step" id="step-indicator" value="{{step}}" />
+    <input type="hidden"
+	   name="traits_list"
+	   value="{% for trait in traits_list %}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{% endfor %}">
+
+    {%if primary_trait:%}
+    <input type="hidden"
+	   name="primary_trait"
+	   value="{{primary_trait['name']}}:::{{primary_trait['dataset']}}:::{{primary_trait['symbol']}}:::{{primary_trait['description']}}:::{{primary_trait['data_hmac']}}"
+	   id="trait_{{primary_trait['data_hmac']}}" />
+
+    <div class="panel panel-info">
+      <div class="panel-heading">Primary Trait (X)</div>
+      <div class="panel-body">
+	{{primary_trait["name"]}}&nbsp;-&nbsp;
+	{{primary_trait["symbol"]}}&nbsp;-&nbsp;{{primary_trait["description"]}}
+      </div>
+    </div>
+    {%endif%}
+
+    {%if target_traits:%}
+    <input type="hidden"
+	   name="target_traits"
+	   value="{%for trait in target_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}},{%endfor%}" />
+    <div class="panel panel-info">
+      <div class="panel-heading">Target Traits (Y)</div>
+      <div class="panel-body">
+	<ul>
+	  {%for trait in target_traits:%}
+	  <li>
+	    {{trait["name"]}}&nbsp;-&nbsp;{{trait["symbol"]}}&nbsp;-&nbsp;
+	    {{trait["description"]}}</li>
+	  {%endfor%}
+	</ul>
+      </div>
+    </div>
+    {%endif%}
+
+    {%if control_traits:%}
+    <input type="hidden"
+	   name="control_traits"
+	   value="{%for trait in control_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{%endfor%}" />
+    <div class="panel panel-info">
+      <div class="panel-heading">Control Traits (Z)</div>
+      <div class="panel-body">
+	<ul>
+	  {%for trait in control_traits:%}
+	  <li>
+	    {{trait["name"]}}&nbsp;-&nbsp;{{trait["symbol"]}}&nbsp;-&nbsp;
+	    {{trait["description"]}}</li>
+	  {%endfor%}
+	</ul>
+      </div>
+    </div>
+    {%endif%}
+  </div>
+
+</form>
 {%endblock%}
