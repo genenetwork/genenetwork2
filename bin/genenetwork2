@@ -100,6 +100,8 @@ if [ -z $GEMMA_WRAPPER_COMMAND ]; then
     export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
 fi
 
+export PYTHONPATH="${GN3_DEV_REPO_PATH:+$GN3_DEV_REPO_PATH:}:${PYTHONPATH}"
+
 # Our UNIX TMPDIR defaults to /tmp - change this on a shared server
 if [ -z $TMPDIR ]; then
     TMPDIR="/tmp"
