@@ -51,7 +51,7 @@ def process_step_select_controls(
     hmacs =(primary_trait["data_hmac"],) + tuple(
         trait["data_hmac"] for trait in control_traits)
     return (
-        "select-targets", primary_trait, control_traits, target_traits,
+        "select-corr-method", primary_trait, control_traits, target_traits,
         tuple(
             trait for trait in traits_list if trait["data_hmac"] not in hmacs),
         corr_method)
