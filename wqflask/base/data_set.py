@@ -49,6 +49,7 @@ import collections
 import codecs
 
 import json
+import ijson
 import requests
 import gzip
 import pickle as pickle
@@ -1294,7 +1295,6 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
 
     table_timestamp = query_table_timestamp(dataset_type)
 
-
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
@@ -1311,7 +1311,8 @@ def fetch_cached_results(dataset_name: str, dataset_type: str):
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
+            # return json.load(file_handler)
+            return [obj for obj in ijson.items(file_handler, "", use_float=True)][0]
 
-            return json.load(file_handler)
     except FileNotFoundError:
         pass
