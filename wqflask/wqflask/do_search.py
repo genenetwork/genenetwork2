@@ -515,10 +515,7 @@ class LrsSearch(DoSearch):
 
         self.search_term = converted_search_term
 
-        if len(self.search_term) > 2:
-            from_clause = ", Geno"
-        else:
-            from_clause = ""
+        from_clause = ""
 
         return from_clause
 
