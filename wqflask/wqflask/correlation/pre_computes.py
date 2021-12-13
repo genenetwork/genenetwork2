@@ -156,3 +156,13 @@ def get_datasets_data(base_dataset, target_dataset_data):
         samples_fetched, base_traits_data)
 
     return (target_results, base_results)
+
+
+
+def get_file_size(file_path):
+    """params:file_path
+       return:size of file in MB
+"""
+    file = Path(file_path)
+    size_in_bytes = file.stat().st_size
+    return float(size_in_bytes)/(1024**2)
