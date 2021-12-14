@@ -185,7 +185,7 @@ def consume_json_file_handler(file_path, prefix=""):
         return json.load(file_handler)
 
 
-def generate_button_configs(dev_mode="DEBUG"):
+def generate_button_configs(environ="production"):
     user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8"))
 
     try:
@@ -195,4 +195,4 @@ def generate_button_configs(dev_mode="DEBUG"):
     except Exception:
         user_role = False
 
-    return True if (user_role or dev_mode == "DEBUG") else False
+    return True if (user_role or environ != "production") else False
