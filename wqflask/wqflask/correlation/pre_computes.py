@@ -28,7 +28,7 @@ def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_
 
     if bool(new_traits_metadata):
         dataset_metadata.update(new_traits_metadata)
-             
+
     with open(file_path, "w+") as file_handler:
         json.dump(dataset_metadata, file_handler)
 
@@ -158,7 +158,6 @@ def get_datasets_data(base_dataset, target_dataset_data):
     return (target_results, base_results)
 
 
-
 def get_file_size(file_path):
     """params:file_path
        return:size of file in MB
@@ -166,3 +165,16 @@ def get_file_size(file_path):
     file = Path(file_path)
     size_in_bytes = file.stat().st_size
     return float(size_in_bytes)/(1024**2)
+
+
+def consume_json_file_handler(file_path, prefix=""):
+    """function to read any json file stream
+    or load based on size assumption:one object"""
+
+    with open(file_path) as file_handler:
+        if get_file_size(file_path) > 50:
+
+            streamed_json = [obj for obj in ijson.items(file_handler,prefix,use_float=True)]
+            return streamed_json if prefix!= "" else streamed_json[0]
+
+        return json.load(file_handler)
