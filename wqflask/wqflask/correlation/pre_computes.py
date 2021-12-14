@@ -2,9 +2,13 @@ import json
 import os
 import hashlib
 from pathlib import Path
+from flask import g
+from utility.tools import GN_PROXY_URL
 
 from base.data_set import query_table_timestamp
 from base.webqtlConfig import TMPDIR
+
+from gn3.authentication import get_highest_user_access_role
 
 
 def fetch_all_cached_metadata(dataset_name):
@@ -174,7 +178,22 @@ def consume_json_file_handler(file_path, prefix=""):
     with open(file_path) as file_handler:
         if get_file_size(file_path) > 50:
 
-            streamed_json = [obj for obj in ijson.items(file_handler,prefix,use_float=True)]
-            return streamed_json if prefix!= "" else streamed_json[0]
+            streamed_json = [obj for obj in ijson.items(
+                file_handler, prefix, use_float=True)]
+            return streamed_json if prefix != "" else streamed_json[0]
 
         return json.load(file_handler)
+
+
+def generate_button_configs(dev_mode="DEBUG"):
+    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8"))
+
+    try:
+        user_role = get_highest_user_access_role(
+            user_id=user_id, resource_id="", gn_proxy_url=GN_PROXY_URL)["admin"]
+
+    except Exception:
+        # where user doesnt exists
+        user_role = False
+
+    return {"display": True} if (user_role or dev_mode == "DEBUG") else {"display": False}
