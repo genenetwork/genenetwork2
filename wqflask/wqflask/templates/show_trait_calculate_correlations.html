@@ -120,7 +120,9 @@
                   <input type="button" class="btn corr_compute submit_special btn-success" data-url="/corr_compute" title="Compute Correlation" value="Compute">
               </div>
                   <div class="col-xs-3 controls">
+                 {% if show_test_button is sameas true %}
                   <input type="button" class="btn test_corr_compute submit_special btn-success" data-url="/test_corr_compute" title="Compute Correlation" value="Test Compute">
+                  {% endif %}
               </div>
           </div>
       </div>
