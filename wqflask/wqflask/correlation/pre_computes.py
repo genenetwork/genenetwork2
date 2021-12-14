@@ -193,7 +193,6 @@ def generate_button_configs(dev_mode="DEBUG"):
             user_id=user_id, resource_id="", gn_proxy_url=GN_PROXY_URL)["admin"]
 
     except Exception:
-        # where user doesnt exists
         user_role = False
 
-    return {"display": True} if (user_role or dev_mode == "DEBUG") else {"display": False}
+    return True if (user_role or dev_mode == "DEBUG") else False
