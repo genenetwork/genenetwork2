@@ -6,6 +6,7 @@ from flask import flash, request, current_app, render_template
 from gn3.computations.partial_correlations import partial_correlations_entry
 
 from wqflask import app
+from utility.tools import GN_SERVER_URL
 
 def parse_trait(trait_str: str) -> Union[dict, None]:
     keys = ("name", "dataset", "symbol", "description", "data_hmac")
@@ -260,4 +261,4 @@ def partial_correlations():
 
     return render_template(
         "partial_correlations.html", **args_dict, target_dbs=target_dbs,
-        corr_results=corr_results)
+        corr_results=corr_results, part_corr_url=f"{GN_SERVER_URL}correlation/partial")
