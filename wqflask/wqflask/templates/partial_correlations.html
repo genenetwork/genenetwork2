@@ -139,7 +139,10 @@
       </select>
     </div>
 
-    <button type="submit" class="btn btn-primary">
+    <button id="run-partial-corr-button"
+	    type="submit"
+	    class="btn btn-primary"
+	    data-url="{{part_corr_url}}">
       Run Partial Correlation
     </button>
     {%endif%}
@@ -212,4 +215,22 @@
   </div>
 
 </form>
+
+<div id="partial-correlation-results">
+  <span id="partial-correlations-progress-indicator"
+	style="display: {%if step == 'run-correlation':%}block{%else:%}none{%endif%};">
+    <img src="/static/gif/waitAnima2.gif">
+  </span>
+  <div id="part-corr-success">
+  </div>
+  <div id="part-corr-error">
+  </div>
+</div>
+{%endblock%}
+
+{%block js%}
+{%if step == "select-corr-method":%}
+<script type="text/javascript"
+	src="/static/new/javascript/partial_correlations.js"></script>
+{%endif%}
 {%endblock%}
