@@ -221,7 +221,7 @@ def pcorrelations(conn, values):
         tuple(trait_fullname(trait) for trait in values["control_traits"]),
         values["method"], values["criteria"], values["target_db"])
 
-@app.route("/partial_correlations", methods=("POST",))
+@app.route("/partial_correlations", methods=["POST"])
 def partial_correlations():
     form = request.form
     traits_list = tuple(filter(
