@@ -222,6 +222,127 @@
     <img src="/static/gif/waitAnima2.gif">
   </span>
   <div id="part-corr-success">
+    <table id="part-corr-results-publish" style="display:none;">
+      <thead>
+	<tr>
+	  <th>_</th>
+	  <th>Record</th>
+	  <th>Phenotype</th>
+	  <th>Authors</th>
+	  <th>Year</th>
+	  <th>N</th>
+	  <th>Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>{%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	</tr>
+      </thead>
+
+      <tbody>
+	<tr class="template-publish-results-row">
+	  <td data-column-heading="_"></td>
+	  <td data-column-heading="Record"></td>
+	  <td data-column-heading="Phenotype"></td>
+	  <td data-column-heading="Authors"></td>
+	  <td data-column-heading="Year"></td>
+	  <td data-column-heading="N"></td>
+	  <td data-column-heading="Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	  </td>
+	  <td data-column-heading="p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	  </td>
+	  <td data-column-heading="{%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	  </td>
+	  <td data-column-heading="p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	  </td>
+	  <td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+
+    <table id="part-corr-results-geno" style="display:none;">
+      <thead>
+	<tr>
+	  <th>_</th>
+	  <th>Chr</th>
+	  <th>Megabase</th>
+	  <th>N</th>
+	  <th>Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>{%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	</tr>
+      </thead>
+
+      <tbody>
+	<tr class="template-geno-results-row">
+	  <td data-column-heading="_"></td>
+	  <td data-column-heading="Chr"></td>
+	  <td data-column-heading="Megabase"></td>
+	  <td data-column-heading="N"></td>
+	  <td data-column-heading="Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	  </td>
+	  <td data-column-heading="p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	  </td>
+	  <td data-column-heading="{%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	  </td>
+	  <td data-column-heading="p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	  </td>
+	  <td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+
+    <table id="part-corr-results-probeset" style="display:none;">
+      <thead>
+	<tr>
+	  <th>_</th>
+	  <th>Record</th>
+	  <th>Gene ID</th>
+	  <th>Homologene ID</th>
+	  <th>Symbol</th>
+	  <th>Description</th>
+	  <th>Chr</th>
+	  <th>Megabase</th>
+	  <th>Mean Expr</th>
+	  <th>N</th>
+	  <th>Sample Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Sample p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>Sample {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Sample p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Lit Corr</th>
+	  <th>Tissue {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Tissue p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	</tr>
+      </thead>
+
+      <tbody>
+	<tr class="template-probeset-results-row">
+	  <td data-column-heading="_"></td>
+	  <td data-column-heading="Record"></td>
+	  <td data-column-heading="Gene ID"></td>
+	  <td data-column-heading="Homologene ID"></td>
+	  <td data-column-heading="Symbol"></td>
+	  <td data-column-heading="Description"></td>
+	  <td data-column-heading="Chr"></td>
+	  <td data-column-heading="Megabase"></td>
+	  <td data-column-heading="Mean Expr"></td>
+	  <td data-column-heading="N"></td>
+	  <td data-column-heading="Sample Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}"></td>
+	  <td data-column-heading="Sample p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})"></td>
+	  <td data-column-heading="Sample {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}"></td>
+	  <td data-column-heading="Sample p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})"></td>
+	  <td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}"></td>
+	  <td data-column-heading="Lit Corr"></td>
+	  <td data-column-heading="Tissue {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}"></td>
+	  <td data-column-heading="Tissue p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})"></td>
+	</tr>
+      </tbody>
+    </table>
   </div>
   <div id="part-corr-error">
   </div>
