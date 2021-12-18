@@ -66,6 +66,7 @@ function display_partial_corr_results(data, status, xhr) {
     child = document.createElement("p");
     child.textContent = data;
     parent.appendChild(child);
+    console.log(data);
 }
 
 function display_partial_corr_error(xhr, status, error) {
