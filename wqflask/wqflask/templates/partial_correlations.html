@@ -29,8 +29,9 @@
       <input type="radio"
 	     name="primary_trait"
 	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
-	     id="trait_{{trait['data_hmac']}}" />
-      <label for="trait_{{trait['data_hmac']}}">
+	     id="trait_{{trait['data_hmac']}}"
+	     class="selector-element" />
+      <label for="trait_{{trait['data_hmac']}}" class="label-element">
 	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
       </label>
     </div>
@@ -46,12 +47,13 @@
 
     <p>Select a maximum of three (3) control traits (Z)</p>
     {%for trait in traits_list:%}
-    <div class="label-element-combo">
+    <div class="label-element-combo with-trait">
       <input type="checkbox"
 	     name="control_traits[]"
 	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
-	     id="trait_{{trait['data_hmac']}}" />
-      <label for="trait_{{trait['data_hmac']}}">
+	     id="trait_{{trait['data_hmac']}}"
+	     class="selector-element" />
+      <label for="trait_{{trait['data_hmac']}}" class="label-element">
 	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
       </label>
     </div>
