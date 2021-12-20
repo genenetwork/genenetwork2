@@ -66,6 +66,16 @@ function rho_or_r(method) {
     return "r";
 }
 
+function format_number(num) {
+    if(num === null) {
+	return NaN;
+    }
+    if(Math.abs(num) <= 1.04e-4) {
+	return num.toExponential(2);
+    }
+    return num.toFixed(5);
+}
+
 function display_publish_results(primary, controls, correlations, method) {
     table = document.getElementById("part-corr-results-publish");
     table.setAttribute("style", "display: block;");
@@ -88,16 +98,16 @@ function display_publish_results(primary, controls, correlations, method) {
 	    'td[data-column-heading="N"]').innerHTML = item["noverlap"];
 	new_row.querySelector(
 	    `td[data-column-heading="Partial ${rho_or_r(method)}"]`
-	).innerHTML = item["partial_corr"];
+	).innerHTML = format_number(item["partial_corr"]);
 	new_row.querySelector(
 	    `td[data-column-heading="p(partial ${rho_or_r(method)})"]`
-	).innerHTML = item["partial_corr_p_value"];
+	).innerHTML = format_number(item["partial_corr_p_value"]);
 	new_row.querySelector(
 	    `td[data-column-heading="${rho_or_r(method)}"]`
-	).innerHTML = item["corr"];
+	).innerHTML = format_number(item["corr"]);
 	new_row.querySelector(
 	    `td[data-column-heading="p(${rho_or_r(method)})"]`
-	).innerHTML = item["corr_p_value"];
+	).innerHTML = format_number(item["corr_p_value"]);
 	new_row.querySelector(
 	    `td[data-column-heading="delta ${rho_or_r(method)}"]`
 	).innerHTML = format_number(item["delta"]);
