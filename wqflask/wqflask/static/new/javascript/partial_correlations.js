@@ -59,14 +59,71 @@ function partial_corr_request_data() {
     }
 }
 
+function rho_or_r(method) {
+    if (method === "spearman") {
+	return "rho";
+    }
+    return "r";
+}
+
+function display_publish_results(primary, controls, correlations, method) {
+    table = document.getElementById("part-corr-results-publish");
+    table.setAttribute("style", "display: block;");
+    table_body = document.querySelector("#part-corr-results-publish tbody");
+    template_row = document.querySelector(
+	"#part-corr-results-publish tr.template-publish-results-row");
+    correlations.forEach(function(item, index, arr) {
+	new_row = template_row.cloneNode(true);
+	new_row.setAttribute("class", "results-row");
+	new_row.querySelector(
+	    'td[data-column-heading="Record"]').innerHTML = item["trait_name"];
+	new_row.querySelector(
+	    'td[data-column-heading="Phenotype"]').innerHTML = (
+	    item["post_publication_description"]);
+	new_row.querySelector(
+	    'td[data-column-heading="Authors"]').innerHTML = item["authors"];
+	new_row.querySelector(
+	    'td[data-column-heading="Year"]').innerHTML = item["year"];
+	new_row.querySelector(
+	    'td[data-column-heading="N"]').innerHTML = item["noverlap"];
+	new_row.querySelector(
+	    `td[data-column-heading="Partial ${rho_or_r(method)}"]`
+	).innerHTML = item["partial_corr"];
+	new_row.querySelector(
+	    `td[data-column-heading="p(partial ${rho_or_r(method)})"]`
+	).innerHTML = item["partial_corr_p_value"];
+	new_row.querySelector(
+	    `td[data-column-heading="${rho_or_r(method)}"]`
+	).innerHTML = item["corr"];
+	new_row.querySelector(
+	    `td[data-column-heading="p(${rho_or_r(method)})"]`
+	).innerHTML = item["corr_p_value"];
+	new_row.querySelector(
+	    `td[data-column-heading="delta ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["delta"]);
+	table_body.appendChild(new_row);
+    });
+    table_body.removeChild(template_row);
+}
+
+function display_geno_results(primary, controls, correlations) {}
+function display_probeset_results(primary, controls, correlations) {}
+
 function display_partial_corr_results(data, status, xhr) {
     progress_indicator = document.getElementById(
 	"partial-correlations-progress-indicator").style.display = "none";
-    parent = document.getElementById("part-corr-success");
-    child = document.createElement("p");
-    child.textContent = data;
-    parent.appendChild(child);
     console.log(data);
+    display_functions = {
+	"Publish": display_publish_results,
+	"Geno": display_geno_results,
+	"ProbeSet": display_probeset_results
+    }
+
+    display_functions[data["results"]["dataset_type"]](
+	data["results"]["primary_traits"],
+	data["results"]["control_traits"],
+	data["results"]["correlations"],
+	data["results"]["method"]);
 }
 
 function display_partial_corr_error(xhr, status, error) {
