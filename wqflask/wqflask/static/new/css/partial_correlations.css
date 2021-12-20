@@ -7,6 +7,7 @@
 #main-form {
     grid-column-start: 1;
     grid-column-end: 2;
+    text-align: left;
 }
 
 #form-display-area {
@@ -27,4 +28,13 @@
 .with-trait > input {
     width: 20%;
     grid-column-start: 2;
+}
+
+td, th {
+    border: 1px solid;
+    text-align: left;
+}
+
+tr:nth-of-type(2n) {
+    background: #DDDDDD;
 }
