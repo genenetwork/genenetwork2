@@ -116,8 +116,96 @@ function display_publish_results(primary, controls, correlations, method) {
     table_body.removeChild(template_row);
 }
 
-function display_geno_results(primary, controls, correlations) {}
-function display_probeset_results(primary, controls, correlations) {}
+function display_geno_results(primary, controls, correlations) {
+    table = document.getElementById("part-corr-results-geno");
+    table.setAttribute("style", "display: block;");
+    table_body = document.querySelector("#part-corr-results-geno tbody");
+    template_row = document.querySelector(
+	"#part-corr-results-geno tr.template-geno-results-row");
+    correlations.forEach(function(item, index, arr) {
+	new_row = template_row.cloneNode(true);
+	new_row.setAttribute("class", "results-row");
+	new_row.querySelector(
+	    'td[data-column-heading="Chr"]').innerHTML = item["chr"];
+	new_row.querySelector(
+	    'td[data-column-heading="Megabase"]').innerHTML = item["mb"];
+	new_row.querySelector(
+	    'td[data-column-heading="N"]').innerHTML = item["noverlap"];
+	new_row.querySelector(
+	    `td[data-column-heading="Partial ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["partial_corr"]);
+	new_row.querySelector(
+	    `td[data-column-heading="p(partial ${rho_or_r(method)})"]`
+	).innerHTML = format_number(item["partial_corr_p_value"]);
+	new_row.querySelector(
+	    `td[data-column-heading="${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["corr"]);
+	new_row.querySelector(
+	    `td[data-column-heading="p(${rho_or_r(method)})"]`
+	).innerHTML = format_number(item["corr_p_value"]);
+	new_row.querySelector(
+	    `td[data-column-heading="delta ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["delta"]);
+	table_body.appendChild(new_row);
+    });
+    table_body.removeChild(template_row);
+}
+
+function display_probeset_results(primary, controls, correlations) {
+    table = document.getElementById("part-corr-results-probeset");
+    table.setAttribute("style", "display: block;");
+    table_body = document.querySelector("#part-corr-results-probeset tbody");
+    template_row = document.querySelector(
+	"#part-corr-results-probeset tr.template-probeset-results-row");
+    correlations.forEach(function(item, index, arr) {
+	new_row = template_row.cloneNode(true);
+	new_row.setAttribute("class", "results-row");
+	new_row.querySelector(
+	    'td[data-column-heading="Record"]').innerHTML = item["trait_name"];
+	new_row.querySelector(
+	    'td[data-column-heading="Gene ID"]').innerHTML = item["geneid"];
+	new_row.querySelector(
+	    'td[data-column-heading="Homologene ID"]').innerHTML = item["homologeneid"];
+	new_row.querySelector(
+	    'td[data-column-heading="Symbol"]').innerHTML = item["symbol"];
+	new_row.querySelector(
+	    'td[data-column-heading="Description"]').innerHTML = item["description"];
+	new_row.querySelector(
+	    'td[data-column-heading="Chr"]').innerHTML = item["chr"];
+	new_row.querySelector(
+	    'td[data-column-heading="Megabase"]').innerHTML = item["mb"];
+	new_row.querySelector(
+	    'td[data-column-heading="Mean Expr"]').innerHTML = item["mean_expr"];
+	new_row.querySelector(
+	    'td[data-column-heading="N"]').innerHTML = item["noverlap"];
+	new_row.querySelector(
+	    `td[data-column-heading="Sample Partial ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["partial_corr"]);
+	new_row.querySelector(
+	    `td[data-column-heading="Sample p(partial ${rho_or_r(method)})"]`
+	).innerHTML = format_number(item["partial_corr_p_value"]);
+	new_row.querySelector(
+	    `td[data-column-heading="Sample ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["corr"]);
+	new_row.querySelector(
+	    `td[data-column-heading="Sample p(${rho_or_r(method)})"]`
+	).innerHTML = format_number(item["corr_p_value"]);
+	new_row.querySelector(
+	    `td[data-column-heading="delta ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["delta"]);
+	new_row.querySelector(
+	    `td[data-column-heading="Lit Corr"]`
+	).innerHTML = format_number(item["l_corr"]);
+	new_row.querySelector(
+	    `td[data-column-heading="Tissue ${rho_or_r(method)}"]`
+	).innerHTML = format_number(item["tissue_corr"]);
+	new_row.querySelector(
+	    `td[data-column-heading="Tissue p(${rho_or_r(method)})"]`
+	).innerHTML = format_number(item["tissue_p_value"]);
+	table_body.appendChild(new_row);
+    });
+    table_body.removeChild(template_row);
+}
 
 function display_partial_corr_results(data, status, xhr) {
     progress_indicator = document.getElementById(
