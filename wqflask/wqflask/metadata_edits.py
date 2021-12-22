@@ -259,6 +259,13 @@ def update_phenotype(dataset_id: str, name: str):
         r = run_cmd(cmd=("csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
+
+        # Edge case where the csv file has not been edited!
+        if not any(json.loads(r.get("output")).values()):
+            flash(f"You have not modified the csv file you downloaded!",
+                  "warning")
+            return redirect(f"/datasets/{dataset_id}/traits/{name}"
+                            f"?resource-id={request.args.get('resource-id')}")
         diff_output = (f"{TMPDIR}/sample-data/diffs/"
                        f"{_file_name}.json")
         with open(diff_output, "w") as f:
