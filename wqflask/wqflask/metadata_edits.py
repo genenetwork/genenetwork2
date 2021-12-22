@@ -472,7 +472,7 @@ def approve_data(resource_id:str, file_name: str):
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
     TMPDIR = current_app.config.get("TMPDIR")
-    import pudb; pu.db
+    # import pudb; pu.db
     with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
                            file_name), 'r') as myfile:
         sample_data = json.load(myfile)
