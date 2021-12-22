@@ -16,7 +16,7 @@
     <h2>Additions Data:</h2>
     <div class="row">
         <div class="col-md-8">
-            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-additions">
                 <thead>
                     <th scope="col">Added Data</</th>
                 </thead>
@@ -37,7 +37,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-modifications">
                 <thead>
                     <th scope="col">Original</</th>
                     <th scope="col">Current</</th>
@@ -61,7 +61,7 @@
     <h2>Deleted Data:</h2>
     <div class="row">
         <div class="col-md-8">
-            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-deletions">
                 <thead>
                     <th scope="col">Deleted Data</</th>
                 </thead>
@@ -87,10 +87,9 @@
  gn_server_url = "{{ gn_server_url }}";
 
  $(document).ready( function() {
-     $('#table-approved').dataTable();
- })
- $(document).ready( function() {
-     $('#table-rejected').dataTable();
- })
+     $('#table-additions').dataTable();
+     $('#table-modifications').dataTable();
+     $('#table-deletions').dataTable();
+ });
 </script>
 {% endblock %}
