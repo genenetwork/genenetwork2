@@ -440,7 +440,14 @@ def show_diff(name):
     with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
                            name), 'r') as myfile:
         content = myfile.read()
-    return Response(content, mimetype='text/json')
+    content = json.loads(content)
+    for data in content.get("Modifications"):
+        data["Diff"] = "\n".join(difflib.ndiff([data.get("Original")],
+                                               [data.get("Current")]))
+    return render_template(
+        "display_diffs.html",
+        diff=content
+    )
 
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
@@ -465,6 +472,7 @@ def approve_data(resource_id:str, file_name: str):
                            passwd=current_app.config.get("DB_PASS"),
                            host=current_app.config.get("DB_HOST"))
     TMPDIR = current_app.config.get("TMPDIR")
+    import pudb; pu.db
     with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
                            file_name), 'r') as myfile:
         sample_data = json.load(myfile)
