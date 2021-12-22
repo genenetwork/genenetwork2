@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Trait Submission{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+
+{% block content %}
+<!-- Start of body -->
+<div class="container">
+    {% set additions = diff.get("Additions") %}
+    {% set modifications = diff.get("Modifications") %}
+    {% set deletions = diff.get("Deletions") %}
+
+    {% if additions %}
+    <h2>Additions Data:</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+                <thead>
+                    <th scope="col">Added Data</</th>
+                </thead>
+                <tbody>
+                    {% for data in additions %}
+                    <tr>
+                        <td>{{ data }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if modifications %}
+    <h2>Modified Data:</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+                <thead>
+                    <th scope="col">Original</</th>
+                    <th scope="col">Current</</th>
+                    <th scope="col">Diff</</th>
+                </thead>
+                <tbody>
+                    {% for data in modifications %}
+                    <tr>
+                        <td>{{ data.get("Original") }}</td>
+                        <td>{{ data.get("Current") }}</td>
+                        <td><pre style="font: courier">{{data.get("Diff")}}</pre></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if deletions %}
+    <h2>Deleted Data:</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+                <thead>
+                    <th scope="col">Deleted Data</</th>
+                </thead>
+                <tbody>
+                    {% for data in deletions %}
+                    <tr>
+                        <td>{{ data }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{%endblock%}
+
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript">
+ gn_server_url = "{{ gn_server_url }}";
+
+ $(document).ready( function() {
+     $('#table-approved').dataTable();
+ })
+ $(document).ready( function() {
+     $('#table-rejected').dataTable();
+ })
+</script>
+{% endblock %}
