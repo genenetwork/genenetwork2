@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Trait Submission{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+
 {% block content %}
 <!-- Start of body -->
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -12,14 +17,12 @@
 {% endif %}
 {% endwith %}
 
-
 <div class="container">
-
     {% if waiting %}
     <div class="row">
         Files for approval:
-        <div class="table-responsive">
-            <table class="table m-0">
+        <div class="col-md-7">
+            <table class="table table-hover table-striped cell-border">
                 <thead>
                     <th scope="col">Resource Id</</th>
                     <th scope="col">Author</th>
@@ -59,10 +62,10 @@
     {% endif %}
 
     {% if approved %}
+    <h2>Approved Data:</h2>
     <div class="row">
-        Approved Data:
-        <div class="table-responsive">
-            <table class="table m-0">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
                 <thead>
                     <th scope="col">Resource Id</</th>
                     <th scope="col">Author</th>
@@ -84,10 +87,10 @@
     {% endif %}
 
     {% if rejected %}
+    <h2>Rejected Files:</h2>
     <div class="row">
-        Rejected Files:
-        <div class="table-responsive">
-            <table class="table m-0">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-rejected">
                 <thead>
                     <th scope="col">Resource Id</</th>
                     <th scope="col">Author</th>
@@ -105,16 +108,20 @@
                 </tbody>
             </table>
         </div>
-            </div>
+    </div>
     {% endif %}
-
 </div>
-
 {%endblock%}
 
 {% block js %}
-<script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript">
  gn_server_url = "{{ gn_server_url }}";
-
+ 
+ $(document).ready( function() {
+     $('#table-approved').dataTable();
+     $('#table-rejected').dataTable();
+ });
 </script>
 {% endblock %}
