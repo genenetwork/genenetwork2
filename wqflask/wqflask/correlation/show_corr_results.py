@@ -29,6 +29,7 @@ from base.webqtlConfig import TMPDIR
 from wqflask.correlation.pre_computes import fetch_all_cached_metadata
 from wqflask.correlation.pre_computes import cache_new_traits_metadata
 
+from utility.authentication_tools import check_resource_availability
 from utility import hmac
 
 
@@ -106,6 +107,12 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
                                            get_qtl_info=True)
             target_trait = jsonable(target_trait_ob, target_dataset_ob)
             new_traits_metadata[trait_name] = target_trait
+        else:
+            if target_dataset['type'] == "Publish":
+                permissions = check_resource_availability(target_dataset_ob, trait_name)
+                if permissions['metadata'] == "no-access":
+                    continue
+
         if target_trait['view'] == False:
             continue
         results_dict = {}
