@@ -42,7 +42,7 @@
 		 value="{{uc.uc_id}}" />
 	  <input type="hidden"
 		 name="traits_list"
-		 value="{% for this_trait in trait_obs %}{{ this_trait.name }}:::{{ this_trait.dataset.name }}:::{{this_trait.symbol}}:::{{this_trait.description_display}}:::{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}|||{% endfor %}" />
+		 value="{% for this_trait in trait_obs %}{{ this_trait.name }}:::{{ this_trait.dataset.name }}:::{{this_trait.symbol}}:::{{this_trait.description_display}}:::{{this_trait.location_repr}}:::{{this_trait.mean}}:::{{this_trait['LRS_location_repr']}}:::{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}|||{% endfor %}" />
 	  <button id="run-partial-correlations"
 		  class="btn btn-primary"
 		  title="Run partial correlations"
