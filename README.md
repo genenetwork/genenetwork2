@@ -30,7 +30,7 @@ genenetwork2
 A quick example is
 
 ```sh
-env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
+env SERVER_PORT=5300 \
     GENENETWORK_FILES=~/data/gn2_data/ \
     GN_PROXY_URL="http://localhost:8080"\
     GN3_LOCAL_URL="http://localhost:8081"\
@@ -69,19 +69,16 @@ We are building 'Mechanical Rob' automated testing using Python
 which can be run with:
 
 ```sh
-env GN2_PROFILE=~/opt/gn-latest \
-    ./bin/genenetwork2 \
+env ./bin/genenetwork2 \
     GN_PROXY_URL="http://localhost:8080" \
     GN3_LOCAL_URL="http://localhost:8081 "\
     ./etc/default_settings.py -c \
     ../test/requests/test-website.py -a http://localhost:5003
 ```
 
-The GN2_PROFILE is the Guix profile that contains all
-dependencies. The ./bin/genenetwork2 script sets up the environment
-and executes test-website.py in a Python interpreter. The -a switch
-says to run all tests and the URL points to the running GN2 http
-server.
+The ./bin/genenetwork2 script sets up the environment and executes
+test-website.py in a Python interpreter. The -a switch says to run all
+tests and the URL points to the running GN2 http server.
 
 #### Unit tests
 
@@ -102,9 +99,9 @@ runcmd coverage html
 The `runcmd` and `runpython` are shell aliases defined in the following way:
 
 ```sh
-alias runpython="env GN2_PROFILE=~/opt/gn-latest TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2
+alias runpython="env TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2
 
-alias runcmd="time env GN2_PROFILE=~/opt/gn-latest TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2 ./etc/default_settings.py -cli"
+alias runcmd="time env TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2 ./etc/default_settings.py -cli"
 ```
 
 Replace some of the env variables as per your use case.
