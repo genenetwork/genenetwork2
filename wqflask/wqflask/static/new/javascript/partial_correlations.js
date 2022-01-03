@@ -181,28 +181,28 @@ function display_probeset_results(primary, controls, correlations) {
 	    'td[data-column-heading="N"]').innerHTML = item["noverlap"];
 	new_row.querySelector(
 	    `td[data-column-heading="Sample Partial ${rho_or_r(method)}"]`
-	).innerHTML = format_number(item["partial_corr"]);
+	).innerHTML = format_number(item["partial_corr"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="Sample p(partial ${rho_or_r(method)})"]`
-	).innerHTML = format_number(item["partial_corr_p_value"]);
+	).innerHTML = format_number(item["partial_corr_p_value"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="Sample ${rho_or_r(method)}"]`
-	).innerHTML = format_number(item["corr"]);
+	).innerHTML = format_number(item["corr"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="Sample p(${rho_or_r(method)})"]`
-	).innerHTML = format_number(item["corr_p_value"]);
+	).innerHTML = format_number(item["corr_p_value"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="delta ${rho_or_r(method)}"]`
-	).innerHTML = format_number(item["delta"]);
+	).innerHTML = format_number(item["delta"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="Lit Corr"]`
-	).innerHTML = format_number(item["l_corr"]);
+	).innerHTML = format_number(item["l_corr"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="Tissue ${rho_or_r(method)}"]`
-	).innerHTML = format_number(item["tissue_corr"]);
+	).innerHTML = format_number(item["tissue_corr"] || NaN);
 	new_row.querySelector(
 	    `td[data-column-heading="Tissue p(${rho_or_r(method)})"]`
-	).innerHTML = format_number(item["tissue_p_value"]);
+	).innerHTML = format_number(item["tissue_p_value"] || NaN);
 	table_body.appendChild(new_row);
     });
     template_row.setAttribute("display", "none");
