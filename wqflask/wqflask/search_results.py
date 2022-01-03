@@ -5,6 +5,7 @@ import time
 import re
 import requests
 from types import SimpleNamespace
+import unicodedata
 
 from pprint import pformat as pf
 
@@ -122,7 +123,7 @@ class SearchResultPage:
                 trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
                 description_text = ""
                 if result[4] is not None and str(result[4]) != "":
-                    description_text = result[4].decode('utf-8')
+                    description_text = unicodedata.normalize("NFKD", result[4].decode('latin1'))
 
                 target_string = result[5].decode('utf-8') if result[5] else ""
                 description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
