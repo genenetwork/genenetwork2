@@ -24,18 +24,8 @@
 
     {%if step == "select-primary":%}
     <p>Please select the primary trait (X)</p>
-    {%for trait in traits_list:%}
-    <div class="label-element-combo with-trait">
-      <input type="radio"
-	     name="primary_trait"
-	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
-	     id="trait_{{trait['data_hmac']}}"
-	     class="selector-element" />
-      <label for="trait_{{trait['data_hmac']}}" class="label-element">
-	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
-      </label>
-    </div>
-    {%endfor%}
+    {%include "with-trait-items.html" %}
+
     <button type="submit" class="btn btn-primary">
       Next: Select Control Traits
     </button>
@@ -46,20 +36,10 @@
     {%if step == "select-controls":%}
 
     <p>Select a maximum of three (3) control traits (Z)</p>
-    {%for trait in traits_list:%}
-    <div class="label-element-combo with-trait">
-      <input type="checkbox"
-	     name="control_traits[]"
-	     value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}"
-	     id="trait_{{trait['data_hmac']}}"
-	     class="selector-element" />
-      <label for="trait_{{trait['data_hmac']}}" class="label-element">
-	{{trait["name"]}} - {{trait["symbol"]}} - {{trait["description"]}}
-      </label>
-    </div>
-    {%endfor%}
+    {%include "with-trait-items.html" %}
+
     <button type="submit" class="btn btn-primary">
-      Next: Select Target Traits
+      Next: Select Target
     </button>
     {%endif%}
 
