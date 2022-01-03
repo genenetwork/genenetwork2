@@ -18,7 +18,8 @@ function key_value(keys, values) {
 
 function trait(trait_str) {
     return key_value(
-	["name", "dataset", "symbol", "description", "data_hmac"],
+	["name", "dataset", "symbol", "description", "location", "mean_expr",
+	 "max_lrs", "data_hmac"],
 	trait_str.split(":::"));
 }
 

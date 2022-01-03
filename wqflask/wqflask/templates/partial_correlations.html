@@ -142,12 +142,12 @@
     <input type="hidden" name="step" id="step-indicator" value="{{step}}" />
     <input type="hidden"
 	   name="traits_list"
-	   value="{% for trait in traits_list %}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{% endfor %}">
+	   value="{% for trait in traits_list %}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['location']}}:::{{trait['mean_expr']}}:::{{trait['max_lrs']}}:::{{trait['data_hmac']}}|||{% endfor %}">
 
     {%if primary_trait:%}
     <input type="hidden"
 	   name="primary_trait"
-	   value="{{primary_trait['name']}}:::{{primary_trait['dataset']}}:::{{primary_trait['symbol']}}:::{{primary_trait['description']}}:::{{primary_trait['data_hmac']}}"
+	   value="{{primary_trait['name']}}:::{{primary_trait['dataset']}}:::{{primary_trait['symbol']}}:::{{primary_trait['description']}}:::{{primary_trait['location']}}:::{{primary_trait['mean_expr']}}:::{{primary_trait['max_lrs']}}:::{{primary_trait['data_hmac']}}"
 	   id="trait_{{primary_trait['data_hmac']}}" />
 
     <div class="panel panel-info">
@@ -162,7 +162,7 @@
     {%if target_traits:%}
     <input type="hidden"
 	   name="target_traits"
-	   value="{%for trait in target_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}},{%endfor%}" />
+	   value="{%for trait in target_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['location']}}:::{{trait['mean_expr']}}:::{{trait['max_lrs']}}:::{{trait['data_hmac']}}|||{%endfor%}" />
     <div class="panel panel-info">
       <div class="panel-heading">Target Traits (Y)</div>
       <div class="panel-body">
@@ -180,7 +180,7 @@
     {%if control_traits:%}
     <input type="hidden"
 	   name="control_traits"
-	   value="{%for trait in control_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['data_hmac']}}|||{%endfor%}" />
+	   value="{%for trait in control_traits:%}{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['location']}}:::{{trait['mean_expr']}}:::{{trait['max_lrs']}}:::{{trait['data_hmac']}}|||{%endfor%}" />
     <div class="panel panel-info">
       <div class="panel-heading">Control Traits (Z)</div>
       <div class="panel-body">

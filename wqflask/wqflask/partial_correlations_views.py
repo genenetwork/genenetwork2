@@ -9,7 +9,9 @@ from wqflask import app
 from utility.tools import GN_SERVER_URL
 
 def parse_trait(trait_str: str) -> Union[dict, None]:
-    keys = ("name", "dataset", "symbol", "description", "data_hmac")
+    keys = (
+        "name", "dataset", "symbol", "description", "location", "mean_expr",
+        "max_lrs", "data_hmac")
     parts = tuple(part.strip() for part in trait_str.split(":::"))
     if len(parts) == len(keys):
         return dict(zip(keys, parts))
