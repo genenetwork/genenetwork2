@@ -121,7 +121,7 @@ class SearchResultPage:
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))
                 trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
                 description_text = ""
-                if result[4] is None or str(result[4]) != "":
+                if result[4] is not None and str(result[4]) != "":
                     description_text = result[4].decode('utf-8')
 
                 target_string = result[5].decode('utf-8') if result[5] else ""
