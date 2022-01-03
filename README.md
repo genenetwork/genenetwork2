@@ -46,10 +46,6 @@ Also mariadb and redis need to be running, see
 
 ## Development
 
-It may be useful to pull in the GN3 python modules locally. For this
-use `GN3_PYTHONPATH` environment that gets injected in
-the ./bin/genenetwork2 startup.
-
 ## Testing
 
 To have tests pass, the redis and mariadb instance should be running, because of
