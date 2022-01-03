@@ -1,0 +1,18 @@
+{%for trait in traits_list:%}
+<div class="with-trait">
+  <input type="{%if step=='select-primary':%}radio{%else:%}checkbox{%endif%}"
+	 name="{%if step=='select-primary':%}primary_trait{%else:%}control_traits[]{%endif%}"
+	 value="{{trait['name']}}:::{{trait['dataset']}}:::{{trait['symbol']}}:::{{trait['description']}}:::{{trait['location']}}:::{{trait['mean_expr']}}:::{{trait['max_lrs']}}:::{{trait['data_hmac']}}"
+	 id="trait_{{trait['data_hmac']}}"
+	 class="selector-element" />
+  <label for="trait_{{trait['data_hmac']}}" class="label-element">
+    <span class="trait-dataset" data-title="dataset">{{trait["dataset"]}}</span>
+    <span class="trait-name" data-title="name">{{trait["name"]}}</span>
+    <span class="trait-symbol" data-title="symbol">{{trait["symbol"]}}</span>
+    <span class="trait-description" data-title="description">{{trait["description"]}}</span>
+    <span class="trait-locatin" data-title="location">{{trait["location"]}}</span>
+    <span class="trait-mean-expr" data-title="mean">{{"%0.3f" % trait["mean_expr"]|float}}</span>
+    <span class="trait-max-lrs" data-title="max LRS">{{trait["max_lrs"]}}</span>
+  </label>
+</div>
+{%endfor%}
