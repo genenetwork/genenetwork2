@@ -205,7 +205,8 @@ function display_probeset_results(primary, controls, correlations) {
 	).innerHTML = format_number(item["tissue_p_value"]);
 	table_body.appendChild(new_row);
     });
-    table_body.removeChild(template_row);
+    template_row.setAttribute("display", "none");
+    /*table_body.removeChild(template_row);*/
 }
 
 function display_partial_corr_results(data, status, xhr) {
