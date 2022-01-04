@@ -22,9 +22,7 @@ from flask import request
 from flask import url_for
 
 from wqflask.decorators import edit_access_required
-from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
-from wqflask.decorators import login_required
 from wqflask.decorators import login_required
 
 from gn3.authentication import AdminRole
