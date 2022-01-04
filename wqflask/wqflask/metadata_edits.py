@@ -523,13 +523,14 @@ def approve_data(resource_id:str, file_name: str):
             value=value,
             error=se,
             count=count)
-
-    if any([any(modifications), any(deletions), any(insertions)]):
         if __insertions:
             n_insertions += 1
         # Remove any data that already exists from sample_data inserts
         else:
             sample_data.get("Additions").remove(insertion)
+    if any([sample_data.get("Additions"),
+            sample_data.get("Modifications"),
+            sample_data.get("Deletions")]):
         insert(conn,
                table="metadata_audit",
                data=MetadataAudit(
