@@ -495,18 +495,27 @@ def approve_data(resource_id:str, file_name: str):
                 value=value,
                 error=se,
                 count=count)
+
+    n_deletions = 0
     for deletion in (deletions := [d for d in sample_data.get("Deletions")]):
         strain_name, _, _, _ = deletion.split(",")
-        delete_sample_data(
+        __deletions, _, _ = delete_sample_data(
             conn=conn,
             trait_name=sample_data.get("trait_name"),
             strain_name=strain_name,
             phenotype_id=int(sample_data.get("phenotype_id")))
+        if __deletions:
+            n_deletions += 1
+        # Remove any data that already exists from sample_data deletes
+        else:
+            sample_data.get("Deletions").remove(deletion)
+
+    n_insertions = 0
     for insertion in (
             insertions := [d for d in sample_data.get("Additions")]):
         (strain_name,
          value, se, count) = insertion.split(",")
-        insert_sample_data(
+        __insertions, _, _ = insert_sample_data(
             conn=conn,
             trait_name=sample_data.get("trait_name"),
             strain_name=strain_name,
@@ -516,6 +525,11 @@ def approve_data(resource_id:str, file_name: str):
             count=count)
 
     if any([any(modifications), any(deletions), any(insertions)]):
+        if __insertions:
+            n_insertions += 1
+        # Remove any data that already exists from sample_data inserts
+        else:
+            sample_data.get("Additions").remove(insertion)
         insert(conn,
                table="metadata_audit",
                data=MetadataAudit(
