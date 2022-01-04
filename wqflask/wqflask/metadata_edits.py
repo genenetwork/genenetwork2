@@ -541,10 +541,19 @@ def approve_data(resource_id:str, file_name: str):
         os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
                   os.path.join(f"{TMPDIR}/sample-data/diffs",
                                f"{file_name}.approved"))
-        flash((f"Just updated data from: {file_name};\n"
-               f"# Modifications: {len(modifications)}; "
-               f"# Additions: {len(insertions)}; "
-               f"# Deletions: {len(deletions)}"),
-              "success")
+        message = ""
+        if n_deletions:
+            flash(f"# Deletions: {n_deletions}", "success")
+        if n_insertions:
+            flash("# Additions: {len(modifications)", "success")
+        if len(modifications):
+            flash("# Modifications: {len(modifications)}", "success")
+    else:  # Edge case where you need to automatically reject the file
+        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
+                  os.path.join(f"{TMPDIR}/sample-data/diffs",
+                               f"{file_name}.rejected"))
+        flash(("Automatically rejecting this file since no "
+               "changes could be applied."), "warning")
+
     return redirect(url_for('metadata_edit.list_diffs'))
 
