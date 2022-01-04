@@ -8,7 +8,7 @@ This repository contains the current source code for GeneNetwork (GN)
 (https://www.genenetwork.org/ (version 2). GN2 is a Web
 2.0-style framework that includes data and computational tools for online genetics and genomic analysis of
 many different populations and many types of molecular, cellular, and physiological data.
-The system is used by scientists and clinians in the field of precision health care and systems genetics.
+The system is used by scientists and clinicians in the field of precision health care and systems genetics.
 GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL (https://genenetwork.org/references/).
 
 ## Install
