@@ -211,10 +211,33 @@ function display_probeset_results(primary, controls, correlations, method) {
     /*table_body.removeChild(template_row);*/
 }
 
+function replace_r_with_rho(method) {
+    /* Mostly utility: Replace `r` with `rho` in the appropriate places */
+    pattern = /\br\b/;
+    if(method == "spearman") {
+        results_div = document.getElementById("partial-correlation-results");
+	headers = results_div.getElementsByTagName("th");
+	for(let header of headers) {
+	    header.innerHTML = header.innerHTML.replace(pattern, "rho");
+	}
+
+	cells = results_div.getElementsByTagName("td");
+	for(let cell of cells) {
+	    cell.setAttribute(
+		"data-column-heading",
+		cell.getAttribute(
+		    "data-column-heading").replace(pattern, "rho"));
+	}
+    }
+}
+
 function display_partial_corr_results(data, status, xhr) {
     progress_indicator = document.getElementById(
 	"partial-correlations-progress-indicator").style.display = "none";
     console.log(data);
+
+    replace_r_with_rho(data["results"]["method"]);
+
     display_functions = {
 	"Publish": display_publish_results,
 	"Geno": display_geno_results,
