@@ -127,6 +127,8 @@ function display_geno_results(primary, controls, correlations, method) {
 	new_row = template_row.cloneNode(true);
 	new_row.setAttribute("class", "results-row");
 	new_row.querySelector(
+	    'td[data-column-heading="Locus"]').innerHTML = item["trait_name"];
+	new_row.querySelector(
 	    'td[data-column-heading="Chr"]').innerHTML = item["chr"];
 	new_row.querySelector(
 	    'td[data-column-heading="Megabase"]').innerHTML = item["mb"];
