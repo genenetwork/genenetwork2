@@ -117,7 +117,7 @@ function display_publish_results(primary, controls, correlations, method) {
     table_body.removeChild(template_row);
 }
 
-function display_geno_results(primary, controls, correlations) {
+function display_geno_results(primary, controls, correlations, method) {
     table = document.getElementById("part-corr-results-geno");
     table.setAttribute("style", "display: block;");
     table_body = document.querySelector("#part-corr-results-geno tbody");
@@ -152,7 +152,7 @@ function display_geno_results(primary, controls, correlations) {
     table_body.removeChild(template_row);
 }
 
-function display_probeset_results(primary, controls, correlations) {
+function display_probeset_results(primary, controls, correlations, method) {
     table = document.getElementById("part-corr-results-probeset");
     table.setAttribute("style", "display: block;");
     table_body = document.querySelector("#part-corr-results-probeset tbody");
