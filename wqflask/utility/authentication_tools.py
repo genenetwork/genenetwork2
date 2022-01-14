@@ -4,11 +4,12 @@ import requests
 from flask import g
 from base import webqtlConfig
 
-
 from utility.redis_tools import (get_redis_conn,
                                  get_resource_info,
                                  get_resource_id,
                                  add_resource)
+from utility.tools import GN_PROXY_URL
+
 Redis = get_redis_conn()
 
 def check_resource_availability(dataset, trait_id=None):
@@ -24,19 +25,19 @@ def check_resource_availability(dataset, trait_id=None):
     if resource_id:
         resource_info = get_resource_info(resource_id)
 
-        # ZS: If resource isn't already in redis, add it with default
+        # If resource isn't already in redis, add it with default
         # privileges
         if not resource_info:
             resource_info = add_new_resource(dataset, trait_id)
 
-    # ZS: Check if super-user - we should probably come up with some
+    # Check if super-user - we should probably come up with some
     # way to integrate this into the proxy
     if g.user_session.user_id in Redis.smembers("super_users"):
         return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
 
-    the_url = "http://localhost:8080/available?resource={}&user={}".format(
+    the_url = GN_PROXY_URL + "available?resource={}&user={}".format(
         resource_id, g.user_session.user_id)
 
     try:
@@ -93,7 +94,7 @@ def get_group_code(dataset):
 
 
 def check_admin(resource_id=None):
-    the_url = "http://localhost:8080/available?resource={}&user={}".format(
+    the_url = GN_PROXY_URL + "available?resource={}&user={}".format(
         resource_id, g.user_session.user_id)
     try:
         response = json.loads(requests.get(the_url).content)['admin']

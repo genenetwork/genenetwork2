@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/all.min.css') }}"/>
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="static/new/css/trait_list.css" />
 {% endblock %}
@@ -125,8 +126,8 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" {% if dataset.type == 'ProbeSet' or dataset.type == 'Publish' %}style="min-width: 1500px; max-width:100%;"{% endif %}>
-            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: {% if dataset.type == 'Geno' %}380px{% else %}100%{% endif %};">
+          <div id="table_container" style="width: {% if dataset.type == 'Geno' %}270{% else %}100%{% endif %}px;">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -147,7 +148,6 @@
 
 {% block js %}
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
-
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
@@ -157,6 +157,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='fontawesome/js/all.min.js') }}"></script>
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
 
     <script type='text/javascript'>
         var trait_list = {{ trait_list|safe }};
@@ -175,11 +176,222 @@
                 return params;
             };
 
-            {% if results|count > 0 %}
-            //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
-            trait_table = $('#trait_table').DataTable( {
+            {% if results|count > 0  and not too_many_results %}
+            var tableId = "trait_table";
+
+            var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
+
+            columnDefs = [
+            {
+              'data': null,
+              'width': "5px",
+              'orderDataType': "dom-checkbox",
+              'targets': 0,
+              'render': function(data, type, row, meta) {
+                return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
+              }
+            },
+            {
+              'title': "Index",
+              'type': "natural",
+              'width': "35px",
+              'targets': 1,
+              'data': "index"
+            }
+            {% if dataset.type == 'ProbeSet' %},
+            {
+              'title': "Record",
+              'type': "natural-minus-na",
+              'data': null,
+              'width': "{{ max_widths.display_name * 8 }}px",
+              'targets': 2,
+              'render': function(data, type, row, meta) {
+                return '<a target="_blank" href="/show_trait?trait_id=' + data.display_name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+              }
+            },
+            {
+              'title': "Symbol",
+              'type': "natural",
+              'width': "{{ max_widths.symbol * 8 }}px",
+              'targets': 3,
+              'data': "symbol"
+            },
+            {
+              'title': "Description",
+              'type': "natural",
+              'data': null,
+              'targets': 4,
+              'render': function(data, type, row, meta) {
+                try {
+                  return decodeURIComponent(escape(data.description))
+                } catch(err){
+                  return escape(data.description)
+                }
+              }
+            },
+            {
+              'title': "<div style='text-align: right;'>Location</div>",
+              'type': "natural-minus-na",
+              'width': "125px",
+              'targets': 5,
+              'data': "location"
+            },
+            {
+              'title': "<div style='text-align: right;'>Mean</div>",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "mean",
+              'targets': 6,
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
+              'type': "natural-minus-na",
+              'data': "lod_score",
+              'width': "60px",
+              'targets': 7,
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "<div style='text-align: right;'>Peak Location</div>",
+              'type': "natural-minus-na",
+              'width': "125px",
+              'targets': 8,
+              'data': "lrs_location"
+            },
+            {
+              'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
+              'type': "natural-minus-na",
+              'data': "additive",
+              'width': "65px",
+              'targets': 9,
+              'orderSequence': [ "desc", "asc"]
+            }{% elif dataset.type == 'Publish' %},
+            {
+              'title': "Record",
+              'type': "natural-minus-na",
+              'width': "{{ max_widths.display_name * 9 }}px",
+              'data': null,
+              'targets': 2,
+              'render': function(data, type, row, meta) {
+                return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+              }
+            },
+            {
+              'title': "Description",
+              'type': "natural",
+              {% if (max_widths.description * 7) < 500 %}
+              'width': "{{ max_widths.description * 7 }}px",
+              {% else %}
+              'width': "500px",
+              {% endif %}
+              'data': null,
+              'targets': 3,
+              'render': function(data, type, row, meta) {
+                try {
+                    return decodeURIComponent(escape(data.description))
+                } catch(err){
+                    return data.description
+                }
+              }
+            },
+            {
+              'title': "<div style='text-align: right;'>Mean</div>",
+              'type': "natural-minus-na",
+              'width': "60px",
+              'data': "mean",
+              'targets': 4,
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Authors",
+              'type': "natural",
+              {% if (max_widths.authors * 7) < 500 %}
+              'width': "{{ max_widths.authors * 7 }}px",
+              {% else %}
+              'width': "500px",
+              {% endif %}
+              'data': null,
+              'targets': 5,
+              'render': function(data, type, row, meta) {
+                author_list = data.authors.split(",")
+                if (author_list.length >= 6) {
+                  author_string = author_list.slice(0, 6).join(",") + ", et al."
+                } else{
+                  author_string = data.authors
+                }
+                return author_string
+              }
+            },
+            {
+              'title': "<div style='text-align: right;'>Year</div>",
+              'type': "natural-minus-na",
+              'data': null,
+              'width': "50px",
+              'targets': 6,
+              'render': function(data, type, row, meta) {
+                if (data.pubmed_id != "N/A"){
+                  return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
+                } else {
+                  return data.pubmed_text
+                }
+              },
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
+              'type': "natural-minus-na",
+              'data': "lod_score",
+              'targets': 7,
+              'width': "60px",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "<div style='text-align: right;'>Peak Location</div>",
+              'type': "natural-minus-na",
+              'width': "120px",
+              'targets': 8,
+              'data': "lrs_location"
+            },
+            {
+              'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
+              'type': "natural-minus-na",
+              'width': "60px",
+              'data': "additive",
+              'targets': 9,
+              'orderSequence': [ "desc", "asc"]
+            }{% elif dataset.type == 'Geno' %},
+            {
+              'title': "Record",
+              'type': "natural-minus-na",
+              'width': "{{ max_widths.display_name * 9 }}px",
+              'data': null,
+              'targets': 2,
+              'render': function(data, type, row, meta) {
+                return '<a target="_blank" href="/show_trait?trait_id=' + data.display_name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+              }
+            },
+            {
+              'title': "<div style='text-align: right;'>Location</div>",
+              'type': "natural-minus-na",
+              'width': "120px",
+              'targets': 2,
+              'data': "location"
+            }{% endif %}
+            ];
+
+            loadDataTable(true);
+
+            function loadDataTable(first_run=false){
+
+              if (!first_run){
+                setUserColumnsDefWidths(tableId);
+              }
+
+              //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
+              table_settings = {
                 'drawCallback': function( settings ) {
-                      $('#trait_table tr').off().on("click", function(event) {
+                      $('#' + tableId + ' tr').off().on("click", function(event) {
                         if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
                           var obj =$(this).find('input');
                           obj.prop('checked', !obj.is(':checked'));
@@ -193,7 +405,7 @@
                       });
                 },
                 'createdRow': function ( row, data, index ) {
-                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 13px;");
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
                     $('td', row).eq(1).attr("align", "right");
                     $('td', row).eq(1).attr('data-export', index+1);
                     $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
@@ -228,173 +440,60 @@
                     $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
                     {% endif %}
                 },
-                'data': trait_list,
-                'columns': [
-                    {
-                      'data': null,
-                      'width': "10px",
-                      'orderDataType': "dom-checkbox",
-                      'orderable': false,
-                      'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
-                      }
-                    },
-                    {
-                      'title': "Index",
-                      'type': "natural",
-                      'width': "30px",
-                      'data': "index"
-                    },
-                    {
-                      'title': "Record",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'width': "60px",
-                      'render': function(data, type, row, meta) {
-                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
-                      }
-                    }{% if dataset.type == 'ProbeSet' %},
-                    {
-                      'title': "Symbol",
-                      'type': "natural",
-                      'width': "120px",
-                      'data': "symbol"
-                    },
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        try {
-                          return decodeURIComponent(escape(data.description))
-                        } catch(err){
-                          return escape(data.description)
-                        }
-                      }
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "location"
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Mean</div>",
-                      'type': "natural-minus-na",
-                      'width': "30px",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'data': "lod_score",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "lrs_location"
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'data': "additive",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% elif dataset.type == 'Publish' %},
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'width': "500px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-			                  try {
-                            return decodeURIComponent(escape(data.description))
-			                  } catch(err){
-			                      return data.description
-                        }
-                      }
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Mean</div>",
-                      'type': "natural-minus-na",
-                      'width': "30px",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Authors",
-                      'type': "natural",
-                      'width': "300px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        author_list = data.authors.split(",")
-                        if (author_list.length >= 6) {
-                          author_string = author_list.slice(0, 6).join(",") + ", et al."
-                        } else{
-                          author_string = data.authors
-                        }
-                        return author_string
-                      }
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Year</div>",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'width': "25px",
-                      'render': function(data, type, row, meta) {
-                        if (data.pubmed_id != "N/A"){
-                          return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
-                        } else {
-                          return data.pubmed_text
-                        }
-                      },
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'data': "lod_score",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Peak Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "120px",
-                      'data': "lrs_location"
-                    },
-                    {
-                      'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
-                      'type': "natural-minus-na",
-                      'width': "60px",
-                      'data': "additive",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% elif dataset.type == 'Geno' %},
-                    {
-                      'title': "<div style='text-align: right;'>Location</div>",
-                      'type': "natural-minus-na",
-                      'width': "120px",
-                      'data': "location"
-                    }{% endif %}
-                ],
+                "data": trait_list,
+                "columns": columnDefs,
                 "order": [[1, "asc" ]],
-                'sDom': "iti",
-                "autoWidth": true,
+                "sDom": "iti",
+                "destroy": true,
+                "autoWidth": false,
                 "bSortClasses": false,
-                {% if trait_list|length > 20 %}
-                "scrollY": "100vh",
+                "scrollY": "500px",
+                "scrollCollapse": true,
+                {% if trait_list|length > 5 %}
                 "scroller":  true,
-                "scrollCollapse": true
-                {% else %}
-                "iDisplayLength": -1
                 {% endif %}
-            } );
+                "iDisplayLength": -1,
+                "initComplete": function (settings) {
+                  //Add JQueryUI resizable functionality to each th in the ScrollHead table
+                  $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
+                    handles: "e",
+                    alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
+                    resize: function( event, ui ) {
+                      width_change = ui.size.width - ui.originalSize.width;
+                    },
+                    stop: function () {
+                      saveColumnSettings(tableId, trait_table);
+                      loadDataTable();
+                    }
+                  });
+                }
+              }
 
-            trait_table.draw(); //ZS: This makes the table adjust its height properly on initial load
+              if (!first_run){
+                $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+
+                let checked_rows = get_checked_rows(tableId);
+                trait_table = $('#' + tableId).DataTable(table_settings);
+                if (checked_rows.length > 0){
+                  recheck_rows(trait_table, checked_rows);
+                }
+              } else {
+                trait_table = $('#' + tableId).DataTable(table_settings);
+                trait_table.draw();
+              }
+
+              if (first_run){
+                {% if trait_list|length > 20 %}
+                $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+                {% else %}
+                $('#table_container').css("width", String($('#trait_table').width()) + "px");
+                {% endif %}
+              }
+            }
+
+            window.addEventListener('resize', function(){
+              trait_table.columns.adjust();
+            });
 
             $('.toggle-vis').on( 'click', function (e) {
               e.preventDefault();
@@ -412,9 +511,8 @@
               }
             } );
 
-
             $('#redraw').click(function() {
-                var table = $('#trait_table').DataTable();
+                var table = $('#' + tableId).DataTable();
                 table.colReorder.reset()
             });
             {% endif %}

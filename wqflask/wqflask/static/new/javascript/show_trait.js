@@ -1770,6 +1770,10 @@ $('#filter_by_value').click(function(){
   edit_data_change();
 })
 
+$('.edit_sample_value').change(function() {
+  edit_data_change();
+});
+
 $('#exclude_group').click(edit_data_change);
 $('#block_outliers').click(edit_data_change);
 $('#reset').click(edit_data_change);

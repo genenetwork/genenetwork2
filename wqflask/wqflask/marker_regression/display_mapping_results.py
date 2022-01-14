@@ -2471,12 +2471,6 @@ class DisplayMappingResults:
             thisLRSColor = self.colorCollection[0]
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
                 if self.manhattan_plot != True:
-                    # im_drawer.polygon(
-                    #     xy=LRSCoordXY,
-                    #     outline=thisLRSColor
-                    #     # , closed=0, edgeWidth=lrsEdgeWidth,
-                    #     # clipX=(xLeftOffset, xLeftOffset + plotWidth)
-                    # )
                     draw_open_polygon(canvas, xy=LRSCoordXY,
                                       outline=thisLRSColor, width=lrsEdgeWidth)
 
@@ -2497,25 +2491,21 @@ class DisplayMappingResults:
                                     im_drawer.line(
                                         xy=((Xc0, Yc0), (Xcm, yZero)),
                                         fill=plusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                                     im_drawer.line(
                                         xy=((Xcm, yZero),
                                             (Xc, yZero - (Yc - yZero))),
                                         fill=minusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                                 else:
                                     im_drawer.line(
                                         xy=((Xc0, yZero - (Yc0 - yZero)),
                                             (Xcm, yZero)),
                                         fill=minusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                                     im_drawer.line(
                                         xy=((Xcm, yZero), (Xc, Yc)),
                                         fill=plusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                             elif (Yc0 - yZero) * (Yc - yZero) > 0:
                                 if Yc < yZero:
@@ -2523,14 +2513,12 @@ class DisplayMappingResults:
                                         xy=((Xc0, Yc0), (Xc, Yc)),
                                         fill=plusColor,
                                         width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                                 else:
                                     im_drawer.line(
                                         xy=((Xc0, yZero - (Yc0 - yZero)),
                                             (Xc, yZero - (Yc - yZero))),
                                         fill=minusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                             else:
                                 minYc = min(Yc - yZero, Yc0 - yZero)
@@ -2538,14 +2526,12 @@ class DisplayMappingResults:
                                     im_drawer.line(
                                         xy=((Xc0, Yc0), (Xc, Yc)),
                                         fill=plusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
                                 else:
                                     im_drawer.line(
                                         xy=((Xc0, yZero - (Yc0 - yZero)),
                                             (Xc, yZero - (Yc - yZero))),
                                         fill=minusColor, width=lineWidth
-                                        # , clipX=(xLeftOffset, xLeftOffset + plotWidth)
                                     )
 
                 LRSCoordXY = []
@@ -2558,28 +2544,29 @@ class DisplayMappingResults:
                     startPosX += newStartPosX
                     oldStartPosX = newStartPosX
 
-            # ZS: This is because the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
+            # This is because the chromosome value stored in qtlresult['chr'] can be (for example) either X or 20 depending upon the mapping method/scale used
             this_chr = str(self.ChrList[self.selectedChr][0])
             if self.plotScale != "physic":
                 this_chr = str(self.ChrList[self.selectedChr][1] + 1)
 
             if self.selectedChr == -1 or str(qtlresult['chr']) == this_chr:
                 if self.plotScale != "physic" and self.mapping_method == "reaper" and not self.manhattan_plot:
-                    Xc = startPosX + (qtlresult['cM'] - startMb) * plotXScale
+                    start_cm = self.genotype[self.selectedChr - 1][0].cM
+                    Xc = startPosX + (qtlresult['cM'] - start_cm) * plotXScale
                     if hasattr(self.genotype, "filler"):
                         if self.genotype.filler:
                             if self.selectedChr != -1:
-                                start_cm = self.genotype[self.selectedChr - 1][0].cM
                                 Xc = startPosX + \
                                     (qtlresult['Mb'] - start_cm) * plotXScale
                             else:
-                                start_cm = self.genotype[previous_chr_as_int][0].cM
                                 Xc = startPosX + ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) * (
                                     ((qtlresult['Mb'] - start_cm - startMb) * plotXScale) / ((qtlresult['Mb'] - start_cm - startMb + self.GraphInterval) * plotXScale))
                 else:
                     if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
                         Xc = startPosX + endMb * plotXScale
                     else:
+                        if qtlresult['Mb'] - startMb < 0:
+                            continue
                         Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
 
                 # updated by NL 06-18-2011:
@@ -2646,9 +2633,8 @@ class DisplayMappingResults:
                         AdditiveHeightThresh / additiveMax
                     AdditiveCoordXY.append((Xc, Yc))
 
-                if self.selectedChr != -1 and qtlresult['Mb'] > endMb:
+                if self.selectedChr != -1 and qtlresult['Mb'] > endMb and endMb != -1:
                     break
-
                 m += 1
 
         if self.manhattan_plot != True:

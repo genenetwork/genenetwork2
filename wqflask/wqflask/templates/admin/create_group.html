@@ -6,7 +6,8 @@
         <div class="page-header">
             <h1>Create Group</h1>
         </div>
-        <form action="/groups/create" method="POST">
+        <form action="{{ url_for('group_management.create_new_group') }}"
+              method="POST">
             <input type="hidden" name="admin_emails_to_add" value="">
             <input type="hidden" name="member_emails_to_add" value="">
             <fieldset>
@@ -73,17 +74,11 @@
         </form>
     </div>
 
-
-
 <!-- End of body -->
-
 {% endblock %}
 
 {% block js %}
      <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/group_manager.js"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
-
-    <script type="text/javascript" charset="utf-8">
-    </script>
 {% endblock %}

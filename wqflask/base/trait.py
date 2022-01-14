@@ -7,7 +7,7 @@ from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
 from utility import hmac
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
+from utility.tools import GN2_BASE_URL, GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
 
 from utility.db_tools import escape
@@ -361,10 +361,10 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
 
     resource_id = get_resource_id(dataset, trait.name)
     if dataset.type == 'Publish':
-        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view".format(
+        the_url = GN_PROXY_URL + "run-action?resource={}&user={}&branch=data&action=view".format(
             resource_id, g.user_session.user_id)
     else:
-        the_url = "http://localhost:8080/run-action?resource={}&user={}&branch=data&action=view&trait={}".format(
+        the_url = GN_PROXY_URL + "run-action?resource={}&user={}&branch=data&action=view&trait={}".format(
             resource_id, g.user_session.user_id, trait.name)
 
     try:

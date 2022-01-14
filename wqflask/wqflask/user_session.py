@@ -10,7 +10,6 @@ from flask import (Flask, g, render_template, url_for, request, make_response,
 from wqflask import app
 from utility import hmac
 
-#from utility.elasticsearch_tools import get_elasticsearch_connection
 from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
 Redis = get_redis_conn()
 
@@ -23,7 +22,6 @@ THIRTY_DAYS = 60 * 60 * 24 * 30
 
 @app.before_request
 def get_user_session():
-    logger.info("@app.before_request get_session")
     g.user_session = UserSession()
     # ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
     if not g.user_session:

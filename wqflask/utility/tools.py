@@ -194,7 +194,6 @@ def locate(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
-            logger.info("Found: file " + lookfor + "\n")
             return lookfor
         else:
             raise Exception("Can not locate " + lookfor)
@@ -220,9 +219,7 @@ def locate_ignore_error(name, subdir=None):
     if valid_path(base):
         lookfor = base + "/" + name
         if valid_file(lookfor):
-            logger.debug("Found: file " + name + "\n")
             return lookfor
-    logger.info("WARNING: file " + name + " not found\n")
     return None
 
 
@@ -266,6 +263,8 @@ WEBSERVER_MODE = get_setting('WEBSERVER_MODE')
 GN2_BASE_URL = get_setting('GN2_BASE_URL')
 GN2_BRANCH_URL = get_setting('GN2_BRANCH_URL')
 GN_SERVER_URL = get_setting('GN_SERVER_URL')
+GN_PROXY_URL = get_setting('GN_PROXY_URL')
+GN3_LOCAL_URL = get_setting('GN3_LOCAL_URL')
 SERVER_PORT = get_setting_int('SERVER_PORT')
 SQL_URI = get_setting('SQL_URI')
 LOG_LEVEL = get_setting('LOG_LEVEL')
@@ -285,6 +284,7 @@ JS_GN_PATH = get_setting('JS_GN_PATH')
 
 GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
+GITHUB_AUTH_URL = ""
 if GITHUB_CLIENT_ID != 'UNKNOWN' and GITHUB_CLIENT_SECRET:
     GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id=" + \
                       GITHUB_CLIENT_ID + "&client_secret=" + GITHUB_CLIENT_SECRET
@@ -299,10 +299,6 @@ if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
         "&redirect_uri=" + GN2_BRANCH_URL + "n/login/orcid_oauth2"
     ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
 
-ELASTICSEARCH_HOST = get_setting('ELASTICSEARCH_HOST')
-ELASTICSEARCH_PORT = get_setting('ELASTICSEARCH_PORT')
-# import utility.elasticsearch_tools as es
-# es.test_elasticsearch_connection()
 
 SMTP_CONNECT = get_setting('SMTP_CONNECT')
 SMTP_USERNAME = get_setting('SMTP_USERNAME')

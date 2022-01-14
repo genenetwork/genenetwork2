@@ -1,4 +1,8 @@
 from gn3.db.species import get_all_species
+
+import utility.logger
+logger = utility.logger.getLogger(__name__)
+
 def gen_dropdown_json(conn):
     """Generates and outputs (as json file) the data for the main dropdown menus on
     the home page
@@ -19,16 +23,16 @@ def get_groups(species, conn):
     with conn.cursor() as cursor:
         for species_name, _species_full_name in species:
             groups[species_name] = []
-            cursor.execute(
-                ("SELECT InbredSet.Name, InbredSet.FullName, "
+            query = ("SELECT InbredSet.Name, InbredSet.FullName, "
                  "IFNULL(InbredSet.Family, 'None') "
                  "FROM InbredSet, Species WHERE Species.Name = '{}' "
                  "AND InbredSet.SpeciesId = Species.Id GROUP by "
                  "InbredSet.Name ORDER BY IFNULL(InbredSet.FamilyOrder, "
                  "InbredSet.FullName) ASC, IFNULL(InbredSet.Family, "
                  "InbredSet.FullName) ASC, InbredSet.FullName ASC, "
-                 "InbredSet.MenuOrderId ASC")
-                .format(species_name))
+                 "InbredSet.MenuOrderId ASC").format(species_name)
+            # logger.debug(query)
+            cursor.execute(query)
             results = cursor.fetchall()
             for result in results:
                 family_name = "Family:" + str(result[2])

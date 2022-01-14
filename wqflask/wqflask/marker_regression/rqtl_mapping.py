@@ -12,13 +12,11 @@ import numpy as np
 
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
-from utility.tools import locate
+from utility.tools import locate, GN3_LOCAL_URL
 
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
-GN3_RQTL_URL = "http://localhost:8086/api/rqtl/compute"
-GN3_TMP_PATH = "/export/local/home/zas1024/genenetwork3/tmp"
 
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
@@ -52,7 +50,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
     if perm_strata_list:
         post_data["pstrata"] = True
 
-    rqtl_output = requests.post(GN3_RQTL_URL, data=post_data).json()
+    rqtl_output = requests.post(GN3_LOCAL_URL + "api/rqtl/compute", data=post_data).json()
     if num_perm > 0:
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:

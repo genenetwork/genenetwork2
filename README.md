@@ -8,34 +8,42 @@ This repository contains the current source code for GeneNetwork (GN)
 (https://www.genenetwork.org/ (version 2). GN2 is a Web
 2.0-style framework that includes data and computational tools for online genetics and genomic analysis of
 many different populations and many types of molecular, cellular, and physiological data.
-The system is used by scientists and clinians in the field of precision health care and systems genetics.
+The system is used by scientists and clinicians in the field of precision health care and systems genetics.
 GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL (https://genenetwork.org/references/).
-
-## Install
-
-The recommended installation is with GNU Guix which allows you to
-deploy GN2 and dependencies as a self contained unit on any machine.
-The database can be run separately as well as the source tree (for
-developers).  See the [installation docs](doc/README.org).
 
 ## Run
 
-Once having installed GN2 it can be run through a browser
-interface
+We recommend you use GNU Guix. GNU Guix allows you to deploy
+GeneNetwork2 and dependencies as a self contained unit on any machine.
+The database can be run separately as well as the source tree (for
+developers).
 
+Make sure you have the
+[guix-bioinformatics](https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics)
+channel set up. Then, to drop into a development environment with all
+dependencies, run
 ```sh
-genenetwork2
+guix shell -Df guix.scm
+```
+Or, to drop into a development environment in a container, run
+```
+guix shell -C --network -Df guix.scm
 ```
 
-A quick example is
-
+In the development environment, start GeneNetwork2 by running, for
+example,
 ```sh
-env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 GENENETWORK_FILES=~/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
+env SERVER_PORT=5300 \
+    GENENETWORK_FILES=~/data/gn2_data/ \
+    GN_PROXY_URL="http://localhost:8080"\
+    GN3_LOCAL_URL="http://localhost:8081"\
+    ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
 ```
 
 For full examples (you may need to set a number of environment
 variables), including running scripts and a Python REPL, also see the
-startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
+startup script
+[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
 
 Also mariadb and redis need to be running, see
 [INSTALL](./doc/README.org).
@@ -59,14 +67,16 @@ We are building 'Mechanical Rob' automated testing using Python
 which can be run with:
 
 ```sh
-env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py -a http://localhost:5003
+env ./bin/genenetwork2 \
+    GN_PROXY_URL="http://localhost:8080" \
+    GN3_LOCAL_URL="http://localhost:8081 "\
+    ./etc/default_settings.py -c \
+    ../test/requests/test-website.py -a http://localhost:5003
 ```
 
-The GN2_PROFILE is the Guix profile that contains all
-dependencies. The ./bin/genenetwork2 script sets up the environment
-and executes test-website.py in a Python interpreter. The -a switch
-says to run all tests and the URL points to the running GN2 http
-server.
+The ./bin/genenetwork2 script sets up the environment and executes
+test-website.py in a Python interpreter. The -a switch says to run all
+tests and the URL points to the running GN2 http server.
 
 #### Unit tests
 
@@ -87,12 +97,24 @@ runcmd coverage html
 The `runcmd` and `runpython` are shell aliases defined in the following way:
 
 ```sh
-alias runpython="env GN2_PROFILE=~/opt/gn-latest TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2
+alias runpython="env TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2
 
-alias runcmd="time env GN2_PROFILE=~/opt/gn-latest TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ ./bin/genenetwork2 ./etc/default_settings.py -cli"
+alias runcmd="time env TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2 ./etc/default_settings.py -cli"
 ```
 
 Replace some of the env variables as per your use case.
+
+### Troubleshooting
+
+If the menu does not pop up check your `GN2_BASE_URL`. E.g.
+
+```
+curl http://gn2-pjotr.genenetwork.org/api/v_pre1/gen_dropdown
+```
+
+check the logs. If there is ERROR 1054 (42S22): Unknown column
+'InbredSet.Family' in 'field list' it may be you are trying the small
+database.
 
 ## Documentation
 

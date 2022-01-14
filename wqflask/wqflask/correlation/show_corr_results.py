@@ -19,10 +19,17 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 import json
+import os
+from pathlib import Path
 
 from base.trait import create_trait, jsonable
 from base.data_set import create_dataset
+from base.webqtlConfig import TMPDIR
 
+from wqflask.correlation.pre_computes import fetch_all_cached_metadata
+from wqflask.correlation.pre_computes import cache_new_traits_metadata
+
+from utility.authentication_tools import check_resource_availability
 from utility import hmac
 
 
@@ -31,7 +38,8 @@ def set_template_vars(start_vars, correlation_data):
     corr_method = start_vars['corr_sample_method']
 
     if start_vars['dataset'] == "Temp":
-        this_dataset_ob = create_dataset(dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
+        this_dataset_ob = create_dataset(
+            dataset_name="Temp", dataset_type="Temp", group_name=start_vars['group'])
     else:
         this_dataset_ob = create_dataset(dataset_name=start_vars['dataset'])
     this_trait = create_trait(dataset=this_dataset_ob,
@@ -82,13 +90,29 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
     corr_results = correlation_data['correlation_results']
     results_list = []
+
+    new_traits_metadata = {}
+
+    (file_path, dataset_metadata) = fetch_all_cached_metadata(
+        target_dataset['name'])
+
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
         trait = trait_dict[trait_name]
-        target_trait_ob = create_trait(dataset=target_dataset_ob,
-                                       name=trait_name,
-                                       get_qtl_info=True)
-        target_trait = jsonable(target_trait_ob, target_dataset_ob)
+
+        target_trait = dataset_metadata.get(trait_name)
+        if target_trait is None:
+            target_trait_ob = create_trait(dataset=target_dataset_ob,
+                                           name=trait_name,
+                                           get_qtl_info=True)
+            target_trait = jsonable(target_trait_ob, target_dataset_ob)
+            new_traits_metadata[trait_name] = target_trait
+        else:
+            if target_dataset['type'] == "Publish":
+                permissions = check_resource_availability(target_dataset_ob, trait_name)
+                if permissions['metadata'] == "no-access":
+                    continue
+
         if target_trait['view'] == False:
             continue
         results_dict = {}
@@ -162,6 +186,10 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
             results_dict['location'] = target_trait['location']
 
         results_list.append(results_dict)
+
+    cache_new_traits_metadata(dataset_metadata,
+                              new_traits_metadata,
+                              file_path)
 
     return json.dumps(results_list)
 

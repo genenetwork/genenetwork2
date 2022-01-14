@@ -1,0 +1,28 @@
+{%extends "base.html"%}
+
+{%block title%}
+Jupyter Notebooks
+{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css" href="/static/new/css/jupyter_notebooks.css" />
+{%endblock%}
+
+{%block content%}
+
+<div class="container">
+  <h1>Current Notebooks</h1>
+
+  {%for item in links:%}
+  <div class="jupyter-links">
+    <a href="{{item.get('main_url')}}"
+       title="Access running notebook for '{{item.get('notebook_name')}}' on GeneNetwork"
+       class="main-link">{{item.get("notebook_name")}}</a>
+    <a href="{{item.get('src_link_url')}}"
+       title="Link to the notebook repository for {{item.get('notebook_name', '_')}}"
+       class="src-link">View Source</a>
+  </div>
+  {%endfor%}
+</div>
+
+{%endblock%}

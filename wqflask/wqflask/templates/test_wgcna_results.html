@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}WCGNA results{% endblock %}
+{% block content %}
+<!-- Start of body -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" integrity="sha512-iLYuqv+v/P4u9erpk+KM83Ioe/l7SEmr7wB6g+Kg1qmEit8EShDKnKtLHlv2QXUp7GGJhmqDI+1PhJYLTsfb8w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+
+
+<style type="text/css">
+
+
+.container {
+    min-height: 100vh;
+    width: 100vw;
+    padding: 20px;
+
+}
+
+.grid_container {
+
+
+    width: 80vw;
+    margin: auto;
+    padding: 20px;
+
+
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /*grid-gap: 5px;*/
+    border: 1px solid black;
+    grid-column-gap: 20px;
+
+}
+
+.control_sft_column {
+    text-align: center;
+}
+
+.grid_container div:not(:last-child) {
+    border-right: 1px solid #000;
+}
+
+.grid_container .control_sft_column h3 {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.control_net_colors {
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+
+.control_mod_eigens {
+    display: grid;
+    grid-template-columns: repeat(2, 200px);
+}
+
+.control-image{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80vw;
+}
+</style>
+<div class="container">
+    {% if  error!='null' %}
+     <h4 style="text-align: center;">{{error}}</h4>
+
+    {% else %}
+    <div>
+        <div >
+            <h2 style="text-align:center">Soft Thresholds </h2>
+            <div class="grid_container">
+
+            {% for key, value in results["data"]["output"]["soft_threshold"].items()%}
+            <div class="control_sft_column">
+                <h3>{{key}}</h3>
+                {% for val in value %}
+                <p>{{val|round(3)}}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+
+        <div>
+        
+            {% if image["image_generated"] %}
+            <div >
+                <img class="control-image" src="data:image/jpeg;base64,{{ image['image_data']| safe }}">
+            </div>
+
+            {% endif %}
+<!--                 <div >
+                <img class="control-image" src="data:image/jpeg;base64,{{ results['data']['output']['image_data2']| safe }}">
+            </div> -->
+        </div>
+
+        <div>
+            <h2 style="text-align:center;"> Module eigen genes </h2>
+            <table id="eigens" class="display" width="80vw"></table>
+        </div>
+
+        <div>
+            <h2 style="text-align:center;">Phenotype modules </h2>
+
+             <table id="phenos" class="display"  width="40vw" ></table>
+        </div>
+    </div>
+
+{% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+
+
+<script type="text/javascript">
+
+
+let results = {{results|safe}}
+
+let phenoModules = results["data"]["output"]["net_colors"]
+let phenotypes = Object.keys(phenoModules)
+let phenoMods = Object.values(phenoModules)
+
+let {col_names,mod_dataset} = {{data|safe}}
+    $('#eigens').DataTable( {
+        data: mod_dataset,
+        columns: col_names.map((name)=>{
+            return {
+                title:name
+            }
+        })
+    } );
+    $('#phenos').DataTable( {
+        data:phenotypes.map((phenoName,idx)=>{
+            return [phenoName,phenoMods[idx]]
+        }),
+        columns: [{
+            title:"Phenotypes"
+        },
+        {
+        title: "Modules"
+        }]
+    } );
+
+
+</script>
+{% endblock %}

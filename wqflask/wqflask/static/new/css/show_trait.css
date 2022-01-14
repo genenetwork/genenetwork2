@@ -67,7 +67,7 @@ table.dataTable.cell-border tbody tr td:first-child {
 }
 
 .showtrait-main-div {
-  min-width: 1100px;
+  min-width: 1400px;
 }
 
 table.dataTable tbody td.column_name-Checkbox {
@@ -250,7 +250,6 @@ div.export-code-container {
 
 table.sample-table {
   float: left;
-  width:100%;
 }
 
 input.trait-value-input {

@@ -12,7 +12,7 @@
 {% endblock %}
 {% from "base_macro.html" import header %}
 {% block content %}
-    <div class="container" style="min-width: 900px;">
+    <div class="container">
         <form method="post" target="_blank" action="/run_mapping" name="marker_regression" id="marker_regression_form">
         <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
         {% if temp_trait is defined %}
@@ -39,6 +39,7 @@
         <input type="hidden" name="maf" value="{{ maf }}">
         <input type="hidden" name="use_loco" value="{{ use_loco }}">
         <input type="hidden" name="selected_chr" value="{{ selectedChr }}">
+        <input type="hidden" name="mapping_scale" value="{{ plotScale }}">
         <input type="hidden" name="manhattan_plot" value="{{ manhattan_plot }}">
         {% if manhattan_plot == True %}
         <input type="hidden" name="color_scheme" value="alternating">

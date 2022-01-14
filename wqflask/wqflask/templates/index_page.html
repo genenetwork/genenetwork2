@@ -1,17 +1,18 @@
 {% extends "base.html" %}
 {% block title %}GeneNetwork{% endblock %}
 {% block css %}
+<!-- UIkit CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
+
+<!-- UIkit JS -->
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
 <style TYPE="text/css">
   p.interact { display: none; }
 
-
-  
-
   .tweet  {
-
    padding:5px;
    color:#000;
-
   }
 
   .media {
@@ -26,7 +27,24 @@
     border-radius: 5px;
     /*transform: scale(1.1); image small?*/
     border:1px solid #c8ccc9;
+  }
 
+  div#tweets {
+    margin:0 auto;
+    width: 590px;
+    height: 160px;
+    background: white;
+    position: relative;
+    border-radius:10px;
+    background-color: #F9F9F9;
+  }
+
+  h2 {
+      margin-bottom: 0px;
+  }
+
+  ul {
+      margin-top: 0px;
   }
 </style>
 {% endblock %}
@@ -40,12 +58,12 @@
 
             <div class="col-xs-4" style="margin-right:50px; min-width: 530px; max-width: 550px;">
                 <section id="search">
-                    <div>
-                        <h1>Select and search</h1>
+                    <div class="page-header">
+                        <h2>Select and search</h2>
                     </div>
                     <form method="get" action="/search" target="_blank" name="SEARCHFORM">
                         <fieldset>
-                            <div style="padding: 20px" class="form-horizontal">
+                            <div style="padding-left: 20px; padding-right: 20px;" class="form-horizontal">
 
                                 <div class="form-group">
                                     <label for="species" class="col-xs-1 control-label" style="width: 65px !important;">Species:</label>
@@ -195,53 +213,74 @@
             </div>
 
             <div class="col-xs-4" style="width: 600px !important;">
-	        <section id="affiliates">
-	            <div class="page-header">
-                        <h1>Affiliates</h1>
-                        <ul>
-                          <li><b><a href="http://gn1.genenetwork.org">GeneNetwork 1</a> at UTHSC</b></li>
-                          <li><a href="https://systems-genetics.org/">Systems Genetics</a> at EPFL</li>
-                          <li><a href="http://bnw.genenetwork.org/">Bayesian Network Web Server</a> at UTHSC</li>
-                          <li><a href="https://www.geneweaver.org/">GeneWeaver</a></li>
-                          <li><a href="https://phenogen.org/">PhenoGen</a> at University of Colorado</li>
-                          <li><a href="http://www.webgestalt.org/">WebGestalt</a> at Baylor</li>
-                        </ul>
+	            <section id="tutorials">
+                    <div class="page-header">
+                        <h2>Tutorials</h2>
+                    </div>
+                    <div class="uk-grid-match uk-child-width-1-3@m" uk-grid>
+                        <div>
+                            <strong><a class="uk-link-text" href="/tutorials">Webinars & Courses</a></strong><br>
+                            In-person courses, live webinars and webinar recordings<br>
+                            <a href="/tutorials" class="uk-icon-link" uk-icon="laptop" ratio="2"></a>
+                        </div>
+                        <div>
+                            <strong><a class="uk-link-text" href="/tutorials">Tutorials</a></strong><br>
+                            Tutorials: Training materials in HTML, PDF and video formats<br>
+                            <a href="/tutorials" class="uk-icon-link" uk-icon="file-text" ratio="2"></a>
+                        </div>
+                        <div>
+                            <strong><a class="uk-link-text" href="/tutorials">Documentation</a></strong><br>
+                            Online manuals, handbooks, fact sheets and FAQs<br>
+                            <a href="/tutorials" class="uk-icon-link" uk-icon="album" ratio="2"></a>
+                        </div>
                     </div>
                 </section>
                 <section id="news-section">
                     <div class="page-header">
-                        <h1>News</h1>
-                        <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
-                        <div align="right">
-                          <a href="https://twitter.com/GeneNetwork2">more news items...</a>
-                        </div>
+                        <h2>News</h2>
                     </div>
-		</section>
+                    <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
+                    <div align="right">
+                        <a href="https://twitter.com/GeneNetwork2">more news items...</a>
+                    </div>
+		        </section>
                 <section id="websites">
                     <div class="page-header">
-                        <h1>Github</h1>
-                        <ul>
-                          <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
-                          <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
-                          <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
-                        </ul>
+                        <h2>Links</h2>
                     </div>
-               </section>
-                <section id="websites">
-                    <div class="page-header">
-                        <h1>Links</h1>
-                    </div>
-                    <h3>GeneNetwork v2:</h3>
-                      <ul>
-                        <li><a href="http://genenetwork.org/">Main website</a> at UTHSC</li>
-                      </ul>
-                    <h3>GeneNetwork v1:</h3>
                     <ul>
-                        <li><a href="http://gn1.genenetwork.org/">Main website</a> at UTHSC</li>
-                        <li><span class="broken_link" href="http://artemis.uthsc.edu/">Time Machine</span>: Full GN versions from 2009 to 2016 (mm9)</li>
-                            Cloud (EC2)</a></li>
+                        <li>Github</li>
+                        <ul>
+                            <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
+                            <li><a href="https://github.com/genenetwork/genenetwork">GN1 Source Code</a></li>
+                            <li><a href="https://github.com/genenetwork/sysmaintenance">System Maintenance Code</a></li>
+                        </ul>
                     </ul>
-                    <script type="text/javascript" src="//rf.revolvermaps.com/0/0/8.js?i=526mdlpknyd&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=33" async="async"></script>
+                    <ul>
+                        <li>GeneNetwork v2</li>
+                        <ul>
+                            <li><a href="http://genenetwork.org/">Main website</a> at UTHSC</li>
+                        </ul>
+                    </ul>
+                    <ul>
+                        <li>GeneNetwork v1</li>
+                        <ul>
+                            <li><a href="http://gn1.genenetwork.org/">Main website</a> at UTHSC</li>
+                            <li><span class="broken_link" href="http://artemis.uthsc.edu/">Time Machine</span>: Full GN versions from 2009 to 2016 (mm9)</li>
+                            Cloud (EC2)</a></li>
+                        </ul>
+                    </ul>
+                    <ul>
+                        <li>Affiliates</li>
+                        <ul>
+                            <li><b><a href="http://gn1.genenetwork.org">GeneNetwork 1</a> at UTHSC</b></li>
+                            <li><a href="https://systems-genetics.org/">Systems Genetics</a> at EPFL</li>
+                            <li><a href="http://bnw.genenetwork.org/">Bayesian Network Web Server</a> at UTHSC</li>
+                            <li><a href="https://www.geneweaver.org/">GeneWeaver</a></li>
+                            <li><a href="https://phenogen.org/">PhenoGen</a> at University of Colorado</li>
+                            <li><a href="http://www.webgestalt.org/">WebGestalt</a> at Baylor</li>
+                        </ul>
+                    </ul>
                </section>
             </div>
         </div>

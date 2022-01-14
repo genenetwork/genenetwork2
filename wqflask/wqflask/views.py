@@ -4,7 +4,6 @@ import MySQLdb
 import array
 import base64
 import csv
-import difflib
 import datetime
 import flask
 import io  # Todo: Use cStringIO?
@@ -20,8 +19,6 @@ import traceback
 import uuid
 import xlsxwriter
 
-from itertools import groupby
-from collections import namedtuple
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 
@@ -30,19 +27,12 @@ from wqflask import app
 from gn3.commands import run_cmd
 from gn3.computations.gemma import generate_hash_of_string
 from gn3.db import diff_from_dict
-from gn3.db import fetchall
-from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
-from gn3.db.phenotypes import PublishXRef
-from gn3.db.phenotypes import probeset_mapping
-from gn3.db.traits import get_trait_csv_sample_data
-from gn3.db.traits import update_sample_data
-
 
 from flask import current_app
 from flask import g
@@ -79,6 +69,7 @@ from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
 # from wqflask.ctl import ctl_analysis
+from wqflask.wgcna.gn3_wgcna import run_wgcna
 from wqflask.snp_browser import snp_browser
 from wqflask.search_results import SearchResultPage
 from wqflask.export_traits import export_search_results_csv
@@ -118,43 +109,16 @@ logger = utility.logger.getLogger(__name__)
 
 @app.before_request
 def connect_db():
-    logger.info("@app.before_request connect_db")
     db = getattr(g, '_database', None)
     if db is None:
         g.db = g._database = sqlalchemy.create_engine(
             SQL_URI, encoding="latin1")
-        logger.debug(g.db)
-
-
-@app.before_request
-def check_access_permissions():
-    logger.debug("@app.before_request check_access_permissions")
-    if 'dataset' in request.args:
-        permissions = DEFAULT_PRIVILEGES
-        if request.args['dataset'] != "Temp":
-            dataset = create_dataset(request.args['dataset'])
-
-            if dataset.type == "Temp":
-                permissions = DEFAULT_PRIVILEGES
-            elif 'trait_id' in request.args:
-                permissions = check_resource_availability(
-                    dataset, request.args['trait_id'])
-            elif dataset.type != "Publish":
-                permissions = check_resource_availability(dataset)
-
-        if type(permissions['data']) is list:
-            if 'view' not in permissions['data']:
-                return redirect(url_for("no_access_page"))
-        else:
-            if permissions['data'] == 'no-access':
-                return redirect(url_for("no_access_page"))
 
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
-        logger.debug("remove db_session")
         db_session.remove()
         g.db = None
 
@@ -167,9 +131,8 @@ def handle_generic_exceptions(e):
     time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
     # get the stack trace and send it to the logger
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    formatted_lines = {f"{request.url} ({time_str}) "
-                       f" {traceback.format_exc().splitlines()}"}
-
+    formatted_lines = (f"{request.url} ({time_str}) \n"
+                       f"{traceback.format_exc()}")
     _message_templates = {
         werkzeug.exceptions.NotFound: ("404: Not Found: "
                                        f"{time_str}: {request.url}"),
@@ -178,8 +141,8 @@ def handle_generic_exceptions(e):
         werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
                                              f"{time_str}: {request.url}")}
     # Default to the lengthy stack trace!
-    logger.error(_message_templates.get(exc_type,
-                                        formatted_lines))
+    app.logger.error(_message_templates.get(exc_type,
+                                            formatted_lines))
     # Handle random animations
     # Use a cookie to have one animation on refresh
     animation = request.cookies.get(err_msg[:32])
@@ -188,7 +151,7 @@ def handle_generic_exceptions(e):
             "./wqflask/static/gif/error") if fn.endswith(".gif")])
 
     resp = make_response(render_template("error.html", message=err_msg,
-                                         stack=formatted_lines,
+                                         stack={formatted_lines},
                                          error_image=animation,
                                          version=GN_VERSION))
 
@@ -376,6 +339,12 @@ def wcgna_setup():
     return render_template("wgcna_setup.html", **request.form)
 
 
+@app.route("/wgcna_results", methods=('POST',))
+def wcgna_results():
+    """call the gn3 api to get wgcna response data"""
+    results = run_wgcna(dict(request.form))
+    return render_template("test_wgcna_results.html", **results)
+
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     # We are going to get additional user input for the analysis
@@ -419,289 +388,6 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/trait/<name>/edit/inbredset-id/<inbredset_id>")
-@edit_access_required
-def edit_phenotype(name, inbredset_id):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    publish_xref = fetchone(
-        conn=conn,
-        table="PublishXRef",
-        where=PublishXRef(id_=name,
-                          inbred_set_id=inbredset_id))
-    phenotype_ = fetchone(
-        conn=conn,
-        table="Phenotype",
-        where=Phenotype(id_=publish_xref.phenotype_id))
-    publication_ = fetchone(
-        conn=conn,
-        table="Publication",
-        where=Publication(id_=publish_xref.publication_id))
-    json_data = fetchall(
-        conn,
-        "metadata_audit",
-        where=MetadataAudit(dataset_id=publish_xref.id_))
-
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(author=author,
-                             diff=Edit(field,
-                                       data_.get("old"),
-                                       data_.get("new"),
-                                       "\n".join(difflib.ndiff(
-                                           [data_.get("old")],
-                                           [data_.get("new")]))),
-                             timestamp=timestamp))
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
-    return render_template(
-        "edit_phenotype.html",
-        diff=diff_data_,
-        publish_xref=publish_xref,
-        phenotype=phenotype_,
-        publication=publication_,
-        version=GN_VERSION,
-    )
-
-
-@app.route("/trait/edit/probeset-name/<dataset_name>")
-@edit_access_required
-def edit_probeset(dataset_name):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    probeset_ = fetchone(conn=conn,
-                         table="ProbeSet",
-                         columns=list(probeset_mapping.values()),
-                         where=Probeset(name=dataset_name))
-    json_data = fetchall(
-        conn,
-        "metadata_audit",
-        where=MetadataAudit(dataset_id=probeset_.id_))
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(author=author,
-                             diff=Edit(field,
-                                       data_.get("old"),
-                                       data_.get("new"),
-                                       "\n".join(difflib.ndiff(
-                                           [data_.get("old")],
-                                           [data_.get("new")]))),
-                             timestamp=timestamp))
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
-    return render_template(
-        "edit_probeset.html",
-        diff=diff_data_,
-        probeset=probeset_)
-
-
-@app.route("/trait/update", methods=["POST"])
-@edit_access_required
-def update_phenotype():
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    data_ = request.form.to_dict()
-    TMPDIR = current_app.config.get("TMPDIR")
-    author = g.user_session.record.get(b'user_name')
-    if 'file' not in request.files:
-        flash("No sample-data has been uploaded", "warning")
-    else:
-        file_ = request.files['file']
-        trait_name = str(data_.get('dataset-name'))
-        phenotype_id = str(data_.get('phenotype-id', 35))
-        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
-        if not os.path.exists(SAMPLE_DATADIR):
-            os.makedirs(SAMPLE_DATADIR)
-        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
-                                           "diffs")):
-            os.makedirs(os.path.join(SAMPLE_DATADIR,
-                                     "diffs"))
-        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
-                                           "updated")):
-            os.makedirs(os.path.join(SAMPLE_DATADIR,
-                                     "updated"))
-        current_time = str(datetime.datetime.now().isoformat())
-        new_file_name = (os.path.join(TMPDIR,
-                                      "sample-data/updated/",
-                                      (f"{author.decode('utf-8')}."
-                                       f"{trait_name}.{phenotype_id}."
-                                       f"{current_time}.csv")))
-        uploaded_file_name = (os.path.join(
-            TMPDIR,
-            "sample-data/updated/",
-            (f"updated.{author.decode('utf-8')}."
-             f"{trait_name}.{phenotype_id}."
-             f"{current_time}.csv")))
-        file_.save(new_file_name)
-        publishdata_id = ""
-        lines = []
-        with open(new_file_name, "r") as f:
-            lines = f.read()
-            first_line = lines.split('\n', 1)[0]
-            publishdata_id = first_line.split("Id:")[-1].strip()
-        with open(new_file_name, "w") as f:
-            f.write(lines.split("\n\n")[-1])
-        csv_ = get_trait_csv_sample_data(conn=conn,
-                                         trait_name=str(trait_name),
-                                         phenotype_id=str(phenotype_id))
-        with open(uploaded_file_name, "w") as f_:
-            f_.write(csv_.split("\n\n")[-1])
-        r = run_cmd(cmd=("csvdiff "
-                         f"'{uploaded_file_name}' '{new_file_name}' "
-                         "--format json"))
-        diff_output = (f"{TMPDIR}/sample-data/diffs/"
-                       f"{trait_name}.{author.decode('utf-8')}."
-                       f"{phenotype_id}.{current_time}.json")
-        with open(diff_output, "w") as f:
-            dict_ = json.loads(r.get("output"))
-            dict_.update({
-                "author": author.decode('utf-8'),
-                "publishdata_id": publishdata_id,
-                "dataset_id": data_.get("dataset-name"),
-                "timestamp": datetime.datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S")
-            })
-            f.write(json.dumps(dict_))
-        flash("Sample-data has been successfully uploaded", "success")
-    # Run updates:
-    phenotype_ = {
-        "pre_pub_description": data_.get("pre-pub-desc"),
-        "post_pub_description": data_.get("post-pub-desc"),
-        "original_description": data_.get("orig-desc"),
-        "units": data_.get("units"),
-        "pre_pub_abbreviation": data_.get("pre-pub-abbrev"),
-        "post_pub_abbreviation": data_.get("post-pub-abbrev"),
-        "lab_code": data_.get("labcode"),
-        "submitter": data_.get("submitter"),
-        "owner": data_.get("owner"),
-        "authorized_users": data_.get("authorized-users"),
-    }
-    updated_phenotypes = update(
-        conn, "Phenotype",
-        data=Phenotype(**phenotype_),
-        where=Phenotype(id_=data_.get("phenotype-id")))
-    diff_data = {}
-    if updated_phenotypes:
-        diff_data.update({"Phenotype": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in phenotype_.items()
-            if v is not None}, new=phenotype_)})
-    publication_ = {
-        "abstract": data_.get("abstract"),
-        "authors": data_.get("authors"),
-        "title": data_.get("title"),
-        "journal": data_.get("journal"),
-        "volume": data_.get("volume"),
-        "pages": data_.get("pages"),
-        "month": data_.get("month"),
-        "year": data_.get("year")
-    }
-    updated_publications = update(
-        conn, "Publication",
-        data=Publication(**publication_),
-        where=Publication(id_=data_.get("pubmed-id",
-                                        data_.get("old_id_"))))
-    if updated_publications:
-        diff_data.update({"Publication": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in publication_.items()
-            if v is not None}, new=publication_)})
-    if diff_data:
-        diff_data.update({"dataset_id": data_.get("dataset-name")})
-        diff_data.update({"author": author.decode('utf-8')})
-        diff_data.update({"timestamp": datetime.datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S")})
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(dataset_id=data_.get("dataset-name"),
-                                  editor=author.decode("utf-8"),
-                                  json_data=json.dumps(diff_data)))
-        flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
-    return redirect(f"/trait/{data_.get('dataset-name')}"
-                    f"/edit/inbredset-id/{data_.get('inbred-set-id')}")
-
-
-@app.route("/probeset/update", methods=["POST"])
-@edit_access_required
-def update_probeset():
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    data_ = request.form.to_dict()
-    probeset_ = {
-        "id_": data_.get("id"),
-        "symbol": data_.get("symbol"),
-        "description": data_.get("description"),
-        "probe_target_description": data_.get("probe_target_description"),
-        "chr_": data_.get("chr"),
-        "mb": data_.get("mb"),
-        "alias": data_.get("alias"),
-        "geneid": data_.get("geneid"),
-        "homologeneid": data_.get("homologeneid"),
-        "unigeneid": data_.get("unigeneid"),
-        "omim": data_.get("OMIM"),
-        "refseq_transcriptid": data_.get("refseq_transcriptid"),
-        "blatseq": data_.get("blatseq"),
-        "targetseq": data_.get("targetseq"),
-        "strand_probe": data_.get("Strand_Probe"),
-        "probe_set_target_region": data_.get("probe_set_target_region"),
-        "probe_set_specificity": data_.get("probe_set_specificity"),
-        "probe_set_blat_score": data_.get("probe_set_blat_score"),
-        "probe_set_blat_mb_start": data_.get("probe_set_blat_mb_start"),
-        "probe_set_blat_mb_end": data_.get("probe_set_blat_mb_end"),
-        "probe_set_strand": data_.get("probe_set_strand"),
-        "probe_set_note_by_rw": data_.get("probe_set_note_by_rw"),
-        "flag": data_.get("flag")
-    }
-    updated_probeset = update(
-        conn, "ProbeSet",
-        data=Probeset(**probeset_),
-        where=Probeset(id_=data_.get("id")))
-
-    diff_data = {}
-    author = g.user_session.record.get(b'user_name')
-    if updated_probeset:
-        diff_data.update({"Probeset": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in probeset_.items()
-            if v is not None}, new=probeset_)})
-    if diff_data:
-        diff_data.update({"probeset_name": data_.get("probeset_name")})
-        diff_data.update({"author": author.decode('utf-8')})
-        diff_data.update({"timestamp": datetime.datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S")})
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(dataset_id=data_.get("id"),
-                                  editor=author.decode("utf-8"),
-                                  json_data=json.dumps(diff_data)))
-    return redirect(f"/trait/edit/probeset-name/{data_.get('probeset_name')}")
-
-
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     logger.info(request.url)
@@ -712,12 +398,9 @@ def create_temp_trait():
 @app.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
-    logger.info("In export_trait_excel")
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     trait_name, sample_data = export_trait_data.export_sample_table(
         request.form)
-
+    app.logger.info(request.url)
     logger.info("sample_data - type: %s -- size: %s" %
                 (type(sample_data), len(sample_data)))
 
@@ -836,8 +519,10 @@ def export_perm_data():
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
-    logger.info(request.url)
-    template_vars = show_trait.ShowTrait(request.form)
+    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+               or g.user_session.record.get("user_id") or "")
+    template_vars = show_trait.ShowTrait(user_id=user_id,
+                                         kw=request.form)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
@@ -846,8 +531,10 @@ def show_temp_trait_page():
 
 @app.route("/show_trait")
 def show_trait_page():
-    logger.info(request.url)
-    template_vars = show_trait.ShowTrait(request.args)
+    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+               or g.user_session.record.get("user_id") or "")
+    template_vars = show_trait.ShowTrait(user_id=user_id,
+                                         kw=request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
@@ -1356,22 +1043,6 @@ def json_default_handler(obj):
             type(obj), repr(obj)))
 
 
-@app.route("/trait/<trait_name>/sampledata/<phenotype_id>")
-def get_sample_data_as_csv(trait_name: int, phenotype_id: int):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    csv_ = get_trait_csv_sample_data(conn, str(trait_name),
-                                     str(phenotype_id))
-    return Response(
-        csv_,
-        mimetype="text/csv",
-        headers={"Content-disposition":
-                 "attachment; filename=myplot.csv"}
-    )
-
-
 @app.route("/admin/data-sample/diffs/")
 @edit_access_required
 def display_diffs_admin():
@@ -1401,65 +1072,3 @@ def display_diffs_users():
                            files=files)
 
 
-@app.route("/data-samples/approve/<name>")
-def approve_data(name):
-    sample_data = {}
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    TMPDIR = current_app.config.get("TMPDIR")
-    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
-                           name), 'r') as myfile:
-        sample_data = json.load(myfile)
-    PUBLISH_ID = sample_data.get("publishdata_id")
-    modifications = [d for d in sample_data.get("Modifications")]
-    row_counts = len(modifications)
-    for modification in modifications:
-        if modification.get("Current"):
-            (strain_id,
-             strain_name,
-             value, se, count) = modification.get("Current").split(",")
-            update_sample_data(
-                conn=conn,
-                strain_name=strain_name,
-                strain_id=int(strain_id),
-                publish_data_id=int(PUBLISH_ID),
-                value=value,
-                error=se,
-                count=count
-            )
-            insert(conn,
-                   table="metadata_audit",
-                   data=MetadataAudit(
-                       dataset_id=name.split(".")[0],  # use the dataset name
-                       editor=sample_data.get("author"),
-                       json_data=json.dumps(sample_data)))
-    if modifications:
-        # Once data is approved, rename it!
-        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
-                  os.path.join(f"{TMPDIR}/sample-data/diffs",
-                               f"{name}.approved"))
-        flash((f"Just updated data from: {name}; {row_counts} "
-               "row(s) modified!"),
-              "success")
-    return redirect("/admin/data-sample/diffs/")
-
-
-@app.route("/data-samples/reject/<name>")
-def reject_data(name):
-    TMPDIR = current_app.config.get("TMPDIR")
-    os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", name),
-              os.path.join(f"{TMPDIR}/sample-data/diffs",
-                           f"{name}.rejected"))
-    flash(f"{name} has been rejected!", "success")
-    return redirect("/admin/data-sample/diffs/")
-
-
-@app.route("/display-file/<name>")
-def display_file(name):
-    TMPDIR = current_app.config.get("TMPDIR")
-    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
-                           name), 'r') as myfile:
-        content = myfile.read()
-    return Response(content, mimetype='text/json')

@@ -82,13 +82,14 @@ class GSearch:
                     this_trait['species'] = line[0]
                     this_trait['group'] = line[1]
                     this_trait['tissue'] = line[2]
-                    this_trait['symbol'] = line[6]
+                    this_trait['symbol'] = "N/A"
+                    if line[6]:
+                        this_trait['symbol'] = line[6]
+                    this_trait['description'] = "N/A"
                     if line[7]:
                         this_trait['description'] = line[7].decode(
                             'utf-8', 'replace')
-                    else:
-                        this_trait['description'] = "N/A"
-                    this_trait['location_repr'] = 'N/A'
+                    this_trait['location_repr'] = "N/A"
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
                         this_trait['location_repr'] = 'Chr%s: %.6f' % (
                             line[8], float(line[9]))
@@ -118,7 +119,7 @@ class GSearch:
                     this_trait['dataset_id'] = line[15]
 
                     dataset_ob = SimpleNamespace(
-                        id=this_trait["dataset_id"], type="ProbeSet", species=this_trait["species"])
+                        id=this_trait["dataset_id"], type="ProbeSet", name=this_trait["dataset"], species=this_trait["species"])
                     if dataset_ob.id not in dataset_to_permissions:
                         permissions = check_resource_availability(dataset_ob)
                         dataset_to_permissions[dataset_ob.id] = permissions

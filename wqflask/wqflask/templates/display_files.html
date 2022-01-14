@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Trait Submission{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+
+{% block content %}
+<!-- Start of body -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="container-fluid bg-{{ category }}">
+    <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    {% if waiting %}
+    <h2>Files for approval:</h2>
+    <div class="row">
+        <div class="col-md-7">
+            <table class="table table-hover table-striped cell-border">
+                <thead>
+                    <th scope="col">Resource Id</</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">TimeStamp</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </thead>
+                <tbody>
+                    {% for data in waiting %}
+                    <tr>
+                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
+                        <td>{{ data.get("author")}}</td>
+                        <td>{{ data.get("time_stamp")}}</td>
+                        {% if data.get("roles").get("admin") > AdminRole.EDIT_ACCESS %}
+                        {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.get('resource_id'), file_name=data.get('file_name')) %}
+                        {% set approve_url = url_for('metadata_edit.approve_data', resource_id=data.get('resource_id'), file_name=data.get('file_name')) %}
+                        <td>
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm">
+                                <a href="{{ reject_url }}">Reject</a>
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-warning btn-sm">
+                                <a href="{{ approve_url }}">Approve</a>
+                            </button>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if approved %}
+    <h2>Approved Data:</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
+                <thead>
+                    <th scope="col">Resource Id</</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">TimeStamp</th>
+                </thead>
+                <tbody>
+                    {% for data in approved %}
+                    <tr>
+                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
+                        <td>{{ data.get("author")}}</td>
+                        <td>{{ data.get("time_stamp")}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if rejected %}
+    <h2>Rejected Files:</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border" id="table-rejected">
+                <thead>
+                    <th scope="col">Resource Id</</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">TimeStamp</th>
+                </thead>
+                <tbody>
+                    {% for data in rejected %}
+                    <tr>
+                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
+                        <td>{{ data.get("author")}}</td>
+                        <td>{{ data.get("time_stamp")}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{%endblock%}
+
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript">
+ gn_server_url = "{{ gn_server_url }}";
+ 
+ $(document).ready( function() {
+     $('#table-approved').dataTable();
+     $('#table-rejected').dataTable();
+ });
+</script>
+{% endblock %}
