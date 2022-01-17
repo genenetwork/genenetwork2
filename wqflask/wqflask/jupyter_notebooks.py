@@ -12,7 +12,7 @@ def launcher():
             "src_link_url": "https://github.com/BonfaceKilz/tsaf-analysis-of-bxd-mouse-colonies",
         },
         {
-            "main_url": "http://notebook.genenetwork.org/50939/notebooks/2020-05-08/solberg-rat-analysis.ipynb",
+            "main_url": "http://notebook.genenetwork.org/53457/notebooks/2020-05-08/solberg-rat-analysis.ipynb",
             "notebook_name": "Quantitative Genetics Tools for Mapping Trait Variation to Mechanisms, Therapeutics, and Interventions - Webinar Series",
             "src_link_url": "https://github.com/senresearch/quant-genetics-webinars",
         },
