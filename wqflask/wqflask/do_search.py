@@ -343,7 +343,7 @@ class GenotypeSearch(DoSearch):
                 GenoFreeze.createtime as thistable,
                 Geno.Name as Geno_Name,
                 Geno.Source2 as Geno_Source2,
-                Geno.chr_num as Geno_chr_num,
+                Geno.Chr as Geno_Chr,
                 Geno.Mb as Geno_Mb
                 FROM GenoXRef, GenoFreeze, Geno """
 
