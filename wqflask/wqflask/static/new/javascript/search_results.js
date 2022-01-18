@@ -132,9 +132,13 @@ $(function() {
 
   add_to_collection = function() {
     var traits;
-    traits = $("#trait_table input:checked").map(function() {
-      return $(this).val();
-    }).get();
+    table_api = $('#trait_table').DataTable();
+    check_nodes = table_api.column(0).nodes().to$();
+    traits = Array.from(check_nodes.map(function() {
+      if ($(this)[0].childNodes[0].checked){
+        return $(this)[0].childNodes[0].value
+      }
+    }))
 
     var traits_hash = md5(traits.toString());
 
