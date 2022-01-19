@@ -1,6 +1,43 @@
 import requests
-
+from dataclasses import dataclass
 from utility.tools import GN3_LOCAL_URL
+
+
+@dataclass
+class CtlDatabase:
+    """class for keeping track of ctl db data"""
+
+    dataset: dict
+
+    trait_db_list: list
+
+
+def parse_geno_data(dataset_group_name) ->dict:
+	"""function to parse geno file data"""
+	genofile_location = locate(dataset.group.name + ".geno", "genotype")
+	parser = genofile_parser.ConvertGenoFile(genofilelocation)
+
+	parser.process_csv()
+
+	# get marker and marker names
+
+    markers = []
+    markernames = []
+    for marker in parser.markers:
+        markernames.append(marker["name"])
+        markers.append(marker["genotypes"])
+
+    return {
+
+    "genotypes":list(itertools.chain(*markers)),
+    "markernames":markernames
+    "individuals":parser.individuals,
+
+
+    }
+
+
+
 
 
 def parse_form_data(form_data: dict):
@@ -9,6 +46,10 @@ def parse_form_data(form_data: dict):
     output: dict with parsed data
 
     """
+
+    trait_db_list = [trait.strip()
+                          for trait in requestform['trait_list'].split(',')]
+    form_data["trait_db_list"] = [x for x in  trait_db_list if x]
 
     form_data["nperm"] = int(form_data["nperm"])
     form_data["significance"] = float(int(form_data["significance"]))
@@ -20,6 +61,8 @@ def parse_form_data(form_data: dict):
 def run_ctl():
     """function to make an api call
     to gn3 and run ctl"""
+
+    CtlObj = CtlDatabase()
 
     ctl_api = f"{GN3_LOCAL_URL}/api/wgcna/run_wgcna"
 
