@@ -1,5 +1,4 @@
 import requests
-from dataclasses import dataclass
 
 from utility import genofile_parser
 from utility.tools import GN3_LOCAL_URL
@@ -7,15 +6,6 @@ from utility.tools import locate
 
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
-
-
-@dataclass
-class CtlDatabase:
-    """class for keeping track of ctl db data"""
-
-    dataset: dict
-
-    trait_db_list: list
 
 
 def parse_geno_data(dataset_group_name) ->dict:
@@ -92,18 +82,17 @@ def run_ctl(requestform):
     """function to make an api call
     to gn3 and run ctl"""
 
-    CtlObj = CtlDatabase()
-
     ctl_api = f"{GN3_LOCAL_URL}/api/ctl/run_ctl"
 
     form_data = parse_form_data(requestform)
 
-    pheno_data = parse_geno_data(CtlObj.dataset.group.name)
+    trait_db_list = form_data["trait_db_list"]
+    dataset = data_set.create_dataset(trait_db_list[0].split(":")[1])
 
+    pheno_data = parse_geno_data(dataset.group.name)
 
-    geno_data = parse_phenotype_data(form_data["trait_db_list"])
+    geno_data = parse_phenotype_data(trait_db_list)
 
-    # refactor below
 
     pheno_data["individuals"] = geno_data["individuals"]
 
@@ -119,4 +108,8 @@ def run_ctl(requestform):
 
     # todo check for errors
 
-    return response.json()
+    response_data =  response.json()
+
+    print(">>>>>>>>>>>>>>>>>>>>>>",response_data)
+
+    return ""
