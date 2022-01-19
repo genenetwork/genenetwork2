@@ -10,22 +10,23 @@ from base.trait import retrieve_sample_data
 from base import data_set
 
 
-
 def process_significance_data(significant_data):
     """function to process significance the data for
     datatables"""
 
-    col_names = ["trait","marker","trait_2","LOD","dCor"]
+    col_names = ["trait", "marker", "trait_2", "LOD", "dcor"]
 
-    data_set_rows = [[] for _ in range(len(significant_data["trait"]))]
+    dataset_rows = [[] for _ in range(len(significant_data["trait"]))]
 
-
-
+    for col in col_names:
+        for (index, col_data) in enumerate(significant_data[col]):
+            dataset_rows[index].append(col_data)
 
     return {
-    "col_names":[],
-    ""
+        "col_names": col_names,
+        "data_set_rows": dataset_rows
     }
+
 
 def parse_geno_data(dataset_group_name) -> dict:
     """function to parse geno file data"""
@@ -117,8 +118,11 @@ def run_ctl(requestform):
 
         **form_data,
 
-    })
+    }).json()["results"]
+
+    response["significance_data"] = process_significance_data(
+        response["significance_data"])
 
     # todo check for errors
 
-    return response.json()
+    return response
