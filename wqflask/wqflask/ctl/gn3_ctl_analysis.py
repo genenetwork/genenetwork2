@@ -1,4 +1,5 @@
 import requests
+import itertools
 
 from utility import genofile_parser
 from utility.tools import GN3_LOCAL_URL
@@ -6,37 +7,53 @@ from utility.tools import locate
 
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
+from base import data_set
 
 
-def parse_geno_data(dataset_group_name) ->dict:
-	"""function to parse geno file data"""
-	genofile_location = locate(dataset.group.name + ".geno", "genotype")
-	parser = genofile_parser.ConvertGenoFile(genofilelocation)
 
-	parser.process_csv()
+def process_significance_data(significant_data):
+    """function to process significance the data for
+    datatables"""
 
-	# get marker and marker names
+    col_names = ["trait","marker","trait_2","LOD","dCor"]
 
-	return parser
+    data_set_rows = [[] for _ in range(len(significant_data["trait"]))]
+
+
+
+
+    return {
+    "col_names":[],
+    ""
+    }
+
+def parse_geno_data(dataset_group_name) -> dict:
+    """function to parse geno file data"""
+    genofile_location = locate(dataset_group_name + ".geno", "genotype")
+    parser = genofile_parser.ConvertGenoFile(genofile_location)
+
+    parser.process_csv()
 
     markers = []
+
     markernames = []
+
     for marker in parser.markers:
         markernames.append(marker["name"])
         markers.append(marker["genotypes"])
 
     return {
 
-    "genotypes":list(itertools.chain(*markers)),
-    "markernames":markernames
-    "individuals":parser.individuals,
+        "genotypes": list(itertools.chain(*markers)),
+        "markernames": markernames,
+        "individuals": parser.individuals
 
 
     }
 
 
-def parse_phenotype_data(trait_db_list):
-	"""function to parse and generate phenodata"""
+def parse_phenotype_data(trait_db_list, dataset, individuals):
+    """function to parse and generate phenodata"""
 
     traits = []
     for trait in trait_db_list:
@@ -50,14 +67,13 @@ def parse_phenotype_data(trait_db_list):
                 else:
                     traits.append("-999")
 
-
-    # missing inviduals 
+    # missing inviduals
 
     return {
-    "trait_db_list":trait_db_list,
-    "traits":traits
+        "trait_db_list": trait_db_list,
+        "traits": traits,
+        "individuals": individuals
     }
-
 
 
 def parse_form_data(form_data: dict):
@@ -68,11 +84,11 @@ def parse_form_data(form_data: dict):
     """
 
     trait_db_list = [trait.strip()
-                          for trait in requestform['trait_list'].split(',')]
-    form_data["trait_db_list"] = [x for x in  trait_db_list if x]
+                     for trait in form_data['trait_list'].split(',')]
+    form_data["trait_db_list"] = [x for x in trait_db_list if x]
 
     form_data["nperm"] = int(form_data["nperm"])
-    form_data["significance"] = float(int(form_data["significance"]))
+    form_data["significance"] = float(form_data["significance"])
     form_data["strategy"] = form_data["strategy"].capitalize()
 
     return form_data
@@ -84,32 +100,25 @@ def run_ctl(requestform):
 
     ctl_api = f"{GN3_LOCAL_URL}/api/ctl/run_ctl"
 
-    form_data = parse_form_data(requestform)
+    form_data = parse_form_data(requestform.to_dict())
 
     trait_db_list = form_data["trait_db_list"]
     dataset = data_set.create_dataset(trait_db_list[0].split(":")[1])
 
-    pheno_data = parse_geno_data(dataset.group.name)
+    geno_data = parse_geno_data(dataset.group.name)
 
-    geno_data = parse_phenotype_data(trait_db_list)
-
-
-    pheno_data["individuals"] = geno_data["individuals"]
-
+    pheno_data = parse_phenotype_data(
+        trait_db_list, dataset, geno_data["individuals"])
 
     response = requests.post(ctl_api, json={
 
-    	"genoData":geno_data,
-    	"phenoData":pheno_data,
+        "genoData": geno_data,
+        "phenoData": pheno_data,
 
-    	**form_data,
+        **form_data,
 
     })
 
     # todo check for errors
 
-    response_data =  response.json()
-
-    print(">>>>>>>>>>>>>>>>>>>>>>",response_data)
-
-    return ""
+    return response.json()
