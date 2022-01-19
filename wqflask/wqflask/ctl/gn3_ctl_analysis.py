@@ -27,6 +27,8 @@ def parse_geno_data(dataset_group_name) ->dict:
 
 	# get marker and marker names
 
+	return parser
+
     markers = []
     markernames = []
     for marker in parser.markers:
@@ -86,15 +88,32 @@ def parse_form_data(form_data: dict):
     return form_data
 
 
-def run_ctl():
+def run_ctl(requestform):
     """function to make an api call
     to gn3 and run ctl"""
 
     CtlObj = CtlDatabase()
 
-    ctl_api = f"{GN3_LOCAL_URL}/api/wgcna/run_wgcna"
+    ctl_api = f"{GN3_LOCAL_URL}/api/ctl/run_ctl"
+
+    form_data = parse_form_data(requestform)
+
+    pheno_data = parse_geno_data(CtlObj.dataset.group.name)
+
+
+    geno_data = parse_phenotype_data(form_data["trait_db_list"])
+
+    # refactor below
+
+    pheno_data["individuals"] = geno_data["individuals"]
+
 
     response = requests.post(ctl_api, json={
+
+    	"genoData":geno_data,
+    	"phenoData":pheno_data,
+
+    	**form_data,
 
     })
 
