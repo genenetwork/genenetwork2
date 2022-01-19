@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Ctl results{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+<div style="margin-top:10px">
+    <div>
+        <h3>CTL/QTL Plots for Individual Traits</h3>
+        {% for ctl_plot in ctl_plots %}
+        <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ ctl_plot | safe }}">
+        {% endfor %}
+    </div>
+    <h2 style="text-align:center">Significant CTL </h2>
+    <table id="significance" width="80vw"></table>
+    <div>
+        <h2>Ctl line plot</h2>
+        <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ image_data | safe }}">
+    </div>
+    <div>
+        <h3>Network figure</h3>
+    </div>
+</div>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script type="text/javascript">
+let results = {{significance_data | safe}}
+
+
+// let signifance_data = results["significance_table"]
+
+let { data_set_rows, col_names } = results
+
+$('#significance').DataTable({
+    data: data_set_rows,
+    columns: col_names.map((name) => {
+        return {
+            title: name
+        }
+    })
+});
+</script>
+{% endblock %}
