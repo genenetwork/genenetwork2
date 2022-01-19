@@ -93,41 +93,51 @@ $(function() {
       $('#trait_table').DataTable().search($(this).val()).draw();
   });
 
-  $('#select_top').keyup(function(){
-      num_rows = $(this).val()
-
-      if (num_rows = parseInt(num_rows)){
-          table_api = $('#trait_table').DataTable();
-
-          check_cells = table_api.column(0).nodes().to$();
-          for (let i = 0; i < num_rows; i++) {
-            check_cells[i].childNodes[0].checked = true;
+  parse_index_string = function(idx_string) {
+    index_list = [];
+    _ref = idx_string.split(",");
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      index_set = _ref[_i];
+      if (index_set.indexOf('-') !== -1) {
+        try {
+          start_index = parseInt(index_set.split("-")[0]);
+          end_index = parseInt(index_set.split("-")[1]);
+          for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
+            index_list.push(index);
           }
-
-          check_rows = table_api.rows().nodes();
-          for (let i=0; i < num_rows; i++) {
-            if (check_rows[i].classList.contains("selected")){
-              continue
-            } else {
-              check_rows[i].classList.add("selected")
-            }
-          }
-          for (let i = num_rows; i < check_rows.length; i++){
-            check_cells[i].childNodes[0].checked = false;
-            if (check_rows[i].classList.contains("selected")){
-              check_rows[i].classList.remove("selected")
-            }
-          }
-      }
-      else {
-        for (let i = 0; i < check_rows.length; i++){
-          check_cells[i].childNodes[0].checked = false;
-          if (check_rows[i].classList.contains("selected")){
-            check_rows[i].classList.remove("selected")
-          }
+        } catch (_error) {
+          error = _error;
+          alert("Syntax error");
         }
+      } else {
+        index = parseInt(index_set);
+        index_list.push(index);
       }
-      change_buttons();
+    }
+    return new Set(index_list)
+  }
+
+  filter_by_index = function() {
+    index_string = $('#select_top').val()
+    index_set = parse_index_string(index_string)
+
+    table_api = $('#trait_table').DataTable();
+    check_nodes = table_api.column(0).nodes().to$();
+    check_nodes.each(function(index) {
+      if (index_set.has(index + 1)){
+        $(this)[0].childNodes[0].checked = true
+      }
+    })
+  }
+
+  $('#select_top').keyup(function(event){
+    if (event.keyCode === 13) {
+      filter_by_index()
+    }
+  });
+
+  $('#select_top').blur(function() {
+    filter_by_index()
   });
 
   add_to_collection = function() {
