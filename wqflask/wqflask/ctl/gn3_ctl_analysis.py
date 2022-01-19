@@ -5,7 +5,6 @@ from utility import genofile_parser
 from utility.tools import GN3_LOCAL_URL
 from utility.tools import locate
 
-
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
@@ -66,9 +65,6 @@ def parse_phenotype_data(trait_db_list):
     "trait_db_list":trait_db_list,
     "traits":traits
     }
-
-
-
 
 
 
