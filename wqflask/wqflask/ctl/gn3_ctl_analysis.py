@@ -1,6 +1,13 @@
 import requests
 from dataclasses import dataclass
+
+from utility import genofile_parser
 from utility.tools import GN3_LOCAL_URL
+from utility.tools import locate
+
+
+from base.trait import create_trait
+from base.trait import retrieve_sample_data
 
 
 @dataclass
@@ -35,6 +42,31 @@ def parse_geno_data(dataset_group_name) ->dict:
 
 
     }
+
+
+def parse_phenotype_data(trait_db_list):
+	"""function to parse and generate phenodata"""
+
+    traits = []
+    for trait in trait_db_list:
+        if trait != "":
+            ts = trait.split(':')
+            gt = create_trait(name=ts[0], dataset_name=ts[1])
+            gt = retrieve_sample_data(gt, dataset, individuals)
+            for ind in individuals:
+                if ind in list(gt.data.keys()):
+                    traits.append(gt.data[ind].value)
+                else:
+                    traits.append("-999")
+
+
+    # missing inviduals 
+
+    return {
+    "trait_db_list":trait_db_list,
+    "traits":traits
+    }
+
 
 
 
