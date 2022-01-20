@@ -130,6 +130,13 @@ $(function() {
     })
   }
 
+  $(window).keydown(function(event){
+    if((event.keyCode == 13)) {
+      event.preventDefault();
+      return false;
+    }
+  });
+
   $('#select_top').keyup(function(event){
     if (event.keyCode === 13) {
       filter_by_index()
