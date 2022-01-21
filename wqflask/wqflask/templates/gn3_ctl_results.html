@@ -24,10 +24,10 @@
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 <script type="text/javascript">
 
-let results = {{ significance_data | safe }}
 
 
-let { data_set_rows, col_names } = results
+let { data_set_rows, col_names } = {{ significance_data | safe }}
+
 
 $('#significance').DataTable({
     data: data_set_rows,
