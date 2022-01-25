@@ -17,20 +17,7 @@
 </style>
 <div style="margin-top:10px">
     <div>
-        <h3>CTL/QTL Plots for Individual Traits</h3>
-        {% for ctl_plot in ctl_plots %}
-        <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ ctl_plot | safe }}">
-        {% endfor %}
-    </div>
-    <h2 style="text-align:center">Significant CTL </h2>
-    <table id="significance" width="80vw"></table>
-    <div>
-        <h2>Ctl line plot</h2>
-        <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ image_data | safe }}">
-    </div>
-    <div>
-        <h3>Network figure</h3>
-    </div>
+        <h3 style="text-align:center;">CTL/QTL Plots for Individual Traits</h3>
 
     <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
   <div class="carousel-inner">
@@ -39,7 +26,7 @@
 
 
     <div class="item{% if loop.index == 1 %} active{% endif %}">
-      <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ ctl_plot | safe }}" alt="First slide">
+      <img style="width:1000px;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ ctl_plot | safe }}" alt="First slide">
     </div>
 
     {% endfor %}
@@ -56,6 +43,19 @@
   </div>
 
 </div>
+
+
+    </div>
+    <h2 style="text-align:center">Significant CTL </h2>
+    <table id="significance" width="80vw"></table>
+    <div>
+        <h2>Ctl line plot</h2>
+        <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ image_data | safe }}">
+    </div>
+    <div>
+        <h3>Network figure</h3>
+    </div>
+
 
 
 </div>
