@@ -45,6 +45,7 @@ from flask import send_from_directory
 from flask import redirect
 from flask import url_for
 from flask import send_file
+from flask import jsonify
 
 # Some of these (like collect) might contain endpoints, so they're still used.
 # Blueprints should probably be used instead.
@@ -68,7 +69,9 @@ from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
-# from wqflask.ctl import ctl_analysis
+from wqflask.ctl import ctl_analysis
+from wqflask.ctl.gn3_ctl_analysis import run_ctl
+
 from wqflask.wgcna.gn3_wgcna import run_wgcna
 from wqflask.snp_browser import snp_browser
 from wqflask.search_results import SearchResultPage
@@ -353,6 +356,13 @@ def ctl_setup():
     # Display them using the template
     return render_template("ctl_setup.html", **request.form)
 
+
+
+@app.route("/ctl_results",methods=["POST"])
+def ctl_results():
+
+    ctl_results = run_ctl(request.form)
+    return render_template("gn3_ctl_results.html",**ctl_results)
 
 @app.route("/intro")
 def intro():
@@ -1078,5 +1088,4 @@ def display_diffs_users():
                        files)
     return render_template("display_files_user.html",
                            files=files)
-
 
