@@ -177,8 +177,6 @@ def verify_email():
 @app.route("/n/login", methods=('GET', 'POST'))
 def login():
     params = request.form if request.form else request.args
-    logger.debug("in login params are:", params)
-
     if not params:  # ZS: If coming to page for first time
         from utility.tools import GITHUB_AUTH_URL, GITHUB_CLIENT_ID, ORCID_AUTH_URL, ORCID_CLIENT_ID
         external_login = {}
