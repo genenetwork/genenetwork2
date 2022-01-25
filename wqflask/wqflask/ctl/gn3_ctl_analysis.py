@@ -20,7 +20,13 @@ def process_significance_data(significant_data):
 
     for col in col_names:
         for (index, col_data) in enumerate(significant_data[col]):
-            dataset_rows[index].append(col_data)
+
+            if col in ["dcor", "LOD"]:
+
+                dataset_rows[index].append(round(col_data, 2))
+            else:
+
+                dataset_rows[index].append(col_data)
 
     return {
         "col_names": col_names,
