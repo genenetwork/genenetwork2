@@ -3,6 +3,8 @@
 {% block content %}
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
 
 <style type="text/css">
@@ -46,14 +48,20 @@
 
 
     </div>
+
+        <div>
+        <h2 style="text-align:center;">Ctl line plot</h2>
+        <img style="width:1000px;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ image_data | safe }}">
+    </div>
     <h2 style="text-align:center">Significant CTL </h2>
     <table id="significance" width="80vw"></table>
+
     <div>
-        <h2>Ctl line plot</h2>
-        <img style="width:1000px;height: 600px;" src="data:image/jpeg;base64,{{ image_data | safe }}">
-    </div>
-    <div>
-        <h3>Network figure</h3>
+        <h3 style="text-align:center;">Network figure</h3>
+
+        <div>
+            This is not we expected you see.Feature in progress
+        </div>
     </div>
 
 
