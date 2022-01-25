@@ -23,7 +23,7 @@ def process_significance_data(significant_data):
 
             if col in ["dcor", "LOD"]:
 
-                dataset_rows[index].append(round(col_data, 2))
+                dataset_rows[index].append(round(float(col_data), 2))
             else:
 
                 dataset_rows[index].append(col_data)
