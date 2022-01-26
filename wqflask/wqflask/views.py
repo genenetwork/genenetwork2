@@ -364,6 +364,15 @@ def ctl_results():
     ctl_results = run_ctl(request.form)
     return render_template("gn3_ctl_results.html",**ctl_results)
 
+
+@app.route("/ctl_network_files/<file_name>/<file_type>")
+def fetch_network_files(file_name,file_type):
+    file_path = f"{file_name}.{file_type}"
+
+    file_path  = os.path.join("/tmp/",file_path)
+
+    return send_file(file_path)
+
 @app.route("/intro")
 def intro():
     doc = Docs("intro", request.args)
