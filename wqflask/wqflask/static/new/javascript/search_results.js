@@ -102,7 +102,13 @@ $(function() {
         try {
           start_index = parseInt(index_set.split("-")[0]);
           end_index = parseInt(index_set.split("-")[1]);
-          for (index = _j = start_index; start_index <= end_index ? _j <= end_index : _j >= end_index; index = start_index <= end_index ? ++_j : --_j) {
+
+          // If start index is higher than end index (for example is the string "10-5" exists) swap values so it'll be interpreted as "5-10" instead
+          if (start_index > end_index) {
+            [start_index, end_index] = [end_index, start_index]
+          }
+
+          for (index = start_index; index <= end_index; index++) {
             index_list.push(index);
           }
         } catch (_error) {
