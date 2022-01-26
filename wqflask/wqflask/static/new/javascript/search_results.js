@@ -102,11 +102,17 @@ $(function() {
    */
   parseIndexString = function(idx_string) {
     index_list = [];
+
     _ref = idx_string.split(",");
     for (_i = 0; _i < _ref.length; _i++) {
       index_set = _ref[_i];
+      if (!/^ *([0-9]+$) *| *([0-9]+ *- *[0-9]+$) *|(^$)$/.test(index_set)) {
+        $('#select_samples_invalid').show();
+        break
+      } else {
+        $('#select_samples_invalid').hide();
+      }
       if (index_set.indexOf('-') !== -1) {
-        try {
           start_index = parseInt(index_set.split("-")[0]);
           end_index = parseInt(index_set.split("-")[1]);
 
@@ -118,10 +124,6 @@ $(function() {
           for (index = start_index; index <= end_index; index++) {
             index_list.push(index);
           }
-        } catch (_error) {
-          error = _error;
-          alert("Syntax error");
-        }
       } else {
         index = parseInt(index_set);
         index_list.push(index);
