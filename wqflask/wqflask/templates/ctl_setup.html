@@ -40,8 +40,8 @@
           <label for="corType" class="col-md-3 col-form-label col-form-label-sm">Types of correlation coefficients:</label>
           <div class="col-md-9">
             <select class="form-control  col-md-9" name="parametric" id="parametric">
-            <option value="pearson">pearson</option>
-            <option value="bicor">bicor</option>
+            <option value="False">spearman</option>
+            <option value="True">pearson</option>
           </select>
           </div>
 
@@ -49,7 +49,7 @@
 
 
             <div class="form-group row">
-      <label for="Permutations" class="col-md-3 col-form-label col-form-label-sm">Number of permutation (Used when strategy is Full or Pairwise)</label>
+      <label for="Permutations" class="col-md-3 col-form-label col-form-label-sm">Number of permutation <span style="color:red;">(Used when strategy is Full or Pairwise)</span></label>
       <div class="col-md-9">
         <select class="form-control" name="nperm" id="nperm">
           <option value="100">100</option>

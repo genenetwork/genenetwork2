@@ -19,7 +19,13 @@
 </style>
 <div style="margin-top:10px">
     <div>
-        <h3 style="text-align:center;">CTL/QTL Plots for Individual Traits</h3>
+
+        <div style="text-align: center;">
+        <h3>CTL/QTL Plots for Individual Traits</h3>
+         <h4> {{ctl_plots|length}} phenotypes as input</h4>
+            
+        </div>
+
 
     <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
   <div class="carousel-inner">
@@ -56,12 +62,16 @@
     <h2 style="text-align:center">Significant CTL </h2>
     <table id="significance" width="80vw"></table>
 
-    <div>
+    <div style="text-align: center;margin-top: 20px;">
         <h3 style="text-align:center;">Network figure</h3>
 
-        <div>
-            <button type="button" class="btn btn-primary btn-lg">Download Network Sif File</button>
-<button type="button" class="btn btn-secondary btn-lg">Download Node file</button>
+        <div  style="margin-top: 20px;">
+
+<p>Use tools like cytoscape to visualize the network</p>
+
+<a href="/ctl_network_files/{{network_file_name}}/sif" class="btn btn-secondary btn-lg mx-2">Download Sif file</a>
+
+<a href="/ctl_network_files/{{network_file_name}}/nodes" class="btn btn-secondary btn-lg mx-2">Download Node file</a>
         </div>
     </div>
 
@@ -76,7 +86,6 @@
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 <script type="text/javascript">
-
 
 
 let { data_set_rows, col_names } = {{ significance_data | safe }}
