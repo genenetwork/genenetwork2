@@ -96,7 +96,7 @@ $(function() {
   parse_index_string = function(idx_string) {
     index_list = [];
     _ref = idx_string.split(",");
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    for (_i = 0; _i < _ref.length; _i++) {
       index_set = _ref[_i];
       if (index_set.indexOf('-') !== -1) {
         try {
