@@ -102,6 +102,10 @@
               <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
               <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
             </div>
+            <div id="select_samples_invalid" class="alert alert-error" style="display:none;">
+              Please check that your syntax includes only a combination of integers, dashes, and commas of a format 
+              similar to <strong>1,5,10</strong> or <strong>2, 5-10, 15</strong>, etc.
+            </div>
           </form>
           {% if dataset.type != 'Geno' %}
           <div class="show-hide-container">
