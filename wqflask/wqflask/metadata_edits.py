@@ -257,9 +257,29 @@ def update_phenotype(dataset_id: str, name: str):
         r = run_cmd(cmd=("csvdiff "
                          f"'{uploaded_file_name}' '{new_file_name}' "
                          "--format json"))
+        json_data = json.loads(r.get("output"))
+
+        # Only consider values where |ε| < 0.001; otherwise, use the
+        # old value in "Original".
+        _modifications = []
+        for m in json_data.get("Modifications"):
+            _original = m.get("Original").split(",")
+            _current = m.get("Current").split(",")
+            for i, (x, y) in enumerate(zip(_original, _current)):
+                if (x.replace('.', '').isdigit()
+                    and y.replace('.', '').isdigit()
+                    and abs(float(x) - float(y)) < 0.001):
+                    _current[i] = x
+            if not (__o:=",".join(_original)) == (__c:=",".join(_current)):
+                    _modifications.append(
+                        {
+                            "Original": __o,
+                            "Current": __c,
+                        })
+        json_data['Modifications'] = _modifications
 
         # Edge case where the csv file has not been edited!
-        if not any(json.loads(r.get("output")).values()):
+        if not any(json_data.values()):
             flash(f"You have not modified the csv file you downloaded!",
                   "warning")
             return redirect(f"/datasets/{dataset_id}/traits/{name}"
@@ -267,7 +287,7 @@ def update_phenotype(dataset_id: str, name: str):
         diff_output = (f"{TMPDIR}/sample-data/diffs/"
                        f"{_file_name}.json")
         with open(diff_output, "w") as f:
-            dict_ = json.loads(r.get("output"))
+            dict_ = json_data
             dict_.update({
                 "trait_name": str(name),
                 "phenotype_id": str(phenotype_id),
