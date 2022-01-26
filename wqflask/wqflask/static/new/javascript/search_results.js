@@ -93,6 +93,13 @@ $(function() {
       $('#trait_table').DataTable().search($(this).val()).draw();
   });
 
+  /**
+   * parseIndexString takes a string consisting of integers,
+   * hyphens, and/or commas to indicate range(s) of indices
+   * to select a rows and returns the corresponding set of indices
+   * For example - "1, 5-10, 15" would return a set of 8 rows
+   * @return {Set} The list of indices as a Set
+   */
   parseIndexString = function(idx_string) {
     index_list = [];
     _ref = idx_string.split(",");
