@@ -25,10 +25,10 @@ change_buttons = function(check_node = 0) {
 };
 
 $(function() {
-  var add, checked_traits, deselect_all, invert, remove, removed_traits, select_all;
+  var add, checked_traits, deselectAll, invert, selectAll;
 
   checked_traits = null;
-  select_all = function() {
+  selectAll = function() {
     table_api = $('#trait_table').DataTable();
 
     check_cells = table_api.column(0).nodes().to$();
@@ -44,7 +44,7 @@ $(function() {
     change_buttons();
   };
 
-  deselect_all = function() {
+  deselectAll = function() {
     table_api = $('#trait_table').DataTable();
 
     check_cells = table_api.column(0).nodes().to$();
@@ -93,7 +93,7 @@ $(function() {
       $('#trait_table').DataTable().search($(this).val()).draw();
   });
 
-  parse_index_string = function(idx_string) {
+  parseIndexString = function(idx_string) {
     index_list = [];
     _ref = idx_string.split(",");
     for (_i = 0; _i < _ref.length; _i++) {
@@ -117,9 +117,9 @@ $(function() {
     return new Set(index_list)
   }
 
-  filter_by_index = function() {
+  filterByIndex = function() {
     index_string = $('#select_top').val()
-    index_set = parse_index_string(index_string)
+    index_set = parseIndexString(index_string)
 
     table_api = $('#trait_table').DataTable();
     check_nodes = table_api.column(0).nodes().to$();
@@ -139,15 +139,15 @@ $(function() {
 
   $('#select_top').keyup(function(event){
     if (event.keyCode === 13) {
-      filter_by_index()
+      filterByIndex()
     }
   });
 
   $('#select_top').blur(function() {
-    filter_by_index()
+    filterByIndex()
   });
 
-  add_to_collection = function() {
+  addToCollection = function() {
     var traits;
     table_api = $('#trait_table').DataTable();
     check_nodes = table_api.column(0).nodes().to$();
@@ -174,19 +174,19 @@ $(function() {
 
   };
 
-  removed_traits = function() {
+  removedTraits = function() {
     return checked_traits.closest("tr").fadeOut();
   };
 
-  submit_bnw = function() {
-    trait_data = submit_traits_to_export_or_bnw("trait_table", "submit_bnw")
+  submitBnw = function() {
+    trait_data = submitTraitsToExportOrBnw("trait_table", "submit_bnw")
   }
 
-  export_traits = function() {
-    trait_data = submit_traits_to_export_or_bnw("trait_table", "export_csv")
+  exportTraits = function() {
+    trait_data = submitTraitsToExportOrBnw("trait_table", "export_csv")
   };
 
-  submit_traits_to_export_or_bnw = function(table_name, destination) {
+  submitTraitsToExportOrBnw = function(table_name, destination) {
     trait_table = $('#'+table_name);
     table_dict = {};
 
@@ -227,7 +227,7 @@ $(function() {
     $('#export_form').submit();
   };
 
-  get_traits_from_table = function(){
+  getTraitsFromTable = function(){
     traits = $("#trait_table input:checked").map(function() {
       return $(this).val();
     }).get();
@@ -243,42 +243,42 @@ $(function() {
   }
 
   $("#corr_matrix").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Correlation Matrix")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#network_graph").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Network Graph")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#wgcna_setup").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("WGCNA Setup")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#ctl_setup").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("CTL Setup")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#heatmap").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Heatmap")
       $("input[name=form_url]").val($(this).data("url"))
       return submit_special("/loading")
   });
   $("#comp_bar_chart").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       $("input[name=tool_used]").val("Comparison Bar Chart")
       $("input[name=form_url]").val($(this).data("url"))
@@ -286,32 +286,32 @@ $(function() {
   });
 
   $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {
-      traits = get_traits_from_table()
+      traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       url = $(this).data("url")
       return submit_special(url)
   });
 
 
-  $("#select_all").click(select_all);
-  $("#deselect_all").click(deselect_all);
+  $("#select_all").click(selectAll);
+  $("#deselect_all").click(deselectAll);
   $("#invert").click(invert);
-  $("#add").click(add_to_collection);
-  $("#submit_bnw").click(submit_bnw);
-  $("#export_traits").click(export_traits);
+  $("#add").click(addToCollection);
+  $("#submit_bnw").click(submitBnw);
+  $("#export_traits").click(exportTraits);
 
   let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
   let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
 
   let na_equivalent_vals = ["N/A", "--", ""]; //ZS: Since there are multiple values that should be treated the same as N/A
 
-  function extract_inner_text(the_string){
+  function extractInnerText(the_string){
     var span = document.createElement('span');
     span.innerHTML = the_string;
     return span.textContent || span.innerText;
   }
 
-  function sort_NAs(a, b, sort_function){
+  function sortNAs(a, b, sort_function){
     if ( na_equivalent_vals.includes(a) && na_equivalent_vals.includes(b)) {
       return 0;
     }
@@ -326,10 +326,10 @@ $(function() {
 
   $.extend( $.fn.dataTableExt.oSort, {
     "natural-minus-na-asc": function (a, b) {
-      return sort_NAs(extract_inner_text(a), extract_inner_text(b), naturalAsc)
+      return sortNAs(extractInnerText(a), extractInnerText(b), naturalAsc)
     },
     "natural-minus-na-desc": function (a, b) {
-      return sort_NAs(extract_inner_text(a), extract_inner_text(b), naturalDesc)
+      return sortNAs(extractInnerText(a), extractInnerText(b), naturalDesc)
     }
   });
 
@@ -347,7 +347,7 @@ $(function() {
       } );
   }
 
-  apply_default = function() {
+  applyDefault = function() {
     let default_collection_id = $.cookie('default_collection');
     if (default_collection_id) {
       let the_option = $('[name=existing_collection] option').filter(function() {
@@ -356,6 +356,6 @@ $(function() {
       the_option.prop('selected', true);
     }
   }
-  apply_default();
+  applyDefault();
 
 });
