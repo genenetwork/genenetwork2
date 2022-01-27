@@ -25,9 +25,8 @@ change_buttons = function(check_node = 0) {
 };
 
 $(function() {
-  var add, checked_traits, deselectAll, invert, selectAll;
+  var selectAll, deselectAll, invert;
 
-  checked_traits = null;
   selectAll = function() {
     table_api = $('#trait_table').DataTable();
 
@@ -187,10 +186,6 @@ $(function() {
       href: "/collections/add?hash=" + traits_hash
     });
 
-  };
-
-  removedTraits = function() {
-    return checked_traits.closest("tr").fadeOut();
   };
 
   submitBnw = function() {
