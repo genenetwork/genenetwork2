@@ -132,14 +132,21 @@ $(function() {
   }
 
   filterByIndex = function() {
-    index_string = $('#select_top').val()
-    index_set = parseIndexString(index_string)
+    indexString = $('#select_top').val()
+    indexSet = parseIndexString(indexString)
 
-    table_api = $('#trait_table').DataTable();
-    check_nodes = table_api.column(0).nodes().to$();
-    check_nodes.each(function(index) {
-      if (index_set.has(index + 1)){
+    tableApi = $('#trait_table').DataTable();
+    checkNodes = tableApi.column(0).nodes().to$();
+    checkNodes.each(function(index) {
+      if (indexSet.has(index + 1)){
         $(this)[0].childNodes[0].checked = true
+      }
+    })
+
+    checkRows = tableApi.rows().nodes().to$();
+    checkRows.each(function(index) {
+      if (indexSet.has(index + 1)){
+        $(this)[0].classList.add("selected");
       }
     })
   }
