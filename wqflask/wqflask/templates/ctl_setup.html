@@ -1,86 +1,69 @@
 {% extends "base.html" %}
 {% block title %}CTL analysis{% endblock %}
-
-{% block content %} <!-- Start of body -->
+{% block content %}
+<!-- Start of body -->
 <div class="container">
-  {% if request.form['trait_list'].split(",")|length < 2 %}
-  <div class="alert alert-danger" role="alert">
-    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-    <span class="sr-only">Error:</span>
-    <h2>Too few traits as input</h2>
-    Please make sure you select enough traits to perform CTL. Your collection needs to contain at least 2 different traits. You provided {{request.form['trait_list'].split(',')|length}} traits as input.
-  </div>
-  {% else %}
-  <h1>CTL analysis</h1>
-  CTL analysis is published as open source software, if you are using this method in your publications, please cite:<br><br>
-  Arends D, Li Y, Brockmann GA, Jansen RC, Williams RW, Prins P<br>
-  Correlation trait locus (CTL) mapping: Phenotype network inference subject to genotype.<br>
-  The Journal of Open Source Software (2016)<br>
-  Published in <a href="http://joss.theoj.org/papers/10.21105/joss.00087"><img src="http://joss.theoj.org/papers/10.21105/joss.00087/status.svg"></a>
-  <br><br>
-
-    <form class="col-md-8" action="/ctl_results" method="post" class="form-horizontal" id="ctl_form">
-
-
-      <input type="hidden" name="trait_list" id="trait_list" value= "{{request.form['trait_list']}}">
-
-      <div class="form-group row">
-      <label for="Strategy" class="col-md-3 col-form-label col-form-label-sm">Strategy</label>
-      <div class="col-md-9">
-        <select  class="form-control col-md-9" name="strategy" id="strategy">
-          <option value="Exact">Exact</option>
-          <option value="Full">Full</option>
-          <option value="Pairwise">Pairwise</option>
-        </select>
-      </div>
-    </div>
-
-
-        <div class="form-group row">
-          <label for="corType" class="col-md-3 col-form-label col-form-label-sm">Types of correlation coefficients:</label>
-          <div class="col-md-9">
-            <select class="form-control  col-md-9" name="parametric" id="parametric">
-            <option value="False">spearman</option>
-            <option value="True">pearson</option>
-          </select>
-          </div>
-
-        </div>
-
-
-            <div class="form-group row">
-      <label for="Permutations" class="col-md-3 col-form-label col-form-label-sm">Number of permutation <span style="color:red;">(Used when strategy is Full or Pairwise)</span></label>
-      <div class="col-md-9">
-        <select class="form-control" name="nperm" id="nperm">
-          <option value="100">100</option>
-          <option value="1000" selected="selected">1000</option>
-          <option value="10000">10000</option>
-        </select>
-      </div>
-    </div>
-
-
+    {% if request.form['trait_list'].split(",")|length < 2 %} <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">Error:</span>
+        <h2>Too few traits as input</h2>
+        Please make sure you select enough traits to perform CTL. Your collection needs to contain at least 2 different traits. You provided {{request.form['trait_list'].split(',')|length}} traits as input.
+</div>
+{% else %}
+<h1>CTL analysis</h1>
+CTL analysis is published as open source software, if you are using this method in your publications, please cite:<br><br>
+Arends D, Li Y, Brockmann GA, Jansen RC, Williams RW, Prins P<br>
+Correlation trait locus (CTL) mapping: Phenotype network inference subject to genotype.<br>
+The Journal of Open Source Software (2016)<br>
+Published in <a href="http://joss.theoj.org/papers/10.21105/joss.00087"><img src="http://joss.theoj.org/papers/10.21105/joss.00087/status.svg"></a>
+<br><br>
+<form class="col-md-8" action="/ctl_results" method="post" class="form-horizontal" id="ctl_form">
+    <input type="hidden" name="trait_list" id="trait_list" value="{{request.form['trait_list']}}">
     <div class="form-group row">
-      <label for="Significance" class="col-md-3 col-form-label col-form-label-sm"> Significance level</label>
-      <div class="col-md-9">
-        <select  class="form-control" name="significance" id="significance">
-          <option value="0.1">0.1</option>
-          <option value="0.05" selected="selected">0.05</option>
-          <option value="0.001">0.001</option>
-        </select>
-      </div>
-      
-    </div>
-
-        <div class="form-group">
-            <div class="text-center">
-                <input type="submit" class="btn btn-primary" value="Run CTL using these settings" />
-            </div>
+        <label for="Strategy" class="col-md-3 col-form-label col-form-label-sm">Strategy</label>
+        <div class="col-md-9">
+            <select class="form-control col-md-9" name="strategy" id="strategy">
+                <option value="Exact">Exact</option>
+                <option value="Full">Full</option>
+                <option value="Pairwise">Pairwise</option>
+            </select>
         </div>
-
-
-
-    </form>
+    </div>
+    <div class="form-group row">
+        <label for="corType" class="col-md-3 col-form-label col-form-label-sm">Types of correlation coefficients:</label>
+        <div class="col-md-9">
+            <select class="form-control  col-md-9" name="parametric" id="parametric">
+                <option value="False">spearman</option>
+                <option value="True">pearson</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="Permutations" class="col-md-3 col-form-label col-form-label-sm">Number of permutation <span style="color:red;">(Used when strategy is Full or Pairwise)</span></label>
+        <div class="col-md-9">
+            <select class="form-control" name="nperm" id="nperm">
+                <option value="100">100</option>
+                <option value="1000" selected="selected">1000</option>
+                <option value="10000">10000</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="Significance" class="col-md-3 col-form-label col-form-label-sm"> Significance level</label>
+        <div class="col-md-9">
+            <select class="form-control" name="significance" id="significance">
+                <option value="0.1">0.1</option>
+                <option value="0.05" selected="selected">0.05</option>
+                <option value="0.001">0.001</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="text-center">
+            <input type="submit" class="btn btn-primary" value="Run CTL using these settings" />
+        </div>
+    </div>
+</form>
 {% endif %}
 </div>
 {% endblock %}

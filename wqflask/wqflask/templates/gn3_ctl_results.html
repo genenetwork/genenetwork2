@@ -1,119 +1,72 @@
 {% extends "base.html" %}
 {% block title %}Ctl results{% endblock %}
 {% block content %}
-
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
 <link REL="stylesheet" TYPE="text/css" href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
-
 <style type="text/css">
-    
-
 .carousel-control-next,
-.carousel-control-prev /*, .carousel-indicators */ {
+.carousel-control-prev
+
+/*, .carousel-indicators */
+    {
     filter: invert(100%);
 }
-
-
 </style>
 <div style="margin-top:10px">
     <div>
-
         <div style="text-align: center;">
-        <h3>CTL/QTL Plots for Individual Traits</h3>
-         <h4> {{ctl_plots|length}} phenotypes as input</h4>
-            
+            <h3>CTL/QTL Plots for Individual Traits</h3>
+            <h4> {{ctl_plots|length}} phenotypes as input</h4>
         </div>
-
-
-    <div id="carouselExampleControls" class="carousel slide"  data-interval="false">
-  <div class="carousel-inner">
-
-    {% for ctl_plot in ctl_plots %}
-
-
-    <div class="item{% if loop.index == 1 %} active{% endif %}">
-      <img style="width:1000px;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ ctl_plot | safe }}" alt="First slide">
-    </div>
-
-    {% endfor %}
-
-      <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Previous</span>
-  </a>
-  <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Next</span>
-  </a>
-
-  </div>
-
-</div>
-
-
-    </div>
-
-        <div >
-
-        <div style="text-align:center;">
-        <h2 >Ctl line plot</h2>
-         <h4>Plot the CTL for genome-wide CTL on all traits (the output of CTLscan).</h4>
-            
-        </div>
-
-        <div class="row">   
-               <div class="col-8">
-                   
-         
-                    <img style="width:100%;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ image_data | safe }}">
-
-
+        <div id="carouselExampleControls" class="carousel slide" data-interval="false">
+            <div class="carousel-inner">
+                {% for ctl_plot in ctl_plots %}
+                <div class="item{% if loop.index == 1 %} active{% endif %}">
+                    <img style="width:1000px;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ ctl_plot | safe }}" alt="First slide">
                 </div>
-
-
-
-                    <div class= "col-4">
-                        
-                        <ol style="height: 100%;display:flex;flex-direction: column;align-items: center;justify-content: center;">
-
-                            {% for trait in  phenotypes %}
-
-
-                            {% set trait_data = trait.split(':') %}
-                            
-
-                            <li><a href="/show_trait?trait_id={{trait_data[0]}}&dataset={{trait_data[1]}}">{{trait_data[0]}}</a></li>
-
-
-                            {% endfor %}
-                        </ol>
-                    </div>
-            
+                {% endfor %}
+                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
         </div>
-
+    </div>
+    <div>
+        <div style="text-align:center;">
+            <h2>Ctl line plot</h2>
+            <h4>Plot the CTL for genome-wide CTL on all traits (the output of CTLscan).</h4>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <img style="width:100%;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ image_data | safe }}">
+            </div>
+            <div class="col-4">
+                <ol style="height: 100%;display:flex;flex-direction: column;align-items: center;justify-content: center;">
+                    {% for trait in phenotypes %}
+                    {% set trait_data = trait.split(':') %}
+                    <li><a href="/show_trait?trait_id={{trait_data[0]}}&dataset={{trait_data[1]}}">{{trait_data[0]}}</a></li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
     </div>
     <h2 style="text-align:center">Significant CTL </h2>
     <table id="significance" width="80vw"></table>
-
     <div style="text-align: center;margin-top: 20px;">
         <h3 style="text-align:center;">Network figure</h3>
-
-        <div  style="margin-top: 20px;">
-
-<p>Use tools like cytoscape to visualize the network</p>
-
-<a href="/ctl_network_files/{{network_file_name}}/sif" class="btn btn-secondary btn-lg mx-2">Download Sif file</a>
-
-<a href="/ctl_network_files/{{network_file_name}}/nodes" class="btn btn-secondary btn-lg mx-2">Download Node file</a>
+        <div style="margin-top: 20px;">
+            <p>Use tools like cytoscape to visualize the network</p>
+            <a href="/ctl_network_files/{{network_file_name}}/sif" class="btn btn-secondary btn-lg mx-2">Download Sif file</a>
+            <a href="/ctl_network_files/{{network_file_name}}/nodes" class="btn btn-secondary btn-lg mx-2">Download Node file</a>
         </div>
     </div>
-
-
-
 </div>
-
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -121,8 +74,6 @@
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 <script type="text/javascript">
-
-
 let { data_set_rows, col_names } = {{ significance_data | safe }}
 
 
