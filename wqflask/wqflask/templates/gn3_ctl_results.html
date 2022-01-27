@@ -55,9 +55,44 @@
 
     </div>
 
-        <div>
-        <h2 style="text-align:center;">Ctl line plot</h2>
-        <img style="width:1000px;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ image_data | safe }}">
+        <div >
+
+        <div style="text-align:center;">
+        <h2 >Ctl line plot</h2>
+         <h4>Plot the CTL for genome-wide CTL on all traits (the output of CTLscan).</h4>
+            
+        </div>
+
+        <div class="row">   
+               <div class="col-8">
+                   
+         
+                    <img style="width:100%;height: 600px;" class="center-block" src="data:image/jpeg;base64,{{ image_data | safe }}">
+
+
+                </div>
+
+
+
+                    <div class= "col-4">
+                        
+                        <ol style="height: 100%;display:flex;flex-direction: column;align-items: center;justify-content: center;">
+
+                            {% for trait in  phenotypes %}
+
+
+                            {% set trait_data = trait.split(':') %}
+                            
+
+                            <li><a href="/show_trait?trait_id={{trait_data[0]}}&dataset={{trait_data[1]}}">{{trait_data[0]}}</a></li>
+
+
+                            {% endfor %}
+                        </ol>
+                    </div>
+            
+        </div>
+
     </div>
     <h2 style="text-align:center">Significant CTL </h2>
     <table id="significance" width="80vw"></table>
