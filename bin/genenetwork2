@@ -59,7 +59,7 @@ else
     echo INFO: GN2 is running from a source tree
     GIT_HASH=$(git rev-parse HEAD)
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    export GN_VERSION=$GN2_ID:$(cat $GN2_BASE_DIR/etc/VERSION)-$GIT_BRANCH-${GIT_HASH:0:9}
+    export GN_VERSION="${GN2_ID}:$(cat ${GN2_BASE_DIR}/etc/VERSION)-${GIT_BRANCH}-$(echo ${GIT_HASH} | cut -c1-9)"
 fi
 echo GN_VERSION=$GN_VERSION
 
