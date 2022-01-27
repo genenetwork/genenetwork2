@@ -25,7 +25,7 @@ change_buttons = function(check_node = 0) {
 };
 
 $(function() {
-  var selectAll, deselectAll, invert;
+  let selectAll, deselectAll, invert;
 
   selectAll = function() {
     table_api = $('#trait_table').DataTable();
