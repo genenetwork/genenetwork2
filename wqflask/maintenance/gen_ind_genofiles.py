@@ -1,16 +1,13 @@
 # Example command: env GN2_PROFILE=/usr/local/guix-profiles/gn-latest-20220122 TMPDIR=/export/local/home/zas1024/gn2-zach/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/local/home/zas1024/gn2-zach/genotype_files SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_ind_genofiles.py
 
 import sys
+from typing import List
 
 import MySQLdb
-
-#from flask import Blueprint
 
 from wqflask import app
 
 from gn3.db.datasets import retrieve_group_samples
-
-#gen_geno = Blueprint('gen_geno', __name__)
 
 def db_conn():
     return MySQLdb.Connect(db=app.config.get("DB_NAME"),
@@ -22,10 +19,7 @@ def main(args):
 
     # The file of the "main" .geno file for the group in question
     # For example: BXD.geno or BXD.6.geno if converting to BXD individual genofiles
-    strain_genofile = args[1] 
-
-    # Get genotypes from the source strain genofile
-    strain_genotypes(strain_genofile)
+    source_genofile = args[1] 
 
     # The target individuals/samples group(s) we're generating the .geno files for
     # This can be passed as either a specific .geno file, or as a JSON file
@@ -35,13 +29,16 @@ def main(args):
     else:
         target_groups = [args[2]]
 
-def group_samples(target_group):
+    # Generate the output .geno files
+    generate_new_genofiles(strain_genotypes(source_genofile), target_groups)
+
+def group_samples(target_group: str) -> List:
     """
     Get the group samples from its "dummy" .geno file (which still contains the sample list)
     """
 
     # Allow for inputting the target group as either the group name or .geno file
-    file_location = app.config.get("GENENETWORK_FILES") + "/genotype/" + target_group\
+    file_location = app.config.get("GENENETWORK_FILES") + "/genotype/" + target_group
     if ".geno" not in target_group:
         file_location += ".geno"
 
@@ -109,7 +106,7 @@ def strain_genotypes(strain_genofile: str) -> List:
                     'Locus': line_items[header_columns.index("Locus")],
                     'Mb': line_items[header_columns.index("Mb")],
                     'cM': line_items[header_columns.index("cM")],
-                    'genotypes': zip(sample_list, line_items[geno_start_col:])
+                    'genotypes': list(zip(sample_list, [item.strip() for item in line_items][geno_start_col:]))
                 }
                 marker_genotypes.append(this_marker)
 
