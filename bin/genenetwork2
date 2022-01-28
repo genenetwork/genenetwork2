@@ -91,7 +91,14 @@ fi
 export GN2_SETTINGS=$settings     # Python
 echo GN2_SETTINGS=$settings
 
+export PATH=$GN2_PROFILE/bin:$PATH
+export PYTHONPATH="$GN2_PROFILE/lib/python3.8/site-packages" # never inject another PYTHONPATH!!
+export R_LIBS_SITE=$GN2_PROFILE/site-library
 export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
+export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
+export GI_TYPELIB_PATH="$GN2_PROFILE/lib/girepository-1.0"
+export XDG_DATA_DIRS="$GN2_PROFILE/share"
+export GIO_EXTRA_MODULES="$GN2_PROFILE/lib/gio/modules"
 export LC_ALL=C # FIXME
 export GUIX_GENENETWORK_FILES="$GN2_PROFILE/share/genenetwork2"
 export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
@@ -99,6 +106,25 @@ export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
 if [ -z $GEMMA_WRAPPER_COMMAND ]; then
     export GEMMA_WRAPPER_COMMAND="$GN2_PROFILE/bin/gemma-wrapper"
 fi
+while IFS=":" read -ra PPATH; do
+    for PPART in "${PPATH[@]}"; do
+        if [ ! -d $PPART ] ; then echo "$PPART in PYTHONPATH not valid $PYTHONPATH" ; exit 1 ; fi
+    done
+done <<< "$PYTHONPATH"
+if [ ! -d $R_LIBS_SITE ] ; then echo "R_LIBS_SITE not valid "$R_LIBS_SITE ; exit 1 ; fi
+if [ -z $PYTHONPATH ] ; then
+    echo "ERROR PYTHONPATH has not been set - use GN2_PROFILE!"
+    exit 1
+fi
+if [ ! -d $R_LIBS_SITE ] ; then
+    echo "ERROR R_LIBS_SITE has not been set correctly (we only allow one path) - use GN2_PROFILE!"
+    echo "Paste into your shell the output of (for example)"
+    echo "guix package -p \$GN2_PROFILE --search-paths"
+    exit 1
+fi
+
+# We may change this one:
+export PYTHONPATH=$PYTHON_GN_PATH:$GN2_BASE_DIR/wqflask:$GN3_PYTHONPATH:$PYTHONPATH
 
 # Our UNIX TMPDIR defaults to /tmp - change this on a shared server
 if [ -z $TMPDIR ]; then
@@ -114,6 +140,7 @@ set|grep TMPDIR
 if [ "$1" = '-c' ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=${2#wqflask/}
+    echo PYTHONPATH=$PYTHONPATH
     shift ; shift
     echo RUNNING COMMAND $cmd $*
     python $cmd $*
@@ -124,6 +151,7 @@ fi
 if [ "$1" = "-cli" ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=$2
+    echo PYTHONPATH=$PYTHONPATH
     shift ; shift
     echo RUNNING COMMAND $cmd $*
     $cmd $*
@@ -132,12 +160,14 @@ fi
 if [ "$1" = '-gunicorn' ] ; then
     cd $GN2_BASE_DIR/wqflask
     cmd=$2
+    echo PYTHONPATH=$PYTHONPATH
     echo RUNNING gunicorn $cmd
     gunicorn $cmd
     exit $?
 fi
 if [ "$1" = '-gunicorn-dev' ] ; then
     cd $GN2_BASE_DIR/wqflask
+    echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
     cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload wsgi"
     echo RUNNING gunicorn $cmd
@@ -146,6 +176,7 @@ if [ "$1" = '-gunicorn-dev' ] ; then
 fi
 if [ "$1" = '-gunicorn-prod' ] ; then
     cd $GN2_BASE_DIR/wqflask
+    echo PYTHONPATH=$PYTHONPATH
     if [ -z $SERVER_PORT ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
     PID=$TMPDIR/gunicorn.$USER.pid
     cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID --workers 20 --keep-alive 6000 --max-requests 100 --max-requests-jitter 30 --timeout 1200 wsgi"
@@ -158,6 +189,9 @@ echo "Starting the redis server:"
 echo -n "dir $TMPDIR
 dbfilename gn2.rdb
 " | redis-server - &
+
+# Overrides for packages that are not yet public (currently r-auwerx)
+# export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
 
 # Start the flask server running GN2
 cd $GN2_BASE_DIR/wqflask
