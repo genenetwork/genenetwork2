@@ -1,4 +1,4 @@
-#! /bin/sh -e
+#! /bin/bash
 #
 # This is the startup script for GN2. It sets the environment variables to pick
 # up a Guix profile and allows for overriding parameters.
