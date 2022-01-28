@@ -11,27 +11,24 @@ many different populations and many types of molecular, cellular, and physiologi
 The system is used by scientists and clinicians in the field of precision health care and systems genetics.
 GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL (https://genenetwork.org/references/).
 
+## Install
+
+The recommended installation is with GNU Guix which allows you to
+deploy GN2 and dependencies as a self contained unit on any machine.
+The database can be run separately as well as the source tree (for
+developers).  See the [installation docs](doc/README.org).
+
 ## Run
 
-We recommend you use GNU Guix. GNU Guix allows you to deploy
-GeneNetwork2 and dependencies as a self contained unit on any machine.
-The database can be run separately as well as the source tree (for
-developers).
+Once having installed GN2 it can be run through a browser
+interface
 
-Make sure you have the
-[guix-bioinformatics](https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics)
-channel set up. Then, to drop into a development environment with all
-dependencies, run
 ```sh
-guix shell -Df guix.scm
-```
-Or, to drop into a development environment in a container, run
-```
-guix shell -C --network -Df guix.scm
+genenetwork2
 ```
 
-In the development environment, start GeneNetwork2 by running, for
-example,
+A quick example is
+
 ```sh
 env SERVER_PORT=5300 \
     GENENETWORK_FILES=~/data/gn2_data/ \
@@ -42,11 +39,12 @@ env SERVER_PORT=5300 \
 
 For full examples (you may need to set a number of environment
 variables), including running scripts and a Python REPL, also see the
-startup script
-[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
+startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
 
 Also mariadb and redis need to be running, see
 [INSTALL](./doc/README.org).
+
+## Development
 
 ## Testing
 
