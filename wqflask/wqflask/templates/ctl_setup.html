@@ -23,18 +23,18 @@ Published in <a href="http://joss.theoj.org/papers/10.21105/joss.00087"><img src
         <label for="Strategy" class="col-md-3 col-form-label col-form-label-sm">Strategy</label>
         <div class="col-md-9">
             <select class="form-control col-md-9" name="strategy" id="strategy">
-                <option value="Exact">Exact</option>
+                <option value="Exact" selected="selected">Exact</option>
                 <option value="Full">Full</option>
                 <option value="Pairwise">Pairwise</option>
             </select>
         </div>
     </div>
     <div class="form-group row">
-        <label for="corType" class="col-md-3 col-form-label col-form-label-sm">Types of correlation coefficients:</label>
+        <label for="corType" class="col-md-3 col-form-label col-form-label-sm">Perform parametric analysis</label>
         <div class="col-md-9">
             <select class="form-control  col-md-9" name="parametric" id="parametric">
-                <option value="False">spearman</option>
-                <option value="True">pearson</option>
+                <option value="True" selected="selected">True</option>
+                <option value="False">False</option>
             </select>
         </div>
     </div>
@@ -67,3 +67,4 @@ Published in <a href="http://joss.theoj.org/papers/10.21105/joss.00087"><img src
 {% endif %}
 </div>
 {% endblock %}
+

@@ -74,8 +74,6 @@ def parse_phenotype_data(trait_db_list, dataset, individuals):
                 else:
                     traits.append("-999")
 
-    # missing inviduals
-
     return {
         "trait_db_list": trait_db_list,
         "traits": traits,
@@ -97,7 +95,6 @@ def parse_form_data(form_data: dict):
     form_data["nperm"] = int(form_data["nperm"])
     form_data["significance"] = float(form_data["significance"])
     form_data["strategy"] = form_data["strategy"].capitalize()
-
     return form_data
 
 
