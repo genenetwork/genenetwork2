@@ -263,4 +263,4 @@ def partial_correlations():
 
     return render_template(
         "partial_correlations.html", **args_dict, target_dbs=target_dbs,
-        corr_results=corr_results, part_corr_url=f"{GN_SERVER_URL}correlation/partial")
+        corr_results=corr_results, part_corr_url=f"{GN_SERVER_URL}api/correlation/partial")
