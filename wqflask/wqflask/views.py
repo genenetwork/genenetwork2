@@ -358,15 +358,15 @@ def ctl_setup():
 
 
 
-@app.route("/ctl_results",methods=["POST"])
+@app.route("/ctl_results", methods=["POST"])
 def ctl_results():
 
     ctl_results = run_ctl(request.form)
-    return render_template("gn3_ctl_results.html",**ctl_results)
+    return render_template("gn3_ctl_results.html", **ctl_results)
 
 
 @app.route("/ctl_network_files/<file_name>/<file_type>")
-def fetch_network_files(file_name,file_type):
+def fetch_network_files(file_name, file_type):
     file_path = f"{file_name}.{file_type}"
 
     file_path  = os.path.join("/tmp/",file_path)
