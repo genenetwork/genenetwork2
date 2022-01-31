@@ -11,21 +11,13 @@ from base import data_set
 
 
 def process_significance_data(significant_data):
-    """function to process significance the data for
-    datatables"""
-
     col_names = ["trait", "marker", "trait_2", "LOD", "dcor"]
-
     dataset_rows = [[] for _ in range(len(significant_data["trait"]))]
-
     for col in col_names:
         for (index, col_data) in enumerate(significant_data[col]):
-
             if col in ["dcor", "LOD"]:
-
                 dataset_rows[index].append(round(float(col_data), 2))
             else:
-
                 dataset_rows[index].append(col_data)
 
     return {
@@ -35,16 +27,11 @@ def process_significance_data(significant_data):
 
 
 def parse_geno_data(dataset_group_name) -> dict:
-    """function to parse geno file data"""
     genofile_location = locate(dataset_group_name + ".geno", "genotype")
     parser = genofile_parser.ConvertGenoFile(genofile_location)
-
     parser.process_csv()
-
     markers = []
-
     markernames = []
-
     for marker in parser.markers:
         markernames.append(marker["name"])
         markers.append(marker["genotypes"])
@@ -60,8 +47,6 @@ def parse_geno_data(dataset_group_name) -> dict:
 
 
 def parse_phenotype_data(trait_db_list, dataset, individuals):
-    """function to parse and generate phenodata"""
-
     traits = []
     for trait in trait_db_list:
         if trait != "":
@@ -90,27 +75,24 @@ def parse_form_data(form_data: dict):
 
     trait_db_list = [trait.strip()
                      for trait in form_data['trait_list'].split(',')]
-    form_data["trait_db_list"] = [x for x in trait_db_list if x]
 
+    form_data["trait_db_list"] = [x for x in trait_db_list if x]
     form_data["nperm"] = int(form_data["nperm"])
     form_data["significance"] = float(form_data["significance"])
     form_data["strategy"] = form_data["strategy"].capitalize()
+
     return form_data
 
 
 def run_ctl(requestform):
     """function to make an api call
     to gn3 and run ctl"""
-
     ctl_api = f"{GN3_LOCAL_URL}/api/ctl/run_ctl"
 
     form_data = parse_form_data(requestform.to_dict())
-
     trait_db_list = form_data["trait_db_list"]
     dataset = data_set.create_dataset(trait_db_list[0].split(":")[1])
-
     geno_data = parse_geno_data(dataset.group.name)
-
     pheno_data = parse_phenotype_data(
         trait_db_list, dataset, geno_data["individuals"])
 
