@@ -431,7 +431,7 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
             phenotype_id=str(phenotype_id)),
         mimetype="text/csv",
         headers={"Content-disposition":
-                 "attachment; filename=myplot.csv"}
+                 f"attachment; filename=sample-data-{dataset_id}.csv"}
     )
 
 
