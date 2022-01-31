@@ -96,18 +96,28 @@ def run_ctl(requestform):
     pheno_data = parse_phenotype_data(
         trait_db_list, dataset, geno_data["individuals"])
 
-    response = requests.post(ctl_api, json={
+    # todo refactor this chunk;;similar to wgcna check
 
-        "genoData": geno_data,
-        "phenoData": pheno_data,
+    try:
 
-        **form_data,
+        response = requests.post(ctl_api, json={
 
-    }).json()["results"]
+            "genoData": geno_data,
+            "phenoData": pheno_data,
+            **form_data,
 
-    response["significance_data"] = process_significance_data(
-        response["significance_data"])
+        })
+        if response.status_code != 200:
+            return {"error": response.json()}
+        response = response.json()["results"]
+        response["significance_data"] = process_significance_data(
+            response["significance_data"])
 
-    # todo check for errors
+        return response
 
-    return response
+    except requests.exceptions.ConnectionError:
+        return {
+            "error": "A connection error to perform computation occurred"
+        }
+
+
