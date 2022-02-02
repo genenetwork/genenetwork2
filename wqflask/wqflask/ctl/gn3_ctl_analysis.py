@@ -10,11 +10,11 @@ from base.trait import retrieve_sample_data
 from base import data_set
 
 
-def process_significance_data(significant_data):
+def process_significance_data(dataset):
     col_names = ["trait", "marker", "trait_2", "LOD", "dcor"]
-    dataset_rows = [[] for _ in range(len(significant_data["trait"]))]
+    dataset_rows = [[] for _ in range(len(dataset["trait"]))]
     for col in col_names:
-        for (index, col_data) in enumerate(significant_data[col]):
+        for (index, col_data) in enumerate(dataset[col]):
             if col in ["dcor", "LOD"]:
                 dataset_rows[index].append(round(float(col_data), 2))
             else:
@@ -27,6 +27,12 @@ def process_significance_data(significant_data):
 
 
 def parse_geno_data(dataset_group_name) -> dict:
+    """
+    Args:
+        dataset_group_name: string name
+
+    @returns : dict with keys genotypes,markernames & individuals
+    """
     genofile_location = locate(dataset_group_name + ".geno", "genotype")
     parser = genofile_parser.ConvertGenoFile(genofile_location)
     parser.process_csv()
@@ -46,9 +52,21 @@ def parse_geno_data(dataset_group_name) -> dict:
     }
 
 
-def parse_phenotype_data(trait_db_list, dataset, individuals):
+def parse_phenotype_data(trait_list, dataset, individuals):
+    """
+    Args:
+        trait_list:list contains the traits
+        dataset:  object
+        individuals:a list contains the individual vals
+    Returns:
+           traits_db_List:parsed list of traits 
+           traits: list contains trait names
+           individuals
+
+    """
+
     traits = []
-    for trait in trait_db_list:
+    for trait in trait_list:
         if trait != "":
             ts = trait.split(':')
             gt = create_trait(name=ts[0], dataset_name=ts[1])
@@ -60,18 +78,13 @@ def parse_phenotype_data(trait_db_list, dataset, individuals):
                     traits.append("-999")
 
     return {
-        "trait_db_list": trait_db_list,
+        "trait_db_list": trait_list,
         "traits": traits,
         "individuals": individuals
     }
 
 
 def parse_form_data(form_data: dict):
-    """function to parse/validate form data
-    input: dict containing required data
-    output: dict with parsed data
-
-    """
 
     trait_db_list = [trait.strip()
                      for trait in form_data['trait_list'].split(',')]
@@ -96,8 +109,6 @@ def run_ctl(requestform):
     pheno_data = parse_phenotype_data(
         trait_db_list, dataset, geno_data["individuals"])
 
-    # todo refactor this chunk;;similar to wgcna check
-
     try:
 
         response = requests.post(ctl_api, json={
@@ -119,5 +130,3 @@ def run_ctl(requestform):
         return {
             "error": "A connection error to perform computation occurred"
         }
-
-
