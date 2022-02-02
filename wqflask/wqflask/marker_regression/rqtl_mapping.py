@@ -1,6 +1,7 @@
 import csv
 import hashlib
 import io
+import json
 import requests
 import shutil
 from typing import Dict
@@ -9,6 +10,8 @@ from typing import Optional
 from typing import TextIO
 
 import numpy as np
+
+from flask import g
 
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
@@ -34,6 +37,10 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
         "nperm": num_perm,
         "scale": mapping_scale
     }
+
+    if cofactors:
+        covarstruct_file = write_covarstruct_file(cofactors)
+        post_data["covarstruct"] = covarstruct_file
 
     if do_control == "true" and control_marker:
         post_data["control"] = control_marker
@@ -61,6 +68,32 @@ def get_hash_of_textio(the_file: TextIO) -> str:
     hash_of_file = hash_of_file.replace("/", "_") # Replace / with _ to prevent issue with filenames being translated to directories
 
     return hash_of_file
+
+
+def write_covarstruct_file(cofactors: str) -> str:
+    """
+    Given list of cofactors (as comma-delimited string), write
+    a comma-delimited file where the first column consists of cofactor names
+    and the second column indicates whether they're numerical or categorical
+    """
+    datatype_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
+    trait_datatype_json = json.loads(g.db.execute(datatype_query).fetchone()[0])
+
+    covar_struct_file = io.StringIO()
+    writer = csv.writer(covar_struct_file, delimiter="\t", quoting = csv.QUOTE_NONE)
+    for cofactor in cofactors.split(","):
+        datatype = trait_datatype_json[cofactor] if cofactor in trait_datatype_json else "numerical"
+        cofactor_name = cofactor.split(":")[0]
+        writer.writerow([cofactor_name, datatype])
+
+    hash_of_file = get_hash_of_textio(covar_struct_file)
+    file_path = TMPDIR + hash_of_file + ".csv"
+
+    with open(file_path, "w") as fd:
+        covar_struct_file.seek(0)
+        shutil.copyfileobj(covar_struct_file, fd)
+
+    return file_path
 
 
 def write_phenotype_file(trait_name: str,
