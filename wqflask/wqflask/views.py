@@ -65,6 +65,7 @@ from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation.show_corr_results import set_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
+from wqflask.correlation.pre_computes import generate_button_configs
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
@@ -523,9 +524,11 @@ def show_temp_trait_page():
                or g.user_session.record.get("user_id") or "")
     template_vars = show_trait.ShowTrait(user_id=user_id,
                                          kw=request.form)
+    
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
+    template_vars.display_test_button = generate_button_configs(current_app.config.get("ENV"))
     return render_template("show_trait.html", **template_vars.__dict__)
 
 
@@ -538,6 +541,7 @@ def show_trait_page():
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
                                        indent="   ")
+    template_vars.display_test_button = generate_button_configs(current_app.config.get("ENV"))
     return render_template("show_trait.html", **template_vars.__dict__)
 
 
@@ -1078,5 +1082,3 @@ def display_diffs_users():
                        files)
     return render_template("display_files_user.html",
                            files=files)
-
-

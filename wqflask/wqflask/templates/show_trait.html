@@ -86,7 +86,11 @@
                     </div>
                     <div id="collapseFour" class="panel-collapse collapse in">
                         <div class="panel-body">
-                            {% include 'show_trait_calculate_correlations.html' %}
+                            {% with show_test_button= display_test_button %}
+
+                                {% include 'show_trait_calculate_correlations.html' %}
+                            {% endwith %}
+                            
                         </div>
                     </div>
                 </div>                

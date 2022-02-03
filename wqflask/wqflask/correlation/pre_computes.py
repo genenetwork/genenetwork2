@@ -2,9 +2,13 @@ import json
 import os
 import hashlib
 from pathlib import Path
+from flask import g
+from utility.tools import GN_PROXY_URL
 
 from base.data_set import query_table_timestamp
 from base.webqtlConfig import TMPDIR
+
+from gn3.authentication import get_highest_user_access_role
 
 
 def fetch_all_cached_metadata(dataset_name):
@@ -28,7 +32,7 @@ def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_
 
     if bool(new_traits_metadata):
         dataset_metadata.update(new_traits_metadata)
-             
+
     with open(file_path, "w+") as file_handler:
         json.dump(dataset_metadata, file_handler)
 
@@ -156,3 +160,39 @@ def get_datasets_data(base_dataset, target_dataset_data):
         samples_fetched, base_traits_data)
 
     return (target_results, base_results)
+
+
+def get_file_size(file_path):
+    """params:file_path
+       return:size of file in MB
+"""
+    file = Path(file_path)
+    size_in_bytes = file.stat().st_size
+    return float(size_in_bytes)/(1024**2)
+
+
+def consume_json_file_handler(file_path, prefix=""):
+    """function to read any json file stream
+    or load based on size assumption:one object"""
+
+    with open(file_path) as file_handler:
+        if get_file_size(file_path) > 50:
+
+            streamed_json = [obj for obj in ijson.items(
+                file_handler, prefix, use_float=True)]
+            return streamed_json if prefix != "" else streamed_json[0]
+
+        return json.load(file_handler)
+
+
+def generate_button_configs(environ="production"):
+    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8"))
+
+    try:
+        user_role = get_highest_user_access_role(
+            user_id=user_id, resource_id="", gn_proxy_url=GN_PROXY_URL)["admin"]
+
+    except Exception:
+        user_role = False
+
+    return True if (user_role or environ != "production") else False
