@@ -1370,6 +1370,27 @@ Empty set (0.00 sec)
 
 Hmmm. This is the test database. Then there are the plink files and VCF files.
 
+** How to fetch case attribute data
+
+To fetch case attribute data, you need the PublixshXRef Id and it's
+PhenotypeId.  Run the following query (as an example):
+
+#+begin_src sql
+SELECT concat(st.Name, ',', ifnull(pd.value, 'x'), ',',
+       ifnull(ps.error, 'x'), ',', ifnull(ns.count, 'x')) as 'Data',
+       ifnull(ca.Name, 'x') as 'CaseAttr', ifnull(cxref.value, 'x') as 'Value'
+FROM PublishFreeze pf
+JOIN PublishXRef px ON px.InbredSetId = pf.InbredSetId
+JOIN PublishData pd ON pd.Id = px.DataId
+JOIN Strain st ON pd.StrainId = st.Id
+LEFT JOIN PublishSE ps ON ps.DataId = pd.Id AND ps.StrainId = pd.StrainId
+LEFT JOIN NStrain ns ON ns.DataId = pd.Id AND ns.StrainId = pd.StrainId
+LEFT JOIN CaseAttributeXRefNew cxref ON
+           cxref.InbredSetId = px.InbredSetId
+LEFT JOIN CaseAttribute ca ON ca.Id = cxref.CaseAttributeId
+WHERE px.Id = 10006 AND px.PhenotypeId = 28409 LIMIT 10;
+#+end_src
+
 * Optimize SQL?
 
 We were facing some issues with slow queries. A query
