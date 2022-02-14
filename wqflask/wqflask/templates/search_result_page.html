@@ -40,6 +40,8 @@
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 3 %}
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    {% elif word.search_term|length == 4 %}
+                    with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[3] }}</strong> with an exclusion zone of <strong>{{ word.search_term[2] }}</strong> Mb
                     {% elif word.search_term|length == 5 %}
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
