@@ -609,9 +609,6 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
 class CisTransLrsSearch(DoSearch):
 
-    def get_from_clause(self):
-        return ", Geno"
-
     def get_where_clause(self, cis_trans):
         self.mb_buffer = 5  # default
         chromosome = None
