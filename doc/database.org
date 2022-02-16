@@ -1386,7 +1386,8 @@ JOIN Strain st ON pd.StrainId = st.Id
 LEFT JOIN PublishSE ps ON ps.DataId = pd.Id AND ps.StrainId = pd.StrainId
 LEFT JOIN NStrain ns ON ns.DataId = pd.Id AND ns.StrainId = pd.StrainId
 LEFT JOIN CaseAttributeXRefNew cxref ON
-           cxref.InbredSetId = px.InbredSetId
+           (cxref.InbredSetId = px.InbredSetId AND
+            cxref.StrainId = st.Id)
 LEFT JOIN CaseAttribute ca ON ca.Id = cxref.CaseAttributeId
 WHERE px.Id = 10006 AND px.PhenotypeId = 28409 LIMIT 10;
 #+end_src
