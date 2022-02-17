@@ -213,10 +213,12 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     exit $?
 fi
 
-echo "Starting the redis server:"
-echo -n "dir $TMPDIR
+if [ -z "$NO_REDIS" ] ; then
+    echo "Starting the redis server:"
+    echo -n "dir $TMPDIR
 dbfilename gn2.rdb
 " | redis-server - &
+fi
 
 # Overrides for packages that are not yet public (currently r-auwerx)
 # export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
