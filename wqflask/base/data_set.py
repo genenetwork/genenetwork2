@@ -756,7 +756,7 @@ class DataSet:
         chunk_size = 50
         number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
 
-        cached_results = fetch_cached_results(self.name, self.type)
+        cached_results = fetch_cached_results(self.name, self.type, self.samplelist)
         if cached_results is None:
             trait_sample_data = []
             for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
@@ -812,9 +812,8 @@ class DataSet:
                         trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
             cache_dataset_results(
-                self.name, self.type, self.trait_data)
+                self.name, self.type, self.samplelist, self.trait_data)
         else:
-
             self.trait_data = cached_results
 
 
@@ -1278,14 +1277,14 @@ def query_table_timestamp(dataset_type: str):
     return date_time_obj.strftime("%Y-%m-%d %H:%M:%S")
 
 
-def generate_hash_file(dataset_name: str, dataset_type: str, dataset_timestamp: str):
+def generate_hash_file(dataset_name: str, dataset_type: str, dataset_timestamp: str, samplelist: str):
     """given the trait_name generate a unique name for this"""
-    string_unicode = f"{dataset_name}{dataset_timestamp}".encode()
+    string_unicode = f"{dataset_name}{dataset_timestamp}{samplelist}".encode()
     md5hash = hashlib.md5(string_unicode)
     return md5hash.hexdigest()
 
 
-def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: List):
+def cache_dataset_results(dataset_name: str, dataset_type: str, samplelist: List, query_results: List):
     """function to cache dataset query results to file
     input dataset_name and type query_results(already processed in default dict format)
     """
@@ -1293,21 +1292,22 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, query_results: L
     # store the file path on redis
 
     table_timestamp = query_table_timestamp(dataset_type)
+    samplelist_as_str = ",".join(samplelist)
 
-
-    file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
+    file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp, samplelist_as_str)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
 
 
-def fetch_cached_results(dataset_name: str, dataset_type: str):
+def fetch_cached_results(dataset_name: str, dataset_type: str, samplelist: List):
     """function to fetch the cached results"""
 
     table_timestamp = query_table_timestamp(dataset_type)
+    samplelist_as_str = ",".join(samplelist)
 
-    file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp)
+    file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp, samplelist_as_str)
     file_path = os.path.join(TMPDIR, f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
