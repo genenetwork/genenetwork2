@@ -290,11 +290,11 @@ function send_data_and_process_results(
 function initializePcorrTable(dataType){
 	tableId = "part-corr-results-" + dataType.toLowerCase();
 	if (dataType == "Publish") {
-		orderCol = 7;
+		orderCol = 8;
 	} else if (dataType == "ProbeSet") {
-		orderCol = 11;
+		orderCol = 12;
 	} else {
-		orderCol = 6;
+		orderCol = 7;
 	}
 
 	$('#' + tableId).dataTable( {
