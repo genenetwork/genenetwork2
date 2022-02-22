@@ -249,6 +249,8 @@ function display_partial_corr_results(data, status, xhr) {
 	data["results"]["control_traits"],
 	data["results"]["correlations"],
 	data["results"]["method"]);
+
+	initializePcorrTable(data["results"]["dataset_type"]);
 }
 
 function display_partial_corr_error(xhr, status, error) {
@@ -283,6 +285,40 @@ function send_data_and_process_results(
 	success: success_fn,
 	error: error_fn
     });
+}
+
+function initializePcorrTable(dataType){
+	tableId = "part-corr-results-" + dataType.toLowerCase();
+	if (dataType == "Publish") {
+		orderCol = 7;
+	} else if (dataType == "ProbeSet") {
+		orderCol = 11;
+	} else {
+		orderCol = 6;
+	}
+
+	$('#' + tableId).dataTable( {
+		'drawCallback': function( settings ) {
+			  $('#' + tableId + ' tr').off().on("click", function(event) {
+				if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+				  var obj =$(this).find('input');
+				  obj.prop('checked', !obj.is(':checked'));
+				}
+				if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+				  $(this).removeClass("selected")
+				} else if (event.target.tagName.toLowerCase() !== 'a') {
+				  $(this).addClass("selected")
+				}
+			  });
+		},
+		"order": [[orderCol, "asc" ]],
+		"sDom": "itir",
+		"iDisplayLength": -1,
+		"autoWidth": false,
+		"bDeferRender": true,
+		"bSortClasses": false,
+		"paging": false
+	} );
 }
 
 $("#partial-correlations-form").submit(function(e) {
