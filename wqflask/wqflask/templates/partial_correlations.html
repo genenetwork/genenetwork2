@@ -10,6 +10,7 @@
 {%endblock%}
 
 {%block content%}
+<div class="container">
 <form id="partial-correlations-form"
       method="POST"
       action="{{url_for('partial_correlations')}}">
@@ -210,7 +211,8 @@
     <table id="part-corr-results-publish" class="table-hover table-striped cell-border" style="display:none; float: left;">
       <thead>
 	<tr>
-	  <th>_</th>
+	  <th></th>
+	  <th>Index</th>
 	  <th>Record</th>
 	  <th>Phenotype</th>
 	  <th>Authors</th>
@@ -226,7 +228,8 @@
 
       <tbody>
 	<tr class="template-publish-results-row">
-	  <td data-column-heading="_"></td>
+	  <td></td>
+	  <td data-column-heading="Index"></td>
 	  <td data-column-heading="Record"></td>
 	  <td data-column-heading="Phenotype"></td>
 	  <td data-column-heading="Authors"></td>
@@ -249,7 +252,8 @@
     <table id="part-corr-results-geno" style="display:none;">
       <thead>
 	<tr>
-	  <th>_</th>
+	  <th></th>
+	  <th>Index</th>
 	  <th>Locus</th>
 	  <th>Chr</th>
 	  <th>Megabase</th>
@@ -264,7 +268,8 @@
 
       <tbody>
 	<tr class="template-geno-results-row">
-	  <td data-column-heading="_"></td>
+	  <td></td>
+	  <td data-column-heading="Index"></td>
 	  <td data-column-heading="Locus"></td>
 	  <td data-column-heading="Chr"></td>
 	  <td data-column-heading="Megabase"></td>
@@ -286,7 +291,8 @@
     <table id="part-corr-results-probeset" style="display:none;">
       <thead>
 	<tr>
-	  <th>_</th>
+	  <th></th>
+	  <th>Index</th>
 	  <th>Record</th>
 	  <th>Gene ID</th>
 	  <th>Homologene ID</th>
@@ -309,6 +315,8 @@
 
       <tbody>
 	<tr class="template-probeset-results-row">
+	  <td></td>
+	  <td data-column-heading="Index"></td>
 	  <td data-column-heading="_"></td>
 	  <td data-column-heading="Record"></td>
 	  <td data-column-heading="Gene ID"></td>
@@ -333,6 +341,7 @@
   </div>
   <div id="part-corr-error">
   </div>
+</div>
 </div>
 {%endblock%}
 
