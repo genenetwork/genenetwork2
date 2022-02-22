@@ -4,6 +4,9 @@
 
 {%block css%}
 <link rel="stylesheet" type="text/css" href="/static/new/css/partial_correlations.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {%endblock%}
 
 {%block content%}
@@ -204,7 +207,7 @@
     <img src="/static/gif/waitAnima2.gif">
   </span>
   <div id="part-corr-success">
-    <table id="part-corr-results-publish" style="display:none;">
+    <table id="part-corr-results-publish" class="table-hover table-striped cell-border" style="display:none; float: left;">
       <thead>
 	<tr>
 	  <th>_</th>
@@ -337,5 +340,7 @@
 {%if step == "select-corr-method":%}
 <script type="text/javascript"
 	src="/static/new/javascript/partial_correlations.js"></script>
+<script language="javascript" type="text/javascript"
+	src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 {%endif%}
 {%endblock%}
