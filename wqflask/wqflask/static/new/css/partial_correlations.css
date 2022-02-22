@@ -30,11 +30,6 @@ tr:nth-of-type(2n) {
     background: #F9F9F9;
 }
 
-thead tr {
-    background: #336699;
-    line-height: 1.5em;
-}
-
 .with-trait {
     margin-left: 0.7em;
     position: relative;
