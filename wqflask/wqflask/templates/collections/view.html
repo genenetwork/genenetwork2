@@ -43,18 +43,27 @@
                 </button>
                 <br>
                 <div id="heatmap-options" style="display: none;">
-                    <b>Heatmap Orientation: </b>
-                    <br>
-                    Vertical
-                    <input id="heatmap-orient-vertical"
-                            type="radio"
-                            name="vertical"
-                            value="true" checked="checked"/>
-                    Horizontal
-                    <input id="heatmap-orient-horizontal"
-                            type="radio"
-                            name="vertical"
-                            value="false" />
+                    <div style="margin-bottom: 10px;">
+                        <b>Heatmap Orientation: </b>
+                        <br>
+                        Vertical
+                        <input id="heatmap-orient-vertical"
+                                type="radio"
+                                name="vertical"
+                                value="true" checked="checked"/>
+                        Horizontal
+                        <input id="heatmap-orient-horizontal"
+                                type="radio"
+                                name="vertical"
+                                value="false" />
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <button id="clear-heatmap"
+                            class="btn btn-danger"
+                            title="Clear Heatmap">
+                            Clear Heatmap
+                        </button>
+                    </div>
                 </div>
             </form>
             &nbsp;
@@ -77,6 +86,7 @@
         </div>
 
         <div>
+            <div id="clustered-heatmap-image-area"></div>
             <br />
             <div class="collection-table-options">
                 <form id="export_form" method="POST" action="/export_traits_csv">
@@ -94,8 +104,6 @@
                     <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" type="button" title="Delete this collection" > Delete Collection</button>
                 </form>
             </div>
-	    <div id="clustered-heatmap-image-area">
-	    </div>
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
@@ -369,6 +377,12 @@
 		    }
 		});
 	    });
+
+        $("#clear-heatmap").on("click", function() {
+            clear_heatmap_area();
+            $("#heatmap-options").hide();
+        });
+
         });
     </script>
 
