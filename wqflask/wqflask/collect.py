@@ -222,7 +222,7 @@ def view_collection():
     collection_info = dict(
         trait_obs=trait_obs,
         uc=uc,
-        heatmap_data_url=f"{GN_SERVER_URL}heatmaps/clustered")
+        heatmap_data_url=f"{GN_SERVER_URL}api/heatmaps/clustered")
 
     if "json" in params:
         return json.dumps(json_version)
