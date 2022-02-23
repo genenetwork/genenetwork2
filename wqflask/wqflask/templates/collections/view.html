@@ -34,6 +34,30 @@
           </form>
         </div>
         <div style="display: flex;">
+            <form id="heatmaps_form">
+                <button id="clustered-heatmap"
+                    class="btn btn-primary"
+                    data-url="{{heatmap_data_url}}"
+                    title="Generate heatmap from this collection" style="margin-top: 10px; margin-bottom: 10px;">
+                        Generate Heatmap
+                </button>
+                <br>
+                <div id="heatmap-options" style="display: none;">
+                    <b>Heatmap Orientation: </b>
+                    <br>
+                    Vertical
+                    <input id="heatmap-orient-vertical"
+                            type="radio"
+                            name="vertical"
+                            value="true" checked="checked"/>
+                    Horizontal
+                    <input id="heatmap-orient-horizontal"
+                            type="radio"
+                            name="vertical"
+                            value="false" />
+                </div>
+            </form>
+            &nbsp;
             <form id="partial-correlations-form"
                 method="POST"
                 action="{{url_for('partial_correlations')}}">
@@ -49,30 +73,6 @@
                 type="submit" style="margin-top: 10px;">
                 Partial Correlations
             </button>
-            </form>
-            &nbsp;
-            <form id="heatmaps_form">
-                <div style="display: none;">
-                    <fieldset>
-                        <legend>Heatmap Orientation</legend>
-                        <label for="heatmap-orient-vertical">Vertical</label>
-                        <input id="heatmap-orient-vertical"
-                                type="radio"
-                                name="vertical"
-                                value="true" />
-                        <label for="heatmap-orient-horizontal">Horizontal</label>
-                        <input id="heatmap-orient-horizontal"
-                                type="radio"
-                                name="vertical"
-                                value="false" />
-                    </fieldset>
-                </div>
-                <button id="clustered-heatmap"
-                    class="btn btn-primary"
-                    data-url="{{heatmap_data_url}}"
-                    title="Generate heatmap from this collection" style="margin-top: 10px;">
-                        Generate Heatmap
-                </button>
             </form>
         </div>
 
@@ -342,6 +342,7 @@
 
 	    $("#clustered-heatmap").on("click", function() {
 		clear_heatmap_area();
+        $("#heatmap-options").show();
 		intv = window.setInterval(generate_progress_indicator(), 300);
 		vert_element = document.getElementById("heatmap-orient-vertical");
 		vert_true = vert_element == null ? false : vert_element.checked;
