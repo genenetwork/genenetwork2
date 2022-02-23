@@ -33,48 +33,51 @@
 
           </form>
         </div>
-
-	<form id="partial-correlations-form"
-	      method="POST"
-	      action="{{url_for('partial_correlations')}}">
-	  <input type="hidden"
-		 id="collection_uuid"
-		 value="{{uc.uc_id}}" />
-	  <input type="hidden"
-		 name="traits_list"
-		 value="{% for this_trait in trait_obs %}{{ this_trait.name }}:::{{ this_trait.dataset.name }}:::{{this_trait.symbol}}:::{{this_trait.description_display}}:::{{this_trait.location_repr}}:::{{this_trait.mean}}:::{{this_trait['LRS_location_repr']}}:::{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}|||{% endfor %}" />
-	  <button id="run-partial-correlations"
-		  class="btn btn-primary"
-		  title="Run partial correlations"
-		  type="submit" style="margin-top: 10px;">
-	    Partial Correlations
-	  </button>
-	</form>
+        <div style="display: flex;">
+            <form id="partial-correlations-form"
+                method="POST"
+                action="{{url_for('partial_correlations')}}">
+            <input type="hidden"
+                id="collection_uuid"
+                value="{{uc.uc_id}}" />
+            <input type="hidden"
+                name="traits_list"
+                value="{% for this_trait in trait_obs %}{{ this_trait.name }}:::{{ this_trait.dataset.name }}:::{{this_trait.symbol}}:::{{this_trait.description_display}}:::{{this_trait.location_repr}}:::{{this_trait.mean}}:::{{this_trait['LRS_location_repr']}}:::{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}|||{% endfor %}" />
+            <button id="run-partial-correlations"
+                class="btn btn-primary"
+                title="Run partial correlations"
+                type="submit" style="margin-top: 10px;">
+                Partial Correlations
+            </button>
+            </form>
+            &nbsp;
+            <form id="heatmaps_form">
+                <div style="display: none;">
+                    <fieldset>
+                        <legend>Heatmap Orientation</legend>
+                        <label for="heatmap-orient-vertical">Vertical</label>
+                        <input id="heatmap-orient-vertical"
+                                type="radio"
+                                name="vertical"
+                                value="true" />
+                        <label for="heatmap-orient-horizontal">Horizontal</label>
+                        <input id="heatmap-orient-horizontal"
+                                type="radio"
+                                name="vertical"
+                                value="false" />
+                    </fieldset>
+                </div>
+                <button id="clustered-heatmap"
+                    class="btn btn-primary"
+                    data-url="{{heatmap_data_url}}"
+                    title="Generate heatmap from this collection" style="margin-top: 10px;">
+                        Generate Heatmap
+                </button>
+            </form>
+        </div>
 
         <div>
             <br />
-	    <form id="heatmaps_form">
-	      <fieldset>
-		<legend>Heatmap Orientation</legend>
-		<label for="heatmap-orient-vertical">Vertical</label>
-		<input id="heatmap-orient-vertical"
-		       type="radio"
-		       name="vertical"
-		       value="true" />
-		<label for="heatmap-orient-horizontal">Horizontal</label>
-		<input id="heatmap-orient-horizontal"
-		       type="radio"
-		       name="vertical"
-		       value="false" />
-	      </fieldset>
-	      <button id="clustered-heatmap"
-		      class="btn btn-primary"
-		      data-url="{{heatmap_data_url}}"
-		      title="Generate heatmap from this collection">
-		Generate Heatmap
-	      </button>
-	    </form>
-
             <div class="collection-table-options">
                 <form id="export_form" method="POST" action="/export_traits_csv">
                     <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
