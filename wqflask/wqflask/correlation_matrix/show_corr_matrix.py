@@ -23,8 +23,6 @@ import math
 import random
 import string
 
-import rpy2.robjects as ro
-from rpy2.robjects.packages import importr
 
 import numpy as np
 import scipy
@@ -37,6 +35,12 @@ from utility import webqtlUtil
 from utility import helper_functions
 from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
+
+
+
+from gn3.computations.principal_component_analysis import compute_pca
+
+from gn3.computations.principal_component_analysis import process_factor_loadings_tdata
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -174,7 +178,7 @@ class CorrelationMatrix:
                 self.pca_trait_ids = []
                 pca = self.calculate_pca(
                     list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
-                self.loadings_array = self.process_loadings()
+                self.loadings_array = process_factor_loadings_tdata(self.loadings,len(self.trait_list))
             else:
                 self.pca_works = "False"
         except:
@@ -188,18 +192,12 @@ class CorrelationMatrix:
                             sample_data=self.sample_data,)
 
     def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
-        base = importr('base')
-        stats = importr('stats')
 
-        corr_results_to_list = ro.FloatVector(
-            [item for sublist in self.pca_corr_results for item in sublist])
 
-        m = ro.r.matrix(corr_results_to_list, nrow=len(cols))
-        eigen = base.eigen(m)
-        pca = stats.princomp(m, cor="TRUE")
-        self.loadings = pca.rx('loadings')
-        self.scores = pca.rx('scores')
-        self.scale = pca.rx('scale')
+        pca = compute_pca(self.pca_corr_results)
+
+        self.loadings = pca["components"]
+        self.scores = pca["scores"]
 
         trait_array = zScore(self.trait_data_array)
         trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
