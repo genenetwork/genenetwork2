@@ -360,7 +360,8 @@ def get_aliases(symbol_list, species):
 
     filtered_aliases = []
     response = requests.get(
-        GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
+        GN2_BASE_URL + "gn3/gene/aliases/" + symbols_string)
+
     if response:
         alias_lists = json.loads(response.content)
         seen = set()
