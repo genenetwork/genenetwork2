@@ -137,15 +137,18 @@ class MrnaAssaySearch(DoSearch):
         search_string = escape(self.search_term[0])
 
         if self.search_term[0] != "*":
-            match_clause = """((MATCH (ProbeSet.Name,
+            match_clause = f"""((MATCH (ProbeSet.Name,
                         ProbeSet.description,
                         ProbeSet.symbol,
-                        alias,
                         GenbankId,
                         UniGeneId,
                         Probe_Target_Description)
-                        AGAINST ('%s' IN BOOLEAN MODE))) AND
-                                """ % (search_string)
+                        AGAINST ('{search_string}' IN BOOLEAN MODE)) OR (
+                        alias LIKE '%%; {search_string};%%' OR
+                        alias LIKE '{search_string};%%' OR
+                        alias LIKE '%%; {search_string}' OR
+                        alias LIKE '{search_string}'
+                        )) AND """
         else:
             match_clause = ""
 
