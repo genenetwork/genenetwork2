@@ -29,6 +29,7 @@ from gn3.authentication import DataRole
 from gn3.authentication import get_highest_user_access_role
 from gn3.authentication import get_user_membership
 from gn3.commands import run_cmd
+from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -212,43 +213,41 @@ def display_probeset_metadata(name: str):
 @edit_access_required
 @login_required
 def update_phenotype(dataset_id: str, name: str):
-    with database_connection() as conn:
-        data_ = request.form.to_dict()
-        TMPDIR = current_app.config.get("TMPDIR")
-        author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-                  or g.user_session.record.get("user_id") or "")
-        phenotype_id = str(data_.get('phenotype-id'))
-        if not (file_ := request.files.get("file")):
-            flash("No sample-data has been uploaded", "warning")
-        else:
-            if not os.path.exists(SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data")):
-                os.makedirs(SAMPLE_DATADIR)
-            if not os.path.exists(os.path.join(SAMPLE_DATADIR,
-                                               "diffs")):
-                os.makedirs(os.path.join(SAMPLE_DATADIR,
-                                         "diffs"))
-            if not os.path.exists(os.path.join(SAMPLE_DATADIR,
-                                               "updated")):
-                os.makedirs(os.path.join(SAMPLE_DATADIR,
-                                         "updated"))
-            current_time = str(datetime.datetime.now().isoformat())
-            _file_name = (f"{author}.{request.args.get('resource-id')}."
-                          f"{current_time}")
-            new_file_name = (os.path.join(TMPDIR,
-                                          f"sample-data/updated/{_file_name}.csv"))
-            uploaded_file_name = (os.path.join(
-                TMPDIR, "sample-data/updated/",
-                f"{_file_name}.csv.uploaded"))
-            file_.save(new_file_name)
-            with open(uploaded_file_name, "w") as f_:
-                f_.write(get_trait_csv_sample_data(
-                    conn=conn,
-                    trait_name=str(name),
-                    phenotype_id=str(phenotype_id)))
-            r = run_cmd(cmd=("csvdiff "
-                             f"'{uploaded_file_name}' '{new_file_name}' "
-                             "--format json"))
-            json_data = json.loads(r.get("output"))
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    data_ = request.form.to_dict()
+    TMPDIR = current_app.config.get("TMPDIR")
+    author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+              or g.user_session.record.get("user_id") or "")
+    phenotype_id = str(data_.get('phenotype-id'))
+    if not (file_ := request.files.get("file")):
+        flash("No sample-data has been uploaded", "warning")
+    else:
+        create_dirs_if_not_exists([
+            SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data"),
+            DIFF_DATADIR := os.path.join(SAMPLE_DATADIR, "diffs"),
+            UPLOAD_DATADIR := os.path.join(SAMPLE_DATADIR, "updated")
+        ])
+        current_time = str(datetime.datetime.now().isoformat())
+        _file_name = (f"{author}.{request.args.get('resource-id')}."
+                      f"{current_time}")
+        new_file_name = (os.path.join(TMPDIR,
+                                      f"sample-data/updated/{_file_name}.csv"))
+        uploaded_file_name = (os.path.join(
+            TMPDIR, "sample-data/updated/",
+            f"{_file_name}.csv.uploaded"))
+        file_.save(new_file_name)
+        with open(uploaded_file_name, "w") as f_:
+            f_.write(get_trait_csv_sample_data(
+                conn=conn,
+                trait_name=str(name),
+                phenotype_id=str(phenotype_id)))
+        r = run_cmd(cmd=("csvdiff "
+                         f"'{uploaded_file_name}' '{new_file_name}' "
+                         "--format json"))
+        json_data = json.loads(r.get("output"))
 
             # Only consider values where |ε| < 0.001; otherwise, use the
             # old value in "Original".
