@@ -11,14 +11,14 @@
     {% set additions = diff.get("Additions") %}
     {% set modifications = diff.get("Modifications") %}
     {% set deletions = diff.get("Deletions") %}
-
+    {% set header = diff.get("Columns", "Strain Name,Value,SE,Count") %}
     {% if additions %}
     <h2>Additions Data:</h2>
     <div class="row">
         <div class="col-md-8">
             <table class="table-responsive table-hover table-striped cell-border" id="table-additions">
                 <thead>
-                    <th scope="col">Added Data</</th>
+                    <th scope="col">Added Data ({{ header }})</th>
                 </thead>
                 <tbody>
                     {% for data in additions %}
@@ -39,9 +39,9 @@
         <div class="col-md-8">
             <table class="table-responsive table-hover table-striped cell-border" id="table-modifications">
                 <thead>
-                    <th scope="col">Original</</th>
-                    <th scope="col">Current</</th>
-                    <th scope="col">Diff</</th>
+                    <th scope="col">Original</th>
+                    <th scope="col">Current</th>
+                    <th scope="col">Diff ({{ header }})</th>
                 </thead>
                 <tbody>
                     {% for data in modifications %}
