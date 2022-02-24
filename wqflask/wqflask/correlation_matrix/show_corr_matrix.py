@@ -41,6 +41,7 @@ from utility.redis_tools import get_redis_conn
 from gn3.computations.principal_component_analysis import compute_pca
 
 from gn3.computations.principal_component_analysis import process_factor_loadings_tdata
+from gn3.computations.principal_component_analysis import generate_pca_traits_vals
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -169,15 +170,12 @@ class CorrelationMatrix:
 
         self.pca_works = "False"
         try:
-            corr_result_eigen = np.linalg.eig(np.array(self.pca_corr_results))
-            corr_eigen_value, corr_eigen_vectors = sortEigenVectors(
-                corr_result_eigen)
 
             if self.do_PCA == True:
                 self.pca_works = "True"
                 self.pca_trait_ids = []
                 pca = self.calculate_pca(
-                    list(range(len(self.traits))), corr_eigen_value, corr_eigen_vectors)
+                    list(range(len(self.traits))))
                 self.loadings_array = process_factor_loadings_tdata(self.loadings,len(self.trait_list))
             else:
                 self.pca_works = "False"
@@ -191,7 +189,7 @@ class CorrelationMatrix:
                             samples=self.all_sample_list,
                             sample_data=self.sample_data,)
 
-    def calculate_pca(self, cols, corr_eigen_value, corr_eigen_vectors):
+    def calculate_pca(self, cols):
 
 
         pca = compute_pca(self.pca_corr_results)
@@ -199,8 +197,9 @@ class CorrelationMatrix:
         self.loadings = pca["components"]
         self.scores = pca["scores"]
 
-        trait_array = zScore(self.trait_data_array)
-        trait_array_vectors = np.dot(corr_eigen_vectors, trait_array)
+        trait_array_vectors = generate_pca_traits_vals(self.trait_data_array,self.pca_corr_results)
+
+
 
         pca_traits = []
         for i, vector in enumerate(trait_array_vectors):
@@ -230,21 +229,6 @@ class CorrelationMatrix:
             self.pca_trait_ids.append(trait_id)
 
         return pca
-
-    def process_loadings(self):
-        loadings_array = []
-        loadings_row = []
-        for i in range(len(self.trait_list)):
-            loadings_row = []
-            if len(self.trait_list) > 2:
-                the_range = 3
-            else:
-                the_range = 2
-            for j in range(the_range):
-                position = i + len(self.trait_list) * j
-                loadings_row.append(self.loadings[0][position])
-            loadings_array.append(loadings_row)
-        return loadings_array
 
 
 def export_corr_matrix(corr_results):
@@ -285,45 +269,3 @@ def export_corr_matrix(corr_results):
 
     return corr_matrix_filename, matrix_export_path
 
-
-def zScore(trait_data_array):
-    NN = len(trait_data_array[0])
-    if NN < 10:
-        return trait_data_array
-    else:
-        i = 0
-        for data in trait_data_array:
-            N = len(data)
-            S = reduce(lambda x, y: x + y, data, 0.)
-            SS = reduce(lambda x, y: x + y * y, data, 0.)
-            mean = S / N
-            var = SS - S * S / N
-            stdev = math.sqrt(var / (N - 1))
-            if stdev == 0:
-                stdev = 1e-100
-            data2 = [(x - mean) / stdev for x in data]
-            trait_data_array[i] = data2
-            i += 1
-        return trait_data_array
-
-
-def sortEigenVectors(vector):
-    try:
-        eigenValues = vector[0].tolist()
-        eigenVectors = vector[1].T.tolist()
-        combines = []
-        i = 0
-        for item in eigenValues:
-            combines.append([eigenValues[i], eigenVectors[i]])
-            i += 1
-        sorted(combines, key=cmp_to_key(webqtlUtil.cmpEigenValue))
-        A = []
-        B = []
-        for item in combines:
-            A.append(item[0])
-            B.append(item[1])
-        sum = reduce(lambda x, y: x + y, A, 0.0)
-        A = [x * 100.0 / sum for x in A]
-        return [A, B]
-    except:
-        return []
