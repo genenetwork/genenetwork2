@@ -30,6 +30,8 @@ from gn3.authentication import get_highest_user_access_role
 from gn3.authentication import get_user_membership
 from gn3.commands import run_cmd
 from gn3.csvcmp import create_dirs_if_not_exists
+from gn3.csvcmp import csv_diff
+from gn3.csvcmp import remove_insignificant_edits
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
 from gn3.db import fetchone
@@ -230,106 +232,39 @@ def update_phenotype(dataset_id: str, name: str):
             DIFF_DATADIR := os.path.join(SAMPLE_DATADIR, "diffs"),
             UPLOAD_DATADIR := os.path.join(SAMPLE_DATADIR, "updated")
         ])
+
         current_time = str(datetime.datetime.now().isoformat())
         _file_name = (f"{author}.{request.args.get('resource-id')}."
                       f"{current_time}")
-        new_file_name = (os.path.join(TMPDIR,
-                                      f"sample-data/updated/{_file_name}.csv"))
-        uploaded_file_name = (os.path.join(
-            TMPDIR, "sample-data/updated/",
-            f"{_file_name}.csv.uploaded"))
-        file_.save(new_file_name)
-        with open(uploaded_file_name, "w") as f_:
-            f_.write(get_trait_csv_sample_data(
-                conn=conn,
-                trait_name=str(name),
-                phenotype_id=str(phenotype_id)))
-        r = run_cmd(cmd=("csvdiff "
-                         f"'{uploaded_file_name}' '{new_file_name}' "
-                         "--format json"))
-        json_data = json.loads(r.get("output"))
+        diff_data = remove_insignificant_edits(
+            diff_data=csv_diff(
+                base_csv=(base_csv:=get_trait_csv_sample_data(
+                    conn=conn,
+                    trait_name=str(name),
+                    phenotype_id=str(phenotype_id))),
+                delta_csv=(delta_csv:=file_.read().decode()),
+                tmp_dir=TMPDIR),
+            epsilon=0.001)
+        # Edge case where the csv file has not been edited!
+        if not any(diff_data.values()):
+            flash(f"You have not modified the csv file you downloaded!",
+                  "warning")
+            return redirect(f"/datasets/{dataset_id}/traits/{name}"
+                            f"?resource-id={request.args.get('resource-id')}")
 
-            # Only consider values where |ε| < 0.001; otherwise, use the
-            # old value in "Original".
-            _modifications = []
-            for m in json_data.get("Modifications"):
-                _original = m.get("Original").split(",")
-                _current = m.get("Current").split(",")
-                for i, (x, y) in enumerate(zip(_original, _current)):
-                    if (x.replace('.', '').isdigit()
-                        and y.replace('.', '').isdigit()
-                        and abs(float(x) - float(y)) < 0.001):
-                        _current[i] = x
-                if not (__o:=",".join(_original)) == (__c:=",".join(_current)):
-                        _modifications.append(
-                            {
-                                "Original": __o,
-                                "Current": __c,
-                            })
-            json_data['Modifications'] = _modifications
+        with open(os.path.join(
+                UPLOAD_DATADIR,
+                f"{_file_name}.csv"), "w") as f_:
+            f_.write(base_csv)
+        with open(os.path.join(
+                UPLOAD_DATADIR,
+                f"{_file_name}.delta.csv"), "w") as f_:
+            f_.write(delta_csv)
 
-            # Edge case where the csv file has not been edited!
-            if not any(json_data.values()):
-                flash(f"You have not modified the csv file you downloaded!",
-                      "warning")
-                return redirect(f"/datasets/{dataset_id}/traits/{name}"
-                                f"?resource-id={request.args.get('resource-id')}")
-            diff_output = (f"{TMPDIR}/sample-data/diffs/"
-                           f"{_file_name}.json")
-            with open(diff_output, "w") as f:
-                dict_ = json_data
-                dict_.update({
-                    "trait_name": str(name),
-                    "phenotype_id": str(phenotype_id),
-                    "author": author,
-                    "timestamp": datetime.datetime.now().strftime(
-                        "%Y-%m-%d %H:%M:%S")
-                })
-                f.write(json.dumps(dict_))
-            flash("Sample-data has been successfully uploaded", "success")
-        # Run updates:
-        phenotype_ = {
-            "pre_pub_description": data_.get("pre-pub-desc"),
-            "post_pub_description": data_.get("post-pub-desc"),
-            "original_description": data_.get("orig-desc"),
-            "units": data_.get("units"),
-            "pre_pub_abbreviation": data_.get("pre-pub-abbrev"),
-            "post_pub_abbreviation": data_.get("post-pub-abbrev"),
-            "lab_code": data_.get("labcode"),
-            "submitter": data_.get("submitter"),
-            "owner": data_.get("owner"),
-            "authorized_users": data_.get("authorized-users"),
-        }
-        updated_phenotypes = update(
-            conn, "Phenotype",
-            data=Phenotype(**phenotype_),
-            where=Phenotype(id_=data_.get("phenotype-id")))
-        diff_data = {}
-        if updated_phenotypes:
-            diff_data.update({"Phenotype": diff_from_dict(old={
-                k: data_.get(f"old_{k}") for k, v in phenotype_.items()
-                if v is not None}, new=phenotype_)})
-        publication_ = {
-            "abstract": data_.get("abstract"),
-            "authors": data_.get("authors"),
-            "title": data_.get("title"),
-            "journal": data_.get("journal"),
-            "volume": data_.get("volume"),
-            "pages": data_.get("pages"),
-            "month": data_.get("month"),
-            "year": data_.get("year")
-        }
-        updated_publications = update(
-            conn, "Publication",
-            data=Publication(**publication_),
-            where=Publication(id_=data_.get("pubmed-id",
-                                            data_.get("old_id_"))))
-        if updated_publications:
-            diff_data.update({"Publication": diff_from_dict(old={
-                k: data_.get(f"old_{k}") for k, v in publication_.items()
-                if v is not None}, new=publication_)})
-        if diff_data:
+        with open(os.path.join(DIFF_DATADIR,
+                               f"{_file_name}.json"), "w") as f:
             diff_data.update({
+                "trait_name": str(name),
                 "phenotype_id": str(phenotype_id),
                 "dataset_id": name,
                 "resource_id": request.args.get('resource-id'),
@@ -339,14 +274,68 @@ def update_phenotype(dataset_id: str, name: str):
                               .now()
                               .strftime("%Y-%m-%d %H:%M:%S")),
             })
-            insert(conn,
-                   table="metadata_audit",
-                   data=MetadataAudit(dataset_id=name,
-                                      editor=author,
-                                      json_data=json.dumps(diff_data)))
-            flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
-        return redirect(f"/datasets/{dataset_id}/traits/{name}"
-                        f"?resource-id={request.args.get('resource-id')}")
+            f.write(json.dumps(diff_data))
+        flash("Sample-data has been successfully uploaded", "success")
+    # Run updates:
+    phenotype_ = {
+        "pre_pub_description": data_.get("pre-pub-desc"),
+        "post_pub_description": data_.get("post-pub-desc"),
+        "original_description": data_.get("orig-desc"),
+        "units": data_.get("units"),
+        "pre_pub_abbreviation": data_.get("pre-pub-abbrev"),
+        "post_pub_abbreviation": data_.get("post-pub-abbrev"),
+        "lab_code": data_.get("labcode"),
+        "submitter": data_.get("submitter"),
+        "owner": data_.get("owner"),
+        "authorized_users": data_.get("authorized-users"),
+    }
+    updated_phenotypes = update(
+        conn, "Phenotype",
+        data=Phenotype(**phenotype_),
+        where=Phenotype(id_=data_.get("phenotype-id")))
+    diff_data = {}
+    if updated_phenotypes:
+        diff_data.update({"Phenotype": diff_from_dict(old={
+            k: data_.get(f"old_{k}") for k, v in phenotype_.items()
+            if v is not None}, new=phenotype_)})
+    publication_ = {
+        "abstract": data_.get("abstract"),
+        "authors": data_.get("authors"),
+        "title": data_.get("title"),
+        "journal": data_.get("journal"),
+        "volume": data_.get("volume"),
+        "pages": data_.get("pages"),
+        "month": data_.get("month"),
+        "year": data_.get("year")
+    }
+    updated_publications = update(
+        conn, "Publication",
+        data=Publication(**publication_),
+        where=Publication(id_=data_.get("pubmed-id",
+                                        data_.get("old_id_"))))
+    if updated_publications:
+        diff_data.update({"Publication": diff_from_dict(old={
+            k: data_.get(f"old_{k}") for k, v in publication_.items()
+            if v is not None}, new=publication_)})
+    if diff_data:
+        diff_data.update({
+            "phenotype_id": str(phenotype_id),
+            "dataset_id": name,
+            "resource_id": request.args.get('resource-id'),
+            "author": author,
+            "timestamp": (datetime
+                          .datetime
+                          .now()
+                          .strftime("%Y-%m-%d %H:%M:%S")),
+        })
+        insert(conn,
+               table="metadata_audit",
+               data=MetadataAudit(dataset_id=name,
+                                  editor=author,
+                                  json_data=json.dumps(diff_data)))
+        flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
+    return redirect(f"/datasets/{dataset_id}/traits/{name}"
+                    f"?resource-id={request.args.get('resource-id')}")
 
 
 @metadata_edit.route("/traits/<name>", methods=("POST",))
