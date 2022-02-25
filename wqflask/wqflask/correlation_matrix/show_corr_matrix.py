@@ -19,7 +19,6 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 import datetime
-import math
 import random
 import string
 
@@ -29,9 +28,6 @@ import scipy
 
 from base import data_set
 from base.webqtlConfig import GENERATED_TEXT_DIR
-from functools import reduce
-from functools import cmp_to_key
-from utility import webqtlUtil
 from utility import helper_functions
 from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
@@ -42,6 +38,8 @@ from gn3.computations.principal_component_analysis import compute_pca
 
 from gn3.computations.principal_component_analysis import process_factor_loadings_tdata
 from gn3.computations.principal_component_analysis import generate_pca_traits_vals
+from gn3.computations.principal_component_analysis import generate_pca_temp_dataset
+from gn3.computations.principal_component_analysis import cache_pca_dataset
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -171,11 +169,11 @@ class CorrelationMatrix:
         self.pca_works = "False"
         try:
 
+
             if self.do_PCA == True:
                 self.pca_works = "True"
                 self.pca_trait_ids = []
-                pca = self.calculate_pca(
-                    list(range(len(self.traits))))
+                pca = self.calculate_pca()
                 self.loadings_array = process_factor_loadings_tdata(self.loadings,len(self.trait_list))
             else:
                 self.pca_works = "False"
@@ -189,7 +187,7 @@ class CorrelationMatrix:
                             samples=self.all_sample_list,
                             sample_data=self.sample_data,)
 
-    def calculate_pca(self, cols):
+    def calculate_pca(self):
 
 
         pca = compute_pca(self.pca_corr_results)
@@ -197,36 +195,37 @@ class CorrelationMatrix:
         self.loadings = pca["components"]
         self.scores = pca["scores"]
 
-        trait_array_vectors = generate_pca_traits_vals(self.trait_data_array,self.pca_corr_results)
-
-
-
-        pca_traits = []
-        for i, vector in enumerate(trait_array_vectors):
-            # ZS: Check if below check is necessary
-            # if corr_eigen_value[i-1] > 100.0/len(self.trait_list):
-            pca_traits.append((vector * -1.0).tolist())
 
         this_group_name = self.trait_list[0][1].group.name
         temp_dataset = data_set.create_dataset(
             dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
         temp_dataset.group.get_samplelist()
-        for i, pca_trait in enumerate(pca_traits):
-            trait_id = "PCA" + str(i + 1) + "_" + temp_dataset.group.species + "_" + \
-                this_group_name + "_" + datetime.datetime.now().strftime("%m%d%H%M%S")
-            this_vals_string = ""
-            position = 0
-            for sample in temp_dataset.group.all_samples_ordered():
-                if sample in self.shared_samples_list:
-                    this_vals_string += str(pca_trait[position])
-                    this_vals_string += " "
-                    position += 1
-                else:
-                    this_vals_string += "x "
-            this_vals_string = this_vals_string[:-1]
 
-            Redis.set(trait_id, this_vals_string, ex=THIRTY_DAYS)
-            self.pca_trait_ids.append(trait_id)
+
+        species = temp_dataset.group.species
+
+        group =this_group_name
+
+        trait_data_array = self.trait_data_array
+
+        pca_corr = self.pca_corr_results
+
+        sample_list = temp_dataset.group.all_samples_ordered()
+
+
+        shared = self.shared_samples_list
+
+        dt_time = datetime.datetime.now().strftime("%m%d%H%M%S")
+
+
+
+        results = generate_pca_temp_dataset(species = species, group= group,traits_data = self.trait_data_array,corr_array = self.pca_corr_results,dataset_samples = sample_list, shared_samples=shared,create_time=dt_time) 
+
+
+
+        cache_pca_dataset(Redis,THIRTY_DAYS,results)
+
+        self.pca_trait_ids = list(results.keys())
 
         return pca
 
@@ -268,4 +267,6 @@ def export_corr_matrix(corr_results):
             output_file.write("\n")
 
     return corr_matrix_filename, matrix_export_path
+
+
 
