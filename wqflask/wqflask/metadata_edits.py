@@ -43,11 +43,10 @@ from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
-from gn3.db.traits import get_trait_csv_sample_data
-from gn3.db.traits import update_sample_data
-from gn3.db.traits import delete_sample_data
-from gn3.db.traits import insert_sample_data
-from wqflask.database import database_connection
+from gn3.db.sample_data import get_trait_csv_sample_data
+from gn3.db.sample_data import update_sample_data
+from gn3.db.sample_data import delete_sample_data
+from gn3.db.sample_data import insert_sample_data
 
 
 metadata_edit = Blueprint('metadata_edit', __name__)
