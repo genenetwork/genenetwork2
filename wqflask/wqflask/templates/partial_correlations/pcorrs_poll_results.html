@@ -1,0 +1,15 @@
+{%extends "base.html"%}
+
+{%block title%}Partial Correlations:{%endblock%}
+
+{%block css%}
+<meta http-equiv="refresh"
+      content="10;URL=/partial_correlations/{{command_id}}">
+{%endblock%}
+
+{%block content%}
+
+<p>Computing partial correlations...</p>
+<img src="/static/gif/waitAnima2.gif"
+     alt="Image indicating computation of partial correlations is ongoing" />
+{%endblock%}

@@ -67,22 +67,6 @@
                 </div>
             </form>
             &nbsp;
-            <form id="partial-correlations-form"
-                method="POST"
-                action="{{url_for('partial_correlations')}}">
-            <input type="hidden"
-                id="collection_uuid"
-                value="{{uc.uc_id}}" />
-            <input type="hidden"
-                name="traits_list"
-                value="{% for this_trait in trait_obs %}{{ this_trait.name }}:::{{ this_trait.dataset.name }}:::{{this_trait.symbol}}:::{{this_trait.description_display}}:::{{this_trait.location_repr}}:::{{this_trait.mean}}:::{{this_trait['LRS_location_repr']}}:::{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}|||{% endfor %}" />
-            <button id="run-partial-correlations"
-                class="btn btn-primary"
-                title="Run partial correlations"
-                type="submit" style="margin-top: 10px;">
-                Partial Correlations
-            </button>
-            </form>
         </div>
 
         <div>
@@ -128,7 +112,13 @@
                     <tbody>
                     {% for this_trait in trait_obs %}
                         <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                            <TD align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="searchResult" class="checkbox trait_checkbox" VALUE="{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }}"></TD>
+                          <TD align="center" style="padding: 0px;">
+			    <input type="checkbox"
+				   name="searchResult"
+				   class="checkbox trait_checkbox"
+				   value="{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}"
+				   data-trait-info="{{trait_info_str(this_trait)}}">
+			  </TD>
                             <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
                             <TD title="{{ this_trait.dataset.fullname }}" data-export="{{ this_trait.dataset.fullname }}">{{ this_trait.dataset.fullname }}</TD>
                             <TD data-export="{{ this_trait.name }}">
@@ -192,6 +182,9 @@
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
+
+    <script type="text/javascript"
+	    src="/static/new/javascript/partial_correlations.js"></script>
 
 
     <script language="javascript" type="text/javascript">
