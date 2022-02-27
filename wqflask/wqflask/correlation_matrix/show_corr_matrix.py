@@ -33,7 +33,6 @@ from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
 
 
-
 from gn3.computations.principal_component_analysis import compute_pca
 
 from gn3.computations.principal_component_analysis import process_factor_loadings_tdata
@@ -43,6 +42,7 @@ from gn3.computations.principal_component_analysis import cache_pca_dataset
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
+
 
 class CorrelationMatrix:
 
@@ -54,7 +54,6 @@ class CorrelationMatrix:
 
         self.all_sample_list = []
         self.traits = []
-        self.insufficient_shared_samples = False
         self.do_PCA = True
         # ZS: Getting initial group name before verifying all traits are in the same group in the following loop
         this_group = self.trait_list[0][1].group.name
@@ -169,12 +168,12 @@ class CorrelationMatrix:
         self.pca_works = "False"
         try:
 
-
             if self.do_PCA == True:
                 self.pca_works = "True"
                 self.pca_trait_ids = []
                 pca = self.calculate_pca()
-                self.loadings_array = process_factor_loadings_tdata(self.loadings,len(self.trait_list))
+                self.loadings_array = process_factor_loadings_tdata(
+                    self.loadings, len(self.trait_list))
             else:
                 self.pca_works = "False"
         except:
@@ -189,43 +188,25 @@ class CorrelationMatrix:
 
     def calculate_pca(self):
 
-
         pca = compute_pca(self.pca_corr_results)
 
         self.loadings = pca["components"]
         self.scores = pca["scores"]
-
 
         this_group_name = self.trait_list[0][1].group.name
         temp_dataset = data_set.create_dataset(
             dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
         temp_dataset.group.get_samplelist()
 
+        pca_dataset = generate_pca_temp_dataset(species=temp_dataset.group.species, group=this_group_name,
+                                                traits_data=self.trait_data_array, corr_array=self.pca_corr_results,
+                                                dataset_samples=temp_dataset.group.all_samples_ordered(),
+                                                shared_samples=self.shared_samples_list,
+                                                create_time=datetime.datetime.now().strftime("%m%d%H%M%S"))
 
-        species = temp_dataset.group.species
+        cache_pca_dataset(Redis, THIRTY_DAYS, pca_dataset)
 
-        group =this_group_name
-
-        trait_data_array = self.trait_data_array
-
-        pca_corr = self.pca_corr_results
-
-        sample_list = temp_dataset.group.all_samples_ordered()
-
-
-        shared = self.shared_samples_list
-
-        dt_time = datetime.datetime.now().strftime("%m%d%H%M%S")
-
-
-
-        results = generate_pca_temp_dataset(species = species, group= group,traits_data = self.trait_data_array,corr_array = self.pca_corr_results,dataset_samples = sample_list, shared_samples=shared,create_time=dt_time) 
-
-
-
-        cache_pca_dataset(Redis,THIRTY_DAYS,results)
-
-        self.pca_trait_ids = list(results.keys())
+        self.pca_trait_ids = list(pca_dataset.keys())
 
         return pca
 
@@ -242,11 +223,11 @@ def export_corr_matrix(corr_results):
         output_file.write("\n")
         output_file.write("Correlation ")
         for i, item in enumerate(corr_results[0]):
-            output_file.write("Trait" + str(i + 1) + ": " + \
+            output_file.write("Trait" + str(i + 1) + ": " +
                               str(item[0].dataset.name) + "::" + str(item[0].name) + "\t")
         output_file.write("\n")
         for i, row in enumerate(corr_results):
-            output_file.write("Trait" + str(i + 1) + ": " + \
+            output_file.write("Trait" + str(i + 1) + ": " +
                               str(row[0][0].dataset.name) + "::" + str(row[0][0].name) + "\t")
             for item in row:
                 output_file.write(str(item[1]) + "\t")
@@ -256,17 +237,14 @@ def export_corr_matrix(corr_results):
         output_file.write("\n")
         output_file.write("N ")
         for i, item in enumerate(corr_results[0]):
-            output_file.write("Trait" + str(i) + ": " + \
+            output_file.write("Trait" + str(i) + ": " +
                               str(item[0].dataset.name) + "::" + str(item[0].name) + "\t")
         output_file.write("\n")
         for i, row in enumerate(corr_results):
-            output_file.write("Trait" + str(i) + ": " + \
+            output_file.write("Trait" + str(i) + ": " +
                               str(row[0][0].dataset.name) + "::" + str(row[0][0].name) + "\t")
             for item in row:
                 output_file.write(str(item[2]) + "\t")
             output_file.write("\n")
 
     return corr_matrix_filename, matrix_export_path
-
-
-
