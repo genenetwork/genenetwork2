@@ -82,7 +82,7 @@ class MrnaAssaySearch(DoSearch):
     DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
     base_query = """
-                SELECT
+                SELECT DISTINCT
                 ProbeSetFreeze.`Name`,
                 ProbeSetFreeze.`FullName`,
                 ProbeSet.`Name`,
