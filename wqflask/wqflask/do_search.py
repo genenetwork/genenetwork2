@@ -1,6 +1,7 @@
-import string
-import requests
 import json
+import re
+import requests
+import string
 
 from flask import Flask, g
 
@@ -137,18 +138,17 @@ class MrnaAssaySearch(DoSearch):
         search_string = escape(self.search_term[0])
 
         if self.search_term[0] != "*":
+            if re.search("\w{1,2}\-\w+|\w+\-\w{1,2}", self.search_term[0]):
+                search_string = f'"{search_string}*"'
+
             match_clause = f"""((MATCH (ProbeSet.Name,
                         ProbeSet.description,
                         ProbeSet.symbol,
+                        alias,
                         GenbankId,
                         UniGeneId,
                         Probe_Target_Description)
-                        AGAINST ('{search_string}' IN BOOLEAN MODE)) OR (
-                        alias LIKE '%%; {search_string};%%' OR
-                        alias LIKE '{search_string};%%' OR
-                        alias LIKE '%%; {search_string}' OR
-                        alias LIKE '{search_string}'
-                        )) AND """
+                        AGAINST ('{search_string}' IN BOOLEAN MODE))) AND """
         else:
             match_clause = ""
 
