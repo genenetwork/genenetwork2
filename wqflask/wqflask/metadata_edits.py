@@ -558,19 +558,14 @@ def approve_data(resource_id:str, file_name: str):
             sample_data.get("Deletions").remove(deletion)
 
     n_insertions = 0
-    for insertion in (
-            insertions := [d for d in sample_data.get("Additions")]):
-        (strain_name,
-         value, se, count) = insertion.split(",")
-        __insertions, _, _ = insert_sample_data(
-            conn=conn,
-            trait_name=sample_data.get("trait_name"),
-            strain_name=strain_name,
-            phenotype_id=int(sample_data.get("phenotype_id")),
-            value=value,
-            error=se,
-            count=count)
-        if __insertions:
+    for data in [d for d in sample_data.get("Additions")]:
+        if insert_sample_data(
+                conn=conn,
+                trait_name=sample_data.get("trait_name"),
+                data=data,
+                csv_header=sample_data.get("Columns",
+                                           "Strain Name,Value,SE,Count"),
+                phenotype_id=int(sample_data.get("phenotype_id"))):
             n_insertions += 1
         # Remove any data that already exists from sample_data inserts
         else:
