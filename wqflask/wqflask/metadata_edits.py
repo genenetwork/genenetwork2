@@ -544,18 +544,19 @@ def approve_data(resource_id:str, file_name: str):
                    "changes could be applied."), "warning")
 
     n_deletions = 0
-    for deletion in (deletions := [d for d in sample_data.get("Deletions")]):
-        strain_name, _, _, _ = deletion.split(",")
-        __deletions, _, _ = delete_sample_data(
+    for data in [d for d in sample_data.get("Deletions")]:
+        __deletions = delete_sample_data(
             conn=conn,
             trait_name=sample_data.get("trait_name"),
-            strain_name=strain_name,
+            data=data,
+            csv_header=sample_data.get("Columns",
+                                       "Strain Name,Value,SE,Count"),
             phenotype_id=int(sample_data.get("phenotype_id")))
         if __deletions:
             n_deletions += 1
         # Remove any data that already exists from sample_data deletes
         else:
-            sample_data.get("Deletions").remove(deletion)
+            sample_data.get("Deletions").remove(data)
 
     n_insertions = 0
     for data in [d for d in sample_data.get("Additions")]:
