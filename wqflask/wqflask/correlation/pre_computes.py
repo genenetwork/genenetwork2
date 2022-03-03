@@ -6,6 +6,8 @@ from pathlib import Path
 from base.data_set import query_table_timestamp
 from base.webqtlConfig import TMPDIR
 
+from json.decoder import JSONDecodeError
+
 
 def fetch_all_cached_metadata(dataset_name):
     """in a gvein dataset fetch all the traits metadata"""
@@ -20,7 +22,12 @@ def fetch_all_cached_metadata(dataset_name):
 
     except FileNotFoundError:
         Path(file_path).touch(exist_ok=True)
-        return (file_path, {})
+
+    except JSONDecodeError:
+        # should never happen but incase exists
+        file_path.unlink()
+
+    return (file_path, {})
 
 
 def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_path: str):
@@ -28,7 +35,7 @@ def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_
 
     if bool(new_traits_metadata):
         dataset_metadata.update(new_traits_metadata)
-             
+
     with open(file_path, "w+") as file_handler:
         json.dump(dataset_metadata, file_handler)
 
