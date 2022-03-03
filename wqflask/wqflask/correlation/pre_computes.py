@@ -21,11 +21,13 @@ def fetch_all_cached_metadata(dataset_name):
             return (file_path, dataset_metadata)
 
     except FileNotFoundError:
-        Path(file_path).touch(exist_ok=True)
+        pass
 
     except JSONDecodeError:
-        # should never happen but incase exists
+        # should never happen 
         file_path.unlink()
+
+    Path(file_path).touch(exist_ok=True)
 
     return (file_path, {})
 
@@ -33,8 +35,11 @@ def fetch_all_cached_metadata(dataset_name):
 def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_path: str):
     """function to cache the new traits metadata"""
 
-    if bool(new_traits_metadata):
-        dataset_metadata.update(new_traits_metadata)
+    if not (bool(dataset_metadata) and bool(new_traits_metadata)):
+        # implies cache isn't working at all
+        return
+
+    dataset_metadata.update(new_traits_metadata)
 
     with open(file_path, "w+") as file_handler:
         json.dump(dataset_metadata, file_handler)
