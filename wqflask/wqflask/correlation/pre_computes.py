@@ -13,21 +13,21 @@ def fetch_all_cached_metadata(dataset_name):
     """in a gvein dataset fetch all the traits metadata"""
     file_name = generate_filename(dataset_name, suffix="metadata")
 
-    file_path = os.path.join(TMPDIR, file_name)
+    file_path = Path(TMPDIR, file_name)
 
     try:
         with open(file_path, "r+") as file_handler:
             dataset_metadata = json.load(file_handler)
+
             return (file_path, dataset_metadata)
 
     except FileNotFoundError:
         pass
 
     except JSONDecodeError:
-        # should never happen 
         file_path.unlink()
 
-    Path(file_path).touch(exist_ok=True)
+    file_path.touch(exist_ok=True)
 
     return (file_path, {})
 
@@ -35,8 +35,7 @@ def fetch_all_cached_metadata(dataset_name):
 def cache_new_traits_metadata(dataset_metadata: dict, new_traits_metadata, file_path: str):
     """function to cache the new traits metadata"""
 
-    if not (bool(dataset_metadata) and bool(new_traits_metadata)):
-        # implies cache isn't working at all
+    if (dataset_metadata == {} and new_traits_metadata == {}):
         return
 
     dataset_metadata.update(new_traits_metadata)
