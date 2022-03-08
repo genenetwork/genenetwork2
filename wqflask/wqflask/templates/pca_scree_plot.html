@@ -69,6 +69,23 @@ const data = [{
 
     }
 }]
+
+
+let custom_configs = (filename, format, modebar = true) => {
+
+    return {
+        displayModeBar: modebar,
+        scrollZoom: false,
+        toImageButtonOptions: {
+            format, 
+            filename,
+            height: 600,
+            width: 700,
+            scale: 1
+        }
+    }
+
+}
 </script>
 
 </html>
