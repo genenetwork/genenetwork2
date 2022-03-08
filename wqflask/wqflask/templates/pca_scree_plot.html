@@ -71,13 +71,13 @@ const data = [{
 }]
 
 
-let custom_configs = (filename, format, modebar = true) => {
+let custom_configs = (filename, download_format, modebar = true) => {
 
     return {
         displayModeBar: modebar,
         scrollZoom: false,
         toImageButtonOptions: {
-            format, 
+            download_format,
             filename,
             height: 600,
             width: 700,
@@ -86,6 +86,9 @@ let custom_configs = (filename, format, modebar = true) => {
     }
 
 }
+
+Plotly.newPlot(document.getElementById(), data, layout,
+	custom_configs(file_name = "scree_plot", download_format = "svg"));
 </script>
 
 </html>
