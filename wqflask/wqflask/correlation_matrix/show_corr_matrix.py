@@ -21,26 +21,22 @@
 import datetime
 import random
 import string
-
-
 import numpy as np
 import scipy
 
-from base import data_set
+from base.data_set import create_dataset
 from base.webqtlConfig import GENERATED_TEXT_DIR
-from utility import helper_functions
-from utility import corr_result_helpers
+
+
+from utility.helper_functions import get_trait_db_obs
+from utility.corr_result_helpers import normalize_values
 from utility.redis_tools import get_redis_conn
 
 
 from gn3.computations.pca import compute_pca
-
 from gn3.computations.pca import process_factor_loadings_tdata
 from gn3.computations.pca import generate_pca_temp_traits
 from gn3.computations.pca import cache_pca_dataset
-
-Redis = get_redis_conn()
-THIRTY_DAYS = 60 * 60 * 24 * 30
 
 
 class CorrelationMatrix:
@@ -49,7 +45,7 @@ class CorrelationMatrix:
         trait_db_list = [trait.strip()
                          for trait in start_vars['trait_list'].split(',')]
 
-        helper_functions.get_trait_db_obs(self, trait_db_list)
+        get_trait_db_obs(self, trait_db_list)
 
         self.all_sample_list = []
         self.traits = []
@@ -117,7 +113,7 @@ class CorrelationMatrix:
                         if sample in self.shared_samples_list:
                             self.shared_samples_list.remove(sample)
 
-                this_trait_vals, target_vals, num_overlap = corr_result_helpers.normalize_values(
+                this_trait_vals, target_vals, num_overlap = normalize_values(
                     this_trait_vals, target_vals)
 
                 if num_overlap < self.lowest_overlap:
@@ -193,8 +189,9 @@ class CorrelationMatrix:
         self.scores = pca["scores"]
 
         this_group_name = self.trait_list[0][1].group.name
-        temp_dataset = data_set.create_dataset(
-            dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
+        temp_dataset = create_dataset(
+            dataset_name="Temp", dataset_type="Temp",
+            group_name=this_group_name)
         temp_dataset.group.get_samplelist()
 
         pca_temp_traits = generate_pca_temp_traits(species=temp_dataset.group.species, group=this_group_name,
@@ -203,7 +200,6 @@ class CorrelationMatrix:
                                                    shared_samples=self.shared_samples_list,
                                                    create_time=datetime.datetime.now().strftime("%m%d%H%M%S"))
 
-        
         cache_pca_dataset(redis_conn=get_redis_conn(
         ), exp_days=60 * 60 * 24 * 30, pca_trait_dict=pca_temp_traits)
 
