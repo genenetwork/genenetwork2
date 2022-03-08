@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
 </head>
+
 <body>
+    <div>
+        pca scree plot
 
-	<div>
-		pca scree plot
-	</div>
-
+        <div id="scree_plot" style="width:700px;height:600px;"></div>
+    </div>
 </body>
+<script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
+<script type="text/javascript">
+js_data = { { js_data | safe } }
+
+
+let {x_coord,y_coord} = js_data["scree_data"]
+</script>
+
 </html>
