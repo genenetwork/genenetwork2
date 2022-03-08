@@ -33,12 +33,11 @@ from utility import corr_result_helpers
 from utility.redis_tools import get_redis_conn
 
 
-from gn3.computations.principal_component_analysis import compute_pca
+from gn3.computations.pca import compute_pca
 
-from gn3.computations.principal_component_analysis import process_factor_loadings_tdata
-from gn3.computations.principal_component_analysis import generate_pca_traits_vals
-from gn3.computations.principal_component_analysis import generate_pca_temp_dataset
-from gn3.computations.principal_component_analysis import cache_pca_dataset
+from gn3.computations.pca import process_factor_loadings_tdata
+from gn3.computations.pca import generate_pca_temp_traits
+from gn3.computations.pca import cache_pca_dataset
 
 Redis = get_redis_conn()
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -168,12 +167,12 @@ class CorrelationMatrix:
         self.pca_works = "False"
         try:
 
-            if self.do_PCA == True:
+            if self.do_PCA:
                 self.pca_works = "True"
                 self.pca_trait_ids = []
                 pca = self.calculate_pca()
                 self.loadings_array = process_factor_loadings_tdata(
-                    self.loadings, len(self.trait_list))
+                    factor_loadings=self.loadings, traits_num=len(self.trait_list))
             else:
                 self.pca_works = "False"
         except:
@@ -198,15 +197,17 @@ class CorrelationMatrix:
             dataset_name="Temp", dataset_type="Temp", group_name=this_group_name)
         temp_dataset.group.get_samplelist()
 
-        pca_dataset = generate_pca_temp_dataset(species=temp_dataset.group.species, group=this_group_name,
-                                                traits_data=self.trait_data_array, corr_array=self.pca_corr_results,
-                                                dataset_samples=temp_dataset.group.all_samples_ordered(),
-                                                shared_samples=self.shared_samples_list,
-                                                create_time=datetime.datetime.now().strftime("%m%d%H%M%S"))
+        pca_temp_traits = generate_pca_temp_traits(species=temp_dataset.group.species, group=this_group_name,
+                                                   traits_data=self.trait_data_array, corr_array=self.pca_corr_results,
+                                                   dataset_samples=temp_dataset.group.all_samples_ordered(),
+                                                   shared_samples=self.shared_samples_list,
+                                                   create_time=datetime.datetime.now().strftime("%m%d%H%M%S"))
 
-        cache_pca_dataset(Redis, THIRTY_DAYS, pca_dataset)
+        
+        cache_pca_dataset(redis_conn=get_redis_conn(
+        ), exp_days=60 * 60 * 24 * 30, pca_trait_dict=pca_temp_traits)
 
-        self.pca_trait_ids = list(pca_dataset.keys())
+        self.pca_trait_ids = list(pca_temp_traits.keys())
 
         return pca
 
