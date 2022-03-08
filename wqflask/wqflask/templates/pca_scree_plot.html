@@ -10,7 +10,6 @@
 <body>
     <div>
         pca scree plot
-
         <div id="scree_plot" style="width:700px;height:600px;"></div>
     </div>
 </body>
@@ -19,7 +18,42 @@
 js_data = { { js_data | safe } }
 
 
-let {x_coord,y_coord} = js_data["scree_data"]
+let { x_coord, y_coord } = js_data["scree_data"]
+
+const layout = {
+
+    title: {
+        text: "<b>Scree Plot</b>",
+        font: {
+            "size": 24,
+            "family": "Arial",
+            "color": "#FF0000"
+        }
+    },
+
+    yaxis: {
+        title: {
+            text: "Percent of total variance %",
+            font: {
+                "size": 18,
+                "color": ""
+
+            }
+        }
+    },
+
+    xaxis: {
+        title: {
+            text: "PCA components",
+            font: {
+                "size": 18,
+                "color": ""
+
+            }
+        }
+    },
+
+}
 </script>
 
 </html>
