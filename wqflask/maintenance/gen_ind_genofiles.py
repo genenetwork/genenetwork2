@@ -28,7 +28,7 @@ def main(args):
         target_groups = [args[2]]
 
     # Generate the output .geno files
-    generate_new_genofiles(strain_genotypes(source_genofile), target_groups)
+    generate_new_genofiles(source_genofile, strain_genotypes(source_genofile), target_groups)
 
 def get_strain_for_sample(sample):
     query = (
@@ -40,6 +40,33 @@ def get_strain_for_sample(sample):
 
     with conn.cursor() as cursor:
         return cursor.execute(query, {"name": name}).fetchone()[0]
+
+def generate_new_genofiles(source_genofile, strain_genotypes, target_groups):
+    for group in target_groups:
+        base_samples = group_samples(source_genofile)
+        target_samples = group_samples(group)
+        strain_pos_map = map_strain_pos_to_target_group(base_samples, target_samples)
+
+        new_genofile = app.config.get("GENENETWORK_FILES") + "/genotype/_" + group
+
+
+def map_strain_pos_to_target_group(base_samples, target_samples):
+    """
+    Retrieve corresponding strain position for each sample in the target group
+
+    This is so the genotypes from the base genofile can be mapped to the samples in the target group
+
+    For example:
+    Base strains: BXD1, BXD2, BXD3
+    Target samples: BXD1_1, BXD1_2, BXD2_1, BXD3_1, BXD3_2, BXD3_3
+    Returns: [0, 0, 1, 2, 2, 2]
+    """
+    pos_map = []
+    for i, sample in enumerate(target_samples):
+        sample_strain = get_strain_for_sample(sample)
+        pos_map.append(base_samples.index(sample_strain))
+
+    return pos_map
 
 def group_samples(target_group: str) -> List:
     """
