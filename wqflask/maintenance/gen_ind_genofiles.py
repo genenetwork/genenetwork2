@@ -1,34 +1,41 @@
-# Example command: env GN2_PROFILE=/usr/local/guix-profiles/gn-latest-20220122 TMPDIR=/export/local/home/zas1024/gn2-zach/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/local/home/zas1024/gn2-zach/genotype_files SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_ind_genofiles.py
+# Example commands:
+# python3 gen_ind_genofiles.py /home/zas1024/gn2-zach/genotype_files/genotype/ /home/zas1024/gn2-zach/new_geno/ BXD-Micturition.geno BXD.json
+# python3 gen_ind_genofiles.py /home/zas1024/gn2-zach/genotype_files/genotype/ /home/zas1024/gn2-zach/new_geno/ BXD-Micturition.geno BXD.2.geno BXD.4.geno BXD.5.geno
 
+import os
 import sys
 from typing import List
 
 import MySQLdb
 
-from wqflask import app
-
 def conn():
-    return MySQLdb.Connect(db=app.config.get("DB_NAME"),
-                           user=app.config.get("DB_USER"),
-                           passwd=app.config.get("DB_PASS"),
-                           host=app.config.get("DB_HOST"))
+    return MySQLdb.Connect(db=os.environ.get("DB_NAME"),
+                           user=os.environ.get("DB_USER"),
+                           passwd=os.environ.get("DB_PASS"),
+                           host=os.environ.get("DB_HOST"))
 
 def main(args):
 
-    # The file of the "main" .geno file for the group in question
-    # For example: BXD.geno or BXD.6.geno if converting to BXD individual genofiles
-    source_genofile = args[1] 
+    # Directory in which .geno files are located
+    geno_dir = args[1]
 
-    # The target individuals/samples group(s) we're generating the .geno files for
-    # This can be passed as either a specific .geno file, or as a JSON file
-    # containing a set of .geno files (and their corresponding file names and sample lists)
-    if ".json" in args[2]:
-        target_groups = json.load(args[2])['genofile']
+    # Directory in which to output new files
+    out_dir = args[2]
+
+    # The individuals group that we want to generate a .geno file for
+    target_file = geno_dir + args[3]
+
+    # The source group(s) we're generating the .geno files from
+    # This can be passed as either a specific .geno file (or set of files as multiple arguments),
+    # or as a JSON file containing a set of .geno files (and their corresponding file names and sample lists)
+    if ".json" in args[4]:
+        source_files = [geno_dir + genofile['location'] for genofile in json.load(args[4])['genofile']]
     else:
-        target_groups = [args[2]]
+        source_files = [geno_dir + group + ".geno" if ".geno" not in group else group for group in args[4:]]
 
     # Generate the output .geno files
-    generate_new_genofiles(source_genofile, strain_genotypes(source_genofile), target_groups)
+    for source_file in source_files:
+        generate_new_genofile(source_file, target_file)
 
 def get_strain_for_sample(sample):
     query = (
@@ -41,13 +48,11 @@ def get_strain_for_sample(sample):
     with conn.cursor() as cursor:
         return cursor.execute(query, {"name": name}).fetchone()[0]
 
-def generate_new_genofiles(source_genofile, strain_genotypes, target_groups):
-    for group in target_groups:
-        base_samples = group_samples(source_genofile)
-        target_samples = group_samples(group)
-        strain_pos_map = map_strain_pos_to_target_group(base_samples, target_samples)
-
-        new_genofile = app.config.get("GENENETWORK_FILES") + "/genotype/_" + group
+def generate_new_genofiles(source_genofile, target_genofile):
+    base_samples = group_samples(source_genofile)
+    base_genotypes = strain_genotypes(source_genofile)
+    target_samples = group_samples(target_genofile)
+    strain_pos_map = map_strain_pos_to_target_group(base_samples, target_samples)
 
 
 def map_strain_pos_to_target_group(base_samples, target_samples):
@@ -68,18 +73,13 @@ def map_strain_pos_to_target_group(base_samples, target_samples):
 
     return pos_map
 
-def group_samples(target_group: str) -> List:
+def group_samples(target_file: str) -> List:
     """
     Get the group samples from its "dummy" .geno file (which still contains the sample list)
     """
 
-    # Allow for inputting the target group as either the group name or .geno file
-    file_location = app.config.get("GENENETWORK_FILES") + "/genotype/" + target_group
-    if ".geno" not in target_group:
-        file_location += ".geno"
-
     sample_list = []
-    with open(file_location, "r") as target_geno:
+    with open(target_file, "r") as target_geno:
         for i, line in enumerate(target_geno):
             # Skip header lines
             if line[0] in ["#", "@"] or not len(line):
@@ -109,8 +109,6 @@ def strain_genotypes(strain_genofile: str) -> List:
         ...
     ]
     """
-
-    file_location = app.config.get("GENENETWORK_FILES") + "/genotype/" + strain_genofile
 
     geno_start_col = None
     header_columns = []
