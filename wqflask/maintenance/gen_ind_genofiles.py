@@ -33,9 +33,22 @@ def main(args):
     else:
         source_files = [geno_dir + group + ".geno" if ".geno" not in group else group for group in args[4:]]
 
+    if len(source_files) > 1:
+        # Generate a JSON file pointing to the new target genotype files, in situations where there are multiple source .geno files
+        target_json_loc = out_dir + args[3].split(".")[:-1] + ".json"
+        target_json = {'genofile': []}
+
     # Generate the output .geno files
     for source_file in source_files:
-        generate_new_genofile(source_file, target_file)
+        filename, samples = generate_new_genofile(source_file, target_file)
+
+        target_json['genofile'].append({
+            'location': filename.split("/")[-1],
+            'title': filename.split("/")[-1],
+            'sample_list': samples
+        })
+
+    json.dump(target_json, open(target_json_loc, "w"))
 
 def get_strain_for_sample(sample):
     query = (
@@ -67,7 +80,7 @@ def map_strain_pos_to_target_group(base_samples, target_samples):
     Returns: [0, 0, 1, 2, 2, 2]
     """
     pos_map = []
-    for i, sample in enumerate(target_samples):
+    for sample in target_samples:
         sample_strain = get_strain_for_sample(sample)
         pos_map.append(base_samples.index(sample_strain))
 
@@ -110,14 +123,28 @@ def strain_genotypes(strain_genofile: str) -> List:
     ]
     """
 
+    geno_dict = {}
+
     geno_start_col = None
     header_columns = []
     sample_list = []
     marker_genotypes = []
     with open(file_location, "r") as source_geno:
         for i, line in enumerate(source_geno):
-            # Skip header lines
-            if line[0] in ["#", "@"] or not len(line):
+            if line[0] == "@":
+                if "@type" in line:
+                    geno_dict['type'] = line.split(":")[1]
+                if "@mat" in line:
+                    geno_dict['mat'] = line.split(":")[1]
+                elif "@pat" in line:
+                    geno_dict['pat'] = line.split(":")[1]
+                elif "@het" in line:
+                    geno_dict['het'] = line.split(":")[1]
+                elif "@unk" in line:
+                    geno_dict['unk'] = line.split(":")[1]
+
+            # Skip other header lines
+            if line[0] == "#" or not len(line):
                 continue
 
             line_items = line.split("\t")
@@ -140,11 +167,13 @@ def strain_genotypes(strain_genofile: str) -> List:
                     'Locus': line_items[header_columns.index("Locus")],
                     'Mb': line_items[header_columns.index("Mb")],
                     'cM': line_items[header_columns.index("cM")],
-                    'genotypes': list(zip(sample_list, [item.strip() for item in line_items][geno_start_col:]))
+                    'genotypes': [item.strip() for item in line_items][geno_start_col:]
                 }
                 marker_genotypes.append(this_marker)
 
-    return marker_genotypes
+    geno_dict['genotypes'] = marker_genotypes
+
+    return geno_dict
             
 if __name__ == "__main__":
     print("command line arguments:\n\t%s" % sys.argv)
