@@ -7,9 +7,7 @@ import MySQLdb
 
 from wqflask import app
 
-from gn3.db.datasets import retrieve_group_samples
-
-def db_conn():
+def conn():
     return MySQLdb.Connect(db=app.config.get("DB_NAME"),
                            user=app.config.get("DB_USER"),
                            passwd=app.config.get("DB_PASS"),
@@ -31,6 +29,17 @@ def main(args):
 
     # Generate the output .geno files
     generate_new_genofiles(strain_genotypes(source_genofile), target_groups)
+
+def get_strain_for_sample(sample):
+    query = (
+        "SELECT CaseAttributeXRefNew.Value "
+        "FROM CaseAttributeXRefNew, Strain "
+        "WHERE CaseAttributeXRefNew.CaseAttributeId=11 "
+        "AND CaseAttributeXRef.New.StrainId = Strain.Id "
+        "AND Strain.Name = %(name)s" )
+
+    with conn.cursor() as cursor:
+        return cursor.execute(query, {"name": name}).fetchone()[0]
 
 def group_samples(target_group: str) -> List:
     """
@@ -115,3 +124,4 @@ def strain_genotypes(strain_genofile: str) -> List:
 if __name__ == "__main__":
     print("command line arguments:\n\t%s" % sys.argv)
     main(sys.argv)
+
