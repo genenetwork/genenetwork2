@@ -245,6 +245,5 @@ def strain_genotypes(strain_genofile: str) -> List:
     return geno_dict
             
 if __name__ == "__main__":
-    print("command line arguments:\n\t%s" % sys.argv)
     main(sys.argv)
 
