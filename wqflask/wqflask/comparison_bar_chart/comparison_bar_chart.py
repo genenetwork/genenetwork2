@@ -26,8 +26,6 @@ from utility import webqtlUtil, helper_functions, corr_result_helpers
 import utility.webqtlUtil  # this is for parallel computing only.
 from wqflask.correlation import correlation_functions
 
-from MySQLdb import escape_string as escape
-
 from flask import Flask, g
 
 

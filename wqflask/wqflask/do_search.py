@@ -989,8 +989,6 @@ def get_aliases(symbol, species):
 if __name__ == "__main__":
     # Usually this will be used as a library, but call it from the command line for testing
     # And it runs the code below
-
-    import MySQLdb
     import sys
 
     from base import webqtlConfig
@@ -998,15 +996,11 @@ if __name__ == "__main__":
     from utility import webqtlUtil
     from db import webqtlDatabaseFunction
 
-    db_conn = MySQLdb.Connect(db=webqtlConfig.DB_NAME,
-                              host=webqtlConfig.MYSQL_SERVER,
-                              user=webqtlConfig.DB_USER,
-                              passwd=webqtlConfig.DB_PASSWD)
-    cursor = db_conn.cursor()
+    from wqflask.database import database_connection
 
-    dataset_name = "HC_M2_0606_P"
-    dataset = create_dataset(db_conn, dataset_name)
+    with database_connection() as db_conn:
+        with db_conn.cursor() as cursor:
+            dataset_name = "HC_M2_0606_P"
+            dataset = create_dataset(db_conn, dataset_name)
 
-    results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()
-
-    db_conn.close()
+            results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()

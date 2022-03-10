@@ -39,21 +39,13 @@ from wqflask import app
 
 from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
 
-import MySQLdb
-
 import simplejson as json
 import urllib.parse
 
 
-#import sqlalchemy as sa
-
 from pprint import pformat as pf
 
-#Engine = sa.create_engine(zach_settings.SQL_URI)
-
-# build MySql database connection
-
-#conn = Engine.connect()
+from wqflask.database import database_connection
 
 
 def parse_db_uri():
@@ -71,19 +63,19 @@ def parse_db_uri():
     return db_conn_info
 
 
-def get_species():
+def get_species(cursor):
     """Build species list"""
-    #Cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
-    Cursor.execute("select Name, MenuName from Species order by OrderId")
-    species = list(Cursor.fetchall())
+    #cursor.execute("select Name, MenuName from Species where Species.Name != 'macaque monkey' order by OrderId")
+    cursor.execute("select Name, MenuName from Species order by OrderId")
+    species = list(cursor.fetchall())
     return species
 
 
-def get_groups(species):
+def get_groups(cursor, species):
     """Build groups list"""
     groups = {}
     for species_name, _species_full_name in species:
-        Cursor.execute("""select InbredSet.Name, InbredSet.FullName from InbredSet,
+        cursor.execute("""select InbredSet.Name, InbredSet.FullName from InbredSet,
                        Species,
                        ProbeFreeze, GenoFreeze, PublishFreeze where Species.Name = '%s'
                        and InbredSet.SpeciesId = Species.Id and
@@ -92,7 +84,7 @@ def get_groups(species):
                         or ProbeFreeze.InbredSetId = InbredSet.Id)
                         group by InbredSet.Name
                         order by InbredSet.FullName""" % species_name)
-        results = Cursor.fetchall()
+        results = cursor.fetchall()
         groups[species_name] = list(results)
     return groups
 
@@ -273,13 +265,13 @@ def build_datasets(species, group, type_name):
     return datasets
 
 
-def main():
+def main(cursor):
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
     parse_db_uri()
 
-    species = get_species()
-    groups = get_groups(species)
+    species = get_species(cursor)
+    groups = get_groups(cursor, species)
     types = get_types(groups)
     datasets = get_datasets(types)
 
@@ -316,6 +308,6 @@ def _test_it():
 
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri())
-    Cursor = Conn.cursor()
-    main()
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            main(cursor)

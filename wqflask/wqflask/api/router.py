@@ -6,7 +6,6 @@ import csv
 import json
 import datetime
 import requests
-import MySQLdb
 
 from zipfile import ZipFile, ZIP_DEFLATED
 
@@ -23,6 +22,8 @@ from wqflask import app
 from wqflask.api import correlation, mapping, gen_menu
 
 from utility.tools import flat_files
+
+from wqflask.database import database_connection
 
 import utility.logger
 logger = utility.logger.getLogger(__name__)
@@ -847,11 +848,8 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
 
 @app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    results = gen_menu.gen_dropdown_json(conn)
+    with database_connection as conn:
+        results = gen_menu.gen_dropdown_json(conn)
 
     if len(results) > 0:
         return flask.jsonify(results)

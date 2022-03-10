@@ -106,3 +106,6 @@ for ProbeSetFreezeId in ProbeSetFreezeIds:
 
 
 	print(ProbeSetFreezeIds)
+
+cursor.close()
+con.close()

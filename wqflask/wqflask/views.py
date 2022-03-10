@@ -1,6 +1,4 @@
 """Main routing table for GN2"""
-
-import MySQLdb
 import array
 import base64
 import csv
@@ -123,6 +121,7 @@ def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
         db_session.remove()
+        g.db.dispose()
         g.db = None
 
 

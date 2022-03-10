@@ -30,10 +30,9 @@ from utility.tools import SQL_URI
 from utility.redis_tools import get_redis_conn, get_user_id, add_resource, get_resources, get_resource_info
 Redis = get_redis_conn()
 
-import MySQLdb
-
 import urllib.parse
 
+from wqflask.database import database_connection
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
@@ -53,14 +52,14 @@ def parse_db_uri():
     return db_conn_info
 
 
-def insert_probeset_resources(default_owner_id):
+def insert_probeset_resources(cursor, default_owner_id):
     current_resources = Redis.hgetall("resources")
-    Cursor.execute("""  SELECT
+    cursor.execute("""  SELECT
                             ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.confidentiality, ProbeSetFreeze.public
                         FROM
                             ProbeSetFreeze""")
 
-    resource_results = Cursor.fetchall()
+    resource_results = cursor.fetchall()
     for i, resource in enumerate(resource_results):
         resource_ob = {}
         resource_ob['name'] = resource[1]
@@ -80,9 +79,9 @@ def insert_probeset_resources(default_owner_id):
         add_resource(resource_ob, update=False)
 
 
-def insert_publish_resources(default_owner_id):
+def insert_publish_resources(cursor, default_owner_id):
     current_resources = Redis.hgetall("resources")
-    Cursor.execute("""  SELECT 
+    cursor.execute("""  SELECT 
                             PublishXRef.Id, PublishFreeze.Id, InbredSet.InbredSetCode
                         FROM
                             PublishXRef, PublishFreeze, InbredSet, Publication
@@ -91,7 +90,7 @@ def insert_publish_resources(default_owner_id):
                             InbredSet.Id = PublishXRef.InbredSetId AND
                             Publication.Id = PublishXRef.PublicationId""")
 
-    resource_results = Cursor.fetchall()
+    resource_results = cursor.fetchall()
     for resource in resource_results:
         if resource[2]:
             resource_ob = {}
@@ -114,14 +113,14 @@ def insert_publish_resources(default_owner_id):
             continue
 
 
-def insert_geno_resources(default_owner_id):
+def insert_geno_resources(cursor, default_owner_id):
     current_resources = Redis.hgetall("resources")
-    Cursor.execute("""  SELECT
+    cursor.execute("""  SELECT
                             GenoFreeze.Id, GenoFreeze.ShortName, GenoFreeze.confidentiality
                         FROM
                             GenoFreeze""")
 
-    resource_results = Cursor.fetchall()
+    resource_results = cursor.fetchall()
     for i, resource in enumerate(resource_results):
         resource_ob = {}
         resource_ob['name'] = resource[1]
@@ -147,15 +146,15 @@ def insert_geno_resources(default_owner_id):
 def insert_resources(default_owner_id):
     current_resources = get_resources()
     print("START")
-    insert_publish_resources(default_owner_id)
+    insert_publish_resources(cursor, default_owner_id)
     print("AFTER PUBLISH")
-    insert_geno_resources(default_owner_id)
+    insert_geno_resources(cursor, default_owner_id)
     print("AFTER GENO")
-    insert_probeset_resources(default_owner_id)
+    insert_probeset_resources(cursor, default_owner_id)
     print("AFTER PROBESET")
 
 
-def main():
+def main(cursor):
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
     Redis.delete("resources")
@@ -166,6 +165,6 @@ def main():
 
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri())
-    Cursor = Conn.cursor()
-    main()
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            main(cursor)

@@ -1,15 +1,5 @@
-import MySQLdb
 import re
 import configparser
-
-def get_cursor():
-    host = 'tux.uthsc.edu'
-    user = 'webqtlout'
-    passwd = 'webqtlout'
-    db = 'db_webqtl'
-    con = MySQLdb.Connect(db=db, host=host, user=user, passwd=passwd)
-    cursor = con.cursor()
-    return cursor, con
 
 def clearspaces(s, default=None):
     if s:

@@ -7,7 +7,6 @@ from collections import namedtuple
 from itertools import groupby
 from typing import Dict
 
-import MySQLdb
 import difflib
 import redis
 
@@ -45,6 +44,7 @@ from gn3.db.traits import get_trait_csv_sample_data
 from gn3.db.traits import update_sample_data
 from gn3.db.traits import delete_sample_data
 from gn3.db.traits import insert_sample_data
+from wqflask.database import database_connection
 
 
 metadata_edit = Blueprint('metadata_edit', __name__)
@@ -178,261 +178,247 @@ def edit_probeset(conn, name):
 @edit_access_required
 @login_required
 def display_phenotype_metadata(dataset_id: str, name: str):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
-    return render_template(
-        "edit_phenotype.html",
-        diff=_d.get("diff"),
-        publish_xref=_d.get("publish_xref"),
-        phenotype=_d.get("phenotype"),
-        publication=_d.get("publication"),
-        dataset_id=dataset_id,
-        resource_id=request.args.get("resource-id"),
-        version=os.environ.get("GN_VERSION"),
-    )
+    with database_connection() as conn:
+        _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
+        return render_template(
+            "edit_phenotype.html",
+            diff=_d.get("diff"),
+            publish_xref=_d.get("publish_xref"),
+            phenotype=_d.get("phenotype"),
+            publication=_d.get("publication"),
+            dataset_id=dataset_id,
+            resource_id=request.args.get("resource-id"),
+            version=os.environ.get("GN_VERSION"),
+        )
 
 
 @metadata_edit.route("/traits/<name>")
 @edit_access_required
 @login_required
 def display_probeset_metadata(name: str):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    _d = edit_probeset(conn=conn, name=name)
-    return render_template(
-        "edit_probeset.html",
-        diff=_d.get("diff"),
-        probeset=_d.get("probeset"),
-        name=name,
-        resource_id=request.args.get("resource-id"),
-        version=os.environ.get("GN_VERSION"),
-    )
+    with database_connection as conn:
+        _d = edit_probeset(conn=conn, name=name)
+        return render_template(
+            "edit_probeset.html",
+            diff=_d.get("diff"),
+            probeset=_d.get("probeset"),
+            name=name,
+            resource_id=request.args.get("resource-id"),
+            version=os.environ.get("GN_VERSION"),
+        )
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
 @edit_access_required
 @login_required
 def update_phenotype(dataset_id: str, name: str):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    data_ = request.form.to_dict()
-    TMPDIR = current_app.config.get("TMPDIR")
-    author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-              or g.user_session.record.get("user_id") or "")
-    phenotype_id = str(data_.get('phenotype-id'))
-    if not (file_ := request.files.get("file")):
-        flash("No sample-data has been uploaded", "warning")
-    else:
-        if not os.path.exists(SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data")):
-            os.makedirs(SAMPLE_DATADIR)
-        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
-                                           "diffs")):
-            os.makedirs(os.path.join(SAMPLE_DATADIR,
-                                     "diffs"))
-        if not os.path.exists(os.path.join(SAMPLE_DATADIR,
-                                           "updated")):
-            os.makedirs(os.path.join(SAMPLE_DATADIR,
-                                     "updated"))
-        current_time = str(datetime.datetime.now().isoformat())
-        _file_name = (f"{author}.{request.args.get('resource-id')}."
-                      f"{current_time}")
-        new_file_name = (os.path.join(TMPDIR,
-                                      f"sample-data/updated/{_file_name}.csv"))
-        uploaded_file_name = (os.path.join(
-            TMPDIR, "sample-data/updated/",
-            f"{_file_name}.csv.uploaded"))
-        file_.save(new_file_name)
-        with open(uploaded_file_name, "w") as f_:
-            f_.write(get_trait_csv_sample_data(
-                conn=conn,
-                trait_name=str(name),
-                phenotype_id=str(phenotype_id)))
-        r = run_cmd(cmd=("csvdiff "
-                         f"'{uploaded_file_name}' '{new_file_name}' "
-                         "--format json"))
-        json_data = json.loads(r.get("output"))
+    with database_connection() as conn:
+        data_ = request.form.to_dict()
+        TMPDIR = current_app.config.get("TMPDIR")
+        author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+                  or g.user_session.record.get("user_id") or "")
+        phenotype_id = str(data_.get('phenotype-id'))
+        if not (file_ := request.files.get("file")):
+            flash("No sample-data has been uploaded", "warning")
+        else:
+            if not os.path.exists(SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data")):
+                os.makedirs(SAMPLE_DATADIR)
+            if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                               "diffs")):
+                os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                         "diffs"))
+            if not os.path.exists(os.path.join(SAMPLE_DATADIR,
+                                               "updated")):
+                os.makedirs(os.path.join(SAMPLE_DATADIR,
+                                         "updated"))
+            current_time = str(datetime.datetime.now().isoformat())
+            _file_name = (f"{author}.{request.args.get('resource-id')}."
+                          f"{current_time}")
+            new_file_name = (os.path.join(TMPDIR,
+                                          f"sample-data/updated/{_file_name}.csv"))
+            uploaded_file_name = (os.path.join(
+                TMPDIR, "sample-data/updated/",
+                f"{_file_name}.csv.uploaded"))
+            file_.save(new_file_name)
+            with open(uploaded_file_name, "w") as f_:
+                f_.write(get_trait_csv_sample_data(
+                    conn=conn,
+                    trait_name=str(name),
+                    phenotype_id=str(phenotype_id)))
+            r = run_cmd(cmd=("csvdiff "
+                             f"'{uploaded_file_name}' '{new_file_name}' "
+                             "--format json"))
+            json_data = json.loads(r.get("output"))
 
-        # Only consider values where |ε| < 0.001; otherwise, use the
-        # old value in "Original".
-        _modifications = []
-        for m in json_data.get("Modifications"):
-            _original = m.get("Original").split(",")
-            _current = m.get("Current").split(",")
-            for i, (x, y) in enumerate(zip(_original, _current)):
-                if (x.replace('.', '').isdigit()
-                    and y.replace('.', '').isdigit()
-                    and abs(float(x) - float(y)) < 0.001):
-                    _current[i] = x
-            if not (__o:=",".join(_original)) == (__c:=",".join(_current)):
-                    _modifications.append(
-                        {
-                            "Original": __o,
-                            "Current": __c,
-                        })
-        json_data['Modifications'] = _modifications
+            # Only consider values where |ε| < 0.001; otherwise, use the
+            # old value in "Original".
+            _modifications = []
+            for m in json_data.get("Modifications"):
+                _original = m.get("Original").split(",")
+                _current = m.get("Current").split(",")
+                for i, (x, y) in enumerate(zip(_original, _current)):
+                    if (x.replace('.', '').isdigit()
+                        and y.replace('.', '').isdigit()
+                        and abs(float(x) - float(y)) < 0.001):
+                        _current[i] = x
+                if not (__o:=",".join(_original)) == (__c:=",".join(_current)):
+                        _modifications.append(
+                            {
+                                "Original": __o,
+                                "Current": __c,
+                            })
+            json_data['Modifications'] = _modifications
 
-        # Edge case where the csv file has not been edited!
-        if not any(json_data.values()):
-            flash(f"You have not modified the csv file you downloaded!",
-                  "warning")
-            return redirect(f"/datasets/{dataset_id}/traits/{name}"
-                            f"?resource-id={request.args.get('resource-id')}")
-        diff_output = (f"{TMPDIR}/sample-data/diffs/"
-                       f"{_file_name}.json")
-        with open(diff_output, "w") as f:
-            dict_ = json_data
-            dict_.update({
-                "trait_name": str(name),
+            # Edge case where the csv file has not been edited!
+            if not any(json_data.values()):
+                flash(f"You have not modified the csv file you downloaded!",
+                      "warning")
+                return redirect(f"/datasets/{dataset_id}/traits/{name}"
+                                f"?resource-id={request.args.get('resource-id')}")
+            diff_output = (f"{TMPDIR}/sample-data/diffs/"
+                           f"{_file_name}.json")
+            with open(diff_output, "w") as f:
+                dict_ = json_data
+                dict_.update({
+                    "trait_name": str(name),
+                    "phenotype_id": str(phenotype_id),
+                    "author": author,
+                    "timestamp": datetime.datetime.now().strftime(
+                        "%Y-%m-%d %H:%M:%S")
+                })
+                f.write(json.dumps(dict_))
+            flash("Sample-data has been successfully uploaded", "success")
+        # Run updates:
+        phenotype_ = {
+            "pre_pub_description": data_.get("pre-pub-desc"),
+            "post_pub_description": data_.get("post-pub-desc"),
+            "original_description": data_.get("orig-desc"),
+            "units": data_.get("units"),
+            "pre_pub_abbreviation": data_.get("pre-pub-abbrev"),
+            "post_pub_abbreviation": data_.get("post-pub-abbrev"),
+            "lab_code": data_.get("labcode"),
+            "submitter": data_.get("submitter"),
+            "owner": data_.get("owner"),
+            "authorized_users": data_.get("authorized-users"),
+        }
+        updated_phenotypes = update(
+            conn, "Phenotype",
+            data=Phenotype(**phenotype_),
+            where=Phenotype(id_=data_.get("phenotype-id")))
+        diff_data = {}
+        if updated_phenotypes:
+            diff_data.update({"Phenotype": diff_from_dict(old={
+                k: data_.get(f"old_{k}") for k, v in phenotype_.items()
+                if v is not None}, new=phenotype_)})
+        publication_ = {
+            "abstract": data_.get("abstract"),
+            "authors": data_.get("authors"),
+            "title": data_.get("title"),
+            "journal": data_.get("journal"),
+            "volume": data_.get("volume"),
+            "pages": data_.get("pages"),
+            "month": data_.get("month"),
+            "year": data_.get("year")
+        }
+        updated_publications = update(
+            conn, "Publication",
+            data=Publication(**publication_),
+            where=Publication(id_=data_.get("pubmed-id",
+                                            data_.get("old_id_"))))
+        if updated_publications:
+            diff_data.update({"Publication": diff_from_dict(old={
+                k: data_.get(f"old_{k}") for k, v in publication_.items()
+                if v is not None}, new=publication_)})
+        if diff_data:
+            diff_data.update({
                 "phenotype_id": str(phenotype_id),
+                "dataset_id": name,
+                "resource_id": request.args.get('resource-id'),
                 "author": author,
-                "timestamp": datetime.datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S")
+                "timestamp": (datetime
+                              .datetime
+                              .now()
+                              .strftime("%Y-%m-%d %H:%M:%S")),
             })
-            f.write(json.dumps(dict_))
-        flash("Sample-data has been successfully uploaded", "success")
-    # Run updates:
-    phenotype_ = {
-        "pre_pub_description": data_.get("pre-pub-desc"),
-        "post_pub_description": data_.get("post-pub-desc"),
-        "original_description": data_.get("orig-desc"),
-        "units": data_.get("units"),
-        "pre_pub_abbreviation": data_.get("pre-pub-abbrev"),
-        "post_pub_abbreviation": data_.get("post-pub-abbrev"),
-        "lab_code": data_.get("labcode"),
-        "submitter": data_.get("submitter"),
-        "owner": data_.get("owner"),
-        "authorized_users": data_.get("authorized-users"),
-    }
-    updated_phenotypes = update(
-        conn, "Phenotype",
-        data=Phenotype(**phenotype_),
-        where=Phenotype(id_=data_.get("phenotype-id")))
-    diff_data = {}
-    if updated_phenotypes:
-        diff_data.update({"Phenotype": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in phenotype_.items()
-            if v is not None}, new=phenotype_)})
-    publication_ = {
-        "abstract": data_.get("abstract"),
-        "authors": data_.get("authors"),
-        "title": data_.get("title"),
-        "journal": data_.get("journal"),
-        "volume": data_.get("volume"),
-        "pages": data_.get("pages"),
-        "month": data_.get("month"),
-        "year": data_.get("year")
-    }
-    updated_publications = update(
-        conn, "Publication",
-        data=Publication(**publication_),
-        where=Publication(id_=data_.get("pubmed-id",
-                                        data_.get("old_id_"))))
-    if updated_publications:
-        diff_data.update({"Publication": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in publication_.items()
-            if v is not None}, new=publication_)})
-    if diff_data:
-        diff_data.update({
-            "phenotype_id": str(phenotype_id),
-            "dataset_id": name,
-            "resource_id": request.args.get('resource-id'),
-            "author": author,
-            "timestamp": (datetime
-                          .datetime
-                          .now()
-                          .strftime("%Y-%m-%d %H:%M:%S")),
-        })
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(dataset_id=name,
-                                  editor=author,
-                                  json_data=json.dumps(diff_data)))
-        flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
-    return redirect(f"/datasets/{dataset_id}/traits/{name}"
-                    f"?resource-id={request.args.get('resource-id')}")
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(dataset_id=name,
+                                      editor=author,
+                                      json_data=json.dumps(diff_data)))
+            flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
+        return redirect(f"/datasets/{dataset_id}/traits/{name}"
+                        f"?resource-id={request.args.get('resource-id')}")
 
 
 @metadata_edit.route("/traits/<name>", methods=("POST",))
 @edit_access_required
 @login_required
 def update_probeset(name: str):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    data_ = request.form.to_dict()
-    probeset_ = {
-        "id_": data_.get("id"),
-        "symbol": data_.get("symbol"),
-        "description": data_.get("description"),
-        "probe_target_description": data_.get("probe_target_description"),
-        "chr_": data_.get("chr"),
-        "mb": data_.get("mb"),
-        "alias": data_.get("alias"),
-        "geneid": data_.get("geneid"),
-        "homologeneid": data_.get("homologeneid"),
-        "unigeneid": data_.get("unigeneid"),
-        "omim": data_.get("OMIM"),
-        "refseq_transcriptid": data_.get("refseq_transcriptid"),
-        "blatseq": data_.get("blatseq"),
-        "targetseq": data_.get("targetseq"),
-        "strand_probe": data_.get("Strand_Probe"),
-        "probe_set_target_region": data_.get("probe_set_target_region"),
-        "probe_set_specificity": data_.get("probe_set_specificity"),
-        "probe_set_blat_score": data_.get("probe_set_blat_score"),
-        "probe_set_blat_mb_start": data_.get("probe_set_blat_mb_start"),
-        "probe_set_blat_mb_end": data_.get("probe_set_blat_mb_end"),
-        "probe_set_strand": data_.get("probe_set_strand"),
-        "probe_set_note_by_rw": data_.get("probe_set_note_by_rw"),
-        "flag": data_.get("flag")
-    }
-    diff_data = {}
-    author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-              or g.user_session.record.get("user_id") or "")
-    if (updated_probeset := update(
-            conn, "ProbeSet",
-            data=Probeset(**probeset_),
-            where=Probeset(id_=data_.get("id")))):
-        diff_data.update({"Probeset": diff_from_dict(old={
-            k: data_.get(f"old_{k}") for k, v in probeset_.items()
-            if v is not None}, new=probeset_)})
-    if diff_data:
-        diff_data.update({"probeset_name": data_.get("probeset_name")})
-        diff_data.update({"author": author})
-        diff_data.update({"resource_id": request.args.get('resource-id')})
-        diff_data.update({"timestamp": datetime.datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S")})
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(dataset_id=data_.get("id"),
-                                  editor=author,
-                                  json_data=json.dumps(diff_data)))
-    return redirect(f"/datasets/traits/{name}"
-                    f"?resource-id={request.args.get('resource-id')}")
+    with database_connection as conn:
+        data_ = request.form.to_dict()
+        probeset_ = {
+            "id_": data_.get("id"),
+            "symbol": data_.get("symbol"),
+            "description": data_.get("description"),
+            "probe_target_description": data_.get("probe_target_description"),
+            "chr_": data_.get("chr"),
+            "mb": data_.get("mb"),
+            "alias": data_.get("alias"),
+            "geneid": data_.get("geneid"),
+            "homologeneid": data_.get("homologeneid"),
+            "unigeneid": data_.get("unigeneid"),
+            "omim": data_.get("OMIM"),
+            "refseq_transcriptid": data_.get("refseq_transcriptid"),
+            "blatseq": data_.get("blatseq"),
+            "targetseq": data_.get("targetseq"),
+            "strand_probe": data_.get("Strand_Probe"),
+            "probe_set_target_region": data_.get("probe_set_target_region"),
+            "probe_set_specificity": data_.get("probe_set_specificity"),
+            "probe_set_blat_score": data_.get("probe_set_blat_score"),
+            "probe_set_blat_mb_start": data_.get("probe_set_blat_mb_start"),
+            "probe_set_blat_mb_end": data_.get("probe_set_blat_mb_end"),
+            "probe_set_strand": data_.get("probe_set_strand"),
+            "probe_set_note_by_rw": data_.get("probe_set_note_by_rw"),
+            "flag": data_.get("flag")
+        }
+        diff_data = {}
+        author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+                  or g.user_session.record.get("user_id") or "")
+        if (updated_probeset := update(
+                conn, "ProbeSet",
+                data=Probeset(**probeset_),
+                where=Probeset(id_=data_.get("id")))):
+            diff_data.update({"Probeset": diff_from_dict(old={
+                k: data_.get(f"old_{k}") for k, v in probeset_.items()
+                if v is not None}, new=probeset_)})
+        if diff_data:
+            diff_data.update({"probeset_name": data_.get("probeset_name")})
+            diff_data.update({"author": author})
+            diff_data.update({"resource_id": request.args.get('resource-id')})
+            diff_data.update({"timestamp": datetime.datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S")})
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(dataset_id=data_.get("id"),
+                                      editor=author,
+                                      json_data=json.dumps(diff_data)))
+        return redirect(f"/datasets/traits/{name}"
+                        f"?resource-id={request.args.get('resource-id')}")
 
 
 @metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
 @login_required
 def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
-    return Response(
-        get_trait_csv_sample_data(
-            conn=MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                                 user=current_app.config.get("DB_USER"),
-                                 passwd=current_app.config.get("DB_PASS"),
-                                 host=current_app.config.get("DB_HOST")),
-            trait_name=str(dataset_id),
-            phenotype_id=str(phenotype_id)),
-        mimetype="text/csv",
-        headers={"Content-disposition":
-                 f"attachment; filename=sample-data-{dataset_id}.csv"}
-    )
+    with database_connection as conn:
+        return Response(
+            get_trait_csv_sample_data(
+                conn=conn,
+                trait_name=str(dataset_id),
+                phenotype_id=str(phenotype_id)),
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                     f"attachment; filename=sample-data-{dataset_id}.csv"}
+        )
 
 
 @metadata_edit.route("/diffs")
@@ -492,20 +478,45 @@ def reject_data(resource_id: str, file_name: str):
 @login_required
 def approve_data(resource_id:str, file_name: str):
     sample_data = {file_name: str}
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
-    TMPDIR = current_app.config.get("TMPDIR")
-    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
-                           file_name), 'r') as myfile:
-        sample_data = json.load(myfile)
-    for modification in (
-            modifications := [d for d in sample_data.get("Modifications")]):
-        if modification.get("Current"):
+    with database_connection() as conn:
+        TMPDIR = current_app.config.get("TMPDIR")
+        with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                               file_name), 'r') as myfile:
+            sample_data = json.load(myfile)
+        for modification in (
+                modifications := [d for d in sample_data.get("Modifications")]):
+            if modification.get("Current"):
+                (strain_name,
+                 value, se, count) = modification.get("Current").split(",")
+                update_sample_data(
+                    conn=conn,
+                    trait_name=sample_data.get("trait_name"),
+                    strain_name=strain_name,
+                    phenotype_id=int(sample_data.get("phenotype_id")),
+                    value=value,
+                    error=se,
+                    count=count)
+
+        n_deletions = 0
+        for deletion in (deletions := [d for d in sample_data.get("Deletions")]):
+            strain_name, _, _, _ = deletion.split(",")
+            __deletions, _, _ = delete_sample_data(
+                conn=conn,
+                trait_name=sample_data.get("trait_name"),
+                strain_name=strain_name,
+                phenotype_id=int(sample_data.get("phenotype_id")))
+            if __deletions:
+                n_deletions += 1
+            # Remove any data that already exists from sample_data deletes
+            else:
+                sample_data.get("Deletions").remove(deletion)
+
+        n_insertions = 0
+        for insertion in (
+                insertions := [d for d in sample_data.get("Additions")]):
             (strain_name,
-             value, se, count) = modification.get("Current").split(",")
-            update_sample_data(
+             value, se, count) = insertion.split(",")
+            __insertions, _, _ = insert_sample_data(
                 conn=conn,
                 trait_name=sample_data.get("trait_name"),
                 strain_name=strain_name,
@@ -513,65 +524,37 @@ def approve_data(resource_id:str, file_name: str):
                 value=value,
                 error=se,
                 count=count)
+            if __insertions:
+                n_insertions += 1
+            # Remove any data that already exists from sample_data inserts
+            else:
+                sample_data.get("Additions").remove(insertion)
+        if any([sample_data.get("Additions"),
+                sample_data.get("Modifications"),
+                sample_data.get("Deletions")]):
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(
+                       dataset_id=sample_data.get("trait_name"),
+                       editor=sample_data.get("author"),
+                       json_data=json.dumps(sample_data)))
+            # Once data is approved, rename it!
+            os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
+                      os.path.join(f"{TMPDIR}/sample-data/diffs",
+                                   f"{file_name}.approved"))
+            message = ""
+            if n_deletions:
+                flash(f"# Deletions: {n_deletions}", "success")
+            if n_insertions:
+                flash("# Additions: {len(modifications)", "success")
+            if len(modifications):
+                flash("# Modifications: {len(modifications)}", "success")
+        else:  # Edge case where you need to automatically reject the file
+            os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
+                      os.path.join(f"{TMPDIR}/sample-data/diffs",
+                                   f"{file_name}.rejected"))
+            flash(("Automatically rejecting this file since no "
+                   "changes could be applied."), "warning")
 
-    n_deletions = 0
-    for deletion in (deletions := [d for d in sample_data.get("Deletions")]):
-        strain_name, _, _, _ = deletion.split(",")
-        __deletions, _, _ = delete_sample_data(
-            conn=conn,
-            trait_name=sample_data.get("trait_name"),
-            strain_name=strain_name,
-            phenotype_id=int(sample_data.get("phenotype_id")))
-        if __deletions:
-            n_deletions += 1
-        # Remove any data that already exists from sample_data deletes
-        else:
-            sample_data.get("Deletions").remove(deletion)
-
-    n_insertions = 0
-    for insertion in (
-            insertions := [d for d in sample_data.get("Additions")]):
-        (strain_name,
-         value, se, count) = insertion.split(",")
-        __insertions, _, _ = insert_sample_data(
-            conn=conn,
-            trait_name=sample_data.get("trait_name"),
-            strain_name=strain_name,
-            phenotype_id=int(sample_data.get("phenotype_id")),
-            value=value,
-            error=se,
-            count=count)
-        if __insertions:
-            n_insertions += 1
-        # Remove any data that already exists from sample_data inserts
-        else:
-            sample_data.get("Additions").remove(insertion)
-    if any([sample_data.get("Additions"),
-            sample_data.get("Modifications"),
-            sample_data.get("Deletions")]):
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(
-                   dataset_id=sample_data.get("trait_name"),
-                   editor=sample_data.get("author"),
-                   json_data=json.dumps(sample_data)))
-        # Once data is approved, rename it!
-        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
-                  os.path.join(f"{TMPDIR}/sample-data/diffs",
-                               f"{file_name}.approved"))
-        message = ""
-        if n_deletions:
-            flash(f"# Deletions: {n_deletions}", "success")
-        if n_insertions:
-            flash("# Additions: {len(modifications)", "success")
-        if len(modifications):
-            flash("# Modifications: {len(modifications)}", "success")
-    else:  # Edge case where you need to automatically reject the file
-        os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
-                  os.path.join(f"{TMPDIR}/sample-data/diffs",
-                               f"{file_name}.rejected"))
-        flash(("Automatically rejecting this file since no "
-               "changes could be applied."), "warning")
-
-    return redirect(url_for('metadata_edit.list_diffs'))
+        return redirect(url_for('metadata_edit.list_diffs'))
 
