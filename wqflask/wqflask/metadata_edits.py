@@ -465,83 +465,25 @@ def reject_data(resource_id: str, file_name: str):
 @login_required
 def approve_data(resource_id:str, file_name: str):
     sample_data = {file_name: str}
-    with database_connection() as conn:
-        TMPDIR = current_app.config.get("TMPDIR")
-        with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
-                               file_name), 'r') as myfile:
-            sample_data = json.load(myfile)
-        for modification in (
-                modifications := [d for d in sample_data.get("Modifications")]):
-            if modification.get("Current"):
-                (strain_name,
-                 value, se, count) = modification.get("Current").split(",")
-                update_sample_data(
-                    conn=conn,
-                    trait_name=sample_data.get("trait_name"),
-                    strain_name=strain_name,
-                    phenotype_id=int(sample_data.get("phenotype_id")),
-                    value=value,
-                    error=se,
-                    count=count)
-
-        n_deletions = 0
-        for deletion in (deletions := [d for d in sample_data.get("Deletions")]):
-            strain_name, _, _, _ = deletion.split(",")
-            __deletions, _, _ = delete_sample_data(
+    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
+                           user=current_app.config.get("DB_USER"),
+                           passwd=current_app.config.get("DB_PASS"),
+                           host=current_app.config.get("DB_HOST"))
+    TMPDIR = current_app.config.get("TMPDIR")
+    with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
+                           file_name), 'r') as myfile:
+        sample_data = json.load(myfile)
+    for modification in (
+            modifications := [d for d in sample_data.get("Modifications")]):
+        if modification.get("Current"):
+            update_sample_data(
                 conn=conn,
                 trait_name=sample_data.get("trait_name"),
-                strain_name=strain_name,
+                original_data=modification.get("Original"),
+                updated_data=modification.get("Current"),
+                csv_header=sample_data.get("Columns",
+                                           "Strain Name,Value,SE,Count"),
                 phenotype_id=int(sample_data.get("phenotype_id")))
-            if __deletions:
-                n_deletions += 1
-            # Remove any data that already exists from sample_data deletes
-            else:
-                sample_data.get("Deletions").remove(deletion)
-
-        n_insertions = 0
-        for insertion in (
-                insertions := [d for d in sample_data.get("Additions")]):
-            (strain_name,
-             value, se, count) = insertion.split(",")
-            __insertions, _, _ = insert_sample_data(
-                conn=conn,
-                trait_name=sample_data.get("trait_name"),
-                strain_name=strain_name,
-                phenotype_id=int(sample_data.get("phenotype_id")),
-                value=value,
-                error=se,
-                count=count)
-            if __insertions:
-                n_insertions += 1
-            # Remove any data that already exists from sample_data inserts
-            else:
-                sample_data.get("Additions").remove(insertion)
-        if any([sample_data.get("Additions"),
-                sample_data.get("Modifications"),
-                sample_data.get("Deletions")]):
-            insert(conn,
-                   table="metadata_audit",
-                   data=MetadataAudit(
-                       dataset_id=sample_data.get("trait_name"),
-                       editor=sample_data.get("author"),
-                       json_data=json.dumps(sample_data)))
-            # Once data is approved, rename it!
-            os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
-                      os.path.join(f"{TMPDIR}/sample-data/diffs",
-                                   f"{file_name}.approved"))
-            message = ""
-            if n_deletions:
-                flash(f"# Deletions: {n_deletions}", "success")
-            if n_insertions:
-                flash("# Additions: {len(modifications)", "success")
-            if len(modifications):
-                flash("# Modifications: {len(modifications)}", "success")
-        else:  # Edge case where you need to automatically reject the file
-            os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
-                      os.path.join(f"{TMPDIR}/sample-data/diffs",
-                                   f"{file_name}.rejected"))
-            flash(("Automatically rejecting this file since no "
-                   "changes could be applied."), "warning")
 
     n_deletions = 0
     for data in [d for d in sample_data.get("Deletions")]:
