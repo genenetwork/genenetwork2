@@ -1,6 +1,19 @@
-# Example commands:
-# python3 gen_ind_genofiles.py /home/zas1024/gn2-zach/genotype_files/genotype/ /home/zas1024/gn2-zach/new_geno/ BXD-Micturition.geno BXD.json
-# python3 gen_ind_genofiles.py /home/zas1024/gn2-zach/genotype_files/genotype/ /home/zas1024/gn2-zach/new_geno/ BXD-Micturition.geno BXD.2.geno BXD.4.geno BXD.5.geno
+#!/usr/bin/env python3
+"""A script that generates the genotype files for groups of individuals, using an existing strain genotype file as a basis
+
+Example commands:
+python3 gen_ind_genofiles.py
+        /home/zas1024/gn2-zach/genotype_files/genotype/
+        /home/zas1024/gn2-zach/new_geno/
+        BXD-Micturition.geno
+        BXD.json
+python3 gen_ind_genofiles.py
+        /home/zas1024/gn2-zach/genotype_files/genotype
+        /home/zas1024/gn2-zach/new_geno/
+        BXD-Micturition.geno
+        BXD.2.geno BXD.4.geno BXD.5.geno
+
+"""
 
 import json
 import os
