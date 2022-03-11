@@ -848,7 +848,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
 
 @app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
-    with database_connection as conn:
+    with database_connection() as conn:
         results = gen_menu.gen_dropdown_json(conn)
 
     if len(results) > 0:
