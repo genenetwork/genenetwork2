@@ -19,6 +19,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+from wqflask.database import database_connection
 from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
@@ -210,10 +211,6 @@ def display_probeset_metadata(name: str):
 @edit_access_required
 @login_required
 def update_phenotype(dataset_id: str, name: str):
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
     data_ = request.form.to_dict()
     TMPDIR = current_app.config.get("TMPDIR")
     author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
@@ -231,18 +228,20 @@ def update_phenotype(dataset_id: str, name: str):
         current_time = str(datetime.datetime.now().isoformat())
         _file_name = (f"{author}.{request.args.get('resource-id')}."
                       f"{current_time}")
-        diff_data = remove_insignificant_edits(
-            diff_data=csv_diff(
-                base_csv=(base_csv:=get_trait_csv_sample_data(
-                    conn=conn,
-                    trait_name=str(name),
-                    phenotype_id=str(phenotype_id))),
-                delta_csv=(delta_csv:=file_.read().decode()),
-                tmp_dir=TMPDIR),
-            epsilon=0.001)
+        diff_data = {}
+        with database_connection() as conn:
+            diff_data = remove_insignificant_edits(
+                diff_data=csv_diff(
+                    base_csv=(base_csv := get_trait_csv_sample_data(
+                        conn=conn,
+                        trait_name=str(name),
+                        phenotype_id=str(phenotype_id))),
+                    delta_csv=(delta_csv := file_.read().decode()),
+                    tmp_dir=TMPDIR),
+                epsilon=0.001)
         # Edge case where the csv file has not been edited!
         if not any(diff_data.values()):
-            flash(f"You have not modified the csv file you downloaded!",
+            flash("You have not modified the csv file you downloaded!",
                   "warning")
             return redirect(f"/datasets/{dataset_id}/traits/{name}"
                             f"?resource-id={request.args.get('resource-id')}")
@@ -284,10 +283,12 @@ def update_phenotype(dataset_id: str, name: str):
         "owner": data_.get("owner"),
         "authorized_users": data_.get("authorized-users"),
     }
-    updated_phenotypes = update(
-        conn, "Phenotype",
-        data=Phenotype(**phenotype_),
-        where=Phenotype(id_=data_.get("phenotype-id")))
+    updated_phenotypes = ""
+    with database_connection() as conn:
+        updated_phenotypes = update(
+            conn, "Phenotype",
+            data=Phenotype(**phenotype_),
+            where=Phenotype(id_=data_.get("phenotype-id")))
     diff_data = {}
     if updated_phenotypes:
         diff_data.update({"Phenotype": diff_from_dict(old={
@@ -303,11 +304,13 @@ def update_phenotype(dataset_id: str, name: str):
         "month": data_.get("month"),
         "year": data_.get("year")
     }
-    updated_publications = update(
-        conn, "Publication",
-        data=Publication(**publication_),
-        where=Publication(id_=data_.get("pubmed-id",
-                                        data_.get("old_id_"))))
+    updated_publications = ""
+    with database_connection() as conn:
+        updated_publications = update(
+            conn, "Publication",
+            data=Publication(**publication_),
+            where=Publication(id_=data_.get("pubmed-id",
+                                            data_.get("old_id_"))))
     if updated_publications:
         diff_data.update({"Publication": diff_from_dict(old={
             k: data_.get(f"old_{k}") for k, v in publication_.items()
@@ -323,11 +326,12 @@ def update_phenotype(dataset_id: str, name: str):
                           .now()
                           .strftime("%Y-%m-%d %H:%M:%S")),
         })
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(dataset_id=name,
-                                  editor=author,
-                                  json_data=json.dumps(diff_data)))
+        with database_connection() as conn:
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(dataset_id=name,
+                                      editor=author,
+                                      json_data=json.dumps(diff_data)))
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(f"/datasets/{dataset_id}/traits/{name}"
                     f"?resource-id={request.args.get('resource-id')}")
@@ -365,12 +369,12 @@ def update_probeset(name: str):
             "flag": data_.get("flag")
         }
         diff_data = {}
-        author = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+        author = ((g.user_session.record.get(b"user_id")
+                   or b"").decode("utf-8")
                   or g.user_session.record.get("user_id") or "")
-        if (updated_probeset := update(
-                conn, "ProbeSet",
-                data=Probeset(**probeset_),
-                where=Probeset(id_=data_.get("id")))):
+        if update(conn, "ProbeSet",
+                  data=Probeset(**probeset_),
+                  where=Probeset(id_=data_.get("id"))):
             diff_data.update({"Probeset": diff_from_dict(old={
                 k: data_.get(f"old_{k}") for k, v in probeset_.items()
                 if v is not None}, new=probeset_)})
@@ -391,8 +395,8 @@ def update_probeset(name: str):
 
 @metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
 @login_required
-def get_sample_data_as_csv(dataset_id: str, phenotype_id:     int):
-    with database_connection as conn:
+def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
+    with database_connection() as conn:
         return Response(
             get_trait_csv_sample_data(
                 conn=conn,
@@ -459,70 +463,67 @@ def reject_data(resource_id: str, file_name: str):
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
 @edit_admins_access_required
 @login_required
-def approve_data(resource_id:str, file_name: str):
+def approve_data(resource_id: str, file_name: str):
     sample_data = {file_name: str}
-    conn = MySQLdb.Connect(db=current_app.config.get("DB_NAME"),
-                           user=current_app.config.get("DB_USER"),
-                           passwd=current_app.config.get("DB_PASS"),
-                           host=current_app.config.get("DB_HOST"))
     TMPDIR = current_app.config.get("TMPDIR")
     with open(os.path.join(f"{TMPDIR}/sample-data/diffs",
                            file_name), 'r') as myfile:
         sample_data = json.load(myfile)
-    for modification in (
-            modifications := [d for d in sample_data.get("Modifications")]):
-        if modification.get("Current"):
-            update_sample_data(
-                conn=conn,
-                trait_name=sample_data.get("trait_name"),
-                original_data=modification.get("Original"),
-                updated_data=modification.get("Current"),
-                csv_header=sample_data.get("Columns",
-                                           "Strain Name,Value,SE,Count"),
-                phenotype_id=int(sample_data.get("phenotype_id")))
+    with database_connection() as conn:
+        for modification in (
+                modifications := [d for d in
+                                  sample_data.get("Modifications")]):
+            if modification.get("Current"):
+                update_sample_data(
+                    conn=conn,
+                    trait_name=sample_data.get("trait_name"),
+                    original_data=modification.get("Original"),
+                    updated_data=modification.get("Current"),
+                    csv_header=sample_data.get("Columns",
+                                               "Strain Name,Value,SE,Count"),
+                    phenotype_id=int(sample_data.get("phenotype_id")))
 
     n_deletions = 0
-    for data in [d for d in sample_data.get("Deletions")]:
-        __deletions = delete_sample_data(
-            conn=conn,
-            trait_name=sample_data.get("trait_name"),
-            data=data,
-            csv_header=sample_data.get("Columns",
-                                       "Strain Name,Value,SE,Count"),
-            phenotype_id=int(sample_data.get("phenotype_id")))
-        if __deletions:
-            n_deletions += 1
-        # Remove any data that already exists from sample_data deletes
-        else:
-            sample_data.get("Deletions").remove(data)
-
-    n_insertions = 0
-    for data in [d for d in sample_data.get("Additions")]:
-        if insert_sample_data(
+    with database_connection() as conn:
+        for data in [d for d in sample_data.get("Deletions")]:
+            __deletions = delete_sample_data(
                 conn=conn,
                 trait_name=sample_data.get("trait_name"),
                 data=data,
                 csv_header=sample_data.get("Columns",
                                            "Strain Name,Value,SE,Count"),
-                phenotype_id=int(sample_data.get("phenotype_id"))):
-            n_insertions += 1
-        # Remove any data that already exists from sample_data inserts
-        else:
-            sample_data.get("Additions").remove(insertion)
+                phenotype_id=int(sample_data.get("phenotype_id")))
+            if __deletions:
+                n_deletions += 1
+            # Remove any data that already exists from sample_data deletes
+            else:
+                sample_data.get("Deletions").remove(data)
+
+    n_insertions = 0
+    with database_connection() as conn:
+        for data in [d for d in sample_data.get("Additions")]:
+            if insert_sample_data(
+                    conn=conn,
+                    trait_name=sample_data.get("trait_name"),
+                    data=data,
+                    csv_header=sample_data.get("Columns",
+                                               "Strain Name,Value,SE,Count"),
+                    phenotype_id=int(sample_data.get("phenotype_id"))):
+                n_insertions += 1
     if any([sample_data.get("Additions"),
             sample_data.get("Modifications"),
             sample_data.get("Deletions")]):
-        insert(conn,
-               table="metadata_audit",
-               data=MetadataAudit(
-                   dataset_id=sample_data.get("trait_name"),
-                   editor=sample_data.get("author"),
-                   json_data=json.dumps(sample_data)))
+        with database_connection() as conn:
+            insert(conn,
+                   table="metadata_audit",
+                   data=MetadataAudit(
+                       dataset_id=sample_data.get("trait_name"),
+                       editor=sample_data.get("author"),
+                       json_data=json.dumps(sample_data)))
         # Once data is approved, rename it!
         os.rename(os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
                   os.path.join(f"{TMPDIR}/sample-data/diffs",
                                f"{file_name}.approved"))
-        message = ""
         if n_deletions:
             flash(f"# Deletions: {n_deletions}", "success")
         if n_insertions:
@@ -535,6 +536,4 @@ def approve_data(resource_id:str, file_name: str):
                                f"{file_name}.rejected"))
         flash(("Automatically rejecting this file since no "
                "changes could be applied."), "warning")
-    conn.close()
     return redirect(url_for('metadata_edit.list_diffs'))
-
