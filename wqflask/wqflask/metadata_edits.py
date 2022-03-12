@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-import re
 
 from collections import namedtuple
 from itertools import groupby
@@ -25,10 +24,7 @@ from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
 
 from gn3.authentication import AdminRole
-from gn3.authentication import DataRole
 from gn3.authentication import get_highest_user_access_role
-from gn3.authentication import get_user_membership
-from gn3.commands import run_cmd
 from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.csvcmp import csv_diff
 from gn3.csvcmp import remove_insignificant_edits
