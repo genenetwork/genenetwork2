@@ -539,6 +539,6 @@ def approve_data(resource_id:str, file_name: str):
                                f"{file_name}.rejected"))
         flash(("Automatically rejecting this file since no "
                "changes could be applied."), "warning")
-
+    conn.close()
     return redirect(url_for('metadata_edit.list_diffs'))
 
