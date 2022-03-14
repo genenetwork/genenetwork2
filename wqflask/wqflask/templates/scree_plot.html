@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+
+<body>
+    <div id="scree_graph" style="width:700px;height:600px;"></div>
+</body>
+<script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
+<script>
+
+
+js_data = {{ js_data | safe }}
+
+let {x_vals,y_vals} = js_data["scree_plot_data"]
+
+let layout = {
+    title: {
+        text: "<b>Scree Plot</b>",
+        font: {
+            "size": 24,
+            "family": "Arial"
+        }
+    },
+
+    yaxis: {
+        // range: [-1, 100],
+        title: {
+            text: "Percent of total variance %",
+            font: {
+                "size": 18
+            }
+        }
+    },
+    xaxis: {
+        title: {
+            text: 'PCA Components',
+            font: {
+                "size": 18,
+                "color": ""
+            }
+        }
+    }
+}
+
+let data = [{
+    x: x_vals.slice(0,5),
+    y: y_vals.slice(0,5),
+    marker: {
+
+        color: 'rgb(17, 157, 255)',
+        size: 5,
+        line: {
+            color: 'rgb(255, 0, 0)',
+            width: 3
+        }
+    }
+
+}]
+
+
+
+let configs = (filename, format,modebar=true) => {
+
+    //  customize download icon
+    return {
+        displayModeBar: modebar, 
+        scrollZoom: false,
+        toImageButtonOptions: {
+            format, // can modify this to png, svg, jpeg, webp
+            filename,
+            height: 600,
+            width: 700,
+            scale: 1
+        }
+    }
+
+}
+
+
+
+let scree = document.getElementById('scree_graph');
+Plotly.newPlot(scree, data, layout, configs("scree_plot", "svg"));
+</script>
+
+</html>

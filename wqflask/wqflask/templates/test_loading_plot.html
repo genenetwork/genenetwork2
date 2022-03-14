@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+</head>
+<body>
+
+	<div id="loadings_plot"></div>
+
+</body>
+
+<script type="text/javascript">
+
+
+
+
+let  {traits}  = {{js_data|safe }}
+let {test_pca_loading}= {{js_data |safe}}
+let [loading_1,loading_2] = test_pca_loading.slice(0,2)
+
+
+let loading_data = loading_1.map((val,i)=> {
+  return  {
+    x: [0,val],
+    y: [0,loading_2[i]],
+    mode: 'lines+markers+text',
+    text : ['', traits[i]],
+    textposition: 'top',
+    name : traits[i],
+    marker: {
+    color: 'rgb(0, 0, 255)',
+    size: 8,
+  },
+    line: {
+    color: 'rgb(255, 0, 0)',
+    width: 1.3
+  }
+  }
+});
+
+let loading_layout = {
+
+
+ title : {
+   text :  "<b>Factor Loadings Plot</b>",
+   font : {
+    "size" :24,
+    "family":"Arial"
+   }
+ }, 
+  height: 600,
+  width: 900,
+  showlegend: false,
+  xaxis: {
+    title: 'Factor (1)',
+    showgrid: true,
+    zeroline: false,
+    showline : true 
+  },
+  yaxis: {
+    title: 'Factor (2)',
+    showline: true,
+    zeroline:false,
+    showgrid:true
+  },
+};
+
+Plotly.newPlot('loadings_plot', data = loading_data,layout = loading_layout);
+
+</script>
+</html>
