@@ -28,6 +28,8 @@ from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
 from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.csvcmp import csv_diff
+from gn3.csvcmp import extract_invalid_csv_headers
+from gn3.csvcmp import get_allowable_sampledata_headers
 from gn3.csvcmp import remove_insignificant_edits
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
@@ -40,10 +42,10 @@ from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
-from gn3.db.sample_data import get_trait_csv_sample_data
-from gn3.db.sample_data import update_sample_data
 from gn3.db.sample_data import delete_sample_data
+from gn3.db.sample_data import get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
+from gn3.db.sample_data import update_sample_data
 
 
 metadata_edit = Blueprint('metadata_edit', __name__)
@@ -187,6 +189,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             publication=_d.get("publication"),
             dataset_id=dataset_id,
             resource_id=request.args.get("resource-id"),
+            headers=get_allowable_sampledata_headers(conn),
             version=os.environ.get("GN_VERSION"),
         )
 
@@ -239,6 +242,18 @@ def update_phenotype(dataset_id: str, name: str):
                     delta_csv=(delta_csv := file_.read().decode()),
                     tmp_dir=TMPDIR),
                 epsilon=0.001)
+            headers = get_allowable_sampledata_headers(conn)
+            invalid_headers = extract_invalid_csv_headers(
+                    allowed_headers=headers,
+                    csv_text=delta_csv)
+            if invalid_headers:
+                flash("You have invalid headers: "
+                      f"""{', '.join(invalid_headers)}.  Valid headers """
+                      f"""are: {', '.join(headers)}""",
+                  "warning")
+                return redirect(
+                    f"/datasets/{dataset_id}/traits/{name}"
+                    f"?resource-id={request.args.get('resource-id')}")
         # Edge case where the csv file has not been edited!
         if not any(diff_data.values()):
             flash("You have not modified the csv file you downloaded!",

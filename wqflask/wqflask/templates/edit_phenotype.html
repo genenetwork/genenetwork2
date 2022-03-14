@@ -224,6 +224,11 @@
     <div class="form-group">
         <input type = "file" class="col-sm-4 control-label" name = "file" />
     </div>
+    <div class="col-xs-6">
+        <p>
+            Note: Current allowable sample headers are: {{ ', '.join(headers) }}
+        </p>
+    </div>
     <div class="controls center-block" style="width: max-content;">
         <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
         <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
