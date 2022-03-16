@@ -3,9 +3,6 @@ from flask import Flask, g, url_for
 import string
 from PIL import (Image)
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 from base import species
 from base import webqtlConfig
 
