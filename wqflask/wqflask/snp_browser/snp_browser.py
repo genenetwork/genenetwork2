@@ -657,13 +657,10 @@ class SnpBrowser:
         x_scale = plot_width / (self.end_mb - self.start_mb)
 
         # draw clickable image map at some point
-
         n_click = 80.0
         click_step = plot_width / n_click
         click_mb_step = (self.end_mb - self.start_mb) / n_click
 
-        # for i in range(n_click):
-        #    href = url_for('snp_browser', first_run="false", chosen_strains_mouse=self.chosen_strains_mouse, chosen_strains_rat=self.chosen_strains_rat, variant=self.variant_type, species=self.species_name, gene_name=self.gene_name, chr=self.chr, start_mb=self.start_mb, end_mb=self.end_mb, limit_strains=self.limit_strains, domain=self.domain, function=self.function, criteria=self.criteria, score=self.score, diff_alleles=self.diff_alleles)
 
 
 def get_browser_sample_lists(species_id=1):
