@@ -52,28 +52,28 @@ class TestCorrelations(unittest.TestCase):
 
         self.assertEqual(corr_params_results, expected_results)
 
-    @mock.patch("wqflask.api.correlation.g")
+    @mock.patch("wqflask.api.correlation.database_connection")
     def test_convert_to_mouse_gene_id(self, mock_db):
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
+        with conn.cursor() as cursor:
+            cursor.fetchone.side_effect = [
+                ("MG-1",), ("MG-2",)]
 
-        results = convert_to_mouse_gene_id(species="Other", gene_id="")
-        self.assertEqual(results, None)
+            self.assertEqual(convert_to_mouse_gene_id(
+                species="Other", gene_id=""), None)
+            self.assertEqual(convert_to_mouse_gene_id(
+                species="mouse", gene_id="MG-4"), "MG-4")
+            self.assertEqual(convert_to_mouse_gene_id(
+                species="rat", gene_id="R1"), "MG-1")
+            self.assertEqual(convert_to_mouse_gene_id(
+                species="human", gene_id="H1"), "MG-2")
 
-        rat_species_results = convert_to_mouse_gene_id(
-            species="rat", gene_id="GH1")
-
-        mock_db.db.execute.return_value.fetchone.side_effect = [
-            AttributeSetter({"mouse": "MG-1"}), AttributeSetter({"mouse": "MG-2"})]
-
-        self.assertEqual(convert_to_mouse_gene_id(
-            species="mouse", gene_id="MG-4"), "MG-4")
-        self.assertEqual(convert_to_mouse_gene_id(
-            species="rat", gene_id="R1"), "MG-1")
-        self.assertEqual(convert_to_mouse_gene_id(
-            species="human", gene_id="H1"), "MG-2")
-
-    @mock.patch("wqflask.api.correlation.g")
+    @mock.patch("wqflask.api.correlation.database_connection")
     @mock.patch("wqflask.api.correlation.convert_to_mouse_gene_id")
-    def test_do_literature_correlation_for_all_traits(self, mock_convert_to_mouse_geneid, mock_db):
+    def test_do_literature_correlation_for_all_traits(
+            self,
+            mock_convert_to_mouse_geneid, mock_db):
         mock_convert_to_mouse_geneid.side_effect = [
             "MG-1", "MG-2;", "MG-3", "MG-4"]
 
@@ -83,19 +83,22 @@ class TestCorrelations(unittest.TestCase):
             "TT-3": "GH-3"
 
         }
-        mock_db.db.execute.return_value.fetchone.side_effect = [AttributeSetter(
-            {"value": "V1"}), AttributeSetter({"value": "V2"}), AttributeSetter({"value": "V3"})]
-
-        this_trait = AttributeSetter({"geneid": "GH-1"})
-
-        target_dataset = AttributeSetter(
-            {"group": AttributeSetter({"species": "rat"})})
-        results = do_literature_correlation_for_all_traits(
-            this_trait=this_trait, target_dataset=target_dataset, trait_geneid_dict=trait_geneid_dict, corr_params={})
-
-        expected_results = {'TT-1': ['GH-1', 0],
-                            'TT-2': ['GH-2', 'V1'], 'TT-3': ['GH-3', 'V2']}
-        self.assertEqual(results, expected_results)
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
+        with conn.cursor() as cursor:
+            cursor.fetchone.side_effect = [
+                AttributeSetter({"value": "V1"}),
+                AttributeSetter({"value": "V2"}),
+                AttributeSetter({"value": "V3"})]
+            this_trait = AttributeSetter({"geneid": "GH-1"})
+            target_dataset = AttributeSetter(
+                {"group": AttributeSetter({"species": "rat"})})
+            results = do_literature_correlation_for_all_traits(
+                this_trait=this_trait, target_dataset=target_dataset,
+                trait_geneid_dict=trait_geneid_dict, corr_params={})
+            expected_results = {'TT-1': ['GH-1', 0],
+                                'TT-2': ['GH-2', 'V1'], 'TT-3': ['GH-3', 'V2']}
+            self.assertEqual(results, expected_results)
 
     @mock.patch("wqflask.api.correlation.corr_result_helpers.normalize_values")
     def test_get_sample_r_and_p_values(self, mock_normalize):

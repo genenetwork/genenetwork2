@@ -3,11 +3,9 @@ import scipy
 
 from base import data_set
 from base.trait import create_trait, retrieve_sample_data
-from flask import g
 from utility import corr_result_helpers
-from utility.db_tools import escape
 from wqflask.correlation import correlation_functions
-
+from wqflask.database import database_connection
 
 def do_correlation(start_vars):
     assert('db' in start_vars)
@@ -125,22 +123,24 @@ def do_literature_correlation_for_all_traits(this_trait, target_dataset, trait_g
             target_dataset.group.species.lower(), gene_id)
 
         if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
-            result = g.db.execute(
-                """SELECT value
-                    FROM LCorrRamin3
-                    WHERE GeneId1='%s' and
-                            GeneId2='%s'
-                """ % (escape(mouse_gene_id), escape(input_trait_mouse_gene_id))
-            ).fetchone()
-            if not result:
-                result = g.db.execute("""SELECT value
-                    FROM LCorrRamin3
-                    WHERE GeneId2='%s' and
-                            GeneId1='%s'
-                """ % (escape(mouse_gene_id), escape(input_trait_mouse_gene_id))
-                ).fetchone()
+            result = ""
+            with database_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        ("SELECT value FROM LCorrRamin3 "
+                         "WHERE GeneId1=%s AND GeneId2=%s"),
+                        (mouse_gene_id,
+                         input_trait_mouse_gene_id))
+                    result = cursor.fetchone()
+                    if not result:
+                        cursor.execute(
+                            ("SELECT value FROM LCorrRamin3 "
+                             "WHERE GeneId2=%s AND GeneId1=%s"),
+                            (mouse_gene_id,
+                             input_trait_mouse_gene_id))
+                        result = cursor.fetchone()
             if result:
-                lit_corr = result.value
+                lit_corr = result[0]
                 lit_corr_data[trait] = [gene_id, lit_corr]
             else:
                 lit_corr_data[trait] = [gene_id, 0]
@@ -195,30 +195,24 @@ def convert_to_mouse_gene_id(species=None, gene_id=None):
         return None
 
     mouse_gene_id = None
-
-    if species == 'mouse':
-        mouse_gene_id = gene_id
-
-    elif species == 'rat':
-
-        query = """SELECT mouse
-                FROM GeneIDXRef
-                WHERE rat='%s'""" % escape(gene_id)
-
-        result = g.db.execute(query).fetchone()
-        if result != None:
-            mouse_gene_id = result.mouse
-
-    elif species == 'human':
-
-        query = """SELECT mouse
-                FROM GeneIDXRef
-                WHERE human='%s'""" % escape(gene_id)
-
-        result = g.db.execute(query).fetchone()
-        if result != None:
-            mouse_gene_id = result.mouse
-
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            if species == 'mouse':
+                mouse_gene_id = gene_id
+            elif species == 'rat':
+                cursor.execute(
+                    ("SELECT mouse FROM GeneIDXRef "
+                     "WHERE rat=%s"), gene_id)
+                result = cursor.fetchone()
+                if result:
+                    mouse_gene_id = result[0]
+            elif species == 'human':
+                cursor.execute(
+                    "SELECT mouse FROM GeneIDXRef "
+                    "WHERE human=%s", gene_id)
+                result = cursor.fetchone()
+                if result:
+                    mouse_gene_id = result[0]
     return mouse_gene_id
 
 
