@@ -148,7 +148,7 @@ class SearchResultPage:
                 trait_dict['name'] = trait_dict['display_name'] = str(result[0])
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
                 permissions = check_resource_availability(self.dataset, trait_dict['display_name'])
-                if "view" not in permissions['data']:
+                if not any(x in permissions['data'] for x in ["view", "edit"]):
                     continue
 
                 if result[10]:
