@@ -59,6 +59,20 @@ asserts sprinkled in the code base.
 Right now, the only tests running in CI are unittests. Please make
 sure the existing unittests are green when submitting a PR.
 
+From the root directory of the repository, you can run the tests with something
+like:
+
+```sh
+env GN_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
+	SQL_URI=<uri-to-override-the-default> \
+	./bin/genenetwork2 ./etc/default_settings.py \
+	-m unittest -v
+```
+
+In the case where you use the default `etc/default_settings.py` configuration file, you can override any setting as demonstrated with the `SQL_URI` setting in the command above.
+
+In order to avoid having to set up a whole host of settings every time with the `env` command, you could copy the `etc/default_settings.py` file to a new location (outside the repository is best), and pass that to `bin/genenetwork2` instead.
+
 See
 [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/doc/docker-container.org)
 for more details.
