@@ -22,7 +22,10 @@ def read_from_pyfile(pyfile, setting):
 def sql_uri():
     """Read the SQL_URI from the environment or settings file."""
     return os.environ.get(
-        "SQL_URI", read_from_pyfile(os.environ.get("GN2_SETTINGS"), "SQL_URI"))
+        "SQL_URI", read_from_pyfile(
+            os.environ.get(
+                "GN2_SETTINGS", os.path.abspath("../etc/default_settings.py")),
+            "SQL_URI"))
 
 engine = create_engine(sql_uri(), encoding="latin1")
 
