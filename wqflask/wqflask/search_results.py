@@ -203,8 +203,8 @@ class SearchResultPage:
             for i, trait in enumerate(trait_list):
                 for key in trait.keys():
                     if key == "authors":
-                        authors_string = ",".join(str(trait[key]).split(",")[:6]) + ", et al."
-                        self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+                        authors_string = ",".join(str(trait[key]).split(",")[:2]) + ", et al."
+                        self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(authors_string))
                     else:
                         self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
