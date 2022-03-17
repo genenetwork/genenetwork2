@@ -87,9 +87,7 @@ class TestCorrelations(unittest.TestCase):
         mock_db.return_value.__enter__.return_value = conn
         with conn.cursor() as cursor:
             cursor.fetchone.side_effect = [
-                AttributeSetter({"value": "V1"}),
-                AttributeSetter({"value": "V2"}),
-                AttributeSetter({"value": "V3"})]
+                ("V1", ), ("V2", ), ("V3", )]
             this_trait = AttributeSetter({"geneid": "GH-1"})
             target_dataset = AttributeSetter(
                 {"group": AttributeSetter({"species": "rat"})})
