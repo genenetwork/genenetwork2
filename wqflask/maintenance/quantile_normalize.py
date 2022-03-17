@@ -100,7 +100,7 @@ def set_data(cursor, dataset_name):
 
 if __name__ == '__main__':
     with database_connection as conn:
-        with conn.cursor as cursor:
+        with conn.cursor() as cursor:
             success, _ = bulk(es, set_data(cursor, sys.argv[1]))
 
             response = es.search(
