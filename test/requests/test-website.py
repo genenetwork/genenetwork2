@@ -14,11 +14,6 @@ import link_checker
 import sys
 
 # Imports for integration tests
-from test_login_local import TestLoginLocal
-from test_login_orcid import TestLoginOrcid
-from test_login_github import TestLoginGithub
-from test_registration import TestRegistration
-from test_forgot_password import TestForgotPassword
 from unittest import TestSuite, TextTestRunner, TestLoader
 
 print("Mechanical Rob firing up...")
