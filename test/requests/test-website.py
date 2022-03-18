@@ -14,7 +14,6 @@ import link_checker
 import sys
 
 # Imports for integration tests
-from wqflask import app
 from test_login_local import TestLoginLocal
 from test_login_orcid import TestLoginOrcid
 from test_login_github import TestLoginGithub
