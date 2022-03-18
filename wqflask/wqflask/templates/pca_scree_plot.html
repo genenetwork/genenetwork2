@@ -9,7 +9,7 @@
 
 <body>
     <div>
-        pca scree plot
+        
         <div id="scree_plot" style="width:700px;height:600px;"></div>
     </div>
 </body>
@@ -23,7 +23,7 @@ let { x_coord, y_coord } = js_data["scree_data"]
 const layout = {
 
     title: {
-        text: "<b>Scree Plot</b>",
+        text: "<b>Pca Scree Plot</b>",
         font: {
             "size": 24,
             "family": "Arial",
@@ -77,8 +77,8 @@ let custom_configs = (filename, download_format, modebar = true) => {
         displayModeBar: modebar,
         scrollZoom: false,
         toImageButtonOptions: {
-            download_format,
             filename,
+            format:download_format,
             height: 600,
             width: 700,
             scale: 1
