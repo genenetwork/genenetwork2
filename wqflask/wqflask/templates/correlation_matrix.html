@@ -71,6 +71,12 @@
   <button class="btn btn-default" id="export">Download <span class="glyphicon glyphicon-download"></span></button>
 </form>
 <br>
+
+<div style="margin:20x;">
+  {% include 'pca_scree_plot.html' %}
+  
+</div>
+
 {% if pca_works == "True" %}
 <h2>PCA Traits</h2>
 <div style="margin-bottom: 20px; overflow:hidden; width: 450px;">

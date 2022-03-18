@@ -15,10 +15,10 @@
 </body>
 <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
 <script type="text/javascript">
-js_data = { { js_data | safe } }
-
+js_data = {{ js_data | safe }}
 
 let { x_coord, y_coord } = js_data["scree_data"]
+
 
 const layout = {
 
@@ -87,7 +87,7 @@ let custom_configs = (filename, download_format, modebar = true) => {
 
 }
 
-Plotly.newPlot(document.getElementById(), data, layout,
+Plotly.newPlot(document.getElementById("scree_plot"), data, layout,
 	custom_configs(file_name = "scree_plot", download_format = "svg"));
 </script>
 
