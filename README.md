@@ -19,6 +19,38 @@ deploy GN2 and dependencies as a self contained unit on any machine.
 The database can be run separately as well as the source tree (for
 developers).  See the [installation docs](doc/README.org).
 
+## Configuration
+
+GeneNetwork2 comes with a [default configuration file](./etc/default_settings.py)
+which can be used as a starting point.
+
+The recommended way to deal with the configurations is to **copy** this default configuration file to a location outside of the repository, say,
+
+```sh
+.../genenetwork2$ cp etc/default_settings.py "${HOME}/configurations/gn2.py"
+```
+
+then change the appropriate values in the new file. You can then pass in the new
+file as the configuration file when launching the application,
+
+```sh
+.../genenetwork2$ bin/genenetwork "${HOME}/configurations/gn2.py" <command-to-run>
+```
+
+The other option is to override the configurations in `etc/default_settings.py`
+by setting the configuration you want to override as an environment variable e.g.
+to override the `SQL_URI` value, you could do something like:
+
+```sh
+.../genenetwork2$ env SQL_URI="mysql://<user>:<passwd>@<host>:<port>/<db_name>" \
+	bin/genenetwork "${HOME}/configurations/gn2.py" <command-to-run>
+```
+
+replacing the placeholders in the angle brackets with appropriate values.
+
+For a detailed breakdown of the configuration variables and their use, see the
+[configuration documentation](doc/configurations.org)
+
 ## Run
 
 Once having installed GN2 it can be run through a browser
