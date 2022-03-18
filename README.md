@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2) [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
 [![GeneNetwork2 CI
-badge](https://penguin2.genenetwork.org/badge/genenetwork2.svg)](https://penguin2.genenetwork.org/jobs/genenetwork2)
+badge](https://ci.genenetwork.org/badge/genenetwork2.svg)](https://ci.genenetwork.org/jobs/genenetwork2)
 
 
 # GeneNetwork
