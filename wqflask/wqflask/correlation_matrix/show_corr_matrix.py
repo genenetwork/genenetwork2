@@ -37,6 +37,7 @@ from gn3.computations.pca import compute_pca
 from gn3.computations.pca import process_factor_loadings_tdata
 from gn3.computations.pca import generate_pca_temp_traits
 from gn3.computations.pca import cache_pca_dataset
+from gn3.computations.pca import generate_scree_plot_data
 
 
 class CorrelationMatrix:
@@ -169,6 +170,7 @@ class CorrelationMatrix:
                 pca = self.calculate_pca()
                 self.loadings_array = process_factor_loadings_tdata(
                     factor_loadings=self.loadings, traits_num=len(self.trait_list))
+
             else:
                 self.pca_works = "False"
         except:
@@ -176,6 +178,7 @@ class CorrelationMatrix:
 
         self.js_data = dict(traits=[trait.name for trait in self.traits],
                             groups=groups,
+                            scree_data = self.scree_data,
                             cols=list(range(len(self.traits))),
                             rows=list(range(len(self.traits))),
                             samples=self.all_sample_list,
@@ -187,6 +190,7 @@ class CorrelationMatrix:
 
         self.loadings = pca["components"]
         self.scores = pca["scores"]
+        self.pca_obj = pca["pca"]
 
         this_group_name = self.trait_list[0][1].group.name
         temp_dataset = create_dataset(
@@ -205,6 +209,13 @@ class CorrelationMatrix:
 
         self.pca_trait_ids = list(pca_temp_traits.keys())
 
+        x_coord, y_coord = generate_scree_plot_data(
+            list(self.pca_obj.explained_variance_ratio_))
+
+        self.scree_data = {
+            "x_coord": x_coord,
+            "y_coord": y_coord
+        }
         return pca
 
 
