@@ -35,32 +35,11 @@ def print_help(args_obj, parser):
 def dummy(args_obj, parser):
     print("Not implemented yet.")
 
-def integration_tests(args_obj, parser):
-    gn2_url = args_obj.host
-    run_integration_tests(gn2_url, es_url)
 
 def initTest(klass, gn2_url, es_url):
     loader = TestLoader()
     methodNames = loader.getTestCaseNames(klass)
     return [klass(mname, gn2_url, es_url) for mname in methodNames]
-
-def integration_suite(gn2_url, es_url):
-    test_cases = [
-        TestRegistration
-        , TestLoginLocal
-        , TestLoginGithub
-        , TestLoginOrcid
-        , TestForgotPassword
-    ]
-    the_suite = TestSuite()
-    for case in test_cases:
-        the_suite.addTests(initTest(case, gn2_url, es_url))
-    return the_suite
-
-def run_integration_tests(gn2_url, es_url):
-    runner = TextTestRunner()
-    runner.run(integration_suite(gn2_url, es_url))
-
 
 desc = """
 This is Mechanical-Rob - an automated web server tester for
@@ -95,9 +74,6 @@ parser.add_argument("-m", "--mapping", dest="accumulate"
                     , action="store_const", const=check_mapping, default=print_help
                     , help="Checks for mapping.")
 
-parser.add_argument("-i", "--integration-tests", dest="accumulate"
-                    , action="store_const", const=integration_tests, default=print_help
-                    , help="Runs integration tests.")
 
 args = parser.parse_args()
 
