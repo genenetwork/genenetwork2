@@ -98,7 +98,7 @@ like:
 env GN_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
 	SQL_URI=<uri-to-override-the-default> \
 	./bin/genenetwork2 ./etc/default_settings.py \
-	-m unittest -v
+	-c -m unittest -v
 ```
 
 In the case where you use the default `etc/default_settings.py` configuration file, you can override any setting as demonstrated with the `SQL_URI` setting in the command above.
