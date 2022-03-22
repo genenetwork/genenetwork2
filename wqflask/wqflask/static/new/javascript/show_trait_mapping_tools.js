@@ -158,6 +158,7 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
       var form_data, url;
       url = "/loading";
       $('input[name=method]').val("rqtl_geno");
+      $('input[name=pair_scan]').val("false");
       $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
       $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
       $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
