@@ -32,7 +32,7 @@ class TestRqtlMapping(unittest.TestCase):
                                                     "results" : []}
 
         results = run_rqtl(trait_name="the_trait", vals=[], samples=[],
-        dataset=dataset, mapping_scale="cM", model="normal", method="hk",
+        dataset=dataset, pair_scan=False, mapping_scale="cM", model="normal", method="hk",
         num_perm=5, perm_strata_list=[], do_control="false", control_marker="",
         manhattan_plot=True, cofactors="")
 

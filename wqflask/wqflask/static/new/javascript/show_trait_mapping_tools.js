@@ -140,12 +140,17 @@ $('input[name=display_all]').change((function(_this) {
   };
 })(this));
 
-//ZS: This is a list of inputs to be passed to the loading page, since not all inputs on the trait page are relevant to mapping
-var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
-                          'sample_vals', 'vals_hash', 'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars',
-                          'num_bootstrap', 'bootCheck', 'bootstrap_results', 'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'control_marker',
-                          'do_control', 'genofile', 'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend',
-                          'haplotypeAnalystCheck', 'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'primary_samples']
+// This is a list of inputs to be passed to the loading page, since not all inputs on the trait page are relevant to mapping
+var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method',
+                          'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale',
+                          'sample_vals', 'vals_hash', 'score_type', 'suggestive', 'significant',
+                          'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars',
+                          'num_bootstrap', 'bootCheck', 'bootstrap_results', 'LRSCheck', 'covariates',
+                          'maf', 'use_loco', 'manhattan_plot', 'control_marker', 'do_control',
+                          'genofile', 'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax',
+                          'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
+                          'mapmethod_rqtl', 'mapmodel_rqtl', 'temp_trait', 'group', 'species',
+                          'reaper_version', 'primary_samples']
 
 $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
   return function() {
@@ -153,14 +158,41 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
       var form_data, url;
       url = "/loading";
       $('input[name=method]').val("rqtl_geno");
+      $('input[name=pair_scan]').val("false");
       $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
       $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
       $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
+      $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_geno').val());
+      $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_geno').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
       $('input[name=categorical_vars]').val(js_data.categorical_vars)
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
+      $('input[name=tool_used]').val("Mapping");
+      $('input[name=form_url]').val("/run_mapping");
+      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
+      return submit_special(url);
+    } else {
+      return true
+    }
+  };
+})(this));
+
+$(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
+  return function() {
+    if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_pair_compute"){
+      var form_data, url;
+      url = "/loading";
+      $('input[name=method]').val("rqtl_geno");
+      $('input[name=pair_scan]').val("true");
+      $('input[name=genofile]').val($('#genofile_rqtl_pair').val());
+      $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_pair').val());
+      $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_pair').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_rqtl_pair]').val());
+      $('input[name=categorical_vars]').val(js_data.categorical_vars)
+      $('input[name=control_marker]').val($('input[name=control_rqtl_pair]').val());
+      $('input[name=do_control]').val($('input[name=do_control_rqtl_pair]:checked').val());
       $('input[name=tool_used]').val("Mapping");
       $('input[name=form_url]').val("/run_mapping");
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
@@ -238,25 +270,25 @@ $("#use_composite_choice").change(composite_mapping_fields);
 
 $("#mapping_method_choice").change(mapping_method_fields);
 
-$("#mapmodel_rqtl_geno").change(function() {
+$("#mapmodel_rqtl_geno,#mapmodel_rqtl_pair").change(function() {
   if ($(this).val() == "np"){
     $("#mapmethod_rqtl_geno").attr('disabled', 'disabled');
     $("#mapmethod_rqtl_geno").css('background-color', '#CCC');
-    $("#missing_geno").attr('disabled', 'disabled');
-    $("#missing_geno").css('background-color', '#CCC');
+    $("#missing_geno,#missing_geno_pair").attr('disabled', 'disabled');
+    $("#missing_geno,#missing_geno_pair").css('background-color', '#CCC');
   } else {
     $("#mapmethod_rqtl_geno").removeAttr('disabled');
     $("#mapmethod_rqtl_geno").css('background-color', '#FFF');
-    $("#missing_geno").removeAttr('disabled');
-    $("#missing_geno").css('background-color', '#FFF');
+    $("#missing_geno,#missing_geno_pair").removeAttr('disabled');
+    $("#missing_geno,#missing_geno_pair").css('background-color', '#FFF');
   }
 });
 
-$("#mapmethod_rqtl_geno").change(function() {
+$("#mapmethod_rqtl_geno,#mapmethod_rqtl_pair").change(function() {
   if ($(this).val() == "mr"){
-    $("#missing_geno_div").css('display', 'block');
+    $("#missing_geno_div,#missing_geno_pair_div").css('display', 'block');
   } else {
-    $("#missing_geno_div").css('display', 'none');
+    $("#missing_geno_div,#missing_geno_pair_div").css('display', 'none');
   }
 });
 

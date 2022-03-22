@@ -808,8 +808,8 @@ def mapping_results_page():
         'showGenes',
         'viewLegend',
         'haplotypeAnalystCheck',
-        'mapmethod_rqtl_geno',
-        'mapmodel_rqtl_geno',
+        'mapmethod_rqtl',
+        'mapmodel_rqtl',
         'temp_trait',
         'n_samples',
         'transform'
@@ -846,23 +846,15 @@ def mapping_results_page():
                 rendered_template = render_template("mapping_error.html")
                 return rendered_template
 
-            template_vars.js_data = json.dumps(template_vars.js_data,
-                                               default=json_default_handler,
-                                               indent="   ")
+            if not template_vars.pair_scan:
+                template_vars.js_data = json.dumps(template_vars.js_data,
+                                                default=json_default_handler,
+                                                indent="   ")
 
             result = template_vars.__dict__
 
             if result['pair_scan']:
                 with Bench("Rendering template"):
-                    img_path = result['pair_scan_filename']
-                    logger.info("img_path:", img_path)
-                    initial_start_vars = request.form
-                    logger.info("initial_start_vars:", initial_start_vars)
-                    imgfile = open(TEMPDIR + img_path, 'rb')
-                    imgdata = imgfile.read()
-                    imgB64 = base64.b64encode(imgdata)
-                    bytesarray = array.array('B', imgB64)
-                    result['pair_scan_array'] = bytesarray
                     rendered_template = render_template(
                         "pair_scan_results.html", **result)
             else:

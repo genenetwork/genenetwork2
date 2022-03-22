@@ -20,7 +20,8 @@ from utility.tools import locate, GN3_LOCAL_URL
 import utility.logger
 logger = utility.logger.getLogger(__name__)
 
-def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
+
+def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
@@ -38,6 +39,9 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
         "scale": mapping_scale
     }
 
+    if pair_scan:
+        post_data["pairscan"] = True
+
     if cofactors:
         covarstruct_file = write_covarstruct_file(cofactors)
         post_data["covarstruct"] = covarstruct_file
@@ -45,7 +49,7 @@ def run_rqtl(trait_name, vals, samples, dataset, mapping_scale, model, method, n
     if do_control == "true" and control_marker:
         post_data["control"] = control_marker
 
-    if not manhattan_plot:
+    if not manhattan_plot and not pair_scan:
         post_data["interval"] = True
     if cofactors:
         post_data["addcovar"] = True

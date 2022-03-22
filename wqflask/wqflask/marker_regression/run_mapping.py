@@ -108,6 +108,7 @@ class RunMapping:
             self.mapping_results_path = "{}{}.csv".format(
                 webqtlConfig.GENERATED_IMAGE_DIR, mapping_results_filename)
 
+        self.pair_scan = False
         self.manhattan_plot = False
         if 'manhattan_plot' in start_vars:
             if start_vars['manhattan_plot'].lower() != "false":
@@ -125,8 +126,6 @@ class RunMapping:
             self.use_loco = None
         self.suggestive = ""
         self.significant = ""
-        # Initializing this since it is checked in views to determine which template to use
-        self.pair_scan = False
         if 'transform' in start_vars:
             self.transform = start_vars['transform']
         else:
@@ -233,18 +232,19 @@ class RunMapping:
             self.score_type = "-logP"
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            if 'mapmethod_rqtl_geno' in start_vars:
-                self.method = start_vars['mapmethod_rqtl_geno']
+            if 'mapmethod_rqtl' in start_vars:
+                self.method = start_vars['mapmethod_rqtl']
             else:
                 self.method = "em"
-            self.model = start_vars['mapmodel_rqtl_geno']
-            # if start_vars['pair_scan'] == "true":
-            #    self.pair_scan = True
+            self.model = start_vars['mapmodel_rqtl']
+            self.pair_scan = False
+            if start_vars['pair_scan'] == "true":
+               self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
-                    self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
+                    self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
             else:
-                results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.mapping_scale, self.model, self.method,
+                results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method,
                                                      self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars:  # ZS: Check if first time page loaded, so it can default to ON
@@ -311,33 +311,8 @@ class RunMapping:
             self.no_results = True
         else:
             if self.pair_scan == True:
-                self.qtl_results = []
-                highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
-                for marker in results:
-                    if marker['chr1'] > 0 or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                        if marker['chr1'] > highest_chr or marker['chr1'] == "X" or marker['chr1'] == "X/Y":
-                            highest_chr = marker['chr1']
-                        if 'lod_score' in list(marker.keys()):
-                            self.qtl_results.append(marker)
-
-                self.trimmed_markers = results
-
-                for qtl in enumerate(self.qtl_results):
-                    self.json_data['chr1'].append(str(qtl['chr1']))
-                    self.json_data['chr2'].append(str(qtl['chr2']))
-                    self.json_data['Mb'].append(qtl['Mb'])
-                    self.json_data['markernames'].append(qtl['name'])
-
-                self.js_data = dict(
-                    json_data=self.json_data,
-                    this_trait=self.this_trait.name,
-                    data_set=self.dataset.name,
-                    maf=self.maf,
-                    manhattan_plot=self.manhattan_plot,
-                    mapping_scale=self.mapping_scale,
-                    qtl_results=self.qtl_results
-                )
-
+                self.figure_data = results[0]
+                self.table_data = results[1]
             else:
                 self.qtl_results = []
                 self.results_for_browser = []

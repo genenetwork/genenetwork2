@@ -114,7 +114,7 @@ class TestGemmaMapping(unittest.TestCase):
         create_trait.side_effect = create_trait_side_effect
 
         group = MockGroup({"name": "group_X", "samplelist": samplelist})
-        this_dataset = AttributeSetter({"group": group, "name": "A"})
+        this_dataset = AttributeSetter({"group": group, "name": "dataset1_name"})
         flat_files.return_value = "Home/Genenetwork"
 
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
@@ -134,7 +134,7 @@ class TestGemmaMapping(unittest.TestCase):
 
             flat_files.assert_called_once_with('mapping')
             mock_open.assert_called_once_with(
-                'Home/Genenetwork/COVAR_anFZ_LfZYV0Ulywo+7tRCw.txt', 'w')
+                'Home/Genenetwork/COVAR_npKxIOnq3azWdgYixtd9IQ.txt', 'w')
             filehandler = mock_open()
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])

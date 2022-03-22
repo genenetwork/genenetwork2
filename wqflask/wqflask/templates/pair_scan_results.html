@@ -1,70 +1,114 @@
 {% extends "base.html" %}
 {% block title %}Pair Scan{% endblock %}
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/panelutil.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/d3panels.min.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/pair_scan.css" />
 {% endblock %}
 
 {% block content %} <!-- Start of body -->
 
-    {{ header("Mapping",
-        '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
+{{ header("Mapping",
+    '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
-    <div class="container">
-        <div>
-            <h2>
-                Pair Scan
-            </h2>
-        </div>
-        <div id="chart_container">
-            <div class="pair_scan_figure" id="pair_scan_figure">
-                <a href="/tmp/{{ pair_scan_filename }}">
-                    <img alt="Embedded Image" src="data:image/png;base64,
-                    {% for elem in pair_scan_array -%}
-                    {% print("%c"|format(elem)) %}
-                    {%- endfor %}
-                    " /></a>
-            </div>
-        </div>
-        <div>
-            <h2>
-                Results
-            </h2>
-            <table cellpadding="0" cellspacing="0" border="0" id="pair_scan_results" class="table table-hover table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <td>Index</td>
-                        <td>Locus</td>
-                        <td>Chr 1</td>
-                        <td>Mb</td>
-                        <td>Chr 2</td>
-                   </tr>
-                </thead>
-                <tbody>
-                    {% for marker in trimmed_markers %}
-                        <tr>
-                            <td>{{loop.index}}</td>
-                            <td>{{marker.name}}</td>
-                            <td>{{marker.chr1}}</td>
-                            <td>{{marker.Mb}}</td>
-                            <td>{{marker.chr2}}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<div id="main_div" class="container">
+    <div>
+        <h2>
+            Pair Scan
+        </h2>
     </div>
+    <div class="qtlcharts" id="chart_container">
+        <div id="pairscan_chart"></div>
+    </div>
+    <div class="pairscan-container">
+        <h2>
+            Results
+        </h2>
+        <table cellpadding="0" cellspacing="0" border="0" id="pair_scan_results" class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th colspan="3">Interval 1</th>
+                    <th rowspan="3">LOD</th>
+                    <th colspan="3">Interval 2</th>
+                </tr>
+                <tr>
+                    <th rowspan="2">Position</th>
+                    <th colspan="2">Flanking Markers</th>
+                    <th rowspan="2">Position</th>
+                    <th colspan="2">Flanking Markers</th>
+                </tr>
+                <tr>
+                    <th>Proximal</th>
+                    <th>Distal</th>
+                    <th>Proximal</th>
+                    <th>Distal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table_data %}
+                <tr>
+                    <td>{{ row.pos1 }}</td>
+                    <td>{{ row.proximal1 }}</td>
+                    <td>{{ row.distal1 }}</td>
+                    <td>{{ row.lod }}</td>
+                    <td>{{ row.pos2 }}</td>
+                    <td>{{ row.proximal2 }}</td>
+                    <td>{{ row.distal2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block js %}  
 
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='d3js/d3.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='d3-tip/d3-tip.js') }}"></script>
-     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
+<script>
+    var figure_data = {{ figure_data | safe }}
+</script>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="/static/new/javascript/d3panels.min.js"></script>
+
+<script type="text/javascript">
+
+var data, mychart;
+
+mychart = d3panels.lod2dheatmap({
+    equalCells: true
+});
+
+mychart(d3.select('div#pairscan_chart'), figure_data);
+
+table_conf = {
+                "columns":[
+                    { "width": "165px" },
+                    { "width": "130px" },
+                    { "width": "130px" },
+                    { "width": "50px" },
+                    { "width": "165px" },
+                    { "width": "130px" },
+                    { "width": "130px" },
+                ],
+                "sDom": "itir",
+                "autoWidth": false,
+                "bSortClasses": false,
+                "order": [[3, "desc" ]],
+                "scrollY": "100vh",
+                "scroller":  true,
+                "scrollCollapse": true
+            }
+
+trait_table = $('#pair_scan_results').DataTable(table_conf);
+
+</script>
 
 {% endblock %}
