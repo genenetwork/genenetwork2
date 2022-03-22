@@ -218,11 +218,16 @@
     </div>
     <div style="margin-left: 13%;">
         <a href="/datasets/{{ publish_xref.id_ }}/traits/{{ publish_xref.phenotype_id }}/csv?resource-id={{ resource_id }}" class="btn btn-link btn-sm">
-            Sample Data(CSV Download)
+            Click to Download CSV Sample Data
         </a>
     </div>
     <div class="form-group">
         <input type = "file" class="col-sm-4 control-label" name = "file" />
+    </div>
+    <div class="col-xs-6">
+        <p>
+            Note: Current allowable sample headers are: {{ ', '.join(headers) }}
+        </p>
     </div>
     <div class="controls center-block" style="width: max-content;">
         <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>

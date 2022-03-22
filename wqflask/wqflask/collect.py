@@ -189,6 +189,30 @@ def delete_collection():
     return redirect(url_for('list_collections'))
 
 
+def trait_info_str(trait):
+    """Provide a string representation for given trait"""
+    def __trait_desc(trt):
+        if trait.dataset.type == "Geno":
+            return f"Marker: {trt.name}"
+        return trt.description_display or "N/A"
+
+    def __symbol(trt):
+        return (trt.symbol or trt.abbreviation or "N/A")[:20]
+
+    def __lrs(trt):
+        return (
+            f"{float(trait.LRS_score_repr):0.3f}" if float(trait.LRS_score_repr) > 0
+            else f"{trait.LRS_score_repr}")
+
+    def __location(trt):
+        if hasattr(trt, "location_repr"):
+            return trt.location_repr
+        return None
+
+    return "{}|||{}|||{}|||{}|||{}|||{:0.3f}|||{}|||{}".format(
+        trait.name, trait.dataset.name, __trait_desc(trait), __symbol(trait),
+        __location(trait), trait.mean, __lrs(trait), trait.LRS_location_repr)
+
 @app.route("/collections/view")
 def view_collection():
     params = request.args
@@ -222,14 +246,15 @@ def view_collection():
     collection_info = dict(
         trait_obs=trait_obs,
         uc=uc,
-        heatmap_data_url=f"{GN_SERVER_URL}heatmaps/clustered")
+        heatmap_data_url=f"{GN_SERVER_URL}api/heatmaps/clustered")
 
     if "json" in params:
         return json.dumps(json_version)
     else:
-        return render_template("collections/view.html",
-                               **collection_info
-                               )
+        return render_template(
+            "collections/view.html",
+            trait_info_str=trait_info_str,
+            **collection_info)
 
 
 @app.route("/collections/change_name", methods=('POST',))

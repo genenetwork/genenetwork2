@@ -269,4 +269,5 @@ if len(values1) > 0:
     cmd = 'insert into ProbeSetXRef(ProbeSetFreezeId, ProbeSetId, DataId) values %s' % cmd
     db.execute(cmd)
 
+db.close()
 con.close()

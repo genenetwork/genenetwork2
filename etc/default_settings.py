@@ -24,7 +24,8 @@
 import os
 import sys
 
-GN_VERSION = open("../etc/VERSION", "r").read()
+with open("../etc/VERSION", "r") as version_file:
+    GN_VERSION = version_file.read()
 
 # Redis
 REDIS_URL = "redis://:@localhost:6379/0"

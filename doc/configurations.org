@@ -1,0 +1,92 @@
+#+TITLE: Configurations for GeneNetwork2 Service
+#+OPTIONS: toc:3
+
+* Configuration Variables
+
+** Basic Configurations
+
+- *GN_VERSION*: The current version of GN2
+- *GN2_PROXY*: URL to the GN2 proxy service
+- *GN_SERVER_URL*:  URL to the GN3 REST API server
+- *GN2_BASE_URL*: ??
+- *GN2_BRANCH_URL*:
+- *SERVER_PORT*: The port on which to run GN2. This is passed on to Flask.
+- *SECRET_HMAC_CODE*:
+- *GENENETWORK_FILES*: Base directory for all static data files
+- *HOME*: The home directory of the user that GN2 runs as
+
+** Redis Configurations
+
+- *REDIS_URL*: The url to use to connect to the running redis instance
+- *USE_REDIS*: Redis caching
+
+
+** Database (MySQL) Configurations
+
+- *SQL_URI*: The URI to the database server in the form
+   ~mysql://<username>:<password>@<host>:<port>/<dbname>~. Replace the items in
+    the angle brackets with the appropriate values for each item.
+- *SQL_ALCHEMY_POOL_RECYCLE*: Probably obsoleted - the use of ORMs (ha/i)s
+   be(en/ing) phased off
+
+# ---- Flask configuration (see website)
+** Flask-Specific Configurations
+- *TRAP_BAD_REQUEST_ERRORS*:
+- *SECURITY_CONFIRMABLE*:
+- *SECURITY_TRACKABLE*:
+- *SECURITY_REGISTERABLE*:
+- *SECURITY_RECOVERABLE*:
+- *SECURITY_EMAIL_SENDER*:
+- *SECURITY_POST_LOGIN_VIEW*:
+
+** External Services
+
+*** GitHub Configurations
+
+- *GITHUB_CLIENT_ID*: Client identifier key for GitHub OAuth authentication
+- *GITHUB_CLIENT_SECRET*: Client authentication token for github
+- *GITHUB_AUTH_URL*: The url to use for authenticating the client (GN2) with
+  GitHub. Default: https://github.com/login/oauth/authorize
+- *GITHUB_API_URL*: Once the client (GN2) is authenticated with GitHub, this URI
+  is the used to authenticate users using GitHub. The default value is
+   https://api.github.com/user
+
+*** ORCID Configurations
+
+- *ORCID_CLIENT_ID*: Client identifier key for ORCID OAuth authentication
+- *ORCID_CLIENT_SECRET*: Client authentication token for ORCID
+- *ORCID_AUTH_URL*: The url to use for authenticating the client (GN2) with
+  ORCID. Default: https://orcid.org/oauth/authorize
+- *ORCID_TOKEN_URL*: The URI to acquire a token once GN2 has been authenticated
+  with ORCID. This token is used to authenticate users with the ORCID service.
+  The default value is https://orcid.org/oauth/token
+
+** Mail Configurations
+- *SMTP_CONNECT*:
+- *SMTP_USERNAME*:
+- *SMTP_PASSWORD*:
+
+** Javascript Configurations
+- *JS_GN_PATH*: Path to local javascript libraries for development purposes only.
+   See [[./development.org]] for more details
+
+** External Commands Configurations
+- *REAPER_COMMAND*: The path to the reaper command/executable
+
+** Behavioral Settings
+# ---- Behavioural settings (defaults) note that logger and log levels can
+#      be overridden at the module level and with enviroment settings
+- *WEBSERVER_MODE*: Determines how the service is run.
+  If the value is ~DEBUG~, the service is run in debug mode - debug tools are
+  activated for the application.
+  If the value is ~DEV~, the service is run in development mode; logging is
+  activated.
+- *WEBSERVER_BRANDING*: Probably unused - verify and remove.
+- *WEBSERVER_DEPLOY*: Probably unused - verify and remove.
+- *WEBSERVER_URL*: Probably unused - verify and remove.
+- *LOG_LEVEL*:
+- *LOG_LEVEL_DEBUG*:
+- *LOG_SQL*:
+- *LOG_SQL_ALCHEMY*:
+- *LOG_BENCH*:
+- *USE_GN_SERVER*: ??

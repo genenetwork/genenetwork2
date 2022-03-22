@@ -3,11 +3,10 @@ from flask import Flask, g, url_for
 import string
 from PIL import (Image)
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 from base import species
 from base import webqtlConfig
+
+from wqflask.database import database_connection
 
 
 class SnpBrowser:
@@ -660,32 +659,27 @@ class SnpBrowser:
         x_scale = plot_width / (self.end_mb - self.start_mb)
 
         # draw clickable image map at some point
-
         n_click = 80.0
         click_step = plot_width / n_click
         click_mb_step = (self.end_mb - self.start_mb) / n_click
-
-        # for i in range(n_click):
-        #    href = url_for('snp_browser', first_run="false", chosen_strains_mouse=self.chosen_strains_mouse, chosen_strains_rat=self.chosen_strains_rat, variant=self.variant_type, species=self.species_name, gene_name=self.gene_name, chr=self.chr, start_mb=self.start_mb, end_mb=self.end_mb, limit_strains=self.limit_strains, domain=self.domain, function=self.function, criteria=self.criteria, score=self.score, diff_alleles=self.diff_alleles)
 
 
 def get_browser_sample_lists(species_id=1):
     strain_lists = {}
     mouse_strain_list = []
-    query = "SHOW COLUMNS FROM SnpPattern;"
-    results = g.db.execute(query).fetchall()
-    for result in results[1:]:
-        mouse_strain_list.append(result[0])
-
     rat_strain_list = []
-    query = "SHOW COLUMNS FROM RatSnpPattern;"
-    results = g.db.execute(query).fetchall()
-    for result in results[2:]:
-        rat_strain_list.append(result[0])
-
-    strain_lists['mouse'] = mouse_strain_list
-    strain_lists['rat'] = rat_strain_list
-
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SHOW COLUMNS FROM SnpPattern")
+            _mouse_snp_pattern = cursor.fetchall()
+            cursor.execute("SHOW COLUMNS FROM RatSnpPattern")
+            _rats_snp_pattern = cursor.fetchall()
+            for result in _mouse_snp_pattern[1:]:
+                mouse_strain_list.append(result[0])
+            for result in _rats_snp_pattern[2:]:
+                rat_strain_list.append(result[0])
+            strain_lists['mouse'] = mouse_strain_list
+            strain_lists['rat'] = rat_strain_list
     return strain_lists
 
 
@@ -891,64 +885,51 @@ def get_effect_info(effect_list):
 
 
 def get_gene_id(species_id, gene_name):
-    query = """
-                SELECT
-                        geneId
-                FROM
-                        GeneList
-                WHERE
-                        SpeciesId = %s AND geneSymbol = '%s'
-            """ % (species_id, gene_name)
+    query = ("SELECT geneId FROM GeneList WHERE "
+             "SpeciesId = %s AND geneSymbol = %s")
 
-    result = g.db.execute(query).fetchone()
-
-    if len(result) > 0:
-        return result
-    else:
-        return ""
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, (species_id, gene_name))
+            if (result := cursor.fetchone()):
+                return result[0]
+    return ""
 
 
 def get_gene_id_name_dict(species_id, gene_name_list):
     gene_id_name_dict = {}
     if len(gene_name_list) == 0:
         return ""
-    gene_name_str_list = ["'" + gene_name + \
-                          "'" for gene_name in gene_name_list]
-    gene_name_str = ",".join(gene_name_str_list)
-
-    query = """
-                SELECT
-                        geneId, geneSymbol
-                FROM
-                        GeneList
-                WHERE
-                        SpeciesId = %s AND geneSymbol in (%s)
-            """ % (species_id, gene_name_str)
-
-    results = g.db.execute(query).fetchall()
-
-    if len(results) > 0:
-        for item in results:
-            gene_id_name_dict[item[1]] = item[0]
-
+    query = ("SELECT geneId, geneSymbol FROM "
+             "GeneList WHERE SpeciesId = %s AND "
+             f"geneSymbol in ({', '.join(['%s'] * len(gene_name_list))})")
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, (species_id, *gene_name_list))
+            results = cursor.fetchall()
+            if results:
+                for item in results:
+                    gene_id_name_dict[item[1]] = item[0]
     return gene_id_name_dict
 
 
-def check_if_in_gene(species_id, chr, mb):
-    if species_id != 0:  # ZS: Check if this is necessary
-        query = """SELECT geneId, geneSymbol
-                   FROM GeneList
-                   WHERE SpeciesId = {0} AND chromosome = '{1}' AND
-                        (txStart < {2} AND txEnd > {2}); """.format(species_id, chr, mb)
-    else:
-        query = """SELECT geneId,geneSymbol
-                   FROM GeneList
-                   WHERE chromosome = '{0}' AND
-                        (txStart < {1} AND txEnd > {1}); """.format(chr, mb)
-
-    result = g.db.execute(query).fetchone()
-
-    if result:
-        return [result[0], result[1]]
-    else:
-        return ""
+def check_if_in_gene(species_id, chr_, mb):
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            if species_id != 0:  # ZS: Check if this is necessary
+                cursor.execute(
+                    "SELECT geneId, geneSymbol "
+                    "FROM GeneList WHERE "
+                    "SpeciesId = %s AND chromosome = %s "
+                    "AND (txStart < %s AND txEnd > %s)",
+                    (species_id, chr_, mb, mb))
+            else:
+                cursor.execute(
+                    "SELECT geneId,geneSymbol "
+                    "FROM GeneList WHERE "
+                    "chromosome = %s AND "
+                    "(txStart < %s AND txEnd > %s)",
+                    (chr_, mb, mb))
+            if (result := cursor.fetchone()):
+                return [result[0], result[1]]
+    return ""

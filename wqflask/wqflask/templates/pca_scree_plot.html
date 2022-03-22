@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+</head>
+
+<body>
+    <div>
+        
+        <div id="scree_plot" style="width:700px;height:600px;"></div>
+    </div>
+</body>
+<script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
+<script type="text/javascript">
+js_data = {{ js_data | safe }}
+
+let { x_coord, y_coord } = js_data["scree_data"]
+
+
+const layout = {
+
+    title: {
+        text: "<b>Pca Scree Plot</b>",
+        font: {
+            "size": 24,
+            "family": "Arial",
+            "color": "#000000"
+        }
+    },
+
+    yaxis: {
+        title: {
+            text: "Percent of total variance %",
+            font: {
+                "size": 18,
+                "color": ""
+
+            }
+        }
+    },
+
+    xaxis: {
+        title: {
+            text: "PCA components",
+            font: {
+                "size": 18,
+                "color": ""
+
+            }
+        }
+    },
+
+}
+
+const data = [{
+    x: x_coord,
+    y: y_coord,
+    marker: {
+
+        color: 'rgb(17, 157, 255)',
+        size: 5,
+        line: {
+            color: 'rgb(255, 0, 0)',
+            width: 3
+        }
+
+    }
+}]
+
+
+let custom_configs = (filename, download_format, modebar = true) => {
+
+    return {
+        displayModeBar: modebar,
+        scrollZoom: false,
+        toImageButtonOptions: {
+            filename,
+            format:download_format,
+            height: 600,
+            width: 700,
+            scale: 1
+        }
+    }
+
+}
+
+Plotly.newPlot(document.getElementById("scree_plot"), data, layout,
+	custom_configs(file_name = "scree_plot", download_format = "svg"));
+</script>
+
+</html>

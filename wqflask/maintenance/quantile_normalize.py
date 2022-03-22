@@ -1,6 +1,5 @@
 import sys
 sys.path.insert(0, './')
-import MySQLdb
 import urllib.parse
 
 import numpy as np
@@ -9,6 +8,7 @@ import pandas as pd
 from flask import Flask, g, request
 
 from wqflask import app
+from wqflask.database import database_connection
 
 
 def parse_db_uri():
@@ -52,7 +52,7 @@ def quantileNormalize(df_input):
     return df
 
 
-def set_data(dataset_name):
+def set_data(cursor, dataset_name):
     orig_file = "/home/zas1024/cfw_data/" + dataset_name + ".txt"
 
     sample_list = []
@@ -80,8 +80,8 @@ def set_data(dataset_name):
                                  ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
                                  ProbeSetXRef.ProbeSetId = ProbeSet.Id and
                                  ProbeSet.Name = '%s'""" % (dataset_name, line1.split('\t')[0])
-                Cursor.execute(query)
-                result_info = Cursor.fetchone()
+                cursor.execute(query)
+                result_info = cursor.fetchone()
 
                 yield {
                     "_index": "traits",
@@ -99,15 +99,14 @@ def set_data(dataset_name):
 
 
 if __name__ == '__main__':
-    Conn = MySQLdb.Connect(**parse_db_uri())
-    Cursor = Conn.cursor()
+    with database_connection as conn:
+        with conn.cursor() as cursor:
+            success, _ = bulk(es, set_data(cursor, sys.argv[1]))
 
-    success, _ = bulk(es, set_data(sys.argv[1]))
+            response = es.search(
+                index="traits", doc_type="trait", body={
+                    "query": {"match": {"name": "ENSMUSG00000028982"}}
+                }
+            )
 
-    response = es.search(
-        index="traits", doc_type="trait", body={
-            "query": {"match": {"name": "ENSMUSG00000028982"}}
-        }
-    )
-
-    print(response)
+            print(response)

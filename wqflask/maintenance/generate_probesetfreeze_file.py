@@ -8,20 +8,11 @@ import os
 import collections
 import csv
 
-import MySQLdb
-
 from base import webqtlConfig
 
 from pprint import pformat as pf
 
-
-def get_cursor():
-    con = MySQLdb.Connect(db=webqtlConfig.DB_UPDNAME,
-                          host=webqtlConfig.MYSQL_UPDSERVER,
-                          user=webqtlConfig.DB_UPDUSER,
-                          passwd=webqtlConfig.DB_UPDPASSWD)
-    cursor = con.cursor()
-    return cursor
+from wqflask.database import database_connection
 
 
 def show_progress(process, counter):
@@ -116,13 +107,14 @@ def main():
         "(Oct08)_RankInv_Beta.txt")
     dataset_name = "Eye_AXBXA_1008_RankInv"
 
-    cursor = get_cursor()
-    strains = get_strains(cursor)
-    print("Getting probset_vals")
-    probeset_vals = get_probeset_vals(cursor, dataset_name)
-    print("Finished getting probeset_vals")
-    trimmed_strains = trim_strains(strains, probeset_vals)
-    write_data_matrix_file(trimmed_strains, probeset_vals, filename)
+    with database_connection as conn:
+        with conn.cursor() as cursor:
+            strains = get_strains(cursor)
+            print("Getting probset_vals")
+            probeset_vals = get_probeset_vals(cursor, dataset_name)
+            print("Finished getting probeset_vals")
+            trimmed_strains = trim_strains(strains, probeset_vals)
+            write_data_matrix_file(trimmed_strains, probeset_vals, filename)
 
 
 if __name__ == '__main__':

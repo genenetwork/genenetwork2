@@ -11,6 +11,8 @@ from utility import formatting
 
 from gn3.authentication import DataRole, AdminRole
 
+from wqflask.database import parse_db_url
+
 from wqflask.group_manager import group_management
 from wqflask.resource_manager import resource_management
 from wqflask.metadata_edits import metadata_edit
@@ -27,17 +29,6 @@ from wqflask.api.markdown import news_blueprint
 from wqflask.jupyter_notebooks import jupyter_notebooks
 
 app = Flask(__name__)
-
-
-# Helper function for getting the SQL objects
-def parse_db_url(sql_uri: str) -> Tuple:
-    """Parse SQL_URI env variable from an sql URI
-    e.g. 'mysql://user:pass@host_name/db_name'
-
-    """
-    parsed_db = urlparse(sql_uri)
-    return (parsed_db.hostname, parsed_db.username,
-            parsed_db.password, parsed_db.path[1:])
 
 
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
@@ -98,3 +89,4 @@ from wqflask import user_login
 from wqflask import user_session
 
 import wqflask.views
+import wqflask.partial_correlations_views

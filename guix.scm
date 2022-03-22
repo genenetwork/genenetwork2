@@ -18,7 +18,7 @@
 (define %source-dir (dirname (current-filename)))
 
 (package
-  (inherit genenetwork3)
-  (source (local-file %source-dir "genenetwork3-checkout"
+  (inherit genenetwork2)
+  (source (local-file %source-dir "genenetwork2-checkout"
                       #:recursive? #t
                       #:select? (git-predicate %source-dir))))

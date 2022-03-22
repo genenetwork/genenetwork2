@@ -148,7 +148,7 @@ class SearchResultPage:
                 trait_dict['name'] = trait_dict['display_name'] = str(result[0])
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
                 permissions = check_resource_availability(self.dataset, trait_dict['display_name'])
-                if "view" not in permissions['data']:
+                if not any(x in permissions['data'] for x in ["view", "edit"]):
                     continue
 
                 if result[10]:
@@ -203,8 +203,8 @@ class SearchResultPage:
             for i, trait in enumerate(trait_list):
                 for key in trait.keys():
                     if key == "authors":
-                        authors_string = ",".join(str(trait[key]).split(",")[:6]) + ", et al."
-                        self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
+                        authors_string = ",".join(str(trait[key]).split(",")[:2]) + ", et al."
+                        self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(authors_string))
                     else:
                         self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
@@ -360,7 +360,8 @@ def get_aliases(symbol_list, species):
 
     filtered_aliases = []
     response = requests.get(
-        GN2_BASE_URL + "/gn3/gene/aliases2/" + symbols_string)
+        GN2_BASE_URL + "gn3/gene/aliases/" + symbols_string)
+
     if response:
         alias_lists = json.loads(response.content)
         seen = set()

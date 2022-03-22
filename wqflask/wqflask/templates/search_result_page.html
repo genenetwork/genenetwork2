@@ -40,6 +40,8 @@
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
                     {% elif word.search_term|length == 3 %}
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    {% elif word.search_term|length == 4 %}
+                    with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[3] }}</strong> with an exclusion zone of <strong>{{ word.search_term[2] }}</strong> Mb
                     {% elif word.search_term|length == 5 %}
                     with <u>{{ word.key|upper }}</u> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
                     {% endif %}
@@ -94,19 +96,22 @@
               <input type="hidden" name="accession_id" id="accession_id" value="{{ dataset.accession_id }}">
               {% endif %}
               <input type="hidden" name="export_data" id="export_data" value="">
-              <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select</button>
-              <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
+              <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search For...">
               <button class="btn btn-success" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-              <button class="btn btn-default" id="export_traits">Download <span class="glyphicon glyphicon-download"></span></button>
-              <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search This Table For ...">
-              <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Top ...">
+              <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+              <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Rows (1-5, 11)">
+              <button class="btn btn-default" id="export_traits"><span class="glyphicon glyphicon-download"></span> Download</button>
+              <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
               <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+            </div>
+            <div id="select_samples_invalid" class="alert alert-error" style="display:none;">
+              Please check that your syntax includes only a combination of integers, dashes, and commas of a format 
+              similar to <strong>1,5,10</strong> or <strong>2, 5-10, 15</strong>, etc.
             </div>
           </form>
           {% if dataset.type != 'Geno' %}
           <div class="show-hide-container">
-            <b>Show/Hide Columns:</b>
-            <br>
+            <b>Show/Hide Columns:&nbsp;&nbsp;</b>
             {% if dataset.type == 'ProbeSet' %}
             <button class="toggle-vis" data-column="3">Symbol</button>
             <button class="toggle-vis" data-column="4">Description</button>
@@ -126,7 +131,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="table_container" style="width: {% if dataset.type == 'Geno' %}270{% else %}100%{% endif %}px;">
+          <div id="table_container" style="width: {% if dataset.type == 'Geno' %}375px;{% else %}100%; min-width: 1400px;{% endif %}">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -195,6 +200,8 @@
               'title': "Index",
               'type': "natural",
               'width': "35px",
+              "searchable": false,
+              "orderable": false,
               'targets': 1,
               'data': "index"
             }
@@ -232,7 +239,7 @@
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
-              'width': "125px",
+              'width': "130px",
               'targets': 5,
               'data': "location"
             },
@@ -245,7 +252,7 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
+              'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>LOD <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'data': "lod_score",
               'width': "60px",
@@ -255,12 +262,12 @@
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
-              'width': "125px",
+              'width': "130px",
               'targets': 8,
               'data': "lrs_location"
             },
             {
-              'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
+              'title': "<div style='text-align: right; padding-right: 10px;'>Effect</div> <div style='text-align: right;'>Size <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'data': "additive",
               'width': "65px",
@@ -306,8 +313,8 @@
             {
               'title': "Authors",
               'type': "natural",
-              {% if (max_widths.authors * 7) < 500 %}
-              'width': "{{ max_widths.authors * 7 }}px",
+              {% if (max_widths.authors * 5) < 500 %}
+              'width': "{{ max_widths.authors * 5 }}px",
               {% else %}
               'width': "500px",
               {% endif %}
@@ -315,8 +322,8 @@
               'targets': 5,
               'render': function(data, type, row, meta) {
                 author_list = data.authors.split(",")
-                if (author_list.length >= 6) {
-                  author_string = author_list.slice(0, 6).join(",") + ", et al."
+                if (author_list.length >= 2) {
+                  author_string = author_list.slice(0, 2).join(",") + ", et al."
                 } else{
                   author_string = data.authors
                 }
@@ -339,7 +346,7 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "<div style='text-align: right;'>Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>LOD&ensp;&emsp;</div>",
+              'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>LOD <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'data': "lod_score",
               'targets': 7,
@@ -349,12 +356,12 @@
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
-              'width': "120px",
+              'width': "125px",
               'targets': 8,
               'data': "lrs_location"
             },
             {
-              'title': "<div style='text-align: right;'>Effect <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a></div><div style='text-align: right;'>Size&ensp;&emsp;</div>",
+              'title': "<div style='text-align: right; padding-right: 10px;'>Effect</div> <div style='text-align: right;'>Size <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'width': "60px",
               'data': "additive",
@@ -374,7 +381,7 @@
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
-              'width': "120px",
+              'width': "125px",
               'targets': 2,
               'data': "location"
             }{% endif %}
@@ -447,7 +454,7 @@
                 "destroy": true,
                 "autoWidth": false,
                 "bSortClasses": false,
-                "scrollY": "500px",
+                "scrollY": "1000px",
                 "scrollCollapse": true,
                 {% if trait_list|length > 5 %}
                 "scroller":  true,
@@ -490,6 +497,12 @@
                 {% endif %}
               }
             }
+
+            trait_table.on( 'order.dt search.dt', function () {
+              trait_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i+1;
+              } );
+            } ).draw();
 
             window.addEventListener('resize', function(){
               trait_table.columns.adjust();

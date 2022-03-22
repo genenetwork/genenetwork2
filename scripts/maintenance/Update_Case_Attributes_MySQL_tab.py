@@ -10,18 +10,13 @@ import time
 import csv
 ########################################################################
 
-mydb = MySQLdb.connect(host='localhost',
-    user='username',
-    passwd='',
-    db='db_webqtl')
-cursor = mydb.cursor()
+with MySQLdb.connect(
+        host='localhost', user='username', passwd='', db='db_webqtl') as mydb:
+    with mydb.cursor() as cursor:
 
-csv_data = csv.reader(file('GN711_pvalues.txt'), delimiter ="\t")
-for row in csv_data:
-
-    cursor.execute("""UPDATE ProbeSetXRef SET pValue = %s WHERE ProbeSetFreezeId = %s AND ProbeSetId = %s """,
-          (row))
-#close the connection to the database.
-mydb.commit()
-cursor.close()
+        csv_data = csv.reader(file('GN711_pvalues.txt'), delimiter ="\t")
+        for row in csv_data:
+            cursor.execute(
+                """UPDATE ProbeSetXRef SET pValue = %s WHERE ProbeSetFreezeId = %s AND ProbeSetId = %s """,
+                (row))
 print("Done")

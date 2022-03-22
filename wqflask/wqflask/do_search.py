@@ -1,6 +1,7 @@
-import string
-import requests
 import json
+import re
+import requests
+import string
 
 from flask import Flask, g
 
@@ -82,7 +83,7 @@ class MrnaAssaySearch(DoSearch):
     DoSearch.search_types['ProbeSet'] = "MrnaAssaySearch"
 
     base_query = """
-                SELECT
+                SELECT DISTINCT
                 ProbeSetFreeze.`Name`,
                 ProbeSetFreeze.`FullName`,
                 ProbeSet.`Name`,
@@ -137,15 +138,17 @@ class MrnaAssaySearch(DoSearch):
         search_string = escape(self.search_term[0])
 
         if self.search_term[0] != "*":
-            match_clause = """((MATCH (ProbeSet.Name,
+            if re.search("\w{1,2}\-\w+|\w+\-\w{1,2}", self.search_term[0]):
+                search_string = f'"{search_string}*"'
+
+            match_clause = f"""((MATCH (ProbeSet.Name,
                         ProbeSet.description,
                         ProbeSet.symbol,
                         alias,
                         GenbankId,
                         UniGeneId,
                         Probe_Target_Description)
-                        AGAINST ('%s' IN BOOLEAN MODE))) AND
-                                """ % (search_string)
+                        AGAINST ('{search_string}' IN BOOLEAN MODE))) AND """
         else:
             match_clause = ""
 
@@ -343,7 +346,7 @@ class GenotypeSearch(DoSearch):
                 GenoFreeze.createtime as thistable,
                 Geno.Name as Geno_Name,
                 Geno.Source2 as Geno_Source2,
-                Geno.chr_num as Geno_chr_num,
+                Geno.Chr as Geno_Chr,
                 Geno.Mb as Geno_Mb
                 FROM GenoXRef, GenoFreeze, Geno """
 
@@ -608,9 +611,6 @@ class PhenotypeLrsSearch(LrsSearch, PhenotypeSearch):
 
 
 class CisTransLrsSearch(DoSearch):
-
-    def get_from_clause(self):
-        return ", Geno"
 
     def get_where_clause(self, cis_trans):
         self.mb_buffer = 5  # default
@@ -989,8 +989,6 @@ def get_aliases(symbol, species):
 if __name__ == "__main__":
     # Usually this will be used as a library, but call it from the command line for testing
     # And it runs the code below
-
-    import MySQLdb
     import sys
 
     from base import webqtlConfig
@@ -998,15 +996,11 @@ if __name__ == "__main__":
     from utility import webqtlUtil
     from db import webqtlDatabaseFunction
 
-    db_conn = MySQLdb.Connect(db=webqtlConfig.DB_NAME,
-                              host=webqtlConfig.MYSQL_SERVER,
-                              user=webqtlConfig.DB_USER,
-                              passwd=webqtlConfig.DB_PASSWD)
-    cursor = db_conn.cursor()
+    from wqflask.database import database_connection
 
-    dataset_name = "HC_M2_0606_P"
-    dataset = create_dataset(db_conn, dataset_name)
+    with database_connection() as db_conn:
+        with db_conn.cursor() as cursor:
+            dataset_name = "HC_M2_0606_P"
+            dataset = create_dataset(db_conn, dataset_name)
 
-    results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()
-
-    db_conn.close()
+            results = PvalueSearch(['0.005'], '<', dataset, cursor, db_conn).run()

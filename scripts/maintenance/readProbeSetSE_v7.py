@@ -251,4 +251,5 @@ if len(DataValues) > 0:
     cmd = 'insert ProbeSetSE values %s' % DataValues
     db.execute(cmd)
 
+db.close()
 con.close()

@@ -1,5 +1,6 @@
 [![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2) [![JOSS](http://joss.theoj.org/papers/10.21105/joss.00025/status.svg)](http://joss.theoj.org/papers/10.21105/joss.00025)
-[![Actions Status](https://github.com/genenetwork/genenetwork2/workflows/tests/badge.svg)](https://github.com/genenetwork/genenetwork2/actions)
+[![GeneNetwork2 CI
+badge](https://ci.genenetwork.org/badge/genenetwork2.svg)](https://ci.genenetwork.org/jobs/genenetwork2)
 
 
 # GeneNetwork
@@ -11,29 +12,58 @@ many different populations and many types of molecular, cellular, and physiologi
 The system is used by scientists and clinicians in the field of precision health care and systems genetics.
 GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL (https://genenetwork.org/references/).
 
+## Install
+
+The recommended installation is with GNU Guix which allows you to
+deploy GN2 and dependencies as a self contained unit on any machine.
+The database can be run separately as well as the source tree (for
+developers).  See the [installation docs](doc/README.org).
+
+## Configuration
+
+GeneNetwork2 comes with a [default configuration file](./etc/default_settings.py)
+which can be used as a starting point.
+
+The recommended way to deal with the configurations is to **copy** this default configuration file to a location outside of the repository, say,
+
+```sh
+.../genenetwork2$ cp etc/default_settings.py "${HOME}/configurations/gn2.py"
+```
+
+then change the appropriate values in the new file. You can then pass in the new
+file as the configuration file when launching the application,
+
+```sh
+.../genenetwork2$ bin/genenetwork "${HOME}/configurations/gn2.py" <command-to-run>
+```
+
+The other option is to override the configurations in `etc/default_settings.py`
+by setting the configuration you want to override as an environment variable e.g.
+to override the `SQL_URI` value, you could do something like:
+
+```sh
+.../genenetwork2$ env SQL_URI="mysql://<user>:<passwd>@<host>:<port>/<db_name>" \
+	bin/genenetwork "${HOME}/configurations/gn2.py" <command-to-run>
+```
+
+replacing the placeholders in the angle brackets with appropriate values.
+
+For a detailed breakdown of the configuration variables and their use, see the
+[configuration documentation](doc/configurations.org)
+
 ## Run
 
-We recommend you use GNU Guix. GNU Guix allows you to deploy
-GeneNetwork2 and dependencies as a self contained unit on any machine.
-The database can be run separately as well as the source tree (for
-developers).
+Once having installed GN2 it can be run through a browser
+interface
 
-Make sure you have the
-[guix-bioinformatics](https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics)
-channel set up. Then, to drop into a development environment with all
-dependencies, run
 ```sh
-guix shell -Df guix.scm
-```
-Or, to drop into a development environment in a container, run
-```
-guix shell -C --network -Df guix.scm
+genenetwork2
 ```
 
-In the development environment, start GeneNetwork2 by running, for
-example,
+A quick example is
+
 ```sh
-env SERVER_PORT=5300 \
+env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
     GENENETWORK_FILES=~/data/gn2_data/ \
     GN_PROXY_URL="http://localhost:8080"\
     GN3_LOCAL_URL="http://localhost:8081"\
@@ -42,11 +72,16 @@ env SERVER_PORT=5300 \
 
 For full examples (you may need to set a number of environment
 variables), including running scripts and a Python REPL, also see the
-startup script
-[./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
+startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/bin/genenetwork2).
 
 Also mariadb and redis need to be running, see
 [INSTALL](./doc/README.org).
+
+## Development
+
+It may be useful to pull in the GN3 python modules locally. For this
+use `GN3_PYTHONPATH` environment that gets injected in
+the ./bin/genenetwork2 startup.
 
 ## Testing
 
@@ -55,6 +90,20 @@ asserts sprinkled in the code base.
 
 Right now, the only tests running in CI are unittests. Please make
 sure the existing unittests are green when submitting a PR.
+
+From the root directory of the repository, you can run the tests with something
+like:
+
+```sh
+env GN_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
+	SQL_URI=<uri-to-override-the-default> \
+	./bin/genenetwork2 ./etc/default_settings.py \
+	-c -m unittest -v
+```
+
+In the case where you use the default `etc/default_settings.py` configuration file, you can override any setting as demonstrated with the `SQL_URI` setting in the command above.
+
+In order to avoid having to set up a whole host of settings every time with the `env` command, you could copy the `etc/default_settings.py` file to a new location (outside the repository is best), and pass that to `bin/genenetwork2` instead.
 
 See
 [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/blob/testing/doc/docker-container.org)
@@ -67,16 +116,19 @@ We are building 'Mechanical Rob' automated testing using Python
 which can be run with:
 
 ```sh
-env ./bin/genenetwork2 \
+env GN2_PROFILE=~/opt/gn-latest \
+    ./bin/genenetwork2 \
     GN_PROXY_URL="http://localhost:8080" \
     GN3_LOCAL_URL="http://localhost:8081 "\
     ./etc/default_settings.py -c \
     ../test/requests/test-website.py -a http://localhost:5003
 ```
 
-The ./bin/genenetwork2 script sets up the environment and executes
-test-website.py in a Python interpreter. The -a switch says to run all
-tests and the URL points to the running GN2 http server.
+The GN2_PROFILE is the Guix profile that contains all
+dependencies. The ./bin/genenetwork2 script sets up the environment
+and executes test-website.py in a Python interpreter. The -a switch
+says to run all tests and the URL points to the running GN2 http
+server.
 
 #### Unit tests
 
@@ -97,9 +149,9 @@ runcmd coverage html
 The `runcmd` and `runpython` are shell aliases defined in the following way:
 
 ```sh
-alias runpython="env TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2
+alias runpython="env GN2_PROFILE=~/opt/gn-latest TMPDIR=/tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2
 
-alias runcmd="time env TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2 ./etc/default_settings.py -cli"
+alias runcmd="time env GN2_PROFILE=~/opt/gn-latest TMPDIR=//tmp SERVER_PORT=5004 GENENETWORK_FILES=/gnu/data/gn2_data/ GN_PROXY_URL="http://localhost:8080" GN3_LOCAL_URL="http://localhost:8081" ./bin/genenetwork2 ./etc/default_settings.py -cli"
 ```
 
 Replace some of the env variables as per your use case.
