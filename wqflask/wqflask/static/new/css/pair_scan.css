@@ -1,0 +1,6 @@
+/* Unset CSS for tooltip since it will inherit from the bootstrap tooltip class CSS otherwise */
+.tooltip{all:unset;}
+
+.pairscan-container {
+    width: 1000px;
+}
