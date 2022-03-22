@@ -238,7 +238,7 @@ class RunMapping:
                 self.method = "em"
             self.model = start_vars['mapmodel_rqtl']
             self.pair_scan = False
-            if 'pair_scan' in start_vars:
+            if start_vars['pair_scan'] == "true":
                self.pair_scan = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
