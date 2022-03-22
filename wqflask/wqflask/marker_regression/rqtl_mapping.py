@@ -49,7 +49,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
     if do_control == "true" and control_marker:
         post_data["control"] = control_marker
 
-    if not manhattan_plot:
+    if not manhattan_plot and not pair_scan:
         post_data["interval"] = True
     if cofactors:
         post_data["addcovar"] = True
