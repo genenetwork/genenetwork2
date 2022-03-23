@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Trait Submission{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+
+{% block content %}
+<!-- Start of body -->
+<div class="container">
+    <h2>Case Attributes Reference Table</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table-responsive table-hover table-striped cell-border">
+                <thead>
+                    <th scope="col">Header</th>
+                    <th scope="col">Description</th>
+                </thead>
+                <tbody>
+                    {% for key, value in case_attributes.items() %}
+                    <tr>
+                        <td>{{ key }}</td><td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{%endblock%}
+
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript" type="text/javascript">
+ gn_server_url = "{{ gn_server_url }}";
+
+ $(document).ready( function() {
+     $('#table-additions').dataTable();
+     $('#table-modifications').dataTable();
+     $('#table-deletions').dataTable();
+ });
+</script>
+{% endblock %}
