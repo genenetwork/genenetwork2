@@ -46,6 +46,7 @@ from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
 from gn3.db.sample_data import update_sample_data
+from gn3.db.sample_data import get_case_attributes
 
 
 metadata_edit = Blueprint('metadata_edit', __name__)
@@ -552,3 +553,14 @@ def approve_data(resource_id: str, file_name: str):
         flash(("Automatically rejecting this file since no "
                "changes could be applied."), "warning")
     return redirect(url_for('metadata_edit.list_diffs'))
+
+
+@metadata_edit.route("/case-attributes")
+def show_case_attribute_columns():
+    case_attributes = get_case_attributes()
+    for key, val in case_attributes.items():
+        if not val:
+            case_attributes[key] = "No description"
+    return render_template(
+        "case_attributes.html", case_attributes=case_attributes
+    )
