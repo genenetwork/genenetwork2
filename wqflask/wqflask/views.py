@@ -345,7 +345,7 @@ def wcgna_setup():
 def wcgna_results():
     """call the gn3 api to get wgcna response data"""
     results = run_wgcna(dict(request.form))
-    return render_template("test_wgcna_results.html", **results)
+    return render_template("gn3_wgcna_results.html", **results)
 
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
