@@ -183,7 +183,16 @@ def natural_sort(marker_list):
     Function to naturally sort numbers + strings, adopted from user Mark Byers here: https://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
     Changed to return indices instead of values, though, since the same reordering needs to be applied to bootstrap results
     """
-    convert = lambda text: int(text) if text.isdigit() else text.lower()
+
+    def convert(text):
+        if text.isdigit():
+            return int(text)
+        else:
+            if text != "M":
+                return text.lower()
+            else:
+                return "z"
+
     alphanum_key = lambda key: [convert(c) for c in re.split(
         '([0-9]+)', str(marker_list[key]['chr']))]
     return sorted(list(range(len(marker_list))), key=alphanum_key)
