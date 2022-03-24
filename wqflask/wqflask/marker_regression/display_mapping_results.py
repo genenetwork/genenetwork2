@@ -2637,7 +2637,7 @@ class DisplayMappingResults:
                     break
                 m += 1
 
-        if self.manhattan_plot != True:
+        if self.manhattan_plot != True and len(LRSCoordXY) > 1:
             draw_open_polygon(canvas, xy=LRSCoordXY, outline=thisLRSColor,
                               width=lrsEdgeWidth)
 
