@@ -139,30 +139,15 @@
 <script type="text/javascript">
 
 
-let results = {{results|safe}}
-
-let parameters = {{parameters|safe}}
-
-let phenoModules = results["data"]["output"]["net_colors"]
+let phenoModules = {{results|safe}}["data"]["output"]["net_colors"]
 let phenotypes = Object.keys(phenoModules)
 let phenoMods = Object.values(phenoModules)
 
 let {col_names,mod_dataset} = {{data|safe}}
-
-let {MinModuleSize,TOMtype,corType,mergeCutHeight} = parameters
-
 const summary = {
-
-  strain_numbers:6,
-
-  nphe:12,
-
   modules_found:phenoMods.length,
-  MinModuleSize,
-  TOMtype,
-  corType,
-  mergeCutHeight
-
+  ...{{parameters|safe}}
+  
 }
 
     $("#summary").DataTable( {

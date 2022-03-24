@@ -76,8 +76,6 @@ def run_wgcna(form_data):
 
     wgcna_api = f"{GN3_LOCAL_URL}/api/wgcna/run_wgcna"
 
-    # parse form data
-
     trait_dataset = fetch_trait_data(form_data)
     form_data["minModuleSize"] = int(form_data["MinModuleSize"])
 
@@ -86,8 +84,10 @@ def run_wgcna(form_data):
 
     try:
 
+        unique_strains = list(set(trait_dataset["sample_names"]))
+
         response = requests.post(wgcna_api, json={
-            "sample_names": list(set(trait_dataset["sample_names"])),
+            "sample_names": unique_strains,
             "trait_names": trait_dataset["trait_names"],
             "trait_sample_data": list(trait_dataset["input"].values()),
             **form_data
@@ -98,8 +98,15 @@ def run_wgcna(form_data):
         status_code = response.status_code
         response = response.json()
 
+        parameters = {
+            "nstrains": len(unique_strains),
+            "nphe": len(trait_dataset["trait_names"]),
+            **{key: val for key, val in form_data.items() if key not in ["trait_list"]}
+        }
+
         return {"error": response} if status_code != 200 else {
             "error": 'null',
+            "parameters": parameters,
             "results": response,
             "data": process_wgcna_data(response["data"]),
             "image": process_image(response["data"])
