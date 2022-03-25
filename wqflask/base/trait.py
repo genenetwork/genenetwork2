@@ -94,6 +94,7 @@ class GeneralTrait:
         self.num_overlap = None
         self.strand_probe = None
         self.symbol = None
+        self.abbreviation = None
         self.display_name = self.name
 
         self.LRS_score_repr = "N/A"

@@ -200,18 +200,33 @@ def trait_info_str(trait):
         return (trt.symbol or trt.abbreviation or "N/A")[:20]
 
     def __lrs(trt):
-        return (
-            f"{float(trait.LRS_score_repr):0.3f}" if float(trait.LRS_score_repr) > 0
-            else f"{trait.LRS_score_repr}")
+        if trait.dataset.type == "Geno":
+            return 0
+        else:
+            return (
+                f"{float(trait.LRS_score_repr):0.3f}" if float(trait.LRS_score_repr) > 0
+                else f"{trait.LRS_score_repr}")
+
+    def __lrs_location(trt):
+        if hasattr(trt, "LRS_location_repr"):
+            return trt.LRS_location_repr
+        else:
+            return "N/A"
 
     def __location(trt):
         if hasattr(trt, "location_repr"):
             return trt.location_repr
         return None
 
+    def __mean(trt):
+        if trait.mean:
+            return trt.mean
+        else:
+            return 0
+
     return "{}|||{}|||{}|||{}|||{}|||{:0.3f}|||{}|||{}".format(
         trait.name, trait.dataset.name, __trait_desc(trait), __symbol(trait),
-        __location(trait), trait.mean, __lrs(trait), trait.LRS_location_repr)
+        __location(trait), __mean(trait), __lrs(trait), __lrs_location(trait))
 
 @app.route("/collections/view")
 def view_collection():
