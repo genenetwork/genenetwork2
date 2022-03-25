@@ -108,7 +108,7 @@ var sr_layout = {
     xanchor: 'right',
     y: 1.05,
     yanchor: 'top',
-    text: '<i>r</i> = ' + js_data.srr_value.toFixed(3) + ', <i>P</i> = ' + js_data.srp_value.toExponential(3) + ', <i>n</i> = ' + js_data.num_overlap,
+    text: '<i>rho</i> = ' + js_data.srr_value.toFixed(3) + ', <i>P</i> = ' + js_data.srp_value.toExponential(3) + ', <i>n</i> = ' + js_data.num_overlap,
     showarrow: false,
     font: {
       size: 14
