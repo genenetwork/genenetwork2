@@ -75,6 +75,12 @@
 
     {% else %}
     <div>
+        <div>
+            <h2 style="text-align:center;">Parameters used</h2>
+
+            <table id="summary" class="display"  width="40vw" ></table>
+
+        </div>
         <div >
             <h2 style="text-align:center">Soft Thresholds </h2>
             <div class="grid_container">
@@ -133,13 +139,34 @@
 <script type="text/javascript">
 
 
-let results = {{results|safe}}
-
-let phenoModules = results["data"]["output"]["net_colors"]
+let phenoModules = {{results|safe}}["data"]["output"]["net_colors"]
 let phenotypes = Object.keys(phenoModules)
 let phenoMods = Object.values(phenoModules)
 
 let {col_names,mod_dataset} = {{data|safe}}
+const summary = {
+  modules_found:phenoMods.length,
+  ...{{parameters|safe}}
+  
+}
+
+    $("#summary").DataTable( {
+
+        data: Object.keys(summary).map((key)=>{
+            return [key,summary[key]]
+        }),
+        columns: [ {
+            title: "parameter",
+
+        },
+
+        {
+            title:" param_values"
+        }
+        ]
+    })
+
+
     $('#eigens').DataTable( {
         data: mod_dataset,
         columns: col_names.map((name)=>{
