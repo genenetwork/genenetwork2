@@ -236,7 +236,7 @@ def partial_correlations():
             }
             return handle_response(requests.post(
                 url=f"{GN_SERVER_URL}api/correlation/partial",
-                json=json.dumps(post_data)))
+                json=post_data))
 
         for error in args["errors"]:
             flash(error, "alert-danger")
