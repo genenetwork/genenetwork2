@@ -122,6 +122,7 @@ class UserSession:
         else:
             if user_cookie:
                 self.logged_in = True
+                self.user_details = get_user_by_unique_column("user_id", self.user_id)
 
         if user_cookie:
             session_time = THREE_DAYS
@@ -142,6 +143,15 @@ class UserSession:
             return self.record[b'user_id'].decode("utf-8")
         except:
             return self.record[b'user_id']
+
+    @property
+    def user_email(self):
+        """Shortcut to the user email address"""
+
+        if self.logged_in:
+            return self.user_details['email_address']
+        else:
+            return None
 
     @property
     def redis_user_id(self):
