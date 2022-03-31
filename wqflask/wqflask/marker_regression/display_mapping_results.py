@@ -2470,7 +2470,7 @@ class DisplayMappingResults:
             m = 0
             thisLRSColor = self.colorCollection[0]
             if qtlresult['chr'] != previous_chr and self.selectedChr == -1:
-                if self.manhattan_plot != True:
+                if self.manhattan_plot != True and len(LRSCoordXY) > 1:
                     draw_open_polygon(canvas, xy=LRSCoordXY,
                                       outline=thisLRSColor, width=lrsEdgeWidth)
 
