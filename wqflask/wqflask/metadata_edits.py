@@ -685,7 +685,10 @@ def approve_data(resource_id: str, file_name: str):
 
 @metadata_edit.route("/case-attributes")
 def show_case_attribute_columns():
-    case_attributes = get_case_attributes()
+    case_attributes = {}
+    with database_connection() as conn:
+        case_attributes = get_case_attributes(conn)
+
     for key, val in case_attributes.items():
         if not val:
             case_attributes[key] = "No description"
