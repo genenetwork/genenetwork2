@@ -146,7 +146,7 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
     geneid_dict = {trait_name: geneid for (trait_name, geneid) in geneid_dict.items() if
                    trait_lists.get(trait_name)}
 
-    conn, _cursor_object = database_connector()
+    conn = database_connector()
 
     with conn:
 
@@ -244,7 +244,7 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
         (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
             this_trait, this_dataset)
 
-        conn, _cursor_object = database_connector()
+        conn = database_connector()
         with conn:
             correlation_results = compute_all_lit_correlation(
                 conn=conn, trait_lists=list(geneid_dict.items()),
