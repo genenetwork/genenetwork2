@@ -198,7 +198,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 @edit_access_required
 @login_required
 def display_probeset_metadata(name: str):
-    with database_connection as conn:
+    with database_connection() as conn:
         _d = edit_probeset(conn=conn, name=name)
         return render_template(
             "edit_probeset.html",
@@ -356,7 +356,7 @@ def update_phenotype(dataset_id: str, name: str):
 @edit_access_required
 @login_required
 def update_probeset(name: str):
-    with database_connection as conn:
+    with database_connection() as conn:
         data_ = request.form.to_dict()
         probeset_ = {
             "id_": data_.get("id"),
