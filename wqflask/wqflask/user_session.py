@@ -23,7 +23,7 @@ THIRTY_DAYS = 60 * 60 * 24 * 30
 @app.before_request
 def get_user_session():
     g.user_session = UserSession()
-    # ZS: I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
+    # I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
     if not g.user_session:
         response = make_response(redirect(url_for('login')))
         response.set_cookie('session_id_v2', '', expires=0)
@@ -36,6 +36,8 @@ def set_user_session(response):
         if not request.cookies.get(g.user_session.cookie_name):
             response.set_cookie(g.user_session.cookie_name,
                                 g.user_session.cookie)
+    else:
+        response.set_cookie('session_id_v2', '', expires=0)
     return response
 
 
@@ -97,7 +99,7 @@ class UserSession:
         self.session_id = session_id
         self.record = Redis.hgetall(self.redis_key)
 
-        # ZS: If user correctled logged in but their session expired
+        # ZS: If user correctly logged in but their session expired
         # ZS: Need to test this by setting the time-out to be really short or something
         if not self.record or self.record == []:
             if user_cookie:
@@ -123,6 +125,9 @@ class UserSession:
             if user_cookie:
                 self.logged_in = True
                 self.user_details = get_user_by_unique_column("user_id", self.user_id)
+                if not self.user_details:
+                    self.logged_in = False
+                    return None
 
         if user_cookie:
             session_time = THREE_DAYS
@@ -157,13 +162,13 @@ class UserSession:
     def redis_user_id(self):
         """User id from Redis (need to check if this is the same as the id stored in self.records)"""
 
-        # ZS: This part is a bit weird. Some accounts used to not have saved user ids, and in the process of testing I think I created some duplicate accounts for myself.
-        # ZS: Accounts should automatically generate user_ids if they don't already have one now, so this might not be necessary for anything other than my account's collections
+        # This part is a bit weird. Some accounts used to not have saved user ids, and in the process of testing I think I created some duplicate accounts for myself.
+        # Accounts should automatically generate user_ids if they don't already have one now, so this might not be necessary for anything other than my account's collections
 
         if 'user_email_address' in self.record:
             user_email = self.record['user_email_address']
 
-            # ZS: Get user's collections if they exist
+            # Get user's collections if they exist
             user_id = None
             user_id = get_user_id("email_address", user_email)
         elif 'user_id' in self.record:
@@ -172,7 +177,7 @@ class UserSession:
             user_github_id = self.record['github_id']
             user_id = None
             user_id = get_user_id("github_id", user_github_id)
-        else:  # ZS: Anonymous user
+        else:  # Anonymous user
             return None
 
         return user_id
@@ -189,11 +194,11 @@ class UserSession:
     def user_collections(self):
         """List of user's collections"""
 
-        # ZS: Get user's collections if they exist
+        # Get user's collections if they exist
         collections = get_user_collections(self.user_id)
         collections = [item for item in collections if item['name'] != "Your Default Collection"] + \
             [item for item in collections if item['name']
-                == "Your Default Collection"]  # ZS: Ensure Default Collection is last in list
+                == "Your Default Collection"]  # Ensure Default Collection is last in list
         return collections
 
     @property
