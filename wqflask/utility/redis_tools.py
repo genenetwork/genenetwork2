@@ -28,7 +28,10 @@ def is_redis_available():
 def load_json_from_redis(item_list, column_value):
     if type(column_value) == str:
         column_value = str.encode(column_value)
-    return json.loads(item_list[column_value])
+    try:
+        return json.loads(item_list[column_value])
+    except:
+        return None
 
 
 def get_user_id(column_name, column_value):
