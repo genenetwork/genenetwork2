@@ -961,31 +961,6 @@ def is_number(s):
         return False
 
 
-def get_aliases(symbol, species):
-    if species == "mouse":
-        symbol_string = symbol.capitalize()
-    elif species == "human":
-        symbol_string = symbol.upper()
-    else:
-        return []
-
-    filtered_aliases = []
-    response = requests.get(
-        GN2_BASE_URL + "/gn3/gene/aliases/" + symbol_string)
-    if response:
-        alias_list = json.loads(response.content)
-
-        seen = set()
-        for item in alias_list:
-            if item in seen:
-                continue
-            else:
-                filtered_aliases.append(item)
-                seen.add(item)
-
-    return filtered_aliases
-
-
 if __name__ == "__main__":
     # Usually this will be used as a library, but call it from the command line for testing
     # And it runs the code below
