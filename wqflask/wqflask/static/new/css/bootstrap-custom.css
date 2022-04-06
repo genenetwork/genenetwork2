@@ -3349,6 +3349,10 @@ select[multiple].form-group-lg .form-control {
     text-align: right;
 }
 
+.form-horizontal .control-label.text-left{
+    text-align: left;
+}
+
 .form-horizontal .has-feedback .form-control-feedback {
     right: 15px;
 }
