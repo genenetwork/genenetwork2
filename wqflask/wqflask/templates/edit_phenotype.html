@@ -65,7 +65,7 @@
     {% endif %}
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{ publish_xref.id_ }}?resource-id={{ resource_id }}" enctype='multipart/form-data'>
         <div class="form-group">
-            <label for="pubmed-id" class="col-sm-3 col-lg-2 control-label text-left">Pubmed ID:</label>
+            <label for="pubmed-id" class="col-sm-3 col-lg-2 control-label text-left">Pubmed ID</label>
             <!-- Do not enter PubMed_ID if this trait has not been Published.
                 If the PubMed_ID you entered is alreday stored in our
                 database, all the following fields except Post Publication
@@ -77,7 +77,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="pre-pub-desc" class="col-sm-3 col-lg-2 control-label text-left">Pre Publication Description:</label>
+            <label for="pre-pub-desc" class="col-sm-3 col-lg-2 control-label text-left">Pre Publication Description</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="pre-pub-desc" class="form-control" rows="4">{{ phenotype.pre_pub_description |default('', true) }}</textarea>
                 <input name="old_pre_pub_description" class="changed" type="hidden" value="{{ phenotype.pre_pub_description |default('', true) }}"/>
@@ -88,21 +88,21 @@
                 authorized users can see the Post Publication Description -->
         </div>
         <div class="form-group">
-            <label for="post-pub-desc" class="col-sm-3 col-lg-2 control-label text-left">Post Publication Description:</label>
+            <label for="post-pub-desc" class="col-sm-3 col-lg-2 control-label text-left">Post Publication Description</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="post-pub-desc" class="form-control" rows="4">{{ phenotype.post_pub_description |default('', true) }}</textarea>
                 <input name="old_post_pub_description" class="changed" type="hidden" value="{{ phenotype.post_pub_description |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="orig-desc" class="col-sm-3 col-lg-2 control-label text-left">Original Description:</label>
+            <label for="orig-desc" class="col-sm-3 col-lg-2 control-label text-left">Original Description</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="orig-desc" class="form-control" rows="4">{{ phenotype.original_description |default('', true) }}</textarea>
                 <input name="old_original_description" class="changed" type="hidden" value="{{ phenotype.original_description |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="units" class="col-sm-3 col-lg-2 control-label text-left">Units:</label>
+            <label for="units" class="col-sm-3 col-lg-2 control-label text-left">Units</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="units" class="form-control" rows="1">{{ phenotype.units |default('', true) }}</textarea>
                 <input name="old_units" class="changed" type="hidden" value="{{ phenotype.units |default('', true) }}"/>
@@ -110,7 +110,7 @@
         </div>
         <div class="form-group">
             <label for="pre-pub-abbrev" class="col-sm-3 col-lg-2 control-label text-left">
-                Pre Publication Abbreviation:
+                Pre Publication Abbreviation
             </label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="pre-pub-abbrev" class="form-control" rows="1">{{ phenotype.pre_pub_abbreviation |default('', true) }}</textarea>
@@ -119,7 +119,7 @@
         </div>
         <div class="form-group">
             <label for="post-pub-abbrev" class="col-sm-3 col-lg-2 control-label text-left">
-                Post Publication Abbreviation:
+                Post Publication Abbreviation
             </label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="post-pub-abbrev" class="form-control" rows="1">{{ phenotype.post_pub_abbreviation |default('', true) }}</textarea>
@@ -128,7 +128,7 @@
         </div>
         <div class="form-group">
             <label for="labcode" class="col-sm-3 col-lg-2 control-label text-left">
-                Lab Code:
+                Lab Code
             </label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="labcode" class="form-control" rows="1">{{ phenotype.lab_code |default('', true) }}</textarea>
@@ -137,7 +137,7 @@
         </div>
         <div class="form-group">
             <label for="submitter" class="col-sm-3 col-lg-2 control-label text-left">
-                Submitter:
+                Submitter
             </label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="submitter" class="form-control" rows="1">{{ phenotype.submitter |default('', true) }}</textarea>
@@ -145,7 +145,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="owner" class="col-sm-3 col-lg-2 control-label text-left">Owner:</label>
+            <label for="owner" class="col-sm-3 col-lg-2 control-label text-left">Owner</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="owner" class="form-control" rows="1">{{ phenotype.owner |default('', true) }}</textarea>
                 <input name="old_owner" class="changed" type="hidden" value="{{ phenotype.owner |default('', true) }}"/>
@@ -153,7 +153,7 @@
         </div>
         <div class="form-group">
             <label for="authorized-users" class="col-sm-3 col-lg-2 control-label text-left">
-                Authorized Users:
+                Authorized Users
             </label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="authorized-users" class="form-control" rows="1">{{ phenotype.authorized_users |default('', true) }}</textarea>
@@ -161,56 +161,56 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="authors" class="col-sm-3 col-lg-2 control-label text-left">Authors:</label>
+            <label for="authors" class="col-sm-3 col-lg-2 control-label text-left">Authors</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="authors" class="form-control" rows="2" placeholder="Example: Roy S, Ingels J, Bohl CJ, McCarty M, Lu L, Mulligan MK, Mozhui K, Centeno A, Williams EG, Auwerx J, Williams RW">{{ publication.authors |default('', true) }}</textarea>
                 <input name="old_authors" class="changed" type="hidden" value="{{ publication.authors |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="title" class="col-sm-3 col-lg-2 control-label text-left">Title:</label>
+            <label for="title" class="col-sm-3 col-lg-2 control-label text-left">Title</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="title" class="form-control" rows="2">{{ publication.title |default('', true) }}</textarea>
                 <input name="old_title" class="changed" type="hidden" value="{{ publication.title |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="abstract" class="col-sm-3 col-lg-2 control-label text-left">Abstract:</label>
+            <label for="abstract" class="col-sm-3 col-lg-2 control-label text-left">Abstract</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="abstract" class="form-control" rows="6">{{ publication.abstract |default('', true) }}</textarea>
                 <input name="old_abstract" class="changed" type="hidden" value="{{ publication.abstract |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="journal" class="col-sm-3 col-lg-2 control-label text-left">Journal:</label>
+            <label for="journal" class="col-sm-3 col-lg-2 control-label text-left">Journal</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="journal" class="form-control" rows="1">{{ publication.journal |default('', true) }}</textarea>
                 <input name="old_journal" class="changed" type="hidden" value="{{ publication.journal_ |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="pages" class="col-sm-3 col-lg-2 control-label text-left">Pages:</label>
+            <label for="pages" class="col-sm-3 col-lg-2 control-label text-left">Pages</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="pages" class="form-control" rows="1">{{ publication.pages |default('', true) }}</textarea>
                 <input name="old_pages" class="changed" type="hidden" value="{{ publication.pages |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="month" class="col-sm-3 col-lg-2 control-label text-left">Month:</label>
+            <label for="month" class="col-sm-3 col-lg-2 control-label text-left">Month</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="month" class="form-control" rows="1">{{ publication.month |default('', true) }}</textarea>
                 <input name="old_month" class="changed" type="hidden" value="{{ publication.month |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="year" class="col-sm-3 col-lg-2 control-label text-left">Year:</label>
+            <label for="year" class="col-sm-3 col-lg-2 control-label text-left">Year</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="year" class="form-control" rows="1">{{ publication.year |default('', true) }}</textarea>
                 <input name="old_year" class="changed" type="hidden" value="{{ publication.year |default('', true) }}"/>
             </div>
         </div>
         <div class="form-group">
-            <label for="sequence" class="col-sm-3 col-lg-2 control-label text-left">Sequence:</label>
+            <label for="sequence" class="col-sm-3 col-lg-2 control-label text-left">Sequence</label>
             <div class="col-sm-7 col-lg-8">
                 <textarea name="sequence" class="form-control" rows="6">{{ publish_xref.sequence |default('', true) }}</textarea>
                 <input name="old_sequence" class="changed" type="hidden" value="{{ publication.sequence |default('', true) }}"/>
