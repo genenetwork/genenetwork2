@@ -64,6 +64,15 @@
 
     {% endif %}
     <form id="edit-form" class="container form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{ publish_xref.id_ }}?resource-id={{ resource_id }}" enctype='multipart/form-data'>
+	<div class="form-group">
+	    <div class="controls center-block" style="width: max-content;">
+		<input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
+		<input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
+		<input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
+		<input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control col-xs-2 changed" value="Submit Change">
+		<input type="reset" style="width: 110px;" class="btn btn-danger form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">
+            </div>
+	</div>
         <div class="form-group">
             <label for="pubmed-id" class="col-sm-3 col-lg-2 control-label text-left">PubMed ID</label>
             <!-- Do not enter PubMed_ID if this trait has not been Published.
@@ -229,13 +238,15 @@
                 Note: Current allowable sample headers are: {{ ', '.join(headers) }}
             </p>
         </div>
-        <div class="controls center-block" style="width: max-content;">
-            <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
-            <input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
-            <input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
-            <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control col-xs-2 changed" value="Submit Change">
-            <input type="reset" style="width: 110px;" class="btn btn-danger form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">
-        </div>
+	<div class="form-group">
+	    <div class="controls center-block" style="width: max-content;">
+		<input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
+		<input name="phenotype-id" class="changed" type="hidden" value="{{ publish_xref.phenotype_id }}"/>
+		<input name="comments" class="changed" type="hidden" value="{{ publish_xref.comments }}"/>
+		<input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control col-xs-2 changed" value="Submit Change">
+		<input type="reset" style="width: 110px;" class="btn btn-danger form-control col-xs-2 changed" onClick="window.location.reload();" value="Reset">
+            </div>
+	</div>
     </form>
 </div>
 
