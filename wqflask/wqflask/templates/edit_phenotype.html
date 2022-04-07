@@ -63,7 +63,7 @@
     </div>
 
     {% endif %}
-    <form id="edit-form" class="form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{ publish_xref.id_ }}?resource-id={{ resource_id }}" enctype='multipart/form-data'>
+    <form id="edit-form" class="container form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{ publish_xref.id_ }}?resource-id={{ resource_id }}" enctype='multipart/form-data'>
         <div class="form-group">
             <label for="pubmed-id" class="col-sm-3 col-lg-2 control-label text-left">Pubmed ID</label>
             <!-- Do not enter PubMed_ID if this trait has not been Published.
