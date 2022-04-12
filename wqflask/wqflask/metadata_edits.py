@@ -29,7 +29,6 @@ from gn3.authentication import get_highest_user_access_role
 from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
-from gn3.csvcmp import get_allowable_sampledata_headers
 from gn3.csvcmp import remove_insignificant_edits
 from gn3.db import diff_from_dict
 from gn3.db import fetchall
@@ -208,7 +207,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             publication=_d.get("publication"),
             dataset_id=dataset_id,
             resource_id=request.args.get("resource-id"),
-            headers=get_allowable_sampledata_headers(conn),
+            headers=get_case_attributes(conn).keys(),
             version=os.environ.get("GN_VERSION"),
         )
 
@@ -272,7 +271,6 @@ def update_phenotype(dataset_id: str, name: str):
                 ),
                 epsilon=0.001,
             )
-            headers = get_allowable_sampledata_headers(conn)
             invalid_headers = extract_invalid_csv_headers(
                 allowed_headers=headers, csv_text=delta_csv
             )
@@ -688,7 +686,6 @@ def show_case_attribute_columns():
     case_attributes = {}
     with database_connection() as conn:
         case_attributes = get_case_attributes(conn)
-
     for key, val in case_attributes.items():
         if not val:
             case_attributes[key] = "No description"
