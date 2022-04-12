@@ -109,7 +109,7 @@ logger = utility.logger.getLogger(__name__)
 @app.before_request
 def connect_db():
     db = getattr(g, '_database', None)
-    if db is None:
+    if request.endpoint not in ("static", "js") and db is None:
         g.db = g._database = sqlalchemy.create_engine(
             SQL_URI, encoding="latin1")
 
