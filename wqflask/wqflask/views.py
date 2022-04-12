@@ -98,8 +98,6 @@ from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
-from wqflask.database import db_session
-
 
 import utility.logger
 
@@ -120,7 +118,6 @@ def connect_db():
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
-        db_session.remove()
         g.db.dispose()
         g.db = None
 

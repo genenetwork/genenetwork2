@@ -27,17 +27,6 @@ def sql_uri():
                 "GN2_SETTINGS", os.path.abspath("../etc/default_settings.py")),
             "SQL_URI"))
 
-engine = create_engine(sql_uri(), encoding="latin1")
-
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
-Base = declarative_base()
-Base.query = db_session.query_property()
-
-# Initialise the db
-Base.metadata.create_all(bind=engine)
-
 def parse_db_url(sql_uri: str) -> Tuple:
     """
     Parse SQL_URI env variable from an sql URI
