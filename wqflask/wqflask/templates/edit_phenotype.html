@@ -235,7 +235,8 @@
         </div>
         <div class="col-xs-6">
             <p>
-                Note: Current allowable sample headers are: {{ ', '.join(headers) }}
+                Note: Current allowable case-attributes are: {{ ', '.join(headers) }}.
+		<a href="{{url_for('metadata_edit.show_case_attribute_columns')}}" target="_blank">You can find these case-attribute  descriptions here.</a>
             </p>
         </div>
 	<div class="form-group">
