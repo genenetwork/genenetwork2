@@ -286,6 +286,56 @@ def get_sample_data():
     else:
         return None
 
+def for_collection_table(trait_obs):
+    trait_list = []
+    for i, trait in enumerate(trait_obs):
+        trait_dict = {}
+        trait_dict['index'] = i + 1
+
+        trait_dict['dataset_fullname'] = trait.dataset.fullname
+        trait_dict['dataset'] = trait.dataset.name
+        trait_dict['name'] = trait.name
+        trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait.display_name, trait.dataset.name))
+        trait_dict['display_name'] = trait.display_name
+        trait_dict['symbol'] = "N/A"
+        trait_dict['description'] = "N/A"
+        trait_dict['location'] = "N/A"
+        trait_dict['mean'] = "N/A"
+        if trait.symbol:
+            trait_dict['symbol'] = trait.symbol
+        elif trait.abbreviation:
+            trait_dict['symbol'] = trait.abbreviation
+
+        if trait.dataset.type == "Geno":
+            trait_dict['description'] = f"Marker: {trait.name}"
+        elif trait.description_display:
+            trait_dict['description'] = trait.description_display
+
+        if trait.dataset.type != "Publish":
+            trait_dict['location'] = trait.location_repr
+
+        if trait.dataset.type != "Geno":
+            trait_dict['mean'] = f"{trait.mean:.3f}"
+
+        trait_dict['lod_score'] = trait.LRS_score_repr
+        try:
+            if float(trait.LRS_score_repr) > 0:
+                trait_dict['lod_score'] = f"{trait.LRS_score_repr:.3f}"
+        except:
+            pass
+
+        trait_dict['lod_location'] = trait.LRS_location_repr
+
+        trait_dict['additive'] = "N/A"
+        try:
+            if float(trait.additive) > 0:
+                trait_dict['additive'] = f"{trait.additive:.3f}"
+        except:
+            pass
+
+        trait_list.append(trait_dict)
+
+    return trait_list
 
 def jsonable(trait, dataset=None):
     """Return a dict suitable for using as json
