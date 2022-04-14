@@ -3,6 +3,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
 {% endblock %}
@@ -10,160 +11,98 @@
 <!-- Start of body -->
 
     <div class="container">
-        <h1>
-            <span id="collection_name">{{ uc.name }}</span>
-            <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
-            <button class="btn btn-default" style="display: inline;" id="change_collection_name">Change Collection Name</button>
-            <button class="btn btn-default" style="display: inline;" id="make_default">Make Default</button>
-        </h1>
-        <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
+      <h1>
+        <span id="collection_name">{{ uc.name }}</span>
+        <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
+        <button class="btn btn-default" style="display: inline;" id="change_collection_name">Change Collection Name</button>
+        <button class="btn btn-default" style="display: inline;" id="make_default">Make Default</button>
+      </h1>
+      <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
-        <div class="tool-button-container">
-          <form id="collection_form" action="/delete" method="post">
-            <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
-            <input type="hidden" name="collection_name" id="collection_name" value="{{ collection_name }}" />
-            <input type="hidden" name="tool_used" value="" />
-            <input type="hidden" name="form_url" value="" />
-            <input type="hidden" name="trait_list" id="trait_list" value= "
-            {% for this_trait in trait_obs %}
-                {{ this_trait.name }}:{{ this_trait.dataset.name }}:{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }},
-            {% endfor %}" >
+      <div class="tool-button-container">
+        <form id="collection_form" action="/delete" method="post">
+          <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
+          <input type="hidden" name="collection_name" id="collection_name" value="{{ collection_name }}" />
+          <input type="hidden" name="tool_used" value="" />
+          <input type="hidden" name="form_url" value="" />
+          <input type="hidden" name="trait_list" id="trait_list" value= "
+          {% for this_trait in trait_obs %}
+              {{ this_trait.name }}:{{ this_trait.dataset.name }}:{{ data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name)) }},
+          {% endfor %}" >
 
-            {% include 'tool_buttons.html' %}
+          {% include 'tool_buttons.html' %}
 
+        </form>
+      </div>
+
+      <div style="display: flex;">
+        <form id="heatmaps_form">
+          <button id="clustered-heatmap"
+            class="btn btn-primary"
+            data-url="{{heatmap_data_url}}"
+            title="Generate heatmap from this collection" style="margin-top: 10px; margin-bottom: 10px;">
+                Generate Heatmap
+          </button>
+          <br>
+          <div id="heatmap-options" style="display: none;">
+            <div style="margin-bottom: 10px;">
+              <b>Heatmap Orientation: </b>
+              <br>
+              Vertical
+              <input id="heatmap-orient-vertical"
+                      type="radio"
+                      name="vertical"
+                      value="true" checked="checked"/>
+              Horizontal
+              <input id="heatmap-orient-horizontal"
+                      type="radio"
+                      name="vertical"
+                      value="false" />
+            </div>
+            <div style="margin-bottom: 10px;">
+              <button id="clear-heatmap"
+                  class="btn btn-danger"
+                  title="Clear Heatmap">
+                  Clear Heatmap
+              </button>
+            </div>
+          </div>
+        </form>
+        &nbsp;
+      </div>
+
+      <div>
+        <div id="clustered-heatmap-image-area"></div>
+        <br />
+        <div class="collection-table-options">
+          <form id="export_form" method="POST" action="/export_traits_csv">
+              <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+              <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-ok"></span> Invert</button>
+              <button class="btn btn-success" id="add" type="button" disabled><i class="icon-plus-sign"></i> Copy</button>
+              <input type="hidden" name="database_name" id="database_name" value="None">
+              <input type="hidden" name="export_data" id="export_data" value="">
+              <input type="hidden" name="file_name" id="file_name" value="collection_table">
+              <button class="btn btn-default" id="export_traits">Download</button>
+              <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
+              <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
+              <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+              <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Delete Rows</button>
+              <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" type="button" title="Delete this collection" > Delete Collection</button>
           </form>
         </div>
-        <div style="display: flex;">
-            <form id="heatmaps_form">
-                <button id="clustered-heatmap"
-                    class="btn btn-primary"
-                    data-url="{{heatmap_data_url}}"
-                    title="Generate heatmap from this collection" style="margin-top: 10px; margin-bottom: 10px;">
-                        Generate Heatmap
-                </button>
-                <br>
-                <div id="heatmap-options" style="display: none;">
-                    <div style="margin-bottom: 10px;">
-                        <b>Heatmap Orientation: </b>
-                        <br>
-                        Vertical
-                        <input id="heatmap-orient-vertical"
-                                type="radio"
-                                name="vertical"
-                                value="true" checked="checked"/>
-                        Horizontal
-                        <input id="heatmap-orient-horizontal"
-                                type="radio"
-                                name="vertical"
-                                value="false" />
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <button id="clear-heatmap"
-                            class="btn btn-danger"
-                            title="Clear Heatmap">
-                            Clear Heatmap
-                        </button>
-                    </div>
-                </div>
-            </form>
-            &nbsp;
+        <div style="margin-top: 10px; margin-bottom: 5px;">
+          <b>Show/Hide Columns:</b>
         </div>
 
-        <div>
-            <div id="clustered-heatmap-image-area"></div>
-            <br />
-            <div class="collection-table-options">
-                <form id="export_form" method="POST" action="/export_traits_csv">
-                    <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-                    <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-ok"></span> Invert</button>
-                    <button class="btn btn-success" id="add" type="button" disabled><i class="icon-plus-sign"></i> Copy</button>
-                    <input type="hidden" name="database_name" id="database_name" value="None">
-                    <input type="hidden" name="export_data" id="export_data" value="">
-                    <input type="hidden" name="file_name" id="file_name" value="collection_table">
-                    <button class="btn btn-default" id="export_traits">Download</button>
-                    <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
-                    <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
-                    <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
-                    <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Delete Rows</button>
-                    <button id="delete" class="btn btn-danger submit_special" data-url="/collections/delete" type="button" title="Delete this collection" > Delete Collection</button>
-                </form>
-            </div>
-            <div style="margin-top: 10px; margin-bottom: 5px;">
-                <b>Show/Hide Columns:</b>
-            </div>
-            <div style="min-width: 1500px;">
-                <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th data-export="Index">Index</th>
-                            <th data-export="Dataset">Dataset</th>
-                            <th data-export="Record">Record</th>
-                            <th data-export="Symbol">Symbol</th>
-                            <th data-export="Description">Description</th>
-                            <th data-export="Location">Location</th>
-                            <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">High P <a href="{{ url_for('glossary_blueprint.glossary') }}#L" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
-                            <th data-export="Peak Location">Peak Location</th>
-                            <th data-export="Add. Eff.">Effect Size <a href="{{ url_for('glossary_blueprint.glossary') }}#A" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                    {% for this_trait in trait_obs %}
-                        <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                          <TD align="center" style="padding: 0px;">
-			    <input type="checkbox"
-				   name="searchResult"
-				   class="checkbox trait_checkbox"
-				   value="{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}"
-				   data-trait-info="{{trait_info_str(this_trait)}}">
-			  </TD>
-                            <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
-                            <TD title="{{ this_trait.dataset.fullname }}" data-export="{{ this_trait.dataset.fullname }}">{{ this_trait.dataset.fullname }}</TD>
-                            <TD data-export="{{ this_trait.name }}">
-                                <a href="{{ url_for('show_trait_page',
-                                        trait_id = this_trait.name,
-                                        dataset = this_trait.dataset.name
-                                        )}}">
-                                    {{ this_trait.display_name }}
-                                </a>
-                            </TD>
-                            {% if this_trait.symbol %}
-                            <TD title="{{ this_trait.symbol }}" data-export="{{ this_trait.symbol }}">{% if this_trait.symbol|length > 20 %}{{ this_trait.symbol[:20] }}...{% else %}{{ this_trait.symbol }}{% endif %}</TD>
-                            {% elif this_trait.abbreviation %}
-                            <TD title="{{ this_trait.abbreviation }}" data-export="{{ this_trait.abbreviation }}">{% if this_trait.abbreviation|length > 20 %}{{ this_trait.abbreviation[:20] }}...{% else %}{{ this_trait.abbreviation }}{% endif %}</TD>
-                            {% else %}
-                            <TD data-export="N/A">N/A</TD>
-                            {% endif %}
-                            {% if this_trait.dataset.type == "Geno" %}
-                            <TD title="Marker: {{ this_trait.name }}" data-export="Marker: {{ this_trait.name }}">Marker: {{ this_trait.name }}</TD>
-                            {% elif this_trait.description_display != "" %}
-                            <TD title="{{ this_trait.description_display }}" data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
-                            {% else %}
-                            <TD title="N/A" data-export="N/A">N/A</TD>
-                            {% endif %}
-                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
-                            <TD data-export="{{ this_trait.mean }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                            {% if this_trait.LRS_score_repr|float > 0 %}
-                            <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            {% else %}
-                            <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">N/A</TD>
-                            {% endif %}
-                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
-                            {% if this_trait.additive|float != 0 %}
-                            <TD data-export="{{ this_trait.additive }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
-                            {% else %}
-                            <TD data-export="{{ this_trait.additive }}" align="right">N/A</TD>
-                            {% endif %}
-                        </TR>
-                    {% endfor %}
-                    </tbody>
-
-                </table>
-            </div>
-            <br />
+        <div id="table_container" style="width: 100%; min-width: 1600px;">
+          <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+            <tbody>
+             <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+            </tbody>
+          </table>
         </div>
+        <br />
+      </div>
     </div>
 
 <!-- End of body -->
@@ -171,73 +110,224 @@
 {% endblock %}
 
 {% block js %}
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='fontawesome/js/all.min.js') }}"></script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
 
     <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
 
     <script type="text/javascript"
 	    src="/static/new/javascript/partial_correlations.js"></script>
 
+    <script type='text/javascript'>
+      var trait_list = {{ trait_list|safe }};
+    </script>
 
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
-            $('#trait_table').dataTable( {
-                'drawCallback': function( settings ) {
-                      $('#trait_table tr').off().on("click", function(event) {
-                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                          var obj =$(this).find('input');
-                          obj.prop('checked', !obj.is(':checked'));
-                        }
-                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                          $(this).removeClass("selected")
-                        } else if (event.target.tagName.toLowerCase() !== 'a') {
-                          $(this).addClass("selected")
-                        }
-                        change_buttons()
-                      });
-                },
-                "columns": [
-                    {
-                        "orderDataType": "dom-checkbox",
-                        "orderSequence": [ "desc", "asc"],
-                        "width": 10
-                    },
-                    { "type": "natural", "width": 50 },
-                    { "type": "natural" },
-                    { 'type': "natural-minus-na", "width": 120 },
-                    { "type": "natural" },
-                    { "type": "natural"  },
-                    { "type": "natural", "width": 125 },
-                    { "type": "natural", "width": 60 },
-                    { "type": "natural", "width": 60 },
-                    { "type": "natural", "width": 125 },
-                    { "type": "natural", "width": 85 }
-                ],
-                "order": [[1, "asc" ]],
-                buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: ':not(:first-child)',
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                "sDom": "BZRtr",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "bDeferRender": true,
-                "bSortClasses": false,
-                "paging": false,
-                "orderClasses": true
-            } );
 
+            var tableId = "trait_table";
+
+            var width_change = 0; // For storing the change in width so overall table width can be adjusted by that amount
+
+            columnDefs = [
+              {
+                'data': null,
+                'width': "5px",
+                'orderDataType': "dom-checkbox",
+                'targets': 0,
+                'render': function(data, type, row, meta) {
+                  return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
+                }
+              },
+              {
+                'title': "Index",
+                'type': "natural",
+                'width': "35px",
+                "searchable": false,
+                "orderable": false,
+                'targets': 1,
+                'data': "index"
+              },
+              {
+                'title': "Dataset",
+                'type': "natural",
+                'targets': 2,
+                'data': "dataset_fullname"
+              },
+              {
+                'title': "Record",
+                'type': "natural-minus-na",
+                'data': null,
+                'targets': 3,
+                'render': function(data, type, row, meta) {
+                  return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+                }
+              },
+              {
+                'title': "Symbol",
+                'type': "natural",
+                'width': "120px",
+                'targets': 4,
+                'data': "symbol"
+              },
+              {
+                'title': "Description",
+                'type': "natural",
+                'targets': 5,
+                'data': "description"
+              },
+              {
+                'title': "<div style='text-align: right;'>Location</div>",
+                'type': "natural-minus-na",
+                'width': "130px",
+                'targets': 6,
+                'data': "location"
+              },
+              {
+                'title': "<div style='text-align: right;'>Mean</div>",
+                'type': "natural-minus-na",
+                'width': "40px",
+                'data': "mean",
+                'targets': 7,
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>LOD <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
+                'type': "natural-minus-na",
+                'data': "lod_score",
+                'width': "60px",
+                'targets': 8,
+                'orderSequence': [ "desc", "asc"]
+              },
+              {
+                'title': "<div style='text-align: right;'>Peak Location</div>",
+                'type': "natural-minus-na",
+                'width': "130px",
+                'targets': 9,
+                'data': "lod_location"
+              },
+              {
+                'title': "<div style='text-align: right; padding-right: 10px;'>Effect</div> <div style='text-align: right;'>Size <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
+                'type': "natural-minus-na",
+                'data': "additive",
+                'width': "65px",
+                'targets': 10,
+                'orderSequence': [ "desc", "asc"]
+              }
+            ];
+
+            loadDataTable(true);
+
+            function loadDataTable(first_run=false){
+                if (!first_run){
+                    setUserColumnsDefWidths(tableId);
+                }
+
+                table_settings = {
+                    'drawCallback': function( settings ) {
+                        $('#' + tableId + ' tr').off().on("click", function(event) {
+                            if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                            var obj =$(this).find('input');
+                            obj.prop('checked', !obj.is(':checked'));
+                            }
+                            if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                            $(this).removeClass("selected")
+                            } else if (event.target.tagName.toLowerCase() !== 'a') {
+                            $(this).addClass("selected")
+                            }
+                            change_buttons()
+                        });
+                    },
+                    "createdRow": function ( row, data, index ) {
+                      $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
+                      $('td', row).eq(1).attr("align", "right");
+                      $('td', row).eq(1).attr('data-export', index+1);
+                      $('td', row).eq(2).attr('title', $('td', row).eq(2).text());
+                      $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                      $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                      $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                      $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                      $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                      if ($('td', row).eq(4).text().length > 20) {
+                          $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 20));
+                          $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
+                      }
+                      $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
+                      $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                      $('td', row).slice(6,11).attr("align", "right");
+                      $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                      $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                      $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                      $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                      $('td', row).eq(10).attr('data-export', $('td', row).eq(9).text());
+                    },
+                    "data": trait_list,
+                    "columns": columnDefs,
+                    "order": [[1, "asc" ]],
+                    "sDom": "iti",
+                    "destroy": true,
+                    "autoWidth": false,
+                    "bSortClasses": false,
+                    "scrollY": "1000px",
+                    "scrollCollapse": true,
+                    {% if trait_list|length > 5 %}
+                    "scroller":  true,
+                    {% endif %}
+                    "iDisplayLength": -1,
+                    "initComplete": function (settings) {
+                        // Add JQueryUI resizable functionality to each th in the ScrollHead table
+                        $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
+                            handles: "e",
+                            alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
+                            resize: function( event, ui ) {
+                            width_change = ui.size.width - ui.originalSize.width;
+                            },
+                            stop: function () {
+                            saveColumnSettings(tableId, trait_table);
+                            loadDataTable();
+                            }
+                        });
+                    }
+                }
+
+                if (!first_run){
+                    $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_obs|length > 20 %}+ 17{% endif %}) + "px"); // Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+
+                    let checked_rows = get_checked_rows(tableId);
+                    trait_table = $('#' + tableId).DataTable(table_settings);
+                    if (checked_rows.length > 0){
+                        recheck_rows(trait_table, checked_rows);
+                    }
+                } else {
+                    trait_table = $('#' + tableId).DataTable(table_settings);
+                    trait_table.draw();
+
+                    {% if trait_list|length > 20 %}
+                    $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
+                    {% else %}
+                    $('#table_container').css("width", String($('#trait_table').width()) + "px");
+                    {% endif %}
+                }
+            }
+
+            trait_table.on( 'order.dt search.dt', function () {
+              trait_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i+1;
+              } );
+            } ).draw();
+
+            window.addEventListener('resize', function(){
+              trait_table.columns.adjust();
+            });
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
@@ -296,87 +386,87 @@
             });
 
 	    $("#heatmaps_form").submit(function(e) {
-		e.preventDefault();
+		    e.preventDefault();
 	    });
 
 	    function clear_heatmap_area() {
-		area = document.getElementById("clustered-heatmap-image-area");
-		area.querySelectorAll("*").forEach(function(child) {
-		    child.remove();
-		});
+        area = document.getElementById("clustered-heatmap-image-area");
+        area.querySelectorAll("*").forEach(function(child) {
+          child.remove();
+        });
 	    }
 
 	    function generate_progress_indicator() {
-		count = 0;
-		default_message = "Computing"
-		return function() {
-		    message = default_message;
-		    if(count >= 10) {
-			count = 0;
-		    }
-		    for(i = 0; i < count; i++) {
-			message = message + " .";
-		    }
-		    clear_heatmap_area();
-		    $("#clustered-heatmap-image-area").append(
-			'<div class="alert alert-info"' +
-			    ' style="font-weigh: bold; font-size: 150%;">' +
-			    message + '</div>');
-		    count = count + 1;
-		};
+        count = 0;
+        default_message = "Computing"
+        return function() {
+          message = default_message;
+          if(count >= 10) {
+            count = 0;
+          }
+          for(i = 0; i < count; i++) {
+              message = message + " .";
+          }
+          clear_heatmap_area();
+          $("#clustered-heatmap-image-area").append(
+            '<div class="alert alert-info"' +
+            ' style="font-weigh: bold; font-size: 150%;">' +
+            message + '</div>');
+          count = count + 1;
+        };
 	    }
 
 	    function display_clustered_heatmap(heatmap_data) {
-		clear_heatmap_area();
-		image_area = document.getElementById("clustered-heatmap-image-area")
-		Plotly.newPlot(image_area, heatmap_data)
+        clear_heatmap_area();
+        image_area = document.getElementById("clustered-heatmap-image-area")
+        Plotly.newPlot(image_area, heatmap_data)
 	    }
 
 	    function process_clustered_heatmap_error(xhr, status, error) {
-		clear_heatmap_area()
-		$("#clustered-heatmap-image-area").append(
-		    $(
-			'<div class="alert alert-danger">ERROR: ' +
-			    xhr.responseJSON.message +
-			    '</div>'));
+        clear_heatmap_area()
+        $("#clustered-heatmap-image-area").append(
+          $(
+        '<div class="alert alert-danger">ERROR: ' +
+            xhr.responseJSON.message +
+            '</div>'));
 	    }
 
 	    $("#clustered-heatmap").on("click", function() {
-		clear_heatmap_area();
+        clear_heatmap_area();
         $("#heatmap-options").show();
-		intv = window.setInterval(generate_progress_indicator(), 300);
-		vert_element = document.getElementById("heatmap-orient-vertical");
-		vert_true = vert_element == null ? false : vert_element.checked;
-		heatmap_url = $(this).attr("data-url")
-		traits = $(".trait_checkbox:checked").map(function() {
-		    return this.value
-		}).get();
-		$.ajax({
-		    type: "POST",
-		    url: heatmap_url,
-		    contentType: "application/json",
-		    data: JSON.stringify({
-			"traits_names": traits,
-			"vertical": vert_true
-		    }),
-		    dataType: "JSON",
-		    success: function(data, status, xhr) {
-			window.clearInterval(intv);
-			display_clustered_heatmap(data);
-		    },
-		    error: function(xhr, status, error) {
-			window.clearInterval(intv);
-			process_clustered_heatmap_error(xhr, status, error);
-		    }
-		});
+        intv = window.setInterval(generate_progress_indicator(), 300);
+        vert_element = document.getElementById("heatmap-orient-vertical");
+        vert_true = vert_element == null ? false : vert_element.checked;
+        heatmap_url = $(this).attr("data-url")
+        traits = $(".trait_checkbox:checked").map(function() {
+            return this.value
+        }).get();
+        $.ajax({
+            type: "POST",
+            url: heatmap_url,
+            contentType: "application/json",
+            data: JSON.stringify({
+              "traits_names": traits,
+              "vertical": vert_true
+            }),
+            dataType: "JSON",
+            success: function(data, status, xhr) {
+              window.clearInterval(intv);
+              display_clustered_heatmap(data);
+            },
+            error: function(xhr, status, error) {
+              window.clearInterval(intv);
+              process_clustered_heatmap_error(xhr, status, error);
+            }
+        });
 	    });
 
-        $("#clear-heatmap").on("click", function() {
-            clear_heatmap_area();
-            $("#heatmap-options").hide();
-        });
+      $("#clear-heatmap").on("click", function() {
+        clear_heatmap_area();
+        $("#heatmap-options").hide();
+      });
 
-        });
+      });
     </script>
 
 

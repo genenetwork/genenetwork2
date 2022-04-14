@@ -17,7 +17,7 @@ from utility.redis_tools import get_redis_conn
 
 from base.trait import create_trait
 from base.trait import retrieve_trait_info
-from base.trait import jsonable
+from base.trait import jsonable, for_collection_table
 from base.data_set import create_dataset
 
 from utility.logger import getLogger
@@ -258,8 +258,10 @@ def view_collection():
 
         json_version.append(jsonable(trait_ob))
 
+    trait_list = for_collection_table(trait_obs)
+
     collection_info = dict(
-        trait_obs=trait_obs,
+        trait_list=trait_list,
         uc=uc,
         heatmap_data_url=f"{GN_SERVER_URL}api/heatmaps/clustered")
 
