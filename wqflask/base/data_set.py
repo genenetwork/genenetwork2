@@ -333,11 +333,11 @@ class DatasetGroup:
     def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
         if name == None:
-            self.name, self.id, self.genetic_type = fetchone(
+            self.name, self.id, self.genetic_type, self.code = fetchone(
                 dataset.query_for_group)
         else:
-            self.name, self.id, self.genetic_type = fetchone(
-                "SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType FROM InbredSet where Name='%s'" % name)
+            self.name, self.id, self.genetic_type, self.code = fetchone(
+                "SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode FROM InbredSet where Name='%s'" % name)
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -866,7 +866,7 @@ class PhenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                             SELECT
-                                    InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
+                                    InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
                             FROM
                                     InbredSet, PublishFreeze
                             WHERE
@@ -982,7 +982,7 @@ class GenotypeDataSet(DataSet):
 
         self.query_for_group = '''
                 SELECT
-                        InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
+                        InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
                 FROM
                         InbredSet, GenoFreeze
                 WHERE
@@ -1082,7 +1082,7 @@ class MrnaAssayDataSet(DataSet):
 
         self.query_for_group = '''
                         SELECT
-                                InbredSet.Name, InbredSet.Id, InbredSet.GeneticType
+                                InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
                         FROM
                                 InbredSet, ProbeSetFreeze, ProbeFreeze
                         WHERE
