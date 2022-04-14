@@ -39,4 +39,4 @@ def parse_db_url(sql_uri: str) -> Tuple:
 def database_connection():
     """Returns a database connection"""
     host, user, passwd, db_name = parse_db_url(sql_uri())
-    return MySQLdb.Connect(db=db_name, user=user, passwd=passwd, host=host)
+    return MySQLdb.connect(db=db_name, user=user, passwd=passwd, host=host)
