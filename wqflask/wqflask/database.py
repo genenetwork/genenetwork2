@@ -33,10 +33,12 @@ def parse_db_url(sql_uri: str) -> Tuple:
     e.g. 'mysql://user:pass@host_name/db_name'
     """
     parsed_db = urlparse(sql_uri)
-    return (parsed_db.hostname, parsed_db.username,
-            parsed_db.password, parsed_db.path[1:])
+    return (
+        parsed_db.hostname, parsed_db.username, parsed_db.password,
+        parsed_db.path[1:], parsed_db.port)
 
 def database_connection():
     """Returns a database connection"""
-    host, user, passwd, db_name = parse_db_url(sql_uri())
-    return MySQLdb.connect(db=db_name, user=user, passwd=passwd, host=host)
+    host, user, passwd, db_name, port = parse_db_url(sql_uri())
+    return MySQLdb.connect(
+        db=db_name, user=user, passwd=passwd, host=host, port=port)
