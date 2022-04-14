@@ -64,8 +64,8 @@
         <input type="hidden" name="wanted_inputs" value="">
         <input type="hidden" name="form_url" value="/run_mapping">
         
-        <div class="container" style="min-width: 1400px;">
-          <div class="col-xs-5">
+        <div class="container" style="width: 1200px; float: left;">
+          <div class="col-xs-4">
               <h2>Map Viewer: Whole Genome</h2><br>
               <b>Population:</b> {{ dataset.group.species|capitalize }} {{ dataset.group.name }}<br>
               <b>Database:</b> {{ dataset.fullname }}<br>
@@ -82,7 +82,7 @@
               <br>
               <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
           </div>
-          <div id="gn1_map_options" class="col-xs-5" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
+          <div id="gn1_map_options" class="col-xs-6" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
               <table>
                 <tr>
@@ -190,7 +190,7 @@
           </div>
         </div>
  
-        <div class="tabbable" style="margin: 10px;">
+        <div class="tabbable" style="margin: 10px; float: left;">
           <ul class="nav nav-tabs">
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
@@ -249,7 +249,7 @@
 
         </form>
         {% if selectedChr == -1 %}
-        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative;">
+        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left;">
           <h2>Mapping Statistics</h2>
         <br />
         <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
