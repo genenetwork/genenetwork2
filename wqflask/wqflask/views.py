@@ -110,6 +110,9 @@ logger = utility.logger.getLogger(__name__)
 def connect_db():
     db = getattr(g, '_database', None)
     if request.endpoint not in ("static", "js") and db is None:
+        logger.debug(
+            f"Creating a database connection\n"
+            f"\t\tfor request: {request.endpoint}")
         g.db = g._database = sqlalchemy.create_engine(
             SQL_URI, encoding="latin1")
 
@@ -118,8 +121,10 @@ def connect_db():
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
+        logger.debug(f"Removing the session")
         g.db.dispose()
         g.db = None
+        logger.debug(f"g.db: {g.db}\n\tg._database: {g._database}")
 
 
 @app.errorhandler(Exception)
