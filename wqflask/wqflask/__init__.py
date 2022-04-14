@@ -35,11 +35,12 @@ app = Flask(__name__)
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
 app.config.from_envvar('GN2_SETTINGS')
 
-DB_HOST, DB_USER, DB_PASS, DB_NAME = parse_db_url(app.config.get('SQL_URI'))
+DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT = parse_db_url(app.config.get('SQL_URI'))
 app.config["DB_HOST"] = DB_HOST
 app.config["DB_USER"] = DB_USER
 app.config["DB_PASS"] = DB_PASS
 app.config["DB_NAME"] = DB_NAME
+app.config["DB_PORT"] = DB_PORT
 
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
