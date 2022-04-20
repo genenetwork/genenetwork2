@@ -307,7 +307,7 @@
                   {% if 'additive' in marker %}
                   {% if geno_db_exists == "True" %}
                   <td align="right"><a target"_blank" href="corr_scatter_plot?method=pearson&dataset_1={{ dataset.group.name }}Geno&dataset_2={{ dataset.name }}&trait_1={{ marker.name }}&trait_2={{ this_trait.name }}">{{ '%0.3f' | format(marker.additive|float) }}</a></td>
-                  {% else %}}
+                  {% else %}
                   <td align="right">{{ '%0.3f' | format(marker.additive|float) }}</td>
                   {% endif %}
                   {% endif %}
