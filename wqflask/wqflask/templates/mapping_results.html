@@ -190,7 +190,7 @@
           </div>
         </div>
  
-        <div class="tabbable" style="margin: 10px; float: left;">
+        <div class="tabbable" style="width: 100%; overflow-x: auto; margin: 10px; float: left;">
           <ul class="nav nav-tabs">
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
@@ -201,7 +201,7 @@
             </li>
             {% endif %}
           </ul>
-          <div class="tab-content" style="overflow-x: auto;">
+          <div class="tab-content">
             <div class="tab-pane active" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
