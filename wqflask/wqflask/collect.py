@@ -203,9 +203,12 @@ def trait_info_str(trait):
         if trait.dataset.type == "Geno":
             return 0
         else:
-            return (
-                f"{float(trait.LRS_score_repr):0.3f}" if float(trait.LRS_score_repr) > 0
-                else f"{trait.LRS_score_repr}")
+            if trait.LRS_score_repr != "N/A":
+                return (
+                    f"{float(trait.LRS_score_repr):0.3f}" if float(trait.LRS_score_repr) > 0
+                    else f"{trait.LRS_score_repr}")
+            else:
+                return "N/A"
 
     def __lrs_location(trt):
         if hasattr(trt, "LRS_location_repr"):
