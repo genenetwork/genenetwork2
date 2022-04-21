@@ -540,8 +540,10 @@ class LrsSearch(DoSearch):
             if len(self.search_term) > 2:
                 # If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
                 chr_num = self.search_term[2]
-                if "chr" in self.search_term[2].lower():
-                    chr_num = self.search_term[2].lower().replace("chr", "")
+                chr_str = re.match("(^c|^C)[a-z]*", chr_num)
+
+                if chr_str:
+                    chr_num = self.search_term[2].replace(chr_str.group(0), "")
                     self.search_term[2] = chr_num
                 where_clause += """ and Geno.Chr = '%s' """ % (chr_num)
                 if len(self.search_term) == 5:
@@ -632,8 +634,9 @@ class CisTransLrsSearch(DoSearch):
                 lrs_min, lrs_max, self.mb_buffer = [
                     float(value) for value in self.search_term[:3]]
                 chromosome = self.search_term[3]
-                if "Chr" in chromosome or "chr" in chromosome:
-                    chromosome = int(chromosome[3:])
+                chr_str = re.match("(^c|^C)[a-z]*", chromosome)
+                if chr_str:
+                    chromosome = int(chromosome.replace(chr_str.group(0), ''))
             else:
                 SomeError
 
@@ -863,10 +866,9 @@ class PositionSearch(DoSearch):
         try:
             self.chr = int(self.chr)
         except:
-            if 'chr' in self.chr:
-                self.chr = self.chr.replace('chr', '')
-            else:
-                self.chr = self.chr.replace('CHR', '')
+            chr_str = re.match("(^c|^C)[a-z]*", self.chr)
+            if chr_str:
+                self.chr = self.chr.replace(chr_str.group(0), '')
 
     def run(self):
 
