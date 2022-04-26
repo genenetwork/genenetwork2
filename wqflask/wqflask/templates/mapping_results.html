@@ -236,11 +236,10 @@
             {% endif %}
           </div>
         </div>
-        <div>
+        <div style="float: left;">
             {% if nperm > 0 and permChecked == "ON" %}
             <br><br>
             <div id="perm_histogram" class="barchart"></div>
-            <!--<img src="/generated/{{ perm_filename }}.gif">-->
             <br><br>
             Total of {{ nperm }} permutations&nbsp;&nbsp;<a href="javascript:;" id="download_perm" target="_blank" >Download Permutation Results</a>
             <br>
