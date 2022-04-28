@@ -196,11 +196,11 @@ $(function() {
   };
 
   submitBnw = function() {
-    trait_data = submitTraitsToExportOrBnw("trait_table", "submit_bnw")
+    trait_data = submitTraits("trait_table", "submit_bnw")
   }
 
   exportTraits = function() {
-    trait_data = submitTraitsToExportOrBnw("trait_table", "export_traits_csv")
+    trait_data = submitTraits("trait_table", "export_traits_csv")
   };
 
   exportCollection = function() {
@@ -220,7 +220,7 @@ $(function() {
     table_dict['headers'] = headers;
 
     selected_rows = [];
-    all_rows = []; //ZS: If no rows are checked, export all
+    all_rows = []; // If no rows are checked, export all
     table_api = $('#' + table_name).DataTable();
     check_cells = table_api.column(0).nodes().to$();
     for (let i = 0; i < check_cells.length; i++) {
@@ -319,6 +319,7 @@ $(function() {
   $("#add").click(addToCollection);
   $("#submit_bnw").click(submitBnw);
   $("#export_traits").click(exportTraits);
+  $("#export_collection").click(exportCollection);
 
   let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
   let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
