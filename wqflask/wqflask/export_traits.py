@@ -16,7 +16,7 @@ from utility.logger import getLogger
 logger = getLogger(__name__)
 
 
-def export_search_results_csv(targs):
+def export_traits_csv(targs):
 
     table_data = json.loads(targs['export_data'])
     table_rows = table_data['rows']
