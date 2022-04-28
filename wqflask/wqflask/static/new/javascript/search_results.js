@@ -200,10 +200,14 @@ $(function() {
   }
 
   exportTraits = function() {
-    trait_data = submitTraitsToExportOrBnw("trait_table", "export_csv")
+    trait_data = submitTraitsToExportOrBnw("trait_table", "export_traits_csv")
   };
 
-  submitTraitsToExportOrBnw = function(table_name, destination) {
+  exportCollection = function() {
+    trait_data = submitTraits("trait_table", "export_collection")
+  }
+
+  fetchTraits = function(table_name){
     trait_table = $('#'+table_name);
     table_dict = {};
 
@@ -235,12 +239,11 @@ $(function() {
 
     json_table_dict = JSON.stringify(table_dict);
     $('input[name=export_data]').val(json_table_dict);
+  }
 
-    if (destination == "export_csv"){
-        $('#export_form').attr('action', '/export_traits_csv');
-    } else{
-        $('#export_form').attr('action', '/submit_bnw');
-    }
+  submitTraits = function(table_name, destination) {
+    fetchTraits(table_name);
+    $('#export_form').attr('action', '/' + destination);
     $('#export_form').submit();
   };
 
