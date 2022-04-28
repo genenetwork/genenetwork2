@@ -1,5 +1,6 @@
 import hashlib
 import datetime
+import os
 import simplejson as json
 
 from flask import g
@@ -12,7 +13,7 @@ from flask import flash
 from wqflask import app
 from utility import hmac
 from utility.formatting import numify
-from utility.tools import GN_SERVER_URL
+from utility.tools import GN_SERVER_URL, TEMPDIR
 from utility.redis_tools import get_redis_conn
 
 from base.trait import create_trait
@@ -231,6 +232,13 @@ def trait_info_str(trait):
         trait.name, trait.dataset.name, __trait_desc(trait), __symbol(trait),
         __location(trait), __mean(trait), __lrs(trait), __lrs_location(trait))
 
+@app.route("/collections/import", methods=('POST',))
+def import_collection():
+    import_file = request.files['import_file']
+    if import_file.filename != '':
+        file_path = os.path.join(TEMPDIR, import_file.filename)
+        import_file.save(file_path)
+
 @app.route("/collections/view")
 def view_collection():
     params = request.args
@@ -273,7 +281,6 @@ def view_collection():
             "collections/view.html",
             trait_info_str=trait_info_str,
             **collection_info)
-
 
 @app.route("/collections/change_name", methods=('POST',))
 def change_collection_name():
