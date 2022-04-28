@@ -1,23 +1,48 @@
 import csv
-import xlsxwriter
-import io
 import datetime
+import io
 import itertools
+import re
+import xlsxwriter
 
+from pprint import pformat as pf
 from zipfile import ZipFile, ZIP_DEFLATED
 
 import simplejson as json
 
-from base.trait import create_trait, retrieve_trait_info
+from gn3.computations.gemma import generate_hash_of_string
 
-from pprint import pformat as pf
+from base.trait import create_trait, retrieve_trait_info
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
 
+def export_traits(targs, export_type):
+    if export_type == "collection":
+        return export_collection(targs)
+    else:
+        return export_traitlist(targs)
 
-def export_traits_csv(targs):
+def export_collection(targs):
+    table_data = json.loads(targs['export_data'])
+    table_rows = table_data['rows']
 
+    buff = io.StringIO()
+    writer = csv.writer(buff)
+    for trait in table_rows:
+        writer.writerow(trait.split(":"))
+
+    csv_data = buff.getvalue()
+    buff.close()
+
+    if 'collection_name_export' in targs:
+        file_name = re.sub('\s+', '_', targs['collection_name_export']) # replace whitespace with underscore
+    else:
+        file_name = generate_hash_of_string("".join(table_rows))
+
+    return [file_name, csv_data]
+
+def export_traitlist(targs):
     table_data = json.loads(targs['export_data'])
     table_rows = table_data['rows']
 
