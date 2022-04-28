@@ -73,7 +73,7 @@ from wqflask.ctl.gn3_ctl_analysis import run_ctl
 from wqflask.wgcna.gn3_wgcna import run_wgcna
 from wqflask.snp_browser import snp_browser
 from wqflask.search_results import SearchResultPage
-from wqflask.export_traits import export_traits_csv
+from wqflask.export_traits import export_traits
 from wqflask.gsearch import GSearch
 from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
@@ -469,7 +469,7 @@ def export_traits_csv():
     logger.info("In export_traits_csv")
     logger.info("request.form:", request.form)
     logger.info(request.url)
-    file_list = export_traits_csv(request.form)
+    file_list = export_traits(request.form, "metadata")
 
     if len(file_list) > 1:
         now = datetime.datetime.now()
@@ -488,6 +488,14 @@ def export_traits_csv():
                         mimetype='text/csv',
                         headers={"Content-Disposition": "attachment;filename=" + file_list[0][0]})
 
+
+@app.route('/export_collection', methods=('POST',))
+def export_collection_csv():
+    """CSV file consisting of trait list so collections can be exported/shared"""
+    out_file = export_traits(request.form, "collection")
+    return Response(out_file[1],
+                    mimetype='text/csv',
+                    headers={"Content-Disposition": "attachment;filename=" + out_file[0] + ".csv"})
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
