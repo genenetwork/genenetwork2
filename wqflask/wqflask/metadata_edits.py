@@ -257,7 +257,8 @@ def update_phenotype(dataset_id: str, name: str):
         )
         diff_data = {}
         with database_connection() as conn:
-            headers = get_case_attributes(conn).keys()
+            headers = ["Strain Name", "Value", "SE", "Count"] \
+                      + list(get_case_attributes(conn).keys())
             diff_data = remove_insignificant_edits(
                 diff_data=csv_diff(
                     base_csv=(
