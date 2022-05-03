@@ -29,11 +29,15 @@
     {%endwith%}
 
     <input type="hidden" value="{{trait_list_str}}" name="trait_list">
-    <table id="pcorrs_traits_table" class="table-hover table-striped cell-border">
+    <br />
+    <table id="pcorrs_traits_table"
+	   class="table-hover table-striped cell-border dataTable"
+	   role="grid">
       <thead>
 	<tr>
 	  <th>Primary (X)</th>
 	  <th>Controls (Z)</th>
+	  <th>Targets (Y)</th>
 	  <th>Ignored</th>
 	  <th>Dataset</th>
 	  <th>Trait ID</th>
@@ -52,17 +56,22 @@
 	  <td>
 	    <input type="radio" name="trait_{{trait['trait_name']}}"
 		   id="trait_{{trait['trait_name']}}"
-		   value="primary_{{trait['trait_name']}}">
+		   value="primary_{{trait['trait_name']}}" />
 	  </td>
 	  <td>
 	    <input type="radio" name="trait_{{trait['trait_name']}}"
 		   id="trait_{{trait['trait_name']}}"
-		   value="controls_{{trait['trait_name']}}">
+		   value="controls_{{trait['trait_name']}}" />
 	  </td>
 	  <td>
 	    <input type="radio" name="trait_{{trait['trait_name']}}"
 		   id="trait_{{trait['trait_name']}}"
-		   value="ignored_{{trait['trait_name']}}" checked="checked">
+		   value="target_{{trait['trait_name']}}" checked="checked" />
+	  </td>
+	  <td>
+	    <input type="radio" name="trait_{{trait['trait_name']}}"
+		   id="trait_{{trait['trait_name']}}"
+		   value="ignored_{{trait['trait_name']}}" />
 	  </td>
 	  <td>{{trait.get("dataset", "_")}}
 	  <td>{{trait.get("trait_name", "_")}}</td>
@@ -76,6 +85,22 @@
 	{%endfor%}
       </tbody>
     </table>
+
+    <br />
+    <p>Compute partial correlations for target selected above:</p>
+    <button type="submit" class="btn btn-primary" name="submit"
+	    value="with_target_pearsons">
+      Pearson's r
+    </button>
+    <button type="submit" class="btn btn-primary" name="submit"
+	    value="with_target_spearmans">
+      Spearman's rho
+    </button>
+
+    <hr />
+
+    <p style="color: red; font-weight: bold;">OR</p>
+    <p>Compute partial correlation for each trait in the database below:</p>
 
     <div class="form-group">
       <label for="corr-method-input" class="form-label">Compute</label>
