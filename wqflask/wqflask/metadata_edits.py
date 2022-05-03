@@ -130,7 +130,7 @@ def edit_phenotype(conn, name, dataset_id):
                                 data_.get("new"),
                                 "\n".join(
                                     difflib.ndiff(
-                                        [data_.get("old")], [data_.get("new")]
+                                        [data_.get("old") or ""], [data_.get("new")]
                                     )
                                 ),
                             ),
@@ -357,6 +357,7 @@ def update_phenotype(dataset_id: str, name: str):
             }
         )
     publication_ = {
+        "pubmed_id": data_.get("pubmed-id"),
         "abstract": data_.get("abstract"),
         "authors": data_.get("authors"),
         "title": data_.get("title"),
@@ -373,7 +374,7 @@ def update_phenotype(dataset_id: str, name: str):
             "Publication",
             data=Publication(**publication_),
             where=Publication(
-                id_=data_.get("pubmed-id", data_.get("old_id_"))
+                id_=data_.get("old_id_")
             ),
         )
     if updated_publications:
