@@ -10,232 +10,234 @@
 {%endblock%}
 
 {%block content%}
-<p>
-  <strong>Primary Trait</strong><br /><br />
-  <a href="{{url_for(
-	   'show_trait_page',
-	   trait_id=primary['trait_name'],
-	   dataset=primary['dataset_name'])}}"
-     title="Link to trait data for trait {{primary['trait_name']}}">
-    {{primary["dataset_type"]}}/{{primary["trait_name"]}}
-    [{{primary["symbol"] }} on Chr {{primary["chr"]}} @ {{primary["mb"]}}]:
-    {{primary["description"]}}
-  </a> --- FROM: {{primary["dataset_name"]}}
-</p>
-<p><strong>Control Traits</strong><br /><br />
-  {%for trait in controls:%}
-  <a href="{{url_for(
-	   'show_trait_page',
-	   trait_id=trait['trait_name'],
-	   dataset=trait['dataset_name'])}}"
-     title="Link to trait data for trait {{trait['trait_name']}}">
-    {{trait["dataset_type"]}}/{{trait["trait_name"]}}
-    [{{trait["symbol"] }} on Chr {{trait["chr"]}} @ {{trait["mb"]}}]:
-    {{trait["description"]}}
-  </a> --- FROM: {{trait["dataset_name"]}}<br />
-  {%endfor%}
-</p>
+<div class="container">
+  <p>
+    <strong>Primary Trait</strong><br /><br />
+    <a href="{{url_for(
+	     'show_trait_page',
+	     trait_id=primary['trait_name'],
+	     dataset=primary['dataset_name'])}}"
+       title="Link to trait data for trait {{primary['trait_name']}}">
+      {{primary["dataset_type"]}}/{{primary["trait_name"]}}
+      [{{primary["symbol"] }} on Chr {{primary["chr"]}} @ {{primary["mb"]}}]:
+      {{primary["description"]}}
+    </a> --- FROM: {{primary["dataset_name"]}}
+  </p>
+  <p><strong>Control Traits</strong><br /><br />
+    {%for trait in controls:%}
+    <a href="{{url_for(
+	     'show_trait_page',
+	     trait_id=trait['trait_name'],
+	     dataset=trait['dataset_name'])}}"
+       title="Link to trait data for trait {{trait['trait_name']}}">
+      {{trait["dataset_type"]}}/{{trait["trait_name"]}}
+      [{{trait["symbol"] }} on Chr {{trait["chr"]}} @ {{trait["mb"]}}]:
+      {{trait["description"]}}
+    </a> --- FROM: {{trait["dataset_name"]}}<br />
+    {%endfor%}
+  </p>
 
-<div id="partial-correlation-results">
-  {%if dataset_type == "Publish":%}
-  <table id="part-corr-results-publish"
-	 class="table-hover table-striped cell-border"
-	 style="float: left;">
-    <thead>
-      <tr>
-	<th></th>
-	<th>Index</th>
-	<th>Record</th>
-	<th>Phenotype</th>
-	<th>Authors</th>
-	<th>Year</th>
-	<th>N</th>
-	<th>Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-	<th>{%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-	<th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-      </tr>
-    </thead>
+  <div id="partial-correlation-results">
+    {%if dataset_type == "Publish":%}
+    <table id="part-corr-results-publish"
+	   class="table-hover table-striped cell-border"
+	   style="float: left;">
+      <thead>
+	<tr>
+	  <th></th>
+	  <th>Index</th>
+	  <th>Record</th>
+	  <th>Phenotype</th>
+	  <th>Authors</th>
+	  <th>Year</th>
+	  <th>N</th>
+	  <th>Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>{%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	</tr>
+      </thead>
 
-    <tbody>
-      {%for trait in correlations:%}
-      <tr class="results-row">
-	<td></td>
-	<td data-column-heading="Index"></td>
-	<td data-column-heading="Record">
-	  <a href="{{url_for(
-		   'show_trait_page',
-		   trait_id=trait['trait_name'],
-		   dataset=trait['dataset_name'])}}"
-	     title="Link to trait data for trait {{trait['trait_name']}}">
-	    {{trait["trait_name"]}}
-	  </a>
-	</td>
-	<td data-column-heading="Phenotype">
-	  {{trait["post_publication_description"]}}</td>
-	<td data-column-heading="Authors">{{trait["authors"]}}</td>
-	<td data-column-heading="Year">{{trait["year"]}}</td>
-	<td data-column-heading="N">{{trait["noverlap"]}}</td>
-	<td data-column-heading="Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("partial_corr"))}}
-	</td>
-	<td data-column-heading="p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("partial_corr_p_value"))}}
-	</td>
-	<td data-column-heading="{%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("corr"))}}
-	</td>
-	<td data-column-heading="p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("corr_p_value"))}}
-	</td>
-	<td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("delta"))}}
-	</td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-  {%endif%}
+      <tbody>
+	{%for trait in correlations:%}
+	<tr class="results-row">
+	  <td></td>
+	  <td data-column-heading="Index"></td>
+	  <td data-column-heading="Record">
+	    <a href="{{url_for(
+		     'show_trait_page',
+		     trait_id=trait['trait_name'],
+		     dataset=trait['dataset_name'])}}"
+	       title="Link to trait data for trait {{trait['trait_name']}}">
+	      {{trait["trait_name"]}}
+	    </a>
+	  </td>
+	  <td data-column-heading="Phenotype">
+	    {{trait["post_publication_description"]}}</td>
+	  <td data-column-heading="Authors">{{trait["authors"]}}</td>
+	  <td data-column-heading="Year">{{trait["year"]}}</td>
+	  <td data-column-heading="N">{{trait["noverlap"]}}</td>
+	  <td data-column-heading="Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("partial_corr"))}}
+	  </td>
+	  <td data-column-heading="p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("partial_corr_p_value"))}}
+	  </td>
+	  <td data-column-heading="{%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("corr"))}}
+	  </td>
+	  <td data-column-heading="p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("corr_p_value"))}}
+	  </td>
+	  <td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("delta"))}}
+	  </td>
+	</tr>
+	{%endfor%}
+      </tbody>
+    </table>
+    {%endif%}
 
-  {%if dataset_type == "Geno":%}
-  <table id="part-corr-results-geno"
-	 class="table-hover table-striped cell-border"
-	 style="float: left;">
-    <thead>
-      <tr>
-	<th></th>
-	<th>Index</th>
-	<th>Locus</th>
-	<th>Chr</th>
-	<th>Megabase</th>
-	<th>N</th>
-	<th>Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-	<th>{%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-	<th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-      </tr>
-    </thead>
+    {%if dataset_type == "Geno":%}
+    <table id="part-corr-results-geno"
+	   class="table-hover table-striped cell-border"
+	   style="float: left;">
+      <thead>
+	<tr>
+	  <th></th>
+	  <th>Index</th>
+	  <th>Locus</th>
+	  <th>Chr</th>
+	  <th>Megabase</th>
+	  <th>N</th>
+	  <th>Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>{%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	</tr>
+      </thead>
 
-    <tbody>
-      {%for trait in correlations:%}
-      <tr class="results-row">
-	<td></td>
-	<td data-column-heading="Index"></td>
-	<td data-column-heading="Locus">
-	  <a href="{{url_for(
-		   'show_trait_page',
-		   trait_id=trait['trait_name'],
-		   dataset=trait['dataset_name'])}}"
-	     title="Link to trait data for trait {{trait['trait_name']}}">
-	    {{trait["trait_name"]}}
-	  </a>
-	</td>
-	<td data-column-heading="Chr">{{trait["chr"]}}</td>
-	<td data-column-heading="Megabase">{{trait["mb"]}}</td>
-	<td data-column-heading="N">{{trait["noverlap"]}}</td>
-	<td data-column-heading="Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("partial_corr"))}}
-	</td>
-	<td data-column-heading="p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("partial_corr_p_value"))}}
-	</td>
-	<td data-column-heading="{%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("corr"))}}
-	</td>
-	<td data-column-heading="p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("corr_p_value"))}}
-	</td>
-	<td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("delta"))}}
-	</td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-  {%endif%}
+      <tbody>
+	{%for trait in correlations:%}
+	<tr class="results-row">
+	  <td></td>
+	  <td data-column-heading="Index"></td>
+	  <td data-column-heading="Locus">
+	    <a href="{{url_for(
+		     'show_trait_page',
+		     trait_id=trait['trait_name'],
+		     dataset=trait['dataset_name'])}}"
+	       title="Link to trait data for trait {{trait['trait_name']}}">
+	      {{trait["trait_name"]}}
+	    </a>
+	  </td>
+	  <td data-column-heading="Chr">{{trait["chr"]}}</td>
+	  <td data-column-heading="Megabase">{{trait["mb"]}}</td>
+	  <td data-column-heading="N">{{trait["noverlap"]}}</td>
+	  <td data-column-heading="Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("partial_corr"))}}
+	  </td>
+	  <td data-column-heading="p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("partial_corr_p_value"))}}
+	  </td>
+	  <td data-column-heading="{%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("corr"))}}
+	  </td>
+	  <td data-column-heading="p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("corr_p_value"))}}
+	  </td>
+	  <td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("delta"))}}
+	  </td>
+	</tr>
+	{%endfor%}
+      </tbody>
+    </table>
+    {%endif%}
 
-  {%if dataset_type == "ProbeSet":%}
-  <table id="part-corr-results-probeset"
-	 class="table-hover table-striped cell-border"
-	 style="float: left;">
-    <thead>
-      <tr>
-	<th></th>
-	<th>Index</th>
-	<th>Record</th>
-	<th>Gene ID</th>
-	<th>Homologene ID</th>
-	<th>Symbol</th>
-	<th>Description</th>
-	<th>Chr</th>
-	<th>Megabase</th>
-	<th>Mean Expr</th>
-	<th>N</th>
-	<th>Sample Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>Sample p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-	<th>Sample {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>Sample p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-	<th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>Lit Corr</th>
-	<th>Tissue {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
-	<th>Tissue p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
-      </tr>
-    </thead>
+    {%if dataset_type == "ProbeSet":%}
+    <table id="part-corr-results-probeset"
+	   class="table-hover table-striped cell-border"
+	   style="float: left;">
+      <thead>
+	<tr>
+	  <th></th>
+	  <th>Index</th>
+	  <th>Record</th>
+	  <th>Gene ID</th>
+	  <th>Homologene ID</th>
+	  <th>Symbol</th>
+	  <th>Description</th>
+	  <th>Chr</th>
+	  <th>Megabase</th>
+	  <th>Mean Expr</th>
+	  <th>N</th>
+	  <th>Sample Partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Sample p(partial {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>Sample {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Sample p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	  <th>delta {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Lit Corr</th>
+	  <th>Tissue {%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%}</th>
+	  <th>Tissue p({%if "spearman" in (method | lower):%}rho{%else:%}r{%endif%})</th>
+	</tr>
+      </thead>
 
-    <tbody>
-      {%for trait in correlations:%}
-      <tr class="results-row">
-	<td></td>
-	<td data-column-heading="Index"></td>
-	<td data-column-heading="Record">
-	  <a href="{{url_for(
-		   'show_trait_page',
-		   trait_id=trait['trait_name'],
-		   dataset=trait['dataset_name'])}}"
-	     title="Link to trait data for trait {{trait['trait_name']}}">
-	    {{trait["trait_name"]}}
-	  </a>
-	</td>
-	<td data-column-heading="Gene ID">{{trait["geneid"]}}</td>
-	<td data-column-heading="Homologene ID">{{trait["homologeneid"]}}</td>
-	<td data-column-heading="Symbol">{{trait["symbol"]}}</td>
-	<td data-column-heading="Description">{{trait["description"]}}</td>
-	<td data-column-heading="Chr">{{trait["chr"]}}</td>
-	<td data-column-heading="Megabase">{{trait["mb"]}}</td>
-	<td data-column-heading="Mean Expr">{{trait["mean_expr"]}}</td>
-	<td data-column-heading="N">{{trait["noverlap"]}}</td>
-	<td data-column-heading="Sample Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("partial_corr"))}}
-	</td>
-	<td data-column-heading="Sample p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("partial_corr_p_value"))}}
-	</td>
-	<td data-column-heading="Sample {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("corr"))}}
-	</td>
-	<td data-column-heading="Sample p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("corr_p_value"))}}
-	</td>
-	<td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("delta"))}}
-	</td>
-	<td data-column-heading="Lit Corr">
-	  {{format_number(trait.get("l_corr"))}}
-	</td>
-	<td data-column-heading="Tissue {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
-	  {{format_number(trait.get("tissue_corr"))}}
-	</td>
-	<td data-column-heading="Tissue p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
-	  {{format_number(trait.get("tissue_p_value"))}}
-	</td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-  {%endif%}
+      <tbody>
+	{%for trait in correlations:%}
+	<tr class="results-row">
+	  <td></td>
+	  <td data-column-heading="Index"></td>
+	  <td data-column-heading="Record">
+	    <a href="{{url_for(
+		     'show_trait_page',
+		     trait_id=trait['trait_name'],
+		     dataset=trait['dataset_name'])}}"
+	       title="Link to trait data for trait {{trait['trait_name']}}">
+	      {{trait["trait_name"]}}
+	    </a>
+	  </td>
+	  <td data-column-heading="Gene ID">{{trait["geneid"]}}</td>
+	  <td data-column-heading="Homologene ID">{{trait["homologeneid"]}}</td>
+	  <td data-column-heading="Symbol">{{trait["symbol"]}}</td>
+	  <td data-column-heading="Description">{{trait["description"]}}</td>
+	  <td data-column-heading="Chr">{{trait["chr"]}}</td>
+	  <td data-column-heading="Megabase">{{trait["mb"]}}</td>
+	  <td data-column-heading="Mean Expr">{{trait["mean_expr"]}}</td>
+	  <td data-column-heading="N">{{trait["noverlap"]}}</td>
+	  <td data-column-heading="Sample Partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("partial_corr"))}}
+	  </td>
+	  <td data-column-heading="Sample p(partial {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("partial_corr_p_value"))}}
+	  </td>
+	  <td data-column-heading="Sample {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("corr"))}}
+	  </td>
+	  <td data-column-heading="Sample p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("corr_p_value"))}}
+	  </td>
+	  <td data-column-heading="delta {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("delta"))}}
+	  </td>
+	  <td data-column-heading="Lit Corr">
+	    {{format_number(trait.get("l_corr"))}}
+	  </td>
+	  <td data-column-heading="Tissue {%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%}">
+	    {{format_number(trait.get("tissue_corr"))}}
+	  </td>
+	  <td data-column-heading="Tissue p({%if 'spearman' in (method | lower):%}rho{%else:%}r{%endif%})">
+	    {{format_number(trait.get("tissue_p_value"))}}
+	  </td>
+	</tr>
+	{%endfor%}
+      </tbody>
+    </table>
+    {%endif%}
 
+  </div>
 </div>
 {%endblock%}
 

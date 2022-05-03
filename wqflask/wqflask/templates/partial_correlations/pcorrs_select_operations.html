@@ -14,110 +14,111 @@
 {%endblock%}
 
 {%block content%}
-<form id="pcorrs-form"
-      method="POST"
-      action="{{url_for('partial_correlations')}}">
-  {%with messages = get_flashed_messages(with_categories=true)%}
-  {%if messages:%}
-  <ul class=flashes>
-    {%for category, message in messages:%}
-    <li class="{{category}}">{{message}}</li>
-    {%endfor%}
-  </ul>
-  {%endif%}
-  {%endwith%}
-
-  <input type="hidden" value="{{trait_list_str}}" name="trait_list">
-  <table id="pcorrs_traits_table" class="table-hover table-striped cell-border">
-    <thead>
-      <tr>
-	<th>Primary (X)</th>
-	<th>Controls (Z)</th>
-	<th>Ignored</th>
-	<th>Dataset</th>
-	<th>Trait ID</th>
-	<th>Symbol</th>
-	<th>Description</th>
-	<th>Location</th>
-	<th>Mean</th>
-	<th>Max LRS</th>
-	<th>Max LRS Location Chr and Mb</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {%for trait in traits:%}
-      <tr>
-	<td>
-	  <input type="radio" name="trait_{{trait['trait_name']}}"
-		 id="trait_{{trait['trait_name']}}"
-		 value="primary_{{trait['trait_name']}}">
-	</td>
-	<td>
-	  <input type="radio" name="trait_{{trait['trait_name']}}"
-		 id="trait_{{trait['trait_name']}}"
-		 value="controls_{{trait['trait_name']}}">
-	</td>
-	<td>
-	  <input type="radio" name="trait_{{trait['trait_name']}}"
-		 id="trait_{{trait['trait_name']}}"
-		 value="ignored_{{trait['trait_name']}}" checked="checked">
-	</td>
-	<td>{{trait.get("dataset", "_")}}
-	<td>{{trait.get("trait_name", "_")}}</td>
-	<td>{{trait.get("symbol", "_")}}</td>
-	<td>{{trait.get("description", "_")}}</td>
-	<td>{{trait.get("location", "_")}}</td>
-	<td>{{trait.get("mean", "_")}}</td>
-	<td>{{trait.get("lrs", "_")}}</td>
-	<td>{{trait.get("lrs_location", "_")}}</td>
-      </tr>
+<div class="container">
+  <form id="pcorrs-form"
+	method="POST"
+	action="{{url_for('partial_correlations')}}">
+    {%with messages = get_flashed_messages(with_categories=true)%}
+    {%if messages:%}
+    <ul class=flashes>
+      {%for category, message in messages:%}
+      <li class="{{category}}">{{message}}</li>
       {%endfor%}
-    </tbody>
-  </table>
+    </ul>
+    {%endif%}
+    {%endwith%}
 
-  <div class="form-group">
-    <label for="corr-method-input" class="form-label">Compute</label>
-    <select id="corr-method-input" required="required" name="method"
-	    class="form-control">
-      <option value="Genetic Correlation, Pearson's r">
-	Genetic Correlation, Pearson's r</option>
-      <option value="Genetic Correlation, Spearman's rho">
-	Genetic Correlation, Spearman's rho</option>
-      <option value="SGO Literature Correlation">
-	SGO Literature Correlation</option>
-      <option value="Tissue Correlation, Pearson's r">
-	Tissue Correlation, Pearson's r</option>
-      <option value="Tissue Correlation, Spearman's rho">
-	Tissue Correlation, Spearman's rho</option>
-    </select>
-  </div>
+    <input type="hidden" value="{{trait_list_str}}" name="trait_list">
+    <table id="pcorrs_traits_table" class="table-hover table-striped cell-border">
+      <thead>
+	<tr>
+	  <th>Primary (X)</th>
+	  <th>Controls (Z)</th>
+	  <th>Ignored</th>
+	  <th>Dataset</th>
+	  <th>Trait ID</th>
+	  <th>Symbol</th>
+	  <th>Description</th>
+	  <th>Location</th>
+	  <th>Mean</th>
+	  <th>Max LRS</th>
+	  <th>Max LRS Location Chr and Mb</th>
+	</tr>
+      </thead>
 
-  <div class="form-group">
-    <label for="target-db-input" class="form-label">Choose Database</label>
-    <select id="target-db-input" required="required" name="target_db"
-	    class="form-control">
-      {%if target_dbs:%}
-      {%for item in target_dbs:%}
-      {%if "description" in item.keys():%}
-      <option value="{{item['value']}}">{{item['description']}}</option>
-      {%else:%}
-      {%for group, opts in item.items()%}
-      {%if opts | length > 0:%}
-      <optgroup label="{{group}} ------">
-	{%for item2 in opts:%}
-	<option value="{{item2['value']}}">{{item2['description']}}</option>
+      <tbody>
+	{%for trait in traits:%}
+	<tr>
+	  <td>
+	    <input type="radio" name="trait_{{trait['trait_name']}}"
+		   id="trait_{{trait['trait_name']}}"
+		   value="primary_{{trait['trait_name']}}">
+	  </td>
+	  <td>
+	    <input type="radio" name="trait_{{trait['trait_name']}}"
+		   id="trait_{{trait['trait_name']}}"
+		   value="controls_{{trait['trait_name']}}">
+	  </td>
+	  <td>
+	    <input type="radio" name="trait_{{trait['trait_name']}}"
+		   id="trait_{{trait['trait_name']}}"
+		   value="ignored_{{trait['trait_name']}}" checked="checked">
+	  </td>
+	  <td>{{trait.get("dataset", "_")}}
+	  <td>{{trait.get("trait_name", "_")}}</td>
+	  <td>{{trait.get("symbol", "_")}}</td>
+	  <td>{{trait.get("description", "_")}}</td>
+	  <td>{{trait.get("location", "_")}}</td>
+	  <td>{{trait.get("mean", "_")}}</td>
+	  <td>{{trait.get("lrs", "_")}}</td>
+	  <td>{{trait.get("lrs_location", "_")}}</td>
+	</tr>
 	{%endfor%}
-      </optgroup>
-      {%endif%}
-      {%endfor%}
-      {%endif%}
-      {%endfor%}
-      {%endif%}
-    </select>
-  </div>
+      </tbody>
+    </table>
 
-  <div class="form-group">
+    <div class="form-group">
+      <label for="corr-method-input" class="form-label">Compute</label>
+      <select id="corr-method-input" required="required" name="method"
+	      class="form-control">
+	<option value="Genetic Correlation, Pearson's r">
+	  Genetic Correlation, Pearson's r</option>
+	<option value="Genetic Correlation, Spearman's rho">
+	  Genetic Correlation, Spearman's rho</option>
+	<option value="SGO Literature Correlation">
+	  SGO Literature Correlation</option>
+	<option value="Tissue Correlation, Pearson's r">
+	  Tissue Correlation, Pearson's r</option>
+	<option value="Tissue Correlation, Spearman's rho">
+	  Tissue Correlation, Spearman's rho</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="target-db-input" class="form-label">Choose Database</label>
+      <select id="target-db-input" required="required" name="target_db"
+	      class="form-control">
+	{%if target_dbs:%}
+	{%for item in target_dbs:%}
+	{%if "description" in item.keys():%}
+	<option value="{{item['value']}}">{{item['description']}}</option>
+	{%else:%}
+	{%for group, opts in item.items()%}
+	{%if opts | length > 0:%}
+	<optgroup label="{{group}} ------">
+	  {%for item2 in opts:%}
+	  <option value="{{item2['value']}}">{{item2['description']}}</option>
+	  {%endfor%}
+	</optgroup>
+	{%endif%}
+	{%endfor%}
+	{%endif%}
+	{%endfor%}
+	{%endif%}
+      </select>
+    </div>
+
+    <div class="form-group">
       <label for="criteria-input" class="form-label">Return</label>
       <select id="criteria-input" required="required" name="criteria" size="1"
 	      class="form-control">
@@ -133,11 +134,12 @@
       </select>
     </div>
 
-  <button type="submit" class="btn btn-primary" name="submit"
-	  value="Run Partial Correlations">
-    Run Partial Correlations
-  </button>
-</form>
+    <button type="submit" class="btn btn-primary" name="submit"
+	    value="Run Partial Correlations">
+      Run Partial Correlations
+    </button>
+  </form>
+</div>
 {%endblock%}
 
 {%block js%}
