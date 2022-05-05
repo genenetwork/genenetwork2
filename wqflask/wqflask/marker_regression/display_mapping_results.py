@@ -290,7 +290,7 @@ class DisplayMappingResults:
         if self.dataset.group.species == "rat":
             self._ucscDb = "rn6"
         elif self.dataset.group.species == "mouse":
-            self._ucscDb = "mm9"
+            self._ucscDb = "mm10"
         else:
             self._ucscDb = ""
 
