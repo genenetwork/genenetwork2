@@ -30,7 +30,7 @@ def export_collection(targs):
     buff = io.StringIO()
     writer = csv.writer(buff)
     for trait in table_rows:
-        writer.writerow(trait.split(":"))
+        writer.writerow([trait])
 
     csv_data = buff.getvalue()
     buff.close()
