@@ -73,7 +73,6 @@ def collections_add():
         uc_id = g.user_session.add_collection(collection_name, set())
         collections = g.user_session.user_collections
 
-    # ZS: One of these might be unnecessary
     if 'traits' in request.args:
         traits = request.args['traits']
         return render_template("collections/add.html",
@@ -127,7 +126,6 @@ def collections_new():
 
 def create_new(collection_name):
     params = request.args
-
     if "hash" in params:
         unprocessed_traits = Redis.get(params['hash'])
         Redis.delete(params['hash'])
@@ -238,6 +236,14 @@ def import_collection():
     if import_file.filename != '':
         file_path = os.path.join(TEMPDIR, import_file.filename)
         import_file.save(file_path)
+        collection_csv = open(file_path, "r")
+        traits = [row.strip() for row in collection_csv]
+        os.remove(file_path)
+
+        return json.dumps(traits)
+    else:
+        return render_template(
+            "collections/list.html")
 
 @app.route("/collections/view")
 def view_collection():
