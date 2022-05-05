@@ -83,6 +83,11 @@ It may be useful to pull in the GN3 python modules locally. For this
 use `GN3_PYTHONPATH` environment that gets injected in
 the ./bin/genenetwork2 startup.
 
+A continuously deployed instance of genenetwork2 is available at
+[https://gn2dev.genenetwork.org/](https://gn2dev.genenetwork.org/). This
+instance is redeployed on every commit provided that the [continuous
+integration tests](https://ci.genenetwork.org/jobs/genenetwork2) pass.
+
 ## Testing
 
 To have tests pass, the redis and mariadb instance should be running, because of
