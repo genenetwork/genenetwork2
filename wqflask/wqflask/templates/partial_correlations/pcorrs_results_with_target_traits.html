@@ -1,0 +1,108 @@
+{%extends "base.html"%}
+
+{%block title%}Partial Correlations:{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css"
+      href="{{url_for('css', filename='DataTables/css/jquery.dataTables.css')}}" />
+<link rel="stylesheet" type="text/css"
+      href="{{url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css')}}">
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
+<link rel="stylesheet" type="text/css"
+      href="/static/new/css/partial_correlations.css" />
+{%endblock%}
+
+{%block content%}
+<div class="container">
+  <p>
+    <strong>Primary Trait</strong><br /><br />
+    <a href="{{url_for(
+	     'show_trait_page',
+	     trait_id=primary['trait_name'],
+	     dataset=primary['dataset_name'])}}"
+       title="Link to trait data for trait {{primary['trait_name']}}">
+      {{primary["dataset_type"]}}/{{primary["trait_name"]}}
+      [{{primary["symbol"] }} on Chr {{primary["chr"]}} @ {{primary["mb"]}}]:
+      {{primary["description"]}}
+    </a> --- FROM: {{primary["dataset_name"]}}
+  </p>
+  <p><strong>Control Traits</strong><br /><br />
+    {%for trait in controls:%}
+    <a href="{{url_for(
+	     'show_trait_page',
+	     trait_id=trait['trait_name'],
+	     dataset=trait['dataset_name'])}}"
+       title="Link to trait data for trait {{trait['trait_name']}}">
+      {{trait["dataset_type"]}}/{{trait["trait_name"]}}
+      [{{trait["symbol"] }} on Chr {{trait["chr"]}} @ {{trait["mb"]}}]:
+      {{trait["description"]}}
+    </a> --- FROM: {{trait["dataset_name"]}}<br />
+    {%endfor%}
+  </p>
+
+  <table id="part-corr-results-publish"
+	 class="table-hover table-striped cell-border dataTable">
+    <thead>
+      <tr>
+	<th>_</th>
+	<th>Index</th>
+	<th>Database</th>
+	<th>Record</th>
+	<th>Symbol</th>
+	<th>Description</th>
+	<th>N</th>
+	{%if method == "spearmans":%}
+	<th>Partial rho</th>
+	<th>p(partial rho)</th>
+	<th>rho</th>
+	<th>p(rho)</th>
+	<th>delta rho</th>
+	{%else:%}
+	<th>Partial r</th>
+	<th>p(partial r)</th>
+	<th>r</th>
+	<th>p(r)</th>
+	<th>delta r</th>
+	{%endif%}
+      </tr>
+    </thead>
+
+    <tbody>
+      {%for idx, trait in enumerate(pcorrs, start=1):%}
+      <tr>
+	<td>
+	  <input type="checkbox" name="chk_{{trait['trait_name']}}"
+		 value="{{trait['trait_fullname']}}">
+	</td>
+	<td>{{idx}}</td>
+	<td>{{trait["dataset_name"]}}</td>
+	<td>{{trait["trait_name"]}}</td>
+	<td>{{trait["symbol"]}}</td>
+	<td>{{trait["description"]}}</td>
+	<td>{{trait["noverlap"]}}</td>
+	<td>{{format_number(trait["partial_corr"])}}</td>
+	<td>{{format_number(trait["partial_corr_p_value"])}}</td>
+	<td>{{format_number(trait["corr"])}}</td>
+	<td>{{format_number(trait["corr_p_value"])}}</td>
+	<td>{{format_number(trait["delta"])}}</td>
+      </tr>
+      {%else:%}
+      <tr>
+	<td colspan="12">
+	  No correlations were computed
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+
+</div>
+{%endblock%}
+
+{%block js%}
+<!--
+  <script type="text/javascript"
+	  src="/static/new/javascript/partial_correlations.js"></script>
+-->
+{%endblock%}
