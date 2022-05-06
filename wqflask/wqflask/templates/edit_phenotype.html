@@ -193,7 +193,7 @@
 	<div class="form-group">
             <label for="volume" class="col-sm-3 col-lg-2 control-label text-left">Volume</label>
             <div class="col-sm-7 col-lg-8">
-                <textarea name="volume" class="form-control" rows="6">{{ publication.volume |default('', true) }}</textarea>
+                <textarea name="volume" class="form-control" rows="1">{{ publication.volume |default('', true) }}</textarea>
                 <input name="old_volume" class="changed" type="hidden" value="{{ publication.volume |default('', true) }}"/>
             </div>
 	</div>
