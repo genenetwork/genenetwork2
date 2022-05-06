@@ -96,55 +96,18 @@ def edit_phenotype(conn, name, dataset_id):
         table="PublishXRef",
         where=PublishXRef(id_=name, inbred_set_id=dataset_id),
     )
-    phenotype_ = fetchone(
-        conn=conn,
-        table="Phenotype",
-        where=Phenotype(id_=publish_xref.phenotype_id),
-    )
-    publication_ = fetchone(
-        conn=conn,
-        table="Publication",
-        where=Publication(id_=publish_xref.publication_id),
-    )
-    json_data = fetchall(
-        conn,
-        "metadata_audit",
-        where=MetadataAudit(dataset_id=publish_xref.id_),
-    )
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(
-                            author=author,
-                            diff=Edit(
-                                field,
-                                data_.get("old"),
-                                data_.get("new"),
-                                "\n".join(
-                                    difflib.ndiff(
-                                        [data_.get("old") or ""], [data_.get("new")]
-                                    )
-                                ),
-                            ),
-                            timestamp=timestamp,
-                        )
-                    )
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return {
-        "diff": diff_data_,
         "publish_xref": publish_xref,
-        "phenotype": phenotype_,
-        "publication": publication_,
+        "phenotype": fetchone(
+            conn=conn,
+            table="Phenotype",
+            where=Phenotype(id_=publish_xref.phenotype_id),
+        ),
+        "publication": fetchone(
+            conn=conn,
+            table="Publication",
+            where=Publication(id_=publish_xref.publication_id),
+        ),
     }
 
 
@@ -201,11 +164,11 @@ def display_phenotype_metadata(dataset_id: str, name: str):
         _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
         return render_template(
             "edit_phenotype.html",
-            diff=_d.get("diff"),
             publish_xref=_d.get("publish_xref"),
             phenotype=_d.get("phenotype"),
             publication=_d.get("publication"),
             dataset_id=dataset_id,
+            name=name,
             resource_id=request.args.get("resource-id"),
             headers=get_case_attributes(conn).keys(),
             version=os.environ.get("GN_VERSION"),
@@ -565,6 +528,56 @@ def show_diff(name):
             difflib.ndiff([data.get("Original")], [data.get("Current")])
         )
     return render_template("display_diffs.html", diff=content)
+
+
+@metadata_edit.route("/<dataset_id>/traits/<name>/history")
+def show_history(dataset_id: str, name: str):
+    diff_data_ = None
+    with database_connection() as conn:
+        publish_xref = fetchone(
+            conn=conn,
+            table="PublishXRef",
+            where=PublishXRef(id_=name, inbred_set_id=dataset_id))
+
+        json_data = fetchall(
+            conn,
+            "metadata_audit",
+            where=MetadataAudit(dataset_id=publish_xref.id_),
+        )
+
+        Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
+        Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
+        diff_data = []
+        for data in json_data:
+            json_ = json.loads(data.json_data)
+            timestamp = json_.get("timestamp")
+            author = json_.get("author")
+            for key, value in json_.items():
+                if isinstance(value, dict):
+                    for field, data_ in value.items():
+                        diff_data.append(
+                            Diff(
+                                author=author,
+                                diff=Edit(
+                                    field,
+                                    data_.get("old"),
+                                    data_.get("new"),
+                                    "\n".join(
+                                        difflib.ndiff(
+                                            [data_.get("old") or ""],
+                                            [data_.get("new")]
+                                        )
+                                    ),
+                                ),
+                                timestamp=timestamp,
+                            )
+                        )
+        if len(diff_data) > 0:
+            diff_data_ = groupby(diff_data, lambda x: x.timestamp)
+    return render_template(
+        "edit_history.html",
+        diff=diff_data_,
+        version=os.environ.get("GN_VERSION"))
 
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
