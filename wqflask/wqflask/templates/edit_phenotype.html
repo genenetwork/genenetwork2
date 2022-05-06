@@ -172,7 +172,7 @@
         <div class="form-group">
             <label for="authors" class="col-sm-3 col-lg-2 control-label text-left">Authors</label>
             <div class="col-sm-7 col-lg-8">
-                <textarea name="authors" class="form-control" rows="2" placeholder="Example: Roy S, Ingels J, Bohl CJ, McCarty M, Lu L, Mulligan MK, Mozhui K, Centeno A, Williams EG, Auwerx J, Williams RW">{{ publication.authors |default('', true) }}</textarea>
+                <textarea name="authors" class="form-control" rows="3" placeholder="Example: Roy S, Ingels J, Bohl CJ, McCarty M, Lu L, Mulligan MK, Mozhui K, Centeno A, Williams EG, Auwerx J, Williams RW">{{ publication.authors |default('', true) }}</textarea>
                 <input name="old_authors" class="changed" type="hidden" value="{{ publication.authors |default('', true) }}"/>
             </div>
         </div>
