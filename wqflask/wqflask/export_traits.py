@@ -29,6 +29,19 @@ def export_collection(targs):
 
     buff = io.StringIO()
     writer = csv.writer(buff)
+
+    now = datetime.datetime.now()
+    time_str = now.strftime('%H:%M (UTC) %m/%d/%y')
+
+    metadata_rows = [
+        ["# Collection Name: " + targs['collection_name_export']],
+        ["# User E-mail: " + targs['user_email_export']],
+        ["# Time/Date: " + time_str]
+    ]
+
+    for row in metadata_rows:
+        writer.writerow(row)
+
     for trait in table_rows:
         writer.writerow([trait])
 
