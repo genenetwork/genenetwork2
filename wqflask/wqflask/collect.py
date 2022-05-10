@@ -237,7 +237,7 @@ def import_collection():
         file_path = os.path.join(TEMPDIR, import_file.filename)
         import_file.save(file_path)
         collection_csv = open(file_path, "r")
-        traits = [row.strip() for row in collection_csv]
+        traits = [row.strip() for row in collection_csv if row[0] != "#"]
         os.remove(file_path)
 
         return json.dumps(traits)
