@@ -81,6 +81,7 @@
                     <input type="hidden" name="export_data" id="export_data" value="">
                     <input type="hidden" name="file_name" id="file_name" value="collection_table">
                     <input type="hidden" name="collection_name_export" value="{{ uc.name }}">
+                    <input type="hidden" name="user_email_export" value="{% if g.user_session.user_email %}{{ g.user_session.user_email }}{% else %}N/A{% endif %}">
                     <button class="btn btn-default" id="export_traits">Download</button>
                     <button class="btn btn-default" id="export_collection">Export Collection</button>
                     <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
