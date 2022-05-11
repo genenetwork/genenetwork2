@@ -101,10 +101,10 @@
                     <th scope="col">Actions</th>
                 </thead>
                 <tbody>
-                    {% for key, value in case_attributes.items() %}
+                    {% for id_, name, description in case_attributes %}
                     <tr>
-                        <td>{{ key }}</td>
-                        <td>{{ value }}</td>
+                        <td>{{ name }}</td>
+                        <td>{{description}}</td>
                         <td>
                             <a class="add" title="Add" data-toggle="tooltip"><i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></i></a>
                             <a class="edit" title="Edit" data-toggle="tooltip"><i><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></i></a>
