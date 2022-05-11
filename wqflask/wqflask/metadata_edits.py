@@ -701,10 +701,6 @@ def approve_data(resource_id: str, file_name: str):
 def show_case_attribute_columns():
     case_attributes = {}
     with database_connection() as conn:
-        case_attributes = get_case_attributes(conn)
-    for key, val in case_attributes.items():
-        if not val:
-            case_attributes[key] = "No description"
-    return render_template(
-        "case_attributes.html", case_attributes=case_attributes
-    )
+        return render_template(
+            "case_attributes.html", case_attributes=get_case_attributes(conn)
+        )
