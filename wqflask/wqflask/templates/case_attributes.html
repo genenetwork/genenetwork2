@@ -102,9 +102,9 @@
                 </thead>
                 <tbody>
                     {% for id_, name, description in case_attributes %}
-                    <tr>
-                        <td>{{ name }}</td>
-                        <td>{{description}}</td>
+                    <tr data-id="{{id_}}">
+                        <td class="name" data-original-value="{{ name }}">{{ name }}</td>
+                        <td class="description" data-original-value="{{ description }}">{{description}}</td>
                         <td>
                             <a class="add" title="Add" data-toggle="tooltip"><i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></i></a>
                             <a class="edit" title="Edit" data-toggle="tooltip"><i><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></i></a>
@@ -158,6 +158,42 @@
              $(this).parents("tr").find(".add, .edit").toggle();
              $(".add-new").removeAttr("disabled");
          }
+
+	 let nameNode = $(this).parents("tr").find(".name");
+	 let descNode = $(this).parents("tr").find(".description");
+
+	 let name = nameNode.html();
+	 let desc = descNode.html();
+
+	 let originalName = nameNode.data("original-value");
+	 let originalDesc = descNode.data("original-value");
+	 let diff = {};
+         if (name !== originalName) {
+	     diff["Modifications"] = {
+		 name: {
+		     Original: originalName,
+		     Current: name,
+	     }};
+	 }
+	 if (desc !== originalDesc) {
+	     let desc_ = {
+		 Original: originalDesc,
+		 Current: desc,
+	     }
+	     if (Object.keys(diff).length == 0) {
+                 diff["Modifications"] = {
+		     description: desc_
+		 }
+	     }
+	     else {
+		 diff["Modifications"].name = desc_;
+	     }
+	 }
+	 if (!Object.keys(diff).length == 0) {
+	     diff["id"] = $(this).parents("tr").data("id");
+	 }
+	 $.post('{{ url_for("metadata_edit.update_case_attributes") }}',
+		JSON.stringify(diff));
      });
      // Edit row on edit button click
      $(document).on("click", ".edit", function(){
