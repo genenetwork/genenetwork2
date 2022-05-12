@@ -113,8 +113,7 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-                </table>
-
+        </table>
 </div>
 {%endblock%}
 
@@ -192,8 +191,15 @@
 	 if (!Object.keys(diff).length == 0) {
 	     diff["id"] = $(this).parents("tr").data("id");
 	 }
-	 $.post('{{ url_for("metadata_edit.update_case_attributes") }}',
-		JSON.stringify(diff));
+	 $.ajax({
+	     type: "POST",
+	     data: {"data": JSON.stringify(diff)},
+	     url: '{{ url_for("metadata_edit.update_case_attributes") }}',
+	     /* contentType: "application/json", */
+	     success: function(data, status, xhr) {
+		 location.reload();
+		    }
+	 });
      });
      // Edit row on edit button click
      $(document).on("click", ".edit", function(){

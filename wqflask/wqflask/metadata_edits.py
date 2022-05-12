@@ -699,8 +699,46 @@ def approve_data(resource_id: str, file_name: str):
 
 @metadata_edit.route("/case-attributes")
 def show_case_attribute_columns():
-    case_attributes = {}
+    redis_conn = redis.from_url(
+        current_app.config["REDIS_URL"], decode_responses=True
+    )
+    diff_data = redis_conn.hgetall("case-attr-diffs:review")
+    modifications, deletions, inserts = [], [], []
+    if diff_data:
+        for _, diff in diff_data.items():
+            diff = json.loads(diff)
+            if (m_ := diff.get("Modifications")):
+                modifications.append(m_)
+            if (d_ := diff.get("Deletions")):
+                deletions.append(d_)
+            if (i_ := diff.get("Insertions")):
+                inserts.append(i_)
+    # Inserts, Deletes
+
     with database_connection() as conn:
         return render_template(
-            "case_attributes.html", case_attributes=get_case_attributes(conn)
+            "case_attributes.html",
+            case_attributes=get_case_attributes(conn),
+            modifications=modifications,
+            deletions=deletions,
+            inserts=inserts
         )
+
+
+@metadata_edit.route("/case-attributes", methods=("POST",))
+def update_case_attributes():
+    data_ = request.form.to_dict()
+    if data_:
+        data_ = json.loads(data_.get("data"))
+        data_["author"] = g.user_session.record.get("user_id")
+        data_["timestamp"] = (datetime
+                              .datetime.now()
+                              .strftime("%Y-%m-%d %H:%M:%S"))
+        # Save data to redis as a set
+        redis_conn = redis.from_url(
+            current_app.config["REDIS_URL"], decode_responses=True
+        )
+        redis_conn.hset("case-attr-diffs:review",
+                        f"{data_.get('timestamp')}",
+                        json.dumps(data_))
+    return redirect(url_for("metadata_edit.show_case_attribute_columns"))
