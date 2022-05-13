@@ -170,7 +170,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             dataset_id=dataset_id,
             name=name,
             resource_id=request.args.get("resource-id"),
-            headers=get_case_attributes(conn).keys(),
+            headers=get_case_attributes(conn),
             version=os.environ.get("GN_VERSION"),
         )
 
