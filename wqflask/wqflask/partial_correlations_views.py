@@ -237,7 +237,7 @@ def __format_number(num):
     return f"{num:.5f}"
 
 def handle_200_response(response):
-    if response["status"] == "queued":
+    if response.get("queued", False):
         return redirect(
             url_for(
                 "poll_partial_correlation_results",
