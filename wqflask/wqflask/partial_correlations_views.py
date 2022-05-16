@@ -164,13 +164,16 @@ def criteria_error(args):
                 ("Invalid return number provided",))}
 
 def errors(args, with_target_db: bool):
-    return criteria_error(
-        method_error(
-            target_traits_error(
-                target_db_error(
-                    controls_error(primary_error(args)),
-                    with_target_db),
-                not with_target_db)))
+    return {
+        **criteria_error(
+            method_error(
+                target_traits_error(
+                    target_db_error(
+                        controls_error(primary_error(args)),
+                        with_target_db),
+                    not with_target_db))),
+        "with_target_db": with_target_db
+    }
 
 def __classify_args(acc, item):
     if item[1].startswith("primary_"):
@@ -201,7 +204,7 @@ def __build_args(raw_form, traits):
             (name[1][9:] for name in args["control_traits"])],
         "target_traits": [
             item for item in traits if item["trait_name"] in
-            (name[1][8:] for name in args["target_traits"])]
+            (name[1][8:] for name in args.get("target_traits", tuple()))]
     }
 
 def parse_trait(trait_str):
@@ -279,7 +282,7 @@ def partial_correlations():
             post_data = {
                 **args,
                 "primary_trait": args["primary_trait"][0],
-                "with_target_db": False
+                "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
                 url=f"{GN_SERVER_URL}api/correlation/partial",
@@ -294,7 +297,7 @@ def partial_correlations():
             post_data = {
                 **args,
                 "primary_trait": args["primary_trait"][0],
-                "with_target_db": False
+                "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
                 url=f"{GN_SERVER_URL}api/correlation/partial",
