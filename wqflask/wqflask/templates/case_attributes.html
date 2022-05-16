@@ -114,7 +114,55 @@
                     {% endfor %}
                 </tbody>
         </table>
-</div>
+
+	<h2>Please Review This Changes</h2>
+
+	{% if modifications %}
+	<h2>Modified Data:</h2>
+
+	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
+            <thead>
+		<th scope="col">Case Attribute Edits</th>
+		<th scope="col"></th>
+            </thead>
+            <tbody>
+		{{ modifications }}
+		{% for data in modifications %}
+		{% set reject_url = "" %}
+                {% set approve_url = "" %}
+		<tr>
+		    <td>
+			{% if data.get("name")%}
+			<b>Name:</b><br/>
+			<small>Original: </small> {{ data["name"].get("Original") }}<br/>
+			<small>Current: </small>{{ data["name"].get("Current") }} <br/>
+			<small>Diff:</small><br/>
+			<pre>{{data["name"].get("Diff")}}</pre>
+			{% elif data.get("description")%}
+			<b>Description:</b><br/>
+			<small>Original: </small> {{ data["description"].get("Original") }}<br/>
+			<small>Current: </small>{{ data["description"].get("Current") }} <br/>
+			<small>Diff:</small><br/>
+			<pre>{{data["description"].get("Diff")}}</pre>
+			{% endif %}
+		    </td>
+		    <td>
+                        <button type="button"
+                                class="btn btn-secondary btn-sm">
+                            <a href="{{ reject_url }}">Reject</a>
+                        </button>
+			<button type="button"
+                                class="btn btn-warning btn-sm">
+                            <a href="{{ approve_url }}">Approve</a>
+                        </button>
+                    </td>
+		</tr>
+		{% endfor %}
+            </tbody>
+	</table>
+
+	{% endif %}
+    </div>
 {%endblock%}
 
 {% block js %}

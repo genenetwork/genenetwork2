@@ -708,6 +708,18 @@ def show_case_attribute_columns():
         for _, diff in diff_data.items():
             diff = json.loads(diff)
             if (m_ := diff.get("Modifications")):
+                if m_.get("description"):
+                    m_["description"]["Diff"] = "\n".join(
+                        difflib.ndiff(
+                            [m_.get("description")["Original"]],
+                            [m_.get("description")["Current"]]
+                ))
+                if m_.get("name"):
+                    m_["name"]["Diff"] = "\n".join(
+                        difflib.ndiff(
+                            [m_.get("name")["Original"]],
+                            [m_.get("name")["Current"]]
+                ))
                 modifications.append(m_)
             if (d_ := diff.get("Deletions")):
                 deletions.append(d_)
