@@ -19,7 +19,7 @@
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
         <div class="tool-button-container">
-          <form id="collection_form" action="/delete" method="post">
+          <form id="collection_form" action="/delete" method="post" target="_blank">
             <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
             <input type="hidden" name="collection_name" id="collection_name" value="{{ uc.name }}" />
             <input type="hidden" name="tool_used" value="" />
@@ -242,6 +242,7 @@
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
+                e.stopImmediatePropagation();
                 return $("#collection_form").submit();
             };
 
