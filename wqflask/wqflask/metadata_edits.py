@@ -738,6 +738,8 @@ def show_case_attribute_columns():
 
 
 @metadata_edit.route("/case-attributes", methods=("POST",))
+@edit_admins_access_required
+@login_required
 def update_case_attributes():
     data_ = request.form.to_dict()
     if data_:
