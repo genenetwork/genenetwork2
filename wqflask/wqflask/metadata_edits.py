@@ -699,38 +699,42 @@ def approve_data(resource_id: str, file_name: str):
 
 @metadata_edit.route("/case-attributes")
 def show_case_attribute_columns():
-    redis_conn = redis.from_url(
-        current_app.config["REDIS_URL"], decode_responses=True
-    )
-    diff_data = redis_conn.hgetall("case-attr-diffs:review")
+    diff_data = None
+    with database_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT editor, json_diff_data FROM "
+                "caseattributes_audit WHERE status = 'review'")
+            diff_data = cursor.fetchall()
     modifications, deletions, inserts = [], [], []
     if diff_data:
-        for _, diff in diff_data.items():
+        for author, diff in diff_data:
             diff = json.loads(diff)
-            if (m_ := diff.get("Modifications")):
+            diff["author"] = author
+            if (m_ := diff.get("Modification")):
                 if m_.get("description"):
                     m_["description"]["Diff"] = "\n".join(
                         difflib.ndiff(
                             [m_.get("description")["Original"]],
                             [m_.get("description")["Current"]]
-                ))
+                        ))
                 if m_.get("name"):
                     m_["name"]["Diff"] = "\n".join(
                         difflib.ndiff(
                             [m_.get("name")["Original"]],
                             [m_.get("name")["Current"]]
-                ))
-                modifications.append(m_)
-            if (d_ := diff.get("Deletions")):
+                        ))
+                    modifications.append(m_)
+            if (d_ := diff.get("Deletion")):
                 deletions.append(d_)
-            if (i_ := diff.get("Insertions")):
+            if (i_ := diff.get("Insert")):
                 inserts.append(i_)
-    # Inserts, Deletes
+    # import pudb; pu.db
 
-    with database_connection() as conn:
+    with database_connection() as cursor:
         return render_template(
             "case_attributes.html",
-            case_attributes=get_case_attributes(conn),
+            case_attributes=get_case_attributes(cursor),
             modifications=modifications,
             deletions=deletions,
             inserts=inserts
