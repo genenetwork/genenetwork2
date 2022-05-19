@@ -95,38 +95,35 @@
             </div>
         </div>
         <table class="table table-bordered table-responsive">
-                <thead>
-                    <th scope="col">Header</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Actions</th>
-                </thead>
-                <tbody>
-                    {% for id_, name, description in case_attributes %}
-                    <tr data-id="{{id_}}">
-                        <td class="name" data-original-value="{{ name }}">{{ name }}</td>
-                        <td class="description" data-original-value="{{ description }}">{{description}}</td>
-                        <td>
-                            <a class="add" title="Add" data-toggle="tooltip"><i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></i></a>
-                            <a class="edit" title="Edit" data-toggle="tooltip"><i><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></i></a>
-                            <a class="delete" title="Delete" data-toggle="tooltip"><i><span class="glyphicon glyphicon-trash" aria-hidden="trueh"></span></i></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+            <thead>
+                <th scope="col">Case Attribute</th>
+                <th scope="col">Description</th>
+                <th scope="col">Actions</th>
+            </thead>
+            <tbody>
+                {% for id_, name, description in case_attributes %}
+                <tr data-id="{{id_}}">
+                    <td class="name" data-original-value="{{ name }}">{{ name }}</td>
+                    <td class="description" data-original-value="{{ description }}">{{description}}</td>
+                    <td>
+                        <a class="add" title="Add" data-toggle="tooltip"><i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></i></a>
+                        <a class="edit" title="Edit" data-toggle="tooltip"><i><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></i></a>
+                        <a class="delete" title="Delete" data-toggle="tooltip"><i><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
 
 	<h2>Please Review This Changes</h2>
-
 	{% if modifications %}
-	<h2>Modified Data:</h2>
-
+	<h3>Modify Existing Case Attributes</h3>
 	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
             <thead>
-		<th scope="col">Case Attribute Edits</th>
-		<th scope="col"></th>
+		<th scope="col">Diff</th>
+		<th scope="col">Action</th>
             </thead>
             <tbody>
-		{{ modifications }}
 		{% for data in modifications %}
 		{% set reject_url = "" %}
                 {% set approve_url = "" %}
@@ -159,146 +156,204 @@
 		</tr>
 		{% endfor %}
             </tbody>
+		</table>
+	{% endif %}
+	{% if deletions %}
+	<h3>Delete Existing Case Attributes</h3>
+	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
+            <thead>
+		<th scope="col">Case Attribute</th>
+		<th scope="col">Description</th>
+		<th scope="col">Action</th>
+            </thead>
+            <tbody>
+		{% for data in deletions %}
+		{% set reject_url = "" %}
+                {% set approve_url = "" %}
+                <tr data-id="{{data.get('id')}}">
+		    <td> {{data.get("name")}} </td>
+		    <td> {{data.get("description")}} </td>
+		    <td>
+			<button type="button"
+				      class="btn btn-secondary btn-sm">
+			    <a href="{{ reject_url }}">Reject</a>
+			</button>
+			<button type="button" class="btn btn-warning btn-sm">
+			    <a href="{{ approve_url }}" class="delete" title="Delete" data-toggle="tooltip">Approve</a>
+			</button>
+                    </td>
+		</tr>
+		{% endfor %}
+            </tbody>
 	</table>
+	{% endif %}
 
+	{% if inserts %}
+	<h3>Insert New Case Attributes</h3>
+	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
+	    <thead>
+		<th scope="col">Case Attribute</th>
+		<th scope="col">Description</th>
+		<th scope="col">Action</th>
+	    </thead>
+	    <tbody>
+		{% for data in inserts %}
+		{% set reject_url = "" %}
+                {% set approve_url = "" %}
+                <tr>
+		    <td> {{data.get("name")}} </td>
+		    <td> {{data.get("description")}} </td>
+		    <td>
+			<button type="button"
+				class="btn btn-secondary btn-sm">
+			    <a href="{{ reject_url }}">Reject</a>
+			</button>
+			<button type="button" class="btn btn-warning btn-sm">
+			    <a href="{{ approve_url }}" class="delete" title="Delete" data-toggle="tooltip">Approve</a>
+			</button>
+                    </td>
+		</tr>
+		{% endfor %}
+			    </tbody>
+	</table>
 	{% endif %}
     </div>
-{%endblock%}
+    {%endblock%}
 
-{% block js %}
-<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
-<script language="javascript" type="text/javascript">
- gn_server_url = "{{ gn_server_url }}";
+    {% block js %}
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.js') }}"></script>
+    <script language="javascript" type="text/javascript">
+     gn_server_url = "{{ gn_server_url }}";
 
- $(document).ready( function() {
-     let actions = $("table td:last-child").html();
-     // Append table with add row form on add new button click
-     $(".add-new").click(function(){
-         $(this).attr("disabled", "disabled");
-         let index = $("table tbody tr:last-child").index();
-         let row = '<tr>' +
-                   '<td class="name"><input type="text" class="form-control"></td>' +
-                   '<td class="description"><input type="text" class="form-control"></td>' +
-                   '<td>' + actions + '</td>' +
-                   '</tr>';
-         $("table").append(row);
-         $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
-     });
-     // Add row on add button click
-     $(document).on("click", ".add", function(){
-         let empty = false;
-         let input = $(this).parents("tr").find('input[type="text"]');
-         input.each(function(){
-             if(!$(this).val()){
-                 $(this).addClass("error");
-                 empty = true;
-             } else{
-                 $(this).removeClass("error");
-             }
-         });
-         $(this).parents("tr").find(".error").first().focus();
-         if(!empty){
+     $(document).ready( function() {
+	 let actions = $("table td:last-child").html();
+	 // Append table with add row form on add new button click
+	 $(".add-new").click(function(){
+             $(this).attr("disabled", "disabled");
+             let index = $("table tbody tr:last-child").index();
+             let row = '<tr>' +
+                       '<td class="name"><input type="text" class="form-control"></td>' +
+                       '<td class="description"><input type="text" class="form-control"></td>' +
+                       '<td>' + actions + '</td>' +
+                       '</tr>';
+             $("table").append(row);
+             $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
+	 });
+	 // Add row on add button click
+	 $(document).on("click", ".add", function(){
+             let empty = false;
+             let input = $(this).parents("tr").find('input[type="text"]');
              input.each(function(){
-                 $(this).parent("td").html($(this).val());
+		 if(!$(this).val()){
+                     $(this).addClass("error");
+                     empty = true;
+		 } else{
+                     $(this).removeClass("error");
+		 }
+             });
+             $(this).parents("tr").find(".error").first().focus();
+             if(!empty){
+		 input.each(function(){
+                     $(this).parent("td").html($(this).val());
+		 });
+		 $(this).parents("tr").find(".add, .edit").toggle();
+		 $(".add-new").removeAttr("disabled");
+             }
+
+	     let nameNode = $(this).parents("tr").find(".name");
+	     let descNode = $(this).parents("tr").find(".description");
+
+	     let name = nameNode.html();
+	     let desc = descNode.html();
+	     let nodeId = $(this).parents("tr").data("id");
+	     let originalName = nameNode.data("original-value");
+	     let originalDesc = descNode.data("original-value");
+	     let diff = {};
+	     if (nodeId) {
+		 if (name !== originalName) {
+		     diff["Modification"] = {
+			 name: {
+			     Original: originalName,
+			     Current: name,
+		     }};
+		 }
+		 if (desc !== originalDesc) {
+		     let desc_ = {
+			 Original: originalDesc,
+			 Current: desc,
+		     }
+		     if (Object.keys(diff).length == 0) {
+			 diff["Modification"] = {
+			     description: desc_
+			 }
+		     }
+		     else {
+			 diff["Modification"].name = desc_;
+		     }
+		 }
+		 if (!Object.keys(diff).length == 0) {
+		     diff["id"] = nodeId;
+		 }
+	     } else {
+		 if (name) {
+		     diff["Insert"] = {
+			 name: name,
+		     }
+		 }
+		 if (desc) {
+		     if (Object.keys(diff).length == 0) {
+			 diff["Insert"] = {
+			     description: desc,
+			 }
+		     }
+		     else {
+			 diff["Insert"].description = desc;
+		     }
+		 }
+	     }
+	     if(diff) {
+		 $.ajax({
+		     type: "POST",
+		     data: {"data": JSON.stringify(diff)},
+		     url: '{{ url_for("metadata_edit.update_case_attributes") }}',
+		     /* contentType: "application/json", */
+		     success: function(data, status, xhr) { location.reload() }
+		 }
+		 )
+	     }
+	 });
+	 // Edit row on edit button click
+	 $(document).on("click", ".edit", function(){
+             $(this).parents("tr").find("td:not(:last-child)").each(function(){
+		 $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
              });
              $(this).parents("tr").find(".add, .edit").toggle();
+             $(".add-new").attr("disabled", "disabled");
+	 });
+
+	 // Delete row on delete button click
+	 $(document).on("click", ".delete", function(){
+             $(this).parents("tr").remove();
              $(".add-new").removeAttr("disabled");
-         }
+	     let node = $(this).parents("tr")
 
-	 let nameNode = $(this).parents("tr").find(".name");
-	 let descNode = $(this).parents("tr").find(".description");
-
-	 let name = nameNode.html();
-	 let desc = descNode.html();
-	 let nodeId = $(this).parents("tr").data("id");
-	 let originalName = nameNode.data("original-value");
-	 let originalDesc = descNode.data("original-value");
-	 let diff = {};
-	 if (nodeId) {
-	     if (name !== originalName) {
-		 diff["Modification"] = {
-		     name: {
-			 Original: originalName,
-			 Current: name,
-		 }};
-	     }
-	     if (desc !== originalDesc) {
-		 let desc_ = {
-		     Original: originalDesc,
-		     Current: desc,
-		 }
-		 if (Object.keys(diff).length == 0) {
-                     diff["Modification"] = {
-			 description: desc_
+	     let diff = {};
+	     let nodeId = $(this).parents("tr").data("id");
+	     diff["Deletion"] = {
+		 name: node.find(".name").data("original-value"),
+		 description: node.find(".description").data("original-value"),
+		 id: node.data("id")}
+	     console.log(diff)
+	     if (nodeId){
+		 $.ajax({
+		     type: "POST",
+		     data: {"data": JSON.stringify(diff)},
+		     url: '{{ url_for("metadata_edit.update_case_attributes") }}',
+		     success: function(data, status, xhr) {
+			 location.reload();
 		     }
-		 }
-		 else {
-		     diff["Modification"].name = desc_;
-		 }
-	     }
-	     if (!Object.keys(diff).length == 0) {
-		 diff["id"] = nodeId;
-	     }
-	 } else {
-	     if (name) {
-		 diff["Insert"] = {
-		     name: name,
-		 }
-	     }
-	     if (desc) {
-		 if (Object.keys(diff).length == 0) {
-                     diff["Insert"] = {
-			 description: desc,
-		     }
-		 }
-		 else {
-		     diff["Insert"].description = desc;
-		 }
-	     }
-	 }
-	 if(diff) {
-	     $.ajax({
-		 type: "POST",
-		 data: {"data": JSON.stringify(diff)},
-		 url: '{{ url_for("metadata_edit.update_case_attributes") }}',
-		 /* contentType: "application/json", */
-		 success: function(data, status, xhr) { location.reload() }
-	     }
-	     )
-	 }
+	     })}
+	 });
      });
-     // Edit row on edit button click
-     $(document).on("click", ".edit", function(){
-         $(this).parents("tr").find("td:not(:last-child)").each(function(){
-             $(this).html('<input type="text" class="form-control" value="' + $(this).text() + '">');
-         });
-         $(this).parents("tr").find(".add, .edit").toggle();
-         $(".add-new").attr("disabled", "disabled");
-     });
-
-     // Delete row on delete button click
-     $(document).on("click", ".delete", function(){
-         $(this).parents("tr").remove();
-         $(".add-new").removeAttr("disabled");
-	 let node = $(this).parents("tr")
-
-	 let diff = {};
-	 let nodeId = $(this).parents("tr").data("id");
-	 diff["Deletion"] = {
-	     name: node.find(".name").data("original-value"),
-	     description: node.find(".description").data("original-value"),
-	     id: node.data("id")}
-	 console.log(diff)
-	 if (nodeId){
-	     $.ajax({
-		 type: "POST",
-		 data: {"data": JSON.stringify(diff)},
-		 url: '{{ url_for("metadata_edit.update_case_attributes") }}',
-		 success: function(data, status, xhr) {
-		     location.reload();
-		 }
-	 })}
-     });
- });
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}
