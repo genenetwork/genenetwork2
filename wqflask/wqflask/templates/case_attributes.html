@@ -210,43 +210,62 @@
 
 	 let name = nameNode.html();
 	 let desc = descNode.html();
-
+	 let nodeId = $(this).parents("tr").data("id");
 	 let originalName = nameNode.data("original-value");
 	 let originalDesc = descNode.data("original-value");
 	 let diff = {};
-         if (name !== originalName) {
-	     diff["Modifications"] = {
-		 name: {
-		     Original: originalName,
-		     Current: name,
-	     }};
-	 }
-	 if (desc !== originalDesc) {
-	     let desc_ = {
-		 Original: originalDesc,
-		 Current: desc,
+	 if (nodeId) {
+	     if (name !== originalName) {
+		 diff["Modification"] = {
+		     name: {
+			 Original: originalName,
+			 Current: name,
+		 }};
 	     }
-	     if (Object.keys(diff).length == 0) {
-                 diff["Modifications"] = {
-		     description: desc_
+	     if (desc !== originalDesc) {
+		 let desc_ = {
+		     Original: originalDesc,
+		     Current: desc,
+		 }
+		 if (Object.keys(diff).length == 0) {
+                     diff["Modification"] = {
+			 description: desc_
+		     }
+		 }
+		 else {
+		     diff["Modification"].name = desc_;
 		 }
 	     }
-	     else {
-		 diff["Modifications"].name = desc_;
+	     if (!Object.keys(diff).length == 0) {
+		 diff["id"] = nodeId;
+	     }
+	 } else {
+	     if (name) {
+		 diff["Insert"] = {
+		     name: name,
+		 }
+	     }
+	     if (desc) {
+		 if (Object.keys(diff).length == 0) {
+                     diff["Insert"] = {
+			 description: desc,
+		     }
+		 }
+		 else {
+		     diff["Insert"].description = desc;
+		 }
 	     }
 	 }
-	 if (!Object.keys(diff).length == 0) {
-	     diff["id"] = $(this).parents("tr").data("id");
+	 if(diff) {
+	     $.ajax({
+		 type: "POST",
+		 data: {"data": JSON.stringify(diff)},
+		 url: '{{ url_for("metadata_edit.update_case_attributes") }}',
+		 /* contentType: "application/json", */
+		 success: function(data, status, xhr) { location.reload() }
+	     }
+	     )
 	 }
-	 $.ajax({
-	     type: "POST",
-	     data: {"data": JSON.stringify(diff)},
-	     url: '{{ url_for("metadata_edit.update_case_attributes") }}',
-	     /* contentType: "application/json", */
-	     success: function(data, status, xhr) {
-		 location.reload();
-		    }
-	 });
      });
      // Edit row on edit button click
      $(document).on("click", ".edit", function(){
