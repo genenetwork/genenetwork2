@@ -283,19 +283,21 @@
 	 let node = $(this).parents("tr")
 
 	 let diff = {};
+	 let nodeId = $(this).parents("tr").data("id");
 	 diff["Deletion"] = {
 	     name: node.find(".name").data("original-value"),
 	     description: node.find(".description").data("original-value"),
 	     id: node.data("id")}
 	 console.log(diff)
-	 $.ajax({
-	     type: "POST",
-	     data: {"data": JSON.stringify(diff)},
-	     url: '{{ url_for("metadata_edit.update_case_attributes") }}',
-	     success: function(data, status, xhr) {
-		 location.reload();
-	     }
-	 });
+	 if (nodeId){
+	     $.ajax({
+		 type: "POST",
+		 data: {"data": JSON.stringify(diff)},
+		 url: '{{ url_for("metadata_edit.update_case_attributes") }}',
+		 success: function(data, status, xhr) {
+		     location.reload();
+		 }
+	 })}
      });
  });
 </script>
