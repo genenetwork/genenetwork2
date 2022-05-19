@@ -741,18 +741,26 @@ def show_case_attribute_columns():
 @edit_admins_access_required
 @login_required
 def update_case_attributes():
-    data_ = request.form.to_dict()
+    data_ = request.form.to_dict().get("data")
     if data_:
-        data_ = json.loads(data_.get("data"))
-        data_["author"] = g.user_session.record.get("user_id")
-        data_["timestamp"] = (datetime
-                              .datetime.now()
-                              .strftime("%Y-%m-%d %H:%M:%S"))
-        # Save data to redis as a set
-        redis_conn = redis.from_url(
-            current_app.config["REDIS_URL"], decode_responses=True
+        author = (
+            (g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+            or g.user_session.record.get("user_id")
+            or ""
         )
-        redis_conn.hset("case-attr-diffs:review",
-                        f"{data_.get('timestamp')}",
-                        json.dumps(data_))
+        with database_connection() as conn:
+            try:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "INSERT INTO caseattributes_audit "
+                        "(status, editor, json_diff_data) "
+                        "VALUES (%s, %s, %s)",
+                        ('review', author, data_),
+                    )
+            except Exception as _e:
+                import MySQLdb
+                conn.rollback()
+                raise MySQLdb.Error(_e) from _e
+            conn.commit()
+
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
