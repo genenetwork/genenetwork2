@@ -285,6 +285,7 @@ def view_collection():
     else:
         return render_template(
             "collections/view.html",
+            traits_json=json_version,
             trait_info_str=trait_info_str,
             **collection_info)
 
