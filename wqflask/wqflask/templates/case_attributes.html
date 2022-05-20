@@ -141,13 +141,13 @@
 		    <td>
 			{% if data.get("name")%}
 			<b>Name:</b><br/>
-			<small>Original: </small> {{ data["name"].get("Original") }}<br/>
+			<small>Original: </small>{{ data["name"].get("Original") }}<br/>
 			<small>Current: </small>{{ data["name"].get("Current") }} <br/>
 			<small>Diff:</small><br/>
 			<pre>{{data["name"].get("Diff")}}</pre>
 			{% elif data.get("description")%}
 			<b>Description:</b><br/>
-			<small>Original: </small> {{ data["description"].get("Original") }}<br/>
+			<small>Original: </small>{{ data["description"].get("Original") }}<br/>
 			<small>Current: </small>{{ data["description"].get("Current") }} <br/>
 			<small>Diff:</small><br/>
 			<pre>{{data["description"].get("Diff")}}</pre>
@@ -188,9 +188,9 @@
 		{% set reject_url = "" %}
                 {% set approve_url = "" %}
                 <tr data-id="{{data.get('id')}}">
-		    <td> {{data.get("name")}} </td>
+		    <td>{{data.get("name")}}</td>
                     <td>{{ data.get('author') }}</td>
-		    <td> {{data.get("description")}} </td>
+		    <td>{{data.get("description")}}</td>
 		    <td>
 			<button type="button"
 				      class="btn btn-secondary btn-sm">
