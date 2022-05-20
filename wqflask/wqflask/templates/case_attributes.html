@@ -134,7 +134,7 @@
             </thead>
             <tbody>
 		{% for data in modifications %}
-		<tr data-id="{{ data.get('id') }}">
+		<tr>
 		    <td>{{ data.get('author') }}</td>
 		    <td>
 			{% if data.get("name")%}
@@ -152,11 +152,11 @@
 			{% endif %}
 		    </td>
 		    <td>
-                        <button type="button"
+                        <button data-id="{{ data.get('id') }}" type="button"
                                 class="btn btn-secondary btn-sm reject">
                             Reject
                         </button>
-			<button type="button"
+			<button data-id="{{ data.get('id') }}" type="button"
                                 class="btn btn-warning btn-sm approve">
                             Approve
                         </button>
@@ -183,16 +183,16 @@
             </thead>
             <tbody>
 		{% for data in deletions %}
-                <tr data-id="{{data.get('id')}}">
+                <tr>
 		    <td>{{data.get("name")}}</td>
                     <td>{{ data.get('author') }}</td>
 		    <td>{{data.get("description")}}</td>
 		    <td>
-			<button type="button"
-				class="btn btn-secondary btn-sm reject">
+			<button data-id="{{data.get('id')}}" type="button"
+					 class="btn btn-secondary btn-sm reject">
 			    Reject
 			</button>
-			<button type="button" class="btn btn-warning btn-sm approve">
+			<button data-id="{{data.get('id')}}" type="button" class="btn btn-warning btn-sm approve">
 			    Approve
 			</button>
                     </td>
@@ -219,16 +219,16 @@
 	    </thead>
 	    <tbody>
 		{% for data in inserts %}
-                <tr data-id="{{ data.get('id') }}">
+                <tr>
 		    <td>{{data.get("name")}}</td>
 		    <td>{{ data.get('author')}}</td>
 		    <td>{{data.get("description")}} </td>
 		    <td>
-			<button type="button"
-				      class="btn btn-secondary btn-sm reject">
+			<button data-id="{{ data.get('id') }}" type="button"
+				class="btn btn-secondary btn-sm reject">
 			    Reject
 			</button>
-			<button type="button" class="btn btn-warning btn-sm approve">
+			<button data-id="{{ data.get('id') }}" type="button" class="btn btn-warning btn-sm approve">
 			    Approve
 			</button>
                     </td>
