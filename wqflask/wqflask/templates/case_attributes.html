@@ -375,5 +375,19 @@
 	     })}
 	 });
      });
+
+     $(".reject").click(function(){
+	 let id = $(this).data("id")
+	 if (Number.isInteger(id)) {
+	     $.ajax({
+		 type: "POST",
+		 data: {"id": id},
+		 url: '{{ url_for("metadata_edit.reject_case_attribute_data") }}',
+		 success: function(data, status, xhr) {
+		     location.reload();
+		     }
+	     })
+	 }
+     });
     </script>
     {% endblock %}
