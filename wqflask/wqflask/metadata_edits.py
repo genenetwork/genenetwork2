@@ -711,12 +711,12 @@ def show_case_attribute_columns():
     with database_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute(
-                "SELECT editor, json_diff_data FROM "
+                "SELECT id, editor, json_diff_data FROM "
                 "caseattributes_audit WHERE status = 'review'")
             diff_data = cursor.fetchall()
     modifications, deletions, inserts = [], [], []
     if diff_data:
-        for author, diff in diff_data:
+        for id_, author, diff in diff_data:
             diff = json.loads(diff)
             author = _get_author(author)
             if (m_ := diff.get("Modification")):
@@ -774,6 +774,27 @@ def update_case_attributes():
                         "(status, editor, json_diff_data) "
                         "VALUES (%s, %s, %s)",
                         ('review', author, data_),
+                    )
+            except Exception as _e:
+                import MySQLdb
+                conn.rollback()
+                raise MySQLdb.Error(_e) from _e
+            conn.commit()
+
+    return redirect(url_for("metadata_edit.show_case_attribute_columns"))
+
+
+@metadata_edit.route("/case-attributes/reject", methods=["POST", ])
+def reject_case_attribute_data():
+    case_attr_id = request.form.to_dict().get("id")
+    with database_connection() as conn:
+        if case_attr_id:
+            try:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "UPDATE caseattributes_audit SET "
+                        "status = 'rejected' WHERE id = %s",
+                        case_attr_id
                     )
             except Exception as _e:
                 import MySQLdb
