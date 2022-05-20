@@ -23,6 +23,7 @@ from wqflask.database import database_connection
 from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
+from wqflask.decorators import case_attributes_edit_access
 
 from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
@@ -755,7 +756,7 @@ def show_case_attribute_columns():
 
 
 @metadata_edit.route("/case-attributes", methods=("POST",))
-@edit_admins_access_required
+@case_attributes_edit_access
 @login_required
 def update_case_attributes():
     data_ = request.form.to_dict().get("data")
@@ -784,6 +785,8 @@ def update_case_attributes():
 
 
 @metadata_edit.route("/case-attributes/reject", methods=["POST", ])
+@case_attributes_edit_access
+@login_required
 def reject_case_attribute_data():
     case_attr_id = request.form.to_dict().get("id")
     with database_connection() as conn:

@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 from functools import wraps
 from gn3.authentication import AdminRole
 from gn3.authentication import DataRole
+from gn3.authentication import get_groups_by_user_uid
 
 import json
 import requests
@@ -75,6 +76,28 @@ def edit_admins_access_required(f):
             response = {}
         if max([AdminRole(role) for role in response.get(
                 "admin", ["not-admin"])]) < AdminRole.EDIT_ADMINS:
+            return redirect(url_for("no_access_page"))
+        return f(*args, **kwargs)
+    return wrap
+
+
+def case_attributes_edit_access(f):
+    """Use this for endpoints for editing case
+    attributes. Only members in the 'editors'
+    group are allowed here!"""
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        groups = []
+        for _, value in get_groups_by_user_uid(
+                user_uid=((g.user_session.record.get(b"user_id") or
+                           b"").decode("utf-8")
+                          or g.user_session.record.get("user_id") or ""),
+                conn=redis.from_url(current_app.config["REDIS_URL"],
+                                    decode_responses=True)).items():
+            for items in value:
+                if (i_ := items.get("name")):
+                    groups.append(i_)
+        if "groups" in groups:
             return redirect(url_for("no_access_page"))
         return f(*args, **kwargs)
     return wrap
