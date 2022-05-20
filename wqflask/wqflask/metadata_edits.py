@@ -51,6 +51,14 @@ from gn3.db.sample_data import get_case_attributes
 metadata_edit = Blueprint("metadata_edit", __name__)
 
 
+def _get_author(author: str) -> str:
+    redis_conn = redis.from_url(
+            current_app.config["REDIS_URL"], decode_responses=True
+        )
+    return json.loads(redis_conn.hget("users", author)).get(
+                "full_name", author)
+
+
 def _get_diffs(
     diff_dir: str, user_id: str, redis_conn: redis.Redis, gn_proxy_url: str
 ):
@@ -710,8 +718,10 @@ def show_case_attribute_columns():
     if diff_data:
         for author, diff in diff_data:
             diff = json.loads(diff)
-            diff["author"] = author
+            author = _get_author(author)
             if (m_ := diff.get("Modification")):
+                m_["author"] = author
+                m_["id"] = id_
                 if m_.get("description"):
                     m_["description"]["Diff"] = "\n".join(
                         difflib.ndiff(
@@ -726,8 +736,12 @@ def show_case_attribute_columns():
                         ))
                     modifications.append(m_)
             if (d_ := diff.get("Deletion")):
+                d_["author"] = author
+                d_["id"] = id_
                 deletions.append(d_)
             if (i_ := diff.get("Insert")):
+                i_["author"] = author
+                i_["id"] = id_
                 inserts.append(i_)
     # import pudb; pu.db
 
