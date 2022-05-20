@@ -4,6 +4,9 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
 <style>
+ .case-attribute {
+     width: 10em;
+ }
  .table-title {
      padding-bottom: 10px;
      margin: 0 0 10px;
@@ -95,6 +98,11 @@
             </div>
         </div>
         <table class="table table-bordered table-responsive">
+	    <colgroup>
+		<col class="case-attribute">
+		<col>
+		<col>
+	    </colgroup>
             <thead>
                 <th scope="col">Case Attribute</th>
                 <th scope="col">Description</th>
@@ -161,6 +169,11 @@
 	{% if deletions %}
 	<h3>Delete Existing Case Attributes</h3>
 	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
+	    <colgroup>
+		<col class="case-attribute">
+		<col>
+		<col>
+	    </colgroup>
             <thead>
 		<th scope="col">Case Attribute</th>
 		<th scope="col">Description</th>
@@ -191,6 +204,11 @@
 	{% if inserts %}
 	<h3>Insert New Case Attributes</h3>
 	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
+	    <colgroup>
+		<col class="case-attribute">
+		<col>
+		<col>
+	    </colgroup>
 	    <thead>
 		<th scope="col">Case Attribute</th>
 		<th scope="col">Description</th>
