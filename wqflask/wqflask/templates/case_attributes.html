@@ -134,8 +134,6 @@
             </thead>
             <tbody>
 		{% for data in modifications %}
-		{% set reject_url = "" %}
-                {% set approve_url = "" %}
 		<tr data-id="{{ data.get('id') }}">
 		    <td>{{ data.get('author') }}</td>
 		    <td>
@@ -155,12 +153,12 @@
 		    </td>
 		    <td>
                         <button type="button"
-                                class="btn btn-secondary btn-sm">
-                            <a href="{{ reject_url }}">Reject</a>
+                                class="btn btn-secondary btn-sm reject">
+                            Reject
                         </button>
 			<button type="button"
-                                class="btn btn-warning btn-sm">
-                            <a href="{{ approve_url }}">Approve</a>
+                                class="btn btn-warning btn-sm approve">
+                            Approve
                         </button>
                     </td>
 		</tr>
@@ -185,19 +183,17 @@
             </thead>
             <tbody>
 		{% for data in deletions %}
-		{% set reject_url = "" %}
-                {% set approve_url = "" %}
                 <tr data-id="{{data.get('id')}}">
 		    <td>{{data.get("name")}}</td>
                     <td>{{ data.get('author') }}</td>
 		    <td>{{data.get("description")}}</td>
 		    <td>
 			<button type="button"
-				      class="btn btn-secondary btn-sm">
-			    <a href="{{ reject_url }}">Reject</a>
+				class="btn btn-secondary btn-sm reject">
+			    Reject
 			</button>
-			<button type="button" class="btn btn-warning btn-sm">
-			    <a href="{{ approve_url }}" class="delete" title="Delete" data-toggle="tooltip">Approve</a>
+			<button type="button" class="btn btn-warning btn-sm approve">
+			    Approve
 			</button>
                     </td>
 		</tr>
@@ -223,19 +219,17 @@
 	    </thead>
 	    <tbody>
 		{% for data in inserts %}
-		{% set reject_url = "" %}
-                {% set approve_url = "" %}
                 <tr data-id="{{ data.get('id') }}">
 		    <td>{{data.get("name")}}</td>
 		    <td>{{ data.get('author')}}</td>
 		    <td>{{data.get("description")}} </td>
 		    <td>
 			<button type="button"
-				class="btn btn-secondary btn-sm">
-			    <a href="{{ reject_url }}">Reject</a>
+				      class="btn btn-secondary btn-sm reject">
+			    Reject
 			</button>
-			<button type="button" class="btn btn-warning btn-sm">
-			    <a href="{{ approve_url }}" class="delete" title="Delete" data-toggle="tooltip">Approve</a>
+			<button type="button" class="btn btn-warning btn-sm approve">
+			    Approve
 			</button>
                     </td>
 		</tr>
