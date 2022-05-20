@@ -128,6 +128,7 @@
 	<h3>Modify Existing Case Attributes</h3>
 	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
             <thead>
+		<th scope="col">Author</th>
 		<th scope="col">Diff</th>
 		<th scope="col">Action</th>
             </thead>
@@ -135,7 +136,8 @@
 		{% for data in modifications %}
 		{% set reject_url = "" %}
                 {% set approve_url = "" %}
-		<tr>
+		<tr data-id="{{ data.get('id') }}">
+		    <td>{{ data.get('author') }}</td>
 		    <td>
 			{% if data.get("name")%}
 			<b>Name:</b><br/>
@@ -173,9 +175,11 @@
 		<col class="case-attribute">
 		<col>
 		<col>
+		<col>
 	    </colgroup>
             <thead>
 		<th scope="col">Case Attribute</th>
+		<th scope="col">Author</th>
 		<th scope="col">Description</th>
 		<th scope="col">Action</th>
             </thead>
@@ -185,6 +189,7 @@
                 {% set approve_url = "" %}
                 <tr data-id="{{data.get('id')}}">
 		    <td> {{data.get("name")}} </td>
+                    <td>{{ data.get('author') }}</td>
 		    <td> {{data.get("description")}} </td>
 		    <td>
 			<button type="button"
@@ -208,9 +213,11 @@
 		<col class="case-attribute">
 		<col>
 		<col>
+		<col>
 	    </colgroup>
 	    <thead>
 		<th scope="col">Case Attribute</th>
+		<th scope="col">Author</th>
 		<th scope="col">Description</th>
 		<th scope="col">Action</th>
 	    </thead>
@@ -218,9 +225,10 @@
 		{% for data in inserts %}
 		{% set reject_url = "" %}
                 {% set approve_url = "" %}
-                <tr>
-		    <td> {{data.get("name")}} </td>
-		    <td> {{data.get("description")}} </td>
+                <tr data-id="{{ data.get('id') }}">
+		    <td>{{data.get("name")}}</td>
+		    <td>{{ data.get('author')}}</td>
+		    <td>{{data.get("description")}} </td>
 		    <td>
 			<button type="button"
 				class="btn btn-secondary btn-sm">
