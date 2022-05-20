@@ -26,6 +26,7 @@ from wqflask.decorators import login_required
 
 from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
+from gn3.authentication import get_user_info_by_key
 from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
@@ -49,14 +50,6 @@ from gn3.db.sample_data import get_case_attributes
 
 
 metadata_edit = Blueprint("metadata_edit", __name__)
-
-
-def _get_author(author: str) -> str:
-    redis_conn = redis.from_url(
-            current_app.config["REDIS_URL"], decode_responses=True
-        )
-    return json.loads(redis_conn.hget("users", author)).get(
-                "full_name", author)
 
 
 def _get_diffs(
@@ -718,7 +711,13 @@ def show_case_attribute_columns():
     if diff_data:
         for id_, author, diff in diff_data:
             diff = json.loads(diff)
-            author = _get_author(author)
+            author = get_user_info_by_key(
+                key="user_id",
+                value=author,
+                conn=redis.from_url(
+                    current_app.config["REDIS_URL"], decode_responses=True
+                )
+            ).get("full_name")
             if (m_ := diff.get("Modification")):
                 m_["author"] = author
                 m_["id"] = id_
