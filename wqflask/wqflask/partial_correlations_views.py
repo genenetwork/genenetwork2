@@ -317,6 +317,18 @@ def partial_correlations():
 def process_pcorrs_command_output(result):
     if result["status"] == "success":
 
+        if result["results"]["dataset_type"] == "NOT SET YET":
+            return render_template(
+                "partial_correlations/pcorrs_results_with_target_traits.html",
+                primary = result["results"]["primary_trait"],
+                controls = result["results"]["control_traits"],
+                pcorrs = sorted(
+                    result["results"]["correlations"],
+                    key = lambda item: item["partial_corr_p_value"]),
+                method = result["results"]["method"],
+                enumerate = enumerate,
+                format_number = __format_number)
+
         return render_template(
             "partial_correlations/pcorrs_results_presentation.html",
             primary=result["results"]["primary_trait"],
