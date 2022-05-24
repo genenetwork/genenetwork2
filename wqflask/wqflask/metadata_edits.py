@@ -797,7 +797,7 @@ def reject_case_attribute_data():
                     cursor.execute(
                         "UPDATE caseattributes_audit SET "
                         "status = 'rejected' WHERE id = %s",
-                        case_attr_id
+                        (case_attr_id, )
                     )
             except Exception as _e:
                 import MySQLdb
