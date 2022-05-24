@@ -746,8 +746,6 @@ def show_case_attribute_columns():
                 i_["author"] = author
                 i_["id"] = id_
                 inserts.append(i_)
-    # import pudb; pu.db
-
     with database_connection() as cursor:
         return render_template(
             "case_attributes.html",
