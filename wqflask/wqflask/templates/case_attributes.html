@@ -4,7 +4,10 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
 <style>
- .case-attribute {
+ .reject, .approve {
+     margin-bottom: 5px;
+ }
+.case-attribute {
      width: 10em;
  }
  .table-title {
@@ -158,11 +161,11 @@
 		    </td>
 		    <td>
                         <button data-id="{{ data.get('id') }}" type="button"
-                                class="btn btn-secondary btn-sm reject">
+                                class="btn btn-default reject">
                             Reject
                         </button>
 			<button data-id="{{ data.get('id') }}" type="button"
-                                class="btn btn-warning btn-sm approve">
+                                class="btn btn-success approve">
                             Approve
                         </button>
                     </td>
@@ -194,10 +197,10 @@
 		    <td>{{data.get("description")}}</td>
 		    <td>
 			<button data-id="{{data.get('id')}}" type="button"
-					 class="btn btn-secondary btn-sm reject">
+				class="btn btn-default reject">
 			    Reject
 			</button>
-			<button data-id="{{data.get('id')}}" type="button" class="btn btn-warning btn-sm approve">
+			<button data-id="{{data.get('id')}}" type="button" class="btn btn-success approve">
 			    Approve
 			</button>
                     </td>
@@ -230,10 +233,10 @@
 		    <td>{{ data.get("description") }} </td>
 		    <td>
 			<button data-id="{{ data.get('id') }}" type="button"
-				class="btn btn-secondary btn-sm reject">
+					 class="btn btn-default reject">
 			    Reject
 			</button>
-			<button data-id="{{ data.get('id') }}" type="button" class="btn btn-warning btn-sm approve">
+			<button data-id="{{ data.get('id') }}" type="button" class="btn btn-success approve">
 			    Approve
 			</button>
                     </td>
@@ -368,7 +371,6 @@
 		 name: node.find(".name").data("original-value"),
 		 description: node.find(".description").data("original-value"),
 		 id: node.data("id")}
-	     console.log(diff)
 	     if (nodeId){
 		 $.ajax({
 		     type: "POST",
