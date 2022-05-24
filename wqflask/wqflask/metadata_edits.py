@@ -736,6 +736,7 @@ def show_case_attribute_columns():
                             [m_.get("name")["Original"]],
                             [m_.get("name")["Current"]]
                         ))
+                if any([m_.get("description"), m_.get("name")]):
                     modifications.append(m_)
             if (d_ := diff.get("Deletion")):
                 d_["author"] = author
