@@ -145,7 +145,8 @@
 			<small>Current: </small>{{ data["name"].get("Current") }} <br/>
 			<small>Diff:</small><br/>
 			<pre>{{data["name"].get("Diff")}}</pre>
-			{% elif data.get("description")%}
+			{% endif %}
+			{% if data.get("description")%}
 			<b>Description:</b><br/>
 			<small>Original: </small>{{ data["description"].get("Original") }}<br/>
 			<small>Current: </small>{{ data["description"].get("Current") }} <br/>
