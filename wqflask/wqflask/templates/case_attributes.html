@@ -92,9 +92,6 @@
                 <div class="col-sm-8">
                     <h2>Case Attributes Reference Table</h2>
                 </div>
-                <div class="col-sm-4">
-                    <button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button>
-                </div>
             </div>
         </div>
         <table class="table table-bordered table-responsive">
@@ -120,6 +117,11 @@
                     </td>
                 </tr>
                 {% endfor %}
+		<tr id="addNew">
+		    <td></td>
+		    <td></td>
+		    <td><button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button></td>
+		</tr>
             </tbody>
         </table>
 
@@ -167,7 +169,7 @@
 		</tr>
 		{% endfor %}
             </tbody>
-		</table>
+	</table>
 	{% endif %}
 	{% if deletions %}
 	<h3>Delete Existing Case Attributes</h3>
@@ -253,13 +255,13 @@
 	 // Append table with add row form on add new button click
 	 $(".add-new").click(function(){
              $(this).attr("disabled", "disabled");
-             let index = $("table tbody tr:last-child").index();
+	     let index = $("table tbody tr:nth-last-child(2)").index();
              let row = '<tr>' +
                        '<td class="name"><input type="text" class="form-control"></td>' +
                        '<td class="description"><input type="text" class="form-control"></td>' +
                        '<td>' + actions + '</td>' +
                        '</tr>';
-             $("table").append(row);
+	     $(row).insertBefore("#addNew")
              $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
 	 });
 	 // Add row on add button click
