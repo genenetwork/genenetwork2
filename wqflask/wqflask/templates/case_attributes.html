@@ -123,7 +123,9 @@
             </tbody>
         </table>
 
-	<h2>Please Review This Changes</h2>
+	{% if modifications or inserts or deletions %}
+	<h2>Please Review These Changes</h2>
+	{% endif %}
 	{% if modifications %}
 	<h3>Modify Existing Case Attributes</h3>
 	<table class="table table-responsive table-hover table-striped cell-border" id="table-modifications">
