@@ -830,7 +830,7 @@ def approve_case_attribute_data():
                         "INSERT INTO CaseAttribute "
                         "(Name, Description) VALUES "
                         "(%s, %s)",
-                        (data.get("name"), data.get("description"),))
+                        (data.get("name").strip(), data.get("description").strip(),))
                     cursor.execute(
                             "UPDATE caseattributes_audit SET "
                             "status = 'approved' WHERE id = %s",
