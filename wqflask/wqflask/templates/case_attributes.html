@@ -112,7 +112,7 @@
                 {% for id_, name, description in case_attributes %}
                 <tr data-id="{{id_}}">
                     <td class="name" data-original-value="{{ name }}">{{ name }}</td>
-                    <td class="description" data-original-value="{{ description }}">{{description}}</td>
+                    <td class="description" data-original-value="{{ description }}">{{ description }}</td>
                     <td>
                         <a class="add" title="Add" data-toggle="tooltip"><i><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></i></a>
                         <a class="edit" title="Edit" data-toggle="tooltip"><i><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></i></a>
@@ -220,9 +220,9 @@
 	    <tbody>
 		{% for data in inserts %}
                 <tr>
-		    <td>{{data.get("name")}}</td>
-		    <td>{{ data.get('author')}}</td>
-		    <td>{{data.get("description")}} </td>
+		    <td>{{ data.get("name") }}</td>
+		    <td>{{ data.get("author")}}</td>
+		    <td>{{ data.get("description") }} </td>
 		    <td>
 			<button data-id="{{ data.get('id') }}" type="button"
 				class="btn btn-secondary btn-sm reject">
@@ -377,7 +377,7 @@
      });
 
      $(".reject").click(function(){
-	 let id = $(this).data("id")
+	 let id = $(this).data("id");
 	 if (Number.isInteger(id)) {
 	     $.ajax({
 		 type: "POST",
@@ -385,7 +385,10 @@
 		 url: '{{ url_for("metadata_edit.reject_case_attribute_data") }}',
 		 success: function(data, status, xhr) {
 		     location.reload();
-		     }
+		 }
+	     })
+	 }
+     });
 	     })
 	 }
      });
