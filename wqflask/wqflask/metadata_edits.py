@@ -810,6 +810,7 @@ def reject_case_attribute_data():
 
 @metadata_edit.route("/case-attributes/approve", methods=["POST", ])
 @case_attributes_edit_access
+@login_required
 def approve_case_attribute_data():
     case_attr_id = request.form.to_dict().get("id")
     with database_connection() as conn:
