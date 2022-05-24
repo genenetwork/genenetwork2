@@ -700,6 +700,8 @@ def approve_data(resource_id: str, file_name: str):
 
 
 @metadata_edit.route("/case-attributes")
+@case_attributes_edit_access
+@login_required
 def show_case_attribute_columns():
     diff_data = None
     with database_connection() as conn:
