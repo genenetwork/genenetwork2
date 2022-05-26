@@ -7,6 +7,10 @@ process_json = function(data) {
   }
 };
 
+range = function(size, startAt=0) {
+    return [...Array(size).keys()].map(idx => idx + startAt);
+};
+
 indicate_error = function (jqXHR, textStatus, errorThrown) {
     console.error(jqXHR);
     console.error(textStatus);
@@ -25,10 +29,19 @@ indicate_error = function (jqXHR, textStatus, errorThrown) {
     Array.from(form.getElementsByTagName("textarea")).forEach(disable_element);
 };
 
-$.ajax('/api/v_pre1/gen_dropdown', {
+defaultStatusCodeFunctions = range(200, 400).reduce(
+    function(acc, scode) {
+	acc[scode] = indicate_error;
+	return acc;
+    }, {});
+
+$.ajax($("#search form").attr("data-gn_server_url") +'/api/menu/generate/json', {
     dataType: 'json',
     success: process_json,
-    error: indicate_error
+    error: indicate_error,
+    statusCode: {
+	...defaultStatusCodeFunctions,
+    }
 });
 
 populate_species = function() {
