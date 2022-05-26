@@ -7,9 +7,28 @@ process_json = function(data) {
   }
 };
 
+indicate_error = function (jqXHR, textStatus, errorThrown) {
+    console.error(jqXHR);
+    console.error(textStatus);
+    console.error(errorThrown);
+    errorElement = document.createElement("span");
+    errorElement.setAttribute("class", "alert-danger");
+    errorText = document.createTextNode(
+	"There was an error retrieving and setting the menu. Try again later.");
+    errorElement.appendChild(errorText);
+    form = document.getElementById("search").getElementsByTagName("form")[0];
+    form.prepend(errorElement);
+    disable_element = function(select) {
+	select.setAttribute("disabled", "disabled");
+    };
+    Array.from(form.getElementsByTagName("select")).forEach(disable_element);
+    Array.from(form.getElementsByTagName("textarea")).forEach(disable_element);
+};
+
 $.ajax('/api/v_pre1/gen_dropdown', {
-  dataType: 'json',
-  success: process_json
+    dataType: 'json',
+    success: process_json,
+    error: indicate_error
 });
 
 populate_species = function() {
