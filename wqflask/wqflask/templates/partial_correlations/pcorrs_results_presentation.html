@@ -44,7 +44,10 @@
 	   style="float: left;">
       <thead>
 	<tr>
-	  <th></th>
+	  <th>
+	    <input type="checkbox" name="chk_{{trait['trait_name']}}"
+		   value="{{trait['trait_fullname']}}" />
+	  </th>
 	  <th>Index</th>
 	  <th>Record</th>
 	  <th>Phenotype</th>
@@ -60,10 +63,10 @@
       </thead>
 
       <tbody>
-	{%for trait in correlations:%}
+	{%for idx, trait in enumerate(correlations, start=1):%}
 	<tr class="results-row">
 	  <td></td>
-	  <td data-column-heading="Index"></td>
+	  <td data-column-heading="Index">idx</td>
 	  <td data-column-heading="Record">
 	    <a href="{{url_for(
 		     'show_trait_page',
@@ -120,10 +123,13 @@
       </thead>
 
       <tbody>
-	{%for trait in correlations:%}
+	{%for idx, trait in enumerate(correlations, start=1):%}
 	<tr class="results-row">
-	  <td></td>
-	  <td data-column-heading="Index"></td>
+	  <td>
+	    <input type="checkbox" name="chk_{{trait['trait_name']}}"
+		   value="{{trait['trait_fullname']}}" />
+	  </td>
+	  <td data-column-heading="Index">idx</td>
 	  <td data-column-heading="Locus">
 	    <a href="{{url_for(
 		     'show_trait_page',
@@ -186,10 +192,13 @@
       </thead>
 
       <tbody>
-	{%for trait in correlations:%}
+	{%for trait in enumerate(correlations, start=1):%}
 	<tr class="results-row">
-	  <td></td>
-	  <td data-column-heading="Index"></td>
+	  <td>
+	    <input type="checkbox" name="chk_{{trait['trait_name']}}"
+		   value="{{trait['trait_fullname']}}" />
+	  </td>
+	  <td data-column-heading="Index">idx</td>
 	  <td data-column-heading="Record">
 	    <a href="{{url_for(
 		     'show_trait_page',

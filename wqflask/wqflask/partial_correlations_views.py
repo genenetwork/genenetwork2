@@ -336,6 +336,7 @@ def process_pcorrs_command_output(result):
             correlations=result["results"]["correlations"],
             dataset_type=result["results"]["dataset_type"],
             method=result["results"]["method"],
+            enumerate = enumerate,
             format_number=__format_number)
     if result["status"] == "error":
         return render_error(

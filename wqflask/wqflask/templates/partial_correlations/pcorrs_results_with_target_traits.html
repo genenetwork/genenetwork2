@@ -77,7 +77,14 @@
 	</td>
 	<td>{{idx}}</td>
 	<td>{{trait["dataset_name"]}}</td>
-	<td>{{trait["trait_name"]}}</td>
+	<td>
+	  <a href="{{url_for(
+		     'show_trait_page',
+		     trait_id=trait['trait_name'],
+		     dataset=trait['dataset_name'])}}">
+	    {{trait["trait_name"]}}
+	  </a>
+	</td>
 	<td>{{trait["symbol"]}}</td>
 	<td>{{trait["description"]}}</td>
 	<td>{{trait["noverlap"]}}</td>
