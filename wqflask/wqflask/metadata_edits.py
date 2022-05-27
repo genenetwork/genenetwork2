@@ -226,8 +226,9 @@ def update_phenotype(dataset_id: str, name: str):
         )
         diff_data = {}
         with database_connection() as conn:
-            headers = ["Strain Name", "Value", "SE", "Count"] \
-                      + list(get_case_attributes(conn).keys())
+            headers = ["Strain Name", "Value", "SE", "Count"] + list(
+                get_case_attributes(conn).keys()
+            )
             diff_data = remove_insignificant_edits(
                 diff_data=csv_diff(
                     base_csv=(
@@ -342,9 +343,7 @@ def update_phenotype(dataset_id: str, name: str):
             conn,
             "Publication",
             data=Publication(**publication_),
-            where=Publication(
-                id_=data_.get("old_id_")
-            ),
+            where=Publication(id_=data_.get("old_id_")),
         )
     if updated_publications:
         diff_data.update(
@@ -543,7 +542,8 @@ def show_history(dataset_id: str, name: str):
         publish_xref = fetchone(
             conn=conn,
             table="PublishXRef",
-            where=PublishXRef(id_=name, inbred_set_id=dataset_id))
+            where=PublishXRef(id_=name, inbred_set_id=dataset_id),
+        )
 
         json_data = fetchall(
             conn,
@@ -571,7 +571,7 @@ def show_history(dataset_id: str, name: str):
                                     "\n".join(
                                         difflib.ndiff(
                                             [data_.get("old") or ""],
-                                            [data_.get("new")]
+                                            [data_.get("new")],
                                         )
                                     ),
                                 ),
@@ -583,7 +583,8 @@ def show_history(dataset_id: str, name: str):
     return render_template(
         "edit_history.html",
         diff=diff_data_,
-        version=os.environ.get("GN_VERSION"))
+        version=os.environ.get("GN_VERSION"),
+    )
 
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
@@ -719,30 +720,32 @@ def show_case_attribute_columns():
                 value=author,
                 conn=redis.from_url(
                     current_app.config["REDIS_URL"], decode_responses=True
-                )
+                ),
             ).get("full_name")
-            if (m_ := diff.get("Modification")):
+            if m_ := diff.get("Modification"):
                 m_["author"] = author
                 m_["id"] = id_
                 if m_.get("description"):
                     m_["description"]["Diff"] = "\n".join(
                         difflib.ndiff(
                             [m_.get("description")["Original"]],
-                            [m_.get("description")["Current"]]
-                        ))
+                            [m_.get("description")["Current"]],
+                        )
+                    )
                 if m_.get("name"):
                     m_["name"]["Diff"] = "\n".join(
                         difflib.ndiff(
                             [m_.get("name")["Original"]],
-                            [m_.get("name")["Current"]]
-                        ))
+                            [m_.get("name")["Current"]],
+                        )
+                    )
                 if any([m_.get("description"), m_.get("name")]):
                     modifications.append(m_)
-            if (d_ := diff.get("Deletion")):
+            if d_ := diff.get("Deletion"):
                 d_["author"] = author
                 d_["id"] = id_
                 deletions.append(d_)
-            if (i_ := diff.get("Insert")):
+            if i_ := diff.get("Insert"):
                 i_["author"] = author
                 i_["id"] = id_
                 inserts.append(i_)
@@ -752,7 +755,7 @@ def show_case_attribute_columns():
             case_attributes=get_case_attributes(cursor),
             modifications=modifications,
             deletions=deletions,
-            inserts=inserts
+            inserts=inserts,
         )
 
 
@@ -768,30 +771,37 @@ def update_case_attributes():
             or ""
         )
         with database_connection() as conn:
-            insert_case_attribute_audit(conn=conn,
-                                        status="review",
-                                        author=author,
-                                        data=data_)
+            insert_case_attribute_audit(
+                conn=conn, status="review", author=author, data=data_
+            )
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
 
 
-@metadata_edit.route("/case-attributes/reject", methods=["POST", ])
+@metadata_edit.route(
+    "/case-attributes/reject",
+    methods=[
+        "POST",
+    ],
+)
 @case_attributes_edit_access
 @login_required
 def reject_case_attribute_data():
     case_attr_id = request.form.to_dict().get("id")
     with database_connection() as conn:
-        reject_case_attribute(conn=conn,
-                              case_attr_audit_id=int(case_attr_id))
+        reject_case_attribute(conn=conn, case_attr_audit_id=int(case_attr_id))
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
 
 
-@metadata_edit.route("/case-attributes/approve", methods=["POST", ])
+@metadata_edit.route(
+    "/case-attributes/approve",
+    methods=[
+        "POST",
+    ],
+)
 @case_attributes_edit_access
 @login_required
 def approve_case_attribute_data():
     case_attr_id = request.form.to_dict().get("id")
     with database_connection() as conn:
-        approve_case_attribute(conn=conn,
-                               case_attr_audit_id=case_attr_id)
+        approve_case_attribute(conn=conn, case_attr_audit_id=case_attr_id)
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
