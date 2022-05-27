@@ -287,10 +287,12 @@
 		 $(this).parents("tr").find(".add, .edit").toggle();
 		 $(".add-new").removeAttr("disabled");
              }
+	     else {
+		 return;
+	     }
 
 	     let nameNode = $(this).parents("tr").find(".name");
 	     let descNode = $(this).parents("tr").find(".description");
-
 	     let name = nameNode.html();
 	     let desc = descNode.html();
 	     let nodeId = $(this).parents("tr").data("id");
