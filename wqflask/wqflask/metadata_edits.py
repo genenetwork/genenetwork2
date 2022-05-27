@@ -47,7 +47,11 @@ from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
 from gn3.db.sample_data import update_sample_data
-from gn3.db.sample_data import get_case_attributes
+from gn3.db.case_attributes import get_case_attributes
+from gn3.db.case_attributes import get_unreviewed_diffs
+from gn3.db.case_attributes import insert_case_attribute_audit
+from gn3.db.case_attributes import reject_case_attribute
+from gn3.db.case_attributes import approve_case_attribute
 
 
 metadata_edit = Blueprint("metadata_edit", __name__)
@@ -705,11 +709,7 @@ def approve_data(resource_id: str, file_name: str):
 def show_case_attribute_columns():
     diff_data = None
     with database_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "SELECT id, editor, json_diff_data FROM "
-                "caseattributes_audit WHERE status = 'review'")
-            diff_data = cursor.fetchall()
+        diff_data = get_unreviewed_diffs(conn)
     modifications, deletions, inserts = [], [], []
     if diff_data:
         for id_, author, diff in diff_data:
@@ -768,20 +768,10 @@ def update_case_attributes():
             or ""
         )
         with database_connection() as conn:
-            try:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        "INSERT INTO caseattributes_audit "
-                        "(status, editor, json_diff_data) "
-                        "VALUES (%s, %s, %s)",
-                        ('review', author, data_),
-                    )
-            except Exception as _e:
-                import MySQLdb
-                conn.rollback()
-                raise MySQLdb.Error(_e) from _e
-            conn.commit()
-
+            insert_case_attribute_audit(conn=conn,
+                                        status="review",
+                                        author=author,
+                                        data=data_)
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
 
 
@@ -791,20 +781,8 @@ def update_case_attributes():
 def reject_case_attribute_data():
     case_attr_id = request.form.to_dict().get("id")
     with database_connection() as conn:
-        if case_attr_id:
-            try:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        "UPDATE caseattributes_audit SET "
-                        "status = 'rejected' WHERE id = %s",
-                        (case_attr_id, )
-                    )
-            except Exception as _e:
-                import MySQLdb
-                conn.rollback()
-                raise MySQLdb.Error(_e) from _e
-            conn.commit()
-
+        reject_case_attribute(conn=conn,
+                              case_attr_audit_id=int(case_attr_id))
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
 
 
@@ -814,63 +792,6 @@ def reject_case_attribute_data():
 def approve_case_attribute_data():
     case_attr_id = request.form.to_dict().get("id")
     with database_connection() as conn:
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "SELECT json_diff_data FROM caseattributes_audit "
-                "WHERE id = %s", (case_attr_id,)
-            )
-            diff_data = cursor.fetchone()
-            if diff_data:
-                diff_data = json.loads(diff_data[0])
-            try:
-                # Insert (Most Important)
-                if diff_data.get("Insert"):
-                    data = diff_data.get("Insert")
-                    cursor.execute(
-                        "INSERT INTO CaseAttribute "
-                        "(Name, Description) VALUES "
-                        "(%s, %s)",
-                        (data.get("name").strip(), data.get("description").strip(),))
-                    cursor.execute(
-                            "UPDATE caseattributes_audit SET "
-                            "status = 'approved' WHERE id = %s",
-                            (case_attr_id,))
-                # Delete
-                elif diff_data.get("Deletion"):
-                    data = diff_data.get("Deletion")
-                    cursor.execute(
-                        "DELETE FROM CaseAttribute "
-                        "WHERE Id = %s",
-                        (data.get("id"),))
-                    cursor.execute(
-                        "UPDATE caseattributes_audit SET "
-                        "status = 'approved' WHERE id = %s",
-                        (case_attr_id,))
-                # Modification
-                elif diff_data.get("Modification"):
-                    data = diff_data.get("Modification")
-                    if (desc_ := data.get("description")):
-                        cursor.execute(
-                            "UPDATE CaseAttribute SET "
-                            "Description = %s WHERE Id = %s",
-                            (desc_.get("Current"), diff_data.get("id"),)
-                        )
-                    if (name_ := data.get("name")):
-                        cursor.execute(
-                            "UPDATE CaseAttribute SET "
-                            "Name = %s WHERE Id = %s",
-                            (name_.get("Current"), diff_data.get("id"),)
-                        )
-                    if cursor.rowcount:
-                        cursor.execute(
-                            "UPDATE caseattributes_audit SET "
-                            "status = 'approved' WHERE id = %s",
-                            (case_attr_id,))
-            except Exception as _e:
-                import MySQLdb
-                conn.rollback()
-                raise MySQLdb.Error(_e) from _e
-            conn.commit()
+        approve_case_attribute(conn=conn,
+                               case_attr_audit_id=case_attr_id)
     return redirect(url_for("metadata_edit.show_case_attribute_columns"))
-
-
