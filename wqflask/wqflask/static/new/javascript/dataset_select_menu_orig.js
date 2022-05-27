@@ -35,7 +35,7 @@ defaultStatusCodeFunctions = range(200, 400).reduce(
 	return acc;
     }, {});
 
-$.ajax($("#search form").attr("data-gn_server_url") +'/api/menu/generate/json', {
+$.ajax($("#search form").attr("data-gn_server_url") +'api/menu/generate/json', {
     dataType: 'json',
     success: process_json,
     error: indicate_error,
