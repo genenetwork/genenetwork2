@@ -340,7 +340,7 @@ def process_pcorrs_command_output(result):
             format_number=__format_number)
     if result["status"] == "error":
         return render_error(
-            "The partial correlations computation failed with an error")
+            f"({result['error_type']}: {result['message']})")
 
 @app.route("/partial_correlations/<command_id>", methods=["GET"])
 def poll_partial_correlation_results(command_id):
