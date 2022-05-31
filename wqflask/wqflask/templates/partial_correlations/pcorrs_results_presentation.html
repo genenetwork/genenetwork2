@@ -193,7 +193,7 @@
       </thead>
 
       <tbody>
-	{%for trait in enumerate(correlations, start=1):%}
+	{%for idx, trait in enumerate(correlations, start=1):%}
 	<tr class="results-row">
 	  <td>
 	    <input type="checkbox" name="chk_{{trait['trait_name']}}"
