@@ -339,12 +339,28 @@ def update_phenotype(dataset_id: str, name: str):
     }
     updated_publications = ""
     with database_connection() as conn:
-        updated_publications = update(
-            conn,
-            "Publication",
-            data=Publication(**publication_),
-            where=Publication(id_=data_.get("old_id_")),
+
+        existing_publication = fetchone(
+            conn=conn,
+            table="Publication",
+            where=Publication(pubmed_id=data_.get("pubmed-id"))
         )
+
+        if existing_publication:
+            update(
+                conn,
+                "PublishXRef",
+                data=PublishXRef(publication_id=existing_publication.id_),
+                where=PublishXRef(id_=name, inbred_set_id=dataset_id)
+            )
+        else:
+            updated_publications = update(
+                conn,
+                "Publication",
+                data=Publication(**publication_),
+                where=Publication(id_=data_.get("old_id_")),
+            )
+
     if updated_publications:
         diff_data.update(
             {
