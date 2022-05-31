@@ -220,7 +220,7 @@ def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
                         marker['chr'] = line.split("\t")[0]
                     marker['Mb'] = float(line.split("\t")[2]) / 1000000
                     marker['p_value'] = float(line.split("\t")[10])
-                    marker['additive'] = float(line.split("\t")[7])
+                    marker['additive'] = -(float(line.split("\t")[7]))
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
                         marker['lod_score'] = 0
                     else:
