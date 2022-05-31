@@ -36,6 +36,14 @@
 	{{message}}
       </p>
 
+      {%if command_id %}
+      <p>
+	Please provide the following information to help with
+	troubleshooting:<br />
+	<strong>Command ID</strong>: <em>{{command_id}}</em>
+      </p>
+      {%endif%}
+
       <p>
 	To check if this already a known issue, search the
 	<a href="https://github.com/genenetwork/genenetwork2/issues">issue

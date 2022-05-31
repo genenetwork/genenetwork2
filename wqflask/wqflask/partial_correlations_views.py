@@ -224,10 +224,11 @@ def response_error_message(response):
         response.status_code,
         "General API server error!!")
 
-def render_error(error_message):
+def render_error(error_message, command_id = None):
     return render_template(
         "partial_correlations/pcorrs_error.html",
-        message = error_message)
+        message = error_message,
+        command_id = command_id)
 
 def __format_number(num):
     if num is None or math.isnan(num):
@@ -346,10 +347,18 @@ def process_pcorrs_command_output(result):
 def poll_partial_correlation_results(command_id):
     response = requests.get(
         url=f"{GN_SERVER_URL}api/async_commands/state/{command_id}")
+
     if response.status_code == 200:
         data = response.json()
-        if data["status"] == "error":
-            return render_error(response["result"])
+        raw_result = data["result"]
+        result = {"status": "computing"}
+        if raw_result:
+            result = json.loads(raw_result)
+        if result["status"].lower() in ("error", "exception"):
+            return render_error(
+                "We messed up, and the computation failed due to a system "
+                "error.",
+                command_id)
         if data["status"] == "success":
             return process_pcorrs_command_output(json.loads(data["result"]))
         return render_template(
