@@ -373,7 +373,7 @@ process_traits = function(trait_data, textStatus, jqXHR) {
   var the_html, trait, _i, _len;
   the_html = "<button id='back_to_collections' class='btn btn-inverse btn-small'>";
   the_html += "<i class='icon-white icon-arrow-left'></i> Back </button>";
-  the_html += "    <button id='submit' class='btn btn-primary btn-small'> Submit </button>";
+  the_html += "    <button id='submit_cofactors' class='btn btn-primary btn-small submit'> Submit </button>";
   the_html += "<table id='collection_table' style='padding-top: 10px;' class='table table-hover'>";
   the_html += "<thead><tr><th></th><th>Record</th><th>Data Set</th><th>Description</th></tr></thead>";
   the_html += "<tbody>";
@@ -405,7 +405,7 @@ back_to_collections = function() {
 };
 
 $(".collection_line").on("click", collection_click);
-$("#submit").on("click", submit_click);
+$("#submit_cofactors").on("click", submit_click);
 if ($('#scatterplot2').length){
   $(".trait_line").on("click", trait_row_click);
 } else {
