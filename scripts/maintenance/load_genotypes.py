@@ -15,7 +15,10 @@ def fetch_parameters(config):
     config_dic = {}
     config_dic['inbredsetid'] = config.get('config', 'inbredsetid')
     config_dic["speciesid"] = datastructure.get_species(config_dic['inbredsetid'])[0]
-    config_dic['genofreezeid'] = datastructure.get_genofreeze_byinbredsetid(config_dic['inbredsetid'])[0]
+    if config.has_option('config', 'genofreezeid'):
+        config_dic['genofreezeid'] = config.get('config', 'genofreezeid')
+    else:
+        config_dic['genofreezeid'] = datastructure.get_genofreeze_byinbredsetid(config_dic['inbredsetid'])[0]
     config_dic['dataid'] = datastructure.get_nextdataid_genotype()
     config_dic['genofile'] = config.get('config', 'genofile')
     print("config dictionary:")
