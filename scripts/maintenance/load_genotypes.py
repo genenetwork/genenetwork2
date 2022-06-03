@@ -14,7 +14,7 @@ def main(argv):
 def fetch_parameters(config):
     config_dic = {}
     config_dic['inbredsetid'] = config.get('config', 'inbredsetid')
-    config_dic["speciesid"] = datastructure.get_species(config_dic['inbredsetid'])[0]
+    config_dic['speciesid'] = datastructure.get_species(config_dic['inbredsetid'])[0]
     if config.has_option('config', 'genofreezeid'):
         config_dic['genofreezeid'] = config.get('config', 'genofreezeid')
     else:
