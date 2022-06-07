@@ -8,31 +8,31 @@ process_json = function(data) {
 };
 
 range = function(size, startAt=0) {
-    return [...Array(size).keys()].map(idx => idx + startAt);
+  return [...Array(size).keys()].map(idx => idx + startAt);
 };
 
 indicate_error = function (jqXHR, textStatus, errorThrown) {
-    errorElement = document.createElement("span");
-    errorElement.setAttribute("class", "alert-danger");
-    errorText = document.createTextNode(
-	"There was an error retrieving and setting the menu. Try again later.");
-    errorElement.appendChild(errorText);
-    if (document.getElementById("search")){
-      form = document.getElementById("search").getElementsByTagName("form")[0];
-      form.prepend(errorElement);
-      disable_element = function(select) {
-        select.setAttribute("disabled", "disabled");
-      };
-      Array.from(form.getElementsByTagName("select")).forEach(disable_element);
-      Array.from(form.getElementsByTagName("textarea")).forEach(disable_element);
-    }
+  errorElement = document.createElement("span");
+  errorElement.setAttribute("class", "alert-danger");
+  errorText = document.createTextNode(
+	  "There was an error retrieving and setting the menu. Try again later.");
+  errorElement.appendChild(errorText);
+  if (document.getElementById("search")){
+    form = document.getElementById("search").getElementsByTagName("form")[0];
+    form.prepend(errorElement);
+    disable_element = function(select) {
+      select.setAttribute("disabled", "disabled");
+    };
+    Array.from(form.getElementsByTagName("select")).forEach(disable_element);
+    Array.from(form.getElementsByTagName("textarea")).forEach(disable_element);
+  }
 };
 
 defaultStatusCodeFunctions = range(200, 400).reduce(
-    function(acc, scode) {
-	acc[scode] = indicate_error;
-	return acc;
-    }, {});
+  function(acc, scode) {
+	  acc[scode] = indicate_error;
+	  return acc;
+  }, {});
 
 if (typeof gn_server_url === 'undefined'){
   gn_server_url = $("#search form").attr("data-gn_server_url")
@@ -54,6 +54,7 @@ populate_species = function() {
   return populate_group();
 };
 window.populate_species = populate_species;
+
 populate_group = function() {
   var group_list, species;
   species = $('#species').val();
@@ -69,6 +70,7 @@ populate_group = function() {
   }
 };
 window.populate_group = populate_group;
+
 populate_type = function() {
   var group, species, type_list;
   species = $('#species').val();
@@ -78,6 +80,7 @@ populate_type = function() {
   return populate_dataset();
 };
 window.populate_type = populate_type;
+
 populate_dataset = function() {
   var dataset_list, group, species, type;
   species = $('#species').val();
@@ -87,6 +90,7 @@ populate_dataset = function() {
   return redo_dropdown($('#dataset'), dataset_list);
 };
 window.populate_dataset = populate_dataset;
+
 redo_dropdown = function(dropdown, items) {
   var item, _i, _len, _results;
   dropdown.empty();
@@ -179,11 +183,13 @@ redo_dropdown = function(dropdown, items) {
 
   return _results;
 };
+
 $('#species').change((function(_this) {
   return function() {
     return populate_group();
   };
 })(this));
+
 $('#group').change((function(_this) {
   return function() {
     if ($('#type').length > 0) { //This is to determine if it's the index page or the submit_trait page (which only has species and group selection and no make default option)
@@ -194,16 +200,19 @@ $('#group').change((function(_this) {
     }
   };
 })(this));
+
 $('#type').change((function(_this) {
   return function() {
     return populate_dataset();
   };
 })(this));
+
 open_window = function(url, name) {
   var options;
   options = "menubar=yes,toolbar=yes,titlebar=yes,location=yes,resizable=yes,status=yes,scrollbars=yes,directories=yes,width=900";
   return open(url, name, options).focus();
 };
+
 group_info = function() {
   var group, species, url;
   species = $('#species').val();
@@ -212,6 +221,7 @@ group_info = function() {
   return open_window(url, "Group Info");
 };
 $('#group_info').click(group_info);
+
 dataset_info = function() {
   var dataset, url;
   accession_id = $('#dataset option:selected').data("id");
@@ -224,6 +234,7 @@ dataset_info = function() {
   return open_window(url, "Dataset Info");
 };
 $('#dataset_info').click(dataset_info);
+
 make_default = function() {
   var holder, item, jholder, _i, _len, _ref;
   alert("The current settings are now your default.")
@@ -238,6 +249,7 @@ make_default = function() {
     expires: 365
   });
 };
+
 apply_default = function() {
   var defaults, item, populate_function, _i, _len, _ref, _results;
   defaults = $.cookie('search_defaults');
@@ -266,6 +278,7 @@ apply_default = function() {
   }
   return _results;
 };
+
 check_search_term = function() {
   var or_search_term, and_search_term;
   or_search_term = $('#or_search').val();
@@ -275,5 +288,6 @@ check_search_term = function() {
     return false;
   }
 };
+
 $("#make_default").click(make_default);
 $("#btsearch").click(check_search_term);
