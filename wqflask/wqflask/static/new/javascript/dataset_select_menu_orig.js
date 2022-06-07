@@ -12,21 +12,20 @@ range = function(size, startAt=0) {
 };
 
 indicate_error = function (jqXHR, textStatus, errorThrown) {
-    console.error(jqXHR);
-    console.error(textStatus);
-    console.error(errorThrown);
     errorElement = document.createElement("span");
     errorElement.setAttribute("class", "alert-danger");
     errorText = document.createTextNode(
 	"There was an error retrieving and setting the menu. Try again later.");
     errorElement.appendChild(errorText);
-    form = document.getElementById("search").getElementsByTagName("form")[0];
-    form.prepend(errorElement);
-    disable_element = function(select) {
-	select.setAttribute("disabled", "disabled");
-    };
-    Array.from(form.getElementsByTagName("select")).forEach(disable_element);
-    Array.from(form.getElementsByTagName("textarea")).forEach(disable_element);
+    if (document.getElementById("search")){
+      form = document.getElementById("search").getElementsByTagName("form")[0];
+      form.prepend(errorElement);
+      disable_element = function(select) {
+        select.setAttribute("disabled", "disabled");
+      };
+      Array.from(form.getElementsByTagName("select")).forEach(disable_element);
+      Array.from(form.getElementsByTagName("textarea")).forEach(disable_element);
+    }
 };
 
 defaultStatusCodeFunctions = range(200, 400).reduce(
@@ -35,13 +34,17 @@ defaultStatusCodeFunctions = range(200, 400).reduce(
 	return acc;
     }, {});
 
-$.ajax($("#search form").attr("data-gn_server_url") +'api/menu/generate/json', {
-    dataType: 'json',
-    success: process_json,
-    error: indicate_error,
-    statusCode: {
-	...defaultStatusCodeFunctions,
-    }
+if (typeof gn_server_url === 'undefined'){
+  gn_server_url = $("#search form").attr("data-gn_server_url")
+}
+
+$.ajax(gn_server_url +'api/menu/generate/json', {
+  dataType: 'json',
+  success: process_json,
+  error: indicate_error,
+  statusCode: {
+	  ...defaultStatusCodeFunctions,
+  }
 });
 
 populate_species = function() {
@@ -53,7 +56,6 @@ populate_species = function() {
 window.populate_species = populate_species;
 populate_group = function() {
   var group_list, species;
-  console.log("in populate group");
   species = $('#species').val();
   group_list = this.jdata.groups[species];
   for (_i = 0, _len = group_list.length; _i < (_len - 1); _i++) {
@@ -69,7 +71,6 @@ populate_group = function() {
 window.populate_group = populate_group;
 populate_type = function() {
   var group, species, type_list;
-  console.log("in populate type");
   species = $('#species').val();
   group = $('#group').val();
   type_list = this.jdata.types[species][group];
@@ -79,19 +80,15 @@ populate_type = function() {
 window.populate_type = populate_type;
 populate_dataset = function() {
   var dataset_list, group, species, type;
-  console.log("in populate dataset");
   species = $('#species').val();
   group = $('#group').val();
   type = $('#type').val();
-  console.log("sgt:", species, group, type);
   dataset_list = this.jdata.datasets[species][group][type];
-  console.log("pop_dataset:", dataset_list);
   return redo_dropdown($('#dataset'), dataset_list);
 };
 window.populate_dataset = populate_dataset;
 redo_dropdown = function(dropdown, items) {
   var item, _i, _len, _results;
-  console.log("in redo:", dropdown, items);
   dropdown.empty();
   _results = [];
 
@@ -262,7 +259,6 @@ apply_default = function() {
     $("#" + item[0]).val(defaults[item[0]]);
     if (item[1]) {
       populate_function = "populate_" + item[1];
-      console.log("Calling:", populate_function);
       _results.push(window[populate_function]());
     } else {
       _results.push(void 0);
@@ -274,8 +270,6 @@ check_search_term = function() {
   var or_search_term, and_search_term;
   or_search_term = $('#or_search').val();
   and_search_term = $('#and_search').val();
-  console.log("or_search_term:", or_search_term);
-  console.log("and_search_term:", and_search_term);
   if (or_search_term === "" && and_search_term === "") {
     alert("Please enter one or more search terms or search equations.");
     return false;
