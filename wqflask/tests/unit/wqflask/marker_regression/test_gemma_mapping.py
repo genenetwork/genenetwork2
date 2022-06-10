@@ -165,13 +165,12 @@ X\tM5\t12\tQ\tE\tMMB\tR\t21.1\tW\t0.65\t0.6"""
                 this_dataset={}, gwa_output_filename=".xw/")
             expected_results = [
                 {'name': 'M1', 'chr': 'X/Y', 'Mb': 2.8457155e-05, 'p_value': 0.85,
-                 'additive': 23.3, 'lod_score': 0.07058107428570727},
+                 'additive': -23.3, 'lod_score': 0.07058107428570727},
                 {'name': 'M2', 'chr': 4, 'Mb': 1.2e-05, 'p_value': 0.5,
-                 'additive': 24.0, 'lod_score': 0.3010299956639812},
+                 'additive': -24.0, 'lod_score': 0.3010299956639812},
                 {'name': 'M4', 'chr': 'Y', 'Mb': 1.2e-05, 'p_value': 0.7,
-                 'additive': 11.6, 'lod_score': 0.1549019599857432},
-                {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': 21.1, 'lod_score': 0.22184874961635637}]
-
+                 'additive': -11.6, 'lod_score': 0.1549019599857432},
+                {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': -21.1, 'lod_score': 0.22184874961635637}]
             self.assertEqual(expected_results, results)
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
