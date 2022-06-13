@@ -130,7 +130,7 @@ class SearchResultPage:
                 trait_dict['description'] = description_display
 
                 trait_dict['location'] = "N/A"
-                if (result[6] is not None) and (result[6] != "") and (result[7] is not None) and (result[7] != 0):
+                if (result[6] is not None) and (result[6] != "") and (result[6] != "Un") and (result[7] is not None) and (result[7] != 0):
                     trait_dict['location'] = f"Chr{result[6]}: {float(result[7]):.6f}"
 
                 trait_dict['mean'] = "N/A" if result[8] is None or result[8] == "" else f"{result[8]:.3f}"
