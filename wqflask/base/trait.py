@@ -204,6 +204,9 @@ class GeneralTrait:
 
         """
 
+        if self.chr == "Un":
+            return 'Not available'
+
         if self.chr and self.mb:
             self.location = 'Chr %s @ %s Mb' % (self.chr, self.mb)
         elif self.chr:
