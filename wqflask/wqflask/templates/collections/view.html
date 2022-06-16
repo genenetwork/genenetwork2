@@ -181,6 +181,8 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
 
     <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
 
@@ -190,55 +192,32 @@
 
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
-            $('#trait_table').dataTable( {
-                'drawCallback': function( settings ) {
-                      $('#trait_table tr').off().on("click", function(event) {
-                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                          var obj =$(this).find('input');
-                          obj.prop('checked', !obj.is(':checked'));
-                        }
-                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                          $(this).removeClass("selected")
-                        } else if (event.target.tagName.toLowerCase() !== 'a') {
-                          $(this).addClass("selected")
-                        }
-                        change_buttons()
-                      });
-                },
-                "columns": [
-                    {
-                        "orderDataType": "dom-checkbox",
-                        "orderSequence": [ "desc", "asc"],
-                        "width": 10
-                    },
-                    { "type": "natural", "width": 50 },
-                    { "type": "natural" },
-                    { 'type': "natural-minus-na", "width": 120 },
-                    { "type": "natural" },
-                    { "type": "natural"  },
-                    { "type": "natural", "width": 125 },
-                    { "type": "natural", "width": 60 },
-                    { "type": "natural", "width": 60 },
-                    { "type": "natural", "width": 125 },
-                    { "type": "natural", "width": 85 }
-                ],
-                "order": [[1, "asc" ]],
-                buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: ':not(:first-child)',
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                "sDom": "BZRtr",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "bDeferRender": true,
-                "bSortClasses": false,
-                "paging": false,
-                "orderClasses": true
-            } );
 
+            table_id = "trait_table"
+
+            column_defs = [
+                {
+                    "orderDataType": "dom-checkbox",
+                    "orderSequence": [ "desc", "asc"],
+                    "width": 10
+                },
+                { "type": "natural", "width": 50 },
+                { "type": "natural" },
+                { 'type': "natural-minus-na", "width": 120 },
+                { "type": "natural" },
+                { "type": "natural"  },
+                { "type": "natural", "width": 125 },
+                { "type": "natural", "width": 60 },
+                { "type": "natural", "width": 60 },
+                { "type": "natural", "width": 125 },
+                { "type": "natural", "width": 85 }
+            ]
+
+            table_settings = {
+                "order": [[1, "asc" ]]
+            }
+
+            create_table(table_id, column_defs, table_settings)
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
