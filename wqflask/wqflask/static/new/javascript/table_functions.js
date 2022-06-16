@@ -1,36 +1,36 @@
-recheck_rows = function(the_table, checked_rows){
-  //ZS: This is meant to recheck checkboxes after columns are resized
-  check_cells = the_table.column(0).nodes().to$();
-  for (let i = 0; i < check_cells.length; i++) {
-    if (checked_rows.includes(i)){
-      check_cells[i].childNodes[0].checked = true;
+recheckRows = function(theTable, checkedRows){
+  // This is meant to recheck checkboxes after columns are resized
+  checkCells = theTable.column(0).nodes().to$();
+  for (let i = 0; i < checkCells.length; i++) {
+    if (checkedRows.includes(i)){
+      checkCells[i].childNodes[0].checked = true;
     }
   }
 
-  check_rows = trait_table.rows().nodes();
-  for (let i =0; i < check_rows.length; i++) {
-    if (checked_rows.includes(i)){
-      check_rows[i].classList.add("selected")
+  checkRows = traitTable.rows().nodes();
+  for (let i =0; i < checkRows.length; i++) {
+    if (checkedRows.includes(i)){
+      checkRows[i].classList.add("selected")
     }
   }
 }
 
-get_checked_rows = function(table_id){
-  let checked_rows = []
-  $("#" + table_id + " input").each(function(index){
+getCheckedRows = function(tableId){
+  let checkedRows = []
+  $("#" + tableId + " input").each(function(index){
     if ($(this).prop("checked") == true){
-      checked_rows.push(index);
+      checkedRows.push(index);
     }
   });
 
-  return checked_rows
+  return checkedRows
 }
 
-function setUserColumnsDefWidths(table_id) {
+function setUserColumnsDefWidths(tableId) {
   var userColumnDef;
 
   // Get the settings for this table from localStorage
-  var userColumnDefs = JSON.parse(localStorage.getItem(table_id)) || [];
+  var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
 
   if (userColumnDefs.length === 0 ) return;
 
@@ -59,11 +59,11 @@ function setUserColumnsDefWidths(table_id) {
   });
 }
 
-function saveColumnSettings(table_id, trait_table) {
-  var userColumnDefs = JSON.parse(localStorage.getItem(table_id)) || [];
+function saveColumnSettings(tableId, traitTable) {
+  var userColumnDefs = JSON.parse(localStorage.getItem(tableId)) || [];
   var width, header, existingSetting; 
 
-  trait_table.columns().every( function ( targets ) {
+  traitTable.columns().every( function ( targets ) {
     // Check if there is a setting for this column in localStorage
     existingSetting = userColumnDefs.findIndex( function(column) { return column.targets === targets;});
 
@@ -84,5 +84,5 @@ function saveColumnSettings(table_id, trait_table) {
   });
 
   // Save (or update) the settings in localStorage
-  localStorage.setItem(table_id, JSON.stringify(userColumnDefs));
+  localStorage.setItem(tableId, JSON.stringify(userColumnDefs));
 }
