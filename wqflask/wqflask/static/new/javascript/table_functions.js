@@ -26,7 +26,7 @@ getCheckedRows = function(tableId){
   return checkedRows
 }
 
-function setUserColumnsDefWidths(tableId) {
+function setUserColumnsDefWidths(tableId, columnDefs) {
   var userColumnDef;
 
   // Get the settings for this table from localStorage
@@ -57,6 +57,8 @@ function setUserColumnsDefWidths(tableId) {
       })
     }
   });
+
+  return columnDefs
 }
 
 function saveColumnSettings(tableId, traitTable) {
