@@ -1,8 +1,8 @@
 create_table = function(tableId, tableData, columnDefs, customSettings) {
 
-    loadDataTable(tableId=tableId, tableFata=tableData, tableSettings=tableSettings, firstRun=true)
+    loadDataTable(tableId=tableId, tableFata=tableData, customSettings=customSettings, firstRun=true)
 
-    function loadDataTable(tableId, tableData, tableSettings, firstRun=false){
+    function loadDataTable(tableId, tableData, customSettings, firstRun=false){
         if (!firstRun){
             setUserColumnsDefWidths(tableId);
         }
