@@ -35,9 +35,9 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
         }
 
         // Replace default settings with custom settings or add custom settings if not already set in default settings
-        $.each(customSettings, function(key, value)) {
+        $.each(customSettings, function(key, value) {
             tableSettings[key] = value
-        }
+        });
     }
 
     if (!firstRun){
@@ -87,6 +87,4 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
             toggleColumn(column);
         }
     } );
-
-    }
 }
