@@ -188,8 +188,9 @@
 
     <script type="text/javascript"
 	    src="/static/new/javascript/partial_correlations.js"></script>
-
-
+    <script type='text/javascript'>
+        var traits_json = {{ traits_json|safe }};
+    </script>
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
 
@@ -217,7 +218,7 @@
                 "order": [[1, "asc" ]]
             }
 
-            create_table(table_id, column_defs, table_settings)
+            create_table(table_id, traits_json, column_defs, table_settings)
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
