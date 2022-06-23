@@ -302,7 +302,7 @@ def jsonable(trait, dataset=None):
 
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
-                    view=trait.view,
+                    view=str(trait.view),
                     symbol=trait.symbol,
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
@@ -316,7 +316,7 @@ def jsonable(trait, dataset=None):
     elif dataset.type == "Publish":
         if trait.pubmed_id:
             return dict(name=trait.name,
-                        view=trait.view,
+                        view=str(trait.view),
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
@@ -332,7 +332,7 @@ def jsonable(trait, dataset=None):
                         )
         else:
             return dict(name=trait.name,
-                        view=trait.view,
+                        view=str(trait.view),
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
@@ -346,14 +346,14 @@ def jsonable(trait, dataset=None):
                         )
     elif dataset.type == "Geno":
         return dict(name=trait.name,
-                    view=trait.view,
+                    view=str(trait.view),
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
                     location=trait.location_repr
                     )
     elif dataset.name == "Temp":
         return dict(name=trait.name,
-                    view=trait.view,
+                    view=str(trait.view),
                     dataset="Temp",
                     dataset_name="Temp")
     else:
