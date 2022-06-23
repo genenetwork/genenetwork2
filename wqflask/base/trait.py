@@ -300,10 +300,16 @@ def jsonable(trait, dataset=None):
                                 dataset_type=trait.dataset.type,
                                 group_name=trait.dataset.group.name)
 
+    trait_symbol = "N/A"
+    if trait.symbol:
+        trait_symbol = trait.symbol
+
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
+                    display_name=trait.display_name,
+                    hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
                     view=str(trait.view),
-                    symbol=trait.symbol,
+                    symbol=trait_symbol,
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
                     description=trait.description_display,
@@ -316,7 +322,10 @@ def jsonable(trait, dataset=None):
     elif dataset.type == "Publish":
         if trait.pubmed_id:
             return dict(name=trait.name,
+                        display_name=trait.display_name,
+                        hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
                         view=str(trait.view),
+                        symbol=trait_symbol,
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
@@ -332,7 +341,10 @@ def jsonable(trait, dataset=None):
                         )
         else:
             return dict(name=trait.name,
+                        display_name=trait.display_name,
+                        hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
                         view=str(trait.view),
+                        symbol=trait_symbol,
                         dataset=dataset.name,
                         dataset_name=dataset.shortname,
                         description=trait.description_display,
@@ -346,6 +358,8 @@ def jsonable(trait, dataset=None):
                         )
     elif dataset.type == "Geno":
         return dict(name=trait.name,
+                    display_name=trait.display_name,
+                    hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
                     view=str(trait.view),
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
@@ -353,6 +367,8 @@ def jsonable(trait, dataset=None):
                     )
     elif dataset.name == "Temp":
         return dict(name=trait.name,
+                    display_name=trait.display_name,
+                    hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
                     view=str(trait.view),
                     dataset="Temp",
                     dataset_name="Temp")
