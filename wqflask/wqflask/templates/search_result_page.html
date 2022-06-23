@@ -392,7 +392,7 @@
             function loadDataTable(first_run=false){
 
               if (!first_run){
-                setUserColumnsDefWidths(tableId);
+                setUserColumnsDefWidths(tableId, columnDefs);
               }
 
               //ZS: Need to make sort by symbol, also need to make sure blank symbol fields at the bottom and symbols starting with numbers below letters
@@ -487,7 +487,7 @@
               if (!first_run){
                 $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
 
-                let checked_rows = get_checked_rows(tableId);
+                let checked_rows = getCheckedRows(tableId);
                 trait_table = $('#' + tableId).DataTable(table_settings);
                 if (checked_rows.length > 0){
                   recheck_rows(trait_table, checked_rows);
