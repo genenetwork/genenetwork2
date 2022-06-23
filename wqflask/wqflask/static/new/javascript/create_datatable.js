@@ -2,9 +2,11 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
 
     loadDataTable(tableId=tableId, tableFata=tableData, customSettings=customSettings, firstRun=true)
 
+    var widthChange = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
     function loadDataTable(tableId, tableData, customSettings, firstRun=false){
+
         if (!firstRun){
-            setUserColumnsDefWidths(tableId);
+            columnDefs = setUserColumnsDefWidths(tableId, columnDefs);
         }
 
         tableSettings = {
@@ -20,15 +22,15 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
             "iDisplayLength": -1,
             "initComplete": function (settings) {
                 // Add JQueryUI resizable functionality to each th in the ScrollHead table
-                $('#' + table_id + '_wrapper .dataTables_scrollHead thead th').resizable({
+                $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
                     handles: "e",
                     alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
                     resize: function( event, ui ) {
                         widthChange = ui.size.width - ui.originalSize.width;
                     },
                     stop: function () {
-                        saveColumnSettings(table_id, the_table);
-                        loadDataTable(first_run=false, table_id, table_data);
+                        saveColumnSettings(tableId, theTable);
+                        loadDataTable(tableId, tableData, firstRun=false);
                     }
                 });
             }
@@ -38,19 +40,23 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
         $.each(customSettings, function(key, value) {
             tableSettings[key] = value
         });
-    }
 
-    if (!firstRun){
-        $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + widthChange + 17) + "px"); // Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
+        if (!firstRun){
+            $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + widthChange + 17) + "px"); // Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
 
-        let checkedRows = getCheckedRows(tableId);
-        theTable = $('#' + tableId).DataTable(tableSettings);
-        if (checkedRows.length > 0){
-            recheckRows(theTable, checkedRows);
+            let checkedRows = getCheckedRows(tableId);
+            theTable = $('#' + tableId).DataTable(tableSettings);
+            if (checkedRows.length > 0){
+                recheckRows(theTable, checkedRows);
+            }
+        } else {
+            theTable = $('#' + tableId).DataTable(tableSettings);
+            theTable.draw();
         }
-    } else {
-        theTable = $('#' + tableId).DataTable(tableSettings);
-        theTable.draw();
+
+        if (firstRun){
+            $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + 17) + "px");
+        }
     }
 
     theTable.on( 'order.dt search.dt draw.dt', function () {
@@ -59,9 +65,9 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
         } );
     } ).draw();
 
-    if (firstRun){
-        $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + 17) + "px");
-    }
+    window.addEventListener('resize', function(){
+        theTable.columns.adjust();
+    });
 
     $('#' + tableId + '_searchbox').on( 'keyup', function () {
         theTable.search($(this).val()).draw();
