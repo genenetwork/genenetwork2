@@ -3,6 +3,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
 {% endblock %}
@@ -112,9 +113,8 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
@@ -276,7 +276,12 @@
             ]
 
             table_settings = {
-                "order": [[1, "asc" ]]
+                "order": [[1, "asc" ]],
+                {% if traits_json|length > 10 %}
+                "scroller": true
+                {% else %}
+                "scroller": false
+                {% endif %}
             }
 
             create_table(table_id, traits_json, column_defs, table_settings)
