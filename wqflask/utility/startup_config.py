@@ -23,12 +23,9 @@ def app_config():
     if mode in ["DEV", "DEBUG"]:
         app.config['TEMPLATES_AUTO_RELOAD'] = True
         if mode == "DEBUG":
-            from flask_debugtoolbar import DebugToolbarExtension
             app.debug = True
-            toolbar = DebugToolbarExtension(app)
 
     print("==========================================")
-
     show_settings()
 
     port = get_setting_int("SERVER_PORT")
