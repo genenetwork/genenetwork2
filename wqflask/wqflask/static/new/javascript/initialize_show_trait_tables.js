@@ -259,7 +259,7 @@ function loadDataTable(first_run=false, table_id, table_data){
   }
 
   $('#' + table_type.toLowerCase() + '_searchbox').on( 'keyup', function () {
-    the_table.search($(this).val()).draw();
+    $('#' + table_id).DataTable().search($(this).val()).draw();
   } );
 
   $('.toggle-vis').on('click', function (e) {
