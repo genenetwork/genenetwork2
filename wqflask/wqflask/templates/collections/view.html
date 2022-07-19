@@ -94,7 +94,7 @@
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
-            <div id="trait_table_container" style="min-width: 1500px;">
+            <div id="trait_table_container" style="width: 2000px; min-width: 1500px;">
                 <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                     <tbody>
                         <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -276,6 +276,27 @@
             ]
 
             tableSettings = {
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
+                    $('td', row).eq(1).attr("align", "right");
+                    $('td', row).eq(1).attr('data-export', index+1);
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                    if ($('td', row).eq(5).text().length > 500) {
+                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 500));
+                        $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
+                    }
+                    $('td', row).slice(6,11).attr("align", "right");
+                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                    $('td', row).eq(10).attr('data-export', $('td', row).eq(9).text());
+                },
                 "order": [[1, "asc" ]],
                 {% if traits_json|length > 10 %}
                 "scroller": true
