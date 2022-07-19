@@ -1,10 +1,9 @@
 create_table = function(tableId, tableData, columnDefs, customSettings) {
 
-    loadDataTable(tableId=tableId, tableFata=tableData, customSettings=customSettings, firstRun=true)
+    loadDataTable(tableId=tableId, tableData=tableData, customSettings, firstRun=true)
 
-    var widthChange = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
+    var widthChange = 0; // For storing the change in width so overall table width can be adjusted by that amount
     function loadDataTable(tableId, tableData, customSettings, firstRun=false){
-
         if (!firstRun){
             columnDefs = setUserColumnsDefWidths(tableId, columnDefs);
         }
@@ -30,7 +29,7 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
                     },
                     stop: function () {
                         saveColumnSettings(tableId, theTable);
-                        loadDataTable(tableId, tableData, firstRun=false);
+                        loadDataTable(tableId, tableData, customSettings, firstRun=false);
                     }
                 });
             }
