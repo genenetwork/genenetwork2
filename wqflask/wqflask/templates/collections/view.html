@@ -94,7 +94,7 @@
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
-            <div style="min-width: 1500px;">
+            <div id="trait_table_container" style="min-width: 1500px;">
                 <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                     <tbody>
                         <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -126,14 +126,14 @@
     <script type="text/javascript"
 	    src="/static/new/javascript/partial_correlations.js"></script>
     <script type='text/javascript'>
-        var traits_json = {{ traits_json|safe }};
+        var traitsJson = {{ traits_json|safe }};
     </script>
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
 
-            table_id = "trait_table"
+            tableId = "trait_table"
 
-            column_defs = [
+            columnDefs = [
                 {
                     'data': null,
                     'width': "5px",
@@ -275,7 +275,7 @@
                 }
             ]
 
-            table_settings = {
+            tableSettings = {
                 "order": [[1, "asc" ]],
                 {% if traits_json|length > 10 %}
                 "scroller": true
@@ -284,7 +284,7 @@
                 {% endif %}
             }
 
-            create_table(table_id, traits_json, column_defs, table_settings)
+            create_table(tableId, traitsJson, columnDefs, tableSettings)
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
