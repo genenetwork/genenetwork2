@@ -29,10 +29,7 @@ from base.trait import GeneralTrait
 from base import data_set
 from base import species
 from base import webqtlConfig
-from utility import webqtlUtil
-from utility import helper_functions
-from utility import Plot, Bunch
-from utility import temp_data
+from utility import webqtlUtil, helper_functions, hmac, Plot, Bunch, temp_data
 from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from wqflask.show_trait.SampleList import SampleList
@@ -319,6 +316,7 @@ class RunMapping:
                 self.annotations_for_browser = []
                 highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
                 for marker in results:
+                    marker['hmac'] = hmac.data_hmac('{}:{}'.format(marker['name'], self.dataset.group.name + "Geno"))
                     if 'Mb' in marker:
                         this_ps = marker['Mb'] * 1000000
                     else:
