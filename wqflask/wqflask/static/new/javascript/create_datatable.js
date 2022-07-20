@@ -9,8 +9,22 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
         }
 
         tableSettings = {
-            'data': tableData,
-            'columns': columnDefs,
+            "drawCallback": function( settings ) {
+                $('#' + tableId + ' tr').off().on("click", function(event) {
+                  if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+                    var obj =$(this).find('input');
+                    obj.prop('checked', !obj.is(':checked'));
+                  }
+                  if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+                    $(this).removeClass("selected")
+                  } else if (event.target.tagName.toLowerCase() !== 'a') {
+                    $(this).addClass("selected")
+                  }
+                  change_buttons()
+                });
+            },
+            "data": tableData,
+            "columns": columnDefs,
             "sDom": "iti",
             "destroy": true,
             "autoWidth": false,
