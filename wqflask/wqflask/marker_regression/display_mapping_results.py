@@ -3012,7 +3012,7 @@ class DisplayMappingResults:
                     else:
                         snpString = 0
 
-                    mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm9&position=chr" + \
+                    mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm10&position=chr" + \
                         theGO["Chromosome"] + "%3A" + str(int(theGO["TxStart"] * 1000000.0)) + "-" + str(
                             int(theGO["TxEnd"] * 1000000.0)) + "&pix=620&Submit=submit"
 
