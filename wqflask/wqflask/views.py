@@ -64,6 +64,7 @@ from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation.show_corr_results import set_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
+from wqflask.correlation.rust_correlation import compute_correlation_rust
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
@@ -316,12 +317,12 @@ def wcgna_results():
     results = run_wgcna(dict(request.form))
     return render_template("gn3_wgcna_results.html", **results)
 
+
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     # We are going to get additional user input for the analysis
     # Display them using the template
     return render_template("ctl_setup.html", **request.form)
-
 
 
 @app.route("/ctl_results", methods=["POST"])
@@ -334,9 +335,10 @@ def ctl_results():
 def fetch_network_files(file_name, file_type):
     file_path = f"{file_name}.{file_type}"
 
-    file_path  = os.path.join("/tmp/",file_path)
+    file_path = os.path.join("/tmp/", file_path)
 
     return send_file(file_path)
+
 
 @app.route("/intro")
 def intro():
@@ -446,6 +448,7 @@ def export_collection_csv():
     return Response(out_file[1],
                     mimetype='text/csv',
                     headers={"Content-Disposition": "attachment;filename=" + out_file[0] + ".csv"})
+
 
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
@@ -657,7 +660,8 @@ def loading_page():
                 dataset = create_dataset(start_vars['dataset'])
             start_vars['trait_name'] = start_vars['trait_id']
             if dataset.type == "Publish":
-                start_vars['trait_name'] = dataset.group.code + "_" + start_vars['trait_name']
+                start_vars['trait_name'] = dataset.group.code + \
+                    "_" + start_vars['trait_name']
             samples = dataset.group.samplelist
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
@@ -674,9 +678,11 @@ def loading_page():
                         n_samples += 1
 
         start_vars['n_samples'] = n_samples
-        start_vars['vals_hash'] = generate_hash_of_string(str(sample_vals_dict))
-        if start_vars['dataset'] != "Temp": # Currently can't get diff for temp traits
-            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+        start_vars['vals_hash'] = generate_hash_of_string(
+            str(sample_vals_dict))
+        if start_vars['dataset'] != "Temp":  # Currently can't get diff for temp traits
+            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(
+                start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
 
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
@@ -777,8 +783,8 @@ def mapping_results_page():
 
             if not template_vars.pair_scan:
                 template_vars.js_data = json.dumps(template_vars.js_data,
-                                                default=json_default_handler,
-                                                indent="   ")
+                                                   default=json_default_handler,
+                                                   indent="   ")
 
             result = template_vars.__dict__
 
@@ -857,14 +863,25 @@ def network_graph_page():
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     correlation_results = compute_correlation(request.form, compute_all=True)
+
     correlation_results = set_template_vars(request.form, correlation_results)
     return render_template("correlation_page.html", **correlation_results)
 
 
 @app.route("/test_corr_compute", methods=["POST"])
 def test_corr_compute_page():
-    correlation_data = compute_correlation(request.form, compute_all=True)
-    return render_template("test_correlation_page.html", **correlation_data)
+
+    start_vars = request.form
+
+    correlation_results = compute_correlation_rust(start_vars,
+                                                   start_vars["corr_type"],
+                                                   start_vars['corr_sample_method'],
+                                                   int(start_vars.get("corr_return_results", 500)))
+
+    correlation_results = set_template_vars(request.form, correlation_results)
+
+    return render_template("correlation_page.html", **correlation_results)
+    # return render_template("test_correlation_page.html", **correlation_data)
 
 
 @app.route("/corr_matrix", methods=('POST',))
@@ -993,9 +1010,8 @@ def display_diffs_users():
     author = g.user_session.record.get(b'user_name').decode("utf-8")
     if os.path.exists(DIFF_DIR):
         files = os.listdir(DIFF_DIR)
-        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))) \
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected")))
                        and author in x,
                        files)
     return render_template("display_files_user.html",
                            files=files)
-
