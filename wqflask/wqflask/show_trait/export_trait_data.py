@@ -16,15 +16,24 @@ def export_sample_table(targs):
     final_sample_data = meta_data
 
     column_headers = ["Name", "Value"]
+    attr_pos = 2
     if any(sample["se"] for sample in sample_data['primary_samples']):
         column_headers.append("SE")
+        attr_pos = 3
     if any(sample["num_cases"] for sample in sample_data['primary_samples']):
         column_headers.append("N")
+        attr_pos = 4
+
+    for key in sample_data["primary_samples"][0].keys():
+        if key not in ["name", "value", "se", "num_cases"]:
+            column_headers.append(key)
 
     final_sample_data.append(column_headers)
     for sample_group in ['primary_samples', 'other_samples']:
         for row in sample_data[sample_group]:
-            sorted_row = dict_to_sorted_list(row)
+            sorted_row = dict_to_sorted_list(row)[:attr_pos]
+            for attr in sample_data['attributes']:
+                sorted_row.append(row[attr])
             final_sample_data.append(sorted_row)
 
     return trait_name, final_sample_data

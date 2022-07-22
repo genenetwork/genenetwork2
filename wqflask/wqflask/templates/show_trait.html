@@ -213,32 +213,6 @@
                    }
                 });
 
-                $('.toggle-vis').on('click', function (e) {
-                    e.preventDefault();
-
-                    function toggle_column(column) {
-                        //ZS: Toggle column visibility
-                        column.visible( ! column.visible() );
-                        if (column.visible()){
-                            $(this).removeClass("active");
-                        } else {
-                            $(this).addClass("active");
-                        }
-                    }
-
-                    // Get the column API object
-                    var target_cols = $(this).attr('data-column').split(",")
-                    for (let i = 0; i < target_cols.length; i++){
-                        var column = primary_table.column( target_cols[i] );
-                        toggle_column(column);
-
-                        {% if sample_groups|length != 1 %}
-                        var column2 = other_table.column( target_cols[i] );
-                        toggle_column(column2);
-                        {% endif %}
-                    }
-                } );
-
                 $('#samples_primary, #samples_other').find("tr.outlier").css('background-color', 'orange')
 
                 $('.edit_sample_checkbox:checkbox').change(function() {

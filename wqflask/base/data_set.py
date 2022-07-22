@@ -1022,6 +1022,14 @@ class GenotypeDataSet(DataSet):
         results = g.db.execute(query,
                                (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
                                 trait, self.name)).fetchall()
+
+        if self.group.name in webqtlUtil.ParInfo:
+            f1_1, f1_2, ref, nonref = webqtlUtil.ParInfo[self.group.name]
+            results.append([f1_1, 0, None, "N/A", f1_1])
+            results.append([f1_2, 0, None, "N/A", f1_2])
+            results.append([ref, -1, None, "N/A", ref])
+            results.append([nonref, 1, None, "N/A", nonref])
+
         return results
 
 

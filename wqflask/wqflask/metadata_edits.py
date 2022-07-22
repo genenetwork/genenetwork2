@@ -62,13 +62,16 @@ def _get_diffs(
 ):
     def __get_file_metadata(file_name: str) -> Dict:
         author, resource_id, time_stamp, *_ = file_name.split(".")
-
+        try:
+            author = json.loads(redis_conn.hget("users", author)).get(
+               "full_name"
+           )
+        except (AttributeError, TypeError):
+            author = author
         return {
             "resource_id": resource_id,
             "file_name": file_name,
-            "author": json.loads(redis_conn.hget("users", author)).get(
-                "full_name"
-            ),
+            "author": author,
             "time_stamp": time_stamp,
             "roles": get_highest_user_access_role(
                 resource_id=resource_id,
@@ -227,8 +230,7 @@ def update_phenotype(dataset_id: str, name: str):
         diff_data = {}
         with database_connection() as conn:
             headers = ["Strain Name", "Value", "SE", "Count"] + list(
-                get_case_attributes(conn).keys()
-            )
+                map(lambda x: x[1], get_case_attributes(conn)))
             diff_data = remove_insignificant_edits(
                 diff_data=csv_diff(
                     base_csv=(
