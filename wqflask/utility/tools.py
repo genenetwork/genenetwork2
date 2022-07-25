@@ -50,7 +50,7 @@ def get_setting(command_id, guess=None):
             app_set(command_id, command)
             return command
         else:
-            return None
+            return app.config.get(command_id)
 
     # ---- Check whether environment exists
     # print("Looking for "+command_id+"\n")
