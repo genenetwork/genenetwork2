@@ -25,36 +25,40 @@
                 {% else %}
                 {% for word in search_terms %}
                     {% if word.key|lower == "rif" %}
-                    with <span style="font-family: Courier New"><b>GeneRIF</b></span> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>GeneRIF</b></span> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.key|lower == "go" %}
-                    with <span style="font-family: Courier New"><b>Gene Ontology ID</b></span> <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>Gene Ontology ID</b></span> <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.key|lower == "wiki" %}
-                    with <span style="font-family: Courier New"><b>GeneWiki</b></span> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>GeneWiki</b></span> containing <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.key|lower == "mean" %}
-                    with <span style="font-family: Courier New"><b>mean</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>mean</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.key|lower == "range" %}
-                    with <span style="font-family: Courier New"><b>RANGE</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>RANGE</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.key|lower == "lrs" or word.key|lower == "lod" or word.key|lower == "translrs" or word.key|lower == "cislrs" or word.key|lower == "translod" or word.key|lower == "cislod" %}
                     {% if word.search_term|length == 1 %}
-                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with {% if word.key|lower == "translrs" %}trans{% elif word.key|lower == "cislrs" %}cis{% endif %}LRS {% if word.separator == ">" %} greater than {% elif word.separator == "<" %} less than {% elif word.separator == ">=" %} greater than or equal to {% elif word.separator == "<=" %} less than or equal to {% endif %} <strong>{{ word.search_term[0] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.search_term|length == 2 %}
-                    with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.search_term|length == 3 %}
-                    with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong>{% if loop.last %}{% else %} and {% endif %}
                     {% elif word.search_term|length == 4 %}
                     with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[3] }}</strong> with an exclusion zone of <strong>{{ word.search_term[2] }}</strong> Mb
                     {% elif word.search_term|length == 5 %}
-                    with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
+                    with <span style="font-family: Courier New"><b>{{ word.key|upper }}</b></span> between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong> on chromosome <strong>{{ word.search_term[2] }}</strong> between <strong>{{ word.search_term[3] }}</strong> and <strong>{{ word.search_term[4] }}</strong> Mb{% if loop.last %}{% else %} and {% endif %}
                     {% endif %}
                     {% elif word.key|lower == "position" or word.key|lower == "mb" %}
-                    with <u>target genes</u> on chromosome <strong>{% if (word.search_term[0]|lower).split('chr')|length > 1 %}{{ (word.search_term[0]|lower).split('chr')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}.{% else %} and {% endif %}
+                    with <u>target genes</u> on chromosome <strong>{% if (word.search_term[0]|lower).split('chr')|length > 1 %}{{ (word.search_term[0]|lower).split('chr')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}{% else %} and {% endif %}
                     {% else %}
                     {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match: {% endif %}<b>{{ word.search_term[0] }}</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
                     {% endif %}
                 {% endfor %}
                 {% endif %}
                 <br>
-                {{ results|count }} records were found.
+                {% if results|count > 0 %}
+                <b>{{ results|count }}</b> record{% if results|count > 1 %}s{% else %}{% endif %} found
+                {% else %}
+                No (<b>0</b>) records found for this search. Modify your search, check target dataset, or use <b>Search All</b> above.
+                {% endif %}
         </p>
 
         {% if results|count > 0 %}
@@ -143,7 +147,7 @@
         {% endif %}
         {% else %}
         <br>
-        <button type="button" onclick="window.location.href='/'">Return To Index Page</button>
+        <button type="button" onclick="window.location.href='/'">Return To Search</button>
         {% endif %}
     </div>
     <div id="myModal"></div>
