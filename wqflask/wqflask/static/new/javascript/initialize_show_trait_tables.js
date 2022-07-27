@@ -176,6 +176,19 @@ for (var i = 0; i < tableIds.length; i++) {
   }
 
   tableSettings = {
+    "drawCallback": function( settings ) {
+      $('#' + tableId + ' tr').off().on("click", function(event) {
+        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+          var obj =$(this).find('input');
+          obj.prop('checked', !obj.is(':checked'));
+        }
+        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+          $(this).removeClass("selected")
+        } else if (event.target.tagName.toLowerCase() !== 'a') {
+          $(this).addClass("selected")
+        }
+      });
+    },
     'createdRow': function ( row, data, index ) {
       $(row).attr('id', tableType + "_" + data.this_id)
       $(row).addClass("value_se");
