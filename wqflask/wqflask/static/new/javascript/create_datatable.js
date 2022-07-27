@@ -109,4 +109,10 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
             toggleColumn(column);
         }
     } );
+
+    $('#redraw').on('click', function (e) {
+        e.preventDefault();
+        trait_table.columns().visible( true );
+        $('.toggle-vis.active').removeClass('active');
+    });
 }
