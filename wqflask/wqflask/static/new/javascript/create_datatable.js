@@ -1,4 +1,4 @@
-create_table = function(tableId, tableData = [], columnDefs = [], customSettings = {}) {
+create_table = function(tableId="trait_table", tableData = [], columnDefs = [], customSettings = {}) {
 
     loadDataTable(tableId=tableId, tableData=tableData, customSettings, firstRun=true)
 
