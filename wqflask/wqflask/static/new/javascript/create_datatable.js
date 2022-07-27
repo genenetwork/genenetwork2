@@ -1,4 +1,4 @@
-create_table = function(tableId, tableData, columnDefs, customSettings) {
+create_table = function(tableId, tableData = [], columnDefs = [], customSettings = {}) {
 
     loadDataTable(tableId=tableId, tableData=tableData, customSettings, firstRun=true)
 
@@ -23,7 +23,6 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
                   change_buttons()
                 });
             },
-            "data": tableData,
             "columns": columnDefs,
             "sDom": "iti",
             "destroy": true,
@@ -47,6 +46,10 @@ create_table = function(tableId, tableData, columnDefs, customSettings) {
                     }
                 });
             }
+        }
+
+        if (tableData.length > 0){
+            tableSettings["data"] = tableData
         }
 
         // Replace default settings with custom settings or add custom settings if not already set in default settings
