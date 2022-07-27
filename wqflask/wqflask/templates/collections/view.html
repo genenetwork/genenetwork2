@@ -298,7 +298,7 @@
                     $('td', row).eq(10).attr('data-export', $('td', row).eq(9).text());
                 },
                 "order": [[1, "asc" ]],
-                {% if traits_json|length > 10 %}
+                {% if traits_json|length > 20 %}
                 "scroller": true
                 {% else %}
                 "scroller": false
