@@ -9,7 +9,8 @@
 
 <body>
     <div>
-        
+        <h2>Scree Plot</h2>
+        <div style="padding-bottom: 10px;">Review more on <a href="https://en.wikipedia.org/wiki/Scree_plot">scree plots</a>.</div>
         <div id="scree_plot" style="width:700px;height:600px;"></div>
     </div>
 </body>
@@ -21,19 +22,9 @@ let { x_coord, y_coord } = js_data["scree_data"]
 
 
 const layout = {
-
-    title: {
-        text: "<b>PCA Scree Plot</b>",
-        font: {
-            "size": 24,
-            "family": "Arial",
-            "color": "#000000"
-        }
-    },
-
     yaxis: {
         title: {
-            text: "Percent of total variance %",
+            text: "% of Variance",
             font: {
                 "size": 18,
                 "color": ""
@@ -44,7 +35,7 @@ const layout = {
 
     xaxis: {
         title: {
-            text: "PCA components",
+            text: "Principal Components",
             font: {
                 "size": 18,
                 "color": ""
