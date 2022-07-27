@@ -105,7 +105,7 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
         // Get the column API object
         var targetCols = $(this).attr('data-column').split(",")
         for (let i = 0; i < targetCols.length; i++){
-            var column = theTable.column( target_cols[i] );
+            var column = theTable.column( targetCols[i] );
             toggleColumn(column);
         }
     } );
