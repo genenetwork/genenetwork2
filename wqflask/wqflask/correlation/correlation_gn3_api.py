@@ -11,7 +11,7 @@ from base import data_set
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
-from gn3.computations.correlations import compute_all_sample_correlation
+from gn3.commands import run_sample_corr_cmd
 from gn3.computations.correlations import fast_compute_all_sample_correlation
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
@@ -108,9 +108,9 @@ def sample_for_trait_lists(corr_results, target_dataset,
 
     (this_trait_data, target_dataset) = fetch_sample_data(
         start_vars, this_trait, this_dataset, target_dataset)
-    correlation_results = compute_all_sample_correlation(corr_method="pearson",
-                                                         this_trait=this_trait_data,
-                                                         target_dataset=target_dataset)
+    correlation_results = run_sample_corr_cmd(
+        corr_method="pearson", this_trait=this_trait_data,
+        target_dataset=target_dataset)
 
     return correlation_results
 
@@ -211,9 +211,8 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     if corr_type == "sample":
         (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
-
-        correlation_results = compute_all_sample_correlation(
-            corr_method=method, this_trait=this_trait_data, target_dataset=target_dataset_data)
+        correlation_results = run_sample_corr_cmd(
+            method, this_trait_data, target_dataset_data)
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
@@ -275,12 +274,10 @@ def compute_corr_for_top_results(start_vars,
                                  target_dataset,
                                  corr_type):
     if corr_type != "tissue" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
-
         tissue_result = tissue_for_trait_lists(
             correlation_results, this_dataset, this_trait)
 
         if tissue_result:
-
             correlation_results = merge_correlation_results(
                 correlation_results, tissue_result)
 
