@@ -1,10 +1,10 @@
+import datetime
 import simplejson as json
 
 from pprint import pformat as pf
 from functools import cmp_to_key
 from base.trait import create_trait
 from base import data_set
-
 
 def export_sample_table(targs):
 
@@ -63,6 +63,7 @@ def get_export_metadata(trait_metadata):
             ["Title: ", (this_trait.title if this_trait.title else "N/A")])
         metadata.append(
             ["Journal: ", (this_trait.journal if this_trait.journal else "N/A")])
+
         metadata.append(
             ["Dataset Link: ", "http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + dataset.name])
     else:
@@ -73,6 +74,10 @@ def get_export_metadata(trait_metadata):
             metadata.append(["Symbol: ", this_trait.symbol])
         metadata.append(["Dataset: ", dataset.name])
         metadata.append(["Group: ", dataset.group.name])
+    metadata.append(
+        ["Export Date: ", datetime.datetime.now().strftime("%B %d, %Y")])
+    metadata.append(
+        ["Export Time: ", datetime.datetime.now().strftime("%H:%M GMT")])
 
     metadata.append([])
 
