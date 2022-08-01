@@ -67,15 +67,14 @@ scatterplot = function() {
         x = data.data[xvar];
         y = data.data[yvar];
       }
-      console.log("x:", x);
-      console.log("y:", y);
+
       indID = (_ref = data != null ? data.indID : void 0) != null ? _ref : null;
       indID = indID != null ? indID : (function() {
         _results = [];
         for (var _i = 1, _ref1 = x.length; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; 1 <= _ref1 ? _i++ : _i--){ _results.push(_i); }
         return _results;
       }).apply(this);
-      console.log("indID:", indID);
+
       group = (_ref2 = data != null ? data.group : void 0) != null ? _ref2 : (function() {
         var _j, _len, _results1;
         _results1 = [];
