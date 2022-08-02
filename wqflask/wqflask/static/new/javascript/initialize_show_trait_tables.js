@@ -17,7 +17,7 @@ buildColumns = function() {
       'searchable' : false,
       'targets': 0,
       'width': "25px",
-      'render': function(data, type, row, meta) {
+      'render': function() {
       return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
       }
     },
@@ -35,7 +35,7 @@ buildColumns = function() {
       'data': null,
       'targets': 2,
       'width': "60px",
-      'render': function(data, type, row, meta) {
+      'render': function(data) {
       return '<span class="edit_sample_sample_name">' + data.name + '</span>'
       }
     },
@@ -46,7 +46,7 @@ buildColumns = function() {
       'data': null,
       'targets': 3,
       'width': "60px",
-      'render': function(data, type, row, meta) {
+      'render': function(data) {
         if (data.value == null) {
             return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
         } else {
@@ -67,7 +67,7 @@ buildColumns = function() {
         'targets': 4,
         'searchable' : false,
         'width': "25px",
-        'render': function(data, type, row, meta) {
+        'render': function() {
         return '±'
         }
       },
@@ -78,7 +78,7 @@ buildColumns = function() {
         'data': null,
         'targets': 5,
         'width': "60px",
-        'render': function(data, type, row, meta) {
+        'render': function(data) {
           if (data.variance == null) {
               return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6>'
           } else {
@@ -98,7 +98,7 @@ buildColumns = function() {
           'data': null,
           'targets': 6,
           'width': "60px",
-          'render': function(data, type, row, meta) {
+          'render': function(data) {
             if (data.num_cases == null || data.num_cases == undefined) {
                 return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
             } else {
@@ -120,7 +120,7 @@ buildColumns = function() {
           'data': null,
           'targets': 4,
           'width': "60px",
-          'render': function(data, type, row, meta) {
+          'render': function(data) {
             if (data.num_cases == null || data.num_cases == undefined) {
                 return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
             } else {
