@@ -84,7 +84,7 @@
                 'width': "5px",
                 'data': null,
                 'targets': 0,
-                'render': function(data, type, row, meta) {
+                'render': function(data) {
                   return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
                 }
               },
@@ -102,7 +102,7 @@
                 'width': "60px",
                 'data': null,
                 'targets': 2,
-                'render': function(data, type, row, meta) {
+                'render': function(data) {
                   return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.name + '</a>'
                 }
               },
@@ -147,7 +147,7 @@
                 'data': null,
                 'width': "120px",
                 'targets': 8,
-                'render': function(data, type, row, meta) {
+                'render': function(data) {
                   try {
                       return decodeURIComponent(escape(data.description))
                   } catch(err) {
