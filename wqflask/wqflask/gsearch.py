@@ -72,38 +72,38 @@ class GSearch:
             dataset_to_permissions = {}
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
-                    this_trait = {}
-                    this_trait['index'] = i + 1
-                    this_trait['name'] = line[5]
-                    this_trait['dataset'] = line[3]
-                    this_trait['dataset_fullname'] = line[4]
-                    this_trait['hmac'] = hmac.data_hmac(
+                    trait_dict = {}
+                    trait_dict['index'] = i + 1
+                    trait_dict['name'] = line[5]
+                    trait_dict['dataset'] = line[3]
+                    trait_dict['dataset_fullname'] = line[4]
+                    trait_dict['hmac'] = hmac.data_hmac(
                         '{}:{}'.format(line[5], line[3]))
-                    this_trait['species'] = line[0]
-                    this_trait['group'] = line[1]
-                    this_trait['tissue'] = line[2]
-                    this_trait['symbol'] = "N/A"
+                    trait_dict['species'] = line[0]
+                    trait_dict['group'] = line[1]
+                    trait_dict['tissue'] = line[2]
+                    trait_dict['symbol'] = "N/A"
                     if line[6]:
-                        this_trait['symbol'] = line[6]
-                    this_trait['description'] = "N/A"
+                        trait_dict['symbol'] = line[6]
+                    trait_dict['description'] = "N/A"
                     if line[7]:
-                        this_trait['description'] = line[7].decode(
+                        trait_dict['description'] = line[7].decode(
                             'utf-8', 'replace')
-                    this_trait['location_repr'] = "N/A"
+                    trait_dict['location_repr'] = "N/A"
                     if (line[8] != "NULL" and line[8] != "") and (line[9] != 0):
-                        this_trait['location_repr'] = 'Chr%s: %.6f' % (
+                        trait_dict['location_repr'] = 'Chr%s: %.6f' % (
                             line[8], float(line[9]))
 
-                    this_trait['LRS_score_repr'] = "N/A"
-                    this_trait['additive'] = "N/A"
-                    this_trait['mean'] = "N/A"
+                    trait_dict['LRS_score_repr'] = "N/A"
+                    trait_dict['additive'] = "N/A"
+                    trait_dict['mean'] = "N/A"
 
                     if line[11] != "" and line[11] != None:
-                        this_trait['LRS_score_repr'] = f"{line[11]:.3f}"
+                        trait_dict['LRS_score_repr'] = f"{line[11]:.3f}"
                     if line[14] != "" and line[14] != None:
-                        this_trait['additive'] = f"{line[14]:.3f}"
+                        trait_dict['additive'] = f"{line[14]:.3f}"
                     if line[10] != "" and line[10] != None:
-                        this_trait['mean'] = f"{line[10]:.3f}"
+                        trait_dict['mean'] = f"{line[10]:.3f}"
 
                     locus_chr = line[16]
                     locus_mb = line[17]
@@ -111,15 +111,15 @@ class GSearch:
                     max_lrs_text = "N/A"
                     if locus_chr and locus_mb:
                         max_lrs_text = f"Chr{locus_chr}: {locus_mb}"
-                    this_trait['max_lrs_text'] = max_lrs_text
+                    trait_dict['max_lrs_text'] = max_lrs_text
 
-                    this_trait['additive'] = "N/A"
+                    trait_dict['additive'] = "N/A"
                     if line[14] != "" and line[14] != None:
-                        this_trait['additive'] = '%.3f' % line[14]
-                    this_trait['dataset_id'] = line[15]
+                        trait_dict['additive'] = '%.3f' % line[14]
+                    trait_dict['dataset_id'] = line[15]
 
                     dataset_ob = SimpleNamespace(
-                        id=this_trait["dataset_id"], type="ProbeSet", name=this_trait["dataset"], species=this_trait["species"])
+                        id=trait_dict["dataset_id"], type="ProbeSet", name=trait_dict["dataset"], species=trait_dict["species"])
                     if dataset_ob.id not in dataset_to_permissions:
                         permissions = check_resource_availability(dataset_ob)
                         dataset_to_permissions[dataset_ob.id] = permissions
@@ -132,7 +132,7 @@ class GSearch:
                         if permissions['data'] == 'no-access':
                             continue
 
-                    trait_list.append(this_trait)
+                    trait_list.append(trait_dict)
 
             self.trait_count = len(trait_list)
             self.trait_list = trait_list
@@ -215,43 +215,43 @@ class GSearch:
             trait_list = []
             with Bench("Creating trait objects"):
                 for i, line in enumerate(re):
-                    this_trait = {}
-                    this_trait['index'] = i + 1
-                    this_trait['name'] = str(line[4])
+                    trait_dict = {}
+                    trait_dict['index'] = i + 1
+                    trait_dict['name'] = str(line[4])
                     if len(str(line[12])) == 3:
-                        this_trait['display_name'] = str(
-                            line[12]) + "_" + this_trait['name']
+                        trait_dict['display_name'] = str(
+                            line[12]) + "_" + trait_dict['name']
                     else:
-                        this_trait['display_name'] = this_trait['name']
-                    this_trait['dataset'] = line[2]
-                    this_trait['dataset_fullname'] = line[3]
-                    this_trait['hmac'] = hmac.data_hmac(
+                        trait_dict['display_name'] = trait_dict['name']
+                    trait_dict['dataset'] = line[2]
+                    trait_dict['dataset_fullname'] = line[3]
+                    trait_dict['hmac'] = hmac.data_hmac(
                         '{}:{}'.format(line[4], line[2]))
-                    this_trait['species'] = line[0]
-                    this_trait['group'] = line[1]
+                    trait_dict['species'] = line[0]
+                    trait_dict['group'] = line[1]
                     if line[9] != None and line[6] != None:
-                        this_trait['description'] = line[6].decode(
+                        trait_dict['description'] = line[6].decode(
                             'utf-8', 'replace')
                     elif line[5] != None:
-                        this_trait['description'] = line[5].decode(
+                        trait_dict['description'] = line[5].decode(
                             'utf-8', 'replace')
                     else:
-                        this_trait['description'] = "N/A"
-                    this_trait['dataset_id'] = line[14]
+                        trait_dict['description'] = "N/A"
+                    trait_dict['dataset_id'] = line[14]
 
-                    this_trait['LRS_score_repr'] = "N/A"
-                    this_trait['additive'] = "N/A"
-                    this_trait['mean'] = "N/A"
+                    trait_dict['LRS_score_repr'] = "N/A"
+                    trait_dict['additive'] = "N/A"
+                    trait_dict['mean'] = "N/A"
 
                     if line[10] != "" and line[10] != None:
-                        this_trait['LRS_score_repr'] = f"{line[10]:.3f}"
+                        trait_dict['LRS_score_repr'] = f"{line[10]:.3f}"
                         # Some Max LRS values in the DB are wrongly listed as 0.000, but shouldn't be displayed
-                        if this_trait['LRS_score_repr'] == "0.000":
-                            this_trait['LRS_score_repr'] = "N/A"
+                        if trait_dict['LRS_score_repr'] == "0.000":
+                            trait_dict['LRS_score_repr'] = "N/A"
                     if line[11] != "" and line[11] != None:
-                        this_trait['additive'] = f"{line[11]:.3f}"
+                        trait_dict['additive'] = f"{line[11]:.3f}"
                     if line[13] != "" and line[13] != None:
-                        this_trait['mean'] = f"{line[13]:.3f}"
+                        trait_dict['mean'] = f"{line[13]:.3f}"
 
                     locus_chr = line[15]
                     locus_mb = line[16]
@@ -259,22 +259,29 @@ class GSearch:
                     max_lrs_text = "N/A"
                     if locus_chr and locus_mb:
                         max_lrs_text = f"Chr{locus_chr}: {locus_mb}"
-                    this_trait['max_lrs_text'] = max_lrs_text
+                    trait_dict['max_lrs_text'] = max_lrs_text
 
-                    this_trait['authors'] = line[7]
-                    this_trait['year'] = line[8]
-                    this_trait['pubmed_text'] = "N/A"
-                    this_trait['pubmed_link'] = "N/A"
-                    if this_trait['year'].isdigit():
-                        this_trait['pubmed_text'] = this_trait['year']
+                    trait_dict['authors'] = line[7]
+
+                    trait_dict['authors'] = line[7]
+                    trait_dict['authors_display'] = trait_dict['authors']
+                    author_list = trait_dict['authors'].split(",")
+                    if len(author_list) >= 2:
+                        trait_dict['authors_display'] = (",").join(author_list[:2]) + ", et al."
+
+                    trait_dict['year'] = line[8]
+                    trait_dict['pubmed_text'] = "N/A"
+                    trait_dict['pubmed_link'] = "N/A"
+                    if trait_dict['year'].isdigit():
+                        trait_dict['pubmed_text'] = trait_dict['year']
                     if line[9] != "" and line[9] != None:
-                        this_trait['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[8]
+                        trait_dict['pubmed_link'] = webqtlConfig.PUBMEDLINK_URL % line[8]
                         if line[12]:
-                            this_trait['display_name'] = line[12] + \
-                                "_" + str(this_trait['name'])
+                            trait_dict['display_name'] = line[12] + \
+                                "_" + str(trait_dict['name'])
 
-                    dataset_ob = SimpleNamespace(id=this_trait["dataset_id"], type="Publish", species=this_trait["species"])
-                    permissions = check_resource_availability(dataset_ob, this_trait['name'])
+                    dataset_ob = SimpleNamespace(id=trait_dict["dataset_id"], type="Publish", species=trait_dict["species"])
+                    permissions = check_resource_availability(dataset_ob, trait_dict['name'])
                     if type(permissions['data']) is list:
                         if "view" not in permissions['data']:
                             continue
@@ -282,7 +289,7 @@ class GSearch:
                         if permissions['data'] == 'no-access':
                             continue
 
-                    trait_list.append(this_trait)
+                    trait_list.append(trait_dict)
 
             self.trait_count = len(trait_list)
             self.trait_list = trait_list

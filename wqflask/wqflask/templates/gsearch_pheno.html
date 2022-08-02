@@ -146,16 +146,7 @@
               'type': "natural",
               'width': "300px",
               'targets': 7,
-              'data': null,
-              'render': function(data) {
-                author_list = data.authors.split(",")
-                if (author_list.length >= 6) {
-                  author_string = author_list.slice(0, 6).join(",") + ", et al."
-                } else{
-                  author_string = data.authors
-                }
-                return author_string
-              }
+              'data': "authors_display"
             },
             {
               'title': "Year",
