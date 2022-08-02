@@ -68,9 +68,6 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
         } else {
             theTable = $('#' + tableId).DataTable(tableSettings);
             theTable.draw();
-        }
-
-        if (firstRun){
             $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + 17) + "px");
         }
     }
