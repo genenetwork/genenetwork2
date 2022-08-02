@@ -172,6 +172,10 @@ class SearchResultPage:
                     trait_dict['pubmed_text'] = result[4]
 
                 trait_dict['authors'] = result[3]
+                trait_dict['authors_display'] = trait_dict['authors']
+                author_list = trait_dict['authors'].split(",")
+                if len(author_list) >= 2:
+                    trait_dict['authors_display'] = (",").join(author_list[:2]) + ", et al."
 
                 if result[6] != "" and result[6] != None:
                     trait_dict['mean'] = f"{result[6]:.3f}"

@@ -319,17 +319,8 @@
                 {% else %}
                 'width': "500px",
                 {% endif %}
-                'data': null,
-                'targets': 5,
-                'render': function(data) {
-                  author_list = data.authors.split(",")
-                  if (author_list.length >= 2) {
-                    author_string = author_list.slice(0, 2).join(",") + ", et al."
-                  } else{
-                    author_string = data.authors
-                  }
-                  return author_string
-                }
+                'data': "authors_display",
+                'targets': 5
               },
               {
                 'title': "<div style='text-align: right;'>Year</div>",
