@@ -226,6 +226,14 @@
 
           tableId = "trait_table";
 
+          {% if corr_method == 'pearson' %}
+          rOrRho = "r"
+          corr_method = "pearson"
+          {% else %}
+          rOrRho = "rho"
+          corr_method = "spearman"
+          {% endif %}
+
           columnDefs = [
             {
               'data': null,
@@ -283,14 +291,14 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+              'title': "Sample " + rOrRho,
               'type': "natural-minus-na",
               'width': "40px",
               'data': null,
               'orderSequence': [ "desc", "asc"],
               'render': function(data) {
                 if (data.sample_r != "N/A") {
-                  return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                  return "<a target\"_blank\" href=\"corr_scatter_plot?method=" + corr_method + "&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                 } else {
                   return data.sample_r
                 }
@@ -304,28 +312,28 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+              'title': "Sample p(" + rOrRho + ")",
               'type': "scientific",
               'width': "65px",
               'data': "sample_p",
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Lit {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+              'title': "Lit " + rOrRho,
               'type': "natural-minus-na",
               'width': "40px",
               'data': "lit_corr",
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Tissue {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+              'title': "Tissue " + rOrRho,
               'type': "natural-minus-na",
               'width': "40px",
               'data': "tissue_corr",
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Tissue p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+              'title': "Tissue p(" + rOrRho + ")",
               'type': "natural-minus-na",
               'width': "40px",
               'data': "tissue_pvalue",
@@ -411,14 +419,14 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+              'title': "Sample " + rOrRho,
               'type': "natural-minus-na",
               'width': "40px",
               'data': null,
               'orderSequence': [ "desc", "asc"],
               'render': function(data) {
                 if (data.sample_r != "N/A") {
-                  return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name== 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                  return "<a target\"_blank\" href=\"corr_scatter_plot?method=" + corr_method + "&dataset_1={% if this_dataset.name== 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                 } else {
                   return data.sample_r
                 }
@@ -432,7 +440,7 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+              'title': "Sample p(" + rOrRho + ")",
               'type': "scientific",
               'width': "65px",
               'data': "sample_p",
@@ -465,14 +473,14 @@
               'data': "location"
             },
             {
-              'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
+              'title': "Sample " + rOrRho,
               'type': "natural-minus-na",
               'width': "40px",
               'data': null,
               'orderSequence': [ "desc", "asc"],
               'render': function(data) {
                 if (data.sample_r != "N/A") {
-                  return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                  return "<a target\"_blank\" href=\"corr_scatter_plot?method=" + corr_method + "&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
                 } else {
                   return data.sample_r
                 }
@@ -486,7 +494,7 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
+              'title': "Sample p(" + rOrRho + ")",
               'type': "scientific",
               'width': "65px",
               'data': "sample_p",
