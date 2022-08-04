@@ -729,6 +729,7 @@ def mapping_results_page():
         'lrsMax',
         'additiveCheck',
         'showSNP',
+        'showHomology',
         'showGenes',
         'viewLegend',
         'haplotypeAnalystCheck',
