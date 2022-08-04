@@ -178,6 +178,7 @@
                     </a>
                     <span style="color:red;">*</span>
                   <br>
+                  <input type="checkbox" name="showHomology" class="checkbox" style="display: inline; margin-top: 0px;" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Homology Track </span><br>
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
                   {% if plotScale != "morgan" %}
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span><br>
@@ -526,7 +527,7 @@
         var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'do_control', 'genofile',
-                            'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
+                            'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showHomology', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck',
                             'mapmethod_rqtl_geno', 'mapmodel_rqtl_geno', 'temp_trait', 'group', 'species', 'reaper_version', 'primary_samples', 'n_samples']
 
         $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
