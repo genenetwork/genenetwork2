@@ -152,7 +152,7 @@ class RunMapping:
             self.lrsMax = start_vars['lrsMax']
         if "haplotypeAnalystCheck" in start_vars:
             self.haplotypeAnalystCheck = start_vars['haplotypeAnalystCheck']
-        if "startMb" in start_vars:  # ZS: This is to ensure showGenes, Legend, etc are checked the first time you open the mapping page, since startMb will only not be set during the first load
+        if "startMb" in start_vars:  # This is to ensure showGenes, Legend, etc are checked the first time you open the mapping page, since startMb will only not be set during the first load
             if "permCheck" in start_vars:
                 self.permCheck = "ON"
             else:
@@ -165,6 +165,11 @@ class RunMapping:
                 self.showSNP = start_vars['showSNP']
             else:
                 self.showSNP = False
+
+            if "showHomology" in start_vars:
+                self.showHomology = start_vars['showHomology']
+            else:
+                self.showHomology = False
 
             if "showGenes" in start_vars:
                 self.showGenes = start_vars['showGenes']
