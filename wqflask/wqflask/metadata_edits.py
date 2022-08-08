@@ -127,40 +127,7 @@ def edit_probeset(conn, name):
         columns=list(probeset_mapping.values()),
         where=Probeset(name=name),
     )
-    json_data = fetchall(
-        conn, "metadata_audit", where=MetadataAudit(dataset_id=probeset_.id_)
-    )
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(
-                            author=author,
-                            diff=Edit(
-                                field,
-                                data_.get("old"),
-                                data_.get("new"),
-                                "\n".join(
-                                    difflib.ndiff(
-                                        [data_.get("old")], [data_.get("new")]
-                                    )
-                                ),
-                            ),
-                            timestamp=timestamp,
-                        )
-                    )
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return {
-        "diff": diff_data_,
         "probeset": probeset_,
     }
 
@@ -554,21 +521,31 @@ def show_diff(name):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>/history")
-def show_history(dataset_id: str, name: str):
+@metadata_edit.route("/probeset/<name>")
+def show_history(dataset_id: str = "", name: str = ""):
     diff_data_ = None
     with database_connection() as conn:
-        publish_xref = fetchone(
-            conn=conn,
-            table="PublishXRef",
-            where=PublishXRef(id_=name, inbred_set_id=dataset_id),
-        )
-
-        json_data = fetchall(
-            conn,
-            "metadata_audit",
-            where=MetadataAudit(dataset_id=publish_xref.id_),
-        )
-
+        json_data = None
+        if dataset_id:  # This is a published phenotype
+            json_data = fetchall(
+                conn,
+                "metadata_audit",
+                where=MetadataAudit(dataset_id=fetchone(
+                    conn=conn,
+                    table="PublishXRef",
+                    where=PublishXRef(id_=name, inbred_set_id=dataset_id),
+                ).id_),
+            )
+        else:  # This is a probeset
+            json_data = fetchall(
+                conn, "metadata_audit",
+                where=MetadataAudit(dataset_id=fetchone(
+                    conn=conn,
+                    table="ProbeSet",
+                    columns=list(probeset_mapping.values()),
+                    where=Probeset(name=name),
+                ).id_)
+            )
         Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
         Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
         diff_data = []

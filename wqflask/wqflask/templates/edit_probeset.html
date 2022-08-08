@@ -2,8 +2,12 @@
 {% block title %}Trait Submission{% endblock %}
 {% block content %}
 <!-- Start of body -->
-Edit Trait for Probeset
-Submit Trait | Reset
+<div class="container">
+    <div class="page-header text-left">
+	<h1>Probeset Editing Form:</h1>
+	<small><a href="{{url_for('metadata_edit.show_history', name=name)}}" target="_blank">[View History]</a></small>
+    </div>
+</div>
 
 {% if diff %}
 
@@ -54,7 +58,6 @@ Submit Trait | Reset
 {% endif %}
 
 <form id="edit-form" class="form-horizontal" method="post" action="/datasets/traits/{{ name }}?resource-id={{ resource_id }}">
-          <h2 class="text-center">Probeset Information:</h2>
     <div class="form-group">
         <label for="symbol" class="col-sm-2 control-label">Symbol:</label>
         <div class="col-sm-4">
