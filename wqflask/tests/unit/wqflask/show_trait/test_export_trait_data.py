@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from unittest import mock
 from wqflask.show_trait.export_trait_data import dict_to_sorted_list
@@ -13,56 +14,53 @@ class AttributesSetter:
 
 
 class TestExportTraits(unittest.TestCase):
-    """Test methods related to converting dict to sortedlist"""
+    """Test methods for exporting traits and metadata"""
+
+    @mock.patch("wqflask.show_trait.export_trait_data.datetime")
     @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
     @mock.patch("wqflask.show_trait.export_trait_data.data_set")
-    def test_get_export_metadata_no_publish(self, mock_dataset, mock_trait):
-        """test for exporting metadata with no publish"""
-        mock_dataset_attributes = AttributesSetter(
-            {"type": "no_publish", "dataset_name": "Temp", "name": "Temp"})
-
-        mock_nested_attributes = AttributesSetter({"name": "name"})
-        mock_dataset_attributes.group = mock_nested_attributes
-        mock_dataset.create_dataset.return_value = mock_dataset_attributes
-        mock_trait.return_value = AttributesSetter({"symbol": "", "description_display": "Description",
-                                                    "title": "research1", "journal": "", "authors": ""})
-
-        results = get_export_metadata("random_id", "Temp")
-        expected = [["Record ID: random_id"],
-                    ["Trait URL: http://genenetwork.org/show_trait?trait_id=random_id&dataset=Temp"],
-                    ["Dataset: Temp"],
-                    ["Group: name"], []]
-
-        mock_dataset.create_dataset.assert_called_with("Temp")
-        mock_trait.assert_called_with(
-            dataset=mock_dataset_attributes, name="random_id", cellid=None, get_qtl_info=False)
-        self.assertEqual(results, expected)
-
-    @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
-    @mock.patch("wqflask.show_trait.export_trait_data.data_set")
-    def test_get_export_metadata_with_publish(self, data_mock, trait_mock):
+    def test_get_export_metadata(self, data_mock, trait_mock,date_mock):
         """test for exporting metadata with dataset.type=Publish"""
-        mock_dataset_attributes = AttributesSetter({"type": "Publish", "dataset_name": "Temp",
-                                                    "name": "Temp", "description_display": "Description goes here"})
+        mock_dataset = AttributesSetter({"type": "Publish", "name": "HC_M2_0606_P",
+                                         "dataset_name": "HC_M2_0606_P"})
 
-        mock_nested_attributes = AttributesSetter({"name": "name"})
-        mock_dataset_attributes.group = mock_nested_attributes
-        data_mock.create_dataset.return_value = mock_dataset_attributes
-        trait_instance = AttributesSetter({"symbol": "", "description_display": "Description",
-                                           "title": "research1", "journal": "", "authors": ""})
-        trait_mock.return_value = trait_instance
+        mock_dataset.group = AttributesSetter({"name": "C"})
+        data_mock.create_dataset.return_value = mock_dataset
 
-        results = get_export_metadata(
-            "29ae0615-0d77-4814-97c7-c9e91f6bfd7b", "Temp")
+        trait_data = {
+            "symbol": "Nr3c1",
+            "description_display": "nuclear receptor subfamily 3,group C, member 1 (glucocorticoid receptor); distal 3' UTR",
+            "title": "Trait_1 title",
 
-        expected = [['Phenotype ID: 29ae0615-0d77-4814-97c7-c9e91f6bfd7b'],
-                    ['Phenotype URL: http://genenetwork.org/show_trait?trait_id=29ae0615-0d77-4814-97c7-c9e91f6bfd7b&dataset=Temp'], [
-                        'Group: name'], ['Phenotype: Description'],
-                    ['Authors: N/A'], ['Title: research1'],
-                    ['Journal: N/A'], ['Dataset Link: http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=Temp'], []]
+            "authors": "XL_1",
+            "journal": ""
+
+        }
+
+        date_mock.datetime.now.return_value = datetime.datetime(2022, 8, 8, 19, 2, 31, 628813)
+        trait_mock.return_value = AttributesSetter(trait_data)
+
+        results = get_export_metadata({
+            "trait_id": "1460303_at",
+            "trait_display_name": "1460303_at",
+            "dataset": "HC_M2_0606_P"
+        })
+
+
+        expected = [["Phenotype ID:", "1460303_at"],
+                    ["Phenotype URL: ", "http://genenetwork.org/show_trait?trait_id=1460303_at&dataset=HC_M2_0606_P"],
+                    ["Group: ", "C"],
+                    ["Phenotype: ", 'nuclear receptor subfamily 3","group C"," member 1 (glucocorticoid receptor); distal 3\' UTR'],
+                    ["Authors: ", "XL_1"],
+                    ["Title: ", "Trait_1 title"],
+                    ["Journal: ", "N/A"],
+                    ["Dataset Link: ", "http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=HC_M2_0606_P"],
+                    ["Export Date: ", "August 08, 2022"],
+                    ["Export Time: ","19:02 GMT"], []]
 
         self.assertEqual(results, expected)
 
+        
     @mock.patch("wqflask.show_trait.export_trait_data.dict_to_sorted_list")
     @mock.patch("wqflask.show_trait.export_trait_data.get_export_metadata")
     def test_export_sample_table(self, exp_metadata, dict_list):
