@@ -19,9 +19,10 @@ class TestExportTraits(unittest.TestCase):
     @mock.patch("wqflask.show_trait.export_trait_data.datetime")
     @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
     @mock.patch("wqflask.show_trait.export_trait_data.data_set")
-    def test_get_export_metadata(self, data_mock, trait_mock,date_mock):
+    def test_get_export_metadata(self, data_mock, trait_mock, date_mock):
         """test for exporting metadata with dataset.type=Publish"""
-        mock_dataset = AttributesSetter({"type": "Publish", "name": "HC_M2_0606_P",
+        mock_dataset = AttributesSetter({"type": "Publish",
+                                         "name": "HC_M2_0606_P",
                                          "dataset_name": "HC_M2_0606_P"})
 
         mock_dataset.group = AttributesSetter({"name": "C"})
@@ -37,7 +38,8 @@ class TestExportTraits(unittest.TestCase):
 
         }
 
-        date_mock.datetime.now.return_value = datetime.datetime(2022, 8, 8, 19, 2, 31, 628813)
+        date_mock.datetime.now.return_value = datetime.datetime(
+            2022, 8, 8, 19, 2, 31, 628813)
         trait_mock.return_value = AttributesSetter(trait_data)
 
         results = get_export_metadata({
@@ -46,20 +48,19 @@ class TestExportTraits(unittest.TestCase):
             "dataset": "HC_M2_0606_P"
         })
 
-
         expected = [["Phenotype ID:", "1460303_at"],
                     ["Phenotype URL: ", "http://genenetwork.org/show_trait?trait_id=1460303_at&dataset=HC_M2_0606_P"],
                     ["Group: ", "C"],
-                    ["Phenotype: ", 'nuclear receptor subfamily 3","group C"," member 1 (glucocorticoid receptor); distal 3\' UTR'],
+                    ["Phenotype: ",
+                        'nuclear receptor subfamily 3","group C"," member 1 (glucocorticoid receptor); distal 3\' UTR'],
                     ["Authors: ", "XL_1"],
                     ["Title: ", "Trait_1 title"],
                     ["Journal: ", "N/A"],
                     ["Dataset Link: ", "http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=HC_M2_0606_P"],
                     ["Export Date: ", "August 08, 2022"],
-                    ["Export Time: ","19:02 GMT"], []]
+                    ["Export Time: ", "19:02 GMT"]]
 
         self.assertEqual(results, expected)
-
 
     def test_dict_to_sortedlist(self):
         """test for conversion of dict to sorted list"""

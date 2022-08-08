@@ -79,7 +79,6 @@ def get_export_metadata(trait_metadata):
     metadata.append(
         ["Export Time: ", datetime.datetime.now().strftime("%H:%M GMT")])
 
-    metadata.append([])
 
     return metadata
 
