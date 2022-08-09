@@ -198,51 +198,21 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
 
     corr_type = start_vars['corr_type']
 
-    (this_dataset, this_trait, target_dataset,
-     sample_data) = create_target_this_trait(start_vars)
-
-    target_dataset_type = target_dataset.type
-    this_dataset_type = this_dataset.type
-
     method = start_vars['corr_sample_method']
     corr_return_results = int(start_vars.get("corr_return_results", 100))
     corr_input_data = {}
 
-    if corr_type == "sample":
-        (this_trait_data, target_dataset_data) = fetch_sample_data(
-            start_vars, this_trait, this_dataset, target_dataset)
-        ## This import has to be inside the function to prevent circular imports
-        from wqflask.correlation.rust_correlation import compute_correlation_rust
-        rust_correlation_results = compute_correlation_rust(
-            start_vars, corr_type, method, corr_return_results)
-        correlation_results = rust_correlation_results["correlation_results"]
+    from wqflask.correlation.rust_correlation import compute_correlation_rust
+    rust_correlation_results =
+    return compute_correlation_rust(
+        start_vars, corr_type, method, corr_return_results)
+    correlation_results = rust_correlation_results["correlation_results"]
 
-    elif corr_type == "tissue":
-        trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
-        tissue_input = get_tissue_correlation_input(
-            this_trait, trait_symbol_dict)
-
-        if tissue_input is not None:
-            (primary_tissue_data, target_tissue_data) = tissue_input
-
-            corr_input_data = {
-                "primary_tissue": primary_tissue_data,
-                "target_tissues_dict": target_tissue_data
-            }
-            correlation_results = compute_tissue_correlation(
-                primary_tissue_dict=corr_input_data["primary_tissue"],
-                target_tissues_data=corr_input_data[
-                    "target_tissues_dict"],
-                corr_method=method
-
-            )
-        else:
-            return {"correlation_results": [],
-                    "this_trait": this_trait.name,
-                    "target_dataset": start_vars['corr_dataset'],
-                    "return_results": corr_return_results}
-
-    elif corr_type == "lit":
+    if corr_type == "lit":# elif corr_type == "lit":
+        (this_dataset, this_trait, target_dataset,
+         sample_data) = create_target_this_trait(start_vars)
+        target_dataset_type = target_dataset.type
+        this_dataset_type = this_dataset.type
         (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
             this_trait, this_dataset)
 
