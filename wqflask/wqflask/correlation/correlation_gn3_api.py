@@ -11,12 +11,13 @@ from base import data_set
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
+from gn3.db_utils import database_connector
 from gn3.commands import run_sample_corr_cmd
-from gn3.computations.correlations import fast_compute_all_sample_correlation
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.correlations import compute_tissue_correlation
-from gn3.db_utils import database_connector
+from wqflask.correlation.rust_correlation import compute_correlation_rust
+from gn3.computations.correlations import fast_compute_all_sample_correlation
 
 
 def create_target_this_trait(start_vars):
@@ -211,8 +212,9 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     if corr_type == "sample":
         (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
-        correlation_results = run_sample_corr_cmd(
-            method, this_trait_data, target_dataset_data)
+        rust_correlation_results = compute_correlation_rust(
+            start_vars, corr_type, method, corr_return_results)
+        correlation_results = rust_correlation_results["correlation_results"]
 
     elif corr_type == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
