@@ -16,7 +16,6 @@ from gn3.commands import run_sample_corr_cmd
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.correlations import compute_tissue_correlation
-from wqflask.correlation.rust_correlation import compute_correlation_rust
 from gn3.computations.correlations import fast_compute_all_sample_correlation
 
 
@@ -212,6 +211,8 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     if corr_type == "sample":
         (this_trait_data, target_dataset_data) = fetch_sample_data(
             start_vars, this_trait, this_dataset, target_dataset)
+        ## This import has to be inside the function to prevent circular imports
+        from wqflask.correlation.rust_correlation import compute_correlation_rust
         rust_correlation_results = compute_correlation_rust(
             start_vars, corr_type, method, corr_return_results)
         correlation_results = rust_correlation_results["correlation_results"]
