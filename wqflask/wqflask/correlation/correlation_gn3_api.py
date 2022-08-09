@@ -203,8 +203,7 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     corr_input_data = {}
 
     from wqflask.correlation.rust_correlation import compute_correlation_rust
-    rust_correlation_results =
-    return compute_correlation_rust(
+    rust_correlation_results = compute_correlation_rust(
         start_vars, corr_type, method, corr_return_results)
     correlation_results = rust_correlation_results["correlation_results"]
 
