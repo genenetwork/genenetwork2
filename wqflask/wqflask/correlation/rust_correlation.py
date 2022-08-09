@@ -28,10 +28,9 @@ def compute_correlation_rust(start_vars: dict, corr_type: str,
             lts = [key] + [str(x) for x in val]
             r = ",".join(lts)
             target_data.append(r)
-        # breakpoint()
 
-        results = run_correlation(target_data, ",".join(
-            [str(x) for x in list(sample_data.values())]), method, ",")
+        results = run_correlation(
+            target_data, list(sample_data.values()), method, ",")
 
 
     if corr_type == "tissue":
