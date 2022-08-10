@@ -11,8 +11,6 @@ from gn3.computations.rust_correlation import parse_tissue_corr_data
 from gn3.db_utils import database_connector
 
 
-
-
 def compute_top_n_lit(corr_results, this_dataset, this_trait):
     (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
         this_trait, this_dataset)
@@ -31,8 +29,9 @@ def compute_top_n_lit(corr_results, this_dataset, this_trait):
     return correlation_results
 
 
-
 def compute_top_n_tissue(this_dataset, this_trait, traits, method):
+
+    # refactor lots of rpt
 
     trait_symbol_dict = dict({trait_name: symbol for (
         trait_name, symbol) in this_dataset.retrieve_genes("Symbol").items() if traits.get(trait_name)})
@@ -48,9 +47,30 @@ def compute_top_n_tissue(this_dataset, this_trait, traits, method):
 
     if data:
         return run_correlation(
-            data[1], data[0], method, ",","tissue")
+            data[1], data[0], method, ",", "tissue")
 
     return {}
+
+
+def merge_results(dict_a, dict_b, dict_c):
+    """code to merge diff corr  into individual dicts
+    a"""
+
+    correlation_results = []
+
+    for (key, val) in dict_a.items():
+
+        if key in dict_b:
+
+            dict_a[key].update(dict_b[key])
+
+        if key in dict_c:
+
+            dict_a[key].update(dict_c[key])
+
+        correlation_results.append({key: dict_a[key]})
+
+    return correlation_results
 
 
 def compute_correlation_rust(start_vars: dict, corr_type: str,
@@ -75,10 +95,27 @@ def compute_correlation_rust(start_vars: dict, corr_type: str,
             r = ",".join(lts)
             target_data.append(r)
 
-        results = run_correlation(target_data, ",".join(
-            [str(x) for x in list(sample_data.values())]), method, ",")
+
+        results = run_correlation(target_data,
+                                  list(sample_data.values()),
+                                  method,
+                                  ",",
+                                  corr_type,
+                                  n_top)
+
+        # example compute of compute both correlation
 
 
+
+        top_tissue_results = compute_top_n_tissue(this_dataset,this_trait,results,method)
+
+
+        top_lit_results = compute_top_n_lit(results,this_dataset,this_trait)
+
+
+        # merging the results
+
+        results = merge_results(results,top_tissue_results,top_lit_results)
 
     if corr_type == "tissue":
 
@@ -95,7 +132,7 @@ def compute_correlation_rust(start_vars: dict, corr_type: str,
 
         if data:
             results = run_correlation(
-                data[1], data[0], method, ",","tissue")
+                data[1], data[0], method, ",", "tissue")
 
     return {"correlation_results": results,
             "this_trait": this_trait.name,
