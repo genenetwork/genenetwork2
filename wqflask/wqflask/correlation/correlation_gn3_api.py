@@ -224,19 +224,16 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     correlation_results = correlation_results[0:corr_return_results]
 
     if (compute_all):
-        correlation_results = compute_corr_for_top_results(start_vars,
-                                                           correlation_results,
-                                                           this_trait,
-                                                           this_dataset,
-                                                           target_dataset,
-                                                           corr_type)
+        correlation_results = compute_corr_for_top_results(
+            start_vars, correlation_results, this_trait, this_dataset,
+            target_dataset, corr_type)
 
-    correlation_data = {"correlation_results": correlation_results,
-                        "this_trait": this_trait.name,
-                        "target_dataset": start_vars['corr_dataset'],
-                        "return_results": corr_return_results}
-
-    return correlation_data
+    return {
+        "correlation_results": correlation_results,
+        "this_trait": this_trait.name,
+        "target_dataset": start_vars['corr_dataset'],
+        "return_results": corr_return_results
+    }
 
 
 def compute_corr_for_top_results(start_vars,

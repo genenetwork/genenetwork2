@@ -9,6 +9,7 @@ from link_checker import check_links
 from link_checker import check_packaged_js_files
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
+from correlation_tests import check_correlations
 from main_web_functionality import check_main_web_functionality
 import link_checker
 import sys
@@ -28,6 +29,7 @@ def run_all(args_obj, parser):
     check_links(args_obj, parser)
     check_packaged_js_files(args_obj, parser)
     check_mapping(args_obj, parser)
+    check_correlations(args_obj, parser)
     # TODO: Add other functions as they are created.
 
 
