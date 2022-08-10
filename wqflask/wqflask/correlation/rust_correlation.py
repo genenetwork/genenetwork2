@@ -33,8 +33,11 @@ def compute_top_n_tissue(this_dataset, this_trait, traits, method):
 
     # refactor lots of rpt
 
-    trait_symbol_dict = dict({trait_name: symbol for (
-        trait_name, symbol) in this_dataset.retrieve_genes("Symbol").items() if traits.get(trait_name)})
+    trait_symbol_dict = dict({
+        trait_name: symbol
+        for (trait_name, symbol)
+        in this_dataset.retrieve_genes("Symbol").items()
+        if traits.get(trait_name)})
 
     corr_result_tissue_vals_dict = get_trait_symbol_and_tissue_values(
         symbol_list=list(trait_symbol_dict.values()))
@@ -73,8 +76,9 @@ def merge_results(dict_a, dict_b, dict_c):
     return correlation_results
 
 
-def compute_correlation_rust(start_vars: dict, corr_type: str,
-                             method: str = "pearson", n_top: int = 500):
+def compute_correlation_rust(
+        start_vars: dict, corr_type: str, method: str = "pearson",
+        n_top: int = 500):
     """function to compute correlation"""
 
     (this_dataset, this_trait, target_dataset,
@@ -96,25 +100,15 @@ def compute_correlation_rust(start_vars: dict, corr_type: str,
             target_data.append(r)
 
 
-        results = run_correlation(target_data,
-                                  list(sample_data.values()),
-                                  method,
-                                  ",",
-                                  corr_type,
-                                  n_top)
+        results = run_correlation(
+            target_data, list(sample_data.values()), method, ",", corr_type,
+            n_top)
 
         # example compute of compute both correlation
-
-
-
         top_tissue_results = compute_top_n_tissue(this_dataset,this_trait,results,method)
-
-
         top_lit_results = compute_top_n_lit(results,this_dataset,this_trait)
 
-
         # merging the results
-
         results = merge_results(results,top_tissue_results,top_lit_results)
 
     if corr_type == "tissue":
@@ -134,8 +128,9 @@ def compute_correlation_rust(start_vars: dict, corr_type: str,
             results = run_correlation(
                 data[1], data[0], method, ",", "tissue")
 
-    return {"correlation_results": results,
-            "this_trait": this_trait.name,
-            "target_dataset": start_vars['corr_dataset'],
-            "return_results": n_top
-            }
+    return {
+        "correlation_results": results,
+        "this_trait": this_trait.name,
+        "target_dataset": start_vars['corr_dataset'],
+        "return_results": n_top
+    }
