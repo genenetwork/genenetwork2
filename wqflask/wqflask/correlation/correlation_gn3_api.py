@@ -194,46 +194,13 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     method -- Correlation method to be used (pearson, spearman, or bicor)
     compute_all -- Include sample, tissue, and literature correlations (when applicable)
     """
-    # pylint: disable-msg=too-many-locals
+    from wqflask.correlation.rust_correlation import compute_correlation_rust
 
     corr_type = start_vars['corr_type']
-
     method = start_vars['corr_sample_method']
     corr_return_results = int(start_vars.get("corr_return_results", 100))
-    corr_input_data = {}
-
-    from wqflask.correlation.rust_correlation import compute_correlation_rust
-    rust_correlation_results = compute_correlation_rust(
-        start_vars, corr_type, method, corr_return_results)
-    correlation_results = rust_correlation_results["correlation_results"]
-
-    if corr_type == "lit":# elif corr_type == "lit":
-        (this_dataset, this_trait, target_dataset,
-         sample_data) = create_target_this_trait(start_vars)
-        target_dataset_type = target_dataset.type
-        this_dataset_type = this_dataset.type
-        (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
-            this_trait, this_dataset)
-
-        conn = database_connector()
-        with conn:
-            correlation_results = compute_all_lit_correlation(
-                conn=conn, trait_lists=list(geneid_dict.items()),
-                species=species, gene_id=this_trait_geneid)
-
-    correlation_results = correlation_results[0:corr_return_results]
-
-    if (compute_all):
-        correlation_results = compute_corr_for_top_results(
-            start_vars, correlation_results, this_trait, this_dataset,
-            target_dataset, corr_type)
-
-    return {
-        "correlation_results": correlation_results,
-        "this_trait": this_trait.name,
-        "target_dataset": start_vars['corr_dataset'],
-        "return_results": corr_return_results
-    }
+    return compute_correlation_rust(
+        start_vars, corr_type, method, corr_return_results, compute_all)
 
 
 def compute_corr_for_top_results(start_vars,
