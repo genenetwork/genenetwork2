@@ -188,6 +188,8 @@ class SearchResultPage:
 
                 trait_dict['additive'] = "N/A" if not result[8] else f"{result[8]:.3f}"
 
+            trait_dict['trait_info_str'] = trait_info_str(trait_dict, self.dataset.type)
+
             # Convert any bytes in dict to a normal utf-8 string
             for key in trait_dict.keys():
                 if isinstance(trait_dict[key], bytes):
@@ -332,6 +334,49 @@ class SearchResultPage:
         else:
             return None
 
+def trait_info_str(trait, dataset_type):
+    """Provide a string representation for given trait"""
+    def __trait_desc(trt):
+        if dataset_type == "Geno":
+            return f"Marker: {trait['display_name']}"
+        return trait['description'] or "N/A"
+
+    def __symbol(trt):
+        if dataset_type == "ProbeSet":
+            return (trait['symbol'] or "N/A")[:20]
+
+    def __lrs(trt):
+        if dataset_type == "Geno":
+            return 0
+        else:
+            if trait['lod_score'] != "N/A":
+                return (
+                    f"{float(trait['lod_score']):0.3f}" if float(trait['lod_score']) > 0
+                    else f"{trait['lod_score']}")
+            else:
+                return "N/A"
+
+    def __lrs_location(trt):
+        if 'lrs_location' in trait:
+            return trait['lrs_location']
+        else:
+            return "N/A"
+
+    def __location(trt):
+        if 'location' in trait:
+            return trait['location']
+        else:
+            return None
+
+    def __mean(trt):
+        if 'mean' in trait:
+            return trait['mean']
+        else:
+            return 0
+
+    return "{}|||{}|||{}|||{}|||{}|||{}|||{}|||{}".format(
+        trait['display_name'], trait['dataset'], __trait_desc(trait), __symbol(trait),
+        __location(trait), __mean(trait), __lrs(trait), __lrs_location(trait))
 
 def get_GO_symbols(a_search):
     query = """SELECT genes
