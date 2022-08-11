@@ -32,25 +32,23 @@ def check_sample_correlations(baseurl):
     assert (result.text.find(top_n_message) >= 0), result.text
 
 def check_tissue_correlations(baseurl):
-    print("\tChecking tissue correlations...", end="")
     data = {
         "corr_type": "tissue",
         "corr_sample_method": "pearson",
         "location_type": "gene",
     }
-    top_n_message = "The top 100 correlations ranked by the Genetic Correlation"
+    top_n_message = "The top 100 correlations ranked by the Tissue Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
     assert (result.text.find("Values of record 1435464_at") >= 0), result.text
     assert (result.text.find(top_n_message) >= 0), result.text
 
 def check_lit_correlations(baseurl):
-    print("\tChecking lit correlations...", end="")
     data = {
         "corr_type": "lit",
         "corr_return_results": "200"
     }
-    top_n_message = "The top 500 correlations ranked by the Genetic Correlation"
+    top_n_message = "The top 200 correlations ranked by the Lit Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
     assert (result.text.find("Values of record 1435464_at") >= 0), result.text
