@@ -121,12 +121,9 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
         results_dict['dataset'] = target_dataset['name']
         results_dict['hmac'] = hmac.data_hmac(
             '{}:{}'.format(target_trait['name'], target_dataset['name']))
-        if "corr_coefficient" in trait:
-            results_dict['sample_r'] = f"{float(trait['corr_coefficient']):.3f}"
-        if "num_overlap" in trait:
-            results_dict['num_overlap'] = trait['num_overlap']
-        if "p_value" in trait:
-            results_dict['sample_p'] = f"{float(trait['p_value']):.3e}"
+        results_dict['sample_r'] = f"{float(trait['corr_coefficient']):.3f}"
+        results_dict['num_overlap'] = trait['num_overlap']
+        results_dict['sample_p'] = f"{float(trait['p_value']):.3e}"
         if target_dataset['type'] == "ProbeSet":
             results_dict['symbol'] = target_trait['symbol']
             results_dict['description'] = "N/A"
