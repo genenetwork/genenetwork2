@@ -173,6 +173,25 @@ check the logs. If there is ERROR 1054 (42S22): Unknown column
 'InbredSet.Family' in 'field list' it may be you are trying the small
 database.
 
+### Run Scripts
+
+As part of the profiling effort, some scripts are added to run specific parts of the system under a profiler without running the entire web-server - as such, to run the script, you could do something like:
+
+```
+env HOME=/home/frederick \
+    GN2_PROFILE=~/opt/gn2-latest \
+    GN3_DEV_REPO_PATH=~/genenetwork/genenetwork3 \
+    SQL_URI="mysql://username:password@host-ip:host-port/db_webqtl" \
+    SERVER_PORT=5001 \
+    bin/genenetwork2 ../gn2_settings.py \
+    -cli python3 -m scripts.profile_corrs \
+	../performance_$(date +"%Y%m%dT%H:%M:%S").profile
+```
+
+and you can find the performance metrics at the file specified, in this case, a file starting with `performance_` with the date and time of the run, and ending with `.profile`.
+
+Please replace the environment variables in the sample command above with the appropriate values for your environment.
+
 ## Documentation
 
 User documentation can be found
