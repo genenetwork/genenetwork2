@@ -1374,7 +1374,7 @@ class DisplayMappingResults:
 
             if (geneEndPix < xLeftOffset):
                 return  # this gene is not on the screen
-            elif (geneEndPix > xLeftOffset + plotWidth):
+            if (geneEndPix > xLeftOffset + plotWidth):
                 geneEndPix = xLeftOffset + plotWidth  # clip the last in-range gene
             if (geneStartPix > xLeftOffset + plotWidth):
                 return  # we are outside the valid on-screen range, so stop drawing genes
