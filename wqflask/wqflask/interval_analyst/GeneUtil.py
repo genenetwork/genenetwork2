@@ -22,10 +22,8 @@ def load_homology(chr_name, start_mb, end_mb, source_file):
             }
 
             if str(this_dict["ref_chr"]) == str(chr_name) and \
-                ((this_dict["ref_start"]>= start_mb and this_dict["ref_end"] <= end_mb) or
-                    (this_dict["ref_start"] < start_mb and this_dict["ref_end"] <= end_mb) or
-                    (this_dict["ref_start"] >= start_mb and this_dict["ref_end"] > end_mb) or
-                    (this_dict["ref_start"] < start_mb and this_dict["ref_end"] > end_mb)):
+                    this_dict["ref_start"] < end_mb and \
+                    this_dict["ref_end"] > start_mb:
                 homology_list.append(this_dict)
 
     return homology_list
