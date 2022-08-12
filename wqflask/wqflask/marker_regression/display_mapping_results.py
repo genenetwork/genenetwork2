@@ -1398,61 +1398,54 @@ class DisplayMappingResults:
                 geneYLocation += 3 * self.BAND_HEIGHT + 3 * self.BAND_SPACING
 
             # draw the detail view
-            if self.endMb - self.startMb <= self.DRAW_DETAIL_MB and geneEndPix - geneStartPix > self.EACH_GENE_ARROW_SPACING * 3:
-                utrColor = ImageColor.getrgb("rgb(66%, 66%, 66%)")
-                arrowColor = ImageColor.getrgb("rgb(70%, 70%, 70%)")
+            utrColor = ImageColor.getrgb("rgb(66%, 66%, 66%)")
+            arrowColor = ImageColor.getrgb("rgb(70%, 70%, 70%)")
 
-                # draw the line that runs the entire length of the gene
-                im_drawer.line(
-                    xy=(
-                        (geneStartPix, geneYLocation + \
-                         self.EACH_GENE_HEIGHT / 2 * zoom),
-                        (geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT / 2 * zoom)),
-                    fill=outlineColor, width=1)
+            # draw the line that runs the entire length of the gene
+            im_drawer.line(
+                xy=(
+                    (geneStartPix, geneYLocation + \
+                        self.EACH_GENE_HEIGHT / 2 * zoom),
+                    (geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT / 2 * zoom)),
+                fill=outlineColor, width=1)
 
-                # draw the arrows
-                if geneEndPix - geneStartPix < 1:
-                    genePixRange = 1
-                else:
-                    genePixRange = int(geneEndPix - geneStartPix)
-                for xCoord in range(0, genePixRange):
-
-                    if (xCoord % self.EACH_GENE_ARROW_SPACING == 0 and xCoord + self.EACH_GENE_ARROW_SPACING < geneEndPix - geneStartPix) or xCoord == 0:
-                        if query_strand == "+":
-                            im_drawer.line(
-                                xy=((geneStartPix + xCoord, geneYLocation),
-                                    (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
-                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
-                                fill=arrowColor, width=1)
-                            im_drawer.line(
-                                xy=((geneStartPix + xCoord,
-                                     geneYLocation + self.EACH_GENE_HEIGHT * zoom),
-                                    (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
-                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
-                                fill=arrowColor, width=1)
-                        else:
-                            im_drawer.line(
-                                xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
-                                     geneYLocation),
-                                    (geneStartPix + xCoord,
-                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
-                                fill=arrowColor, width=1)
-                            im_drawer.line(
-                                xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
-                                     geneYLocation + self.EACH_GENE_HEIGHT * zoom),
-                                    (geneStartPix + xCoord,
-                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
-                                fill=arrowColor, width=1)
-            # draw the genes as rectangles
+            # draw the arrows
+            if geneEndPix - geneStartPix < 1:
+                genePixRange = 1
             else:
-                im_drawer.rectangle(
-                    xy=((geneStartPix, geneYLocation),
-                        (geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT * zoom))),
-                    outline=outlineColor, fill=fillColor)
+                genePixRange = int(geneEndPix - geneStartPix)
+            for xCoord in range(0, genePixRange):
+
+                if (xCoord % self.EACH_GENE_ARROW_SPACING == 0 and xCoord + self.EACH_GENE_ARROW_SPACING < geneEndPix - geneStartPix) or xCoord == 0:
+                    if query_strand == "+":
+                        im_drawer.line(
+                            xy=((geneStartPix + xCoord, geneYLocation),
+                                (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                    geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                            fill=arrowColor, width=1)
+                        im_drawer.line(
+                            xy=((geneStartPix + xCoord,
+                                    geneYLocation + self.EACH_GENE_HEIGHT * zoom),
+                                (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                    geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                            fill=arrowColor, width=1)
+                    else:
+                        im_drawer.line(
+                            xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                    geneYLocation),
+                                (geneStartPix + xCoord,
+                                    geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                            fill=arrowColor, width=1)
+                        im_drawer.line(
+                            xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                    geneYLocation + self.EACH_GENE_HEIGHT * zoom),
+                                (geneStartPix + xCoord,
+                                    geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                            fill=arrowColor, width=1)
 
             COORDS = "%d, %d, %d, %d" % (
                 geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
-            # NL: 06-02-2011 Rob required to display NCBI info in a new window
+
             gifmap.append(
                 HtmlGenWrapper.create_area_tag(
                     shape='rect',
