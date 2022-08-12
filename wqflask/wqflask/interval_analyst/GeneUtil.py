@@ -9,16 +9,21 @@ def load_homology(chr_name, start_mb, end_mb, source_file):
         for line in h_file:
             line_items = line.split()
             this_dict = {
-                "mm10_chr": line_items[2][3:],
-                "mm10_start": float(line_items[5])/1000000,
-                "mm10_end": float(line_items[6])/1000000,
-                "hg38_chr": line_items[7][3:],
-                "hg38_strand": line_items[9],
-                "hg38_start": float(line_items[10])/1000000,
-                "hg38_end": float(line_items[11])/1000000
+                "ref_chr": line_items[2][3:],
+                "ref_strand": line_items[4],
+                "ref_start": float(line_items[5])/1000000,
+                "ref_end": float(line_items[6])/1000000,
+                "query_chr": line_items[7][3:],
+                "query_strand": line_items[9],
+                "query_start": float(line_items[10])/1000000,
+                "query_end": float(line_items[11])/1000000
             }
 
-            if str(this_dict["mm10_chr"]) == str(chr_name) and this_dict["mm10_start"]>= start_mb and this_dict["mm10_end"] <= end_mb:
+            if str(this_dict["ref_chr"]) == str(chr_name) and
+                ((this_dict["ref_start"]>= start_mb and this_dict["ref_end"] <= end_mb) or
+                    (this_dict["ref_start"] < start_mb and this_dict["ref_end"] <= end_mb) or
+                    (this_dict["ref_start"] >= start_mb and this_dict["ref_end"] > end_mb) or
+                    (this_dict["ref_start"] < start_mb and this_dict["ref_end"] > end_mb)):
                 homology_list.append(this_dict)
 
     return homology_list
