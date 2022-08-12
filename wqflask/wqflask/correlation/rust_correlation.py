@@ -135,6 +135,7 @@ def compute_correlation_rust(
     (this_dataset, this_trait, target_dataset, sample_data) = (
         target_trait_info)
 
+    ## Replace this with `match ...` once we hit Python 3.10
     corr_type_fns = {
         "sample": __compute_sample_corr__,
         "tissue": __compute_tissue_corr__,
@@ -142,6 +143,7 @@ def compute_correlation_rust(
     }
     results = corr_type_fns[corr_type](
         start_vars, corr_type, method, n_top, target_trait_info)
+    ## END: Replace this with `match ...` once we hit Python 3.10
 
     top_tissue_results = {}
     top_lit_results = {}

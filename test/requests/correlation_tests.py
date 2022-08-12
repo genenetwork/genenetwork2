@@ -12,6 +12,7 @@ def do_request(url, data):
             "dataset": "HC_M2_0606_P",
             "trait_id": "1435464_at",
             "corr_dataset": "HC_M2_0606_P",
+            "corr_sample_method": "pearson",
             "corr_return_results": "100",
             "corr_samples_group": "samples_primary",
             "sample_vals": sample_vals(),
@@ -34,7 +35,6 @@ def check_sample_correlations(baseurl):
 def check_tissue_correlations(baseurl):
     data = {
         "corr_type": "tissue",
-        "corr_sample_method": "pearson",
         "location_type": "gene",
     }
     top_n_message = "The top 100 correlations ranked by the Tissue Correlation"
@@ -58,12 +58,13 @@ def check_correlations(args_obj, parser):
     print("")
     print("Checking the correlations...")
     corr_type_fns = {
-        "sample": check_sample_correlations,}
+        "sample": check_sample_correlations,
+        "tissue": check_tissue_correlations,
+        "tissue": check_lit_correlations
+    }
     host = args_obj.host
     for corr_type, corr_type_fn in corr_type_fns.items():
         print(f"\tChecking {corr_type} correlations...", end="")
         corr_type_fn(host)
         print(" ok")
-    check_tissue_correlations(host)
-    check_lit_correlations(host)
     print("OK")
