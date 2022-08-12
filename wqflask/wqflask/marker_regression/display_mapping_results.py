@@ -1356,41 +1356,42 @@ class DisplayMappingResults:
         yPaddingTop = yTopOffset
 
         for index, homology_dict in enumerate(self.homology):
-            if self.dataset.group.species == "mouse":
-                mm10_start = homology_dict["mm10_start"]
-                mm10_end = homology_dict["mm10_end"]
-                hg38_chr = homology_dict["hg38_chr"]
-                hg38_strand = homology_dict["hg38_strand"]
-                hg38_start = homology_dict["hg38_start"]
-                hg38_end = homology_dict["hg38_end"]
-                geneLength = (mm10_end - mm10_start) * 1000.0
-                tenPercentLength = geneLength * 0.0001
+            ref_strand = homology_dict["ref_strand"]
+            ref_start = homology_dict["ref_start"]
+            ref_end = homology_dict["ref_end"]
+            query_chr = homology_dict["query_chr"]
+            query_strand = homology_dict["query_strand"]
+            query_start = homology_dict["query_start"]
+            query_end = homology_dict["query_end"]
 
-                geneStartPix = xLeftOffset + \
-                    plotXScale * (float(mm10_start) - startMb)
-                geneEndPix = xLeftOffset + plotXScale * \
-                    (float(mm10_end) - startMb)  # at least one pixel
+            geneLength = (ref_end - ref_start) * 1000.0
+            tenPercentLength = geneLength * 0.0001
 
-                if (geneEndPix < xLeftOffset):
-                    return  # this gene is not on the screen
-                elif (geneEndPix > xLeftOffset + plotWidth):
-                    geneEndPix = xLeftOffset + plotWidth  # clip the last in-range gene
-                if (geneStartPix > xLeftOffset + plotWidth):
-                    return  # we are outside the valid on-screen range, so stop drawing genes
-                elif (geneStartPix < xLeftOffset):
-                    geneStartPix = xLeftOffset  # clip the first in-range gene
+            geneStartPix = xLeftOffset + \
+                plotXScale * (float(ref_start) - startMb)
+            geneEndPix = xLeftOffset + plotXScale * \
+                (float(ref_end) - startMb)  # at least one pixel
 
-                # color the gene based on SNP density
-                # found earlier, needs to be recomputed as snps are added
-                # always apply colors now, even if SNP Track not checked - Zach 11/24/2010
+            if (geneEndPix < xLeftOffset):
+                return  # this gene is not on the screen
+            elif (geneEndPix > xLeftOffset + plotWidth):
+                geneEndPix = xLeftOffset + plotWidth  # clip the last in-range gene
+            if (geneStartPix > xLeftOffset + plotWidth):
+                return  # we are outside the valid on-screen range, so stop drawing genes
+            elif (geneStartPix < xLeftOffset):
+                geneStartPix = xLeftOffset  # clip the first in-range gene
 
-                myColor = BLACK
+            # color the gene based on SNP density
+            # found earlier, needs to be recomputed as snps are added
+            # always apply colors now, even if SNP Track not checked - Zach 11/24/2010
 
-                outlineColor = myColor
-                fillColor = myColor
+            myColor = BLACK
 
-                TITLE = f"hg38: Chr {hg38_chr} from {hg38_start:.3f} to {hg38_end:.3f} Mb"
-                HREF = f"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{hg38_chr}:{int(hg38_start * 1000000)}-{int(hg38_end * 1000000)}"
+            outlineColor = myColor
+            fillColor = myColor
+
+            TITLE = f"hg38: Chr {hg38_chr} from {hg38_start:.3f} to {hg38_end:.3f} Mb"
+            HREF = f"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{hg38_chr}:{int(hg38_start * 1000000)}-{int(hg38_end * 1000000)}"
 
             # Draw Genes
             geneYLocation = yPaddingTop + \
