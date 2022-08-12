@@ -2,9 +2,11 @@ import string
 
 from wqflask.database import database_connection
 
+from utility.tools import flat_files
+
 def load_homology(chr_name, start_mb, end_mb, source_file):
     homology_list = []
-    with open(source_file) as h_file:
+    with open(flat_files("homology/") + source_file) as h_file:
         current_chr = 0
         for line in h_file:
             line_items = line.split()
@@ -19,7 +21,7 @@ def load_homology(chr_name, start_mb, end_mb, source_file):
                 "query_end": float(line_items[11])/1000000
             }
 
-            if str(this_dict["ref_chr"]) == str(chr_name) and
+            if str(this_dict["ref_chr"]) == str(chr_name) and \
                 ((this_dict["ref_start"]>= start_mb and this_dict["ref_end"] <= end_mb) or
                     (this_dict["ref_start"] < start_mb and this_dict["ref_end"] <= end_mb) or
                     (this_dict["ref_start"] >= start_mb and this_dict["ref_end"] > end_mb) or
