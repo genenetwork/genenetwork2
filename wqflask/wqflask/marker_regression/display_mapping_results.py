@@ -1381,17 +1381,13 @@ class DisplayMappingResults:
             elif (geneStartPix < xLeftOffset):
                 geneStartPix = xLeftOffset  # clip the first in-range gene
 
-            # color the gene based on SNP density
-            # found earlier, needs to be recomputed as snps are added
-            # always apply colors now, even if SNP Track not checked - Zach 11/24/2010
-
             myColor = BLACK
 
             outlineColor = myColor
             fillColor = myColor
 
-            TITLE = f"hg38: Chr {hg38_chr} from {hg38_start:.3f} to {hg38_end:.3f} Mb"
-            HREF = f"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{hg38_chr}:{int(hg38_start * 1000000)}-{int(hg38_end * 1000000)}"
+            TITLE = f"hg38: Chr {query_chr} from {query_start:.3f} to {query_end:.3f} Mb"
+            HREF = f"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{query_chr}:{int(query_start * 1000000)}-{int(query_end * 1000000)}"
 
             # Draw Genes
             geneYLocation = yPaddingTop + \
@@ -1422,7 +1418,7 @@ class DisplayMappingResults:
                 for xCoord in range(0, genePixRange):
 
                     if (xCoord % self.EACH_GENE_ARROW_SPACING == 0 and xCoord + self.EACH_GENE_ARROW_SPACING < geneEndPix - geneStartPix) or xCoord == 0:
-                        if hg38_strand == "+":
+                        if query_strand == "+":
                             im_drawer.line(
                                 xy=((geneStartPix + xCoord, geneYLocation),
                                     (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
