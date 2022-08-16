@@ -229,7 +229,7 @@ def __compute_lit_corr__(
 
 def compute_correlation_rust(
         start_vars: dict, corr_type: str, method: str = "pearson",
-        n_top: int = 500, compute_all: bool = False):
+        n_top: int = 500, should_compute_all: bool = False):
     """function to compute correlation"""
     target_trait_info = create_target_this_trait(start_vars)
     (this_dataset, this_trait, target_dataset, sample_data) = (
@@ -248,7 +248,7 @@ def compute_correlation_rust(
 
     top_a = top_b = {}
 
-    if compute_all:
+    if should_compute_all:
 
         if corr_type == "sample":
 
