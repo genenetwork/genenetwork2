@@ -33,7 +33,7 @@ def chunk_dataset(dataset,steps,name):
 
         curr.execute(query)
 
-        traits_name_dict = curr.fetchall()
+        traits_name_dict = dict(curr.fetchall())
 
     for i in range(0, len(dataset), steps):
         matrix = list(dataset[i:i + steps])
