@@ -163,10 +163,9 @@ def merge_results(dict_a: dict, dict_b: dict, dict_c: dict) -> list[dict]:
                 **dict_c.get(trait_name, {})
             }
         }
-    results = [__merge__(tname, tcorrs) for tname, tcorrs in dict_a.items()]
+    return [__merge__(tname, tcorrs) for tname, tcorrs in dict_a.items()]
 
 
-    return results
 
 
 def __compute_sample_corr__(
@@ -250,8 +249,6 @@ def compute_correlation_rust(
 
 
     top_a = top_b = {}
-
-    compute_all  =  True
 
     if compute_all:
 
