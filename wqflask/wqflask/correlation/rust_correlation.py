@@ -122,9 +122,9 @@ def __compute_lit_corr__(
         this_trait, this_dataset)
 
     with database_connector() as conn:
-        return compute_all_lit_correlation(
+        return dict(compute_all_lit_correlation(
             conn=conn, trait_lists=list(geneid_dict.items()),
-            species=species, gene_id=this_trait_geneid)
+            species=species, gene_id=this_trait_geneid))
     return {}
 
 def compute_correlation_rust(
