@@ -1,7 +1,6 @@
 """module contains integration code for rust-gn3"""
 import json
 from functools import reduce
-from flask import g
 from utility.db_tools import mescape
 from utility.db_tools import create_in_clause
 from wqflask.correlation.correlation_functions import get_trait_symbol_and_tissue_values
@@ -29,8 +28,12 @@ def chunk_dataset(dataset,steps,name):
                   ProbeSetXRef.ProbeSetId = ProbeSet.Id
     """.format(name)
 
-    traits_name_dict = dict(g.db.execute(query).fetchall())
+    with database_connector() as conn:
+        curr = conn.cursor()
 
+        curr.execute(query)
+
+        traits_name_dict = curr.fetchall()
 
     for i in range(0, len(dataset), steps):
         matrix = list(dataset[i:i + steps])
@@ -45,7 +48,7 @@ def chunk_dataset(dataset,steps,name):
 def compute_top_n_sample(start_vars, dataset, trait_list):
     """check if dataset is of type probeset"""
 
-    if dataset.type!= "Probeset":
+    if dataset.type.lower()!= "probeset":
         return  {}
 
     def __fetch_sample_ids__(samples_vals, samples_group):
@@ -247,6 +250,8 @@ def compute_correlation_rust(
 
 
     top_a = top_b = {}
+
+    compute_all  =  True
 
     if compute_all:
 
