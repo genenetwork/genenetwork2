@@ -876,7 +876,7 @@ def test_corr_compute_page():
     correlation_results = compute_correlation_rust(start_vars,
                                                    start_vars["corr_type"],
                                                    start_vars['corr_sample_method'],
-                                                   int(start_vars.get("corr_return_results", 500)))
+                                                   int(start_vars.get("corr_return_results", 500)),True)
 
     correlation_results = set_template_vars(request.form, correlation_results)
 
