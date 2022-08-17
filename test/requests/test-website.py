@@ -19,11 +19,24 @@ from unittest import TestSuite, TextTestRunner, TestLoader
 
 print("Mechanical Rob firing up...")
 
+def host_is_online(host):
+    import time
+    import requests
+    for count in range(1, 11):
+        try:
+            time.sleep(count)
+            requests.get(host)
+            return True
+        except Exception as cre:
+            print(f"Retrying in {count + 1} seconds ...")
+
+    return False
 
 def run_all(args_obj, parser):
     print("")
     print("Running all tests.")
     print(args_obj)
+    assert host_is_online(args_obj.host), f"Could not connect to {host}"
     link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
