@@ -15,6 +15,34 @@ from gn3.computations.rust_correlation import parse_tissue_corr_data
 from gn3.db_utils import database_connector
 
 
+def query_probes_metadata(dataset, results):
+
+    """query traits metadata in bulk for probeset"""
+
+    with database_connector() as conn:
+        with conn.cursor() as cursor:
+
+            query = """
+                    SELECT ProbeSet.Name,ProbeSet.Chr,ProbeSet.Mb,
+                    Symbol,mean,description,additive,LRS,Geno.Chr, Geno.Mb
+                    from Geno, Species,ProbeSet,ProbeSetXRef,ProbeSetFreeze
+                    where ProbeSet.Name in ({}) and
+                    Species.Name = %s and
+                    Geno.Name = ProbeSetXRef.Locus and
+                    Geno.SpeciesId = Species.Id and
+                    ProbeSet.Id=ProbeSetXRef.ProbeSetId and
+                    ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
+                    ProbeSetFreeze.Name = %s
+                """.format(", ".join(["%s"] * len(trait_list)))
+
+            cursor.execute(query,
+                           (tuple(trait_list) +
+                            (dataset.group.species,) + (dataset.name,))
+                           )
+
+            return cursor.fetchall()
+
+
 def chunk_dataset(dataset, steps, name):
 
     results = []
