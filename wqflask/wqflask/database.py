@@ -8,16 +8,6 @@ import importlib
 
 import MySQLdb
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-def read_from_pyfile(pyfile, setting):
-    orig_sys_path = sys.path[:]
-    sys.path.insert(0, os.path.dirname(pyfile))
-    module = importlib.import_module(os.path.basename(pyfile).strip(".py"))
-    sys.path = orig_sys_path[:]
-    return module.__dict__.get(setting)
 
 def sql_uri():
     """Read the SQL_URI from the environment or settings file."""
