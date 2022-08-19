@@ -48,7 +48,7 @@ def check_lit_correlations(baseurl):
         "corr_type": "lit",
         "corr_return_results": "200"
     }
-    top_n_message = "The top 200 correlations ranked by the Lit Correlation"
+    top_n_message = "The top 200 correlations ranked by the Literature Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
     assert (result.text.find("Values of record 1435464_at") >= 0), result.text
@@ -60,7 +60,7 @@ def check_correlations(args_obj, parser):
     corr_type_fns = {
         "sample": check_sample_correlations,
         "tissue": check_tissue_correlations,
-        "tissue": check_lit_correlations
+        "lit": check_lit_correlations
     }
     host = args_obj.host
     for corr_type, corr_type_fn in corr_type_fns.items():
