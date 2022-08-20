@@ -19,7 +19,7 @@
         <h3>This collection has {{ '{}'.format(numify(trait_obs|count, "record", "records")) }}</h3>
 
         <div class="tool-button-container">
-          <form id="collection_form" action="/delete" method="post" target="_blank">
+          <form id="collection_form" action="/delete" method="post">
             <input type="hidden" name="uc_id" id="uc_id" value="{{ uc.id }}" />
             <input type="hidden" name="collection_name" id="collection_name" value="{{ uc.name }}" />
             <input type="hidden" name="tool_used" value="" />
@@ -242,13 +242,14 @@
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);
-                e.stopImmediatePropagation();
-                return $("#collection_form").submit();
+                $("#collection_form").attr('target', '_blank').submit();
+                return false;
             };
 
             $("#delete").on("click", function() {
                 url = $(this).data("url")
-                return submit_special(url)
+                $("#collection_form").attr("action", url);
+                return $("#collection_form").removeAttr('target').submit();
             });
 
             $("#remove").on("click", function() {
@@ -257,8 +258,8 @@
                     return $(this).val();
                 }).get();
                 $("#trait_list").val(traits)
-
-                return submit_special(url)
+                $("#collection_form").attr("action", url);
+                return $("#collection_form").removeAttr('target').submit();
             });
 
             $("#change_collection_name").on("click", function() {
