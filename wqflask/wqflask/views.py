@@ -100,32 +100,30 @@ from utility.benchmark import Bench
 from pprint import pformat as pf
 
 
-import utility.logger
-
 Redis = get_redis_conn()
-
-logger = utility.logger.getLogger(__name__)
 
 
 @app.before_request
 def connect_db():
     db = getattr(g, '_database', None)
     if request.endpoint not in ("static", "js") and db is None:
-        logger.debug(
-            f"Creating a database connection\n"
-            f"\t\tfor request: {request.endpoint}")
-        g.db = g._database = sqlalchemy.create_engine(
-            SQL_URI, encoding="latin1")
+        try:
+            g.db = sqlalchemy.create_engine(
+                SQL_URI, encoding="latin1")
+        except Exception:  # Capture everything
+            app.logger.error(f"DATABASE: Error creating connection for: {request.endpoint}")
 
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
-        logger.debug(f"Removing the session")
-        g.db.dispose()
-        g.db = None
-        logger.debug(f"g.db: {g.db}\n\tg._database: {g._database}")
+        try:
+            g.db.dispose()
+        except Exception:  # Capture Everything
+            app.logger.error(f"DATABASE: Error disposing: {g.db=}")
+        finally:  # Reset regardless of what happens
+            g.db = None
 
 
 @app.errorhandler(Exception)
