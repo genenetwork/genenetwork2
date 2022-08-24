@@ -205,7 +205,7 @@ def __compute_lit_corr__(
     target_dataset_type = target_dataset.type
     this_dataset_type = this_dataset.type
     (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
-        this_trait, this_dataset)
+        this_trait, target_dataset)
 
     with database_connector() as conn:
         return reduce(
