@@ -93,8 +93,7 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
     new_traits_metadata = {}
 
-    (file_path, dataset_metadata) = fetch_all_cached_metadata(
-        target_dataset['name'])
+    dataset_metadata = correlation_data["traits_metadata"]
 
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
@@ -186,10 +185,6 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
             results_dict['location'] = target_trait['location']
 
         results_list.append(results_dict)
-
-    cache_new_traits_metadata(dataset_metadata,
-                              new_traits_metadata,
-                              file_path)
 
     return json.dumps(results_list)
 
