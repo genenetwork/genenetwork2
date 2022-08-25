@@ -15,6 +15,53 @@ from gn3.computations.rust_correlation import parse_tissue_corr_data
 from gn3.db_utils import database_connector
 
 
+def query_probes_metadata(dataset, trait_list):
+    """query traits metadata in bulk for probeset"""
+
+    with database_connector() as conn:
+        with conn.cursor() as cursor:
+
+            query = """
+                    SELECT ProbeSet.Name,ProbeSet.Chr,ProbeSet.Mb,
+                    Symbol,mean,description,additive,LRS,Geno.Chr, Geno.Mb
+                    from Geno, Species,ProbeSet,ProbeSetXRef,ProbeSetFreeze
+                    where ProbeSet.Name in ({}) and
+                    Species.Name = %s and
+                    Geno.Name = ProbeSetXRef.Locus and
+                    Geno.SpeciesId = Species.Id and
+                    ProbeSet.Id=ProbeSetXRef.ProbeSetId and
+                    ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
+                    ProbeSetFreeze.Name = %s
+                """.format(", ".join(["%s"] * len(trait_list)))
+
+            cursor.execute(query,
+                           (tuple(trait_list) +
+                            (dataset.group.species,) + (dataset.name,))
+                           )
+
+            return cursor.fetchall()
+
+
+def get_metadata(dataset, traits):
+
+    return {trait_name: {
+            "name": trait_name,
+            "view": True,
+            "symbol": symbol,
+            "dataset": dataset.name,
+            "dataset_name": dataset.shortname,
+            "mean": mean,
+            "description": description,
+            "additive": additive,
+            "lrs_score": f"{lrs:3.1f}",
+            "location": f"Chr{probe_chr}: {probe_mb:.6f}",
+            "lrs_location": f"Chr{chr_score}: {mb:.6f}"
+
+            } for trait_name, probe_chr, probe_mb, symbol, mean, description,
+            additive, lrs, chr_score, mb
+            in query_probes_metadata(dataset, traits)}
+
+
 def chunk_dataset(dataset, steps, name):
 
     results = []
@@ -268,5 +315,6 @@ def compute_correlation_rust(
             results, top_a, top_b),
         "this_trait": this_trait.name,
         "target_dataset": start_vars['corr_dataset'],
+        "traits_metadata": get_metadata(target_dataset, list(results.keys())),
         "return_results": n_top
     }
