@@ -8,9 +8,6 @@ from utility import corr_result_helpers
 from scipy import stats
 import numpy as np
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 class CorrScatterPlot:
     """Page that displays a correlation scatterplot with a line fitted to it"""

@@ -15,9 +15,6 @@ from utility.benchmark import Bench
 from utility.authentication_tools import check_resource_availability
 from utility.type_checking import is_float, is_int, is_str, get_float, get_int, get_string
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 
 class GSearch:
 
@@ -65,7 +62,6 @@ class GSearch:
                 LIMIT 6000
                 """ % (self.terms)
             with Bench("Running query"):
-                logger.sql(sql)
                 re = g.db.execute(sql).fetchall()
 
             trait_list = []
@@ -210,7 +206,6 @@ class GSearch:
                 ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
                 LIMIT 6000
                 """.format(group_clause, search_term)
-            logger.sql(sql)
             re = g.db.execute(sql).fetchall()
             trait_list = []
             with Bench("Creating trait objects"):

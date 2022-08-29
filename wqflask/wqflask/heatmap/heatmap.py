@@ -8,11 +8,8 @@ from utility import helper_functions
 from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 from redis import Redis
 from flask import Flask, g
-from utility.logger import getLogger
 
 Redis = Redis()
-
-logger = getLogger(__name__)
 
 
 class Heatmap:

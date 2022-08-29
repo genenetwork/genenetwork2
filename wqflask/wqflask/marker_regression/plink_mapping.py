@@ -5,9 +5,6 @@ from base.webqtlConfig import TMPDIR
 from utility import webqtlUtil
 from utility.tools import flat_files, PLINK_COMMAND
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 def run_plink(this_trait, dataset, species, vals, maf):
     plink_output_filename = webqtlUtil.genRandStr(
@@ -15,13 +12,11 @@ def run_plink(this_trait, dataset, species, vals, maf):
     gen_pheno_txt_file(dataset, vals)
 
     plink_command = f"{PLINK_COMMAND}  --noweb --bfile {flat_files('mapping')}/{dataset.group.name} --no-pheno --no-fid --no-parents --no-sex --maf {maf} --out { TMPDIR}{plink_output_filename} --assoc "
-    logger.debug("plink_command:", plink_command)
 
     os.system(plink_command)
 
     count, p_values = parse_plink_output(plink_output_filename, species)
 
-    logger.debug("p_values:", p_values)
     dataset.group.markers.add_pvalues(p_values)
 
     return dataset.group.markers.markers

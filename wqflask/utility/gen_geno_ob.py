@@ -1,7 +1,3 @@
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
-
 class genotype:
     """
     Replacement for reaper.Dataset so we can remove qtlreaper use while still generating mapping output figure

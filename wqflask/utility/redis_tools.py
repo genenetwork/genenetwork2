@@ -5,8 +5,6 @@ import datetime
 import redis  # used for collections
 
 from utility.hmac import hmac_creation
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 
 def get_redis_conn():

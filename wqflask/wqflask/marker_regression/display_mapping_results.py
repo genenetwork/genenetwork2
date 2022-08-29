@@ -47,12 +47,11 @@ from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
-import utility.logger
+
 try:  # Only import this for Python3
     from functools import reduce
 except:
     pass
-logger = utility.logger.getLogger(__name__)
 
 RED = ImageColor.getrgb("red")
 BLUE = ImageColor.getrgb("blue")
@@ -247,8 +246,6 @@ class DisplayMappingResults:
     HELP_PAGE_REF = '/glossary.html'
 
     def __init__(self, start_vars):
-        logger.info("Running qtlreaper")
-
         self.temp_uuid = start_vars['temp_uuid']
 
         self.dataset = start_vars['dataset']

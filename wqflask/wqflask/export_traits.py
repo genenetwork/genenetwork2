@@ -14,8 +14,6 @@ from gn3.computations.gemma import generate_hash_of_string
 
 from base.trait import create_trait, retrieve_trait_info
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 def export_traits(targs, export_type):
     if export_type == "collection":

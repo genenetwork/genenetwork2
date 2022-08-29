@@ -10,9 +10,6 @@ from base.trait import GeneralTrait
 from base.data_set import create_dataset
 from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
     """Generates p-values for each marker using qtlreaper"""
@@ -67,8 +64,6 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
                               opt_list),
                               webqtlConfig.GENERATED_IMAGE_DIR,
                               output_filename))
-
-        logger.debug("reaper_command:" + reaper_command)
         os.system(reaper_command)
     else:
         output_filename, permu_filename, bootstrap_filename = output_files

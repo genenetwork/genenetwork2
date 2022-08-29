@@ -21,9 +21,6 @@
 # Created by GeneNetwork Core Team 2010/08/10
 
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 import utility.tools
 
 utility.tools.show_settings()

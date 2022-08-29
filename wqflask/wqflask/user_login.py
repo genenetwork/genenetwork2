@@ -2,7 +2,6 @@ import os
 import hashlib
 import datetime
 import time
-import logging
 import uuid
 import hmac
 import base64
@@ -20,9 +19,6 @@ from wqflask.user_session import UserSession
 from utility import hmac
 from utility.redis_tools import is_redis_available, get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
 Redis = get_redis_conn()
-
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 from smtplib import SMTP
 from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY, GN2_BRANCH_URL
@@ -129,7 +125,6 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
         server.sendmail(fromaddr, toaddr, msg)
         server.quit()
-    logger.info("Successfully sent email to " + toaddr)
 
 
 def send_verification_email(user_details, template_name="email/user_verification.txt", key_prefix="verification_code", subject="GeneNetwork e-mail verification"):
@@ -346,7 +341,6 @@ def get_github_user_details(access_token):
 
 @app.route("/n/logout")
 def logout():
-    logger.debug("Logging out...")
     UserSession().delete_session()
     flash("You are now logged out. We hope you come back soon!")
     response = make_response(redirect(url_for('index_page')))
@@ -404,7 +398,6 @@ def forgot_password_submit():
     email_address = params['email_address']
     next_page = None
     if email_address != "":
-        logger.debug("Wants to send password E-mail to ", email_address)
         user_details = get_user_by_unique_column(
             "email_address", email_address)
         if user_details:
@@ -425,8 +418,6 @@ def forgot_password_submit():
 @app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
-    logger.debug("in password_reset request.url is:", request.url)
-
     verification_code = request.args.get('code')
     hmac = request.args.get('hm')
 
@@ -446,8 +437,6 @@ def password_reset():
 @app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
-    logger.debug("in password_reset request.url is:", request.url)
-
     errors = []
     user_email = request.form['user_encode']
     user_id = get_user_id("email_address", user_email)
@@ -515,7 +504,6 @@ def register():
     params = params.to_dict(flat=True)
 
     if params:
-        logger.debug("Attempting to register the user...")
         errors = register_user(params)
 
         if len(errors) == 0:

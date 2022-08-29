@@ -25,8 +25,6 @@ from utility.authentication_tools import check_resource_availability
 from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_str
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 class SearchResultPage:
     #maxReturn = 3000
@@ -56,7 +54,6 @@ class SearchResultPage:
         rx = re.compile(
             r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
-            logger.debug("Regex failed search")
             self.search_term_exists = False
             return
         else:

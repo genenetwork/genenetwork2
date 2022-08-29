@@ -33,8 +33,7 @@ from math import *
 import utility.corestats as corestats
 from base import webqtlConfig
 from utility.pillow_utils import draw_rotated_text
-import utility.logger
-logger = utility.logger.getLogger(__name__)
+
 
 # ---- Define common colours ---- #
 BLUE = ImageColor.getrgb("blue")
@@ -105,7 +104,6 @@ def find_outliers(vals):
     """
 
     if vals:
-        #logger.debug("vals is:", pf(vals))
         stats = corestats.Stats(vals)
         low_hinge = stats.percentile(25)
         up_hinge = stats.percentile(75)

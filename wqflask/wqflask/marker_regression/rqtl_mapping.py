@@ -17,9 +17,6 @@ from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
 from utility.tools import locate, GN3_LOCAL_URL
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
