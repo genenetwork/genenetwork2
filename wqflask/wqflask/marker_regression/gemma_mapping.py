@@ -13,8 +13,6 @@ from utility.tools import TEMPDIR
 from utility.tools import WEBSERVER_MODE
 from gn3.computations.gemma import generate_hash_of_string
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
 
 GEMMAOPTS = "-debug"
 if WEBSERVER_MODE == 'PROD':

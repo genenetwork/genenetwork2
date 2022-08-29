@@ -13,8 +13,6 @@ from utility import hmac
 from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
 Redis = get_redis_conn()
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
@@ -54,7 +52,6 @@ def create_signed_cookie():
     the_uuid = str(uuid.uuid4())
     signature = hmac.hmac_creation(the_uuid)
     uuid_signed = the_uuid + ":" + signature
-    logger.debug("uuid_signed:", uuid_signed)
     return the_uuid, uuid_signed
 
 

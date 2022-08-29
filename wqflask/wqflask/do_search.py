@@ -13,10 +13,6 @@ import sys
 from db import webqtlDatabaseFunction
 from utility.tools import GN2_BASE_URL
 
-import logging
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 
 class DoSearch:
     """Parent class containing parameters/functions used for all searches"""
@@ -41,7 +37,6 @@ class DoSearch:
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        logger.sql(query)
         results = g.db.execute(query, no_parameters=True).fetchall()
         return results
 
@@ -55,7 +50,6 @@ class DoSearch:
     def mescape(self, *items):
         """Multiple escape"""
         escaped = [escape(str(item)) for item in items]
-        logger.debug("escaped is:", escaped)
         return tuple(escaped)
 
     def normalize_spaces(self, stringy):
@@ -68,8 +62,6 @@ class DoSearch:
         search_type_string = search_type['dataset_type']
         if 'key' in search_type and search_type['key'] != None:
             search_type_string += '_' + search_type['key']
-
-        logger.debug("search_type_string is:", search_type_string)
 
         if search_type_string in cls.search_types:
             return cls.search_types[search_type_string]
@@ -177,8 +169,6 @@ class MrnaAssaySearch(DoSearch):
 
     def run_combined(self, from_clause='', where_clause=''):
         """Generates and runs a combined search of an mRNA expression dataset"""
-
-        logger.debug("Running ProbeSetSearch")
         #query = self.base_query + from_clause + " WHERE " + where_clause
 
         from_clause = self.normalize_spaces(from_clause)
@@ -197,11 +187,8 @@ class MrnaAssaySearch(DoSearch):
 
     def run(self):
         """Generates and runs a simple search of an mRNA expression dataset"""
-
-        logger.debug("Running ProbeSetSearch")
         where_clause = self.get_where_clause()
         query = self.base_query + "WHERE " + where_clause + "ORDER BY ProbeSet.symbol ASC"
-
         return self.execute(query)
 
 
@@ -310,9 +297,6 @@ class PhenotypeSearch(DoSearch):
 
     def run_combined(self, from_clause, where_clause):
         """Generates and runs a combined search of an phenotype dataset"""
-
-        logger.debug("Running PhenotypeSearch")
-
         from_clause = self.normalize_spaces(from_clause)
 
         query = (self.base_query +
@@ -370,7 +354,6 @@ class GenotypeSearch(DoSearch):
             where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
                                                                                field),
                                                         self.search_term))
-        logger.debug("hello ;where_clause is:", pf(where_clause))
         where_clause = "(%s) " % ' OR '.join(where_clause)
 
         return where_clause
@@ -559,7 +542,6 @@ class LrsSearch(DoSearch):
                                                                        self.species_id)
         else:
             # Deal with >, <, >=, and <=
-            logger.debug("self.search_term is:", self.search_term)
             lrs_val = self.search_term[0]
             if self.search_type == "LOD":
                 lrs_val = lrs_val * 4.61
@@ -794,7 +776,6 @@ class MeanSearch(MrnaAssaySearch):
 
     def run(self):
         self.where_clause = self.get_where_clause()
-        logger.debug("where_clause is:", pf(self.where_clause))
 
         self.query = self.compile_final_query(where_clause=self.where_clause)
 
@@ -824,9 +805,6 @@ class RangeSearch(MrnaAssaySearch):
                                      FROM ProbeSetData
                                      WHERE ProbeSetData.Id = ProbeSetXRef.dataId) > %s
                                     """ % (escape(self.search_term[0]))
-
-        logger.debug("where_clause is:", pf(where_clause))
-
         return where_clause
 
     def run(self):
@@ -932,11 +910,7 @@ class PvalueSearch(MrnaAssaySearch):
                 self.search_operator,
                 self.search_term[0])
 
-        logger.debug("where_clause is:", pf(self.where_clause))
-
         self.query = self.compile_final_query(where_clause=self.where_clause)
-
-        logger.sql(self.query)
         return self.execute(self.query)
 
 

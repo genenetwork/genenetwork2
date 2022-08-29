@@ -26,9 +26,6 @@ from base.trait import GeneralTrait, retrieve_trait_info
 from base.species import TheSpecies
 from utility import helper_functions, corr_result_helpers
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 class SendToGeneWeaver:
     def __init__(self, start_vars):

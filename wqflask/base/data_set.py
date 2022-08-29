@@ -22,7 +22,6 @@ from dataclasses import field
 from dataclasses import InitVar
 from typing import Optional, Dict, List
 from db.call import fetchall, fetchone, fetch1
-from utility.logger import getLogger
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
 from db.gn_server import menu_main
 from pprint import pformat as pf
@@ -59,8 +58,6 @@ import datetime
 from redis import Redis
 
 r = Redis()
-
-logger = getLogger(__name__)
 
 # Used by create_database to instantiate objects
 # Each subclass will add to this
@@ -200,7 +197,6 @@ def create_datasets_list():
         result = r.get(key)
 
         if result:
-            logger.debug("Redis cache hit")
             datasets = pickle.loads(result)
 
     if result is None:
@@ -213,10 +209,6 @@ def create_datasets_list():
             for dataset_type in type_dict:
                 query = "SELECT Name FROM {}".format(type_dict[dataset_type])
                 for result in fetchall(query):
-                    # The query at the beginning of this function isn't
-                    # necessary here, but still would rather just reuse
-                    # it logger.debug("type: {}\tname:
-                    # {}".format(dataset_type, result.Name))
                     dataset = create_dataset(result.Name, dataset_type)
                     datasets.append(dataset)
 
@@ -259,9 +251,6 @@ class Markers:
         self.markers = markers
 
     def add_pvalues(self, p_values):
-        logger.debug("length of self.markers:", len(self.markers))
-        logger.debug("length of p_values:", len(p_values))
-
         if isinstance(p_values, list):
             # THIS IS only needed for the case when we are limiting the number of p-values calculated
             # if len(self.markers) > len(p_values):
@@ -664,8 +653,6 @@ class DataSet:
                     """ % (query_args))
 
         except TypeError:
-            logger.debug(
-                "Dataset {} is not yet available in GeneNetwork.".format(self.name))
             pass
 
     def chunk_dataset(self, dataset, n):

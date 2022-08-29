@@ -41,9 +41,6 @@ from utility.tools import locate, locate_ignore_error, GEMMA_COMMAND, PLINK_COMM
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 class RunMapping:
 
@@ -273,7 +270,6 @@ class RunMapping:
 
             self.control_marker = start_vars['control_marker']
             self.do_control = start_vars['do_control']
-            logger.info("Running qtlreaper")
 
             self.first_run = True
             self.output_files = None
@@ -303,8 +299,6 @@ class RunMapping:
             results = plink_mapping.run_plink(
                 self.this_trait, self.dataset, self.species, self.vals, self.maf)
             #results = self.run_plink()
-        else:
-            logger.debug("RUNNING NOTHING")
 
         self.no_results = False
         if len(results) == 0:

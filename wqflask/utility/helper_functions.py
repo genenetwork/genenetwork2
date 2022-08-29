@@ -6,9 +6,6 @@ from utility import hmac
 
 from flask import g
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 def get_species_dataset_trait(self, start_vars):
     if "temp_trait" in list(start_vars.keys()):

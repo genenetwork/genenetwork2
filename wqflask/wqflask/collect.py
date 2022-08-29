@@ -21,9 +21,7 @@ from base.trait import retrieve_trait_info
 from base.trait import jsonable
 from base.data_set import create_dataset
 
-from utility.logger import getLogger
 
-logger = getLogger(__name__)
 Redis = get_redis_conn()
 
 
@@ -48,8 +46,6 @@ def report_change(len_before, len_now):
     if new_length:
         flash("We've added {} to your collection.".format(
             numify(new_length, 'new trait', 'new traits')))
-    else:
-        logger.debug("No new traits were added.")
 
 
 @app.route("/collections/store_trait_list", methods=('POST',))

@@ -31,9 +31,6 @@ GN_SERVER result when set (which should return a Tuple)
             res2 = func(result)
         else:
             res2 = result,
-        if LOG_SQL:
-            logger.debug("Replaced SQL call", query)
-        logger.debug(path, res2)
         return res2
     else:
         return fetchone(query)
@@ -75,5 +72,4 @@ def gn_server(path):
             res = urllib2.urlopen(GN_SERVER_URL + path)
         rest = res.read()
         res2 = json.loads(rest)
-        logger.debug(res2)
         return res2
