@@ -23,26 +23,46 @@ def do_mapping_for_api(start_vars):
     samples = []
     vals = []
 
-    for sample in dataset.group.samplelist:
-        in_trait_data = False
-        for item in this_trait.data:
-            if this_trait.data[item].name == sample:
-                value = str(this_trait.data[item].value)
-                samples.append(item)
-                vals.append(value)
-                in_trait_data = True
-                break
-        if not in_trait_data:
-            vals.append("x")
-
     mapping_params = initialize_parameters(start_vars, dataset, this_trait)
 
-    # ZS: It seems to take an empty string as default. This should probably be changed.
+    genofile_samplelist = []
+    if mapping_params['genofile']:
+        dataset.group.genofile = mapping_params['genofile']
+        genofile_samplelist = get_genofile_samplelist(dataset)
+
+    logger.debug("SAMPLES:", genofile_samplelist)
+
+    if (len(genofile_samplelist) > 0):
+        for sample in genofile_samplelist:
+            in_trait_data = False
+            for item in this_trait.data:
+                if this_trait.data[item].name == sample:
+                    value = str(this_trait.data[item].value)
+                    samples.append(item)
+                    vals.append(value)
+                    in_trait_data = True
+                    break
+            if not in_trait_data:
+                vals.append("x")
+    else:
+        for sample in dataset.group.samplelist:
+            in_trait_data = False
+            for item in this_trait.data:
+                if this_trait.data[item].name == sample:
+                    value = str(this_trait.data[item].value)
+                    samples.append(item)
+                    vals.append(value)
+                    in_trait_data = True
+                    break
+            if not in_trait_data:
+                vals.append("x")
+
+    # It seems to take an empty string as default. This should probably be changed.
     covariates = ""
 
     if mapping_params['mapping_method'] == "gemma":
         header_row = ["name", "chr", "Mb", "lod_score", "p_value"]
-        # ZS: gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
+        # gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
         if mapping_params['use_loco'] == "True":
             result_markers = gemma_mapping.run_gemma(
                 this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
@@ -138,4 +158,18 @@ def initialize_parameters(start_vars, dataset, this_trait):
         except:
             mapping_params['perm_check'] = False
 
+    mapping_params['genofile'] = False
+    if 'genofile' in start_vars:
+        mapping_params['genofile'] = start_vars['genofile']
+
     return mapping_params
+
+def get_genofile_samplelist(dataset):
+    genofile_samplelist = []
+
+    genofile_json = dataset.group.get_genofiles()
+    for genofile in genofile_json:
+        if genofile['location'] == dataset.group.genofile and 'sample_list' in genofile:
+            genofile_samplelist = genofile['sample_list']
+
+    return genofile_samplelist
