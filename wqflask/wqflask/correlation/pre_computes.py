@@ -4,6 +4,7 @@ import hashlib
 from pathlib import Path
 
 from base.data_set import query_table_timestamp
+from base.webqtlConfig import TEXTDIR
 from base.webqtlConfig import TMPDIR
 
 from json.decoder import JSONDecodeError
@@ -168,13 +169,48 @@ def get_datasets_data(base_dataset, target_dataset_data):
 
     return (target_results, base_results)
 
-def fetch_text_file(dataset_name, text_dir, conn):
+
+def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
     """fetch textfiles with strain vals if exists"""
+
     with conn.cursor() as cursor:
         query = 'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = "%s"' % dataset_name
         cursor.execute(query)
         results = cursor.fetchone()
     if (results):
-        for file in os.listdir(text_dir):
-            if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
-                return os.path.join(text_dir, file)
+        try:
+            for file in os.listdir(text_dir):
+                if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
+                    return os.path.join(text_dir, file)
+        except FileNotFoundError:
+            pass
+
+
+def read_text_file(sample_dict, file_path):
+
+    def parse_line_csv(line):
+        return_list = line.split('","')
+        return_list[-1] = return_list[-1][:-2]
+        return_list[0] = return_list[0][1:]
+        return return_list
+
+    def __fetch_id_positions__(all_ids, target_ids):
+        _vals = []
+        _posit = [0]  # alternative for parsing
+
+        for (idx, strain) in enumerate(all_ids, 1):
+            if strain in target_ids:
+                _vals.append(target_ids[strain])
+                _posit.append(idx)
+
+            else:
+                _vals.append("")  # todo;modify x_vals to take string rust
+
+        return (_posit, _vals)
+    with open(file_path, "r") as file_handler:
+        all_ids = file_handler.readline()
+        _posit, sample_vals = __fetch_id_positions__(
+            parse_line_csv(all_ids)[1:], sample_dict)
+
+        return (sample_vals, [",".join(parse_line_csv(line))
+                              for line in file_handler.readlines()])
