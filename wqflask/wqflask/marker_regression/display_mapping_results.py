@@ -42,7 +42,6 @@ from base import webqtlConfig
 from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
 from utility import Plot
-from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
@@ -587,9 +586,8 @@ class DisplayMappingResults:
         ################################################################
         showLocusForm = ""
         intCanvas = Image.new("RGBA", size=(self.graphWidth, self.graphHeight))
-        with Bench("Drawing Plot"):
-            gifmap = self.plotIntMapping(
-                intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm)
+        gifmap = self.plotIntMapping(
+            intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm)
 
         self.gifmap = gifmap.__str__()
 

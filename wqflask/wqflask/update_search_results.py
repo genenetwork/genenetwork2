@@ -5,8 +5,6 @@ from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from db import webqtlDatabaseFunction
 
-from utility.benchmark import Bench
-
 
 class GSearch:
 
@@ -43,18 +41,15 @@ class GSearch:
                 ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_name, probeset_name
                 LIMIT 6000
                 """ % (self.terms)
-            with Bench("Running query"):
-                re = g.db.execute(sql).fetchall()
+            re = g.db.execute(sql).fetchall()
             self.trait_list = []
-            with Bench("Creating trait objects"):
-                for line in re:
-                    dataset = create_dataset(
-                        line[3], "ProbeSet", get_samplelist=False)
-                    trait_id = line[4]
-                    # with Bench("Building trait object"):
-                    this_trait = GeneralTrait(
-                        dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
-                    self.trait_list.append(this_trait)
+            for line in re:
+                dataset = create_dataset(
+                    line[3], "ProbeSet", get_samplelist=False)
+                trait_id = line[4]
+                this_trait = GeneralTrait(
+                    dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+                self.trait_list.append(this_trait)
 
         elif self.type == "phenotype":
             sql = """
@@ -90,13 +85,12 @@ class GSearch:
                 """ % (self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms, self.terms)
             re = g.db.execute(sql).fetchall()
             self.trait_list = []
-            with Bench("Creating trait objects"):
-                for line in re:
-                    dataset = create_dataset(line[2], "Publish")
-                    trait_id = line[3]
-                    this_trait = GeneralTrait(
-                        dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
-                    self.trait_list.append(this_trait)
+            for line in re:
+                dataset = create_dataset(line[2], "Publish")
+                trait_id = line[3]
+                this_trait = GeneralTrait(
+                    dataset=dataset, name=trait_id, get_qtl_info=True, get_sample_info=False)
+                self.trait_list.append(this_trait)
 
         self.results = self.convert_to_json()
 
