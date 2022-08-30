@@ -1,15 +1,7 @@
-import string
-
 from base import data_set
-from base import webqtlConfig
 from base.trait import create_trait, retrieve_sample_data
 
-from utility import helper_functions
-from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
-
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
+from wqflask.marker_regression import gemma_mapping, rqtl_mapping
 
 def do_mapping_for_api(start_vars):
     assert('db' in start_vars)
@@ -29,8 +21,6 @@ def do_mapping_for_api(start_vars):
     if mapping_params['genofile']:
         dataset.group.genofile = mapping_params['genofile']
         genofile_samplelist = get_genofile_samplelist(dataset)
-
-    logger.debug("SAMPLES:", genofile_samplelist)
 
     if (len(genofile_samplelist) > 0):
         for sample in genofile_samplelist:
