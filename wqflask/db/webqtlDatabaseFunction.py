@@ -20,19 +20,23 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from db.call import fetch1
+from wqflask.database import database_connection
 
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
 
     """
-    result = fetch1("select Species.Name from Species, InbredSet where InbredSet.Name = '%s' and InbredSet.SpeciesId = Species.Id" % (
-        group), "/cross/" + group + ".json", lambda r: (r["species"],))[0]
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT Species.Name FROM Species, InbredSet WHERE InbredSet.Name = %s AND InbredSet.SpeciesId = Species.Id",
+            (group,))
+        return cursor.fetchone()[0]
     return result
 
 
 def retrieve_species_id(group):
-    result = fetch1("select SpeciesId from InbredSet where Name = '%s'" % (
-        group), "/cross/" + group + ".json", lambda r: (r["species_id"],))[0]
-    return result
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute("SELECT SpeciesId FROM InbredSet WHERE Name = %s",
+                       (group,))
+        return cursor.fetchone()[0]
