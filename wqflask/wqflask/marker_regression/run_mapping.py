@@ -33,7 +33,6 @@ from utility import webqtlUtil
 from utility import helper_functions
 from utility import Plot, Bunch
 from utility import temp_data
-from utility.benchmark import Bench
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from wqflask.show_trait.SampleList import SampleList
 
@@ -204,13 +203,12 @@ class RunMapping:
                 self.first_run = False
             self.score_type = "-logP"
             self.manhattan_plot = True
-            with Bench("Running GEMMA"):
-                if self.use_loco == "True":
-                    marker_obs, self.output_files = gemma_mapping.run_gemma(
-                        self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
-                else:
-                    marker_obs, self.output_files = gemma_mapping.run_gemma(
-                        self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
+            if self.use_loco == "True":
+                marker_obs, self.output_files = gemma_mapping.run_gemma(
+                    self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
+            else:
+                marker_obs, self.output_files = gemma_mapping.run_gemma(
+                    self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
@@ -372,33 +370,29 @@ class RunMapping:
                             self.qtl_results.append(marker)
 
                 total_markers = len(self.qtl_results)
+                export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
+                                       self.mapping_method, self.mapping_scale, self.score_type,
+                                       self.transform, self.covariates, self.n_samples, self.vals_hash)
 
-                with Bench("Exporting Results"):
-                    export_mapping_results(self.dataset, self.this_trait, self.qtl_results, self.mapping_results_path,
-                                           self.mapping_method, self.mapping_scale, self.score_type,
-                                           self.transform, self.covariates, self.n_samples, self.vals_hash)
+                if len(self.qtl_results) > 30000:
+                    self.qtl_results = trim_markers_for_figure(
+                        self.qtl_results)
+                    self.results_for_browser = trim_markers_for_figure(
+                        self.results_for_browser)
+                    filtered_annotations = []
+                    for marker in self.results_for_browser:
+                        for annot_marker in self.annotations_for_browser:
+                            if annot_marker['rs'] == marker['rs']:
+                                filtered_annotations.append(annot_marker)
+                                break
+                    self.annotations_for_browser = filtered_annotations
+                    browser_files = write_input_for_browser(
+                        self.dataset, self.results_for_browser, self.annotations_for_browser)
+                else:
+                    browser_files = write_input_for_browser(
+                        self.dataset, self.results_for_browser, self.annotations_for_browser)
 
-                with Bench("Trimming Markers for Figure"):
-                    if len(self.qtl_results) > 30000:
-                        self.qtl_results = trim_markers_for_figure(
-                            self.qtl_results)
-                        self.results_for_browser = trim_markers_for_figure(
-                            self.results_for_browser)
-                        filtered_annotations = []
-                        for marker in self.results_for_browser:
-                            for annot_marker in self.annotations_for_browser:
-                                if annot_marker['rs'] == marker['rs']:
-                                    filtered_annotations.append(annot_marker)
-                                    break
-                        self.annotations_for_browser = filtered_annotations
-                        browser_files = write_input_for_browser(
-                            self.dataset, self.results_for_browser, self.annotations_for_browser)
-                    else:
-                        browser_files = write_input_for_browser(
-                            self.dataset, self.results_for_browser, self.annotations_for_browser)
-
-                with Bench("Trimming Markers for Table"):
-                    self.trimmed_markers = trim_markers_for_table(results)
+                self.trimmed_markers = trim_markers_for_table(results)
 
                 chr_lengths = get_chr_lengths(
                     self.mapping_scale, self.mapping_method, self.dataset, self.qtl_results)

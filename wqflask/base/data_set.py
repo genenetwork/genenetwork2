@@ -32,7 +32,6 @@ from maintenance import get_group_samplelists
 from utility.tools import locate, locate_ignore_error, flat_files
 from utility import gen_geno_ob
 from utility import chunks
-from utility.benchmark import Bench
 from utility import webqtlUtil
 from db import webqtlDatabaseFunction
 from base import species
@@ -201,16 +200,15 @@ def create_datasets_list():
 
     if result is None:
         datasets = list()
-        with Bench("Creating DataSets object"):
-            type_dict = {'Publish': 'PublishFreeze',
-                         'ProbeSet': 'ProbeSetFreeze',
-                         'Geno': 'GenoFreeze'}
+        type_dict = {'Publish': 'PublishFreeze',
+                     'ProbeSet': 'ProbeSetFreeze',
+                     'Geno': 'GenoFreeze'}
 
-            for dataset_type in type_dict:
-                query = "SELECT Name FROM {}".format(type_dict[dataset_type])
-                for result in fetchall(query):
-                    dataset = create_dataset(result.Name, dataset_type)
-                    datasets.append(dataset)
+        for dataset_type in type_dict:
+            query = "SELECT Name FROM {}".format(type_dict[dataset_type])
+            for result in fetchall(query):
+                dataset = create_dataset(result.Name, dataset_type)
+                datasets.append(dataset)
 
         if USE_REDIS:
             r.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))

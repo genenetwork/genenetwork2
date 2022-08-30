@@ -95,7 +95,6 @@ from utility.redis_tools import get_redis_conn
 
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
-from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
@@ -217,12 +216,11 @@ def twitter(filename):
 def search_page():
     result = None
     if USE_REDIS:
-        with Bench("Trying Redis cache"):
-            key = "search_results:v1:" + \
-                json.dumps(request.args, sort_keys=True)
-            result = Redis.get(key)
-            if result:
-                result = pickle.loads(result)
+        key = "search_results:v1:" + \
+            json.dumps(request.args, sort_keys=True)
+        result = Redis.get(key)
+        if result:
+            result = pickle.loads(result)
     the_search = SearchResultPage(request.args)
     result = the_search.__dict__
     valid_search = result['search_term_exists']
@@ -529,12 +527,10 @@ def heatmap_page():
         version = "v5"
         key = "heatmap:{}:".format(
             version) + json.dumps(start_vars, sort_keys=True)
-        with Bench("Loading cache"):
-            result = Redis.get(key)
+        result = Redis.get(key)
 
         if result:
-            with Bench("Loading results"):
-                result = pickle.loads(result)
+            result = pickle.loads(result)
 
         else:
             template_vars = heatmap.Heatmap(request.form, temp_uuid)
@@ -547,9 +543,7 @@ def heatmap_page():
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
             Redis.set(key, pickled_result)
             Redis.expire(key, 60 * 60)
-
-        with Bench("Rendering template"):
-            rendered_template = render_template("heatmap.html", **result)
+        rendered_template = render_template("heatmap.html", **result)
 
     else:
         rendered_template = render_template(
@@ -762,40 +756,36 @@ def mapping_results_page():
     version = "v3"
     key = "mapping_results:{}:".format(
         version) + json.dumps(start_vars, sort_keys=True)
-    with Bench("Loading cache"):
-        result = None  # Just for testing
+    result = None  # Just for testing
 
     if result:
-        with Bench("Loading results"):
-            result = pickle.loads(result)
+        result = pickle.loads(result)
     else:
-        with Bench("Total time in RunMapping"):
-            try:
-                template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
-                if template_vars.no_results:
-                    rendered_template = render_template("mapping_error.html")
-                    return rendered_template
-            except:
+        try:
+            template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+            if template_vars.no_results:
                 rendered_template = render_template("mapping_error.html")
                 return rendered_template
+        except:
+            rendered_template = render_template("mapping_error.html")
+            return rendered_template
 
-            if not template_vars.pair_scan:
-                template_vars.js_data = json.dumps(template_vars.js_data,
-                                                   default=json_default_handler,
-                                                   indent="   ")
+        if not template_vars.pair_scan:
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                               default=json_default_handler,
+                                               indent="   ")
 
-            result = template_vars.__dict__
+        result = template_vars.__dict__
 
-            if result['pair_scan']:
-                with Bench("Rendering template"):
-                    rendered_template = render_template(
-                        "pair_scan_results.html", **result)
-            else:
-                gn1_template_vars = display_mapping_results.DisplayMappingResults(
-                    result).__dict__
+        if result['pair_scan']:
+            rendered_template = render_template(
+                "pair_scan_results.html", **result)
+        else:
+            gn1_template_vars = display_mapping_results.DisplayMappingResults(
+                result).__dict__
 
-                rendered_template = render_template(
-                    "mapping_results.html", **gn1_template_vars)
+            rendered_template = render_template(
+                "mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 

@@ -11,12 +11,9 @@ except:
     import urllib2
 import json
 from utility.tools import USE_GN_SERVER, LOG_SQL, GN_SERVER_URL
-from utility.benchmark import Bench
 
 from utility.logger import getLogger
 logger = getLogger(__name__)
-
-# from inspect import stack
 
 
 def fetch1(query, path=None, func=None):
@@ -41,11 +38,10 @@ def fetchone(query):
 original fetchone, but with logging)
 
     """
-    with Bench("SQL", LOG_SQL):
-        def helper(query):
-            res = g.db.execute(query)
-            return res.fetchone()
-        return logger.sql(query, helper)
+    def helper(query):
+        res = g.db.execute(query)
+        return res.fetchone()
+    return logger.sql(query, helper)
 
 
 def fetchall(query):
@@ -53,23 +49,21 @@ def fetchall(query):
 original fetchall, but with logging)
 
     """
-    with Bench("SQL", LOG_SQL):
-        def helper(query):
-            res = g.db.execute(query)
-            return res.fetchall()
-        return logger.sql(query, helper)
+    def helper(query):
+        res = g.db.execute(query)
+        return res.fetchall()
+    return logger.sql(query, helper)
 
 
 def gn_server(path):
     """Return JSON record by calling GN_SERVER
 
     """
-    with Bench("GN_SERVER", LOG_SQL):
-        res = ()
-        try:
-            res = urllib.request.urlopen(GN_SERVER_URL + path)
-        except:
-            res = urllib2.urlopen(GN_SERVER_URL + path)
-        rest = res.read()
-        res2 = json.loads(rest)
-        return res2
+    res = ()
+    try:
+        res = urllib.request.urlopen(GN_SERVER_URL + path)
+    except:
+        res = urllib2.urlopen(GN_SERVER_URL + path)
+    rest = res.read()
+    res2 = json.loads(rest)
+    return res2
