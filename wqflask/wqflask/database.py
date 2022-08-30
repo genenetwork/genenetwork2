@@ -44,7 +44,6 @@ def database_connection():
     )
     try:
         yield connection
-        connection.close()
     except Exception:
         connection.rollback()
         raise
