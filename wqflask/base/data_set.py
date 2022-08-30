@@ -22,7 +22,6 @@ from dataclasses import field
 from dataclasses import InitVar
 from typing import Optional, Dict, List
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
-from db.gn_server import menu_main
 from pprint import pformat as pf
 from utility.db_tools import escape
 from utility.db_tools import mescape
