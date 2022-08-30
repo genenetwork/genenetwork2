@@ -167,3 +167,14 @@ def get_datasets_data(base_dataset, target_dataset_data):
         samples_fetched, base_traits_data)
 
     return (target_results, base_results)
+
+def fetch_text_file(dataset_name, text_dir, conn):
+    """fetch textfiles with strain vals if exists"""
+    with conn.cursor() as cursor:
+        query = 'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = "%s"' % dataset_name
+        cursor.execute(query)
+        results = cursor.fetchone()
+    if (results):
+        for file in os.listdir(text_dir):
+            if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
+                return os.path.join(text_dir, file)
