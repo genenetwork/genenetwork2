@@ -21,7 +21,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
 from typing import Optional, Dict, List
-from db.call import fetchall, fetchone, fetch1
 from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
 from db.gn_server import menu_main
 from pprint import pformat as pf
@@ -40,6 +39,7 @@ from flask import Flask, g
 from base.webqtlConfig import TMPDIR
 from urllib.parse import urlparse
 from utility.tools import SQL_URI
+from wqflask.database import database_connection
 import os
 import math
 import string
@@ -205,11 +205,14 @@ def create_datasets_list():
                      'Geno': 'GenoFreeze'}
 
         for dataset_type in type_dict:
-            query = "SELECT Name FROM {}".format(type_dict[dataset_type])
-            for result in fetchall(query):
-                dataset = create_dataset(result.Name, dataset_type)
-                datasets.append(dataset)
-
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute("SELECT Name FROM %s",
+                               (type_dict[dataset_type],))
+                results = cursor.fetchall(query)
+                if results:
+                    for result in results:
+                        datasets.append(
+                            create_dataset(result.Name, dataset_type))
         if USE_REDIS:
             r.set(key, pickle.dumps(datasets, pickle.HIGHEST_PROTOCOL))
             r.expire(key, 60 * 60)
@@ -319,12 +322,16 @@ class DatasetGroup:
 
     def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
-        if name == None:
-            self.name, self.id, self.genetic_type, self.code = fetchone(
-                dataset.query_for_group)
-        else:
-            self.name, self.id, self.genetic_type, self.code = fetchone(
-                "SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode FROM InbredSet where Name='%s'" % name)
+        query = """SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType,
+ InbredSet.InbredSetCode FROM InbredSet where Name=%s
+        """
+        if not name:
+            query, name = dataset.query_for_group, self.name
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(query, (name,))
+            results = cursor.fetchone()
+            if results:
+                self.name, self.id, self.genetic_type, self.code = results
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -620,36 +627,25 @@ class DataSet:
         """
 
         try:
+            query = ""
+            _vars = None
             if self.type == "ProbeSet":
-                query_args = tuple(escape(x) for x in (
-                    self.name,
-                    self.name,
-                    self.name))
-
-                self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue = fetch1("""
-    SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
-    FROM ProbeSetFreeze, ProbeFreeze, Tissue
-    WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-    AND ProbeFreeze.TissueId = Tissue.Id
-    AND (ProbeSetFreeze.Name = '%s' OR ProbeSetFreeze.FullName = '%s' OR ProbeSetFreeze.ShortName = '%s')
-                """ % (query_args), "/dataset/" + self.name + ".json",
-                    lambda r: (r["id"], r["name"], r["full_name"],
-                               r["short_name"], r["data_scale"], r["tissue"])
-                )
+                query = """
+SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
+FROM ProbeSetFreeze, ProbeFreeze, Tissue
+WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+AND ProbeFreeze.TissueId = Tissue.Id
+AND (ProbeSetFreeze.Name = %s OR ProbeSetFreeze.FullName = %s OR ProbeSetFreeze.ShortName = %s"""
+                _vars = (self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue,)
             else:
-                query_args = tuple(escape(x) for x in (
-                    (self.type + "Freeze"),
-                    self.name,
-                    self.name,
-                    self.name))
-
+                query = """
+SELECT Id, Name, FullName, ShortName FROM %s
+WHERE (Name = %s OR FullName = '%s' OR ShortName = %s)"""
                 self.tissue = "N/A"
-                self.id, self.name, self.fullname, self.shortname = fetchone("""
-                        SELECT Id, Name, FullName, ShortName
-                        FROM %s
-                        WHERE (Name = '%s' OR FullName = '%s' OR ShortName = '%s')
-                    """ % (query_args))
-
+                _vars = (self.id, self.name, self.fullname, self.shortname,)
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute(query, (query_args,))
+                _vars = cursor.fetchone()
         except TypeError:
             pass
 
@@ -848,16 +844,8 @@ class PhenotypeDataSet(DataSet):
                               'Additive Effect']
 
         self.type = 'Publish'
-
-        self.query_for_group = '''
-                            SELECT
-                                    InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
-                            FROM
-                                    InbredSet, PublishFreeze
-                            WHERE
-                                    PublishFreeze.InbredSetId = InbredSet.Id AND
-                                    PublishFreeze.Name = "%s"
-                    ''' % escape(self.name)
+        self.query_for_group = """
+SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode FROM InbredSet, PublishFreeze WHERE PublishFreeze.InbredSetId = InbredSet.Id AND PublishFreeze.Name = %s"""
 
     def check_confidentiality(self):
         # (Urgently?) Need to write this
@@ -964,16 +952,10 @@ class GenotypeDataSet(DataSet):
 
         # Todo: Obsolete or rename this field
         self.type = 'Geno'
-
-        self.query_for_group = '''
-                SELECT
-                        InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
-                FROM
-                        InbredSet, GenoFreeze
-                WHERE
-                        GenoFreeze.InbredSetId = InbredSet.Id AND
-                        GenoFreeze.Name = "%s"
-                ''' % escape(self.name)
+        self.query_for_group = """
+SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
+FROM InbredSet, GenoFreeze WHERE GenoFreeze.InbredSetId = InbredSet.Id AND
+GenoFreeze.Name = %s"""
 
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
@@ -1072,17 +1054,10 @@ class MrnaAssayDataSet(DataSet):
 
         # Todo: Obsolete or rename this field
         self.type = 'ProbeSet'
-
-        self.query_for_group = '''
-                        SELECT
-                                InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
-                        FROM
-                                InbredSet, ProbeSetFreeze, ProbeFreeze
-                        WHERE
-                                ProbeFreeze.InbredSetId = InbredSet.Id AND
-                                ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND
-                                ProbeSetFreeze.Name = "%s"
-                ''' % escape(self.name)
+        self.query_for_group = """
+SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetCode
+FROM InbredSet, ProbeSetFreeze, ProbeFreeze WHERE ProbeFreeze.InbredSetId = InbredSet.Id AND
+ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND ProbeSetFreeze.Name = %s"""
 
     def check_confidentiality(self):
         return geno_mrna_confidentiality(self)
