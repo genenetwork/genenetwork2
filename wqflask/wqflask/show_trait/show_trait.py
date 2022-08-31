@@ -550,21 +550,21 @@ def get_max_digits(trait_vals):
 
     return max_digits
 
+def normf(trait_vals):
+    ranked_vals = ss.rankdata(trait_vals)
+    p_list = []
+    for i, val in enumerate(trait_vals):
+        p_list.append(((i + 1) - 0.5) / len(trait_vals))
+
+    z = ss.norm.ppf(p_list)
+
+    normed_vals = []
+    for rank in ranked_vals:
+        normed_vals.append("%0.3f" % z[int(rank) - 1])
+
+    return normed_vals
+
 def quantile_normalize_vals(sample_groups, trait_vals):
-    def normf(trait_vals):
-        ranked_vals = ss.rankdata(trait_vals)
-        p_list = []
-        for i, val in enumerate(trait_vals):
-            p_list.append(((i + 1) - 0.5) / len(trait_vals))
-
-        z = ss.norm.ppf(p_list)
-
-        normed_vals = []
-        for rank in ranked_vals:
-            normed_vals.append("%0.3f" % z[int(rank) - 1])
-
-        return normed_vals
-
     qnorm_by_group = []
     for i, sample_type in enumerate(sample_groups):
         qnorm_vals = normf(trait_vals[i])
