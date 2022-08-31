@@ -50,7 +50,7 @@ def do_mapping_for_api(start_vars):
             if not in_trait_data:
                 vals.append("x")
 
-    if mapping_params['qnorm']:
+    if mapping_params['transform'] == "qnorm":
         vals_minus_x = [float(val) for val in vals if val != "x"]
         qnorm_vals = normf(vals_minus_x)
         qnorm_vals_with_x = []
@@ -165,9 +165,9 @@ def initialize_parameters(start_vars, dataset, this_trait):
         except:
             mapping_params['perm_check'] = False
 
-    mapping_params['qnorm'] = False
-    if 'qnorm' in start_vars:
-        mapping_params['qnorm'] = True
+    mapping_params['transform'] = False
+    if 'transform' in start_vars:
+        mapping_params['transform'] = start_vars['transform']
 
     mapping_params['genofile'] = False
     if 'genofile' in start_vars:
