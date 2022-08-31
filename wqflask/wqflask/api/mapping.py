@@ -2,6 +2,7 @@ from base import data_set
 from base.trait import create_trait, retrieve_sample_data
 
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping
+from wqflask.show_trait.show_trait import normf
 
 def do_mapping_for_api(start_vars):
     assert('db' in start_vars)
@@ -23,7 +24,8 @@ def do_mapping_for_api(start_vars):
         genofile_samplelist = get_genofile_samplelist(dataset)
 
     if (len(genofile_samplelist) > 0):
-        for sample in genofile_samplelist:
+        samplelist = genofile_samplelist
+        for sample in samplelist:
             in_trait_data = False
             for item in this_trait.data:
                 if this_trait.data[item].name == sample:
@@ -35,7 +37,8 @@ def do_mapping_for_api(start_vars):
             if not in_trait_data:
                 vals.append("x")
     else:
-        for sample in dataset.group.samplelist:
+        samplelist = dataset.group.samplelist
+        for sample in samplelist:
             in_trait_data = False
             for item in this_trait.data:
                 if this_trait.data[item].name == sample:
@@ -46,6 +49,20 @@ def do_mapping_for_api(start_vars):
                     break
             if not in_trait_data:
                 vals.append("x")
+
+    if mapping_params['qnorm']:
+        vals_minus_x = [float(val) for val in vals if val != "x"]
+        qnorm_vals = normf(vals_minus_x)
+        qnorm_vals_with_x = []
+        counter = 0
+        for val in vals:
+            if val == "x":
+                qnorm_vals_with_x.append("x")
+            else:
+                qnorm_vals_with_x.append(qnorm_vals[counter])
+                counter += 1
+
+        vals = qnorm_vals_with_x
 
     # It seems to take an empty string as default. This should probably be changed.
     covariates = ""
@@ -147,6 +164,10 @@ def initialize_parameters(start_vars, dataset, this_trait):
             mapping_params['perm_check'] = "ON"
         except:
             mapping_params['perm_check'] = False
+
+    mapping_params['qnorm'] = False
+    if 'qnorm' in start_vars:
+        mapping_params['qnorm'] = True
 
     mapping_params['genofile'] = False
     if 'genofile' in start_vars:
