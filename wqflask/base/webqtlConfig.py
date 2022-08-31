@@ -7,7 +7,7 @@
 # with those in utility/tools.py
 #
 #########################################
-
+import os
 from utility.tools import valid_path, mk_dir, assert_dir, assert_writable_dir, flat_files, TEMPDIR
 
 # Debug Level
@@ -95,6 +95,9 @@ if not valid_path(JSON_GENODIR):
     # fall back on old location (move the dir, FIXME)
     JSON_GENODIR = flat_files('json')
 
+
+TEXTDIR = os.path.join(os.environ.get(
+    "GNSHARE", "/gnshare/gn/"), "web/ProbeSetFreeze_DataMatrix")
 # Are we using the following...?
 PORTADDR = "http://50.16.251.170"
 INFOPAGEHREF = '/dbdoc/%s.html'
