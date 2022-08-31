@@ -26,6 +26,7 @@ class TestMapping(unittest.TestCase):
             "use_loco": True,
             "num_perm": 0,
             "perm_check": False,
+            "transform": False,
             "genofile": False
         }
 
@@ -42,6 +43,7 @@ class TestMapping(unittest.TestCase):
             "interval_mapping": "true",
             "use_loco": "true",
             "num_perm": "14",
+            "transform": "qnorm",
             "genofile": "BXD.8.geno"
         }
 
@@ -55,6 +57,7 @@ class TestMapping(unittest.TestCase):
             "use_loco": True,
             "num_perm": 14,
             "perm_check": "ON",
+            "transform": "qnorm",
             "genofile": "BXD.8.geno"
         }
 
