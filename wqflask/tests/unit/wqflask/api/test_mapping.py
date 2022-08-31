@@ -25,7 +25,8 @@ class TestMapping(unittest.TestCase):
             "maf": 0.01,
             "use_loco": True,
             "num_perm": 0,
-            "perm_check": False
+            "perm_check": False,
+            "genofile": False
         }
 
         results = initialize_parameters(
@@ -40,8 +41,8 @@ class TestMapping(unittest.TestCase):
             "pair_scan": "true",
             "interval_mapping": "true",
             "use_loco": "true",
-            "num_perm": "14"
-
+            "num_perm": "14",
+            "genofile": "BXD.8.geno"
         }
 
         results_2 = initialize_parameters(
@@ -53,7 +54,8 @@ class TestMapping(unittest.TestCase):
             "maf": 0.01,
             "use_loco": True,
             "num_perm": 14,
-            "perm_check": "ON"
+            "perm_check": "ON",
+            "genofile": "BXD.8.geno"
         }
 
         self.assertEqual(results_2, expected_results)
