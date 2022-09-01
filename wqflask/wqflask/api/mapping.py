@@ -5,8 +5,8 @@ from wqflask.marker_regression import gemma_mapping, rqtl_mapping
 from wqflask.show_trait.show_trait import normf
 
 def do_mapping_for_api(start_vars):
-    assert('db' in start_vars)
-    assert('trait_id' in start_vars)
+    if ('db' not in start_vars) or ("trait_id" not in start_vars):
+        raise ValueError("Mapping: db and trait_id are not in start_vars")
 
     dataset = data_set.create_dataset(dataset_name=start_vars['db'])
     dataset.group.get_markers()
