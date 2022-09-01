@@ -11,11 +11,10 @@ from typing import TextIO
 
 import numpy as np
 
-from flask import g
-
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
 from utility.tools import locate, GN3_LOCAL_URL
+from wqflask.database import database_connection
 
 
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
@@ -77,8 +76,10 @@ def write_covarstruct_file(cofactors: str) -> str:
     a comma-delimited file where the first column consists of cofactor names
     and the second column indicates whether they're numerical or categorical
     """
-    datatype_query = "SELECT value FROM TraitMetadata WHERE type='trait_data_type'"
-    trait_datatype_json = json.loads(g.db.execute(datatype_query).fetchone()[0])
+    trait_datatype_json = None
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute("SELECT value FROM TraitMetadata WHERE type='trait_data_type'")
+        trait_datatype_json = json.loads(cursor.fetchone()[0])
 
     covar_struct_file = io.StringIO()
     writer = csv.writer(covar_struct_file, delimiter="\t", quoting = csv.QUOTE_NONE)

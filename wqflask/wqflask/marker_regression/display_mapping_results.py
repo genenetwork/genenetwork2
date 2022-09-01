@@ -34,8 +34,6 @@ from PIL import ImageColor
 import os
 import json
 
-from flask import Flask, g
-
 import htmlgen as HT
 
 from base import webqtlConfig
@@ -45,7 +43,7 @@ from utility import Plot
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
-
+from wqflask.database import database_connection
 
 try:  # Only import this for Python3
     from functools import reduce
@@ -461,17 +459,15 @@ class DisplayMappingResults:
             elif self.dataset.group.species == "rat" and indChr.name == "21":
                 self.ChrList.append(("X", i))
             self.ChrList.append((indChr.name, i))
-
-        self.ChrLengthMbList = g.db.execute("""
-                Select
-                        Length from Chr_Length, InbredSet
-                where
-                        Chr_Length.SpeciesId = InbredSet.SpeciesId AND
-                        InbredSet.Name = '%s' AND
-                        Chr_Length.Name in (%s)
-                Order by
-                        Chr_Length.OrderId
-                """ % (self.dataset.group.name, ", ".join(["'%s'" % X[0] for X in self.ChrList[1:]])))
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute("SELECT Length FROM Chr_Length, InbredSet "
+                           "WHERE Chr_Length.SpeciesId = InbredSet.SpeciesId "
+                           "AND InbredSet.Name = %s AND Chr_Length.Name IN "
+                           f"({', '.join(['%s' for x in self.ChrList[1:]])}) "
+                           "ORDER BY Chr_Length.OrderId",
+                           (self.dataset.group.name,
+                            [x[0] for x in self.ChrList[1:]],))
+            self.ChrLengthMbList = cursor.fetchall()
 
         self.ChrLengthMbList = [x[0] / 1000000.0 for x in self.ChrLengthMbList]
         self.ChrLengthMbSum = reduce(
@@ -536,8 +532,11 @@ class DisplayMappingResults:
             self.diffCol = []
 
         for i, strain in enumerate(self.diffCol):
-            self.diffCol[i] = g.db.execute(
-                "select Id from Strain where Symbol = %s", strain).fetchone()[0]
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute("SELECT Id FROM Strain WHERE Symbol = %s",
+                               (strain,))
+                if result := cursor.fetchone():
+                    self.diffCol[i] = result[0]
 
         ################################################################
         # GeneCollection goes here
@@ -1010,14 +1009,14 @@ class DisplayMappingResults:
         SNPCounts = []
 
         while startMb < endMb:
-            snp_count = g.db.execute("""
-                    select
-                            count(*) from BXDSnpPosition
-                    where
-                            Chr = '%s' AND Mb >= %2.6f AND Mb < %2.6f AND
-                            StrainId1 = %d AND StrainId2 = %d
-                    """ % (chrName, startMb, startMb + stepMb, strainId1, strainId2)).fetchone()[0]
-            SNPCounts.append(snp_count)
+            with database_connection() as conn, conn.cursor() as cursor:
+                # snp count
+                cursor.execute("SELECT COUNT(*) FROM BXDSnpPosition "
+                               "WHERE Chr = %s AND Mb >= %s AND Mb < %s AND "
+                               "StrainId1 = %s AND StrainId2 = %s",
+                               (chrName, f"{startMb:2.6f}",
+                                f"{startMb + stepMb:2.6f}", strainId1, strainId2,))
+                SNPCounts.append(cursor.fetchone()[0])
             startMb += stepMb
 
         if (len(SNPCounts) > 0):

@@ -2,6 +2,7 @@ import json
 import requests
 
 from flask import g
+from wqflask.database import database_connection
 from base import webqtlConfig
 
 from utility.redis_tools import (get_redis_conn,

@@ -18,7 +18,7 @@ from wqflask import parser
 from wqflask import do_search
 from db import webqtlDatabaseFunction
 
-from flask import Flask, g
+from wqflask.database import database_connection
 
 from utility import hmac, helper_functions
 from utility.authentication_tools import check_resource_availability
@@ -380,11 +380,11 @@ def trait_info_str(trait, dataset_type):
         __location(trait), __mean(trait), __lrs(trait), __lrs_location(trait))
 
 def get_GO_symbols(a_search):
-    query = """SELECT genes
-               FROM GORef
-               WHERE goterm='{0}:{1}'""".format(a_search['key'], a_search['search_term'][0])
-
-    gene_list = g.db.execute(query).fetchone()[0].strip().split()
+    gene_list = None
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute("SELECT genes FROM GORef WHERE goterm=%s",
+                       (f"{a_search['key']}:{a_search['search_term'][0]}",))
+        gene_list = cursor.fetchone()[0].strip().split()
 
     new_terms = []
     for gene in gene_list:
