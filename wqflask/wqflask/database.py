@@ -47,7 +47,7 @@ def database_connection():
     """
     host, user, passwd, db_name, port = parse_db_url(sql_uri())
     connection = MySQLdb.connect(
-        db=db_name, user=user, passwd=passwd, host=host, port=port,
+        db=db_name, user=user, passwd=passwd or '', host=host, port=port,
         autocommit=False  # Required for roll-backs
     )
     try:
