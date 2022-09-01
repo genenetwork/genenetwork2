@@ -19,7 +19,7 @@ def do_mapping_for_api(start_vars):
     mapping_params = initialize_parameters(start_vars, dataset, this_trait)
 
     genofile_samplelist = []
-    if mapping_params['genofile']:
+    if mapping_params.get('genofile'):
         dataset.group.genofile = mapping_params['genofile']
         genofile_samplelist = get_genofile_samplelist(dataset)
 
@@ -50,7 +50,7 @@ def do_mapping_for_api(start_vars):
             if not in_trait_data:
                 vals.append("x")
 
-    if mapping_params['transform'] == "qnorm":
+    if mapping_params.get('transform') == "qnorm":
         vals_minus_x = [float(val) for val in vals if val != "x"]
         qnorm_vals = normf(vals_minus_x)
         qnorm_vals_with_x = []
@@ -67,16 +67,16 @@ def do_mapping_for_api(start_vars):
     # It seems to take an empty string as default. This should probably be changed.
     covariates = ""
 
-    if mapping_params['mapping_method'] == "gemma":
+    if mapping_params.get('mapping_method') == "gemma":
         header_row = ["name", "chr", "Mb", "lod_score", "p_value"]
         # gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
-        if mapping_params['use_loco'] == "True":
+        if mapping_params.get('use_loco') == "True":
             result_markers = gemma_mapping.run_gemma(
                 this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
         else:
             result_markers = gemma_mapping.run_gemma(
                 this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
-    elif mapping_params['mapping_method'] == "rqtl":
+    elif mapping_params.get('mapping_method') == "rqtl":
         header_row = ["name", "chr", "cM", "lod_score"]
         if mapping_params['num_perm'] > 0:
             _sperm_output, _suggestive, _significant, result_markers = rqtl_mapping.run_rqtl(this_trait.name, vals, samples, dataset, None, "Mb", mapping_params['rqtl_model'],
@@ -89,10 +89,10 @@ def do_mapping_for_api(start_vars):
                                                    mapping_params['do_control'], mapping_params['control_marker'],
                                                    mapping_params['manhattan_plot'], None)
 
-    if mapping_params['limit_to']:
+    if mapping_params.get('limit_to'):
         result_markers = result_markers[:mapping_params['limit_to']]
 
-    if mapping_params['format'] == "csv":
+    if mapping_params.get('format') == "csv":
         output_rows = []
         output_rows.append(header_row)
         for marker in result_markers:
