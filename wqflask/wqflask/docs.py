@@ -12,14 +12,12 @@ class Docs:
                            "FROM Docs WHERE Docs.entry LIKE %s", (str(entry),))
             result = cursor.fetchone()
         self.entry = entry
-        if result == None:
-            self.title = self.entry.capitalize()
-            self.content = ""
-        else:
-
+        if result:
             self.title = result[0]
             self.content = result[1].decode("utf-8")
-
+        else:
+            self.title = self.entry.capitalize()
+            self.content = ""
         self.editable = "false"
         # ZS: Removing option to edit to see if text still gets vandalized
         try:
