@@ -1,17 +1,16 @@
 import codecs
 
 from flask import g
-
+from wqflask.database import database_connection
 
 class Docs:
 
     def __init__(self, entry, start_vars={}):
-        sql = """
-            SELECT Docs.title, CAST(Docs.content AS BINARY)
-            FROM Docs
-            WHERE Docs.entry LIKE %s
-            """
-        result = g.db.execute(sql, str(entry)).fetchone()
+        results = None
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute("SELECT Docs.title, CAST(Docs.content AS BINARY) "
+                           "FROM Docs WHERE Docs.entry LIKE %s", (str(entry),))
+            result = cursor.fetchone()
         self.entry = entry
         if result == None:
             self.title = self.entry.capitalize()
@@ -37,8 +36,8 @@ def update_text(start_vars):
 
     try:
         if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
-            sql = "UPDATE Docs SET content='{0}' WHERE entry='{1}';".format(
-                content, start_vars['entry_type'])
-            g.db.execute(sql)
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute("UPDATE Docs SET content=%s WHERE entry=%s",
+                               (content, start_vars.get("entry_type"),))
     except:
         pass
