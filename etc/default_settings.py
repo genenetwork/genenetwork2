@@ -35,6 +35,8 @@ GN2_PROXY = "http://localhost:8080"
 
 # GN PROXY
 GN_PROXY_URL="https://genenetwork.org/gn3-proxy/"
+# Xapian index
+XAPIAN_DB_PATH = "xapian"
 
 # ---- MySQL
 
