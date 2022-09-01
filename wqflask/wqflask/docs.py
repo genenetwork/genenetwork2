@@ -31,9 +31,8 @@ def update_text(start_vars):
     content = start_vars['ckcontent']
     content = content.replace('%', '%%').replace(
         '"', '\\"').replace("'", "\\'")
-
     try:
-        if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
+        if g.user_session.record.get('user_email_address') in ["zachary.a.sloan@gmail.com", "labwilliams@gmail.com"]:
             with database_connection() as conn, conn.cursor() as cursor:
                 cursor.execute("UPDATE Docs SET content=%s WHERE entry=%s",
                                (content, start_vars.get("entry_type"),))
