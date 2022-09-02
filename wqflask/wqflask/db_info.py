@@ -43,8 +43,6 @@ class InfoPage:
         if self.gn_accession_id:
             final_query = f"{query_base}GN_AccesionId = {self.gn_accession_id}"
             results = g.db.execute(final_query).fetchone()
-            if self.info_page_name and not results:
-                final_query = f"{query_base}InfoPageName = {self.info_page_name}"
         elif self.info_page_name:
             final_query = f"{query_base}InfoPageName = {self.info_page_name}"
             results = g.db.execute(final_query).fetchone()
