@@ -50,10 +50,8 @@ class InfoPage:
         if results:
             self.info = process_query_results(results)
 
-        if (not results or len(results) < 1) and self.info_page_name and create:
-            insert_newlines = (
-                "INSERT INTO InfoFiles SET "
-                f"InfoFiles.InfoPageName={self.info_page_name}")
+        if ((not results or len(results) < 1)
+            and self.info_page_name and create):
             return self.get_info()
 
         if not self.gn_accession_id and self.info:
