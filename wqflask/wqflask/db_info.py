@@ -37,6 +37,8 @@ class InfoPage:
                       "LEFT JOIN Investigators USING (InvestigatorId) "
                       "LEFT JOIN Organizations USING (OrganizationId) "
                       "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE ")
+        if not all([self.gn_accession_id, self.info_page_name]):
+            raise ValueError('No correct parameter found')
 
         if self.gn_accession_id:
             final_query = f"{query_base}GN_AccesionId = {self.gn_accession_id}"
@@ -46,8 +48,6 @@ class InfoPage:
         elif self.info_page_name:
             final_query = f"{query_base}InfoPageName = {self.info_page_name}"
             results = g.db.execute(final_query).fetchone()
-        else:
-            raise ValueError('No correct parameter found')
 
         if results:
             self.info = process_query_results(results)
