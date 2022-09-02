@@ -4,8 +4,7 @@ import urllib.error
 import urllib.parse
 import re
 
-from flask import Flask, g
-
+from wqflask.database import database_connection
 
 class InfoPage:
     def __init__(self, start_vars):
@@ -40,20 +39,21 @@ class InfoPage:
         if not all([self.gn_accession_id, self.info_page_name]):
             raise ValueError('No correct parameter found')
 
-        if self.gn_accession_id:
-            final_query = f"{query_base}GN_AccesionId = {self.gn_accession_id}"
-            results = g.db.execute(final_query).fetchone()
-        elif self.info_page_name:
-            final_query = f"{query_base}InfoPageName = {self.info_page_name}"
-            results = g.db.execute(final_query).fetchone()
-
+        results = None
+        with database_connection() as conn, conn.cursor() as cursor:
+            if self.gn_accession_id:
+                cursor.execute(f"{query_base}GN_AccesionId = %s",
+                               (self.gn_accession_id,))
+                results = cursor.fetchone()
+            elif self.info_page_name:
+                cursor.execute(f"{query_base}InfoPageName = %s",
+                               (self.info_page_name,))
+                results = cursor.fetchone()
         if results:
             self.info = process_query_results(results)
-
         if ((not results or len(results) < 1)
             and self.info_page_name and create):
             return self.get_info()
-
         if not self.gn_accession_id and self.info:
             self.gn_accession_id = self.info['accession_id']
         if not self.info_page_name and self.info:

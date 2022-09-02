@@ -85,12 +85,13 @@ def add_new_resource(dataset, trait_id=None):
 
 
 def get_group_code(dataset):
-    results = g.db.execute(
-        "SELECT InbredSetCode from InbredSet where Name='{}'".format(
-            dataset.group.name)).fetchone()
-    if results[0]:
-        return results[0]
-    else:
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT InbredSetCode FROM InbredSet WHERE Name=%s",
+            (dataset.group.name,)
+        )
+        if results := cursor.fetchone():
+            return results[0]
         return ""
 
 

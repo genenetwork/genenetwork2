@@ -4,7 +4,7 @@ from base.species import TheSpecies
 
 from utility import hmac
 
-from flask import g
+from wqflask.database import database_connection
 
 
 def get_species_dataset_trait(self, start_vars):
@@ -50,16 +50,19 @@ def get_trait_db_obs(self, trait_db_list):
 def get_species_groups():
     """Group each species into a group"""
     _menu = {}
-
-    for species, group_name in g.db.execute(
+    species, group_name = None, None
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
             "SELECT s.MenuName, i.InbredSetName FROM InbredSet i "
             "INNER JOIN Species s ON s.SpeciesId = i.SpeciesId "
-            "ORDER BY i.SpeciesId ASC, i.Name ASC").fetchall():
-        if species in _menu:
-            if _menu.get(species):
-                _menu = _menu[species].append(group_name)
-            else:
-                _menu[species] = [group_name]
-    return [{"species": key,
-             "groups": value} for key, value in
-            list(_menu.items())]
+            "ORDER BY i.SpeciesId ASC, i.Name ASC"
+        )
+        for species, group_name in cursor.fetchall():
+            if species in _menu:
+                if _menu.get(species):
+                    _menu = _menu[species].append(group_name)
+                else:
+                    _menu[species] = [group_name]
+        return [{"species": key,
+                 "groups": value} for key, value in
+                list(_menu.items())]

@@ -20,7 +20,7 @@
 
 import string
 
-from flask import Flask, g
+from wqflask.database import database_connection
 
 from base.trait import GeneralTrait, retrieve_trait_info
 from base.species import TheSpecies
@@ -68,44 +68,51 @@ def get_trait_name_list(trait_list):
 
 def test_chip(trait_list):
     final_chip_name = ""
+    with database_connection() as conn, conn.cursor() as cursor:
+        for trait_db in trait_list:
+            dataset = trait_db[1]
+            cursor.execute(
+                "SELECT GeneChip.GO_tree_value "
+                "FROM GeneChip, ProbeFreeze, ProbeSetFreeze "
+                "WHERE GeneChip.Id = ProbeFreeze.ChipId "
+                "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+                "AND ProbeSetFreeze.Name = %s",
+                (dataset.name,)
+            )
 
-    for trait_db in trait_list:
-        dataset = trait_db[1]
-        result = g.db.execute("""SELECT GeneChip.GO_tree_value
-                                 FROM GeneChip, ProbeFreeze, ProbeSetFreeze
-                                 WHERE GeneChip.Id = ProbeFreeze.ChipId and
-                                     ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                                     ProbeSetFreeze.Name = '%s'""" % dataset.name).fetchone()
-
-        if result:
-            chip_name = result[0]
-            if chip_name:
-                if chip_name != final_chip_name:
-                    if final_chip_name:
-                        return "mixed"
+            if result := cursor.fetchone:
+                chip_name = result[0]
+                if chip_name:
+                    if chip_name != final_chip_name:
+                        if final_chip_name:
+                            return "mixed"
+                        else:
+                            final_chip_name = chip_name
                     else:
-                        final_chip_name = chip_name
+                        pass
                 else:
-                    pass
+                    cursor.execute(
+                        "SELECT GeneChip.Name "
+                        "FROM GeneChip, ProbeFreeze, ProbeSetFreeze "
+                        "WHERE GeneChip.Id = ProbeFreeze.ChipId "
+                        "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+                        "AND ProbeSetFreeze.Name = %s",
+                        (dataset.name,)
+                    )
+                    chip_name = f'{cursor.fetchone()[0]}_NA'
+                    return chip_name
             else:
-                result = g.db.execute("""SELECT GeneChip.Name
-                                         FROM GeneChip, ProbeFreeze, ProbeSetFreeze
-                                         WHERE GeneChip.Id = ProbeFreeze.ChipId and
-                                               ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                                               ProbeSetFreeze.Name = '%s'""" % dataset.name).fetchone()
-                chip_name = '%s_NA' % result[0]
-                return chip_name
-        else:
-            query = """SELECT GeneChip.Name
-                                     FROM GeneChip, ProbeFreeze, ProbeSetFreeze
-                                     WHERE GeneChip.Id = ProbeFreeze.ChipId and
-                                           ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id and
-                                           ProbeSetFreeze.Name = '%s'""" % dataset.name
-            result = g.db.execute(query).fetchone()
-            if result == None:
+                cursor.execute(
+                    "SELECT GeneChip.Name FROM GeneChip, "
+                    "ProbeFreeze, ProbeSetFreeze WHERE "
+                    "GeneChip.Id = ProbeFreeze.ChipId "
+                    "AND ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+                    "AND ProbeSetFreeze.Name = %s",
+                    (dataset.name,)
+                )
+                if result := cursor.fetchone():
+                    chip_name = f'{result[0]}_NA'
+                    return chip_name
                 return "not_microarray"
-            else:
-                chip_name = '%s_NA' % result[0]
-                return chip_name
 
     return chip_name

@@ -3,7 +3,7 @@ import re
 import requests
 import string
 
-from flask import Flask, g
+from wqflask.database import database_connection
 
 from utility.db_tools import escape
 from pprint import pformat as pf
@@ -37,8 +37,9 @@ class DoSearch:
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        results = g.db.execute(query, no_parameters=True).fetchall()
-        return results
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(query)
+            return cursor.fetchall()
 
     def handle_wildcard(self, str):
         keyword = str.strip()
