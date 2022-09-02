@@ -1,6 +1,6 @@
 import collections
 
-from flask import g
+from wqflask.database import database_connection
 
 from utility import db_tools
 from utility import Bunch
@@ -49,7 +49,11 @@ class MrnaAssayTissueData:
             # lower_symbols[gene_symbol.lower()] = True
             if gene_symbol != None:
                 lower_symbols[gene_symbol.lower()] = True
-        results = list(g.db.execute(query).fetchall())
+
+        results = None
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(query)
+            results = cursor.fetchall()
         for result in results:
             symbol = result[0]
             if symbol  is not None and lower_symbols.get(symbol.lower()):
@@ -81,9 +85,10 @@ class MrnaAssayTissueData:
                        FROM TissueProbeSetXRef, TissueProbeSetData
                        WHERE TissueProbeSetData.Id IN {} and
                              TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
-
-
-            results = g.db.execute(query).fetchall()
+            results = []
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute(query)
+                results = cursor.fetchall()
             for result in results:
                 if result.Symbol.lower() not in symbol_values_dict:
                     symbol_values_dict[result.Symbol.lower()] = [result.value]

@@ -1,7 +1,7 @@
 import re
 import itertools
 
-from flask import g
+from wqflask.database import database_connection
 from base import webqtlCaseData, webqtlConfig
 from pprint import pformat as pf
 
@@ -123,15 +123,20 @@ class SampleList:
         """Finds which extra attributes apply to this dataset"""
 
         # Get attribute names and distinct values for each attribute
-        results = g.db.execute('''
-                        SELECT DISTINCT CaseAttribute.Id, CaseAttribute.Name, CaseAttribute.Description, CaseAttributeXRefNew.Value
-                        FROM CaseAttribute, CaseAttributeXRefNew
-                        WHERE CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id
-                        AND CaseAttributeXRefNew.InbredSetId = %s
-                        ORDER BY CaseAttribute.Id''', (str(self.dataset.group.id),))
-
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT DISTINCT CaseAttribute.Id, "
+                "CaseAttribute.Name, CaseAttribute.Description, "
+                "CaseAttributeXRefNew.Value FROM "
+                "CaseAttribute, CaseAttributeXRefNew WHERE "
+                "CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id "
+                "AND CaseAttributeXRefNew.InbredSetId = %s "
+                "ORDER BY CaseAttribute.Id", (str(self.dataset.group.id),)
+            )
         self.attributes = {}
-        for attr, values in itertools.groupby(results.fetchall(), lambda row: (row.Id, row.Name, row.Description)):
+        for attr, values in itertools.groupby(
+                cursor.fetchall(), lambda row: (row.Id, row.Name, row.Description)
+        ):
             key, name, description = attr
             self.attributes[key] = Bunch()
             self.attributes[key].id = key
@@ -156,19 +161,23 @@ class SampleList:
 
     def get_extra_attribute_values(self):
         if self.attributes:
-            query = '''
-                        SELECT Strain.Name AS SampleName, CaseAttributeId AS Id, CaseAttributeXRefNew.Value
-                        FROM Strain, StrainXRef, InbredSet, CaseAttributeXRefNew
-                        WHERE StrainXRef.StrainId = Strain.Id
-                        AND InbredSet.Id = StrainXRef.InbredSetId
-                        AND CaseAttributeXRefNew.StrainId = Strain.Id
-                        AND InbredSet.Id = CaseAttributeXRefNew.InbredSetId
-                        AND CaseAttributeXRefNew.InbredSetId = %s
-                        ORDER BY SampleName''' % self.dataset.group.id
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT Strain.Name AS SampleName, "
+                    "CaseAttributeId AS Id, "
+                    "CaseAttributeXRefNew.Value FROM Strain, "
+                    "StrainXRef, InbredSet, CaseAttributeXRefNew "
+                    "WHERE StrainXRef.StrainId = Strain.Id "
+                    "AND InbredSet.Id = StrainXRef.InbredSetId "
+                    "AND CaseAttributeXRefNew.StrainId = Strain.Id "
+                    "AND InbredSet.Id = CaseAttributeXRefNew.InbredSetId "
+                    "AND CaseAttributeXRefNew.InbredSetId = %s "
+                    "ORDER BY SampleName", (self.dataset.group.id,)
+                )
 
-            results = g.db.execute(query)
-
-            for sample_name, items in itertools.groupby(results.fetchall(), lambda row: row.SampleName):
+            for sample_name, items in itertools.groupby(
+                    cursor.fetchall(), lambda row: row.SampleName
+            ):
                 attribute_values = {}
                 # Make a list of attr IDs without values (that have values for other samples)
                 valueless_attr_ids = [self.attributes[key].id for key in self.attributes.keys()]

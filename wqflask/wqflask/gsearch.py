@@ -2,7 +2,7 @@ import json
 import datetime as dt
 from types import SimpleNamespace
 
-from flask import Flask, g
+from wqflask.database import database_connection
 from base.data_set import create_dataset
 from base.trait import create_trait
 from db import webqtlDatabaseFunction
@@ -26,45 +26,52 @@ class GSearch:
         assert(is_str(self.type))
 
         if self.type == "gene":
-            sql = """
-                SELECT
-                Species.`Name` AS species_name,
-                InbredSet.`Name` AS inbredset_name,
-                Tissue.`Name` AS tissue_name,
-                ProbeSetFreeze.Name AS probesetfreeze_name,
-                ProbeSetFreeze.FullName AS probesetfreeze_fullname,
-                ProbeSet.Name AS probeset_name,
-                ProbeSet.Symbol AS probeset_symbol,
-                CAST(ProbeSet.`description` AS BINARY) AS probeset_description,
-                ProbeSet.Chr AS chr,
-                ProbeSet.Mb AS mb,
-                ProbeSetXRef.Mean AS mean,
-                ProbeSetXRef.LRS AS lrs,
-                ProbeSetXRef.`Locus` AS locus,
-                ProbeSetXRef.`pValue` AS pvalue,
-                ProbeSetXRef.`additive` AS additive,
-                ProbeSetFreeze.Id AS probesetfreeze_id,
-                Geno.Chr as geno_chr,
-                Geno.Mb as geno_mb
-                FROM Species 
-                INNER JOIN InbredSet ON InbredSet.`SpeciesId`=Species.`Id` 
-                INNER JOIN ProbeFreeze ON ProbeFreeze.InbredSetId=InbredSet.`Id` 
-                INNER JOIN Tissue ON ProbeFreeze.`TissueId`=Tissue.`Id` 
-                INNER JOIN ProbeSetFreeze ON ProbeSetFreeze.ProbeFreezeId=ProbeFreeze.Id 
-                INNER JOIN ProbeSetXRef ON ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id 
-                INNER JOIN ProbeSet ON ProbeSet.Id = ProbeSetXRef.ProbeSetId 
-                LEFT JOIN Geno ON ProbeSetXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id
-                WHERE ( MATCH (ProbeSet.Name,ProbeSet.description,ProbeSet.symbol,ProbeSet.alias,ProbeSet.GenbankId, ProbeSet.UniGeneId, ProbeSet.Probe_Target_Description) AGAINST ('%s' IN BOOLEAN MODE) )
-                AND ProbeSetFreeze.confidentiality < 1
-                AND ProbeSetFreeze.public > 0
-                ORDER BY species_name, inbredset_name, tissue_name, probesetfreeze_name, probeset_name
-                LIMIT 6000
-                """ % (self.terms)
-            re = g.db.execute(sql).fetchall()
+            _result = ()
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT Species.`Name` AS species_name, "
+                    "InbredSet.`Name` AS inbredset_name, "
+                    "Tissue.`Name` AS tissue_name, "
+                    "ProbeSetFreeze.Name AS probesetfreeze_name, "
+                    "ProbeSetFreeze.FullName AS "
+                    "probesetfreeze_fullname, ProbeSet.Name AS "
+                    "probeset_name, ProbeSet.Symbol AS "
+                    "probeset_symbol, CAST(ProbeSet.`description` AS BINARY) "
+                    "AS probeset_description, ProbeSet.Chr AS chr, "
+                    "ProbeSet.Mb AS mb, ProbeSetXRef.Mean AS mean, "
+                    "ProbeSetXRef.LRS AS lrs, ProbeSetXRef.`Locus` "
+                    "AS locus, ProbeSetXRef.`pValue` AS , "
+                    "ProbeSetXRef.`additive` AS additive, "
+                    "ProbeSetFreeze.Id AS probesetfreeze_id, "
+                    "Geno.Chr as geno_chr, Geno.Mb as geno_mb "
+                    "FROM Species INNER JOIN InbredSet ON "
+                    "InbredSet.`SpeciesId`=Species.`Id` "
+                    "INNER JOIN ProbeFreeze ON "
+                    "ProbeFreeze.InbredSetId=InbredSet.`Id` "
+                    "INNER JOIN Tissue ON ProbeFreeze.`TissueId`=Tissue.`Id` "
+                    "INNER JOIN ProbeSetFreeze ON "
+                    "ProbeSetFreeze.ProbeFreezeId=ProbeFreeze.Id "
+                    "INNER JOIN ProbeSetXRef ON "
+                    "ProbeSetXRef.ProbeSetFreezeId=ProbeSetFreeze.Id "
+                    "INNER JOIN ProbeSet ON "
+                    "ProbeSet.Id = ProbeSetXRef.ProbeSetId "
+                    "LEFT JOIN Geno ON ProbeSetXRef.Locus = Geno.Name "
+                    "AND Geno.SpeciesId = Species.Id WHERE "
+                    "( MATCH "
+                    "(ProbeSet.Name, ProbeSet.description, ProbeSet.symbol, "
+                    "ProbeSet.alias, ProbeSet.GenbankId, ProbeSet.UniGeneId, "
+                    "ProbeSet.Probe_Target_Description) "
+                    "AGAINST (%s IN BOOLEAN MODE) ) "
+                    "AND ProbeSetFreeze.confidentiality < 1 AND "
+                    "ProbeSetFreeze.public > 0 ORDER BY species_name, "
+                    "inbredset_name, tissue_name, probesetfreeze_name, "
+                    "probeset_name LIMIT 6000", (self.terms,)
+                )
+                _result = cursor.fetchall()
 
             trait_list = []
             dataset_to_permissions = {}
-            for i, line in enumerate(re):
+            for i, line in enumerate(_result):
                 this_trait = {}
                 this_trait['index'] = i + 1
                 this_trait['name'] = line[5]
@@ -168,44 +175,43 @@ class GSearch:
                     search_term = self.terms.split("_")[1]
                     group_clause = "AND InbredSet.`InbredSetCode` = '{}'".format(
                         self.terms.split("_")[0])
-            sql = """
-                SELECT
-                Species.`Name`,
-                InbredSet.`Name`,
-                PublishFreeze.`Name`,
-                PublishFreeze.`FullName`,
-                PublishXRef.`Id`,
-                CAST(Phenotype.`Pre_publication_description` AS BINARY),
-                CAST(Phenotype.`Post_publication_description` AS BINARY),
-                Publication.`Authors`,
-                Publication.`Year`,
-                Publication.`PubMed_ID`,
-                PublishXRef.`LRS`,
-                PublishXRef.`additive`,
-                InbredSet.`InbredSetCode`,
-                PublishXRef.`mean`,
-                PublishFreeze.Id,
-                Geno.Chr as geno_chr,
-                Geno.Mb as geno_mb 
-                FROM Species 
-                INNER JOIN InbredSet ON InbredSet.`SpeciesId`=Species.`Id` 
-                INNER JOIN PublishFreeze ON PublishFreeze.`InbredSetId`=InbredSet.`Id` 
-                INNER JOIN PublishXRef ON PublishXRef.`InbredSetId`=InbredSet.`Id` 
-                INNER JOIN Phenotype ON PublishXRef.`PhenotypeId`=Phenotype.`Id` 
-                INNER JOIN Publication ON PublishXRef.`PublicationId`=Publication.`Id` 
-                LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id 
-                WHERE 
-                (
-                    (MATCH (Phenotype.Post_publication_description, Phenotype.Pre_publication_description, Phenotype.Pre_publication_abbreviation, Phenotype.Post_publication_abbreviation, Phenotype.Lab_code) AGAINST ('{1}' IN BOOLEAN MODE) )
-                    OR (MATCH (Publication.Abstract, Publication.Title, Publication.Authors) AGAINST ('{1}' IN BOOLEAN MODE) )
+            _result = ()
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT Species.`Name`, InbredSet.`Name`, "
+                    "PublishFreeze.`Name`, PublishFreeze.`FullName`, "
+                    "PublishXRef.`Id`, CAST(Phenotype.`Pre_publication_description` "
+                    "AS BINARY), CAST(Phenotype.`Post_publication_description` "
+                    "AS BINARY), Publication.`Authors`, Publication.`Year`, "
+                    "Publication.`PubMed_ID`, PublishXRef.`LRS`, "
+                    "PublishXRef.`additive`, InbredSet.`InbredSetCode`, "
+                    "PublishXRef.`mean`, PublishFreeze.Id, Geno.Chr as geno_chr, "
+                    "Geno.Mb as geno_mb FROM Species "
+                    "INNER JOIN InbredSet ON InbredSet.`SpeciesId`=Species.`Id` "
+                    "INNER JOIN PublishFreeze ON "
+                    "PublishFreeze.`InbredSetId`=InbredSet.`Id` "
+                    "INNER JOIN PublishXRef ON "
+                    "PublishXRef.`InbredSetId`=InbredSet.`Id` "
+                    "INNER JOIN Phenotype ON "
+                    "PublishXRef.`PhenotypeId`=Phenotype.`Id` "
+                    "INNER JOIN Publication ON "
+                    "PublishXRef.`PublicationId`=Publication.`Id` "
+                    "LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name "
+                    "AND Geno.SpeciesId = Species.Id WHERE "
+                    "((MATCH (Phenotype.Post_publication_description, "
+                    "Phenotype.Pre_publication_description, "
+                    "Phenotype.Pre_publication_abbreviation, "
+                    "Phenotype.Post_publication_abbreviation, "
+                    "Phenotype.Lab_code) AGAINST (%s IN BOOLEAN MODE) ) "
+                    "OR (MATCH (Publication.Abstract, Publication.Title, "
+                    "Publication.Authors) AGAINST (%s IN BOOLEAN MODE) ) "
+                    ") %s ORDER BY Species.`Name`, InbredSet.`Name`, "
+                    "PublishXRef.`Id` LIMIT 6000",
+                    (search_term, search_term, group_clause,)
                 )
-                {0}
-                ORDER BY Species.`Name`, InbredSet.`Name`, PublishXRef.`Id`
-                LIMIT 6000
-                """.format(group_clause, search_term)
-            re = g.db.execute(sql).fetchall()
+                _result = cursor.fetchall()
             trait_list = []
-            for i, line in enumerate(re):
+            for i, line in enumerate(_result):
                 trait_dict = {}
                 trait_dict['index'] = i + 1
                 trait_dict['name'] = str(line[4])

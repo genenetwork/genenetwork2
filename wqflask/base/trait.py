@@ -13,8 +13,9 @@ from utility.redis_tools import get_redis_conn, get_resource_id
 from utility.db_tools import escape
 
 from flask import g, request, url_for
-
 from utility.logger import getLogger
+from wqflask.database import database_connection
+
 
 logger = getLogger(__name__)
 
@@ -386,226 +387,220 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     else:
         the_url = GN_PROXY_URL + "run-action?resource={}&user={}&branch=data&action=view&trait={}".format(
             resource_id, g.user_session.user_id, trait.name)
+    with database_connection() as conn, conn.cursor() as cursor:
+        try:
+            response = requests.get(the_url).content
+            trait_info = json.loads(response)
+        except:  # ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
+            trait_info = ()
+            if dataset.type == 'Publish':
+                cursor.execute(
+                    "SELECT PublishXRef.Id, InbredSet.InbredSetCode, "
+                    "Publication.PubMed_ID, "
+                    "CAST(Phenotype.Pre_publication_description AS BINARY), "
+                    "CAST(Phenotype.Post_publication_description AS BINARY), "
+                    "CAST(Phenotype.Original_description AS BINARY), "
+                    "CAST(Phenotype.Pre_publication_abbreviation AS BINARY), "
+                    "CAST(Phenotype.Post_publication_abbreviation AS BINARY), "
+                    "PublishXRef.mean, Phenotype.Lab_code, "
+                    "Phenotype.Submitter, Phenotype.Owner, "
+                    "Phenotype.Authorized_Users, "
+                    "CAST(Publication.Authors AS BINARY), "
+                    "CAST(Publication.Title AS BINARY), "
+                    "CAST(Publication.Abstract AS BINARY), "
+                    "CAST(Publication.Journal AS BINARY), "
+                    "Publication.Volume, Publication.Pages, "
+                    "Publication.Month, Publication.Year, "
+                    "PublishXRef.Sequence, Phenotype.Units, "
+                    "PublishXRef.comments FROM PublishXRef, Publication, "
+                    "Phenotype, PublishFreeze, InbredSet WHERE "
+                    "PublishXRef.Id = %s AND "
+                    "Phenotype.Id = PublishXRef.PhenotypeId "
+                    "AND Publication.Id = PublishXRef.PublicationId "
+                    "AND PublishXRef.InbredSetId = PublishFreeze.InbredSetId "
+                    "AND PublishXRef.InbredSetId = InbredSet.Id AND "
+                    "PublishFreeze.Id = %s",
+                    (trait.name, dataset.id,)
+                )
+                trait_info = cursor.fetchone()
 
-    try:
-        response = requests.get(the_url).content
-        trait_info = json.loads(response)
-    except:  # ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
-        if dataset.type == 'Publish':
-            query = """
-                    SELECT
-                            PublishXRef.Id, InbredSet.InbredSetCode, Publication.PubMed_ID,
-                            CAST(Phenotype.Pre_publication_description AS BINARY),
-                            CAST(Phenotype.Post_publication_description AS BINARY),
-                            CAST(Phenotype.Original_description AS BINARY),
-                            CAST(Phenotype.Pre_publication_abbreviation AS BINARY),
-                            CAST(Phenotype.Post_publication_abbreviation AS BINARY), PublishXRef.mean,
-                            Phenotype.Lab_code, Phenotype.Submitter, Phenotype.Owner, Phenotype.Authorized_Users,
-                            CAST(Publication.Authors AS BINARY), CAST(Publication.Title AS BINARY), CAST(Publication.Abstract AS BINARY),
-                            CAST(Publication.Journal AS BINARY), Publication.Volume, Publication.Pages,
-                            Publication.Month, Publication.Year, PublishXRef.Sequence,
-                            Phenotype.Units, PublishXRef.comments
-                    FROM
-                            PublishXRef, Publication, Phenotype, PublishFreeze, InbredSet
-                    WHERE
-                            PublishXRef.Id = %s AND
-                            Phenotype.Id = PublishXRef.PhenotypeId AND
-                            Publication.Id = PublishXRef.PublicationId AND
-                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                            PublishXRef.InbredSetId = InbredSet.Id AND
-                            PublishFreeze.Id = %s
-                    """ % (trait.name, dataset.id)
+            # XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
+            # XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
+            elif dataset.type == 'ProbeSet':
+                display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
+                display_fields_string = f'ProbeSet.{display_fields_string}'
+                cursor.execute(
+                    "SELECT %s FROM ProbeSet, ProbeSetFreeze, "
+                    "ProbeSetXRef WHERE "
+                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                    "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                    "ProbeSetFreeze.Name = %s AND "
+                    "ProbeSet.Name = %s",
+                    (display_fields_string, dataset.name,
+                     str(trait.name),)
+                )
+                trait_info = cursor.fetchone()
+            # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
+            # to avoid the problem of same marker name from different species.
+            elif dataset.type == 'Geno':
+                display_fields_string = ',Geno.'.join(dataset.display_fields)
+                display_fields_string = f'Geno.{display_fields_string}'
+                cursor.execute(
+                    "SELECT %s FROM Geno, GenoFreeze, "
+                    "GenoXRef WHERE "
+                    "GenoXRef.GenoFreezeId = GenoFreeze.Id "
+                    "AND GenoXRef.GenoId = Geno.Id "
+                    "AND GenoFreeze.Name = %s "
+                    "AND Geno.Name = %s",
+                    (display_fields_string, dataset.name, trait.name)
+                )
+                trait_info = cursor.fetchone()
+            else:  # Temp type
+                cursor.execute(
+                    "SELECT %s FROM %s WHERE Name = %s",
+                    (','.join(dataset.display_fields),
+                     dataset.type, trait.name,)
+                )
+                trait_info = cursor.fetchone()
 
-            logger.sql(query)
-            trait_info = g.db.execute(query).fetchone()
-
-        # XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
-        # XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
-        elif dataset.type == 'ProbeSet':
-            display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
-            display_fields_string = 'ProbeSet.' + display_fields_string
-            query = """
-                    SELECT %s
-                    FROM ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                    WHERE
-                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                            ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                            ProbeSetFreeze.Name = '%s' AND
-                            ProbeSet.Name = '%s'
-                    """ % (escape(display_fields_string),
-                           escape(dataset.name),
-                           escape(str(trait.name)))
-            logger.sql(query)
-            trait_info = g.db.execute(query).fetchone()
-        # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
-        # to avoid the problem of same marker name from different species.
-        elif dataset.type == 'Geno':
-            display_fields_string = ',Geno.'.join(dataset.display_fields)
-            display_fields_string = 'Geno.' + display_fields_string
-            query = """
-                    SELECT %s
-                    FROM Geno, GenoFreeze, GenoXRef
-                    WHERE
-                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-                            GenoXRef.GenoId = Geno.Id AND
-                            GenoFreeze.Name = '%s' AND
-                            Geno.Name = '%s'
-                    """ % (escape(display_fields_string),
-                           escape(dataset.name),
-                           escape(trait.name))
-            logger.sql(query)
-            trait_info = g.db.execute(query).fetchone()
-        else:  # Temp type
-            query = """SELECT %s FROM %s WHERE Name = %s"""
-            logger.sql(query)
-            trait_info = g.db.execute(query,
-                                      ','.join(dataset.display_fields),
-                                      dataset.type, trait.name).fetchone()
-
-    if trait_info:
-        trait.haveinfo = True
-        for i, field in enumerate(dataset.display_fields):
-            holder = trait_info[i]
-            if isinstance(holder, bytes):
-                holder = holder.decode("utf-8", errors="ignore")
-            setattr(trait, field, holder)
-
-        if dataset.type == 'Publish':
-            if trait.group_code:
-                trait.display_name = trait.group_code + "_" + str(trait.name)
-
-            trait.confidential = 0
-            if trait.pre_publication_description and not trait.pubmed_id:
-                trait.confidential = 1
-
-            description = trait.post_publication_description
-
-            # If the dataset is confidential and the user has access to confidential
-            # phenotype traits, then display the pre-publication description instead
-            # of the post-publication description
-            trait.description_display = "N/A"
-            if not trait.pubmed_id:
-                trait.abbreviation = trait.pre_publication_abbreviation
-                if trait.pre_publication_description:
-                    trait.description_display = trait.pre_publication_description
-            else:
-                trait.abbreviation = trait.post_publication_abbreviation
-                if description:
-                    trait.description_display = description.strip()
-
-            if not trait.year.isdigit():
-                trait.pubmed_text = "N/A"
-            else:
-                trait.pubmed_text = trait.year
-
-            if trait.pubmed_id:
-                trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
-
-        if dataset.type == 'ProbeSet' and dataset.group:
-            description_string = trait.description
-            target_string = trait.probe_target_description
-
-            if str(description_string or "") != "" and description_string != 'None':
-                description_display = description_string
-            else:
-                description_display = trait.symbol
-
-            if (str(description_display or "") != ""
-                and description_display != 'N/A'
-                    and str(target_string or "") != "" and target_string != 'None'):
-                description_display = description_display + '; ' + target_string.strip()
-
-            # Save it for the jinja2 template
-            trait.description_display = description_display
-
-            trait.location_repr = 'N/A'
-            if trait.chr and trait.mb:
-                trait.location_repr = 'Chr%s: %.6f' % (
-                    trait.chr, float(trait.mb))
-
-        elif dataset.type == "Geno":
-            trait.location_repr = 'N/A'
-            if trait.chr and trait.mb:
-                trait.location_repr = 'Chr%s: %.6f' % (
-                    trait.chr, float(trait.mb))
-
-        if get_qtl_info:
-            # LRS and its location
-            trait.LRS_score_repr = "N/A"
-            trait.LRS_location_repr = "N/A"
-            trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.additive = ""
-            if dataset.type == 'ProbeSet' and not trait.cellid:
-                trait.mean = ""
-                query = """
-                        SELECT
-                                ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.mean, ProbeSetXRef.additive
-                        FROM
-                                ProbeSetXRef, ProbeSet
-                        WHERE
-                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                ProbeSet.Name = "{}" AND
-                                ProbeSetXRef.ProbeSetFreezeId ={}
-                        """.format(trait.name, dataset.id)
-                logger.sql(query)
-                trait_qtl = g.db.execute(query).fetchone()
-                if trait_qtl:
-                    trait.locus, trait.lrs, trait.pvalue, trait.mean, trait.additive = trait_qtl
-                    if trait.locus:
-                        query = """
-                            select Geno.Chr, Geno.Mb from Geno, Species
-                            where Species.Name = '{}' and
-                            Geno.Name = '{}' and
-                            Geno.SpeciesId = Species.Id
-                            """.format(dataset.group.species, trait.locus)
-                        logger.sql(query)
-                        result = g.db.execute(query).fetchone()
-                        if result:
-                            trait.locus_chr = result[0]
-                            trait.locus_mb = result[1]
-                        else:
-                            trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
-                    else:
-                        trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+        if trait_info:
+            trait.haveinfo = True
+            for i, field in enumerate(dataset.display_fields):
+                holder = trait_info[i]
+                if isinstance(holder, bytes):
+                    holder = holder.decode("utf-8", errors="ignore")
+                setattr(trait, field, holder)
 
             if dataset.type == 'Publish':
-                query = """
-                        SELECT
-                                PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive
-                        FROM
-                                PublishXRef, PublishFreeze
-                        WHERE
-                                PublishXRef.Id = %s AND
-                                PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                                PublishFreeze.Id =%s
-                """ % (trait.name, dataset.id)
-                logger.sql(query)
-                trait_qtl = g.db.execute(query).fetchone()
-                if trait_qtl:
-                    trait.locus, trait.lrs, trait.additive = trait_qtl
-                    if trait.locus:
-                        query = """
-                            select Geno.Chr, Geno.Mb from Geno, Species
-                            where Species.Name = '{}' and
-                            Geno.Name = '{}' and
-                            Geno.SpeciesId = Species.Id
-                            """.format(dataset.group.species, trait.locus)
-                        logger.sql(query)
-                        result = g.db.execute(query).fetchone()
-                        if result:
-                            trait.locus_chr = result[0]
-                            trait.locus_mb = result[1]
+                if trait.group_code:
+                    trait.display_name = trait.group_code + "_" + str(trait.name)
+
+                trait.confidential = 0
+                if trait.pre_publication_description and not trait.pubmed_id:
+                    trait.confidential = 1
+
+                description = trait.post_publication_description
+
+                # If the dataset is confidential and the user has access to confidential
+                # phenotype traits, then display the pre-publication description instead
+                # of the post-publication description
+                trait.description_display = "N/A"
+                if not trait.pubmed_id:
+                    trait.abbreviation = trait.pre_publication_abbreviation
+                    if trait.pre_publication_description:
+                        trait.description_display = trait.pre_publication_description
+                else:
+                    trait.abbreviation = trait.post_publication_abbreviation
+                    if description:
+                        trait.description_display = description.strip()
+
+                if not trait.year.isdigit():
+                    trait.pubmed_text = "N/A"
+                else:
+                    trait.pubmed_text = trait.year
+
+                if trait.pubmed_id:
+                    trait.pubmed_link = webqtlConfig.PUBMEDLINK_URL % trait.pubmed_id
+
+            if dataset.type == 'ProbeSet' and dataset.group:
+                description_string = trait.description
+                target_string = trait.probe_target_description
+
+                if str(description_string or "") != "" and description_string != 'None':
+                    description_display = description_string
+                else:
+                    description_display = trait.symbol
+
+                if (str(description_display or "") != ""
+                    and description_display != 'N/A'
+                        and str(target_string or "") != "" and target_string != 'None'):
+                    description_display = description_display + '; ' + target_string.strip()
+
+                # Save it for the jinja2 template
+                trait.description_display = description_display
+
+                trait.location_repr = 'N/A'
+                if trait.chr and trait.mb:
+                    trait.location_repr = 'Chr%s: %.6f' % (
+                        trait.chr, float(trait.mb))
+
+            elif dataset.type == "Geno":
+                trait.location_repr = 'N/A'
+                if trait.chr and trait.mb:
+                    trait.location_repr = 'Chr%s: %.6f' % (
+                        trait.chr, float(trait.mb))
+
+            if get_qtl_info:
+                # LRS and its location
+                trait.LRS_score_repr = "N/A"
+                trait.LRS_location_repr = "N/A"
+                trait.locus = trait.locus_chr = trait.locus_mb = trait.lrs = trait.pvalue = trait.additive = ""
+                if dataset.type == 'ProbeSet' and not trait.cellid:
+                    trait.mean = ""
+                    cursor.execute(
+                        "SELECT ProbeSetXRef.Locus, ProbeSetXRef.LRS, "
+                        "ProbeSetXRef.pValue, ProbeSetXRef.mean, "
+                        "ProbeSetXRef.additive FROM ProbeSetXRef, "
+                        "ProbeSet WHERE "
+                        "ProbeSetXRef.ProbeSetId = ProbeSet.Id "
+                        "AND ProbeSet.Name = %s AND "
+                        "ProbeSetXRef.ProbeSetFreezeId = %s",
+                        (trait.name, dataset.id,)
+                    )
+                    trait_qtl = cursor.fetchone()
+                    if trait_qtl:
+                        trait.locus, trait.lrs, trait.pvalue, trait.mean, trait.additive = trait_qtl
+                        if trait.locus:
+                            cursor.execute(
+                                "SELECT Geno.Chr, Geno.Mb FROM "
+                                "Geno, Species WHERE "
+                                "Species.Name = %s AND "
+                                "Geno.Name = %s AND "
+                                "Geno.SpeciesId = Species.Id",
+                                (dataset.group.species, trait.locus,)
+                            )
+                            if result := cursor.fetchone() :
+                                trait.locus_chr = result[0]
+                                trait.locus_mb = result[1]
+                            else:
+                                trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+                        else:
+                            trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+
+                if dataset.type == 'Publish':
+                    cursor.execute(
+                        "SELECT PublishXRef.Locus, PublishXRef.LRS, "
+                        "PublishXRef.additive FROM "
+                        "PublishXRef, PublishFreeze WHERE "
+                        "PublishXRef.Id = %s AND "
+                        "PublishXRef.InbredSetId = PublishFreeze.InbredSetId "
+                        "AND PublishFreeze.Id = %s", (trait.name, dataset.id,)
+                    )
+                    if trait_qtl := cursor.fetchone():
+                        trait.locus, trait.lrs, trait.additive = trait_qtl
+                        if trait.locus:
+                            cursor.execute(
+                                "SELECT Geno.Chr, Geno.Mb FROM Geno, "
+                                "Species WHERE Species.Name = %s "
+                                "AND Geno.Name = %s AND "
+                                "Geno.SpeciesId = Species.Id",
+                                (dataset.group.species, trait.locus,)
+                            )
+                            if result := cursor.fetchone():
+                                trait.locus_chr = result[0]
+                                trait.locus_mb = result[1]
+                            else:
+                                trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                         else:
                             trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                     else:
-                        trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
-                else:
-                    trait.locus = trait.lrs = trait.additive = ""
-            if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
-                trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
-                    trait.locus_chr, float(trait.locus_mb))
-                if str(trait.lrs or "") != "":
-                    trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
-    else:
-        raise KeyError(repr(trait.name)
-                       + ' information is not found in the database.')
-    return trait
+                        trait.locus = trait.lrs = trait.additive = ""
+                if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
+                    trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
+                        trait.locus_chr, float(trait.locus_mb))
+                    if str(trait.lrs or "") != "":
+                        trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
+        else:
+            raise KeyError(repr(trait.name)
+                           + ' information is not found in the database.')
+        return trait

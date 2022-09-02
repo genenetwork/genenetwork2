@@ -11,7 +11,7 @@ from collections import OrderedDict
 import numpy as np
 import scipy.stats as ss
 
-from flask import g
+from wqflask.database import database_connection
 
 from base import webqtlConfig
 from wqflask.show_trait.SampleList import SampleList
@@ -84,14 +84,21 @@ class ShowTrait:
             blatsequence = self.this_trait.blatseq
             if not blatsequence:
                 # XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
-                query1 = """SELECT Probe.Sequence, Probe.Name
-                            FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                            WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                                    ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                    ProbeSetFreeze.Name = '%s' AND
-                                    ProbeSet.Name = '%s' AND
-                                    Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
-                seqs = g.db.execute(query1).fetchall()
+                seqs = ()
+                with database_connection() as conn, conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT Probe.Sequence, Probe.Name "
+                        "FROM Probe, ProbeSet, ProbeSetFreeze, "
+                        "ProbeSetXRef WHERE "
+                        "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                        "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                        "ProbeSetFreeze.Name = %s AND "
+                        "ProbeSet.Name = %s AND "
+                        "Probe.ProbeSetId = ProbeSet.Id ORDER "
+                        "BY Probe.SerialOrder",
+                        (self.this_trait.dataset.name, self.this_trait.name,)
+                    )
+                    seqs = cursor.fetchall()
                 if not seqs:
                     raise ValueError
                 else:
@@ -104,15 +111,20 @@ class ShowTrait:
             blatsequence = '%3E' + self.this_trait.name + '%0A' + blatsequence + '%0A'
 
             # XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
-            query2 = """SELECT Probe.Sequence, Probe.Name
-                        FROM Probe, ProbeSet, ProbeSetFreeze, ProbeSetXRef
-                        WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                ProbeSetFreeze.Name = '%s' AND
-                                ProbeSet.Name = '%s' AND
-                                Probe.ProbeSetId = ProbeSet.Id order by Probe.SerialOrder""" % (self.this_trait.dataset.name, self.this_trait.name)
-
-            seqs = g.db.execute(query2).fetchall()
+            seqs = ()
+            with database_connection() as conn, conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT Probe.Sequence, Probe.Name "
+                    "FROM Probe, ProbeSet, ProbeSetFreeze, "
+                    "ProbeSetXRef WHERE "
+                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                    "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                    "ProbeSetFreeze.Name = %s AND ProbeSet.Name = %s "
+                    "AND Probe.ProbeSetId = ProbeSet.Id "
+                    "ORDER BY Probe.SerialOrder",
+                    (self.this_trait.dataset.name, self.this_trait.name,)
+                )
+                seqs = cursor.fetchall()
             for seqt in seqs:
                 if int(seqt[1][-1]) % 2 == 1:
                     blatsequence += '%3EProbe_' + \
@@ -378,12 +390,14 @@ class ShowTrait:
 
                 if self.dataset.group.species == "mouse":
                     self.aba_link = webqtlConfig.ABA_URL % self.this_trait.symbol
-
-                    query = """SELECT chromosome, txStart, txEnd
-                            FROM GeneList
-                            WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
-
-                    results = g.db.execute(query).fetchone()
+                    results = ()
+                    with database_connection() as conn, conn.cursor() as cursor:
+                        cursor.execute(
+                            "SELECT chromosome, txStart, txEnd FROM "
+                            "GeneList WHERE geneSymbol = %s",
+                            (self.this_trait.symbol,)
+                        )
+                        results = cursor.fetchone()
                     if results:
                         chr, transcript_start, transcript_end = results
                     else:
@@ -403,15 +417,17 @@ class ShowTrait:
                 self.genemania_link = webqtlConfig.GENEMANIA_URL % (
                     "rattus-norvegicus", self.this_trait.symbol)
 
-                query = """SELECT kgID, chromosome, txStart, txEnd
-                        FROM GeneList_rn33
-                        WHERE geneSymbol = '{}'""".format(self.this_trait.symbol)
-
-                results = g.db.execute(query).fetchone()
-                if results:
-                    kgId, chr, transcript_start, transcript_end = results
-                else:
-                    kgId = chr = transcript_start = transcript_end = None
+                results = ()
+                with database_connection() as conn, conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT kgID, chromosome, txStart, txEnd "
+                        "FROM GeneList_rn33 WHERE geneSymbol = %s",
+                        (self.this_trait.symbol,)
+                    )
+                    if results := cursor.fetchone():
+                        kgId, chr, transcript_start, transcript_end = results
+                    else:
+                        kgId = chr = transcript_start = transcript_end = None
 
                 if chr and transcript_start and transcript_end and kgId:
                     # Convert to bases from megabases
@@ -605,19 +621,19 @@ def get_nearest_marker(this_trait, this_db):
     this_mb = this_trait.locus_mb
     # One option is to take flanking markers, another is to take the
     # two (or one) closest
-    query = """SELECT Geno.Name
-               FROM Geno, GenoXRef, GenoFreeze
-               WHERE Geno.Chr = '{}' AND
-                     GenoXRef.GenoId = Geno.Id AND
-                     GenoFreeze.Id = GenoXRef.GenoFreezeId AND
-                     GenoFreeze.Name = '{}'
-               ORDER BY ABS( Geno.Mb - {}) LIMIT 1""".format(this_chr, this_db.group.name + "Geno", this_mb)
-    result = g.db.execute(query).fetchall()
-
-    if result == []:
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT Geno.Name FROM Geno, GenoXRef, "
+            "GenoFreeze WHERE Geno.Chr = %s AND "
+            "GenoXRef.GenoId = Geno.Id AND "
+            "GenoFreeze.Id = GenoXRef.GenoFreezeId "
+            "AND GenoFreeze.Name = %s ORDER BY "
+            "ABS( Geno.Mb - %s) LIMIT 1",
+            (this_chr, f"{this_db.group.name}Geno", this_mb,)
+        )
+        if result := cursor.fetchall():
+            return result[0][0]
         return ""
-    else:
-        return result[0][0]
 
 
 def get_table_widths(sample_groups, sample_column_width, has_num_cases=False):

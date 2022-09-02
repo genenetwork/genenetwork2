@@ -999,14 +999,12 @@ def get_group_id_from_dataset(dataset_name):
 
 
 def get_group_id(group_name):
-    query = """
-               SELECT InbredSet.Id
-               FROM InbredSet
-               WHERE InbredSet.Name = "{}"
-            """.format(group_name)
-
-    group_id = g.db.execute(query).fetchone()
-    if group_id:
-        return group_id[0]
-    else:
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT InbredSet.Id FROM InbredSet "
+            "WHERE InbredSet.Name = %s",
+            (group_name,)
+        )
+        if group_id := cursor.fetchone():
+            return group_id[0]
         return None
