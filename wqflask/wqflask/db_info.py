@@ -39,15 +39,12 @@ class InfoPage:
                       "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE ")
 
         if self.gn_accession_id:
-            final_query = query_base + \
-                "GN_AccesionId = {}".format(self.gn_accession_id)
+            final_query = f"{query_base}GN_AccesionId = {self.gn_accession_id}"
             results = g.db.execute(final_query).fetchone()
             if self.info_page_name and not results:
-                final_query = query_base + \
-                    "InfoPageName={}".format(self.info_page_name)
+                final_query = f"{query_base}InfoPageName = {self.info_page_name}"
         elif self.info_page_name:
-            final_query = query_base + \
-                "InfoPageName={}".format(self.info_page_name)
+            final_query = f"{query_base}InfoPageName = {self.info_page_name}"
             results = g.db.execute(final_query).fetchone()
         else:
             raise 'No correct parameter found'
@@ -56,8 +53,9 @@ class InfoPage:
             self.info = process_query_results(results)
 
         if (not results or len(results) < 1) and self.info_page_name and create:
-            insert_sql = "INSERT INTO InfoFiles SET InfoFiles.InfoPageName={}".format(
-                self.info_page_name)
+            insert_newlines = (
+                "INSERT INTO InfoFiles SET "
+                f"InfoFiles.InfoPageName={self.info_page_name}")
             return self.get_info()
 
         if not self.gn_accession_id and self.info:
