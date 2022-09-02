@@ -1,5 +1,3 @@
-from flask import Flask, g, url_for
-
 import string
 from PIL import (Image)
 
@@ -152,112 +150,111 @@ class SnpBrowser:
 
     def get_browser_results(self):
         self.snp_list = None
+        __query = ""
+        __vars = None
+        with database_connection() as conn, conn.cursor() as cursor:
+            if self.gene_name != "":
+                if self.species_id != 0:
+                    __query = ("SELECT geneSymbol, chromosome, txStart, "
+                               "txEnd FROM GeneList WHERE SpeciesId = %s "
+                               "AND geneSymbol = %s")
+                    __vars = (self.species_id, self.gene_name,)
+                else:
+                    __query = ("SELECT geneSymbol, chromosome, txStart, "
+                               "txEnd FROM GeneList WHERE geneSymbol = %s")
+                    __vars = (self.gene_name,)
+                cursor.execute(__query, __vars)
 
-        if self.gene_name != "":
-            if self.species_id != 0:
-                query = "SELECT geneSymbol, chromosome, txStart, txEnd FROM GeneList WHERE SpeciesId = %s AND geneSymbol = '%s'" % (
-                    self.species_id, self.gene_name)
-            else:
-                query = "SELECT geneSymbol, chromosome, txStart, txEnd FROM GeneList WHERE geneSymbol = '%s'" % (
-                    self.gene_name)
-            result = g.db.execute(query).fetchone()
-            if result:
-                self.gene_name, self.chr, self.start_mb, self.end_mb = result
-            else:
-                result_snp = None
-                if self.variant_type == "SNP":
-                    if self.gene_name[:2] == "rs":
-                        query = "SELECT Id, Chromosome, Position, Position+0.000001 FROM SnpAll WHERE Rs = '%s'" % self.gene_name
-                    else:
-                        if self.species_id != 0:
-                            query = "SELECT Id, Chromosome, Position, Position+0.000001 FROM SnpAll where SpeciesId = %s AND SnpName = '%s'" % (
-                                self.species_id, self.gene_name)
+                if result := cursor.fetchone():
+                    self.gene_name, self.chr, self.start_mb, self.end_mb = result
+                else:
+                    if self.variant_type in ["SNP", "InDel"]:
+                        result_snp = None
+                        __vars = (self.gene_name,)
+                        if self.variant_type == "SNP":
+                            if self.gene_name[:2] == "rs":
+                                __query = ("SELECT Id, Chromosome, Position, "
+                                           "Position+0.000001 FROM SnpAll "
+                                           "WHERE Rs = %s")
+                            else:
+                                if self.species_id != 0:
+                                    __query = (
+                                        "SELECT Id, Chromosome, Position, "
+                                        "Position+0.000001 FROM SnpAll WHERE "
+                                        "SpeciesId = %s AND SnpName = %s")
+                                    __vars = (self.species_id, self.gene_name,)
+                                else:
+                                    __query = (
+                                        "SELECT Id, Chromosome, Position, "
+                                        "Position+0.000001 FROM SnpAll "
+                                        "WHERE SnpName = %s")
+                            cursor.execute(__query, __vars)
+                            result_snp = cursor.fetchall()
+                        else:  # variant_type == InDel
+                            if self.gene_name[0] == "I":
+                                if self.species_id != 0:
+                                    __query = (
+                                        "SELECT Id, Chromosome, Mb_start, "
+                                        "Mb_end FROM IndelAll WHERE "
+                                        "SpeciesId = %s AND Name = %s")
+                                    __vars = (self.species_id, self.gene_name,)
+                                else:
+                                    __query = (
+                                        "SELECT Id, Chromosome, Mb_start, "
+                                        "Mb_end FROM IndelAll WHERE Name = %s",)
+                                    __vars = (self.gene_name,)
+                                cursor.execute(__query, __vars)
+                                result_snp = cursor.fetchall()
+                        if result_snp:
+                            self.snp_list = [item[0] for item in result_snp]
+                            self.chr = result_snp[0][1]
+                            self.start_mb = result_snp[0][2]
+                            self.end_mb = result_snp[0][3]
                         else:
-                            query = "SELECT Id, Chromosome, Position, Position+0.000001 FROM SnpAll where SnpName = '%s'" % (
-                                self.gene_name)
-                    result_snp = g.db.execute(query).fetchall()
-                    if result_snp:
-                        self.snp_list = [item[0] for item in result_snp]
-                        self.chr = result_snp[0][1]
-                        self.start_mb = result_snp[0][2]
-                        self.end_mb = result_snp[0][3]
-                    else:
-                        return []
-                elif self.variant_type == "InDel":
-                    if self.gene_name[0] == "I":
-                        if self.species_id != 0:
-                            query = "SELECT Id, Chromosome, Mb_start, Mb_end FROM IndelAll WHERE SpeciesId = %s AND Name = '%s'" % (
-                                self.species_id, self.gene_name)
-                        else:
-                            query = "SELECT Id, Chromosome, Mb_start, Mb_end FROM IndelAll WHERE Name = '%s'" % (
-                                self.gene_name)
-                        result_snp = g.db.execute(query).fetchall()
-                    if result_snp:
-                        self.snp_list = [item[0] for item in result_snp]
-                        self.chr = result_snp[0][1]
-                        self.start_mb = result_snp[0][2]
-                        self.end_mb = result_snp[0][3]
-                    else:
-                        return []
+                            return []
 
-        if self.variant_type == "SNP":
-            mouse_query = """
-                       SELECT
-                           a.*, b.*
-                       FROM
-                           SnpAll a, SnpPattern b
-                       WHERE
-                           a.SpeciesId = %s AND a.Chromosome = '%s' AND
-                           a.Position >= %.6f AND a.Position < %.6f AND
-                           a.Id = b.SnpId
-                       ORDER BY a.Position
-                    """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
+            if self.variant_type == "SNP":
+                __vars = (self.species_id, self.chr,
+                          f"{self.start_mb:.6f}",
+                          f"{self.end_mb:.6f}",)
+                if self.species_id == 1:  # Mouse
+                    __query = ("SELECT a.*, b.* FROM SnpAll a, SnpPattern b "
+                               "WHERE a.SpeciesId = %s AND a.Chromosome = %s "
+                               "AND a.Position >= %s AND a.Position < %s "
+                               "AND a.Id = b.SnpId ORDER BY a.Position")
+                elif self.species_id == 2:  # Rat
+                    __query = (
+                        "SELECT a.*, b.* FROM SnpAll a, RatSnpPattern b "
+                        "WHERE a.SpeciesId = %s AND a.Chromosome = %s "
+                        "AND a.Position >= %s AND a.Position < %s "
+                        "AND a.Id = b.SnpId ORDER BY a.Position")
 
-            rat_query = """
-                       SELECT
-                           a.*, b.*
-                       FROM
-                           SnpAll a, RatSnpPattern b
-                       WHERE
-                           a.SpeciesId = %s AND a.Chromosome = '%s' AND
-                           a.Position >= %.6f AND a.Position < %.6f AND
-                           a.Id = b.SnpId
-                       ORDER BY a.Position
-                    """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
-            if self.species_id == 1:
-                query = mouse_query
-            elif self.species_id == 2:
-                query = rat_query
-
-        elif self.variant_type == "InDel":
-            if self.species_id != 0:
-                query = """
-                           SELECT
-                               DISTINCT a.Name, a.Chromosome, a.SourceId, a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, a.InDelSequence, b.Name
-                           FROM
-                               IndelAll a, SnpSource b
-                           WHERE
-                               a.SpeciesId = '%s' AND a.Chromosome = '%s' AND
-                               a.Mb_start >= %2.6f AND a.Mb_start < (%2.6f+.0010) AND
-                               b.Id = a.SourceId
-                           ORDER BY a.Mb_start
-                        """ % (self.species_id, self.chr, self.start_mb, self.end_mb)
-            else:
-                query = """
-                           SELECT
-                               DISTINCT a.Name, a.Chromosome, a.SourceId, a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, a.InDelSequence, b.Name
-                           FROM
-                               IndelAll a, SnpSource b
-                           WHERE
-                               a.Chromosome = '%s' AND
-                               a.Mb_start >= %2.6f AND a.Mb_start < (%2.6f+.0010) AND
-                               b.Id = a.SourceId
-                           ORDER BY a.Mb_start
-                        """ % (self.chr, self.start_mb, self.end_mb)
-
-        results_all = g.db.execute(query).fetchall()
-
-        return self.filter_results(results_all)
+            elif self.variant_type == "InDel":
+                if self.species_id != 0:
+                    __query = (
+                        "SELECT DISTINCT a.Name, a.Chromosome, a.SourceId, "
+                        "a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, "
+                        "a.InDelSequence, b.Name FROM IndelAll a, "
+                        "SnpSource b WHERE a.SpeciesId = %s AND "
+                        "a.Chromosome = %s AND a.Mb_start >= %s "
+                        "AND a.Mb_start < %s AND b.Id = a.SourceId "
+                        "ORDER BY a.Mb_start")
+                    __vars = (self.species_id,
+                              self.chr, f"{self.start_mb:2.6f}",
+                         f"{self.end_mb+0.0010:2.6f}",)
+                    cursor.execute(__query, __vars)
+                else:
+                    __query = (
+                        "SELECT DISTINCT a.Name, a.Chromosome, a.SourceId, "
+                        "a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, "
+                        "a.InDelSequence, b.Name FROM IndelAll a, "
+                        "SnpSource b WHERE a.Chromosome = %s AND "
+                        "a.Mb_start >= %2.6f AND a.Mb_start < (%2.6f+.0010) "
+                        "AND b.Id = a.SourceId ORDER BY a.Mb_start")
+                    __vars = (self.chr, f"{self.start_mb:2.6f}",
+                              f"{self.end_mb+0.0010:2.6f}",)
+            cursor.execute(__query, __vars)
+            return self.filter_results(cursor.fetchall())
 
     def filter_results(self, results):
         filtered_results = []
