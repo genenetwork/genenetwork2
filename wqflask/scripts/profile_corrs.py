@@ -35,12 +35,9 @@ def simulated_form(corr_type: str = "sample"):
 def profile_corrs():
     "Profile tho correlations"
     profiler = cProfile.Profile()
-    # compute_correlation(simulated_form(), compute_all=True)
     profiler.enable()
     correlation_results = compute_correlation(request.form, compute_all=True)
-    # correlation_results = set_template_vars(request.form, correlation_results)
     profiler.disable()
-
     return profiler
 
 def dump_stats(profiler):
@@ -71,7 +68,6 @@ if __name__ == "__main__":
             g.db = sqlalchemy.create_engine( ## Setup global db connection
                 app.config.get('SQL_URI'), encoding="latin1")
             g.user_session = UserSession()
-            # g.user_session.user_id = 0
             main()
             ## dispose global db connection
             g.db.dispose()

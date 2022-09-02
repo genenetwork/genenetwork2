@@ -2884,7 +2884,6 @@ class DisplayMappingResults:
 
                 # add by NL 09-03-2010
                 HREF = "javascript:chrView(%d,%s);" % (i, self.ChrLengthMbList)
-                #HREF = "javascript:changeView(%d,%s);" % (i,self.ChrLengthMbList)
                 Areas = HtmlGenWrapper.create_area_tag(
                     shape='rect',
                     coords=COORDS,
