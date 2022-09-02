@@ -47,7 +47,7 @@ class InfoPage:
             final_query = f"{query_base}InfoPageName = {self.info_page_name}"
             results = g.db.execute(final_query).fetchone()
         else:
-            raise 'No correct parameter found'
+            raise ValueError('No correct parameter found')
 
         if results:
             self.info = process_query_results(results)
