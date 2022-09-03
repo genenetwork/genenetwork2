@@ -13,11 +13,9 @@ from utility.redis_tools import get_redis_conn, get_resource_id
 from utility.db_tools import escape
 
 from flask import g, request, url_for
-from utility.logger import getLogger
+
 from wqflask.database import database_connection
 
-
-logger = getLogger(__name__)
 
 Redis = get_redis_conn()
 
