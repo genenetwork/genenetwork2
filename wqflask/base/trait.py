@@ -378,7 +378,8 @@ def jsonable(trait, dataset=None):
 
 
 def retrieve_trait_info(trait, dataset, get_qtl_info=False):
-    assert dataset, "Dataset doesn't exist"
+    if not dataset:
+        raise ValueError("Dataset doesn't exist")
 
     resource_id = get_resource_id(dataset, trait.name)
     if dataset.type == 'Publish':
