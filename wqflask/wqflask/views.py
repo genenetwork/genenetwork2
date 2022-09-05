@@ -11,7 +11,6 @@ import numpy as np
 import os
 import pickle as pickle
 import random
-import sqlalchemy
 import sys
 import traceback
 import uuid
@@ -68,7 +67,6 @@ from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
 
 from utility import temp_data
-from utility.tools import SQL_URI
 from utility.tools import TEMPDIR
 from utility.tools import USE_REDIS
 from utility.tools import GN_SERVER_URL
@@ -83,29 +81,6 @@ from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 
 Redis = get_redis_conn()
-
-
-@app.before_request
-def connect_db():
-    db = getattr(g, '_database', None)
-    if request.endpoint not in ("static", "js") and db is None:
-        try:
-            g.db = sqlalchemy.create_engine(
-                SQL_URI, encoding="latin1")
-        except Exception:  # Capture everything
-            app.logger.error(f"DATABASE: Error creating connection for: {request.endpoint}")
-
-
-@app.teardown_appcontext
-def shutdown_session(exception=None):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        try:
-            g.db.dispose()
-        except Exception:  # Capture Everything
-            app.logger.error(f"DATABASE: Error disposing: {g.db=}")
-        finally:  # Reset regardless of what happens
-            g.db = None
 
 
 @app.errorhandler(Exception)
