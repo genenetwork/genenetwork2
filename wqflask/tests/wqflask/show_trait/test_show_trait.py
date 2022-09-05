@@ -10,7 +10,6 @@ from wqflask.show_trait.show_trait import get_categorical_variables
 from wqflask.show_trait.show_trait import get_trait_units
 from wqflask.show_trait.show_trait import get_nearest_marker
 from wqflask.show_trait.show_trait import get_genotype_scales
-from wqflask.show_trait.show_trait import requests
 from wqflask.show_trait.show_trait import get_scales_from_genofile
 
 

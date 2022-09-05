@@ -21,8 +21,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
 from typing import Optional, Dict, List
-from utility.tools import USE_GN_SERVER, USE_REDIS, flat_files, flat_file_exists, GN2_BASE_URL
-from pprint import pformat as pf
+from utility.tools import USE_REDIS, flat_file_exists, GN2_BASE_URL
 from utility.db_tools import escape
 from utility.db_tools import mescape
 from utility.db_tools import create_in_clause
@@ -34,26 +33,21 @@ from utility import webqtlUtil
 from db import webqtlDatabaseFunction
 from base import species
 from base import webqtlConfig
-from flask import Flask, g
 from base.webqtlConfig import TMPDIR
 from urllib.parse import urlparse
 from utility.tools import SQL_URI
 from wqflask.database import database_connection
 import os
 import math
-import string
 import collections
 import codecs
 
 import json
 import requests
-import gzip
 import pickle as pickle
-import itertools
 import hashlib
-import datetime
-
 from redis import Redis
+
 
 r = Redis()
 
