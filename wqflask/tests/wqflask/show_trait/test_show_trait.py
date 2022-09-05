@@ -22,39 +22,6 @@ class TraitObject:
             self.id += str(value)
 
 
-class TestTraits(unittest.TestCase):
-    @mock.patch("wqflask.show_trait.show_trait.requests.get")
-    @mock.patch("wqflask.show_trait.show_trait.check_if_attr_exists")
-    def test_get_ncbi_summary_request_success(self, mock_exists, mock_get):
-        """test for getting ncbi summary with 
-        successful request"""
-        trait = TraitObject({"geneid": "id"})
-        mock_exists.return_value = True
-        content_json_string = """{
-          "result":{
-            "id":{
-              "summary":"this is a summary of the geneid"
-            }
-          }
-        }
-        """
-        get_return_obj = TraitObject({"content": content_json_string})
-        mock_get.return_value = get_return_obj
-        results = get_ncbi_summary(trait)
-        mock_exists.assert_called_once()
-        mock_get.assert_called_once_with(
-            f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={trait.geneid}&retmode=json")
-
-        self.assertEqual(results, "this is a summary of the geneid")
-
-    @mock.patch("wqflask.show_trait.show_trait.requests.get")
-    @mock.patch("wqflask.show_trait.show_trait.check_if_attr_exists")
-    def test_get_ncbi_summary_request_fail(self, mock_exists, mock_get_fail):
-        """test for getting ncbi summary with request fail"""
-        trait = TraitObject({"geneid": "id"})
-        mock_exists.return_value = True
-        mock_get_fail.side_effect = Exception("an error occurred")
-        content_json_string = """{
 @pytest.mark.parametrize(
     ('trait', 'id_type', 'expected'),
     (
@@ -69,16 +36,32 @@ def test_check_if_attr_exists(trait, id_type, expected):
     """"test check_if_attr_exists"""
     assert check_if_attr_exists(trait, id_type) == expected
 
+
+def test_get_ncbi_summary_request(mocker):
+    trait = TraitObject({"geneid": "id"})
+    mocker.patch("wqflask.show_trait.show_trait.check_if_attr_exists",
+                 return_value=True)
+    mock_get = mocker.patch(
+        "wqflask.show_trait.show_trait.requests.get",
+        return_value=TraitObject({"content": """{
           "result":{
             "id":{
               "summary":"this is a summary of the geneid"
             }
           }
         }
-        """
-        results = get_ncbi_summary(trait)
-        self.assertEqual(results, None)
+        """}))
+    assert get_ncbi_summary(trait) == "this is a summary of the geneid"
+    mock_get.assert_called_once_with(
+        "http://eutils.ncbi.nlm.nih.gov/entrez/"
+        "eutils/esummary.fcgi?db=gene&id="
+        f"{trait.geneid}&retmode=json"
+    )
+    mock_get.side_effect = Exception("an error occurred")
+    assert get_ncbi_summary(trait) == None
 
+
+class TestTraits(unittest.TestCase):
     def test_hash_num_cases_is_probeset(self):
         """test for hash num_cases with dataset.type set to Probeset"""
         create_dataset = TraitObject({"type": "ProbeSet"})
