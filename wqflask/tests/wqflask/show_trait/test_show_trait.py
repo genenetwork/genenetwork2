@@ -143,39 +143,49 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(results, "this is a descriptionN/A")
         self.assertEqual(results_no_unit, "Value")
 
-    @mock.patch("wqflask.show_trait.show_trait.g")
+    @mock.patch("wqflask.show_trait.show_trait.database_connection")
     def test_get_nearest_marker(self, mock_db):
         """test for getting nearest marker with non-empty db"""
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
+        with conn.cursor() as cursor:
+            cursor.fetchall.return_value = [
+                ["Geno1", "Geno2"], ["Geno3"]]
 
-        mock_db.db.execute.return_value.fetchall.return_value = [
-            ["Geno1", "Geno2"], ["Geno3"]]
+            trait = TraitObject({
+                "locus_chr": "test_chr",
+                "locus_mb": "test_mb"
+            })
+            group_name = TraitObject({"name": "group_name"})
+            this_db = TraitObject({"group": group_name})
+            results_with_item_db = get_nearest_marker(trait, this_db)
+            cursor.execute.assert_called_with(
+                "SELECT Geno.Name FROM Geno, GenoXRef, "
+                "GenoFreeze WHERE Geno.Chr = %s "
+                "AND GenoXRef.GenoId = Geno.Id AND "
+                "GenoFreeze.Id = GenoXRef.GenoFreezeId "
+                "AND GenoFreeze.Name = %s "
+                "ORDER BY ABS( Geno.Mb - %s) LIMIT 1",
+                ('test_chr', 'group_nameGeno', 'test_mb'))
 
-        trait = TraitObject({"locus_chr": "test_chr", "locus_mb": "test_mb"})
-        group_name = TraitObject({"name": "group_name"})
-        this_db = TraitObject({"group": group_name})
-        results_with_item_db = get_nearest_marker(trait, this_db)
-        called_with_value = """SELECT Geno.Name
-               FROM Geno, GenoXRef, GenoFreeze
-               WHERE Geno.Chr = 'test_chr' AND
-                     GenoXRef.GenoId = Geno.Id AND
-                     GenoFreeze.Id = GenoXRef.GenoFreezeId AND
-                     GenoFreeze.Name = 'group_nameGeno'
-               ORDER BY ABS( Geno.Mb - test_mb) LIMIT 1"""
+            self.assertEqual(results_with_item_db, "Geno1")
 
-        mock_db.db.execute.assert_called_with(called_with_value)
-
-        self.assertEqual(results_with_item_db, "Geno1")
-
-    @mock.patch("wqflask.show_trait.show_trait.g")
+    @mock.patch("wqflask.show_trait.show_trait.database_connection")
     def test_get_nearest_marker_empty_db(self, mock_db):
         """test for getting nearest marker with empty db"""
-        mock_db.db.execute.return_value.fetchall.return_value = []
-        trait = TraitObject({"locus_chr": "test_chr", "locus_mb": "test_mb"})
-        group_name = TraitObject({"name": "group_name"})
-        this_db = TraitObject({"group": group_name})
-        results_empty_db = get_nearest_marker(trait, this_db)
-        mock_db.db.execute.assert_called_once()
-        self.assertEqual(results_empty_db, "")
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
+        with conn.cursor() as cursor:
+            cursor.fetchall.return_value = []
+            trait = TraitObject({
+                "locus_chr": "test_chr",
+                "locus_mb": "test_mb"
+            })
+            group_name = TraitObject({"name": "group_name"})
+            this_db = TraitObject({"group": group_name})
+            results_empty_db = get_nearest_marker(trait, this_db)
+            cursor.execute.assert_called_once()
+            self.assertEqual(results_empty_db, "")
 
     @mock.patch("wqflask.show_trait.show_trait.get_scales_from_genofile")
     def test_get_genotype_scales_with_genofile_is_list(self, mock_get_scales):

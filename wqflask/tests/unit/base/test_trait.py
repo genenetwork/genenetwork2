@@ -3,7 +3,6 @@
 import unittest
 from unittest import mock
 
-from wqflask import app
 from base.trait import GeneralTrait
 from base.trait import retrieve_trait_info
 
@@ -32,25 +31,24 @@ class MockTrait(GeneralTrait):
 
 class TestRetrieveTraitInfo(unittest.TestCase):
     """Tests for 'retrieve_trait_info'"""
-
-    def setUp(self):
-        self.app_context = app.app_context()
-        self.app_context.push()
-
-    def tearDown(self):
-        self.app_context.pop()
-
-    def test_retrieve_trait_info_with_empty_dataset(self):
+    @mock.patch('base.trait.database_connection')
+    def test_retrieve_trait_info_with_empty_dataset(self, mock_db):
         """Test that an exception is raised when dataset is empty"""
-        with self.assertRaises(AssertionError):
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
+        with self.assertRaises(ValueError):
             retrieve_trait_info(trait=mock.MagicMock(),
                                 dataset={})
 
     @mock.patch('base.trait.requests.get')
     @mock.patch('base.trait.g', mock.Mock())
+    @mock.patch('base.trait.database_connection')
     def test_retrieve_trait_info_with_empty_trait_info(self,
+                                                       mock_db,
                                                        requests_mock):
         """Empty trait info"""
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
         requests_mock.return_value = TestNilResponse()
         with self.assertRaises(KeyError):
             retrieve_trait_info(trait=mock.MagicMock(),
@@ -58,10 +56,14 @@ class TestRetrieveTraitInfo(unittest.TestCase):
 
     @mock.patch('base.trait.requests.get')
     @mock.patch('base.trait.g', mock.Mock())
+    @mock.patch('base.trait.database_connection')
     def test_retrieve_trait_info_with_non_empty_trait_info(self,
+                                                           mock_db,
                                                            requests_mock):
         """Test that attributes are set"""
         mock_dataset = mock.MagicMock()
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
         requests_mock.return_value = TestResponse()
         type(mock_dataset).display_fields = mock.PropertyMock(
             return_value=["a", "b", "c", "d"])
@@ -74,10 +76,14 @@ class TestRetrieveTraitInfo(unittest.TestCase):
 
     @mock.patch('base.trait.requests.get')
     @mock.patch('base.trait.g', mock.Mock())
+    @mock.patch('base.trait.database_connection')
     def test_retrieve_trait_info_utf8_parsing(self,
+                                              mock_db,
                                               requests_mock):
         """Test that utf-8 strings are parsed correctly"""
         utf_8_string = "test_string"
+        conn = mock.MagicMock()
+        mock_db.return_value.__enter__.return_value = conn
         mock_dataset = mock.MagicMock()
         requests_mock.return_value = TestResponse()
         type(mock_dataset).display_fields = mock.PropertyMock(
