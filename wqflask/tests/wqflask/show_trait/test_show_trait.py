@@ -14,8 +14,11 @@ from wqflask.show_trait.show_trait import get_scales_from_genofile
 
 class TraitObject:
     def __init__(self, obj):
+        self.distinct_values = []
+        self.id = ""
         for key, value in obj.items():
             setattr(self, key, value)
+            self.id += str(value)
 
 
 class TestTraits(unittest.TestCase):
