@@ -1,7 +1,6 @@
 """test for wqflask/show_trait/test_show_trait.py"""
 import unittest
 from unittest import mock
-from wqflask import app
 from wqflask.show_trait.show_trait import check_if_attr_exists
 from wqflask.show_trait.show_trait import get_ncbi_summary
 from wqflask.show_trait.show_trait import has_num_cases
@@ -20,12 +19,6 @@ class TraitObject:
 
 
 class TestTraits(unittest.TestCase):
-    def setUp(self):
-        self.app_context = app.app_context()
-        self.app_context.push()
-
-    def tearDown(self):
-        self.app_context.pop()
 
     def test_check_if_attr_exists_truthy(self):
         """"test if attributes exists with true return"""
