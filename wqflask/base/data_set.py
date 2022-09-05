@@ -141,18 +141,18 @@ class DatasetType:
         sql_query_mapping = {
             'mrna_expr': ("SELECT ProbeSetFreeze.Id FROM "
                           "ProbeSetFreeze WHERE "
-                          "ProbeSetFreeze.Name = \"%s\" "),
+                          "ProbeSetFreeze.Name = %s "),
             'pheno': ("SELECT InfoFiles.GN_AccesionId "
                       "FROM InfoFiles, PublishFreeze, InbredSet "
-                      "WHERE InbredSet.Name = '%s' AND "
+                      "WHERE InbredSet.Name = %s AND "
                       "PublishFreeze.InbredSetId = InbredSet.Id AND "
                       "InfoFiles.InfoPageName = PublishFreeze.Name"),
             'other_pheno': ("SELECT PublishFreeze.Name "
                             "FROM PublishFreeze, InbredSet "
-                            "WHERE InbredSet.Name = '%s' AND "
+                            "WHERE InbredSet.Name = %s AND "
                             "PublishFreeze.InbredSetId = InbredSet.Id"),
             'geno': ("SELECT GenoFreeze.Id FROM GenoFreeze WHERE "
-                     "GenoFreeze.Name = \"%s\" ")
+                     "GenoFreeze.Name = %s ")
         }
 
         dataset_name_mapping = {
@@ -166,13 +166,14 @@ class DatasetType:
         if t in ['pheno', 'other_pheno']:
             group_name = name.replace("Publish", "")
 
-        results = g.db.execute(sql_query_mapping[t] % group_name).fetchone()
-        if results:
-            self.datasets[name] = dataset_name_mapping[t]
-            self.redis_instance.set(
-                "dataset_structure", json.dumps(self.datasets))
-            return True
-        return None
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(sql_query_mapping[t], (group_name,))
+            if cursor.fetchone():
+                self.datasets[name] = dataset_name_mapping[t]
+                self.redis_instance.set(
+                    "dataset_structure", json.dumps(self.datasets))
+                return True
+
 
     def __call__(self, name):
         if name not in self.datasets:
@@ -348,9 +349,13 @@ class DatasetGroup:
         self.genofile = None
 
     def get_mapping_methods(self):
-
-        mapping_id = g.db.execute(
-            "select MappingMethodId from InbredSet where Name= '%s'" % self.name).fetchone()[0]
+        mapping_id = ()
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT MappingMethodId FROM "
+                "InbredSet WHERE Name= %s"
+                (self.name,))
+            mapping_id = cursor.fetchone()[0]
         if mapping_id == "1":
             mapping_names = ["GEMMA", "QTLReaper", "R/qtl"]
         elif mapping_id == "2":
@@ -589,29 +594,38 @@ class DataSet:
         }
 
     def get_accession_id(self):
-        if self.type == "Publish":
-            results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, PublishFreeze, InbredSet where
-                        InbredSet.Name = %s and
-                        PublishFreeze.InbredSetId = InbredSet.Id and
-                        InfoFiles.InfoPageName = PublishFreeze.Name and
-                        PublishFreeze.public > 0 and
-                        PublishFreeze.confidentiality < 1 order by
-                        PublishFreeze.CreateTime desc""", (self.group.name)).fetchone()
-        elif self.type == "Geno":
-            results = g.db.execute("""select InfoFiles.GN_AccesionId from InfoFiles, GenoFreeze, InbredSet where
-                        InbredSet.Name = %s and
-                        GenoFreeze.InbredSetId = InbredSet.Id and
-                        InfoFiles.InfoPageName = GenoFreeze.ShortName and
-                        GenoFreeze.public > 0 and
-                        GenoFreeze.confidentiality < 1 order by
-                        GenoFreeze.CreateTime desc""", (self.group.name)).fetchone()
-        else:
-            results = None
+        results = None
+        with database_connection() as conn, conn.cursor() as cursor:
+            if self.type == "Publish":
+                cursor.execute(
+                    "SELECT InfoFiles.GN_AccesionId FROM "
+                    "InfoFiles, PublishFreeze, InbredSet "
+                    "WHERE InbredSet.Name = %s AND "
+                    "PublishFreeze.InbredSetId = InbredSet.Id "
+                    "AND InfoFiles.InfoPageName = PublishFreeze.Name "
+                    "AND PublishFreeze.public > 0 AND "
+                    "PublishFreeze.confidentiality < 1 "
+                    "ORDER BY PublishFreeze.CreateTime DESC",
+                    (self.group.name,)
+                )
+                results = cursor.fetchone()
+            elif self.type == "Geno":
+                cursor.execute(
+                    "SELECT InfoFiles.GN_AccesionId FROM "
+                    "InfoFiles, GenoFreeze, InbredSet "
+                    "WHERE InbredSet.Name = %s AND "
+                    "GenoFreeze.InbredSetId = InbredSet.Id "
+                    "AND InfoFiles.InfoPageName = GenoFreeze.ShortName "
+                    "AND GenoFreeze.public > 0 AND "
+                    "GenoFreeze.confidentiality < 1 "
+                    "ORDER BY GenoFreeze.CreateTime DESC",
+                    (self.group.name,)
+                )
+                results = cursor.fetchone()
 
-        if results != None:
+        if results:
             return str(results[0])
-        else:
-            return "None"
+        return "None"
 
     def retrieve_other_names(self):
         """This method fetches the the dataset names in search_result.
@@ -624,52 +638,49 @@ class DataSet:
         all is passed.
 
         """
-
-        try:
-            query = ""
-            _vars = None
-            query_args = (self.name, self.name, self.name)
-            if self.type == "ProbeSet":
-                query = (
-                    "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, "
-                    "ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, "
-                    "ProbeSetFreeze.DataScale, Tissue.Name "
-                    "FROM ProbeSetFreeze, ProbeFreeze, Tissue "
-                    "WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
-                    "AND ProbeFreeze.TissueId = Tissue.Id "
-                    "AND (ProbeSetFreeze.Name = %s OR ProbeSetFreeze.FullName = %s OR ProbeSetFreeze.ShortName = %s)")
-            else:
-                query = (
-                    "SELECT Id, Name, FullName, ShortName "
-                    f"FROM {self.type}Freeze "
-                    "WHERE (Name = %s OR FullName = %s OR ShortName = %s)")
-                self.tissue = "N/A"
-            with database_connection() as conn, conn.cursor() as cursor:
-                cursor.execute(query, query_args)
-                _vars = cursor.fetchone()
+        with database_connection() as conn, conn.cursor() as cursor:
+            try:
                 if self.type == "ProbeSet":
+                    cursor.execute(
+                        "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, "
+                        "ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, "
+                        "ProbeSetFreeze.DataScale, Tissue.Name "
+                        "FROM ProbeSetFreeze, ProbeFreeze, Tissue "
+                        "WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+                        "AND ProbeFreeze.TissueId = Tissue.Id "
+                        "AND (ProbeSetFreeze.Name = %s OR "
+                        "ProbeSetFreeze.FullName = %s "
+                        "OR ProbeSetFreeze.ShortName = %s)",
+                        (self.name,)*3)
                     (self.id, self.name, self.fullname, self.shortname,
-                     self.data_scale, self.tissue) = _vars
+                     self.data_scale, self.tissue) = cursor.fetchone()
                 else:
-                    self.id, self.name, self.fullname, self.shortname = _vars
-        except TypeError:
-            pass
+                    cursor.execute(
+                        "SELECT Id, Name, FullName, ShortName "
+                        f"FROM {self.type}Freeze "
+                        "WHERE (Name = %s OR FullName = "
+                        "%s OR ShortName = %s)",
+                        (self.name,)*3)
+                    (self.id, self.name, self.fullname, self.shortname,
+                     self.data_scale, self.tissue) = cursor.fetchone()
+                    self.tissue = "N/A"
+            except TypeError:
+                pass
 
     def chunk_dataset(self, dataset, n):
 
         results = {}
-
-        query = """
-                SELECT ProbeSetXRef.DataId,ProbeSet.Name
-                FROM ProbeSet, ProbeSetXRef, ProbeSetFreeze
-                WHERE ProbeSetFreeze.Name = '{}' AND
-                      ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                      ProbeSetXRef.ProbeSetId = ProbeSet.Id
-        """.format(self.name)
-
-        # should cache this
-
-        traits_name_dict = dict(g.db.execute(query).fetchall())
+        traits_name_dict = ()
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT ProbeSetXRef.DataId,ProbeSet.Name "
+                "FROM ProbeSet, ProbeSetXRef, ProbeSetFreeze "
+                "WHERE ProbeSetFreeze.Name = %s AND "
+                "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id",
+            (self.name,))
+            # should cache this
+            traits_name_dict = dict(cursor.fetchall())
 
         for i in range(0, len(dataset), n):
             matrix = list(dataset[i:i + n])
@@ -691,31 +702,35 @@ class DataSet:
         if self.group.parlist != None and self.group.f1list != None:
             if (self.group.parlist + self.group.f1list) in self.samplelist:
                 self.samplelist += self.group.parlist + self.group.f1list
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT Strain.Name, Strain.Id FROM "
+                "Strain, Species WHERE Strain.Name IN "
+                f"{create_in_clause(self.samplelist)} "
+                "AND Strain.SpeciesId=Species.Id AND "
+                "Species.name = %s", (self.group.species,)
+            )
+            results = dict(cursor.fetchall())
+            sample_ids = [results[item] for item in self.samplelist]
 
-        query = """
-            SELECT Strain.Name, Strain.Id FROM Strain, Species
-            WHERE Strain.Name IN {}
-            and Strain.SpeciesId=Species.Id
-            and Species.name = '{}'
-            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results[item] for item in self.samplelist]
+            sorted_samplelist = [strain_name for strain_name, strain_id in sorted(
+                results.items(), key=lambda item: item[1])]
 
-        sorted_samplelist = [strain_name for strain_name, strain_id in sorted(
-            results.items(), key=lambda item: item[1])]
+            cursor.execute(
+                "SELECT * from ProbeSetData WHERE StrainID IN "
+                f"{create_in_clause(sample_ids)} AND id IN "
+                "(SELECT ProbeSetXRef.DataId FROM "
+                "(ProbeSet, ProbeSetXRef, ProbeSetFreeze) "
+                "WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                "AND ProbeSetFreeze.Name = %s AND "
+                "ProbeSet.Id = ProbeSetXRef.ProbeSetId)",
+                (self.name,)
+            )
 
-        query = """SELECT * from ProbeSetData
-                where StrainID in {}
-                and id in (SELECT ProbeSetXRef.DataId
-                FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze)
-                WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
-                and ProbeSetFreeze.Name = '{}'
-                and ProbeSet.Id = ProbeSetXRef.ProbeSetId)""".format(create_in_clause(sample_ids), self.name)
-
-        query_results = list(g.db.execute(query).fetchall())
-        data_results = self.chunk_dataset(query_results, len(sample_ids))
-        self.samplelist = sorted_samplelist
-        self.trait_data = data_results
+            query_results = list(cursor.fetchall())
+            data_results = self.chunk_dataset(query_results, len(sample_ids))
+            self.samplelist = sorted_samplelist
+            self.trait_data = data_results
 
     def get_trait_data(self, sample_list=None):
         if sample_list:
@@ -727,81 +742,84 @@ class DataSet:
             if (self.group.parlist + self.group.f1list) in self.samplelist:
                 self.samplelist += self.group.parlist + self.group.f1list
 
-        query = """
-            SELECT Strain.Name, Strain.Id FROM Strain, Species
-            WHERE Strain.Name IN {}
-            and Strain.SpeciesId=Species.Id
-            and Species.name = '{}'
-            """.format(create_in_clause(self.samplelist), *mescape(self.group.species))
-        results = dict(g.db.execute(query).fetchall())
-        sample_ids = [results.get(item)
-                      for item in self.samplelist if item is not None]
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT Strain.Name, Strain.Id FROM Strain, Species "
+                f"WHERE Strain.Name IN {create_in_clause(self.samplelist)} "
+                "AND Strain.SpeciesId=Species.Id "
+                "AND Species.name = %s",
+                (self.group.species,)
+            )
+            results = dict(cursor.fetchall())
+            sample_ids = [results.get(item)
+                          for item in self.samplelist if item is not None]
 
-        # MySQL limits the number of tables that can be used in a join to 61,
-        # so we break the sample ids into smaller chunks
-        # Postgres doesn't have that limit, so we can get rid of this after we transition
-        chunk_size = 50
-        number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
+            # MySQL limits the number of tables that can be used in a join to 61,
+            # so we break the sample ids into smaller chunks
+            # Postgres doesn't have that limit, so we can get rid of this after we transition
+            chunk_size = 50
+            number_chunks = int(math.ceil(len(sample_ids) / chunk_size))
 
-        cached_results = fetch_cached_results(self.name, self.type, self.samplelist)
-        if cached_results is None:
-            trait_sample_data = []
-            for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
-                if self.type == "Publish":
-                    dataset_type = "Phenotype"
-                else:
-                    dataset_type = self.type
-                temp = ['T%s.value' % item for item in sample_ids_step]
-                if self.type == "Publish":
-                    query = "SELECT {}XRef.Id,".format(escape(self.type))
-                else:
-                    query = "SELECT {}.Name,".format(escape(dataset_type))
+            cached_results = fetch_cached_results(self.name, self.type, self.samplelist)
+
+            if cached_results is None:
+                trait_sample_data = []
+                for sample_ids_step in chunks.divide_into_chunks(sample_ids, number_chunks):
+                    if self.type == "Publish":
+                        dataset_type = "Phenotype"
+                    else:
+                        dataset_type = self.type
+                    temp = ['T%s.value' % item for item in sample_ids_step]
+                    if self.type == "Publish":
+                        query = "SELECT {}XRef.Id,".format(escape(self.type))
+                    else:
+                        query = "SELECT {}.Name,".format(escape(dataset_type))
+                    data_start_pos = 1
+                    query += ', '.join(temp)
+                    query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
+                                                                             self.type,
+                                                                             self.type))
+
+                    for item in sample_ids_step:
+                        query += """
+                                left join {}Data as T{} on T{}.Id = {}XRef.DataId
+                                and T{}.StrainId={}\n
+                                """.format(*mescape(self.type, item, item, self.type, item, item))
+
+                    if self.type == "Publish":
+                        query += """
+                                WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
+                                and {}Freeze.Name = '{}'
+                                and {}.Id = {}XRef.{}Id
+                                order by {}.Id
+                                """.format(*mescape(self.type, self.type, self.type, self.name,
+                                                    dataset_type, self.type, dataset_type, dataset_type))
+                    else:
+                        query += """
+                                WHERE {}XRef.{}FreezeId = {}Freeze.Id
+                                and {}Freeze.Name = '{}'
+                                and {}.Id = {}XRef.{}Id
+                                order by {}.Id
+                                """.format(*mescape(self.type, self.type, self.type, self.type,
+                                                    self.name, dataset_type, self.type, self.type, dataset_type))
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    trait_sample_data.append([list(result) for result in results])
+
+                trait_count = len(trait_sample_data[0])
+                self.trait_data = collections.defaultdict(list)
+
                 data_start_pos = 1
-                query += ', '.join(temp)
-                query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
-                                                                         self.type,
-                                                                         self.type))
+                for trait_counter in range(trait_count):
+                    trait_name = trait_sample_data[0][trait_counter][0]
+                    for chunk_counter in range(int(number_chunks)):
+                        self.trait_data[trait_name] += (
+                            trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
 
-                for item in sample_ids_step:
-                    query += """
-                            left join {}Data as T{} on T{}.Id = {}XRef.DataId
-                            and T{}.StrainId={}\n
-                            """.format(*mescape(self.type, item, item, self.type, item, item))
-
-                if self.type == "Publish":
-                    query += """
-                            WHERE {}XRef.InbredSetId = {}Freeze.InbredSetId
-                            and {}Freeze.Name = '{}'
-                            and {}.Id = {}XRef.{}Id
-                            order by {}.Id
-                            """.format(*mescape(self.type, self.type, self.type, self.name,
-                                                dataset_type, self.type, dataset_type, dataset_type))
-                else:
-                    query += """
-                            WHERE {}XRef.{}FreezeId = {}Freeze.Id
-                            and {}Freeze.Name = '{}'
-                            and {}.Id = {}XRef.{}Id
-                            order by {}.Id
-                            """.format(*mescape(self.type, self.type, self.type, self.type,
-                                                self.name, dataset_type, self.type, self.type, dataset_type))
-
-                results = g.db.execute(query).fetchall()
-                trait_sample_data.append([list(result) for result in results])
-
-            trait_count = len(trait_sample_data[0])
-            self.trait_data = collections.defaultdict(list)
-
-            data_start_pos = 1
-            for trait_counter in range(trait_count):
-                trait_name = trait_sample_data[0][trait_counter][0]
-                for chunk_counter in range(int(number_chunks)):
-                    self.trait_data[trait_name] += (
-                        trait_sample_data[chunk_counter][trait_counter][data_start_pos:])
-
-            cache_dataset_results(
-                self.name, self.type, self.samplelist, self.trait_data)
-        else:
-            self.trait_data = cached_results
+                cache_dataset_results(
+                    self.name, self.type, self.samplelist, self.trait_data)
+            else:
+                self.trait_data = cached_results
 
 
 class PhenotypeDataSet(DataSet):
@@ -897,43 +915,41 @@ SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetC
             this_trait.LRS_location_repr = "N/A"
 
             if this_trait.lrs:
-                query = """
-                    select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = '%s' and
-                        Geno.Name = '%s' and
-                        Geno.SpeciesId = Species.Id
-                """ % (species, this_trait.locus)
-                result = g.db.execute(query).fetchone()
-
-                if result:
-                    if result[0] and result[1]:
-                        LRS_Chr = result[0]
-                        LRS_Mb = result[1]
-
-                        this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
-                        this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
-                            LRS_Chr, float(LRS_Mb))
+                with database_connection() as conn, conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT Geno.Chr, Geno.Mb FROM "
+                        "Geno, Species WHERE "
+                        "Species.Name = %s AND "
+                        "Geno.Name = %s AND "
+                        "Geno.SpeciesId = Species.Id",
+                        (species, this_trait.locus,)
+                    )
+                    if result := cursor.fetchone():
+                        if result[0] and result[1]:
+                            LRS_Chr, LRS_Mb = result[0], result[1]
+                            this_trait.LRS_score_repr = LRS_score_repr = '%3.1f' % this_trait.lrs
+                            this_trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
+                                LRS_Chr, float(LRS_Mb))
 
     def retrieve_sample_data(self, trait):
-        query = """
-                    SELECT
-                            Strain.Name, PublishData.value, PublishSE.error, NStrain.count, Strain.Name2
-                    FROM
-                            (PublishData, Strain, PublishXRef, PublishFreeze)
-                    left join PublishSE on
-                            (PublishSE.DataId = PublishData.Id AND PublishSE.StrainId = PublishData.StrainId)
-                    left join NStrain on
-                            (NStrain.DataId = PublishData.Id AND
-                            NStrain.StrainId = PublishData.StrainId)
-                    WHERE
-                            PublishXRef.InbredSetId = PublishFreeze.InbredSetId AND
-                            PublishData.Id = PublishXRef.DataId AND PublishXRef.Id = %s AND
-                            PublishFreeze.Id = %s AND PublishData.StrainId = Strain.Id
-                    Order BY
-                            Strain.Name
-                    """
-        results = g.db.execute(query, (trait, self.id)).fetchall()
-        return results
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+            "SELECT Strain.Name, PublishData.value, "
+                "PublishSE.error, NStrain.count, "
+                "Strain.Name2 FROM (PublishData, Strain, "
+                "PublishXRef, PublishFreeze) LEFT JOIN "
+                "PublishSE ON "
+                "(PublishSE.DataId = PublishData.Id "
+                "AND PublishSE.StrainId = PublishData.StrainId) "
+                "LEFT JOIN NStrain ON "
+                "(NStrain.DataId = PublishData.Id AND "
+                "NStrain.StrainId = PublishData.StrainId) "
+                "WHERE PublishXRef.InbredSetId = PublishFreeze.InbredSetId "
+                "AND PublishData.Id = PublishXRef.DataId AND "
+                "PublishXRef.Id = %s AND PublishFreeze.Id = %s "
+                "AND PublishData.StrainId = Strain.Id "
+                "ORDER BY Strain.Name", (trait, self.id))
+            return cursor.fetchall()
 
 
 class GenotypeDataSet(DataSet):
@@ -976,25 +992,25 @@ GenoFreeze.Name = %s"""
                     this_trait.chr, float(this_trait.mb))
 
     def retrieve_sample_data(self, trait):
-        query = """
-                    SELECT
-                            Strain.Name, GenoData.value, GenoSE.error, "N/A", Strain.Name2
-                    FROM
-                            (GenoData, GenoFreeze, Strain, Geno, GenoXRef)
-                    left join GenoSE on
-                            (GenoSE.DataId = GenoData.Id AND GenoSE.StrainId = GenoData.StrainId)
-                    WHERE
-                            Geno.SpeciesId = %s AND Geno.Name = %s AND GenoXRef.GenoId = Geno.Id AND
-                            GenoXRef.GenoFreezeId = GenoFreeze.Id AND
-                            GenoFreeze.Name = %s AND
-                            GenoXRef.DataId = GenoData.Id AND
-                            GenoData.StrainId = Strain.Id
-                    Order BY
-                            Strain.Name
-                    """
-        results = g.db.execute(query,
-                               (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
-                                trait, self.name)).fetchall()
+        results = []
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT Strain.Name, GenoData.value, "
+                "GenoSE.error, 'N/A', Strain.Name2 "
+                "FROM (GenoData, GenoFreeze, Strain, Geno, "
+                "GenoXRef) LEFT JOIN GenoSE ON "
+                "(GenoSE.DataId = GenoData.Id AND "
+                "GenoSE.StrainId = GenoData.StrainId) "
+                "WHERE Geno.SpeciesId = %s AND "
+                "Geno.Name = %s AND GenoXRef.GenoId = Geno.Id "
+                "AND GenoXRef.GenoFreezeId = GenoFreeze.Id "
+                "AND GenoFreeze.Name = %s AND "
+                "GenoXRef.DataId = GenoData.Id "
+                "AND GenoData.StrainId = Strain.Id "
+                "ORDER BY Strain.Name",
+                (webqtlDatabaseFunction.retrieve_species_id(self.group.name),
+                 trait, self.name,))
+            results = list(cursor.fetchall())
 
         if self.group.name in webqtlUtil.ParInfo:
             f1_1, f1_2, ref, nonref = webqtlUtil.ParInfo[self.group.name]
@@ -1073,114 +1089,113 @@ ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND ProbeSetFreeze.Name = %s"""
         #  Note: setting trait_list to [] is probably not a great idea.
         if not trait_list:
             trait_list = []
+        with database_connection() as conn, conn.cursor() as cursor:
+            for this_trait in trait_list:
 
-        for this_trait in trait_list:
+                if not this_trait.haveinfo:
+                    this_trait.retrieveInfo(QTL=1)
 
-            if not this_trait.haveinfo:
-                this_trait.retrieveInfo(QTL=1)
+                if not this_trait.symbol:
+                    this_trait.symbol = "N/A"
 
-            if not this_trait.symbol:
-                this_trait.symbol = "N/A"
+                # XZ, 12/08/2008: description
+                # XZ, 06/05/2009: Rob asked to add probe target description
+                description_string = str(
+                    str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
+                target_string = str(
+                    str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
 
-            # XZ, 12/08/2008: description
-            # XZ, 06/05/2009: Rob asked to add probe target description
-            description_string = str(
-                str(this_trait.description).strip(codecs.BOM_UTF8), 'utf-8')
-            target_string = str(
-                str(this_trait.probe_target_description).strip(codecs.BOM_UTF8), 'utf-8')
+                if len(description_string) > 1 and description_string != 'None':
+                    description_display = description_string
+                else:
+                    description_display = this_trait.symbol
 
-            if len(description_string) > 1 and description_string != 'None':
-                description_display = description_string
-            else:
-                description_display = this_trait.symbol
+                if (len(description_display) > 1 and description_display != 'N/A'
+                        and len(target_string) > 1 and target_string != 'None'):
+                    description_display = description_display + '; ' + target_string.strip()
 
-            if (len(description_display) > 1 and description_display != 'N/A'
-                    and len(target_string) > 1 and target_string != 'None'):
-                description_display = description_display + '; ' + target_string.strip()
+                # Save it for the jinja2 template
+                this_trait.description_display = description_display
 
-            # Save it for the jinja2 template
-            this_trait.description_display = description_display
+                if this_trait.chr and this_trait.mb:
+                    this_trait.location_repr = 'Chr%s: %.6f' % (
+                        this_trait.chr, float(this_trait.mb))
 
-            if this_trait.chr and this_trait.mb:
-                this_trait.location_repr = 'Chr%s: %.6f' % (
-                    this_trait.chr, float(this_trait.mb))
+                # Get mean expression value
+                cursor.execute(
+                    "SELECT ProbeSetXRef.mean FROM "
+                    "ProbeSetXRef, ProbeSet WHERE "
+                    "ProbeSetXRef.ProbeSetFreezeId = %s "
+                    "AND ProbeSet.Id = ProbeSetXRef.ProbeSetId "
+                    "AND ProbeSet.Name = %s",
+                    (str(this_trait.dataset.id), this_trait.name,)
+                )
+                result = cursor.fetchone()
 
-            # Get mean expression value
-            query = (
-                """select ProbeSetXRef.mean from ProbeSetXRef, ProbeSet
-                where ProbeSetXRef.ProbeSetFreezeId = %s and
-                ProbeSet.Id = ProbeSetXRef.ProbeSetId and
-                ProbeSet.Name = '%s'
-            """ % (escape(str(this_trait.dataset.id)),
-                   escape(this_trait.name)))
-            result = g.db.execute(query).fetchone()
+                mean = result[0] if result else 0
 
-            mean = result[0] if result else 0
+                if mean:
+                    this_trait.mean = "%2.3f" % mean
 
-            if mean:
-                this_trait.mean = "%2.3f" % mean
+                # LRS and its location
+                this_trait.LRS_score_repr = 'N/A'
+                this_trait.LRS_location_repr = 'N/A'
 
-            # LRS and its location
-            this_trait.LRS_score_repr = 'N/A'
-            this_trait.LRS_location_repr = 'N/A'
-
-            # Max LRS and its Locus location
-            if this_trait.lrs and this_trait.locus:
-                query = """
-                    select Geno.Chr, Geno.Mb from Geno, Species
-                    where Species.Name = '{}' and
-                        Geno.Name = '{}' and
-                        Geno.SpeciesId = Species.Id
-                """.format(species, this_trait.locus)
-                result = g.db.execute(query).fetchone()
-
-                if result:
-                    lrs_chr, lrs_mb = result
-                    this_trait.LRS_score_repr = '%3.1f' % this_trait.lrs
-                    this_trait.LRS_location_repr = 'Chr%s: %.6f' % (
-                        lrs_chr, float(lrs_mb))
+                # Max LRS and its Locus location
+                if this_trait.lrs and this_trait.locus:
+                    cursor.execute(
+                        "SELECT Geno.Chr, Geno.Mb FROM "
+                        "Geno, Species WHERE "
+                        "Species.Name = %s AND "
+                        "Geno.Name = %s AND "
+                        "Geno.SpeciesId = Species.Id",
+                        (species, this_trait.locus,)
+                    )
+                    if result := cursor.fetchone():
+                        lrs_chr, lrs_mb = result
+                        this_trait.LRS_score_repr = '%3.1f' % this_trait.lrs
+                        this_trait.LRS_location_repr = 'Chr%s: %.6f' % (
+                            lrs_chr, float(lrs_mb))
 
         return trait_list
 
     def retrieve_sample_data(self, trait):
-        query = """
-                    SELECT
-                            Strain.Name, ProbeSetData.value, ProbeSetSE.error, NStrain.count, Strain.Name2
-                    FROM
-                            (ProbeSetData, ProbeSetFreeze,
-                             Strain, ProbeSet, ProbeSetXRef)
-                    left join ProbeSetSE on
-                            (ProbeSetSE.DataId = ProbeSetData.Id AND ProbeSetSE.StrainId = ProbeSetData.StrainId)
-                    left join NStrain on
-                            (NStrain.DataId = ProbeSetData.Id AND
-                            NStrain.StrainId = ProbeSetData.StrainId)
-                    WHERE
-                            ProbeSet.Name = '%s' AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                            ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                            ProbeSetFreeze.Name = '%s' AND
-                            ProbeSetXRef.DataId = ProbeSetData.Id AND
-                            ProbeSetData.StrainId = Strain.Id
-                    Order BY
-                            Strain.Name
-                    """ % (escape(trait), escape(self.name))
-        results = g.db.execute(query).fetchall()
-        return results
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT Strain.Name, ProbeSetData.value, "
+                "ProbeSetSE.error, NStrain.count, "
+                "Strain.Name2 FROM (ProbeSetData, "
+                "ProbeSetFreeze, Strain, ProbeSet, "
+                "ProbeSetXRef) LEFT JOIN ProbeSetSE ON "
+                "(ProbeSetSE.DataId = ProbeSetData.Id AND "
+                "ProbeSetSE.StrainId = ProbeSetData.StrainId) "
+                "LEFT JOIN NStrain ON "
+                "(NStrain.DataId = ProbeSetData.Id AND "
+                "NStrain.StrainId = ProbeSetData.StrainId) "
+                "WHERE ProbeSet.Name = %s AND "
+                "ProbeSetXRef.ProbeSetId = ProbeSet.Id "
+                "AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                "AND ProbeSetFreeze.Name = %s AND "
+                "ProbeSetXRef.DataId = ProbeSetData.Id "
+                "AND ProbeSetData.StrainId = Strain.Id "
+                "ORDER BY Strain.Name",
+                (trait, self.name)
+            )
+        return cursor.fetchall()
 
     def retrieve_genes(self, column_name):
-        query = """
-                    select ProbeSet.Name, ProbeSet.%s
-                    from ProbeSet,ProbeSetXRef
-                    where ProbeSetXRef.ProbeSetFreezeId = %s and
-                    ProbeSetXRef.ProbeSetId=ProbeSet.Id;
-                """ % (column_name, escape(str(self.id)))
-        results = g.db.execute(query).fetchall()
-
-        return dict(results)
+        with database_connection() as conn, conn.cursor() as cursor:
+            cursor.execute(
+                f"SELECT ProbeSet.Name, ProbeSet.{column_name} "
+                "FROM ProbeSet,ProbeSetXRef WHERE "
+                "ProbeSetXRef.ProbeSetFreezeId = %s "
+                "AND ProbeSetXRef.ProbeSetId=ProbeSet.Id",
+                (str(self.id),))
+            return dict(cursor.fetchall())
 
 
 class TempDataSet(DataSet):
-    '''Temporary user-generated data set'''
-
+    """Temporary user-generated data set"""
     DS_NAME_MAP['Temp'] = 'TempDataSet'
 
     def setup(self):
@@ -1202,30 +1217,15 @@ class TempDataSet(DataSet):
 
 
 def geno_mrna_confidentiality(ob):
-    dataset_table = ob.type + "Freeze"
-
-    query = '''SELECT Id, Name, FullName, confidentiality,
-                        AuthorisedUsers FROM %s WHERE Name = "%s"''' % (dataset_table, ob.name)
-    result = g.db.execute(query)
-
-    (dataset_id,
-     name,
-     full_name,
-     confidential,
-     authorized_users) = result.fetchall()[0]
-
-    if confidential:
-        return True
-    result = g.db.execute(query)
-
-    (dataset_id,
-     name,
-     full_name,
-     confidential,
-     authorized_users) = result.fetchall()[0]
-
-    if confidential:
-        return True
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT confidentiality, "
+            "AuthorisedUsers FROM %s WHERE Name = %s",
+            (f"{ob.type}Freeze", ob.name,)
+        )
+        result = cursor.fetchall()[0]
+        if result:
+            return True
 
 
 def parse_db_url():
@@ -1239,16 +1239,15 @@ def query_table_timestamp(dataset_type: str):
     """function to query the update timestamp of a given dataset_type"""
 
     # computation data and actions
-
-    fetch_db_name = parse_db_url()
-    query_update_time = f"""
-                    SELECT UPDATE_TIME FROM   information_schema.tables
-                    WHERE  TABLE_SCHEMA = '{fetch_db_name[-1]}'
-                    AND TABLE_NAME = '{dataset_type}Data'
-                """
-
-    date_time_obj = g.db.execute(query_update_time).fetchone()[0]
-    return date_time_obj.strftime("%Y-%m-%d %H:%M:%S")
+    with database_connection() as conn, conn.cursor() as cursor:
+        fetch_db_name = parse_db_url()
+        cursor.execute(
+            "SELECT UPDATE_TIME FROM "
+            "information_schema.tables "
+            f"WHERE TABLE_SCHEMA = '{fetch_db_name[-1]}' "
+            f"AND TABLE_NAME = '{dataset_type}Data'")
+        date_time_obj = cursor.fetchone()[0]
+        return date_time_obj.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def generate_hash_file(dataset_name: str, dataset_type: str, dataset_timestamp: str, samplelist: str):
