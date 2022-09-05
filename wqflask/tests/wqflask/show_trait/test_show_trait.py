@@ -1,5 +1,6 @@
 """test for wqflask/show_trait/test_show_trait.py"""
 import unittest
+import pytest
 from unittest import mock
 from wqflask.show_trait.show_trait import check_if_attr_exists
 from wqflask.show_trait.show_trait import get_ncbi_summary
@@ -22,32 +23,6 @@ class TraitObject:
 
 
 class TestTraits(unittest.TestCase):
-
-    def test_check_if_attr_exists_truthy(self):
-        """"test if attributes exists with true return"""
-        trait_obj = TraitObject({"id_type": "id"})
-        trait_obj2 = TraitObject({"sample_name": ['samp1']})
-        results = check_if_attr_exists(trait_obj, "id_type")
-        result2 = check_if_attr_exists(trait_obj2, "sample_name")
-        self.assertIsInstance(trait_obj, TraitObject)
-        self.assertTrue(results)
-        self.assertTrue(result2)
-
-    def test_check_if_attr_exists_empty_attr(self):
-        """test if attributes exists with false return"""
-        trait_obj = TraitObject({"sample": ""})
-        trait_obj2 = TraitObject({"group": None})
-        result = check_if_attr_exists(trait_obj, "sample")
-        result2 = check_if_attr_exists(trait_obj, "group")
-        self.assertFalse(result)
-        self.assertFalse(result2)
-
-    def test_check_if_attr_exists_falsey(self):
-        """check if attribute exists with empty attributes"""
-        trait_obj = TraitObject({})
-        results = check_if_attr_exists(trait_obj, "any")
-        self.assertFalse(results)
-
     @mock.patch("wqflask.show_trait.show_trait.requests.get")
     @mock.patch("wqflask.show_trait.show_trait.check_if_attr_exists")
     def test_get_ncbi_summary_request_success(self, mock_exists, mock_get):
@@ -80,6 +55,20 @@ class TestTraits(unittest.TestCase):
         mock_exists.return_value = True
         mock_get_fail.side_effect = Exception("an error occurred")
         content_json_string = """{
+@pytest.mark.parametrize(
+    ('trait', 'id_type', 'expected'),
+    (
+        (TraitObject({"id_type": "id"}), "id_type", True),
+        (TraitObject({"sample_name": ['samp1']}), "id_type", False),
+        (TraitObject({"sample": ""}), "sample", False),
+        (TraitObject({"group": None}), "group", False),
+        (TraitObject({}), "any", False)
+    ),
+)
+def test_check_if_attr_exists(trait, id_type, expected):
+    """"test check_if_attr_exists"""
+    assert check_if_attr_exists(trait, id_type) == expected
+
           "result":{
             "id":{
               "summary":"this is a summary of the geneid"
