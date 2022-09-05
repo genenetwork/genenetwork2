@@ -22,32 +22,19 @@ from zipfile import ZIP_DEFLATED
 
 from wqflask import app
 
-from gn3.commands import run_cmd
 from gn3.computations.gemma import generate_hash_of_string
-from gn3.db import diff_from_dict
-from gn3.db import insert
-from gn3.db import update
-from gn3.db.metadata_audit import MetadataAudit
-from gn3.db.phenotypes import Phenotype
-from gn3.db.phenotypes import Probeset
-from gn3.db.phenotypes import Publication
-
 from flask import current_app
 from flask import g
-from flask import flash
 from flask import Response
 from flask import request
 from flask import make_response
 from flask import render_template
 from flask import send_from_directory
 from flask import redirect
-from flask import url_for
 from flask import send_file
-from flask import jsonify
 
 # Some of these (like collect) might contain endpoints, so they're still used.
 # Blueprints should probably be used instead.
-from wqflask import collect
 from wqflask import search_results
 from wqflask import server_side
 from base.data_set import create_dataset  # Used by YAML in marker_regression
@@ -68,7 +55,6 @@ from wqflask.correlation.rust_correlation import compute_correlation_rust
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
-from wqflask.ctl import ctl_analysis
 from wqflask.ctl.gn3_ctl_analysis import run_ctl
 
 from wqflask.wgcna.gn3_wgcna import run_wgcna
@@ -90,13 +76,10 @@ from utility.tools import GN_VERSION
 from utility.tools import JS_TWITTER_POST_FETCHER_PATH
 from utility.tools import JS_GUIX_PATH
 from utility.helper_functions import get_species_groups
-from utility.authentication_tools import check_resource_availability
 from utility.redis_tools import get_redis_conn
 
 
-from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
-
-from pprint import pformat as pf
+from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 
 Redis = get_redis_conn()

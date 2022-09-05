@@ -18,13 +18,10 @@ from wqflask.show_trait.SampleList import SampleList
 from base.trait import create_trait
 from base import data_set
 from utility import helper_functions
-from utility.authentication_tools import check_owner_or_admin
 from utility.tools import locate_ignore_error
 from utility.tools import GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
 
-from gn3.authentication import AdminRole
-from gn3.authentication import DataRole
 from gn3.authentication import get_highest_user_access_role
 
 Redis = get_redis_conn()
