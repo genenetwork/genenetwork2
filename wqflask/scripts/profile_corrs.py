@@ -3,14 +3,12 @@ import sys
 import pstats
 import cProfile
 
-import sqlalchemy
 from flask import g, request
 
 from utility.startup_config import app_config
 
 from wqflask import app
 from wqflask.user_session import UserSession
-from wqflask.views import connect_db, shutdown_session
 from wqflask.correlation.correlation_gn3_api import compute_correlation
 
 def sample_vals():
@@ -65,10 +63,5 @@ if __name__ == "__main__":
     app_config()
     with app.app_context():
         with app.test_request_context("/corr_compute", data=simulated_form()):
-            g.db = sqlalchemy.create_engine( ## Setup global db connection
-                app.config.get('SQL_URI'), encoding="latin1")
             g.user_session = UserSession()
             main()
-            ## dispose global db connection
-            g.db.dispose()
-            g.db.close()
