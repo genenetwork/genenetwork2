@@ -1327,16 +1327,18 @@ we list the Published entries.
 The SNP count info for the BXD is calculated like this
 
 #+begin_src python
-        while startMb<endMb:
-            snp_count = g.db.execute("""
-                    select
-                            count(*) from BXDSnpPosition
-                    where
-                            Chr = '%s' AND Mb >= %2.6f AND Mb < %2.6f AND
-                            StrainId1 = %d AND StrainId2 = %d
-                    """ % (chrName, startMb, startMb+stepMb, strainId1, strainId2)).fetchone()[0]
-            SNPCounts.append(snp_count)
-            startMb += stepMb
+            with database_connection() as conn, conn.cursor() as cursor:
+                while startMb < endMb:
+                    # snp count
+                    cursor.execute(
+                        "SELECT COUNT(*) FROM BXDSnpPosition "
+                        "WHERE CHr = %s AND Mb >= %s AND Mb < %s "
+                        "AND StrainId1 = %s AND StrainId2 = %s",
+                        (chrName, f"{startMb:2.6f}", f"{startMb+stepMb:2.6f}",
+                         strainId1, strainId2,)
+                    )
+                    SNPCounts.append(cursor.fetchone()[0])
+                    startMB += stepMb
 #+end_src
 
 : select * from BXDSnpPosition limit 5;
