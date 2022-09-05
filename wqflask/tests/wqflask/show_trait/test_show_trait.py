@@ -102,9 +102,9 @@ class TestTraits(unittest.TestCase):
 
         results_one_sample = get_table_widths(
             [TraitObject({"se_exists": True, "attributes": []})], True)
-        expected_with_numcase = (450, "750px")
-        expected_no_numcase = (450, "670px")
-        expected_one_sample = (250, "540px")
+        expected_with_numcase = (450, 645)
+        expected_no_numcase = (450, 644)
+        expected_one_sample = (250, 381)
         self.assertEqual(results_with_numcase, expected_with_numcase)
         self.assertEqual(result_no_numcase, expected_no_numcase)
         self.assertEqual(results_one_sample,
