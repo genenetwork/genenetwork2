@@ -325,7 +325,7 @@ class DatasetGroup:
  InbredSet.InbredSetCode FROM InbredSet where Name=%s
         """
         if not name:
-            query, name = dataset.query_for_group, self.name
+            query, name = dataset.query_for_group, dataset.name
         with database_connection() as conn, conn.cursor() as cursor:
             cursor.execute(query, (name,))
             results = cursor.fetchone()
