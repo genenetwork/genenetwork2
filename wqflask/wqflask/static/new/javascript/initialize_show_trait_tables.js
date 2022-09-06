@@ -1,23 +1,23 @@
-// ZS: This file initializes the tables for the show_trait page
+// This file initializes the tables for the show_trait page
 
-// ZS: This variable is just created to get the column position of the first case attribute (if case attributes exist), since it's needed to set the row classes in createdRow for the DataTable
-var attribute_start_pos = 3;
+// This variable is just created to get the column position of the first case attribute (if case attributes exist), since it's needed to set the row classes in createdRow for the DataTable
+var attributeStartPos = 3;
 if (js_data.se_exists) {
-  attribute_start_pos += 2;
+  attributeStartPos += 2;
 }
 if (js_data.has_num_cases === true) {
-  attribute_start_pos += 1;
+  attributeStartPos += 1;
 }
 
-build_columns = function() {
-  let column_list = [
+buildColumns = function() {
+  let columnList = [
     {
       'data': null,
       'orderDataType': "dom-checkbox",
       'searchable' : false,
       'targets': 0,
       'width': "25px",
-      'render': function(data, type, row, meta) {
+      'render': function() {
       return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
       }
     },
@@ -35,7 +35,7 @@ build_columns = function() {
       'data': null,
       'targets': 2,
       'width': "60px",
-      'render': function(data, type, row, meta) {
+      'render': function(data) {
       return '<span class="edit_sample_sample_name">' + data.name + '</span>'
       }
     },
@@ -46,7 +46,7 @@ build_columns = function() {
       'data': null,
       'targets': 3,
       'width': "60px",
-      'render': function(data, type, row, meta) {
+      'render': function(data) {
         if (data.value == null) {
             return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
         } else {
@@ -56,10 +56,10 @@ build_columns = function() {
     }
   ];
 
-  attr_start = 4
+  attrStart = 4
   if (js_data.se_exists) {
-    attr_start += 2
-    column_list.push(
+    attrStart += 2
+    columnList.push(
       {
         'bSortable': false,
         'type': "natural",
@@ -67,7 +67,7 @@ build_columns = function() {
         'targets': 4,
         'searchable' : false,
         'width': "25px",
-        'render': function(data, type, row, meta) {
+        'render': function() {
         return '±'
         }
       },
@@ -78,7 +78,7 @@ build_columns = function() {
         'data': null,
         'targets': 5,
         'width': "60px",
-        'render': function(data, type, row, meta) {
+        'render': function(data) {
           if (data.variance == null) {
               return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_se" value="x" size=6>'
           } else {
@@ -89,8 +89,8 @@ build_columns = function() {
     );
 
     if (js_data.has_num_cases === true) {
-      attr_start += 1
-      column_list.push(
+      attrStart += 1
+      columnList.push(
         {
           'title': "<div style='text-align: right;'>N</div>",
           'orderDataType': "dom-input",
@@ -98,7 +98,7 @@ build_columns = function() {
           'data': null,
           'targets': 6,
           'width': "60px",
-          'render': function(data, type, row, meta) {
+          'render': function(data) {
             if (data.num_cases == null || data.num_cases == undefined) {
                 return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
             } else {
@@ -111,8 +111,8 @@ build_columns = function() {
   }
   else {
     if (js_data.has_num_cases === true) {
-      attr_start += 1
-      column_list.push(
+      attrStart += 1
+      columnList.push(
         {
           'title': "<div style='text-align: right;'>N</div>",
           'orderDataType': "dom-input",
@@ -120,7 +120,7 @@ build_columns = function() {
           'data': null,
           'targets': 4,
           'width': "60px",
-          'render': function(data, type, row, meta) {
+          'render': function(data) {
             if (data.num_cases == null || data.num_cases == undefined) {
                 return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" class="trait_value_input edit_sample_num_cases" value="x" size=4 maxlength=4>'
             } else {
@@ -132,14 +132,14 @@ build_columns = function() {
     }
   }
 
-  attr_keys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].id > js_data.attributes[b].id) ? 1 : -1)
-  for (i = 0; i < attr_keys.length; i++){
-    column_list.push(
+  attrKeys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].id > js_data.attributes[b].id) ? 1 : -1)
+  for (i = 0; i < attrKeys.length; i++){
+    columnList.push(
       {
-        'title': "<div title='" + js_data.attributes[attr_keys[i]].description + "' style='text-align: " + js_data.attributes[attr_keys[i]].alignment + "'>" + js_data.attributes[attr_keys[i]].name + "</div>",
+        'title': "<div title='" + js_data.attributes[attrKeys[i]].description + "' style='text-align: " + js_data.attributes[attrKeys[i]].alignment + "'>" + js_data.attributes[attrKeys[i]].name + "</div>",
         'type': "natural",
         'data': null,
-        'targets': attr_start + i,
+        'targets': attrStart + i,
         'render': function(data, type, row, meta) {
           attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
 
@@ -156,30 +156,41 @@ build_columns = function() {
       }
     )
   }
-  return column_list
+  return columnList
 }
 
-columnDefs = build_columns()
+columnDefs = buildColumns();
 
-loadDataTable(first_run=true, table_id="samples_primary", table_data=js_data['sample_lists'][0])
-if (js_data.sample_lists.length > 1){
-  loadDataTable(first_run=true, table_id="samples_other", table_data=js_data['sample_lists'][1])
+tableIds = ["samples_primary"]
+if (js_data.sample_lists.length > 1) {
+  tableIds.push("samples_other")
 }
 
-function loadDataTable(first_run=false, table_id, table_data){
-  if (!first_run){
-    setUserColumnsDefWidths(table_id);
-  }
+for (var i = 0; i < tableIds.length; i++) {
+  tableId = tableIds[i]
 
-  if (table_id == "samples_primary"){
-    table_type = "Primary"
+  if (tableId == "samples_primary"){
+    tableType = "Primary"
   } else {
-    table_type = "Other"
+    tableType = "Other"
   }
 
-  table_settings = {
+  tableSettings = {
+    "drawCallback": function( settings ) {
+      $('#' + tableId + ' tr').off().on("click", function(event) {
+        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
+          var obj =$(this).find('input');
+          obj.prop('checked', !obj.is(':checked'));
+        }
+        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
+          $(this).removeClass("selected")
+        } else if (event.target.tagName.toLowerCase() !== 'a') {
+          $(this).addClass("selected")
+        }
+      });
+    },
     'createdRow': function ( row, data, index ) {
-      $(row).attr('id', table_type + "_" + data.this_id)
+      $(row).attr('id', tableType + "_" + data.this_id)
       $(row).addClass("value_se");
       if (data.outlier) {
         $(row).addClass("outlier");
@@ -202,85 +213,13 @@ function loadDataTable(first_run=false, table_id, table_data){
           $('td', row).eq(4).addClass("column_name-num_cases")
         }
       }
-
-      for (i=0; i < attr_keys.length; i++) {
-        $('td', row).eq(attribute_start_pos + i + 1).addClass("column_name-" + js_data.attributes[attr_keys[i]].name)
-        $('td', row).eq(attribute_start_pos + i + 1).attr("style", "text-align: " + js_data.attributes[attr_keys[i]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
+  
+      for (j=0; j < attrKeys.length; j++) {
+        $('td', row).eq(attributeStartPos + j + 1).addClass("column_name-" + js_data.attributes[attrKeys[j]].name)
+        $('td', row).eq(attributeStartPos + j + 1).attr("style", "text-align: " + js_data.attributes[attrKeys[j]].alignment + "; padding-top: 2px; padding-bottom: 0px;")
       }
-    },
-    'data': table_data,
-    'columns': columnDefs,
-    "order": [[1, "asc" ]],
-    "sDom": "iti",
-    "destroy": true,
-    "autoWidth": false,
-    "bSortClasses": false,
-    "scrollY": "100vh",
-    "scrollCollapse": true,
-    "scroller":  true,
-    "iDisplayLength": -1,
-    "initComplete": function (settings) {
-      //Add JQueryUI resizable functionality to each th in the ScrollHead table
-      $('#' + table_id + '_wrapper .dataTables_scrollHead thead th').resizable({
-        handles: "e",
-        alsoResize: '#' + table_id + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
-        resize: function( event, ui ) {
-          width_change = ui.size.width - ui.originalSize.width;
-        },
-        stop: function () {
-          saveColumnSettings(table_id, the_table);
-          loadDataTable(first_run=false, table_id, table_data);
-        }
-      });
     }
   }
 
-  if (!first_run){
-    $('#' + table_type.toLowerCase() + '_container').css("width", String($('#' + table_id).width() + width_change + 17) + "px"); //ZS : Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
-
-    let checked_rows = get_checked_rows(table_id);
-    the_table = $('#' + table_id).DataTable(table_settings);
-    if (checked_rows.length > 0){
-      recheck_rows(the_table, checked_rows);
-    }
-  } else {
-    the_table = $('#' + table_id).DataTable(table_settings);
-    the_table.draw();
-  }
-
-  the_table.on( 'order.dt search.dt draw.dt', function () {
-    the_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-    cell.innerHTML = i+1;
-    } );
-  } ).draw();
-
-  if (first_run){
-    $('#' + table_type.toLowerCase() + '_container').css("width", String($('#' + table_id).width() + 17) + "px");
-  }
-
-  $('#' + table_type.toLowerCase() + '_searchbox').on( 'keyup', function () {
-    $('#' + table_id).DataTable().search($(this).val()).draw();
-  } );
-
-  $('.toggle-vis').on('click', function (e) {
-    e.preventDefault();
-
-    function toggle_column(column) {
-        //ZS: Toggle column visibility
-        column.visible( ! column.visible() );
-        if (column.visible()){
-            $(this).removeClass("active");
-        } else {
-            $(this).addClass("active");
-        }
-    }
-
-    // Get the column API object
-    var target_cols = $(this).attr('data-column').split(",")
-    for (let i = 0; i < target_cols.length; i++){
-        var column = the_table.column( target_cols[i] );
-        toggle_column(column);
-    }
-  } );
-
+  create_table(tableId, js_data['sample_lists'][i], columnDefs, tableSettings);
 }

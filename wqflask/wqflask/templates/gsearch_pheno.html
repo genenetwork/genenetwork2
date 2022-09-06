@@ -56,6 +56,7 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
 
     <script type='text/javascript'>
       var getParams = function(url) {
@@ -70,14 +71,12 @@
     </script>
 
     <script type='text/javascript'>
-      var trait_list = {{ trait_list|safe }};
+      var traitsJson = {{ trait_list|safe }};
     </script>
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
           var tableId = "trait_table";
-
-          var width_change = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
 
           columnDefs = [
             {
@@ -85,7 +84,7 @@
               'orderDataType': "dom-checkbox",
               'width': "10px",
               'targets': 0,
-              'render': function(data, type, row, meta) {
+              'render': function(data) {
                 return '<input type="checkbox" name="searchResult" class="trait_checkbox checkbox" value="' + data.hmac + '">'
               }
             },
@@ -117,7 +116,7 @@
               'width': "60px",
               'targets': 4,
               'orderDataType': "dom-inner-text",
-              'render': function(data, type, row, meta) {
+              'render': function(data) {
                 return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
               }
             },
@@ -127,7 +126,7 @@
               'width': "500px",
               'targets': 5,
               'data': null,
-              'render': function(data, type, row, meta) {
+              'render': function(data) {
                 try {
                     return decodeURIComponent(escape(data.description))
                 } catch(err) {
@@ -147,16 +146,7 @@
               'type': "natural",
               'width': "300px",
               'targets': 7,
-              'data': null,
-              'render': function(data, type, row, meta) {
-                author_list = data.authors.split(",")
-                if (author_list.length >= 6) {
-                  author_string = author_list.slice(0, 6).join(",") + ", et al."
-                } else{
-                  author_string = data.authors
-                }
-                return author_string
-              }
+              'data': "authors_display"
             },
             {
               'title': "Year",
@@ -165,7 +155,7 @@
               'orderDataType': "dom-inner-text",
               'width': "25px",
               'targets': 8,
-              'render': function(data, type, row, meta) {
+              'render': function(data) {
                 if (data.pubmed_id != "N/A"){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
                 } else {
@@ -199,30 +189,8 @@
             }
           ]
 
-          loadDataTable(true);
-
-          function loadDataTable(first_run=false){
-
-            if (!first_run){
-              setUserColumnsDefWidths(tableId);
-            }
-
-            table_settings = {
-              'drawCallback': function( settings ) {
-                $('#' + tableId + ' tr').off().on("click", function(event) {
-                  if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                    var obj =$(this).find('input');
-                    obj.prop('checked', !obj.is(':checked'));
-                  }
-                  if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                    $(this).removeClass("selected")
-                  } else if (event.target.tagName.toLowerCase() !== 'a') {
-                    $(this).addClass("selected")
-                  }
-                  change_buttons()
-                });
-              },
-              "createdRow": function ( row, data, index ) {
+          tableSettings = {
+            "createdRow": function ( row, data, index ) {
                 $('td', row).eq(0).attr("style", "text-align: center; padding: 4px 10px 2px 10px;");
                 $('td', row).eq(1).attr("align", "right");
                 $('td', row).eq(5).attr('title', $('td', row).eq(5).text());
@@ -248,60 +216,15 @@
                 $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
                 $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
               },
-              'data': trait_list,
-              'columns': columnDefs,
-              "order": [[1, "asc" ]],
-              'sDom': "iti",
-              "destroy": true,
-              "deferRender": true,
-              "bSortClasses": false,
-              {% if trait_count > 20 %}
-              "scrollY": "100vh",
-              "scroller":  true,
-              "scrollCollapse": true,
+              {% if trait_count <= 20 %}
+              "scroller":  false
               {% else %}
-              "iDisplayLength": -1,
+              "scroller": true
               {% endif %}
-              "initComplete": function (settings) {
-                //Add JQueryUI resizable functionality to each th in the ScrollHead table
-                $('#' + tableId + '_wrapper .dataTables_scrollHead thead th').resizable({
-                  handles: "e",
-                  alsoResize: '#' + tableId + '_wrapper .dataTables_scrollHead table', //Not essential but makes the resizing smoother
-                  resize: function( event, ui ) {
-                    width_change = ui.size.width - ui.originalSize.width;
-                  },
-                  stop: function () {
-                    saveColumnSettings(tableId, trait_table);
-                    loadDataTable();
-                  }
-                });
-              }
-            }
+          }
 
-            if (!first_run){
-                table_settings['autoWidth'] = false;
-                $('#table_container').css("width", String($('#trait_table').width() + width_change {% if trait_list|length > 20 %}+ 17{% endif %}) + "px"); // Change the container width by the change in width of the adjusted column, so the overall table size adjusts properly
-              }
+          create_table(tableId, traitsJson, columnDefs, tableSettings);
 
-              let checked_rows = get_checked_rows(tableId);
-              trait_table = $('#' + tableId).DataTable(table_settings);
-              if (checked_rows.length > 0){
-                recheck_rows(trait_table, checked_rows);
-              }
-
-              if (first_run){
-                  {% if trait_list|length > 20 %}
-                  $('#table_container').css("width", String($('#trait_table').width() + 17) + "px");
-                  {% endif %}
-              }
-
-              trait_table.draw();
-            }
-
-            $('#redraw').click(function() {
-                var table = $('#' + tableId).DataTable();
-                table.colReorder.reset()
-            });
         });
     </script>
 {% endblock %}

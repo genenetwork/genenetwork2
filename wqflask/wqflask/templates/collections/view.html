@@ -3,6 +3,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
 {% endblock %}
@@ -93,74 +94,11 @@
             <div style="margin-top: 10px; margin-bottom: 5px;">
                 <b>Show/Hide Columns:</b>
             </div>
-            <div style="min-width: 1500px;">
+            <div id="trait_table_container" style="width: 2000px; min-width: 1500px;">
                 <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th data-export="Index">Index</th>
-                            <th data-export="Dataset">Dataset</th>
-                            <th data-export="Record">Record</th>
-                            <th data-export="Symbol">Symbol</th>
-                            <th data-export="Description">Description</th>
-                            <th data-export="Location">Location</th>
-                            <th data-export="Mean">Mean</th>
-                            <th data-export="Max LRS">High P <a href="{{ url_for('glossary_blueprint.glossary') }}#L" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
-                            <th data-export="Peak Location">Peak Location</th>
-                            <th data-export="Add. Eff.">Effect Size <a href="{{ url_for('glossary_blueprint.glossary') }}#A" target="_blank"><sup style="font-size: small; color: #FF0000;"> ?</sup></a></th>
-                        </tr>
-                    </thead>
-
                     <tbody>
-                    {% for this_trait in trait_obs %}
-                        <TR id="trait:{{ this_trait.name }}:{{ this_trait.dataset.name }}">
-                            <TD align="center" style="padding: 0px;"><input type="checkbox"
-                                                                            name="searchResult"
-                                                                            class="checkbox trait_checkbox"
-                                                                            value="{{data_hmac('{}:{}'.format(this_trait.name, this_trait.dataset.name))}}"
-                                                                            data-trait-info="{{trait_info_str(this_trait)}}">
-                            </TD>
-                            <TD data-export="{{ loop.index }}" align="right">{{ loop.index }}</TD>
-                            <TD title="{{ this_trait.dataset.fullname }}" data-export="{{ this_trait.dataset.fullname }}">{{ this_trait.dataset.fullname }}</TD>
-                            <TD data-export="{{ this_trait.name }}">
-                                <a href="{{ url_for('show_trait_page',
-                                        trait_id = this_trait.name,
-                                        dataset = this_trait.dataset.name
-                                        )}}">
-                                    {{ this_trait.display_name }}
-                                </a>
-                            </TD>
-                            {% if this_trait.symbol %}
-                            <TD title="{{ this_trait.symbol }}" data-export="{{ this_trait.symbol }}">{% if this_trait.symbol|length > 20 %}{{ this_trait.symbol[:20] }}...{% else %}{{ this_trait.symbol }}{% endif %}</TD>
-                            {% elif this_trait.abbreviation %}
-                            <TD title="{{ this_trait.abbreviation }}" data-export="{{ this_trait.abbreviation }}">{% if this_trait.abbreviation|length > 20 %}{{ this_trait.abbreviation[:20] }}...{% else %}{{ this_trait.abbreviation }}{% endif %}</TD>
-                            {% else %}
-                            <TD data-export="N/A">N/A</TD>
-                            {% endif %}
-                            {% if this_trait.dataset.type == "Geno" %}
-                            <TD title="Marker: {{ this_trait.name }}" data-export="Marker: {{ this_trait.name }}">Marker: {{ this_trait.name }}</TD>
-                            {% elif this_trait.description_display != "" %}
-                            <TD title="{{ this_trait.description_display }}" data-export="{{ this_trait.description_display }}">{{ this_trait.description_display }}</TD>
-                            {% else %}
-                            <TD title="N/A" data-export="N/A">N/A</TD>
-                            {% endif %}
-                            <TD data-export="{{ this_trait.location_repr }}">{{ this_trait.location_repr }}</TD>
-                            <TD data-export="{{ this_trait.mean }}" align="right">{{ '%0.3f' % this_trait.mean|float }}</TD>
-                            {% if this_trait.LRS_score_repr|float > 0 %}
-                            <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">{{ '%0.3f' % this_trait.LRS_score_repr|float }}</TD>
-                            {% else %}
-                            <TD data-export="{{ this_trait.LRS_score_repr }}" align="right">N/A</TD>
-                            {% endif %}
-                            <TD data-export="{{ this_trait.LRS_location_repr }}">{{ this_trait.LRS_location_repr }}</TD>
-                            {% if this_trait.additive|float != 0 %}
-                            <TD data-export="{{ this_trait.additive }}" align="right">{{ '%0.3f' % this_trait.additive|float }}</TD>
-                            {% else %}
-                            <TD data-export="{{ this_trait.additive }}" align="right">N/A</TD>
-                            {% endif %}
-                        </TR>
-                    {% endfor %}
+                        <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                     </tbody>
-
                 </table>
             </div>
             <br />
@@ -175,70 +113,199 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colResize/dataTables.colResize.js') }}"></script>
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/colReorder/js/dataTables.colReorder.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
 
     <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
 
     <script type="text/javascript"
 	    src="/static/new/javascript/partial_correlations.js"></script>
-
-
+    <script type='text/javascript'>
+        var traitsJson = {{ traits_json|safe }};
+    </script>
     <script language="javascript" type="text/javascript">
         $(document).ready( function () {
-            $('#trait_table').dataTable( {
-                'drawCallback': function( settings ) {
-                      $('#trait_table tr').off().on("click", function(event) {
-                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                          var obj =$(this).find('input');
-                          obj.prop('checked', !obj.is(':checked'));
-                        }
-                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                          $(this).removeClass("selected")
-                        } else if (event.target.tagName.toLowerCase() !== 'a') {
-                          $(this).addClass("selected")
-                        }
-                        change_buttons()
-                      });
-                },
-                "columns": [
-                    {
-                        "orderDataType": "dom-checkbox",
-                        "orderSequence": [ "desc", "asc"],
-                        "width": 10
-                    },
-                    { "type": "natural", "width": 50 },
-                    { "type": "natural" },
-                    { 'type': "natural-minus-na", "width": 120 },
-                    { "type": "natural" },
-                    { "type": "natural"  },
-                    { "type": "natural", "width": 125 },
-                    { "type": "natural", "width": 60 },
-                    { "type": "natural", "width": 60 },
-                    { "type": "natural", "width": 125 },
-                    { "type": "natural", "width": 85 }
-                ],
-                "order": [[1, "asc" ]],
-                buttons: [
-                    {
-                        extend: 'columnsToggle',
-                        columns: ':not(:first-child)',
-                        postfixButtons: [ 'colvisRestore' ]
-                    }
-                ],
-                "sDom": "BZRtr",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "bDeferRender": true,
-                "bSortClasses": false,
-                "paging": false,
-                "orderClasses": true
-            } );
 
+            tableId = "trait_table"
+
+            columnDefs = [
+                {
+                    'data': null,
+                    'width': "5px",
+                    'orderDataType': "dom-checkbox",
+                    'targets': 0,
+                    'render': function(data) {
+                        return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
+                    }
+                },
+                {
+                    'title': "Index",
+                    'type': "natural",
+                    'width': "35px",
+                    'searchable': false,
+                    'orderable': false,
+                    'targets': 1,
+                    'render': function(data, type, row, meta) {
+                        return meta.row
+                    }
+                },
+                {
+                    'title': "Dataset",
+                    'type': "natural",
+                    'targets': 2,
+                    'data': "dataset"
+                },
+                {
+                    'title': "Record",
+                    'type': "natural-minus-na",
+                    'width': "120px",
+                    'targets': 3,
+                    'data': null,
+                    'render': function(data) {
+                        return '<a target="_blank" href="/show_trait?trait_id=' + data.name + '&dataset=' + data.dataset + '">' + data.display_name + '</a>'
+                    }
+                },
+                {
+                    'title': "Symbol",
+                    'type': "natural",
+                    'targets': 4,
+                    'data': null,
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'symbol')){
+                            return data.symbol
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                },
+                {
+                    'title': "Description",
+                    'type': "natural",
+                    'targets': 5,
+                    'data': null,
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'description')){
+                            try {
+                                return decodeURIComponent(escape(data.description))
+                            } catch(err){
+                                return escape(data.description)
+                            }
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                },
+                {
+                    'title': "<div style='text-align: right;'>Location</div>",
+                    'type': "natural-minus-na",
+                    'width': "125px",
+                    'targets': 6,
+                    'data': null,
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'location')){
+                            return data.location
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                },
+                {
+                    'title': "<div style='text-align: right;'>Mean</div>",
+                    'type': "natural-minus-na",
+                    'width': "60px",
+                    'data': null,
+                    'targets': 7,
+                    'orderSequence': [ "desc", "asc"],
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'mean')){
+                            return data.mean.toFixed(3)
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                },
+                {
+                    'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>LOD <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
+                    'type': "natural-minus-na",
+                    'data': null,
+                    'width': "60px",
+                    'targets': 8,
+                    'orderSequence': [ "desc", "asc"],
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'lrs_score')){
+                            return (data.lrs_score / 4.61).toFixed(3)
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                },
+                {
+                    'title': "<div style='text-align: right;'>Peak Location</div>",
+                    'type': "natural-minus-na",
+                    'data': null,
+                    'width': "125px",
+                    'targets': 9,
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'lrs_location')){
+                            return data.lrs_location
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                },
+                {
+                    'title': "<div style='text-align: right; padding-right: 10px;'>Effect</div> <div style='text-align: right;'>Size <a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
+                    'type': "natural-minus-na",
+                    'data': null,
+                    'width': "85px",
+                    'targets': 10,
+                    'orderSequence': [ "desc", "asc"],
+                    'render': function(data) {
+                        if (Object.hasOwn(data, 'additive')){
+                            return data.additive.toFixed(3)
+                        } else {
+                            return "N/A"
+                        }
+                    }
+                }
+            ]
+
+            tableSettings = {
+                "createdRow": function ( row, data, index ) {
+                    $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
+                    $('td', row).eq(1).attr("align", "right");
+                    $('td', row).eq(1).attr('data-export', index+1);
+                    $('td', row).eq(2).attr('data-export', $('td', row).eq(2).text());
+                    $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                    $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
+                    $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                    $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
+                    $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                    if ($('td', row).eq(5).text().length > 500) {
+                        $('td', row).eq(5).text($('td', row).eq(5).text().substring(0, 500));
+                        $('td', row).eq(5).text($('td', row).eq(5).text() + '...')
+                    }
+                    $('td', row).slice(6,11).attr("align", "right");
+                    $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                    $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
+                    $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
+                    $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                    $('td', row).eq(10).attr('data-export', $('td', row).eq(9).text());
+                },
+                "order": [[1, "asc" ]],
+                {% if traits_json|length > 20 %}
+                "scroller": true
+                {% else %}
+                "scroller": false
+                {% endif %}
+            }
+
+            create_table(tableId, traitsJson, columnDefs, tableSettings)
 
             submit_special = function(url) {
                 $("#collection_form").attr("action", url);

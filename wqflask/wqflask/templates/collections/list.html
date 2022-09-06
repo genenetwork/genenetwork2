@@ -75,44 +75,22 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
     <script>
-            $('#trait_table').dataTable( {
-                "drawCallback": function( settings ) {
-                     $('#trait_table tr').click(function(event) {
-                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                          var obj =$(this).find('input');
-                          obj.prop('checked', !obj.is(':checked'));
-                        }
-                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                          $(this).removeClass("selected")
-                        } else if (event.target.tagName.toLowerCase() !== 'a') {
-                          $(this).addClass("selected")
-                        }
-                     });
-                },
-                "buttons": [ 'copy', 'csv', 'excel' ],
-                "columns": [
-                    { "type": "natural", "width": "3%" },
-                    { "type": "natural", "width": "8%" },
-                    { "type": "natural", "width": "20%" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "25%" },
-                    { "type": "natural", "width": "15%" }
-                ],
-                "columnDefs": [ {
-                    "targets": 0,
-                    "orderable": false
-                } ],
-                "order": [[1, "asc" ]],
-                "sDom": "BZtr",
-                "iDisplayLength": -1,
-                "autoWidth": false,
-                "bDeferRender": true,
-                "bSortClasses": false,
-                "scrollCollapse": true,
-                "paging": false,
-                "orderClasses": true
-            } );
+        $(document).ready( function () {
+            tableId = "trait_table";
+
+            columnDefs = [
+                { "type": "natural", "width": "3%", "targets": 0, "orderable": false},
+                { "type": "natural", "width": "8%", "targets": 1},
+                { "type": "natural", "width": "20%", "targets": 2},
+                { "type": "natural", "width": "25%", "targets": 3},
+                { "type": "natural", "width": "25%", "targets": 4},
+                { "type": "natural", "width": "15%", "targets": 5}
+            ];
+
+            create_table(tableId, [], columnDefs)
 
             submit_special = function(url) {
                 $("#collections_form").attr("action", url);
@@ -167,6 +145,7 @@
                 return submit_special(url)
             });
 
+        });
 
     </script>
 {% endblock %}

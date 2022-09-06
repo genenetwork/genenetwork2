@@ -131,9 +131,6 @@
 {% endblock %}
 
 {% block js %}
-    <script type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
-    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
-
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/underscore.min.js') }}"></script>
@@ -143,10 +140,13 @@
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='fontawesome/js/all.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+    <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+    <script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
     
 
     <script type="text/javascript" charset="utf-8">
-        var table_json = {{ table_json | safe }}
+        var tableJson = {{ table_json | safe }}
     </script>
 
     <script type="text/javascript" charset="utf-8">
@@ -223,370 +223,329 @@
         {% endif %}
 
         $(document).ready( function () {
-            table_conf = {
-                buttons: [
-                  {
-                    extend: 'csvHtml5',
-                    text: 'Download <span class="glyphicon glyphicon-download"></span>',
-                    className: 'btn btn-default',
-                    exportOptions: {
-                      columns: 'th:not(:first-child)'
-                    }
-                  }
-                ],
-                'drawCallback': function( settings ) {
-                      $('#trait_table tr').off().on("click", function(event) {
-                        if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
-                          var obj =$(this).find('input');
-                          obj.prop('checked', !obj.is(':checked'));
-                        }
-                        if ($(this).hasClass("selected") && event.target.tagName.toLowerCase() !== 'a'){
-                          $(this).removeClass("selected")
-                        } else if (event.target.tagName.toLowerCase() !== 'a') {
-                          $(this).addClass("selected")
-                        }
-                        change_buttons()
-                      });
-                },
-                "data": table_json,
-                "columns": [
-                    {
-                      'data': null,
-                      'width': "25px",
-                      'orderDataType': "dom-checkbox",
-                      'orderSequence': [ "desc", "asc"],
-                      'render': function(data, type, row, meta) {
-                        return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
-                      }
-                    },
-                    {
-                      'title': "Index",
-                      'type': "natural",
-                      'width': "30px",
-                      'data': "index"
-                    },
-                    {
-                      'title': "Record",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'width': "60px",
-                      'render': function(data, type, row, meta) {
-                        return '<a target="_blank" href="/show_trait?trait_id=' + data.trait_id + '&dataset=' + data.dataset + '">' + data.trait_id + '</a>'
-                      }
-                    }{% if target_dataset.type == 'ProbeSet' %},
-                    {
-                      'title': "Symbol",
-                      'type': "natural",
-                      'width': "120px",
-                      'data': "symbol"
-                    },
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-                        try {
-                          return decodeURIComponent(escape(data.description))
-                        } catch(err){
-                          return escape(data.description)
-                        }
-                      }
-                    },
-                    {
-                      'title': "Location",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "location"
-                    },
-                    {
-                      'title': "Mean",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': null,
-                      'orderSequence': [ "desc", "asc"],
-                      'render': function(data, type, row, meta) {
-                        if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
-                        } else {
-                          return data.sample_r
-                        }
-                      }
-                    },
-                    {
-                      'title': "N",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "num_overlap",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "scientific",
-                      'width': "65px",
-                      'data': "sample_p",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Lit {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "lit_corr",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Tissue {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "tissue_corr",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Tissue p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "tissue_pvalue",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
-                      'type': "natural-minus-na",
-                      'data': "lod_score",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Peak Location",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "lrs_location"
-                    },
-                    {
-                      'title': "Effect Size<a href=\"http://gn1.genenetwork.org/glossary.html#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
-                      'type': "natural-minus-na",
-                      'data': "additive",
-                      'width': "85px",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% elif target_dataset.type == 'Publish' %},
-                    {
-                      'title': "Abbreviation",
-                      'type': "natural",
-                      'width': "200px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-			                  try {
-                          return decodeURIComponent(escape(data.abbreviation_display))
-			                  } catch(err){
-			                    return data.abbreviation_display
-                        }
-                      }
-                    },
-                    {
-                      'title': "Description",
-                      'type': "natural",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-			                  try {
-                          return decodeURIComponent(escape(data.description))
-			                  } catch(err){
-			                    return data.description
-                        }
-                      }
-                    },
-                    {
-                      'title': "Mean",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "mean",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Authors",
-                      'type': "natural",
-                      'width': "400px",
-                      'data': null,
-                      'render': function(data, type, row, meta) {
-			                  try {
-                          return decodeURIComponent(escape(data.authors_display))
-			                  } catch(err){
-			                    return data.authors_display
-                        }
-                      }
-                    },
-                    {
-                      'title': "Year",
-                      'type': "natural-minus-na",
-                      'data': null,
-                      'width': "80px",
-                      'render': function(data, type, row, meta) {
-                        if (data.pubmed_id != "N/A"){
-                          return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
-                        } else {
-                          return data.pubmed_text
-                        }
-                      },
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': null,
-                      'orderSequence': [ "desc", "asc"],
-                      'render': function(data, type, row, meta) {
-                        if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name== 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
-                        } else {
-                          return data.sample_r
-                        }
-                      }
-                    },
-                    {
-                      'title': "N",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "num_overlap",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "scientific",
-                      'width': "65px",
-                      'data': "sample_p",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
-                      'type': "natural-minus-na",
-                      'data': "lod_score",
-                      'width': "60px",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Peak Location",
-                      'type': "natural-minus-na",
-                      'width': "125px",
-                      'data': "lrs_location"
-                    },
-                    {
-                      'title': "Effect Size<a href=\"http://gn1.genenetwork.org/glossary.html#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
-                      'type': "natural-minus-na",
-                      'data': "additive",
-                      'width': "85px",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% elif target_dataset.type == 'Geno' %},
-                    {
-                      'title': "Location",
-                      'type': "natural-minus-na",
-                      'width': "120px",
-                      'data': "location"
-                    }, 
-                    {
-                      'title': "Sample {% if corr_method == 'pearson' %}r{% else %}rho{% endif %}",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': null,
-                      'orderSequence': [ "desc", "asc"],
-                      'render': function(data, type, row, meta) {
-                        if (data.sample_r != "N/A") {
-                          return "<a target\"_blank\" href=\"corr_scatter_plot?method={% if corr_method == 'spearman' %}spearman{% else %}pearson{% endif %}&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
-                        } else {
-                          return data.sample_r
-                        }
-                      }
-                    },
-                    {
-                      'title': "N",
-                      'type': "natural-minus-na",
-                      'width': "40px",
-                      'data': "num_overlap",
-                      'orderSequence': [ "desc", "asc"]
-                    },
-                    {
-                      'title': "Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})",
-                      'type': "scientific",
-                      'width': "65px",
-                      'data': "sample_p",
-                      'orderSequence': [ "desc", "asc"]
-                    }{% endif %}
-                ],
-                "columnDefs": [ {
-                    "targets": 0,
-                    "orderable": false
-                } ],
-                {% if target_dataset.type == 'Geno' %}
-                "order": [[6, "asc" ]],
-                {% elif target_dataset.type == 'Publish' %}
-                "order": [[10, "asc" ]],
-                {% else %}
-                "order": [[9, "asc" ]],
-                {% endif %}
-                "sDom": "itir",
-                "autoWidth": true,
-                "bSortClasses": false,
-                "scrollY": "100vh",
-                "scroller":  true,
-                "scrollCollapse": true
-            }
 
-            trait_table = $('#trait_table').DataTable(table_conf);
+          tableId = "trait_table";
 
-            trait_table.buttons().container().appendTo('#export_options')
+          {% if corr_method == 'pearson' %}
+          rOrRho = "r"
+          corr_method = "pearson"
+          {% else %}
+          rOrRho = "rho"
+          corr_method = "spearman"
+          {% endif %}
 
-            $('.buttons-csv').removeClass('dt-button')
-
-            trait_table.on( 'order.dt search.dt draw.dt', function () {
-                trait_table.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                cell.innerHTML = i+1;
-                } );
-            } ).draw();
-
-            $('.toggle-vis').on('click', function (e) {
-              e.preventDefault();
-
-              // Get the column API object
-              var column = trait_table.column( $(this).attr('data-column') );
-
-              // Toggle the visibility
-              column.visible( ! column.visible() );
-
-              if (column.visible()){
-                $(this).removeClass("active");
-              } else {
-                $(this).addClass("active");
+          columnDefs = [
+            {
+              'data': null,
+              'width': "25px",
+              'orderDataType': "dom-checkbox",
+              'orderSequence': [ "desc", "asc"],
+              'render': function(data) {
+                return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
               }
-            } );
+            },
+            {
+              'title': "Index",
+              'type': "natural",
+              'width': "30px",
+              'data': "index"
+            },
+            {
+              'title': "Record",
+              'type': "natural-minus-na",
+              'data': null,
+              'width': "60px",
+              'render': function(data) {
+                return '<a target="_blank" href="/show_trait?trait_id=' + data.trait_id + '&dataset=' + data.dataset + '">' + data.trait_id + '</a>'
+              }
+            }{% if target_dataset.type == 'ProbeSet' %},
+            {
+              'title': "Symbol",
+              'type': "natural",
+              'width': "120px",
+              'data': "symbol"
+            },
+            {
+              'title': "Description",
+              'type': "natural",
+              'data': null,
+              'render': function(data) {
+                try {
+                  return decodeURIComponent(escape(data.description))
+                } catch(err){
+                  return escape(data.description)
+                }
+              }
+            },
+            {
+              'title': "Location",
+              'type': "natural-minus-na",
+              'width': "125px",
+              'data': "location"
+            },
+            {
+              'title': "Mean",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "mean",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Sample " + rOrRho,
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': null,
+              'orderSequence': [ "desc", "asc"],
+              'render': function(data) {
+                if (data.sample_r != "N/A") {
+                  return "<a target\"_blank\" href=\"corr_scatter_plot?method=" + corr_method + "&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                } else {
+                  return data.sample_r
+                }
+              }
+            },
+            {
+              'title': "N",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "num_overlap",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Sample p(" + rOrRho + ")",
+              'type': "scientific",
+              'width': "65px",
+              'data': "sample_p",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Lit " + rOrRho,
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "lit_corr",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Tissue " + rOrRho,
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "tissue_corr",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Tissue p(" + rOrRho + ")",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "tissue_pvalue",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
+              'type': "natural-minus-na",
+              'data': "lod_score",
+              'width': "60px",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Peak Location",
+              'type': "natural-minus-na",
+              'width': "125px",
+              'data': "lrs_location"
+            },
+            {
+              'title': "Effect Size<a href=\"http://gn1.genenetwork.org/glossary.html#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+              'type': "natural-minus-na",
+              'data': "additive",
+              'width': "85px",
+              'orderSequence': [ "desc", "asc"]
+            }{% elif target_dataset.type == 'Publish' %},
+            {
+              'title': "Abbreviation",
+              'type': "natural",
+              'width': "200px",
+              'data': null,
+              'render': function(data) {
+                try {
+                  return decodeURIComponent(escape(data.abbreviation_display))
+                } catch(err){
+                  return data.abbreviation_display
+                }
+              }
+            },
+            {
+              'title': "Description",
+              'type': "natural",
+              'data': null,
+              'render': function(data) {
+                try {
+                  return decodeURIComponent(escape(data.description))
+                } catch(err){
+                  return data.description
+                }
+              }
+            },
+            {
+              'title': "Mean",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "mean",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Authors",
+              'type': "natural",
+              'width': "400px",
+              'data': null,
+              'render': function(data) {
+                try {
+                  return decodeURIComponent(escape(data.authors_display))
+                } catch(err){
+                  return data.authors_display
+                }
+              }
+            },
+            {
+              'title': "Year",
+              'type': "natural-minus-na",
+              'data': null,
+              'width': "80px",
+              'render': function(data) {
+                if (data.pubmed_id != "N/A"){
+                  return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
+                } else {
+                  return data.pubmed_text
+                }
+              },
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Sample " + rOrRho,
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': null,
+              'orderSequence': [ "desc", "asc"],
+              'render': function(data) {
+                if (data.sample_r != "N/A") {
+                  return "<a target\"_blank\" href=\"corr_scatter_plot?method=" + corr_method + "&dataset_1={% if this_dataset.name== 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                } else {
+                  return data.sample_r
+                }
+              }
+            },
+            {
+              'title': "N",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "num_overlap",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Sample p(" + rOrRho + ")",
+              'type': "scientific",
+              'width': "65px",
+              'data': "sample_p",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Peak <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>LOD",
+              'type': "natural-minus-na",
+              'data': "lod_score",
+              'width': "60px",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Peak Location",
+              'type': "natural-minus-na",
+              'width': "125px",
+              'data': "lrs_location"
+            },
+            {
+              'title': "Effect Size<a href=\"http://gn1.genenetwork.org/glossary.html#A\" target=\"_blank\" style=\"color: white;\">&nbsp;<i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
+              'type': "natural-minus-na",
+              'data': "additive",
+              'width': "85px",
+              'orderSequence': [ "desc", "asc"]
+            }{% elif target_dataset.type == 'Geno' %},
+            {
+              'title': "Location",
+              'type': "natural-minus-na",
+              'width': "120px",
+              'data': "location"
+            },
+            {
+              'title': "Sample " + rOrRho,
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': null,
+              'orderSequence': [ "desc", "asc"],
+              'render': function(data) {
+                if (data.sample_r != "N/A") {
+                  return "<a target\"_blank\" href=\"corr_scatter_plot?method=" + corr_method + "&dataset_1={% if this_dataset.name == 'Temp' %}Temp_{{ this_dataset.group }}{% else %}{{ this_dataset.name }}{% endif %}&dataset_2=" + data.dataset + "&trait_1={{ this_trait.name }}&trait_2=" + data.trait_id + "\">" + data.sample_r + "</a>"
+                } else {
+                  return data.sample_r
+                }
+              }
+            },
+            {
+              'title': "N",
+              'type': "natural-minus-na",
+              'width': "40px",
+              'data': "num_overlap",
+              'orderSequence': [ "desc", "asc"]
+            },
+            {
+              'title': "Sample p(" + rOrRho + ")",
+              'type': "scientific",
+              'width': "65px",
+              'data': "sample_p",
+              'orderSequence': [ "desc", "asc"]
+            }{% endif %}
+          ]
 
-            $('#redraw').on('click', function (e) {
-              e.preventDefault();
-              trait_table.columns().visible( true );
-              $('.toggle-vis.active').removeClass('active');
-            });
+          tableSettings = {
+            "buttons": [
+              {
+                extend: 'csvHtml5',
+                text: 'Download <span class="glyphicon glyphicon-download"></span>',
+                className: 'btn btn-default',
+                exportOptions: {
+                  columns: 'th:not(:first-child)'
+                }
+              }
+            ],
+            {% if target_dataset.type == 'Geno' %}
+            "order": [[6, "asc" ]],
+            {% elif target_dataset.type == 'Publish' %}
+            "order": [[10, "asc" ]],
+            {% else %}
+            "order": [[9, "asc" ]],
+            {% endif %}
+          }
 
-            submit_special = function(url) {
-                $("#correlation_form").attr("action", url);
-                return $("#correlation_form").submit();
-            };
+          create_table(tableId, tableJson, columnDefs, tableSettings)
 
-            $("#delete").on("click", function() {
-                url = $(this).data("url")
-                return submit_special(url)
-            });
+          trait_table = $('#trait_table').DataTable();
+          trait_table.buttons().container().appendTo('#export_options')
 
-            $("#more_options").click(function() {
-                $("div#filter_options").toggle();
-            });
+          $('.buttons-csv').removeClass('dt-button')
 
-            $("#select_traits").click(function() {
-                console.log("redrawing")
-                trait_table.draw();
-            });
+          submit_special = function(url) {
+              $("#correlation_form").attr("action", url);
+              return $("#correlation_form").submit();
+          };
+
+          $("#delete").on("click", function() {
+              url = $(this).data("url")
+              return submit_special(url)
+          });
+
+          $("#more_options").click(function() {
+              $("div#filter_options").toggle();
+          });
+
+          $("#select_traits").click(function() {
+              trait_table.draw();
+          });
         });
     </script>
 {% endblock %}

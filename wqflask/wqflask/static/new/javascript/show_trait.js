@@ -1,12 +1,12 @@
-var Stat_Table_Rows, is_number,
+var statTableRows, isNumber,
   __hasProp = {}.hasOwnProperty,
   __slice = [].slice;
 
-is_number = function(o) {
+isNumber = function(o) {
   return !isNaN((o - 0) && o !== null);
 };
 
-Stat_Table_Rows = [
+statTableRows = [
   {
     vn: "n_of_samples",
     pretty: "N of Samples",
@@ -40,27 +40,27 @@ Stat_Table_Rows = [
 
 if (js_data.dataset_type == "ProbeSet"){
   if (js_data.data_scale == "linear_positive" || js_data.data_scale == "log2") {
-    Stat_Table_Rows.push({
+    statTableRows.push({
                            vn: "range",
                            pretty: "Range (log2)",
                            digits: 3
                          })
   } else {
-    Stat_Table_Rows.push({
+    statTableRows.push({
                            vn: "range",
                            pretty: "Range",
                            digits: 3
                          })
   }
 } else {
-  Stat_Table_Rows.push({
+  statTableRows.push({
                        vn: "range",
                        pretty: "Range",
                        digits: 3
                      })
 }
 
-Stat_Table_Rows.push(
+statTableRows.push(
   {
     vn: "range_fold",
     pretty: "Range (fold)",
@@ -83,7 +83,7 @@ Stat_Table_Rows.push(
   }
 );
 
-var add, block_by_attribute_value, block_by_index, block_outliers, change_stats_value, create_value_dropdown, edit_data_change, export_sample_table_data, get_sample_table_data, hide_no_value, hide_tabs, make_table, on_corr_method_change, open_trait_selection, populate_sample_attributes_values_dropdown, process_id, update_bar_chart, update_histogram, update_prob_plot, reset_samples_table, sample_group_types, sample_lists, show_hide_outliers, stats_mdp_change, update_stat_values;
+var add, blockByAttributeValue, blockByIndex, blockOutliers, changeStatsValue, createValueDropdown, editDataChange, exportSampleTableData, getSampleTableData, hideNoValue, hideTabs, makeTable, onCorrMethodChange, openTraitSelection, populateSampleAttributesValuesDropdown, processId, updateBarChart, updateHistogram, updateProbPlot, resetSamplesTable, sampleGroupTypes, sampleLists, showHideOutliers, statsMdpChange, updateStatValues;
 add = function() {
   var trait;
   trait = $("input[name=trait_hmac]").val();
@@ -92,11 +92,11 @@ add = function() {
   });
 };
 $('#add_to_collection').click(add);
-sample_lists = js_data.sample_lists;
-sample_group_types = js_data.sample_group_types;
+sampleLists = js_data.sample_lists;
+sampleGroupTypes = js_data.sample_group_types;
 
 $(".select_covariates").click(function () {
-  open_covariate_selection();
+  openCovariateSelection();
 });
 
 $(".remove_covariates").click(function () {
@@ -146,7 +146,7 @@ $(".remove_all_covariates").click(function() {
   $("input[name=covariates]").val("");
 })
 
-open_trait_selection = function() {
+openTraitSelection = function() {
   return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
     return function() {
       $.colorbox({
@@ -160,7 +160,7 @@ open_trait_selection = function() {
     };
   })(this));
 };
-open_covariate_selection = function() {
+openCovariateSelection = function() {
   return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
     return function() {
       $.colorbox({
@@ -176,7 +176,7 @@ open_covariate_selection = function() {
     };
   })(this));
 };
-hide_tabs = function(start) {
+hideTabs = function(start) {
   var x, _i, _results;
   _results = [];
   for (x = _i = start; start <= 10 ? _i <= 10 : _i >= 10; x = start <= 10 ? ++_i : --_i) {
@@ -184,15 +184,15 @@ hide_tabs = function(start) {
   }
   return _results;
 };
-stats_mdp_change = function() {
+statsMdpChange = function() {
   var selected;
   selected = $(this).val();
-  hide_tabs(0);
+  hideTabs(0);
   return $("#stats_tabs" + selected).show();
 };
-change_stats_value = function(sample_sets, category, value_type, decimal_places, effects) {
+changeStatsValue = function(sample_sets, category, value_type, decimal_places, effects) {
   var current_value, id, in_box, the_value, title_value;
-  id = "#" + process_id(category, value_type);
+  id = "#" + processId(category, value_type);
   in_box = $(id).html;
   current_value = parseFloat($(in_box)).toFixed(decimal_places);
   the_value = sample_sets[category][value_type]();
@@ -213,7 +213,7 @@ change_stats_value = function(sample_sets, category, value_type, decimal_places,
     return $(id).attr('title', title_value);
   }
 };
-update_stat_values = function(sample_sets) {
+updateStatValues = function(sample_sets) {
   var category, row, show_effects, _i, _len, _ref, _results;
   show_effects = $(".tab-pane.active").attr("id") === "stats_tab";
   _ref = ['samples_primary', 'samples_other', 'samples_all'];
@@ -223,9 +223,9 @@ update_stat_values = function(sample_sets) {
     _results.push((function() {
       var _j, _len1, _results1;
       _results1 = [];
-      for (_j = 0, _len1 = Stat_Table_Rows.length; _j < _len1; _j++) {
-        row = Stat_Table_Rows[_j];
-        _results1.push(change_stats_value(sample_sets, category, row.vn, row.digits, show_effects));
+      for (_j = 0, _len1 = statTableRows.length; _j < _len1; _j++) {
+        row = statTableRows[_j];
+        _results1.push(changeStatsValue(sample_sets, category, row.vn, row.digits, show_effects));
       }
       return _results1;
     })());
@@ -233,7 +233,7 @@ update_stat_values = function(sample_sets) {
   return _results;
 };
 
-update_histogram_width = function() {
+updateHistogram_width = function() {
   num_bins = $('#histogram').find('g.trace.bars').find('g.point').length
 
   if (num_bins < 10) {
@@ -245,7 +245,7 @@ update_histogram_width = function() {
   }
 }
 
-update_histogram = function() {
+updateHistogram = function() {
   var x;
   var _i, _len, _ref, data;
   _ref = _.values(root.selected_samples[root.stats_group]);
@@ -263,10 +263,10 @@ update_histogram = function() {
   }
 
   Plotly.newPlot('histogram', root.histogram_data, root.histogram_layout, root.modebar_options);
-  update_histogram_width()
+  updateHistogram_width()
 };
 
-update_bar_chart = function() {
+updateBarChart = function() {
   var x;
   var _i, _len, _ref, data;
   _ref = _.values(root.selected_samples[root.stats_group]);
@@ -302,7 +302,7 @@ update_bar_chart = function() {
     }
   }
 
-  new_chart_range = get_bar_range(trait_vals, trait_vars)
+  new_chart_range = getBarRange(trait_vals, trait_vars)
 
   root.bar_layout['yaxis']['range'] = new_chart_range
 
@@ -327,7 +327,7 @@ update_bar_chart = function() {
 
 update_box_plot = function() {
   var y_value_list = []
-  if (sample_lists.length > 1) {
+  if (sampleLists.length > 1) {
     i = 0;
     for (var sample_group in root.selected_samples){
       var trait_sample_data = _.values(root.selected_samples[sample_group])
@@ -358,9 +358,9 @@ update_box_plot = function() {
   Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
 }
 
-update_violin_plot = function() {
+updateViolinPlot = function() {
   var y_value_list = []
-  if (sample_lists.length > 1) {
+  if (sampleLists.length > 1) {
     i = 0;
     for (var sample_group in root.selected_samples){
       var trait_sample_data = _.values(root.selected_samples[sample_group])
@@ -392,11 +392,11 @@ update_violin_plot = function() {
 }
 
 
-update_prob_plot = function() {
+updateProbPlot = function() {
   return root.redraw_prob_plot_impl(root.selected_samples, root.prob_plot_group);
 };
 
-make_table = function() {
+makeTable = function() {
   var header, key, row, row_line, table, the_id, the_rows, value, _i, _len, _ref, _ref1;
   if (js_data.trait_symbol != null) {
     header = "<thead><tr><th style=\"color: white; background-color: #369; text-align: center;\" colspan=\"100%\">Trait " + js_data.trait_id + " - " + js_data.trait_symbol + "</th></tr><tr><th style=\"text-align: right; padding-left: 5px;\">Statistic</th>";
@@ -409,7 +409,7 @@ make_table = function() {
   for (key in _ref) {
     if (!__hasProp.call(_ref, key)) continue;
     value = _ref[key];
-    the_id = process_id("column", key);
+    the_id = processId("column", key);
     if (Object.keys(_ref).length > 1) {
         header += "<th id=\"" + the_id + "\" style=\"text-align: right; padding-left: 5px;\">" + value + "</th>";
     } else {
@@ -419,8 +419,8 @@ make_table = function() {
 
   header += "</thead>";
   the_rows = "<tbody>";
-  for (_i = 0, _len = Stat_Table_Rows.length; _i < _len; _i++) {
-    row = Stat_Table_Rows[_i];
+  for (_i = 0, _len = statTableRows.length; _i < _len; _i++) {
+    row = statTableRows[_i];
     if ((row.vn == "range_fold") && js_data.dataset_type == "Publish"){
         continue;
     }
@@ -434,7 +434,7 @@ make_table = function() {
     for (key in _ref1) {
       if (!__hasProp.call(_ref1, key)) continue;
       value = _ref1[key];
-      the_id = process_id(key, row.vn);
+      the_id = processId(key, row.vn);
       row_line += "<td id=\"" + the_id + "\" align=\"right\">N/A</td>";
     }
     row_line += "</tr>";
@@ -444,7 +444,7 @@ make_table = function() {
   table = header + the_rows;
   return $("#stats_table").append(table);
 };
-process_id = function() {
+processId = function() {
   var processed, value, values, _i, _len;
   values = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
 
@@ -461,14 +461,14 @@ process_id = function() {
   return processed;
 };
 
-fetch_sample_values = function() {
+fetchSampleValues = function() {
   // This is meant to fetch all sample values using DataTables API, since they can't all be submitted with the form when using Scroller (and this should also be faster)
   sample_val_dict = {};
 
   table = 'samples_primary';
   if ($('#' + table).length){
-    table_api = $('#' + table).DataTable();
-    val_nodes = table_api.column(3).nodes().to$();
+    tableApi = $('#' + table).DataTable();
+    val_nodes = tableApi.column(3).nodes().to$();
     for (_j = 0; _j < val_nodes.length; _j++){
       sample_name = val_nodes[_j].childNodes[0].name.split(":")[1]
       sample_val = val_nodes[_j].childNodes[0].value
@@ -479,7 +479,7 @@ fetch_sample_values = function() {
   return sample_val_dict;
 }
 
-edit_data_change = function() {
+editDataChange = function() {
   var already_seen, checkbox, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
   already_seen = {};
   sample_sets = {
@@ -497,20 +497,20 @@ edit_data_change = function() {
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
     if ($('#' + table).length){
-      table_api = $('#' + table).DataTable();
+      tableApi = $('#' + table).DataTable();
       sample_vals = [];
-      name_nodes = table_api.column(2).nodes().to$();
-      val_nodes = table_api.column(3).nodes().to$();
-      var_nodes = table_api.column(5).nodes().to$();
+      name_nodes = tableApi.column(2).nodes().to$();
+      val_nodes = tableApi.column(3).nodes().to$();
+      var_nodes = tableApi.column(5).nodes().to$();
       for (_j = 0; _j < val_nodes.length; _j++){
         sample_val = val_nodes[_j].childNodes[0].value
         sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
-        if (is_number(sample_val) && sample_val !== "") {
+        if (isNumber(sample_val) && sample_val !== "") {
           sample_val = parseFloat(sample_val);
           sample_sets[table].add_value(sample_val);
           try {
             sample_var = var_nodes[_j].childNodes[0].value
-            if (is_number(sample_var)) {
+            if (isNumber(sample_var)) {
               sample_var = parseFloat(sample_var)
             } else {
               sample_var = null;
@@ -534,37 +534,37 @@ edit_data_change = function() {
 
   }
 
-  update_stat_values(sample_sets);
+  updateStatValues(sample_sets);
 
   if ($('#histogram').hasClass('js-plotly-plot')){
-    update_histogram();
+    updateHistogram();
   }
   if ($('#bar_chart').hasClass('js-plotly-plot')){
-    update_bar_chart();
+    updateBarChart();
   }
   if ($('#box_plot').hasClass('js-plotly-plot')){
     update_box_plot();
   }
   if ($('#violin_plot').hasClass('js-plotly-plot')){
-    update_violin_plot();
+    updateViolinPlot();
   }
   if ($('#prob_plot_div').hasClass('js-plotly-plot')){
-    return update_prob_plot();
+    return updateProbPlot();
   }
 };
 
-show_hide_outliers = function() {
+showHideOutliers = function() {
   var label;
-  label = $('#show_hide_outliers').val();
+  label = $('#showHideOutliers').val();
   if (label === "Hide Outliers") {
-    return $('#show_hide_outliers').val("Show Outliers");
+    return $('#showHideOutliers').val("Show Outliers");
   } else if (label === "Show Outliers") {
-    $('#show_hide_outliers').val("Hide Outliers");
+    $('#showHideOutliers').val("Hide Outliers");
     return console.log("Should be now Hide Outliers");
   }
 };
 
-on_corr_method_change = function() {
+onCorrMethodChange = function() {
   var corr_method;
   corr_method = $('select[name=corr_type]').val();
   $('.correlation_desc').hide();
@@ -575,7 +575,7 @@ on_corr_method_change = function() {
     return $("#corr_sample_method").show();
   }
 };
-$('select[name=corr_type]').change(on_corr_method_change);
+$('select[name=corr_type]').change(onCorrMethodChange);
 
 on_dataset_change = function() {
   let dataset_type = $('select[name=corr_dataset] option:selected').data('type');
@@ -601,38 +601,38 @@ $('select[name=corr_dataset]').change(on_dataset_change);
 $('select[name=location_type]').change(on_dataset_change);
 
 submit_special = function(url) {
-  $("input[name=sample_vals]").val(JSON.stringify(fetch_sample_values()))
+  $("input[name=sample_vals]").val(JSON.stringify(fetchSampleValues()))
   $("#trait_data_form").attr("action", url);
   $("#trait_data_form").submit();
 };
 
-get_table_contents_for_form_submit = function(form_id) {
-  // Borrowed code from - https://stackoverflow.com/questions/31418047/how-to-post-data-for-the-whole-table-using-jquery-datatables
-  let this_form = $("#" + form_id);
-  var params = primary_table.$('input').serializeArray();
+// getTableContentsForFormSubmit = function(form_id) {
+//   // Borrowed code from - https://stackoverflow.com/questions/31418047/how-to-post-data-for-the-whole-table-using-jquery-datatables
+//   let this_form = $("#" + form_id);
+//   var params = primary_table.$('input').serializeArray();
 
-  $.each(params, function(){
-    // If element doesn't exist in DOM
-    if(!$.contains(document, this_form[this.name])){
-       // Create a hidden element
-       this_form.append(
-          $('<input>')
-             .attr('type', 'hidden')
-             .attr('name', this.name)
-             .val(this.value)
-       );
-    }
- });
-}
+//   $.each(params, function(){
+//     // If element doesn't exist in DOM
+//     if(!$.contains(document, this_form[this.name])){
+//        // Create a hidden element
+//        this_form.append(
+//           $('<input>')
+//              .attr('type', 'hidden')
+//              .attr('name', this.name)
+//              .val(this.value)
+//        );
+//     }
+//  });
+// }
 
-var corr_input_list = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
+var corrInputList = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
 $(".test_corr_compute").on("click", (function(_this) {
   return function() {
     $('input[name=tool_used]').val("Correlation");
     $('input[name=form_url]').val("/test_corr_compute");
-    $('input[name=wanted_inputs]').val(corr_input_list.join(","));
+    $('input[name=wanted_inputs]').val(corrInputList.join(","));
     url = "/loading";
     return submit_special(url);
   };
@@ -642,17 +642,17 @@ $(".corr_compute").on("click", (function(_this) {
   return function() {
     $('input[name=tool_used]').val("Correlation");
     $('input[name=form_url]').val("/corr_compute");
-    $('input[name=wanted_inputs]').val(corr_input_list.join(","));
+    $('input[name=wanted_inputs]').val(corrInputList.join(","));
     url = "/loading";
     return submit_special(url);
   };
 })(this));
 
-create_value_dropdown = function(value) {
+createValueDropdown = function(value) {
   return "<option val=" + value + ">" + value + "</option>";
 };
 
-populate_sample_attributes_values_dropdown = function() {
+populateSampleAttributesValuesDropdown = function() {
   var attribute_info, key, sample_attributes, selected_attribute, value, _i, _len, _ref, _ref1, _results;
   $('#attribute_values').empty();
   sample_attributes = [];
@@ -682,33 +682,33 @@ populate_sample_attributes_values_dropdown = function() {
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     value = _ref1[_i];
     if (value != ""){
-      _results.push($(create_value_dropdown(value)).appendTo($('#attribute_values')));
+      _results.push($(createValueDropdown(value)).appendTo($('#attribute_values')));
     }
   }
   return _results;
 };
 
 if (js_data.categorical_attr_exists == "true"){
-  populate_sample_attributes_values_dropdown();
+  populateSampleAttributesValuesDropdown();
 }
 
-$('#exclude_column').change(populate_sample_attributes_values_dropdown);
-block_by_attribute_value = function() {
+$('#exclude_column').change(populateSampleAttributesValuesDropdown);
+blockByAttributeValue = function() {
   var attribute_name, cell_class, exclude_by_value;
 
   let exclude_group = $('#exclude_by_attr_group').val();
   let exclude_column = $('#exclude_column').val();
 
   if (exclude_group === "other") {
-    var table_api = $('#samples_other').DataTable();
+    var tableApi = $('#samples_other').DataTable();
   } else {
-    var table_api = $('#samples_primary').DataTable();
+    var tableApi = $('#samples_primary').DataTable();
   }
 
   exclude_by_value = $('#attribute_values').val();
 
-  let val_nodes = table_api.column(3).nodes().to$();
-  let exclude_val_nodes = table_api.column(attribute_start_pos + parseInt(exclude_column)).nodes().to$();
+  let val_nodes = tableApi.column(3).nodes().to$();
+  let exclude_val_nodes = tableApi.column(attributeStartPos + parseInt(exclude_column)).nodes().to$();
 
   for (i = 0; i < exclude_val_nodes.length; i++) {
     if (exclude_val_nodes[i].hasChildNodes()) {
@@ -721,11 +721,11 @@ block_by_attribute_value = function() {
     }
   }
 
-  edit_data_change();
+  editDataChange();
 };
-$('#exclude_by_attr').click(block_by_attribute_value);
+$('#exclude_by_attr').click(blockByAttributeValue);
 
-block_by_index = function() {
+blockByIndex = function() {
   var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref;
   index_string = $('#remove_samples_field').val();
   index_list = [];
@@ -751,11 +751,11 @@ block_by_index = function() {
 
   let block_group = $('#block_group').val();
   if (block_group === "other") {
-    table_api = $('#samples_other').DataTable();
+    tableApi = $('#samples_other').DataTable();
   } else {
-    table_api = $('#samples_primary').DataTable();
+    tableApi = $('#samples_primary').DataTable();
   }
-  val_nodes = table_api.column(3).nodes().to$();
+  val_nodes = tableApi.column(3).nodes().to$();
   for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
     index = index_list[_k];
     val_nodes[index - 1].childNodes[0].value = "x";
@@ -771,14 +771,14 @@ filter_by_study = function() {
   if ($('#filter_study_group').length){
     let block_group = $('#filter_study_group').val();
     if (block_group === "other") {
-      table_api = $('#samples_other').DataTable();
+      tableApi = $('#samples_other').DataTable();
     } else {
-      table_api = $('#samples_primary').DataTable();
+      tableApi = $('#samples_primary').DataTable();
     }
   }
 
-  let sample_nodes = table_api.column(2).nodes().to$();
-  let val_nodes = table_api.column(3).nodes().to$();
+  let sample_nodes = tableApi.column(2).nodes().to$();
+  let val_nodes = tableApi.column(3).nodes().to$();
   for (i = 0; i < sample_nodes.length; i++) {
     this_sample = sample_nodes[i].childNodes[0].innerText;
     if (!filter_samples.includes(this_sample)){
@@ -794,20 +794,20 @@ filter_by_value = function() {
   let block_group = $('#filter_group').val();
 
   if (block_group === "other") {
-    var table_api = $('#samples_other').DataTable();
+    var tableApi = $('#samples_other').DataTable();
   } else {
-    var table_api = $('#samples_primary').DataTable();
+    var tableApi = $('#samples_primary').DataTable();
   }
 
-  let val_nodes = table_api.column(3).nodes().to$();
+  let val_nodes = tableApi.column(3).nodes().to$();
   if (filter_column == "value"){
-    var filter_val_nodes = table_api.column(3).nodes().to$();
+    var filter_val_nodes = tableApi.column(3).nodes().to$();
   }
   else if (filter_column == "stderr"){
-    var filter_val_nodes = table_api.column(5).nodes().to$();
+    var filter_val_nodes = tableApi.column(5).nodes().to$();
   }
   else if (!isNaN(filter_column)){
-    var filter_val_nodes = table_api.column(attribute_start_pos + parseInt(filter_column)).nodes().to$();
+    var filter_val_nodes = tableApi.column(attributeStartPos + parseInt(filter_column)).nodes().to$();
   }
   else {
     return false
@@ -850,8 +850,8 @@ filter_by_value = function() {
   }
 };
 
-hide_no_value_filter = function( settings, data, dataIndex ) {
-  this_value = table_api.column(3).nodes().to$()[dataIndex].childNodes[0].value;
+hideNoValue_filter = function( settings, data, dataIndex ) {
+  this_value = tableApi.column(3).nodes().to$()[dataIndex].childNodes[0].value;
   if (this_value == "x"){
     return false
   } else {
@@ -859,77 +859,77 @@ hide_no_value_filter = function( settings, data, dataIndex ) {
   }
 }
 
-hide_no_value = function() {
+hideNoValue = function() {
   tables = ['samples_primary', 'samples_other'];
   filter_active = $(this).data("active");
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
     if ($('#' + table).length) {
-      table_api = $('#' + table).DataTable();
+      tableApi = $('#' + table).DataTable();
       if (filter_active == "true"){
         $(this).val("Hide No Value")
-        table_api.draw();
+        tableApi.draw();
         $(this).data("active", "false");
       } else {
         $(this).val("Show No Value")
-        $.fn.dataTable.ext.search.push(hide_no_value_filter);
-        table_api.search();
-        table_api.draw();
-        $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(hide_no_value_filter, 1));
+        $.fn.dataTable.ext.search.push(hideNoValue_filter);
+        tableApi.search();
+        tableApi.draw();
+        $.fn.dataTable.ext.search.splice($.fn.dataTable.ext.search.indexOf(hideNoValue_filter, 1));
         $(this).data("active", "true");
       }
     }
   }
 };
-$('#hide_no_value').click(hide_no_value);
+$('#hideNoValue').click(hideNoValue);
 
-block_outliers = function() {
+blockOutliers = function() {
   return $('.outlier').each((function(_this) {
     return function(_index, element) {
       return $(element).find('.trait-value-input').val('x');
     };
   })(this));
 };
-$('#block_outliers').click(block_outliers);
+$('#blockOutliers').click(blockOutliers);
 
-reset_samples_table = function() {
+resetSamplesTable = function() {
   $('input[name="transform"]').val("");
   $('span[name="transform_text"]').text("")
-  $('#hide_no_value').val("Hide No Value")
+  $('#hideNoValue').val("Hide No Value")
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
     if ($('#' + table).length) {
-      table_api = $('#' + table).DataTable();
-      val_nodes = table_api.column(3).nodes().to$();
+      tableApi = $('#' + table).DataTable();
+      val_nodes = tableApi.column(3).nodes().to$();
       for (i = 0; i < val_nodes.length; i++) {
         this_node = val_nodes[i].childNodes[0];
         this_node.value = this_node.attributes["data-value"].value;
       }
       if (js_data.se_exists){
-        se_nodes = table_api.column(5).nodes().to$();
+        se_nodes = tableApi.column(5).nodes().to$();
         for (i = 0; i < val_nodes.length; i++) {
           this_node = val_nodes[i].childNodes[0];
           this_node.value = this_node.attributes["data-value"].value;
         }
       }
-      table_api.draw();
+      tableApi.draw();
     }
   }
 };
 $('.reset').click(function() {
-  reset_samples_table();
+  resetSamplesTable();
   $('input[name="transform"]').val("");
-  edit_data_change();
+  editDataChange();
 });
 
-check_for_zero_to_one_vals = function() {
+checkForZeroToOneVals = function() {
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
     if ($('#' + table).length) {
-      table_api = $('#' + table).DataTable();
-      val_nodes = table_api.column(3).nodes().to$();
+      tableApi = $('#' + table).DataTable();
+      val_nodes = tableApi.column(3).nodes().to$();
       for (i = 0; i < val_nodes.length; i++) {
         this_node = val_nodes[i].childNodes[0];
         if(!isNaN(this_node.value)) {
@@ -943,47 +943,47 @@ check_for_zero_to_one_vals = function() {
   return false
 }
 
-log2_data = function(this_node) {
+log2Data = function(this_node) {
   current_value = this_node.value;
   original_value = this_node.attributes['data-value'].value;
   if(!isNaN(current_value) && !isNaN(original_value)) {
-    if (zero_to_one_vals_exist){
+    if (zeroToOneValsExist){
       original_value = parseFloat(original_value) + 1;
     }
     this_node.value = Math.log2(original_value).toFixed(3);
   }
 };
 
-log10_data = function() {
+log10Data = function() {
   current_value = this_node.value;
   original_value = this_node.attributes['data-value'].value;
   if(!isNaN(current_value) && !isNaN(original_value)) {
-    if (zero_to_one_vals_exist){
+    if (zeroToOneValsExist){
       original_value = parseFloat(original_value) + 1;
     }
     this_node.value = Math.log10(original_value).toFixed(3);
   }
 };
 
-sqrt_data = function() {
+sqrtData = function() {
   current_value = this_node.value;
   original_value = this_node.attributes['data-value'].value;
   if(!isNaN(current_value) && !isNaN(original_value)) {
-    if (zero_to_one_vals_exist){
+    if (zeroToOneValsExist){
       original_value = parseFloat(original_value) + 1;
     }
     this_node.value = Math.sqrt(original_value).toFixed(3);
   }
 };
 
-invert_data = function() {
+invertData = function() {
   current_value = this_node.value;
   if(!isNaN(current_value)) {
     this_node.value = parseFloat(-(current_value)).toFixed(3);
   }
 };
 
-qnorm_data = function() {
+qnormData = function() {
   current_value = this_node.value;
   qnorm_value = this_node.attributes['data-qnorm'].value;
   if(!isNaN(current_value)) {
@@ -991,7 +991,7 @@ qnorm_data = function() {
   }
 };
 
-zscore_data = function() {
+zScoreData = function() {
   current_value = this_node.value;
   zscore_value = this_node.attributes['data-zscore'].value;
   if(!isNaN(current_value)) {
@@ -999,47 +999,47 @@ zscore_data = function() {
   }
 };
 
-do_transform = function(transform_type) {
+doTransform = function(transform_type) {
   tables = ['samples_primary', 'samples_other'];
   for (_i = 0, _len = tables.length; _i < _len; _i++) {
     table = tables[_i];
     if ($('#' + table).length) {
-      table_api = $('#' + table).DataTable();
-      val_nodes = table_api.column(3).nodes().to$();
+      tableApi = $('#' + table).DataTable();
+      val_nodes = tableApi.column(3).nodes().to$();
       for (i = 0; i < val_nodes.length; i++) {
         this_node = val_nodes[i].childNodes[0]
         if (transform_type == "log2"){
-          log2_data(this_node)
+          log2Data(this_node)
         }
         if (transform_type == "log10"){
-          log10_data(this_node)
+          log10Data(this_node)
         }
         if (transform_type == "sqrt"){
-          sqrt_data(this_node)
+          sqrtData(this_node)
         }
         if (transform_type == "invert"){
-          invert_data(this_node)
+          invertData(this_node)
         }
         if (transform_type == "qnorm"){
-          qnorm_data(this_node)
+          qnormData(this_node)
         }
         if (transform_type == "zscore"){
-          zscore_data(this_node)
+          zScoreData(this_node)
         }
       }
     }
   }
 }
 
-normalize_data = function() {
+normalizeData = function() {
   if ($('#norm_method option:selected').val() == 'log2' || $('#norm_method option:selected').val() == 'log10'){
     if ($('input[name="transform"]').val() != "log2" && $('#norm_method option:selected').val() == 'log2') {
-      do_transform("log2")
+      doTransform("log2")
       $('input[name="transform"]').val("log2")
       $('span[name="transform_text"]').text(" - log2 Transformed")
     } else {
       if ($('input[name="transform"]').val() != "log10" && $('#norm_method option:selected').val() == 'log10'){
-        do_transform("log10")
+        doTransform("log10")
         $('input[name="transform"]').val("log10")
         $('span[name="transform_text"]').text(" - log10 Transformed")
       }
@@ -1047,13 +1047,13 @@ normalize_data = function() {
   }
   else if ($('#norm_method option:selected').val() == 'sqrt'){
     if ($('input[name="transform"]').val() != "sqrt") {
-      do_transform("sqrt")
+      doTransform("sqrt")
       $('input[name="transform"]').val("sqrt")
       $('span[name="transform_text"]').text(" - Square Root Transformed")
     }
   }
   else if ($('#norm_method option:selected').val() == 'invert'){
-    do_transform("invert")
+    doTransform("invert")
     $('input[name="transform"]').val("inverted")
     if ($('span[name="transform_text"]:eq(0)').text() != ""){
       current_text = $('span[name="transform_text"]:eq(0)').text();
@@ -1064,26 +1064,26 @@ normalize_data = function() {
   }
   else if ($('#norm_method option:selected').val() == 'qnorm'){
     if ($('input[name="transform"]').val() != "qnorm") {
-      do_transform("qnorm")
+      doTransform("qnorm")
       $('input[name="transform"]').val("qnorm")
       $('span[name="transform_text"]').text(" - Quantile Normalized")
     }
   }
   else if ($('#norm_method option:selected').val() == 'zscore'){
     if ($('input[name="transform"]').val() != "zscore") {
-      do_transform("zscore")
+      doTransform("zscore")
       $('input[name="transform"]').val("zscore")
       $('span[name="transform_text"]').text(" - Z-Scores")
     }
   }
 }
 
-zero_to_one_vals_exist = check_for_zero_to_one_vals();
+zeroToOneValsExist = checkForZeroToOneVals();
 
-show_transform_warning = function() {
+showTransformWarning = function() {
   transform_type = $('#norm_method option:selected').val()
   if (transform_type == "log2" || transform_type == "log10"){
-    if (zero_to_one_vals_exist){
+    if (zeroToOneValsExist){
       $('#transform_alert').css("display", "block")
     }
   } else {
@@ -1092,15 +1092,15 @@ show_transform_warning = function() {
 }
 
 $('#norm_method').change(function(){
-  show_transform_warning()
+  showTransformWarning()
 });
 $('#normalize').hover(function(){
-  show_transform_warning()
+  showTransformWarning()
 });
 
-$('#normalize').click(normalize_data)
+$('#normalize').click(normalizeData)
 
-switch_qnorm_data = function() {
+switchQNormData = function() {
   return $('.trait-value-input').each((function(_this) {
     return function(_index, element) {
       transform_val = $(element).data('transform')
@@ -1111,9 +1111,9 @@ switch_qnorm_data = function() {
     };
   })(this));
 };
-$('#qnorm').click(switch_qnorm_data);
+$('#qnorm').click(switchQNormData);
 
-get_sample_table_data = function(table_name, attributes_as_list) {
+getSampleTableData = function(table_name, attributes_as_list) {
   var samples;
   samples = [];
 
@@ -1121,22 +1121,22 @@ get_sample_table_data = function(table_name, attributes_as_list) {
   var n_exists = false;
 
   if ($('#' + table_name).length){
-    table_api = $('#' + table_name).DataTable();
+    tableApi = $('#' + table_name).DataTable();
     sample_vals = [];
     attr_col = 4
 
-    name_nodes = table_api.column(2).nodes().to$();
-    val_nodes = table_api.column(3).nodes().to$();
+    name_nodes = tableApi.column(2).nodes().to$();
+    val_nodes = tableApi.column(3).nodes().to$();
     if (js_data.se_exists){
-      var_nodes = table_api.column(5).nodes().to$();
+      var_nodes = tableApi.column(5).nodes().to$();
       attr_col = 6
       if (js_data.has_num_cases) {
-        n_nodes = table_api.column(6).nodes().to$();
+        n_nodes = tableApi.column(6).nodes().to$();
         attr_col = 7
       }
     } else {
       if (js_data.has_num_cases){
-        n_nodes = table_api.column(4).nodes().to$();
+        n_nodes = tableApi.column(4).nodes().to$();
         attr_col = 5
       }
     }
@@ -1149,13 +1149,13 @@ get_sample_table_data = function(table_name, attributes_as_list) {
     for (_j = 0; _j < val_nodes.length; _j++){
       sample_val = val_nodes[_j].childNodes[0].value
       sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
-      if (is_number(sample_val) && sample_val !== "") {
+      if (isNumber(sample_val) && sample_val !== "") {
         sample_val = parseFloat(sample_val);
         if (typeof var_nodes == 'undefined'){
           sample_var = null;
         } else {
           sample_var = var_nodes[_j].childNodes[0].value;
-          if (is_number(sample_var)) {
+          if (isNumber(sample_var)) {
             sample_var = parseFloat(sample_var);
             se_exists = true;
           } else {
@@ -1166,7 +1166,7 @@ get_sample_table_data = function(table_name, attributes_as_list) {
           sample_n = null;
         } else {
           sample_n = n_nodes[_j].childNodes[0].value;
-          if (is_number(sample_n)) {
+          if (isNumber(sample_n)) {
             n_exists = true;
             sample_n = parseInt(sample_n);
           } else {
@@ -1192,7 +1192,7 @@ get_sample_table_data = function(table_name, attributes_as_list) {
 
   return samples;
 };
-export_sample_table_data = function() {
+exportSampleTableData = function() {
   var format, json_sample_data, sample_data;
 
   var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
@@ -1200,8 +1200,8 @@ export_sample_table_data = function() {
   });
 
   sample_data = {};
-  sample_data.primary_samples = get_sample_table_data('samples_primary', attributes_as_list);
-  sample_data.other_samples = get_sample_table_data('samples_other', attributes_as_list);
+  sample_data.primary_samples = getSampleTableData('samples_primary', attributes_as_list);
+  sample_data.other_samples = getSampleTableData('samples_other', attributes_as_list);
   sample_data.attributes = attributes_as_list;
   json_sample_data = JSON.stringify(sample_data);
   $('input[name=export_data]').val(json_sample_data);
@@ -1224,11 +1224,11 @@ $('.export_format').change(function() {
   $('.export_format').val( this.value );
 });
 
-$('.export').click(export_sample_table_data);
-$('#block_outliers').click(block_outliers);
+$('.export').click(exportSampleTableData);
+$('#blockOutliers').click(blockOutliers);
 _.mixin(_.str.exports());
 
-get_sample_vals = function(sample_list) {
+getSampleVals = function(sample_list) {
   var sample;
   return this.sample_vals = (function() {
     var i, len, results;
@@ -1243,7 +1243,7 @@ get_sample_vals = function(sample_list) {
   })();
 };
 
-get_sample_errors = function(sample_list) {
+getSampleErrors = function(sample_list) {
   var sample;
   return this.sample_vals = (function() {
     var i, len, results;
@@ -1260,9 +1260,9 @@ get_sample_errors = function(sample_list) {
   })();
 };
 
-get_sample_names = function(sample_list) {
+getSampleNames = function(sample_list) {
   var sample;
-  return this.sample_names = (function() {
+  return this.sampleNames = (function() {
     var i, len, results;
     results = [];
     for (i = 0, len = sample_list.length; i < len; i++) {
@@ -1275,31 +1275,31 @@ get_sample_names = function(sample_list) {
   })();
 };
 
-get_bar_bottom_margin = function(sample_list){
-  bottom_margin = 80
-  max_length = 0
-  sample_names = get_sample_names(sample_list)
-  for (i=0; i < sample_names.length; i++){
-    if (sample_names[i].length > max_length) {
-      max_length = sample_names[i].length
+getBarBottomMargin = function(sample_list){
+  bottomMargin = 80
+  maxLength = 0
+  sampleNames = getSampleNames(sample_list)
+  for (i=0; i < sampleNames.length; i++){
+    if (sampleNames[i].length > maxLength) {
+      maxLength = sampleNames[i].length
     }
   }
 
-  if (max_length > 6){
-    bottom_margin += 11*(max_length - 6)
+  if (maxLength > 6){
+    bottomMargin += 11*(maxLength - 6)
   }
 
-  return bottom_margin;
+  return bottomMargin;
 }
 
 root.stats_group = 'samples_primary';
 
 if (Object.keys(js_data.sample_group_types).length > 1) {
-    full_sample_lists = [sample_lists[0], sample_lists[1], sample_lists[0].concat(sample_lists[1])]
-    sample_group_list = [js_data.sample_group_types['samples_primary'], js_data.sample_group_types['samples_other'], js_data.sample_group_types['samples_all']]
+    fullSampleLists = [sampleLists[0], sampleLists[1], sampleLists[0].concat(sampleLists[1])]
+    sampleGroupList = [js_data.sample_group_types['samples_primary'], js_data.sample_group_types['samples_other'], js_data.sample_group_types['samples_all']]
 } else {
-    full_sample_lists = [sample_lists[0]]
-    sample_group_list = [js_data.sample_group_types['samples_primary']]
+    fullSampleLists = [sampleLists[0]]
+    sampleGroupList = [js_data.sample_group_types['samples_primary']]
 }
 
 // Define Plotly Options (for the options bar at the top of each figure)
@@ -1328,76 +1328,76 @@ root.modebar_options = {
 
 // Bar Chart
 
-root.errors_exist = get_sample_errors(sample_lists[0])[1]
-var bar_trace = {
-    x: get_sample_names(sample_lists[0]),
-    y: get_sample_vals(sample_lists[0]),
+root.errors_exist = getSampleErrors(sampleLists[0])[1]
+var barTrace = {
+    x: getSampleNames(sampleLists[0]),
+    y: getSampleVals(sampleLists[0]),
     error_y: {
         type: 'data',
-        array: get_sample_errors(sample_lists[0])[0],
+        array: getSampleErrors(sampleLists[0])[0],
         visible: root.errors_exist
     },
     type: 'bar'
 }
 
-root.bar_data = [bar_trace]
+root.bar_data = [barTrace]
 
-get_bar_range = function(sample_vals, sample_errors = null){
-  positive_error_vals = []
-  negative_error_vals = []
+getBarRange = function(sample_vals, sampleErrors = null){
+  positiveErrorVals = []
+  negativeErrorVals = []
   for (i = 0;i < sample_vals.length; i++){
-    if (sample_errors[i] != undefined) {
-        positive_error_vals.push(sample_vals[i] + sample_errors[i])
-        negative_error_vals.push(sample_vals[i] - sample_errors[i])
+    if (sampleErrors[i] != undefined) {
+        positiveErrorVals.push(sample_vals[i] + sampleErrors[i])
+        negativeErrorVals.push(sample_vals[i] - sampleErrors[i])
     } else {
-        positive_error_vals.push(sample_vals[i])
-        negative_error_vals.push(sample_vals[i])
+        positiveErrorVals.push(sample_vals[i])
+        negativeErrorVals.push(sample_vals[i])
     }
   }
 
-  min_y_val = Math.min(...negative_error_vals)
-  max_y_val = Math.max(...positive_error_vals)
+  minYVal = Math.min(...negativeErrorVals)
+  maxYVal = Math.max(...positiveErrorVals)
 
-  if (min_y_val == 0) {
-    range_top = max_y_val + Math.abs(max_y_val)*0.1
-    range_bottom = 0;
+  if (minYVal == 0) {
+    rangeTop = maxYVal + Math.abs(maxYVal)*0.1
+    rangeBottom = 0;
   } else {
-    range_top = max_y_val + Math.abs(max_y_val)*0.1
-    range_bottom = min_y_val - Math.abs(min_y_val)*0.1
-    if (min_y_val > 0) {
-        range_bottom = min_y_val - 0.1*Math.abs(min_y_val)
-    } else if (min_y_val < 0) {
-        range_bottom = min_y_val + 0.1*min_y_val
+    rangeTop = maxYVal + Math.abs(maxYVal)*0.1
+    rangeBottom = minYVal - Math.abs(minYVal)*0.1
+    if (minYVal > 0) {
+        rangeBottom = minYVal - 0.1*Math.abs(minYVal)
+    } else if (minYVal < 0) {
+        rangeBottom = minYVal + 0.1*minYVal
     } else {
-        range_bottom = 0
+        rangeBottom = 0
     }
   }
 
-  return [range_bottom, range_top]
+  return [rangeBottom, rangeTop]
 }
 
-root.chart_range = get_bar_range(get_sample_vals(sample_lists[0]), get_sample_errors(sample_lists[0])[0])
-val_range = root.chart_range[1] - root.chart_range[0]
+root.chart_range = getBarRange(getSampleVals(sampleLists[0]), getSampleErrors(sampleLists[0])[0])
+valRange = root.chart_range[1] - root.chart_range[0]
 
-if (val_range < 0.05){
-  tick_digits = '.3f'
-  left_margin = 80
-} else if (val_range < 0.5) {
-  tick_digits = '.2f'
-  left_margin = 70
-} else if (val_range < 5){
-  tick_digits = '.1f'
-  left_margin = 60
+if (valRange < 0.05){
+  tickDigits = '.3f'
+  leftMargin = 80
+} else if (valRange < 0.5) {
+  tickDigits = '.2f'
+  leftMargin = 70
+} else if (valRange < 5){
+  tickDigits = '.1f'
+  leftMargin = 60
 } else {
-  tick_digits = 'f'
-  left_margin = 55
+  tickDigits = 'f'
+  leftMargin = 55
 }
 
 if (js_data.num_values < 256) {
-  bar_chart_width = 25 * get_sample_vals(sample_lists[0]).length
+  barChartWidth = 25 * getSampleVals(sampleLists[0]).length
 
   //ZS: Set bottom margin dependent on longest sample name length, since those can get long
-  bottom_margin = get_bar_bottom_margin(sample_lists[0])
+  bottomMargin = getBarBottomMargin(sampleLists[0])
 
   root.bar_layout = {
     title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
@@ -1423,32 +1423,32 @@ if (js_data.num_values < 256) {
         tickfont: {
           size: 16
         },
-        tickformat: tick_digits,
+        tickformat: tickDigits,
         fixedrange: true
     },
-    width: bar_chart_width,
+    width: barChartWidth,
     height: 600,
     margin: {
-        l: left_margin,
+        l: leftMargin,
         r: 30,
         t: 100,
-        b: bottom_margin
+        b: bottomMargin
     }
   };
 
   $('.bar_chart_tab').click(function() {
-    update_bar_chart();
+    updateBarChart();
   });
 }
 
 total_sample_count = 0
-for (i = 0, i < sample_lists.length; i++;) {
-  total_sample_count += get_sample_vals(sample_lists[i]).length
+for (i = 0, i < sampleLists.length; i++;) {
+  total_sample_count += getSampleVals(sampleLists[i]).length
 }
 
 // Histogram
 var hist_trace = {
-    x: get_sample_vals(sample_lists[0]),
+    x: getSampleVals(sampleLists[0]),
     type: 'histogram'
 };
 root.histogram_data = [hist_trace];
@@ -1493,14 +1493,14 @@ root.histogram_layout = {
 };
 
 $('.histogram_tab').click(function() {
-  update_histogram();
-  update_histogram_width();
+  updateHistogram();
+  updateHistogram_width();
 });
 
 $('.histogram_samples_group').val(root.stats_group);
 $('.histogram_samples_group').change(function() {
   root.stats_group = $(this).val();
-  return update_histogram();
+  return updateHistogram();
 });
 
 root.box_layout = {
@@ -1526,7 +1526,7 @@ root.box_layout = {
         tickfont: {
           size: 16
         },
-        tickformat: tick_digits,
+        tickformat: tickDigits,
         zeroline: false,
         automargin: true
     },
@@ -1537,13 +1537,13 @@ root.box_layout = {
         b: 80
     }
 };
-if (full_sample_lists.length > 1) {
+if (fullSampleLists.length > 1) {
     root.box_layout['width'] = 600;
     root.box_layout['height'] = 500;
     var trace1 = {
-        y: get_sample_vals(full_sample_lists[0]),
+        y: getSampleVals(fullSampleLists[0]),
         type: 'box',
-        name: sample_group_list[0],
+        name: sampleGroupList[0],
         boxpoints: 'Outliers',
         jitter: 0.5,
         whiskerwidth: 0.2,
@@ -1558,9 +1558,9 @@ if (full_sample_lists.length > 1) {
         }
     }
     var trace2 = {
-        y: get_sample_vals(full_sample_lists[1]),
+        y: getSampleVals(fullSampleLists[1]),
         type: 'box',
-        name: sample_group_list[1],
+        name: sampleGroupList[1],
         boxpoints: 'Outliers',
         jitter: 0.5,
         whiskerwidth: 0.2,
@@ -1575,9 +1575,9 @@ if (full_sample_lists.length > 1) {
         }
     }
     var trace3 = {
-        y: get_sample_vals(full_sample_lists[2]),
+        y: getSampleVals(fullSampleLists[2]),
         type: 'box',
-        name: sample_group_list[2],
+        name: sampleGroupList[2],
         boxpoints: 'Outliers',
         jitter: 0.5,
         whiskerwidth: 0.2,
@@ -1598,7 +1598,7 @@ if (full_sample_lists.length > 1) {
     root.box_data = [
       {
         type: 'box',
-        y: get_sample_vals(full_sample_lists[0]),
+        y: getSampleVals(fullSampleLists[0]),
         name: "<b>Trait " + js_data.trait_id + "</b>",
         boxpoints: 'Outliers',
         jitter: 0.5,
@@ -1649,7 +1649,7 @@ root.violin_layout = {
       tickfont: {
         size: 16
       },
-      tickformat: tick_digits,
+      tickformat: tickDigits,
       zeroline: false,
       automargin: true
   },
@@ -1661,11 +1661,11 @@ root.violin_layout = {
   }
 };
 
-if (full_sample_lists.length > 1) {
+if (fullSampleLists.length > 1) {
     root.violin_layout['width'] = 600;
     root.violin_layout['height'] = 500;
     var trace1 = {
-        y: get_sample_vals(full_sample_lists[2]),
+        y: getSampleVals(fullSampleLists[2]),
         type: 'violin',
         points: 'none',
         box: {
@@ -1677,11 +1677,11 @@ if (full_sample_lists.length > 1) {
         meanline: {
           visible: true
         },
-        name: sample_group_list[2],
-        x0: sample_group_list[2]
+        name: sampleGroupList[2],
+        x0: sampleGroupList[2]
     }
     var trace2 = {
-        y: get_sample_vals(full_sample_lists[1]),
+        y: getSampleVals(fullSampleLists[1]),
         type: 'violin',
         points: 'none',
         box: {
@@ -1693,11 +1693,11 @@ if (full_sample_lists.length > 1) {
         meanline: {
           visible: true
         },
-        name: sample_group_list[1],
-        x0: sample_group_list[1]
+        name: sampleGroupList[1],
+        x0: sampleGroupList[1]
     }
     var trace3 = {
-        y: get_sample_vals(full_sample_lists[0]),
+        y: getSampleVals(fullSampleLists[0]),
         type: 'violin',
         points: 'none',
         box: {
@@ -1709,8 +1709,8 @@ if (full_sample_lists.length > 1) {
         meanline: {
           visible: true
         },
-        name: sample_group_list[0],
-        x0: sample_group_list[0]
+        name: sampleGroupList[0],
+        x0: sampleGroupList[0]
     }
     root.violin_data = [trace1, trace2, trace3]
 } else {
@@ -1718,7 +1718,7 @@ if (full_sample_lists.length > 1) {
     root.violin_layout['height'] = 400;
     root.violin_data = [
       {
-        y: get_sample_vals(full_sample_lists[0]),
+        y: getSampleVals(fullSampleLists[0]),
         type: 'violin',
         points: 'none',
         box: {
@@ -1734,33 +1734,33 @@ if (full_sample_lists.length > 1) {
 }
 
 $('.violin_plot_tab').click(function() {
-  update_violin_plot();
+  updateViolinPlot();
 });
 
-if (get_sample_vals(sample_lists[0]).length < 256) {
+if (getSampleVals(sampleLists[0]).length < 256) {
   $('.bar_chart_samples_group').change(function() {
     root.stats_group = $(this).val();
-    return update_bar_chart();
+    return updateBarChart();
   });
   root.bar_sort = "name"
 }
 $('.sort_by_name').click(function() {
   root.bar_sort = "name"
-  return update_bar_chart();
+  return updateBarChart();
 });
 $('.sort_by_value').click(function() {
   root.bar_sort = "value"
-  return update_bar_chart();
+  return updateBarChart();
 });
 
 root.prob_plot_group = 'samples_primary';
 $('.prob_plot_samples_group').val(root.prob_plot_group);
 $('.prob_plot_tab').click(function() {
-  return update_prob_plot();
+  return updateProbPlot();
 });
 $('.prob_plot_samples_group').change(function() {
   root.prob_plot_group = $(this).val();
-  return update_prob_plot();
+  return updateProbPlot();
 });
 
 function isEmpty( el ){
@@ -1769,37 +1769,37 @@ function isEmpty( el ){
 
 $('.stats_panel').click(function() {
   if (isEmpty($('#stats_table'))){
-    make_table();
-    edit_data_change();
+    makeTable();
+    editDataChange();
   } else {
-    edit_data_change();
+    editDataChange();
   }
 });
 
-$('#block_by_index').click(function(){
-  block_by_index();
-  edit_data_change();
+$('#blockByIndex').click(function(){
+  blockByIndex();
+  editDataChange();
 });
 
 $('#filter_by_study').click(function(){
   filter_by_study();
-  edit_data_change();
+  editDataChange();
 })
 
 $('#filter_by_value').click(function(){
   filter_by_value();
-  edit_data_change();
+  editDataChange();
 })
 
 $('.edit_sample_value').change(function() {
-  edit_data_change();
+  editDataChange();
 });
 
-$('#exclude_group').click(edit_data_change);
-$('#block_outliers').click(edit_data_change);
-$('#reset').click(edit_data_change);
-$('#qnorm').click(edit_data_change);
-$('#normalize').click(edit_data_change);
+$('#exclude_group').click(editDataChange);
+$('#blockOutliers').click(editDataChange);
+$('#reset').click(editDataChange);
+$('#qnorm').click(editDataChange);
+$('#normalize').click(editDataChange);
 
 Number.prototype.countDecimals = function () {
   if(Math.floor(this.valueOf()) === this.valueOf()) return 0;
