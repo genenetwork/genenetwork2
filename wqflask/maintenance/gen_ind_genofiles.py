@@ -58,7 +58,7 @@ def main(args):
         par_f1s = {}
         # List of files directly taken from command line arguments, with titles just set to the filename
         for group in args[4:]:
-            file_name = geno_dir + group + ".geno" if ".geno" not in group else group
+            file_name = geno_dir + group + ".geno" if ".geno" not in group else geno_dir + group
             source_files.append({'title': file_name[:-5], 'location': file_name})
 
     if len(source_files) > 1:
@@ -66,17 +66,19 @@ def main(args):
         target_json_loc = out_dir + ".".join(args[3].split(".")[:-1]) + ".json"
         target_json = {'genofile': []}
 
-    # Generate the output .geno files
-    for source_file in source_files:
-        filename, samples = generate_new_genofile(source_file['location'], target_file, par_f1s, out_dir)
+        # Generate the output .geno files
+        for source_file in source_files:
+            filename, samples = generate_new_genofile(source_file['location'], target_file, par_f1s, out_dir)
 
-        target_json['genofile'].append({
-            'location': filename.split("/")[-1],
-            'title': source_file['title'],
-            'sample_list': samples
-        })
+            target_json['genofile'].append({
+                'location': filename.split("/")[-1],
+                'title': source_file['title'],
+                'sample_list': samples
+            })
 
-    json.dump(target_json, open(target_json_loc, "w"))
+        json.dump(target_json, open(target_json_loc, "w"))
+    else:
+        filename, samples = generate_new_genofile(source_files[0]['location'], target_file, par_f1s, out_dir)
 
 def get_strain_for_sample(sample):
     query = (
@@ -88,7 +90,8 @@ def get_strain_for_sample(sample):
 
     with conn().cursor() as cursor:
         cursor.execute(query, {"name": sample.strip()})
-        return cursor.fetchone()[0]
+        strain = cursor.fetchone()[0]
+        return strain
 
 def generate_new_genofile(source_genofile, target_genofile, par_f1s, out_dir):
     source_samples = group_samples(source_genofile)
@@ -110,7 +113,7 @@ def generate_new_genofile(source_genofile, target_genofile, par_f1s, out_dir):
             fh.write("@" + metadata + ":" + source_genotypes[metadata] + "\n")
 
         header_line = ["Chr", "Locus", "cM", "Mb"] + target_samples
-        fh.write("\t".join(header_line))
+        fh.write("\t".join(header_line) + "\n")
 
         for marker in source_genotypes['markers']:
             line_items = [
@@ -172,7 +175,8 @@ def group_samples(target_file: str) -> List:
             if line[0] in ["#", "@"] or not len(line):
                 continue
     
-            line_items = line.split("\t")
+            line_items = line.split()
+
             sample_list = [item for item in line_items if item not in ["Chr", "Locus", "Mb", "cM"]]
             break
 
