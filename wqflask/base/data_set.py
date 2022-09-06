@@ -628,23 +628,30 @@ class DataSet:
         try:
             query = ""
             _vars = None
+            query_args = (self.name, self.name, self.name)
             if self.type == "ProbeSet":
-                query = """
-SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, ProbeSetFreeze.DataScale, Tissue.Name
-FROM ProbeSetFreeze, ProbeFreeze, Tissue
-WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-AND ProbeFreeze.TissueId = Tissue.Id
-AND (ProbeSetFreeze.Name = %s OR ProbeSetFreeze.FullName = %s OR ProbeSetFreeze.ShortName = %s"""
-                _vars = (self.id, self.name, self.fullname, self.shortname, self.data_scale, self.tissue,)
+                query = (
+                    "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.Name, "
+                    "ProbeSetFreeze.FullName, ProbeSetFreeze.ShortName, "
+                    "ProbeSetFreeze.DataScale, Tissue.Name "
+                    "FROM ProbeSetFreeze, ProbeFreeze, Tissue "
+                    "WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id "
+                    "AND ProbeFreeze.TissueId = Tissue.Id "
+                    "AND (ProbeSetFreeze.Name = %s OR ProbeSetFreeze.FullName = %s OR ProbeSetFreeze.ShortName = %s)")
             else:
-                query = """
-SELECT Id, Name, FullName, ShortName FROM %s
-WHERE (Name = %s OR FullName = '%s' OR ShortName = %s)"""
+                query = (
+                    "SELECT Id, Name, FullName, ShortName "
+                    f"FROM {self.type}Freeze "
+                    "WHERE (Name = %s OR FullName = %s OR ShortName = %s)")
                 self.tissue = "N/A"
-                _vars = (self.id, self.name, self.fullname, self.shortname,)
             with database_connection() as conn, conn.cursor() as cursor:
-                cursor.execute(query, (query_args,))
+                cursor.execute(query, query_args)
                 _vars = cursor.fetchone()
+                if self.type == "ProbeSet":
+                    (self.id, self.name, self.fullname, self.shortname,
+                     self.data_scale, self.tissue) = _vars
+                else:
+                    self.id, self.name, self.fullname, self.shortname = _vars
         except TypeError:
             pass
 
