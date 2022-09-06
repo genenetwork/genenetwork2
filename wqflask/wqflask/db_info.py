@@ -6,9 +6,6 @@ import re
 
 from flask import Flask, g
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 
 class InfoPage:
     def __init__(self, start_vars):

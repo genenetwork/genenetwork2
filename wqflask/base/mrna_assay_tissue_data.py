@@ -9,10 +9,6 @@ from utility.db_tools import escape
 from gn3.db_utils import database_connector
 
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
-
 class MrnaAssayTissueData:
 
     def __init__(self, gene_symbols=None):

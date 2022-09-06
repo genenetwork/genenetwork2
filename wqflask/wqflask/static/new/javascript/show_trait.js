@@ -1113,7 +1113,7 @@ switchQNormData = function() {
 };
 $('#qnorm').click(switchQNormData);
 
-getSampleTableData = function(table_name) {
+getSampleTableData = function(table_name, attributes_as_list) {
   var samples;
   samples = [];
 
@@ -1123,18 +1123,27 @@ getSampleTableData = function(table_name) {
   if ($('#' + table_name).length){
     tableApi = $('#' + table_name).DataTable();
     sample_vals = [];
+    attr_col = 4
 
     name_nodes = tableApi.column(2).nodes().to$();
     val_nodes = tableApi.column(3).nodes().to$();
     if (js_data.se_exists){
       var_nodes = tableApi.column(5).nodes().to$();
+      attr_col = 6
       if (js_data.has_num_cases) {
         n_nodes = tableApi.column(6).nodes().to$();
+        attr_col = 7
       }
     } else {
       if (js_data.has_num_cases){
         n_nodes = tableApi.column(4).nodes().to$();
+        attr_col = 5
       }
+    }
+
+    attribute_nodes = []
+    for (_i = 0; _i < attributes_as_list.length; _i++){
+      attribute_nodes.push(table_api.column(attr_col + _i).nodes().to$())
     }
 
     for (_j = 0; _j < val_nodes.length; _j++){
@@ -1164,12 +1173,18 @@ getSampleTableData = function(table_name) {
             sample_n = null;
           }
         }
+
         row_dict = {
           name: sample_name,
           value: sample_val,
           se: sample_var,
           num_cases: sample_n
         }
+
+        for (_k = 0; _k < attribute_nodes.length; _k++){
+          row_dict[attributes_as_list[_k]] = attribute_nodes[_k][_j].textContent;
+        }
+
         samples.push(row_dict)
       }
     }
@@ -1179,9 +1194,15 @@ getSampleTableData = function(table_name) {
 };
 exportSampleTableData = function() {
   var format, json_sample_data, sample_data;
+
+  var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
+    return js_data.attributes[key].name;
+  });
+
   sample_data = {};
-  sample_data.primary_samples = getSampleTableData('samples_primary');
-  sample_data.other_samples = getSampleTableData('samples_other');
+  sample_data.primary_samples = getSampleTableData('samples_primary', attributes_as_list);
+  sample_data.other_samples = getSampleTableData('samples_other', attributes_as_list);
+  sample_data.attributes = attributes_as_list;
   json_sample_data = JSON.stringify(sample_data);
   $('input[name=export_data]').val(json_sample_data);
   format = $('input[name=export_format]').val();

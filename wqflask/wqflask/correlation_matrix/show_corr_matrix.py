@@ -77,7 +77,7 @@ class CorrelationMatrix:
             self.sample_data.append(this_trait_vals)
 
         # Shouldn't do PCA if there are more traits than observations/samples
-        if len(this_trait_vals) < len(self.trait_list):
+        if len(this_trait_vals) < len(self.trait_list) or len(self.trait_list) < 3:
             self.do_PCA = False
 
         # ZS: Variable set to the lowest overlapping samples in order to notify user, or 8, whichever is lower (since 8 is when we want to display warning)
@@ -85,6 +85,7 @@ class CorrelationMatrix:
 
         self.corr_results = []
         self.pca_corr_results = []
+        self.scree_data = []
         self.shared_samples_list = self.all_sample_list
         for trait_db in self.trait_list:
             this_trait = trait_db[0]

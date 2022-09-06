@@ -62,13 +62,16 @@ def _get_diffs(
 ):
     def __get_file_metadata(file_name: str) -> Dict:
         author, resource_id, time_stamp, *_ = file_name.split(".")
-
+        try:
+            author = json.loads(redis_conn.hget("users", author)).get(
+               "full_name"
+           )
+        except (AttributeError, TypeError):
+            author = author
         return {
             "resource_id": resource_id,
             "file_name": file_name,
-            "author": json.loads(redis_conn.hget("users", author)).get(
-                "full_name"
-            ),
+            "author": author,
             "time_stamp": time_stamp,
             "roles": get_highest_user_access_role(
                 resource_id=resource_id,
@@ -124,40 +127,7 @@ def edit_probeset(conn, name):
         columns=list(probeset_mapping.values()),
         where=Probeset(name=name),
     )
-    json_data = fetchall(
-        conn, "metadata_audit", where=MetadataAudit(dataset_id=probeset_.id_)
-    )
-    Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
-    Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
-    diff_data = []
-    for data in json_data:
-        json_ = json.loads(data.json_data)
-        timestamp = json_.get("timestamp")
-        author = json_.get("author")
-        for key, value in json_.items():
-            if isinstance(value, dict):
-                for field, data_ in value.items():
-                    diff_data.append(
-                        Diff(
-                            author=author,
-                            diff=Edit(
-                                field,
-                                data_.get("old"),
-                                data_.get("new"),
-                                "\n".join(
-                                    difflib.ndiff(
-                                        [data_.get("old")], [data_.get("new")]
-                                    )
-                                ),
-                            ),
-                            timestamp=timestamp,
-                        )
-                    )
-    diff_data_ = None
-    if len(diff_data) > 0:
-        diff_data_ = groupby(diff_data, lambda x: x.timestamp)
     return {
-        "diff": diff_data_,
         "probeset": probeset_,
     }
 
@@ -227,8 +197,7 @@ def update_phenotype(dataset_id: str, name: str):
         diff_data = {}
         with database_connection() as conn:
             headers = ["Strain Name", "Value", "SE", "Count"] + list(
-                get_case_attributes(conn).keys()
-            )
+                map(lambda x: x[1], get_case_attributes(conn)))
             diff_data = remove_insignificant_edits(
                 diff_data=csv_diff(
                     base_csv=(
@@ -552,21 +521,31 @@ def show_diff(name):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>/history")
-def show_history(dataset_id: str, name: str):
+@metadata_edit.route("/probeset/<name>")
+def show_history(dataset_id: str = "", name: str = ""):
     diff_data_ = None
     with database_connection() as conn:
-        publish_xref = fetchone(
-            conn=conn,
-            table="PublishXRef",
-            where=PublishXRef(id_=name, inbred_set_id=dataset_id),
-        )
-
-        json_data = fetchall(
-            conn,
-            "metadata_audit",
-            where=MetadataAudit(dataset_id=publish_xref.id_),
-        )
-
+        json_data = None
+        if dataset_id:  # This is a published phenotype
+            json_data = fetchall(
+                conn,
+                "metadata_audit",
+                where=MetadataAudit(dataset_id=fetchone(
+                    conn=conn,
+                    table="PublishXRef",
+                    where=PublishXRef(id_=name, inbred_set_id=dataset_id),
+                ).id_),
+            )
+        else:  # This is a probeset
+            json_data = fetchall(
+                conn, "metadata_audit",
+                where=MetadataAudit(dataset_id=fetchone(
+                    conn=conn,
+                    table="ProbeSet",
+                    columns=list(probeset_mapping.values()),
+                    where=Probeset(name=name),
+                ).id_)
+            )
         Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
         Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
         diff_data = []

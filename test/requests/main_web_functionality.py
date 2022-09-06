@@ -1,10 +1,11 @@
 import requests
-from lxml.html import parse
+from lxml.html import document_fromstring
 from link_checker import check_page
 
 
 def check_home(url):
-    doc = parse(url).getroot()
+    results = requests.get(url)
+    doc = document_fromstring(results.text)
     search_button = doc.cssselect("#btsearch")
     assert(search_button[0].value == "Search")
     print("OK")
@@ -18,7 +19,7 @@ def check_search_page(host):
         search_terms_or="",
         search_terms_and="MEAN=(15 16) LRS=(23 46)")
     result = requests.get(host+"/search", params=data)
-    found = result.text.find("records were found")
+    found = result.text.find("records found")
     assert(found >= 0)
     assert(result.status_code == 200)
     print("OK")
@@ -27,7 +28,8 @@ def check_search_page(host):
 
 
 def check_traits_page(host, traits_url):
-    doc = parse(host+traits_url).getroot()
+    results = requests.get(host+traits_url)
+    doc = document_fromstring(results.text)
     traits_form = doc.forms[1]
     assert(traits_form.fields["corr_dataset"] == "HC_M2_0606_P")
     print("OK")

@@ -21,9 +21,6 @@
 from base.trait import GeneralTrait
 from utility import helper_functions, corr_result_helpers
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 
 class SendToBNW:
     def __init__(self, start_vars):

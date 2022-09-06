@@ -2,9 +2,6 @@ import codecs
 
 from flask import g
 
-from utility.logger import getLogger
-logger = getLogger(__name__)
-
 
 class Docs:
 

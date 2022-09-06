@@ -1,6 +1,6 @@
 import re
 import requests
-from lxml.html import parse
+from lxml.html import document_fromstring
 from requests.exceptions import ConnectionError
 
 DO_FAIL=False  # fail on error
@@ -66,7 +66,8 @@ def verify_static_file(link):
 def check_page(host, start_url):
     print("")
     print("Checking links host "+host+" in page `"+start_url+"`")
-    doc = parse(start_url).getroot()
+    req = requests.get(start_url)
+    doc = document_fromstring(start_url)
     links = get_links(doc)
     in_page_links = list(filter(is_in_page_link, links))
     internal_links = list(filter(is_internal_link, links))

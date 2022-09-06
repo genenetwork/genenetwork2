@@ -64,6 +64,7 @@ from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation.show_corr_results import set_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
+from wqflask.correlation.rust_correlation import compute_correlation_rust
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
 # from wqflask.wgcna import wgcna_analysis
@@ -94,37 +95,34 @@ from utility.redis_tools import get_redis_conn
 
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR, DEFAULT_PRIVILEGES
-from utility.benchmark import Bench
 
 from pprint import pformat as pf
 
 
-import utility.logger
-
 Redis = get_redis_conn()
-
-logger = utility.logger.getLogger(__name__)
 
 
 @app.before_request
 def connect_db():
     db = getattr(g, '_database', None)
     if request.endpoint not in ("static", "js") and db is None:
-        logger.debug(
-            f"Creating a database connection\n"
-            f"\t\tfor request: {request.endpoint}")
-        g.db = g._database = sqlalchemy.create_engine(
-            SQL_URI, encoding="latin1")
+        try:
+            g.db = sqlalchemy.create_engine(
+                SQL_URI, encoding="latin1")
+        except Exception:  # Capture everything
+            app.logger.error(f"DATABASE: Error creating connection for: {request.endpoint}")
 
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db = getattr(g, '_database', None)
     if db is not None:
-        logger.debug(f"Removing the session")
-        g.db.dispose()
-        g.db = None
-        logger.debug(f"g.db: {g.db}\n\tg._database: {g._database}")
+        try:
+            g.db.dispose()
+        except Exception:  # Capture Everything
+            app.logger.error(f"DATABASE: Error disposing: {g.db=}")
+        finally:  # Reset regardless of what happens
+            g.db = None
 
 
 @app.errorhandler(Exception)
@@ -158,8 +156,6 @@ def handle_generic_exceptions(e):
                                          stack={formatted_lines},
                                          error_image=animation,
                                          version=GN_VERSION))
-
-    # logger.error("Set cookie %s with %s" % (err_msg, animation))
     resp.set_cookie(err_msg[:32], animation)
     return resp
 
@@ -171,8 +167,6 @@ def no_access_page():
 
 @app.route("/")
 def index_page():
-    logger.info("Sending index_page")
-    logger.info(request.url)
     params = request.args
     if 'import_collections' in params:
         import_collections = params['import_collections']
@@ -184,11 +178,7 @@ def index_page():
 
 @app.route("/tmp/<img_path>")
 def tmp_page(img_path):
-    logger.info("In tmp_page")
-    logger.info("img_path:", img_path)
-    logger.info(request.url)
     initial_start_vars = request.form
-    logger.info("initial_start_vars:", initial_start_vars)
     imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = base64.b64encode(imgdata)
@@ -224,22 +214,13 @@ def twitter(filename):
 
 @app.route("/search", methods=('GET',))
 def search_page():
-    logger.info("in search_page")
-    logger.info(request.url)
     result = None
     if USE_REDIS:
-        with Bench("Trying Redis cache"):
-            key = "search_results:v1:" + \
-                json.dumps(request.args, sort_keys=True)
-            logger.debug("key is:", pf(key))
-            result = Redis.get(key)
-            if result:
-                logger.info("Redis cache hit on search results!")
-                result = pickle.loads(result)
-    else:
-        logger.info("Skipping Redis cache (USE_REDIS=False)")
-
-    logger.info("request.args is", request.args)
+        key = "search_results:v1:" + \
+            json.dumps(request.args, sort_keys=True)
+        result = Redis.get(key)
+        if result:
+            result = pickle.loads(result)
     the_search = SearchResultPage(request.args)
     result = the_search.__dict__
     valid_search = result['search_term_exists']
@@ -256,15 +237,7 @@ def search_page():
 
 @app.route("/search_table", methods=('GET',))
 def search_page_table():
-    logger.info("in search_page table")
-    logger.info(request.url)
-
-    logger.info("request.args is", request.args)
     the_search = search_results.SearchResultPage(request.args)
-
-    logger.info(type(the_search.trait_list))
-    logger.info(the_search.trait_list)
-
     current_page = server_side.ServerSideTable(
         len(the_search.trait_list),
         the_search.trait_list,
@@ -277,7 +250,6 @@ def search_page_table():
 
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
-    logger.info(request.url)
     result = GSearch(request.args).__dict__
     type = request.args['type']
     if type == "gene":
@@ -288,8 +260,6 @@ def gsearchact():
 
 @app.route("/gsearch_table", methods=('GET',))
 def gsearchtable():
-    logger.info(request.url)
-
     gsearch_table_data = GSearch(request.args)
     current_page = server_side.ServerSideTable(
         gsearch_table_data.trait_count,
@@ -303,15 +273,12 @@ def gsearchtable():
 
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
-    logger.info("REQUEST ARGS:", request.values)
-    logger.info(request.url)
     result = UpdateGSearch(request.args).__dict__
     return result['results']
 
 
 @app.route("/docedit")
 def docedit():
-    logger.info(request.url)
     try:
         if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
             doc = Docs(request.args['entry'], request.args)
@@ -324,13 +291,11 @@ def docedit():
 
 @app.route('/generated/<filename>')
 def generated_file(filename):
-    logger.info(request.url)
     return send_from_directory(GENERATED_IMAGE_DIR, filename)
 
 
 @app.route("/help")
 def help():
-    logger.info(request.url)
     doc = Docs("help", request.args)
     return render_template("docs.html", **doc.__dict__)
 
@@ -338,8 +303,6 @@ def help():
 @app.route("/wgcna_setup", methods=('POST',))
 def wcgna_setup():
     # We are going to get additional user input for the analysis
-    logger.info("In wgcna, request.form is:", request.form)
-    logger.info(request.url)
     # Display them using the template
     return render_template("wgcna_setup.html", **request.form)
 
@@ -350,19 +313,16 @@ def wcgna_results():
     results = run_wgcna(dict(request.form))
     return render_template("gn3_wgcna_results.html", **results)
 
+
 @app.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     # We are going to get additional user input for the analysis
-    logger.info("In ctl, request.form is:", request.form)
-    logger.info(request.url)
     # Display them using the template
     return render_template("ctl_setup.html", **request.form)
 
 
-
 @app.route("/ctl_results", methods=["POST"])
 def ctl_results():
-
     ctl_results = run_ctl(request.form)
     return render_template("gn3_ctl_results.html", **ctl_results)
 
@@ -371,9 +331,10 @@ def ctl_results():
 def fetch_network_files(file_name, file_type):
     file_path = f"{file_name}.{file_type}"
 
-    file_path  = os.path.join("/tmp/",file_path)
+    file_path = os.path.join("/tmp/", file_path)
 
     return send_file(file_path)
+
 
 @app.route("/intro")
 def intro():
@@ -400,7 +361,6 @@ def update_page():
 
 @app.route("/submit_trait")
 def submit_trait_form():
-    logger.info(request.url)
     species_and_groups = get_species_groups()
     return render_template(
         "submit_trait.html",
@@ -411,7 +371,6 @@ def submit_trait_form():
 
 @app.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
-    logger.info(request.url)
     doc = Docs("links")
     return render_template("links.html", **doc.__dict__)
 
@@ -422,9 +381,6 @@ def export_trait_excel():
     trait_name, sample_data = export_trait_data.export_sample_table(
         request.form)
     app.logger.info(request.url)
-    logger.info("sample_data - type: %s -- size: %s" %
-                (type(sample_data), len(sample_data)))
-
     buff = io.BytesIO()
     workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
     worksheet = workbook.add_worksheet()
@@ -443,14 +399,8 @@ def export_trait_excel():
 @app.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
     """CSV file consisting of the sample data from the trait data and analysis page"""
-    logger.info("In export_trait_csv")
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     trait_name, sample_data = export_trait_data.export_sample_table(
         request.form)
-
-    logger.info("sample_data - type: %s -- size: %s" %
-                (type(sample_data), len(sample_data)))
 
     buff = io.StringIO()
     writer = csv.writer(buff)
@@ -467,9 +417,6 @@ def export_trait_csv():
 @app.route('/export_traits_csv', methods=('POST',))
 def export_traits_csv():
     """CSV file consisting of the traits from the search result page"""
-    logger.info("In export_traits_csv")
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     file_list = export_traits(request.form, "metadata")
 
     if len(file_list) > 1:
@@ -498,10 +445,10 @@ def export_collection_csv():
                     mimetype='text/csv',
                     headers={"Content-Disposition": "attachment;filename=" + out_file[0] + ".csv"})
 
+
 @app.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
     """CSV file consisting of the permutation data for the mapping results"""
-    logger.info(request.url)
     perm_info = json.loads(request.form['perm_info'])
 
     now = datetime.datetime.now()
@@ -572,9 +519,6 @@ def show_trait_page():
 
 @app.route("/heatmap", methods=('POST',))
 def heatmap_page():
-    logger.info("In heatmap, request.form is:", pf(request.form))
-    logger.info(request.url)
-
     start_vars = request.form
     temp_uuid = uuid.uuid4()
 
@@ -583,18 +527,12 @@ def heatmap_page():
         version = "v5"
         key = "heatmap:{}:".format(
             version) + json.dumps(start_vars, sort_keys=True)
-        logger.info("key is:", pf(key))
-        with Bench("Loading cache"):
-            result = Redis.get(key)
+        result = Redis.get(key)
 
         if result:
-            logger.info("Cache hit!!!")
-            with Bench("Loading results"):
-                result = pickle.loads(result)
+            result = pickle.loads(result)
 
         else:
-            logger.info("Cache miss!!!")
-
             template_vars = heatmap.Heatmap(request.form, temp_uuid)
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                default=json_default_handler,
@@ -602,17 +540,10 @@ def heatmap_page():
 
             result = template_vars.__dict__
 
-            for item in list(template_vars.__dict__.keys()):
-                logger.info(
-                    "  ---**--- {}: {}".format(type(template_vars.__dict__[item]), item))
-
             pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-            logger.info("pickled result length:", len(pickled_result))
             Redis.set(key, pickled_result)
             Redis.expire(key, 60 * 60)
-
-        with Bench("Rendering template"):
-            rendered_template = render_template("heatmap.html", **result)
+        rendered_template = render_template("heatmap.html", **result)
 
     else:
         rendered_template = render_template(
@@ -623,9 +554,6 @@ def heatmap_page():
 
 @app.route("/bnw_page", methods=('POST',))
 def bnw_page():
-    logger.info("In run BNW, request.form is:", pf(request.form))
-    logger.info(request.url)
-
     start_vars = request.form
 
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -643,9 +571,6 @@ def bnw_page():
 
 @app.route("/webgestalt_page", methods=('POST',))
 def webgestalt_page():
-    logger.info("In run WebGestalt, request.form is:", pf(request.form))
-    logger.info(request.url)
-
     start_vars = request.form
 
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -663,9 +588,6 @@ def webgestalt_page():
 
 @app.route("/geneweaver_page", methods=('POST',))
 def geneweaver_page():
-    logger.info("In run WebGestalt, request.form is:", pf(request.form))
-    logger.info(request.url)
-
     start_vars = request.form
 
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -683,9 +605,6 @@ def geneweaver_page():
 
 @app.route("/comparison_bar_chart", methods=('POST',))
 def comp_bar_chart_page():
-    logger.info("In comp bar chart, request.form is:", pf(request.form))
-    logger.info(request.url)
-
     start_vars = request.form
 
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -712,7 +631,6 @@ def mapping_results_container_page():
 
 @app.route("/loading", methods=('POST',))
 def loading_page():
-    # logger.info(request.url)
     initial_start_vars = request.form
     start_vars_container = {}
     n_samples = 0  # ZS: So it can be displayed on loading page
@@ -734,7 +652,8 @@ def loading_page():
                 dataset = create_dataset(start_vars['dataset'])
             start_vars['trait_name'] = start_vars['trait_id']
             if dataset.type == "Publish":
-                start_vars['trait_name'] = dataset.group.code + "_" + start_vars['trait_name']
+                start_vars['trait_name'] = dataset.group.code + \
+                    "_" + start_vars['trait_name']
             samples = dataset.group.samplelist
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
@@ -751,9 +670,11 @@ def loading_page():
                         n_samples += 1
 
         start_vars['n_samples'] = n_samples
-        start_vars['vals_hash'] = generate_hash_of_string(str(sample_vals_dict))
-        if start_vars['dataset'] != "Temp": # Currently can't get diff for temp traits
-            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+        start_vars['vals_hash'] = generate_hash_of_string(
+            str(sample_vals_dict))
+        if start_vars['dataset'] != "Temp":  # Currently can't get diff for temp traits
+            start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(
+                start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
 
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
@@ -769,7 +690,6 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 def mapping_results_page():
     initial_start_vars = request.form
-    logger.info(request.url)
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
@@ -836,55 +756,42 @@ def mapping_results_page():
     version = "v3"
     key = "mapping_results:{}:".format(
         version) + json.dumps(start_vars, sort_keys=True)
-    with Bench("Loading cache"):
-        result = None  # Just for testing
-        #result = Redis.get(key)
-
-    #logger.info("************************ Starting result *****************")
-    #logger.info("result is [{}]: {}".format(type(result), result))
-    #logger.info("************************ Ending result ********************")
+    result = None  # Just for testing
 
     if result:
-        logger.info("Cache hit!!!")
-        with Bench("Loading results"):
-            result = pickle.loads(result)
+        result = pickle.loads(result)
     else:
-        logger.info("Cache miss!!!")
-        with Bench("Total time in RunMapping"):
-            try:
-                template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
-                if template_vars.no_results:
-                    rendered_template = render_template("mapping_error.html")
-                    return rendered_template
-            except:
+        try:
+            template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+            if template_vars.no_results:
                 rendered_template = render_template("mapping_error.html")
                 return rendered_template
+        except:
+            rendered_template = render_template("mapping_error.html")
+            return rendered_template
 
-            if not template_vars.pair_scan:
-                template_vars.js_data = json.dumps(template_vars.js_data,
-                                                default=json_default_handler,
-                                                indent="   ")
+        if not template_vars.pair_scan:
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                               default=json_default_handler,
+                                               indent="   ")
 
-            result = template_vars.__dict__
+        result = template_vars.__dict__
 
-            if result['pair_scan']:
-                with Bench("Rendering template"):
-                    rendered_template = render_template(
-                        "pair_scan_results.html", **result)
-            else:
-                gn1_template_vars = display_mapping_results.DisplayMappingResults(
-                    result).__dict__
+        if result['pair_scan']:
+            rendered_template = render_template(
+                "pair_scan_results.html", **result)
+        else:
+            gn1_template_vars = display_mapping_results.DisplayMappingResults(
+                result).__dict__
 
-                rendered_template = render_template(
-                    "mapping_results.html", **gn1_template_vars)
+            rendered_template = render_template(
+                "mapping_results.html", **gn1_template_vars)
 
     return rendered_template
 
 
 @app.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     file_path = request.form.get("results_path")
     results_csv = open(file_path, "r").read()
     response = Response(results_csv,
@@ -908,8 +815,6 @@ def export_corr_matrix():
 
 @app.route("/export", methods=('POST',))
 def export():
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
     response = Response(svg_xml, mimetype="image/svg+xml")
@@ -920,10 +825,7 @@ def export():
 @app.route("/export_pdf", methods=('POST',))
 def export_pdf():
     import cairosvg
-    logger.info("request.form:", request.form)
-    logger.info(request.url)
     svg_xml = request.form.get("data", "Invalid data")
-    logger.info("svg_xml:", svg_xml)
     filename = request.form.get("filename", "interval_map_pdf")
     pdf_file = cairosvg.svg2pdf(bytestring=svg_xml)
     response = Response(pdf_file, mimetype="application/pdf")
@@ -933,8 +835,6 @@ def export_pdf():
 
 @app.route("/network_graph", methods=('POST',))
 def network_graph_page():
-    logger.info("In network_graph, request.form is:", pf(request.form))
-    logger.info(request.url)
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
     if traits[0] != "":
@@ -951,21 +851,29 @@ def network_graph_page():
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
     correlation_results = compute_correlation(request.form, compute_all=True)
+
     correlation_results = set_template_vars(request.form, correlation_results)
     return render_template("correlation_page.html", **correlation_results)
 
 
 @app.route("/test_corr_compute", methods=["POST"])
 def test_corr_compute_page():
-    correlation_data = compute_correlation(request.form, compute_all=True)
-    return render_template("test_correlation_page.html", **correlation_data)
+
+    start_vars = request.form
+
+    correlation_results = compute_correlation_rust(start_vars,
+                                                   start_vars["corr_type"],
+                                                   start_vars['corr_sample_method'],
+                                                   int(start_vars.get("corr_return_results", 500)),True)
+
+    correlation_results = set_template_vars(request.form, correlation_results)
+
+    return render_template("correlation_page.html", **correlation_results)
+    # return render_template("test_correlation_page.html", **correlation_data)
 
 
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
-    logger.info("In corr_matrix, request.form is:", pf(request.form))
-    logger.info(request.url)
-
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
     if len(traits) > 1:
@@ -981,7 +889,6 @@ def corr_matrix_page():
 
 @app.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
-    logger.info(request.url)
     template_vars = corr_scatter_plot.CorrScatterPlot(request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
                                        default=json_default_handler,
@@ -991,7 +898,6 @@ def corr_scatter_plot_page():
 
 @app.route("/snp_browser", methods=('GET',))
 def snp_browser_page():
-    logger.info(request.url)
     template_vars = snp_browser.SnpBrowser(request.args)
 
     return render_template("snp_browser.html", **template_vars.__dict__)
@@ -1006,7 +912,6 @@ def db_info_page():
 
 @app.route("/snp_browser_table", methods=('GET',))
 def snp_browser_table():
-    logger.info(request.url)
     snp_table_data = snp_browser.SnpBrowser(request.args)
     current_page = server_side.ServerSideTable(
         snp_table_data.rows_count,
@@ -1021,20 +926,17 @@ def snp_browser_table():
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():
     # ZS: Currently just links to GN1
-    logger.info(request.url)
     return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
 
 
 @app.route("/tutorial/security", methods=('GET',))
 def security_tutorial_page():
     # ZS: Currently just links to GN1
-    logger.info(request.url)
     return render_template("admin/security_help.html")
 
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
-    logger.info(request.url)
     return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
 
 # Take this out or secure it before putting into production
@@ -1042,7 +944,6 @@ def submit_bnw():
 
 @app.route("/get_temp_data")
 def get_temp_data():
-    logger.info(request.url)
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
@@ -1097,9 +998,8 @@ def display_diffs_users():
     author = g.user_session.record.get(b'user_name').decode("utf-8")
     if os.path.exists(DIFF_DIR):
         files = os.listdir(DIFF_DIR)
-        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))) \
+        files = filter(lambda x: not(x.endswith((".approved", ".rejected")))
                        and author in x,
                        files)
     return render_template("display_files_user.html",
                            files=files)
-

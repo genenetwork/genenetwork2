@@ -1,16 +1,13 @@
 # Module to initialize sqlalchemy with flask
 import os
 import sys
-from string import Template
 from typing import Tuple
 from urllib.parse import urlparse
 import importlib
+import contextlib
 
 import MySQLdb
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 
 def read_from_pyfile(pyfile, setting):
     orig_sys_path = sys.path[:]
@@ -18,6 +15,7 @@ def read_from_pyfile(pyfile, setting):
     module = importlib.import_module(os.path.basename(pyfile).strip(".py"))
     sys.path = orig_sys_path[:]
     return module.__dict__.get(setting)
+
 
 def sql_uri():
     """Read the SQL_URI from the environment or settings file."""
@@ -37,8 +35,26 @@ def parse_db_url(sql_uri: str) -> Tuple:
         parsed_db.hostname, parsed_db.username, parsed_db.password,
         parsed_db.path[1:], parsed_db.port)
 
+
+@contextlib.contextmanager
 def database_connection():
-    """Returns a database connection"""
+    """Provide a context manager for opening, closing, and rolling
+    back - if supported - a database connection.  Should an error occur,
+    and if the table supports transactions, the connection will be
+    rolled back.
+
+    """
     host, user, passwd, db_name, port = parse_db_url(sql_uri())
-    return MySQLdb.connect(
-        db=db_name, user=user, passwd=passwd, host=host, port=port)
+    connection = MySQLdb.connect(
+        db=db_name, user=user, passwd=passwd or '', host=host, port=port,
+        autocommit=False  # Required for roll-backs
+    )
+    try:
+        yield connection
+    except Exception:
+        connection.rollback()
+        raise
+    else:
+        connection.commit()
+    finally:
+        connection.close()

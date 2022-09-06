@@ -25,8 +25,6 @@ from utility.tools import flat_files
 
 from wqflask.database import database_connection
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
 
 version = "pre1"
 
@@ -274,8 +272,6 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
                                PublishFreeze.confidentiality < 1 AND
                                InbredSet.Name = "{0}" AND PublishXRef.Id = "{1}"
                       """.format(group_name, dataset_name)
-
-        logger.debug("QUERY:", pheno_query)
 
         pheno_results = g.db.execute(pheno_query)
         dataset = pheno_results.fetchone()

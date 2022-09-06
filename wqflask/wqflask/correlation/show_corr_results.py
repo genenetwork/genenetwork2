@@ -93,8 +93,7 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
     new_traits_metadata = {}
 
-    (file_path, dataset_metadata) = fetch_all_cached_metadata(
-        target_dataset['name'])
+    dataset_metadata = correlation_data["traits_metadata"]
 
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
@@ -121,9 +120,9 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
         results_dict['dataset'] = target_dataset['name']
         results_dict['hmac'] = hmac.data_hmac(
             '{}:{}'.format(target_trait['name'], target_dataset['name']))
-        results_dict['sample_r'] = f"{float(trait['corr_coefficient']):.3f}"
-        results_dict['num_overlap'] = trait['num_overlap']
-        results_dict['sample_p'] = f"{float(trait['p_value']):.3e}"
+        results_dict['sample_r'] = f"{float(trait.get('corr_coefficient',0.0)):.3f}"
+        results_dict['num_overlap'] = trait.get('num_overlap',0)
+        results_dict['sample_p'] = f"{float(trait.get('p_value',0)):.3e}"
         if target_dataset['type'] == "ProbeSet":
             results_dict['symbol'] = target_trait['symbol']
             results_dict['description'] = "N/A"
@@ -186,10 +185,6 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
             results_dict['location'] = target_trait['location']
 
         results_list.append(results_dict)
-
-    cache_new_traits_metadata(dataset_metadata,
-                              new_traits_metadata,
-                              file_path)
 
     return json.dumps(results_list)
 

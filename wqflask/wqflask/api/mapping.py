@@ -1,19 +1,12 @@
-import string
-
 from base import data_set
-from base import webqtlConfig
 from base.trait import create_trait, retrieve_sample_data
 
-from utility import helper_functions
-from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
-
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
+from wqflask.marker_regression import gemma_mapping, rqtl_mapping
+from wqflask.show_trait.show_trait import normf
 
 def do_mapping_for_api(start_vars):
-    assert('db' in start_vars)
-    assert('trait_id' in start_vars)
+    if ('db' not in start_vars) or ("trait_id" not in start_vars):
+        raise ValueError("Mapping: db and trait_id are not in start_vars")
 
     dataset = data_set.create_dataset(dataset_name=start_vars['db'])
     dataset.group.get_markers()
@@ -23,33 +16,67 @@ def do_mapping_for_api(start_vars):
     samples = []
     vals = []
 
-    for sample in dataset.group.samplelist:
-        in_trait_data = False
-        for item in this_trait.data:
-            if this_trait.data[item].name == sample:
-                value = str(this_trait.data[item].value)
-                samples.append(item)
-                vals.append(value)
-                in_trait_data = True
-                break
-        if not in_trait_data:
-            vals.append("x")
-
     mapping_params = initialize_parameters(start_vars, dataset, this_trait)
 
-    # ZS: It seems to take an empty string as default. This should probably be changed.
+    genofile_samplelist = []
+    if mapping_params.get('genofile'):
+        dataset.group.genofile = mapping_params['genofile']
+        genofile_samplelist = get_genofile_samplelist(dataset)
+
+    if (len(genofile_samplelist) > 0):
+        samplelist = genofile_samplelist
+        for sample in samplelist:
+            in_trait_data = False
+            for item in this_trait.data:
+                if this_trait.data[item].name == sample:
+                    value = str(this_trait.data[item].value)
+                    samples.append(item)
+                    vals.append(value)
+                    in_trait_data = True
+                    break
+            if not in_trait_data:
+                vals.append("x")
+    else:
+        samplelist = dataset.group.samplelist
+        for sample in samplelist:
+            in_trait_data = False
+            for item in this_trait.data:
+                if this_trait.data[item].name == sample:
+                    value = str(this_trait.data[item].value)
+                    samples.append(item)
+                    vals.append(value)
+                    in_trait_data = True
+                    break
+            if not in_trait_data:
+                vals.append("x")
+
+    if mapping_params.get('transform') == "qnorm":
+        vals_minus_x = [float(val) for val in vals if val != "x"]
+        qnorm_vals = normf(vals_minus_x)
+        qnorm_vals_with_x = []
+        counter = 0
+        for val in vals:
+            if val == "x":
+                qnorm_vals_with_x.append("x")
+            else:
+                qnorm_vals_with_x.append(qnorm_vals[counter])
+                counter += 1
+
+        vals = qnorm_vals_with_x
+
+    # It seems to take an empty string as default. This should probably be changed.
     covariates = ""
 
-    if mapping_params['mapping_method'] == "gemma":
+    if mapping_params.get('mapping_method') == "gemma":
         header_row = ["name", "chr", "Mb", "lod_score", "p_value"]
-        # ZS: gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
-        if mapping_params['use_loco'] == "True":
+        # gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
+        if mapping_params.get('use_loco') == "True":
             result_markers = gemma_mapping.run_gemma(
                 this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
         else:
             result_markers = gemma_mapping.run_gemma(
                 this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
-    elif mapping_params['mapping_method'] == "rqtl":
+    elif mapping_params.get('mapping_method') == "rqtl":
         header_row = ["name", "chr", "cM", "lod_score"]
         if mapping_params['num_perm'] > 0:
             _sperm_output, _suggestive, _significant, result_markers = rqtl_mapping.run_rqtl(this_trait.name, vals, samples, dataset, None, "Mb", mapping_params['rqtl_model'],
@@ -62,10 +89,10 @@ def do_mapping_for_api(start_vars):
                                                    mapping_params['do_control'], mapping_params['control_marker'],
                                                    mapping_params['manhattan_plot'], None)
 
-    if mapping_params['limit_to']:
+    if mapping_params.get('limit_to'):
         result_markers = result_markers[:mapping_params['limit_to']]
 
-    if mapping_params['format'] == "csv":
+    if mapping_params.get('format') == "csv":
         output_rows = []
         output_rows.append(header_row)
         for marker in result_markers:
@@ -138,4 +165,22 @@ def initialize_parameters(start_vars, dataset, this_trait):
         except:
             mapping_params['perm_check'] = False
 
+    mapping_params['transform'] = False
+    if 'transform' in start_vars:
+        mapping_params['transform'] = start_vars['transform']
+
+    mapping_params['genofile'] = False
+    if 'genofile' in start_vars:
+        mapping_params['genofile'] = start_vars['genofile']
+
     return mapping_params
+
+def get_genofile_samplelist(dataset):
+    genofile_samplelist = []
+
+    genofile_json = dataset.group.get_genofiles()
+    for genofile in genofile_json:
+        if genofile['location'] == dataset.group.genofile and 'sample_list' in genofile:
+            genofile_samplelist = genofile['sample_list']
+
+    return genofile_samplelist

@@ -2,9 +2,6 @@ from PIL import Image, ImageColor, ImageDraw, ImageFont
 
 from utility.tools import TEMPDIR
 
-import utility.logger
-logger = utility.logger.getLogger(__name__)
-
 BLACK = ImageColor.getrgb("black")
 WHITE = ImageColor.getrgb("white")
 

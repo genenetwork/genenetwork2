@@ -29,6 +29,8 @@
     {%endwith%}
 
     <input type="hidden" value="{{trait_list_str}}" name="trait_list">
+	<h1>Partial Correlation</h1>
+	<div>Please select one primary trait, one to three control traits, and at least one target trait.</div>
     <br />
     <table id="pcorrs_traits_table"
 	   class="table-hover table-striped cell-border dataTable"
@@ -106,16 +108,8 @@
       <label for="corr-method-input" class="form-label">Compute</label>
       <select id="corr-method-input" required="required" name="method"
 	      class="form-control">
-	<option value="Genetic Correlation, Pearson's r">
-	  Genetic Correlation, Pearson's r</option>
-	<option value="Genetic Correlation, Spearman's rho">
-	  Genetic Correlation, Spearman's rho</option>
-	<option value="SGO Literature Correlation">
-	  SGO Literature Correlation</option>
-	<option value="Tissue Correlation, Pearson's r">
-	  Tissue Correlation, Pearson's r</option>
-	<option value="Tissue Correlation, Spearman's rho">
-	  Tissue Correlation, Spearman's rho</option>
+	<option value="Pearson's r">Pearson's r</option>
+	<option value="Spearman's rho">Spearman's rho</option>
       </select>
     </div>
 

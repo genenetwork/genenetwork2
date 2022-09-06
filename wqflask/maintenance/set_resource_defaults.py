@@ -33,8 +33,6 @@ Redis = get_redis_conn()
 import urllib.parse
 
 from wqflask.database import database_connection
-from utility.logger import getLogger
-logger = getLogger(__name__)
 
 
 def parse_db_uri():

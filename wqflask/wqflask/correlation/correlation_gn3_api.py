@@ -11,12 +11,12 @@ from base import data_set
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
-from gn3.computations.correlations import compute_all_sample_correlation
-from gn3.computations.correlations import fast_compute_all_sample_correlation
+from gn3.db_utils import database_connector
+from gn3.commands import run_sample_corr_cmd
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.correlations import compute_tissue_correlation
-from gn3.db_utils import database_connector
+from gn3.computations.correlations import fast_compute_all_sample_correlation
 
 
 def create_target_this_trait(start_vars):
@@ -108,9 +108,9 @@ def sample_for_trait_lists(corr_results, target_dataset,
 
     (this_trait_data, target_dataset) = fetch_sample_data(
         start_vars, this_trait, this_dataset, target_dataset)
-    correlation_results = compute_all_sample_correlation(corr_method="pearson",
-                                                         this_trait=this_trait_data,
-                                                         target_dataset=target_dataset)
+    correlation_results = run_sample_corr_cmd(
+        corr_method="pearson", this_trait=this_trait_data,
+        target_dataset=target_dataset)
 
     return correlation_results
 
@@ -194,78 +194,13 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     method -- Correlation method to be used (pearson, spearman, or bicor)
     compute_all -- Include sample, tissue, and literature correlations (when applicable)
     """
-    # pylint: disable-msg=too-many-locals
+    from wqflask.correlation.rust_correlation import compute_correlation_rust
 
     corr_type = start_vars['corr_type']
-
-    (this_dataset, this_trait, target_dataset,
-     sample_data) = create_target_this_trait(start_vars)
-
-    target_dataset_type = target_dataset.type
-    this_dataset_type = this_dataset.type
-
     method = start_vars['corr_sample_method']
     corr_return_results = int(start_vars.get("corr_return_results", 100))
-    corr_input_data = {}
-
-    if corr_type == "sample":
-        (this_trait_data, target_dataset_data) = fetch_sample_data(
-            start_vars, this_trait, this_dataset, target_dataset)
-
-        correlation_results = compute_all_sample_correlation(
-            corr_method=method, this_trait=this_trait_data, target_dataset=target_dataset_data)
-
-    elif corr_type == "tissue":
-        trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
-        tissue_input = get_tissue_correlation_input(
-            this_trait, trait_symbol_dict)
-
-        if tissue_input is not None:
-            (primary_tissue_data, target_tissue_data) = tissue_input
-
-            corr_input_data = {
-                "primary_tissue": primary_tissue_data,
-                "target_tissues_dict": target_tissue_data
-            }
-            correlation_results = compute_tissue_correlation(
-                primary_tissue_dict=corr_input_data["primary_tissue"],
-                target_tissues_data=corr_input_data[
-                    "target_tissues_dict"],
-                corr_method=method
-
-            )
-        else:
-            return {"correlation_results": [],
-                    "this_trait": this_trait.name,
-                    "target_dataset": start_vars['corr_dataset'],
-                    "return_results": corr_return_results}
-
-    elif corr_type == "lit":
-        (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
-            this_trait, this_dataset)
-
-        conn = database_connector()
-        with conn:
-            correlation_results = compute_all_lit_correlation(
-                conn=conn, trait_lists=list(geneid_dict.items()),
-                species=species, gene_id=this_trait_geneid)
-
-    correlation_results = correlation_results[0:corr_return_results]
-
-    if (compute_all):
-        correlation_results = compute_corr_for_top_results(start_vars,
-                                                           correlation_results,
-                                                           this_trait,
-                                                           this_dataset,
-                                                           target_dataset,
-                                                           corr_type)
-
-    correlation_data = {"correlation_results": correlation_results,
-                        "this_trait": this_trait.name,
-                        "target_dataset": start_vars['corr_dataset'],
-                        "return_results": corr_return_results}
-
-    return correlation_data
+    return compute_correlation_rust(
+        start_vars, corr_type, method, corr_return_results, compute_all)
 
 
 def compute_corr_for_top_results(start_vars,
@@ -275,12 +210,10 @@ def compute_corr_for_top_results(start_vars,
                                  target_dataset,
                                  corr_type):
     if corr_type != "tissue" and this_dataset.type == "ProbeSet" and target_dataset.type == "ProbeSet":
-
         tissue_result = tissue_for_trait_lists(
             correlation_results, this_dataset, this_trait)
 
         if tissue_result:
-
             correlation_results = merge_correlation_results(
                 correlation_results, tissue_result)
 

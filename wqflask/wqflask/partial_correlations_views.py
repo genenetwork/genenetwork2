@@ -139,6 +139,7 @@ def target_db_error(args, with_target_db: bool):
 
 def method_error(args):
     methods = (
+        "pearson's r", "spearman's rho",
         "genetic correlation, pearson's r",
         "genetic correlation, spearman's rho",
         "sgo literature correlation",

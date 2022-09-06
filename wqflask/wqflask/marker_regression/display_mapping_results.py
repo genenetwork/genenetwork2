@@ -42,17 +42,15 @@ from base import webqtlConfig
 from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
 from utility import Plot
-from utility.benchmark import Bench
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
 
-import utility.logger
+
 try:  # Only import this for Python3
     from functools import reduce
 except:
     pass
-logger = utility.logger.getLogger(__name__)
 
 RED = ImageColor.getrgb("red")
 BLUE = ImageColor.getrgb("blue")
@@ -247,8 +245,6 @@ class DisplayMappingResults:
     HELP_PAGE_REF = '/glossary.html'
 
     def __init__(self, start_vars):
-        logger.info("Running qtlreaper")
-
         self.temp_uuid = start_vars['temp_uuid']
 
         self.dataset = start_vars['dataset']
@@ -590,9 +586,8 @@ class DisplayMappingResults:
         ################################################################
         showLocusForm = ""
         intCanvas = Image.new("RGBA", size=(self.graphWidth, self.graphHeight))
-        with Bench("Drawing Plot"):
-            gifmap = self.plotIntMapping(
-                intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm)
+        gifmap = self.plotIntMapping(
+            intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm)
 
         self.gifmap = gifmap.__str__()
 
@@ -3012,7 +3007,7 @@ class DisplayMappingResults:
                     else:
                         snpString = 0
 
-                    mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm9&position=chr" + \
+                    mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm10&position=chr" + \
                         theGO["Chromosome"] + "%3A" + str(int(theGO["TxStart"] * 1000000.0)) + "-" + str(
                             int(theGO["TxEnd"] * 1000000.0)) + "&pix=620&Submit=submit"
 

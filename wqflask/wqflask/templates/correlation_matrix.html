@@ -11,7 +11,7 @@
 
 <div class="container" width="100%">
 <h1>Correlation Matrix</h1>
-<div style="width: 100%; max-width: 850px;">Lower left cells list Pearson product-moment correlations; upper right cells list Spearman rank order correlations. Each cell also contains the n of cases. Values ranging from 0.4 to 1.0 range from orange to white, while values ranging from -0.4 to -1.0 range from dark blue to white. Select any cell to generate a scatter plot. Select trait labels for more information.</div>
+<div style="width: 100%; max-width: 850px;">Select any cell in the matrix to generate a <b>scatter plot.</b><br><b>Lower left</b> cells list Pearson product-moment correlations; <b>upper right</b> cells list Spearman rank order correlations. Each cell also contains the <b><i>n</i> of cases</b> in parenthesis. Values ranging from 0.4 to 1.0 range from orange to white, while values ranging from –0.4 to –1.0 range from dark blue to white.</div>
 <hr style="height: 1px; background-color: #A9A9A9;">
 {% if lowest_overlap < 8 %}
 <div style="margin-bottom: 10px;"><i><font style="color: red;">Caution</font>: This matrix of correlations contains some cells with small sample sizes of fewer than 8.</i></div>
@@ -37,7 +37,7 @@
     <tr>
       <td align="center"><input type="checkbox" class="checkbox" style="margin-left: 3px; margin-right: 1px;"></td>
       <td align="right" style="padding-right: 4px;" >
-        <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 14px; font-style: Bold;"><b>Trait {{ loop.index }}: {{ trait.dataset.name }}&nbsp;&nbsp;{{ trait.name }}</b></font></a>
+        <a href="/show_trait?trait_id={{ trait.name }}&dataset={{ trait.dataset.name }}"><font style="font-size: 14px; font-style: Bold;"><b>{{ loop.index }}: {{ trait.dataset.name }}&nbsp;&nbsp;{{ trait.name }}</b></font></a>
         <div class="shortName">{% if trait.dataset.type == "ProbeSet" %}Gene Symbol: {{ trait.symbol }}{% elif trait.dataset.type == "Publish" %}Trait Symbol: {{ trait.post_publication_abbreviation }}{% elif trait.dataset.type == "Geno" %}Genotype{% endif %} </div>
         <div class="verboseName" style="display: none;">
         {% if trait.dataset.type == "ProbeSet" %}
@@ -56,7 +56,7 @@
       {% if result[1] == 0 %}
       <td nowrap="ON" align="middle" bgcolor="#eeeeee" style="padding: 3px; line-height: 1.1;">N/A</td>
       {% else %}
-      <td nowrap="ON" align="middle" class="corr_cell" style="padding: 3px; line-height: 1.1;"><a href="/corr_scatter_plot?method={% if loop.index > outer_loop %}spearman{% else %}pearson{% endif %}&dataset_1={% if trait.dataset.name == 'Temp' %}Temp_{{ trait.dataset.group.name }}{% else %}{{ trait.dataset.name }}{% endif %}&dataset_2={% if result[0].dataset.name == 'Temp' %}Temp_{{ result[0].dataset.group.name }}{% else %}{{ result[0].dataset.name }}{% endif %}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><font style="font-size: 12px; color: #3071a9; font-weight: bold;" ><span class="corr_value">{{ '%0.2f' % result[1] }}</span><br>{{ result[2] }}</font></a></td>
+      <td nowrap="ON" align="middle" class="corr_cell" style="padding: 3px; line-height: 1.1;"><a href="/corr_scatter_plot?method={% if loop.index > outer_loop %}spearman{% else %}pearson{% endif %}&dataset_1={% if trait.dataset.name == 'Temp' %}Temp_{{ trait.dataset.group.name }}{% else %}{{ trait.dataset.name }}{% endif %}&dataset_2={% if result[0].dataset.name == 'Temp' %}Temp_{{ result[0].dataset.group.name }}{% else %}{{ result[0].dataset.name }}{% endif %}&trait_1={{ trait.name }}&trait_2={{ result[0].name }}"><span class="corr_value" style="font-size: 14px; color: #3071a9; font-weight: bold;">{{ '%0.2f' % result[1] }}</span><br><span class="corr_value" style="font-size: 12px; color: #3071a9; font-weight: bold;">({{ result[2] }})</span></a></td>
       {% endif %}
       {% endif %}
       {% endfor %}
@@ -72,12 +72,11 @@
 </form>
 <br>
 
-<div style="margin:20x;">
+{% if pca_works == "True" %}
+<div>
   {% include 'pca_scree_plot.html' %}
-  
 </div>
 
-{% if pca_works == "True" %}
 <h2>PCA Traits</h2>
 <div style="margin-bottom: 20px; overflow:hidden; width: 450px;">
 <table id="pca_table" class="table-hover table-striped cell-border" id='trait_table' style="float: left;">

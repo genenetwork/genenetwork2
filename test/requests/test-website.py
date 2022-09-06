@@ -9,6 +9,7 @@ from link_checker import check_links
 from link_checker import check_packaged_js_files
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
+from correlation_tests import check_correlations
 from main_web_functionality import check_main_web_functionality
 import link_checker
 import sys
@@ -18,16 +19,30 @@ from unittest import TestSuite, TextTestRunner, TestLoader
 
 print("Mechanical Rob firing up...")
 
+def host_is_online(host):
+    import time
+    import requests
+    for count in range(1, 5):
+        try:
+            time.sleep(count)
+            requests.get(host)
+            return True
+        except Exception as cre:
+            print(f"Retrying in {count + 1} seconds ...")
+
+    return False
 
 def run_all(args_obj, parser):
     print("")
     print("Running all tests.")
     print(args_obj)
+    assert host_is_online(args_obj.host), f"Could not connect to {host}"
     link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
     check_packaged_js_files(args_obj, parser)
     check_mapping(args_obj, parser)
+    check_correlations(args_obj, parser)
     # TODO: Add other functions as they are created.
 
 
