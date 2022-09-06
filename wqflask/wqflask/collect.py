@@ -269,7 +269,10 @@ def view_collection():
                 trait_ob, dataset, get_qtl_info=True)
         trait_obs.append(trait_ob)
 
-        json_version.append(jsonable(trait_ob))
+        trait_json = jsonable(trait_ob)
+        trait_json['trait_info_str'] = trait_info_str(trait_ob)
+
+        json_version.append(trait_json)
 
     collection_info = dict(
         trait_obs=trait_obs,
