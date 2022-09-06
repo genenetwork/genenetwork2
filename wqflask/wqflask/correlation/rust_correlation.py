@@ -47,6 +47,11 @@ def query_probes_metadata(dataset, trait_list):
 
 
 def get_metadata(dataset, traits):
+    """Retrieve the metadata"""
+    def __location__(probe_chr, probe_mb):
+        if probe_mb:
+            return f"Chr{probe_chr}: {probe_mb:.6f}"
+        return f"Chr{probe_chr}: ???"
 
     return {trait_name: {
             "name": trait_name,
@@ -58,7 +63,7 @@ def get_metadata(dataset, traits):
             "description": description,
             "additive": additive,
             "lrs_score": f"{lrs:3.1f}",
-            "location": f"Chr{probe_chr}: {probe_mb:.6f}",
+            "location": __location__(probe_chr, probe_mb),
             "lrs_location": f"Chr{chr_score}: {mb:.6f}"
 
             } for trait_name, probe_chr, probe_mb, symbol, mean, description,
