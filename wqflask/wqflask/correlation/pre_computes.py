@@ -194,6 +194,10 @@ def read_text_file(sample_dict, file_path):
         return_list[0] = return_list[0][1:]
         return return_list
 
+    def filter_line_with_index(line, index):
+        lst = parse_line_csv(line)
+        return ",".join([lst[i] for i in index])
+
     def __fetch_id_positions__(all_ids, target_ids):
         _vals = []
         _posit = [0]  # alternative for parsing
@@ -203,14 +207,10 @@ def read_text_file(sample_dict, file_path):
                 _vals.append(target_ids[strain])
                 _posit.append(idx)
 
-            else:
-                _vals.append("")  # todo;modify x_vals to take string rust
-
         return (_posit, _vals)
     with open(file_path, "r") as file_handler:
         all_ids = file_handler.readline()
         _posit, sample_vals = __fetch_id_positions__(
             parse_line_csv(all_ids)[1:], sample_dict)
-
-        return (sample_vals, [",".join(parse_line_csv(line))
+        return (sample_vals, [filter_line_with_index(line, _posit)
                               for line in file_handler.readlines()])
