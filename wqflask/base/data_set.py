@@ -316,16 +316,20 @@ class DatasetGroup:
 
     def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
-        query = """SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType,
- InbredSet.InbredSetCode FROM InbredSet where Name=%s
-        """
-        if not name:
-            query, name = dataset.query_for_group, dataset.name
         with database_connection() as conn, conn.cursor() as cursor:
-            cursor.execute(query, (name,))
-            results = cursor.fetchone()
-            if results:
-                self.name, self.id, self.genetic_type, self.code = results
+            if not name:
+                cursor.execute(dataset.query_for_group,
+                               (dataset.name,))
+            else:
+                cursor.execute(
+                    "SELECT InbredSet.Name, "
+                    "InbredSet.Id, "
+                    "InbredSet.GeneticType, "
+                    "InbredSet.InbredSetCode "
+                    "FROM InbredSet WHERE Name = %s",
+                    (dataset.name,))
+            (self.name, self.id,
+             self.genetic_type, self.code) = cursor.fetchone()
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -672,7 +676,7 @@ class DataSet:
                 "WHERE ProbeSetFreeze.Name = %s AND "
                 "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
                 "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id",
-            (self.name,))
+                (self.name,))
             # should cache this
             traits_name_dict = dict(cursor.fetchall())
 

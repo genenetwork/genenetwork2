@@ -388,11 +388,7 @@ def get_GO_symbols(a_search):
 
     new_terms = []
     for gene in gene_list:
-        this_term = dict(key=None,
-                         separator=None,
-                         search_term=[gene])
-
-        new_terms.append(this_term)
+        new_terms.append(dict(key=None, separator=None, search_term=[gene]))
 
     return new_terms
 
