@@ -1,26 +1,19 @@
-import re
 import uuid
 from math import *
-import time
-import re
 import requests
-from types import SimpleNamespace
 import unicodedata
-
-from pprint import pformat as pf
+import re
 
 import json
 
 from base.data_set import create_dataset
-from base.trait import create_trait
 from base.webqtlConfig import PUBMEDLINK_URL
 from wqflask import parser
 from wqflask import do_search
-from db import webqtlDatabaseFunction
 
 from wqflask.database import database_connection
 
-from utility import hmac, helper_functions
+from utility import hmac
 from utility.authentication_tools import check_resource_availability
 from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_str
