@@ -351,7 +351,7 @@ class DatasetGroup:
         with database_connection() as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT MappingMethodId FROM "
-                "InbredSet WHERE Name= %s"
+                "InbredSet WHERE Name= %s",
                 (self.name,))
             mapping_id = cursor.fetchone()[0]
         if mapping_id == "1":
