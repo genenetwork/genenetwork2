@@ -84,7 +84,7 @@ use `GN3_PYTHONPATH` environment that gets injected in
 the ./bin/genenetwork2 startup.
 
 A continuously deployed instance of genenetwork2 is available at
-[https://gn2dev.genenetwork.org/](https://gn2dev.genenetwork.org/). This
+[https://cd.genenetwork.org/](https://cd.genenetwork.org/). This
 instance is redeployed on every commit provided that the [continuous
 integration tests](https://ci.genenetwork.org/jobs/genenetwork2) pass.
 
