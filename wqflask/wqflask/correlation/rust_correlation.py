@@ -23,15 +23,19 @@ def query_probes_metadata(dataset, trait_list):
 
             query = """
                     SELECT ProbeSet.Name,ProbeSet.Chr,ProbeSet.Mb,
-                    Symbol,mean,description,additive,LRS,Geno.Chr, Geno.Mb
-                    from Geno, Species,ProbeSet,ProbeSetXRef,ProbeSetFreeze
-                    where ProbeSet.Name in ({}) and
-                    Species.Name = %s and
-                    Geno.Name = ProbeSetXRef.Locus and
-                    Geno.SpeciesId = Species.Id and
-                    ProbeSet.Id=ProbeSetXRef.ProbeSetId and
-                    ProbeSetFreeze.Id = ProbeSetXRef.ProbeSetFreezeId and
-                    ProbeSetFreeze.Name = %s
+                    ProbeSet.Symbol,ProbeSetXRef.mean,ProbeSet.description,
+                    ProbeSetXRef.additive,ProbeSetXRef.LRS,Geno.Chr, Geno.Mb
+                    FROM ProbeSet INNER JOIN ProbeSetXRef
+                    ON ProbeSet.Id=ProbeSetXRef.ProbeSetId
+                    INNER JOIN Geno
+                    ON ProbeSetXRef.Locus = Geno.Name
+                    INNER JOIN Species
+                    ON Geno.SpeciesId = Species.Id
+                    WHERE ProbeSet.Name in ({}) AND
+                    Species.Name = %s AND
+                    ProbeSetXRef.ProbeSetFreezeId IN (
+                      SELECT ProbeSetFreeze.Id
+                      FROM ProbeSetFreeze WHERE ProbeSetFreeze.Name = %s)
                 """.format(", ".join(["%s"] * len(trait_list)))
 
             cursor.execute(query,
