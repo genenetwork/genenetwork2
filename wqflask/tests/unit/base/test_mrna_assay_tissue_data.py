@@ -49,3 +49,25 @@ def test_mrna_assay_tissue_data_initialisation(mocker, gene_symbols,
         cursor.fetchall.return_value = sql_fetch_all_results
         MrnaAssayTissueData(conn=mock_conn, gene_symbols=gene_symbols)
         cursor.execute.assert_called_with(*expected_query)
+
+
+def test_get_trait_symbol_and_tissue_values(mocker):
+    """Test for getting trait symbol and tissue_values"""
+    mock_conn = mocker.MagicMock()
+    with mock_conn.cursor() as cursor:
+        cursor.fetchall.side_effect = [
+            (("k1", "203",
+              "112", "xy", "20.11",
+              "Sample Description",
+              "Sample Probe Target Description"),),
+            (("k1", "v1"),
+             ("k2", "v2"),
+             ("k3", "v3")),
+        ]
+        _m = MrnaAssayTissueData(conn=mock_conn,
+                                 gene_symbols=["k1", "k2", "k3"])
+        assert _m.get_symbol_values_pairs() == {
+            "k1": ["v1"],
+            "k2": ["v2"],
+            "k3": ["v3"],
+        }
