@@ -1218,8 +1218,8 @@ def geno_mrna_confidentiality(ob):
     with database_connection() as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT confidentiality, "
-            "AuthorisedUsers FROM %s WHERE Name = %s",
-            (f"{ob.type}Freeze", ob.name,)
+            f"AuthorisedUsers FROM {ob.type}Freeze WHERE Name = %s",
+            (ob.name,)
         )
         result = cursor.fetchall()[0]
         if result:
