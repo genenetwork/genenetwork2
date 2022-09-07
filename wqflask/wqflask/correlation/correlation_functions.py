@@ -25,7 +25,7 @@
 
 from base.mrna_assay_tissue_data import MrnaAssayTissueData
 from gn3.computations.correlations import compute_corr_coeff_p_value
-
+from wqflask.database import database_connection
 
 #####################################################################################
 # Input: primaryValue(list): one list of expression values of one probeSet,
@@ -60,7 +60,8 @@ def cal_zero_order_corr_for_tiss(primary_values, target_values, method="pearson"
 
 
 def get_trait_symbol_and_tissue_values(symbol_list=None):
-    tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list)
-    if len(tissue_data.gene_symbols) > 0:
-        results = tissue_data.get_symbol_values_pairs()
-        return results
+    with database_connection() as conn:
+        tissue_data = MrnaAssayTissueData(gene_symbols=symbol_list, conn=conn)
+        if len(tissue_data.gene_symbols) > 0:
+            results = tissue_data.get_symbol_values_pairs()
+            return results
