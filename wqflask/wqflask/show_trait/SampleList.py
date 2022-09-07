@@ -135,7 +135,7 @@ class SampleList:
             )
         self.attributes = {}
         for attr, values in itertools.groupby(
-                cursor.fetchall(), lambda row: (row.Id, row.Name, row.Description)
+                cursor.fetchall(), lambda row: (row[0], row[1], row[2])
         ):
             key, name, description = attr
             self.attributes[key] = Bunch()
@@ -176,14 +176,15 @@ class SampleList:
                 )
 
             for sample_name, items in itertools.groupby(
-                    cursor.fetchall(), lambda row: row.SampleName
+                    cursor.fetchall(), lambda row: row[0]
             ):
                 attribute_values = {}
                 # Make a list of attr IDs without values (that have values for other samples)
                 valueless_attr_ids = [self.attributes[key].id for key in self.attributes.keys()]
                 for item in items:
-                    valueless_attr_ids.remove(item.Id)
-                    attribute_value = item.Value
+                    sample_name, _id, value = item
+                    valueless_attr_ids.remove(_id)
+                    attribute_value = value
 
                     # If it's an int, turn it into one for sorting
                     # (for example, 101 would be lower than 80 if
@@ -193,7 +194,7 @@ class SampleList:
                     except ValueError:
                         pass
 
-                    attribute_values[str(item.Id)] = attribute_value
+                    attribute_values[str(_id)] = attribute_value
                 for attr_id in valueless_attr_ids:
                     attribute_values[str(attr_id)] = ""
 
