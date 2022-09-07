@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import hashlib
@@ -174,10 +175,10 @@ def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
     """fetch textfiles with strain vals if exists"""
 
     with conn.cursor() as cursor:
-        query = 'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = "%s"' % dataset_name
-        cursor.execute(query)
+        cursor.execute(
+            'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = "%s"' % dataset_name)
         results = cursor.fetchone()
-    if (results):
+    if results:
         try:
             for file in os.listdir(text_dir):
                 if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
@@ -187,16 +188,6 @@ def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
 
 
 def read_text_file(sample_dict, file_path):
-
-    def parse_line_csv(line):
-        return_list = line.split('","')
-        return_list[-1] = return_list[-1][:-2]
-        return_list[0] = return_list[0][1:]
-        return return_list
-
-    def filter_line_with_index(line, index):
-        lst = parse_line_csv(line)
-        return ",".join([lst[i] for i in index])
 
     def __fetch_id_positions__(all_ids, target_ids):
         _vals = []
@@ -208,9 +199,9 @@ def read_text_file(sample_dict, file_path):
                 _posit.append(idx)
 
         return (_posit, _vals)
-    with open(file_path, "r") as file_handler:
-        all_ids = file_handler.readline()
+
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
         _posit, sample_vals = __fetch_id_positions__(
-            parse_line_csv(all_ids)[1:], sample_dict)
-        return (sample_vals, [filter_line_with_index(line, _posit)
-                              for line in file_handler.readlines()])
+            next(csv_reader)[1:], sample_dict)
+        return (sample_vals, [",".join([line[i] for i in _posit]) for line in csv_reader])
