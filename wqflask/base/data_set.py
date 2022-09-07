@@ -1321,5 +1321,6 @@ def fetch_cached_results(dataset_name: str, dataset_type: str, samplelist: List)
         with open(file_path, "r") as file_handler:
 
             return json.load(file_handler)
-    except FileNotFoundError:
+
+    except Exception:
         pass
