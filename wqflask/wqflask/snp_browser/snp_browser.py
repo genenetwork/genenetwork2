@@ -249,9 +249,9 @@ class SnpBrowser:
                         "a.Mb_start, a.Mb_end, a.Strand, a.Type, a.Size, "
                         "a.InDelSequence, b.Name FROM IndelAll a, "
                         "SnpSource b WHERE a.Chromosome = %s AND "
-                        "a.Mb_start >= %2.6f AND a.Mb_start < (%2.6f+.0010) "
+                        "a.Mb_start >= %s AND a.Mb_start < %s "
                         "AND b.Id = a.SourceId ORDER BY a.Mb_start")
-                    __vars = (self.chr, f"{self.start_mb:2.6f}",
+                    __vars = (self.chr, f"{self.start_mb+0.0010:2.6f}",
                               f"{self.end_mb+0.0010:2.6f}",)
             cursor.execute(__query, __vars)
             return self.filter_results(cursor.fetchall())

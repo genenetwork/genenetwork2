@@ -205,9 +205,9 @@ class GSearch:
                     "Phenotype.Lab_code) AGAINST (%s IN BOOLEAN MODE) ) "
                     "OR (MATCH (Publication.Abstract, Publication.Title, "
                     "Publication.Authors) AGAINST (%s IN BOOLEAN MODE) ) "
-                    ") %s ORDER BY Species.`Name`, InbredSet.`Name`, "
-                    "PublishXRef.`Id` LIMIT 6000",
-                    (search_term, search_term, group_clause,)
+                    f") {group_clause} ORDER BY Species.`Name`, "
+                    "InbredSet.`Name`, PublishXRef.`Id` LIMIT 6000",
+                    ((search_term,)*2)
                 )
                 _result = cursor.fetchall()
             trait_list = []

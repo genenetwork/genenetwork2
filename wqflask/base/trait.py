@@ -426,14 +426,13 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
                 display_fields_string = f'ProbeSet.{display_fields_string}'
                 cursor.execute(
-                    "SELECT %s FROM ProbeSet, ProbeSetFreeze, "
+                    f"SELECT {display_fields_string} FROM ProbeSet, ProbeSetFreeze, "
                     "ProbeSetXRef WHERE "
                     "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
                     "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
                     "ProbeSetFreeze.Name = %s AND "
                     "ProbeSet.Name = %s",
-                    (display_fields_string, dataset.name,
-                     str(trait.name),)
+                    (dataset.name, str(trait.name),)
                 )
                 trait_info = cursor.fetchone()
             # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
@@ -442,20 +441,20 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 display_fields_string = ',Geno.'.join(dataset.display_fields)
                 display_fields_string = f'Geno.{display_fields_string}'
                 cursor.execute(
-                    "SELECT %s FROM Geno, GenoFreeze, "
+                    f"SELECT {display_fields_string} FROM Geno, GenoFreeze, "
                     "GenoXRef WHERE "
                     "GenoXRef.GenoFreezeId = GenoFreeze.Id "
                     "AND GenoXRef.GenoId = Geno.Id "
                     "AND GenoFreeze.Name = %s "
                     "AND Geno.Name = %s",
-                    (display_fields_string, dataset.name, trait.name)
+                    (dataset.name, trait.name)
                 )
                 trait_info = cursor.fetchone()
             else:  # Temp type
                 cursor.execute(
-                    "SELECT %s FROM %s WHERE Name = %s",
-                    (','.join(dataset.display_fields),
-                     dataset.type, trait.name,)
+                    f"SELECT {','.join(dataset.display_fields)} "
+                    f"FROM {dataset.type} WHERE Name = %s",
+                    (trait.name,)
                 )
                 trait_info = cursor.fetchone()
 

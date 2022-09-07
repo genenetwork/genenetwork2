@@ -13,7 +13,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
     speciesDict = {}
     results = []
     with database_connection() as conn, conn.cursor() as cursor:
-        cursor.execute("SELECT Species.Name, GeneList.SpeciesId"
+        cursor.execute("SELECT Species.Name, GeneList.SpeciesId "
                        "FROM Species, GeneList WHERE "
                        "GeneList.SpeciesId = Species.Id "
                        "GROUP BY GeneList.SpeciesId")
@@ -25,14 +25,13 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
         speciesId = speciesDict[species]
         otherSpecies = [[X, speciesDict[X]] for X in list(speciesDict.keys())]
         otherSpecies.remove([species, speciesId])
-        cursor.execute("SELECT %s FROM GeneList "
-                       "WHERE SpeciesId = %d AND "
+        cursor.execute(f"SELECT {', '.join(fetchFields)} FROM GeneList "
+                       "WHERE SpeciesId = %s AND "
                        "Chromosome = %s AND "
                        "((TxStart > %s and TxStart <= %s) "
                        "OR (TxEnd > %s and TxEnd <= %s)) "
                        "ORDER BY txStart",
-                       (", ".join(fetchFields),
-                        speciesId, chrName,
+                       (speciesId, chrName,
                         startMb, endMb,
                         startMb, endMb))
         results = cursor.fetchall()
@@ -69,11 +68,10 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                     othSpec, othSpecId = item
                     newdict2 = {}
                     cursor.execute(
-                        "SELECT %s FROM GeneList WHERE "
+                        f"SELECT {', '.join(fetchFields)} FROM GeneList WHERE "
                         "SpeciesId = %s AND "
                         "geneSymbol= '%s' LIMIT 1",
-                        (", ".join(fetchFields),
-                         othSpecId,
+                        (othSpecId,
                          newdict["GeneSymbol"]))
                     resultsOther = cursor.fetchone()
                     if resultsOther:
