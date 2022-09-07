@@ -71,3 +71,11 @@ def test_get_trait_symbol_and_tissue_values(mocker):
             "k2": ["v2"],
             "k3": ["v3"],
         }
+        cursor.execute.assert_called_with(
+            "SELECT TissueProbeSetXRef.Symbol, "
+            "TissueProbeSetData.value FROM "
+            "TissueProbeSetXRef, TissueProbeSetData "
+            "WHERE TissueProbeSetData.Id IN (%s) "
+            "AND TissueProbeSetXRef.DataId = "
+            "TissueProbeSetData.Id",
+            ('112',))

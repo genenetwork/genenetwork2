@@ -1,6 +1,5 @@
 import collections
 
-from utility import db_tools
 from utility import Bunch
 
 
@@ -82,13 +81,16 @@ class MrnaAssayTissueData:
         symbol_values_dict = {}
 
         if len(id_list) > 0:
-            query = """SELECT TissueProbeSetXRef.Symbol, TissueProbeSetData.value
-                       FROM TissueProbeSetXRef, TissueProbeSetData
-                       WHERE TissueProbeSetData.Id IN {} and
-                             TissueProbeSetXRef.DataId = TissueProbeSetData.Id""".format(db_tools.create_in_clause(id_list))
             results = []
             with self.conn.cursor() as cursor:
-                cursor.execute(query)
+                cursor.execute(
+                    "SELECT TissueProbeSetXRef.Symbol, "
+                    "TissueProbeSetData.value FROM "
+                    "TissueProbeSetXRef, TissueProbeSetData "
+                    "WHERE TissueProbeSetData.Id IN ("
+                    f"{', '.join(['%s' * len(id_list)])}) "
+                    "AND TissueProbeSetXRef.DataId = TissueProbeSetData.Id",
+                    tuple(id_list))
                 results = cursor.fetchall()
                 for result in results:
                     (symbol, value) = result
