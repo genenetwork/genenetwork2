@@ -638,11 +638,11 @@ populateSampleAttributesValuesDropdown = function() {
   $('#attribute_values').empty();
   sample_attributes = [];
 
-  var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
+  var attributesAsList = Object.keys(js_data.attributes).map(function(key) {
     return [key, js_data.attributes[key].id];
   });
 
-  attributes_as_list.sort(function(first, second) {
+  attributesAsList.sort(function(first, second) {
     if (second[1] > first[1]){
       return -1
     }
@@ -652,8 +652,8 @@ populateSampleAttributesValuesDropdown = function() {
     return 0
   });
 
-  for (i=0; i < attributes_as_list.length; i++) {
-    attribute_info = js_data.attributes[attributes_as_list[i][1]]
+  for (i=0; i < attributesAsList.length; i++) {
+    attribute_info = js_data.attributes[attributesAsList[i][1]]
     sample_attributes.push(attribute_info.distinct_values);
   }
 
@@ -1094,76 +1094,69 @@ switchQNormData = function() {
 };
 $('#qnorm').click(switchQNormData);
 
-getSampleTableData = function(table_name, attributes_as_list) {
-  var samples;
-  samples = [];
+getSampleTableData = function(tableName, attributesAsList) {
+  var samples = [];
 
-  var se_exists = false;
-  var n_exists = false;
+  if ($('#' + tableName).length){
+    tableApi = $('#' + tableName).DataTable();
+    attrCol = 4
 
-  if ($('#' + table_name).length){
-    tableApi = $('#' + table_name).DataTable();
-    sample_vals = [];
-    attr_col = 4
-
-    name_nodes = tableApi.column(2).nodes().to$();
-    val_nodes = tableApi.column(3).nodes().to$();
+    nameNodes = tableApi.column(2).nodes().to$();
+    valNodes = tableApi.column(3).nodes().to$();
     if (js_data.se_exists){
-      var_nodes = tableApi.column(5).nodes().to$();
-      attr_col = 6
+      varNodes = tableApi.column(5).nodes().to$();
+      attrCol = 6
       if (js_data.has_num_cases) {
-        n_nodes = tableApi.column(6).nodes().to$();
-        attr_col = 7
+        nNodes = tableApi.column(6).nodes().to$();
+        attrCol = 7
       }
     } else {
       if (js_data.has_num_cases){
-        n_nodes = tableApi.column(4).nodes().to$();
-        attr_col = 5
+        nNodes = tableApi.column(4).nodes().to$();
+        attrCol = 5
       }
     }
 
-    attribute_nodes = []
-    for (_i = 0; _i < attributes_as_list.length; _i++){
-      attribute_nodes.push(table_api.column(attr_col + _i).nodes().to$())
+    attributeNodes = []
+    for (_i = 0; _i < attributesAsList.length; _i++){
+      attributeNodes.push(tableApi.column(attrCol + _i).nodes().to$())
     }
 
-    for (_j = 0; _j < val_nodes.length; _j++){
-      sample_val = val_nodes[_j].childNodes[0].value
-      sample_name = $.trim(name_nodes[_j].childNodes[0].textContent)
-      if (isNumber(sample_val) && sample_val !== "") {
-        sample_val = parseFloat(sample_val);
-        if (typeof var_nodes == 'undefined'){
-          sample_var = null;
+    for (_j = 0; _j < valNodes.length; _j++){
+      sampleVal = valNodes[_j].childNodes[0].value
+      sampleName = $.trim(nameNodes[_j].childNodes[0].textContent)
+      if (isNumber(sampleVal) && sampleVal !== "") {
+        sampleVal = parseFloat(sampleVal);
+        if (typeof varNodes == 'undefined'){
+          sampleVar = null;
         } else {
-          sample_var = var_nodes[_j].childNodes[0].value;
-          if (isNumber(sample_var)) {
-            sample_var = parseFloat(sample_var);
-            se_exists = true;
+          sampleVar = varNodes[_j].childNodes[0].value;
+          if (isNumber(sampleVar)) {
+            sampleVar = parseFloat(sampleVar);
           } else {
-            sample_var = null;
+            sampleVar = null;
           }
         }
-        if (typeof n_nodes == 'undefined'){
-          sample_n = null;
+        if (typeof nNodes == 'undefined'){
+          sampleN = null;
         } else {
-          sample_n = n_nodes[_j].childNodes[0].value;
-          if (isNumber(sample_n)) {
-            n_exists = true;
-            sample_n = parseInt(sample_n);
+          sampleN = nNodes[_j].childNodes[0].value;
+          if (isNumber(sampleN)) {
+            sampleN = parseInt(sampleN);
           } else {
-            sample_n = null;
+            sampleN = null;
           }
         }
 
         row_dict = {
-          name: sample_name,
-          value: sample_val,
-          se: sample_var,
-          num_cases: sample_n
+          name: sampleName,
+          value: sampleVal,
+          se: sampleVar,
+          num_cases: sampleN
         }
 
-        for (_k = 0; _k < attribute_nodes.length; _k++){
-          row_dict[attributes_as_list[_k]] = attribute_nodes[_k][_j].textContent;
+        for (_k = 0; _k < attributeNodes.length; _k++){
+          row_dict[attributesAsList[_k]] = attributeNodes[_k][_j].textContent;
         }
 
         samples.push(row_dict)
@@ -1176,14 +1169,14 @@ getSampleTableData = function(table_name, attributes_as_list) {
 exportSampleTableData = function() {
   var format, json_sample_data, sample_data;
 
-  var attributes_as_list = Object.keys(js_data.attributes).map(function(key) {
+  var attributesAsList = Object.keys(js_data.attributes).map(function(key) {
     return js_data.attributes[key].name;
   });
 
   sample_data = {};
-  sample_data.primary_samples = getSampleTableData('samples_primary', attributes_as_list);
-  sample_data.other_samples = getSampleTableData('samples_other', attributes_as_list);
-  sample_data.attributes = attributes_as_list;
+  sample_data.primary_samples = getSampleTableData('samples_primary', attributesAsList);
+  sample_data.other_samples = getSampleTableData('samples_other', attributesAsList);
+  sample_data.attributes = attributesAsList;
   json_sample_data = JSON.stringify(sample_data);
   $('input[name=export_data]').val(json_sample_data);
   format = $('input[name=export_format]').val();
