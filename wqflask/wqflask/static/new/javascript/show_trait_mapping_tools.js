@@ -131,7 +131,6 @@ $('#suggestive').hide();
 
 $('input[name=display_all]').change((function(_this) {
   return function() {
-    console.log("check");
     if ($('input[name=display_all]:checked').val() === "False") {
       return $('#suggestive').show();
     } else {
