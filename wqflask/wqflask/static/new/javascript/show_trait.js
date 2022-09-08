@@ -1122,7 +1122,12 @@ getSampleTableData = function(tableName, attributesAsList) {
       attributeNodes.push(tableApi.column(attrCol + _i).nodes().to$())
     }
 
+    checkedRows = getCheckedRows(tableName)
+
     for (_j = 0; _j < valNodes.length; _j++){
+      if (!checkedRows.includes(_j) && checkedRows.length > 0) {
+        continue
+      }
       sampleVal = valNodes[_j].childNodes[0].value
       sampleName = $.trim(nameNodes[_j].childNodes[0].textContent)
       if (isNumber(sampleVal) && sampleVal !== "") {
@@ -1148,7 +1153,7 @@ getSampleTableData = function(tableName, attributesAsList) {
           }
         }
 
-        row_dict = {
+        rowDict = {
           name: sampleName,
           value: sampleVal,
           se: sampleVar,
@@ -1156,10 +1161,10 @@ getSampleTableData = function(tableName, attributesAsList) {
         }
 
         for (_k = 0; _k < attributeNodes.length; _k++){
-          row_dict[attributesAsList[_k]] = attributeNodes[_k][_j].textContent;
+          rowDict[attributesAsList[_k]] = attributeNodes[_k][_j].textContent;
         }
 
-        samples.push(row_dict)
+        samples.push(rowDict)
       }
     }
   }
