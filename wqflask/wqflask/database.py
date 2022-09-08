@@ -1,15 +1,21 @@
 # Module to initialize sqlalchemy with flask
 import os
 import sys
-from typing import Tuple
+from typing import Tuple, Protocol, Any, Iterator
 from urllib.parse import urlparse
 import importlib
 import contextlib
 
+#: type: ignore
 import MySQLdb
 
 
-def read_from_pyfile(pyfile, setting):
+class Connection(Protocol):
+    def cursor(self) -> Any:
+        ...
+
+
+def read_from_pyfile(pyfile: str, setting: str) -> Any:
     orig_sys_path = sys.path[:]
     sys.path.insert(0, os.path.dirname(pyfile))
     module = importlib.import_module(os.path.basename(pyfile).strip(".py"))
@@ -17,13 +23,14 @@ def read_from_pyfile(pyfile, setting):
     return module.__dict__.get(setting)
 
 
-def sql_uri():
+def sql_uri() -> str:
     """Read the SQL_URI from the environment or settings file."""
     return os.environ.get(
         "SQL_URI", read_from_pyfile(
             os.environ.get(
                 "GN2_SETTINGS", os.path.abspath("../etc/default_settings.py")),
             "SQL_URI"))
+
 
 def parse_db_url(sql_uri: str) -> Tuple:
     """
@@ -37,7 +44,7 @@ def parse_db_url(sql_uri: str) -> Tuple:
 
 
 @contextlib.contextmanager
-def database_connection():
+def database_connection() -> Iterator[Connection]:
     """Provide a context manager for opening, closing, and rolling
     back - if supported - a database connection.  Should an error occur,
     and if the table supports transactions, the connection will be
