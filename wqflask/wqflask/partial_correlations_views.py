@@ -287,7 +287,7 @@ def partial_correlations():
                 "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
-                url=f"{GN_SERVER_URL}api/correlation/partial",
+                url=f"{GN_SERVER_URL}/correlation/partial",
                 json=post_data))
 
         for error in args["errors"]:
@@ -302,7 +302,7 @@ def partial_correlations():
                 "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
-                url=f"{GN_SERVER_URL}api/correlation/partial",
+                url=f"{GN_SERVER_URL}/correlation/partial",
                 json=post_data))
 
         for error in args["errors"]:
@@ -347,7 +347,7 @@ def process_pcorrs_command_output(result):
 @app.route("/partial_correlations/<command_id>", methods=["GET"])
 def poll_partial_correlation_results(command_id):
     response = requests.get(
-        url=f"{GN_SERVER_URL}api/async_commands/state/{command_id}")
+        url=f"{GN_SERVER_URL}/async_commands/state/{command_id}")
 
     if response.status_code == 200:
         data = response.json()

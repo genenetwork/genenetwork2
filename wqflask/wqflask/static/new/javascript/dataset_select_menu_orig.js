@@ -38,7 +38,7 @@ if (typeof gn_server_url === 'undefined'){
   gn_server_url = $("#search form").attr("data-gn_server_url")
 }
 
-$.ajax(gn_server_url +'api/menu/generate/json', {
+$.ajax(gn_server_url +'/menu/generate/json', {
   dataType: 'json',
   success: process_json,
   error: indicate_error,
