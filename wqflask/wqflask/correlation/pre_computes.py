@@ -175,8 +175,7 @@ def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
     """fetch textfiles with strain vals if exists"""
 
     with conn.cursor() as cursor:
-        cursor.execute(
-            'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = "%s"' % dataset_name)
+        cursor.execute('SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (dataset_name,))
         results = cursor.fetchone()
     if results:
         try:
