@@ -1,9 +1,11 @@
+import csv
 import json
 import os
 import hashlib
 from pathlib import Path
 
 from base.data_set import query_table_timestamp
+from base.webqtlConfig import TEXTDIR
 from base.webqtlConfig import TMPDIR
 
 from json.decoder import JSONDecodeError
@@ -167,3 +169,38 @@ def get_datasets_data(base_dataset, target_dataset_data):
         samples_fetched, base_traits_data)
 
     return (target_results, base_results)
+
+
+def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
+    """fetch textfiles with strain vals if exists"""
+
+    with conn.cursor() as cursor:
+        cursor.execute('SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (dataset_name,))
+        results = cursor.fetchone()
+    if results:
+        try:
+            for file in os.listdir(text_dir):
+                if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
+                    return os.path.join(text_dir, file)
+        except FileNotFoundError:
+            pass
+
+
+def read_text_file(sample_dict, file_path):
+
+    def __fetch_id_positions__(all_ids, target_ids):
+        _vals = []
+        _posit = [0]  # alternative for parsing
+
+        for (idx, strain) in enumerate(all_ids, 1):
+            if strain in target_ids:
+                _vals.append(target_ids[strain])
+                _posit.append(idx)
+
+        return (_posit, _vals)
+
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        _posit, sample_vals = __fetch_id_positions__(
+            next(csv_reader)[1:], sample_dict)
+        return (sample_vals, [",".join([line[i] for i in _posit]) for line in csv_reader])

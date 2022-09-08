@@ -8,6 +8,8 @@ from wqflask.correlation.correlation_functions\
 from wqflask.correlation.correlation_gn3_api import create_target_this_trait
 from wqflask.correlation.correlation_gn3_api import lit_for_trait_list
 from wqflask.correlation.correlation_gn3_api import do_lit_correlation
+from wqflask.correlation.pre_computes import fetch_text_file
+from wqflask.correlation.pre_computes import read_text_file
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
 from gn3.computations.rust_correlation import get_sample_corr_data
@@ -219,6 +221,15 @@ def __compute_sample_corr__(
     sample_data = get_sample_corr_data(
         sample_type=start_vars["corr_samples_group"], all_samples=all_samples,
         dataset_samples=this_dataset.group.all_samples_ordered())
+
+    if target_dataset.type == "ProbeSet":
+        with database_connector() as conn:
+            file_path = fetch_text_file(target_dataset.name, conn)
+            if file_path:
+                (sample_vals, target_data) = read_text_file(
+                    sample_data, file_path)
+                return run_correlation(target_data, sample_vals, method, ",", corr_type, n_top)
+
     target_dataset.get_trait_data(list(sample_data.keys()))
 
     target_data = []
