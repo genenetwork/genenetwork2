@@ -17,7 +17,7 @@ recheckRows = function(theTable, checkedRows){
 
 getCheckedRows = function(tableId){
   let checkedRows = []
-  $("#" + tableId + " input").each(function(index){
+  $("#" + tableId + " input.checkbox").each(function(index){
     if ($(this).prop("checked") == true){
       checkedRows.push(index);
     }
