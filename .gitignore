@@ -5,6 +5,7 @@
 *~
 *.swo
 *.swp
+containers/mariadb-state
 genotype_files/genotype/HSNIH_copy.geno
 web/new_genotypes/HSNIH.json
 wqflask/secure_server.py
