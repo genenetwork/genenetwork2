@@ -8,9 +8,12 @@ from wqflask.correlation import correlation_functions
 from wqflask.database import database_connection
 
 def do_correlation(start_vars):
-    assert('db' in start_vars)
-    assert('target_db' in start_vars)
-    assert('trait_id' in start_vars)
+    if 'db' not in start_vars:
+        raise ValueError("'db' not found!")
+    if 'target_db' not in start_vars:
+        raise ValueError("'target_db' not found!")
+    if 'trait_id' not in start_vars:
+        raise ValueError("'trait_id' not found!")
 
     this_dataset = data_set.create_dataset(dataset_name=start_vars['db'])
     target_dataset = data_set.create_dataset(
