@@ -606,25 +606,6 @@ submit_special = function(url) {
   $("#trait_data_form").submit();
 };
 
-// getTableContentsForFormSubmit = function(form_id) {
-//   // Borrowed code from - https://stackoverflow.com/questions/31418047/how-to-post-data-for-the-whole-table-using-jquery-datatables
-//   let this_form = $("#" + form_id);
-//   var params = primary_table.$('input').serializeArray();
-
-//   $.each(params, function(){
-//     // If element doesn't exist in DOM
-//     if(!$.contains(document, this_form[this.name])){
-//        // Create a hidden element
-//        this_form.append(
-//           $('<input>')
-//              .attr('type', 'hidden')
-//              .attr('name', this.name)
-//              .val(this.value)
-//        );
-//     }
-//  });
-// }
-
 var corrInputList = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
                         'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
 
@@ -1396,7 +1377,7 @@ if (valRange < 0.05){
 if (js_data.num_values < 256) {
   barChartWidth = 25 * getSampleVals(sampleLists[0]).length
 
-  //ZS: Set bottom margin dependent on longest sample name length, since those can get long
+  // Set bottom margin dependent on longest sample name length, since those can get long
   bottomMargin = getBarBottomMargin(sampleLists[0])
 
   root.bar_layout = {
