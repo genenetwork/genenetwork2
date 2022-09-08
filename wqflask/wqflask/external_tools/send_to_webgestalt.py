@@ -18,13 +18,10 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-import string
-
 from wqflask.database import database_connection
 
-from base.trait import GeneralTrait, retrieve_trait_info
-from base.species import TheSpecies
-from utility import helper_functions, corr_result_helpers
+from base.trait import retrieve_trait_info
+from utility import helper_functions
 
 
 class SendToWebGestalt:
