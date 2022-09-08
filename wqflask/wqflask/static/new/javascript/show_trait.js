@@ -480,7 +480,7 @@ fetchSampleValues = function() {
 }
 
 editDataChange = function() {
-  var already_seen, checkbox, name, real_dict, real_value, real_variance, row, rows, sample_sets, table, tables, _i, _j, _len, _len1;
+  var already_seen, sample_sets, table, tables, _i, _j, _len;
   already_seen = {};
   sample_sets = {
     samples_primary: new Stats([]),
