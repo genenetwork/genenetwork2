@@ -1,7 +1,7 @@
 import requests
 import simplejson as json
 from wqflask import app
-
+from utility import hmac
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
@@ -229,7 +229,6 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
         results = Redis.get(trait.name).split()
     else:
         results = dataset.retrieve_sample_data(trait.name)
-
     # Todo: is this necessary? If not remove
     trait.data.clear()
 
