@@ -8,6 +8,7 @@ from base.data_set import create_dataset
 from utility.authentication_tools import check_resource_availability
 from utility.tools import GN2_BASE_URL, GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
+import utility.hmac as hmac
 
 from flask import g, request, url_for
 
