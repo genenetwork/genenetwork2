@@ -255,7 +255,7 @@
         <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
         <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
         {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
-        <button class="btn btn-default export_mapping_results" >Download <span class="glyphicon glyphicon-download"></span></button>
+        <button class="btn btn-default export_mapping_results" ><span class="glyphicon glyphicon-download"></span> Download</span></button>
         <br />
         <br />
           <div id="trait_table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
