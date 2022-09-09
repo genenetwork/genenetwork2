@@ -234,7 +234,7 @@ def __compute_sample_corr__(
 
     target_data = []
     for (key, val) in target_dataset.trait_data.items():
-        lts = [key] + [str(x) for x in val]
+        lts = [key] + [str(x) for x in val if x is not None]
         r = ",".join(lts)
         target_data.append(r)
 
