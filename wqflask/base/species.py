@@ -47,7 +47,7 @@ class Chromosomes:
     def chromosomes(self) -> OrderedDict:
         """Lazily fetch the chromosomes"""
         chromosomes = OrderedDict()
-        with self.conn.cursor() as cursor:
+        with database_connection() as conn, conn.cursor() as cursor:
             if self.species is not None:
                 cursor.execute(
                     "SELECT Chr_Length.Name, Chr_Length.OrderId, Length "
