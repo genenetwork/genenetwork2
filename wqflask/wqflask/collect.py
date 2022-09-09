@@ -2,6 +2,7 @@ import hashlib
 import datetime
 import os
 import simplejson as json
+from urllib.parse import urljoin
 
 from flask import g
 from flask import render_template
@@ -277,7 +278,7 @@ def view_collection():
     collection_info = dict(
         trait_obs=trait_obs,
         uc=uc,
-        heatmap_data_url=f"{GN_SERVER_URL}/heatmaps/clustered")
+        heatmap_data_url=urljoin(GN_SERVER_URL, "heatmaps/clustered"))
 
     if "json" in params:
         return json.dumps(json_version)
