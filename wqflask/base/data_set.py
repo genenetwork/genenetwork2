@@ -749,8 +749,12 @@ class DataSet:
                 (self.group.species,)
             )
             results = dict(cursor.fetchall())
-            sample_ids = [results.get(item)
-                          for item in self.samplelist if item is not None]
+            sample_ids = [
+                sample_id for sample_id in
+                (results.get(item) for item in self.samplelist
+                 if item is not None)
+                if sample_id is not None
+            ]
 
             # MySQL limits the number of tables that can be used in a join to 61,
             # so we break the sample ids into smaller chunks
