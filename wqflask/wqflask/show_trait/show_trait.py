@@ -555,13 +555,12 @@ def get_trait_vals(sample_list):
     return trait_vals
 
 def get_max_digits(trait_vals):
-    max_digits = []
-    for these_vals in trait_vals:
-        max_val = max(these_vals)
-        digits = len(str(max_val))
-        max_digits.append(digits - 1)
+    def __max_digits__(these_vals):
+        if not bool(these_vals):
+            return None
+        return len(str(max(these_vals))) - 1
 
-    return max_digits
+    return [__max_digits__(val) for val in trait_vals]
 
 def normf(trait_vals):
     ranked_vals = ss.rankdata(trait_vals)
