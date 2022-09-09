@@ -83,14 +83,14 @@ class MrnaAssayTissueData:
         if len(id_list) > 0:
             results = []
             with self.conn.cursor() as cursor:
+
                 cursor.execute(
-                    "SELECT TissueProbeSetXRef.Symbol, "
-                    "TissueProbeSetData.value FROM "
-                    "TissueProbeSetXRef, TissueProbeSetData "
-                    "WHERE TissueProbeSetData.Id IN ("
-                    f"{', '.join(['%s' * len(id_list)])}) "
-                    "AND TissueProbeSetXRef.DataId = TissueProbeSetData.Id",
-                    tuple(id_list))
+                    "SELECT TissueProbeSetXRef.Symbol, TissueProbeSetData.value "
+                    "FROM TissueProbeSetXRef, TissueProbeSetData"
+                    f" WHERE TissueProbeSetData.Id IN ({', '.join(['%s'] * len(id_list))})"
+                    " AND TissueProbeSetXRef.DataId = TissueProbeSetData.Id"
+                    ,tuple(id_list))
+
                 results = cursor.fetchall()
                 for result in results:
                     (symbol, value) = result
