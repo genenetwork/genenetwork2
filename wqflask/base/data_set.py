@@ -1181,9 +1181,9 @@ ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND ProbeSetFreeze.Name = %s"""
                 "ProbeSetXRef.DataId = ProbeSetData.Id "
                 "AND ProbeSetData.StrainId = Strain.Id "
                 "ORDER BY Strain.Name",
-                (trait, self.name)
+                (trait, self.name,)
             )
-        return cursor.fetchall()
+            return cursor.fetchall()
 
     def retrieve_genes(self, column_name):
         with database_connection() as conn, conn.cursor() as cursor:
