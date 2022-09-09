@@ -466,7 +466,7 @@ class DisplayMappingResults:
                            f"({', '.join(['%s' for x in self.ChrList[1:]])}) "
                            "ORDER BY Chr_Length.OrderId",
                            (self.dataset.group.name,
-                            [x[0] for x in self.ChrList[1:]],))
+                            *[x[0] for x in self.ChrList[1:]],))
             self.ChrLengthMbList = cursor.fetchall()
 
         self.ChrLengthMbList = [x[0] / 1000000.0 for x in self.ChrLengthMbList]
