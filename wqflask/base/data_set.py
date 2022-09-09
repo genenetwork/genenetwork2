@@ -652,6 +652,8 @@ class DataSet:
                         "ProbeSetFreeze.FullName = %s "
                         "OR ProbeSetFreeze.ShortName = %s)",
                         (self.name,)*3)
+                    (self.id, self.name, self.fullname, self.shortname,
+                    self.data_scale, self.tissue) = cursor.fetchone()
                 else:
                     self.tissue = "N/A"
                     cursor.execute(
@@ -660,8 +662,8 @@ class DataSet:
                         "WHERE (Name = %s OR FullName = "
                         "%s OR ShortName = %s)",
                         (self.name,)*3)
-                (self.id, self.name, self.fullname, self.shortname,
-                 self.data_scale, self.tissue) = cursor.fetchone()
+                    (self.id, self.name, self.fullname,
+                    self.shortname) = cursor.fetchone()
             except TypeError:
                 pass
 
