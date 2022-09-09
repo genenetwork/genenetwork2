@@ -20,6 +20,9 @@ from gn3.db_utils import database_connector
 def query_probes_metadata(dataset, trait_list):
     """query traits metadata in bulk for probeset"""
 
+    if not bool(trait_list):
+        return []
+
     with database_connector() as conn:
         with conn.cursor() as cursor:
 
@@ -221,6 +224,8 @@ def __compute_sample_corr__(
     sample_data = get_sample_corr_data(
         sample_type=start_vars["corr_samples_group"], all_samples=all_samples,
         dataset_samples=this_dataset.group.all_samples_ordered())
+    if not bool(sample_data):
+        return {}
 
     if target_dataset.type == "ProbeSet":
         with database_connector() as conn:
