@@ -479,28 +479,30 @@ class DatasetGroup:
 def datasets(group_name, this_group=None):
     key = "group_dataset_menu:v2:" + group_name
     dataset_menu = []
-    the_results = g.db.execute('''
-        (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
-        FROM PublishFreeze,InbredSet
-        WHERE PublishFreeze.InbredSetId = InbredSet.Id
-            and InbredSet.Name = '%s'
-        ORDER BY PublishFreeze.Id ASC)
-        UNION
-        (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
-        FROM GenoFreeze, InbredSet
-        WHERE GenoFreeze.InbredSetId = InbredSet.Id
-            and InbredSet.Name = '%s')
-        UNION
-        (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
-        FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
-        WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
-            and ProbeFreeze.TissueId = Tissue.Id
-            and ProbeFreeze.InbredSetId = InbredSet.Id
-            and InbredSet.Name like %s
-        ORDER BY Tissue.Name, ProbeSetFreeze.OrderList DESC)
-        ''' % (group_name,
-            group_name,
-            "'" + group_name + "'")).fetchall()
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute('''
+            (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
+            FROM PublishFreeze,InbredSet
+            WHERE PublishFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = '%s'
+            ORDER BY PublishFreeze.Id ASC)
+            UNION
+            (SELECT '#GenoFreeze',GenoFreeze.FullName,GenoFreeze.Name
+            FROM GenoFreeze, InbredSet
+            WHERE GenoFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name = '%s')
+            UNION
+            (SELECT Tissue.Name, ProbeSetFreeze.FullName,ProbeSetFreeze.Name
+            FROM ProbeSetFreeze, ProbeFreeze, InbredSet, Tissue
+            WHERE ProbeSetFreeze.ProbeFreezeId = ProbeFreeze.Id
+                and ProbeFreeze.TissueId = Tissue.Id
+                and ProbeFreeze.InbredSetId = InbredSet.Id
+                and InbredSet.Name like %s
+            ORDER BY Tissue.Name, ProbeSetFreeze.OrderList DESC)
+            ''' % (group_name,
+                group_name,
+                "'" + group_name + "'"))
+        the_results = cursor.fetchall()
 
     sorted_results = sorted(the_results, key=lambda kv: kv[0])
 
