@@ -3,6 +3,7 @@
 {% block css %}
 <!-- UIkit CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
+<link rel="stylesheet" href="/static/new/css/index_page.css" />
 
 <!-- UIkit JS -->
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
@@ -83,7 +84,7 @@
                                           <i class="icon-question-sign"></i>
                                         </div>
                                         <div class="col-3" style="margin-left: 10px;">
-                                            <button type="button" id="group_info" class="btn btn-primary form-control" style="width: 50px !important;">Info</button>
+                                            <button type="button" id="group_info" class="btn form-control info-button"><span class="glyphicon glyphicon-flag"></span> Info</button>
                                         </div>
                                     </div>
                                 </div>
@@ -95,7 +96,7 @@
                                           <select name="type" id="type" class="form-control" style="width: 340px !important;"><option>Loading...</option></select>
                                         </div>
                                         <div class="col-3" style="margin-left: 10px;">
-                                            <button type="button" id="dataset_info" class="btn btn-primary form-control" style="width: 50px !important;">Info</button>
+                                            <button type="button" id="dataset_info" class="btn form-control info-button"><span class="glyphicon glyphicon-flag"></span> Info</button>
                                         </div>
                                     </div>
                                 </div>
@@ -145,10 +146,11 @@
                                     <label for="btsearch" class="col-xs-1 control-label" style="width: 65px !important;"></label>
                                     <div class="col-xs-10 controls" style="display: flex; padding-left: 20px;">
                                         <div class="col-2 controls">
-                                            <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search">
+                                            <button id="btsearch" class="btn btn-primary form-control"><span class="glyphicon glyphicon-search"></span> Search</button>
+                                            <!-- <input id="btsearch" type="submit" class="btn btn-primary form-control" value="Search"> -->
                                         </div>
-                                        <div class="col-2 controls" style="padding-left: 20px;">
-                                            <button type="button" id="make_default" class="btn btn-primary form-control">Save Settings</button>
+                                        <div class="col-2 align-self-end controls" style="padding-left: 20px;">
+                                            <button type="button" id="make_default" class="btn form-control info-button"><span class="glyphicon glyphicon-pushpin"></span> Lock Menu</button>
                                         </div>
                                     </div>
                                 </div>
