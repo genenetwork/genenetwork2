@@ -53,8 +53,8 @@ def database_connection() -> Iterator[Connection]:
     """
     host, user, passwd, db_name, port = parse_db_url(sql_uri())
     connection = MySQLdb.connect(
-        db=db_name, user=user, passwd=passwd or '', host=host, port=port,
-        autocommit=False  # Required for roll-backs
+        db=db_name, user=user, passwd=passwd or '', host=host,
+        port=(port or 3306), autocommit=False  # Required for roll-backs
     )
     try:
         yield connection
