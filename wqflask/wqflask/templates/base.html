@@ -137,11 +137,11 @@
 
         <form method="get" action="/gsearch">
             <div class="row" style="width: 100%; position: absolute; bottom: 0; top: 30px;">
-                <select style="width: 160px; margin-top: 15px; margin-left: 20px;" name="type">
+                <button id="btsearch" class="btn btn-primary" style="margin-left: 20px;"><span class="glyphicon glyphicon-search"></span> Search All</button>
+                <select style="width: 160px; margin-top: 15px; margin-left: 10px;" name="type">
                     <option value="gene">Genes / Molecules</option>
                     <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                 </select>
-                <input class="btn btn-primary" style="width: 100px; margin-left: 10px;" type="submit" value="Search All">
                 <input style="width: 50%; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required>
             </div>
         </form>
