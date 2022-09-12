@@ -84,7 +84,7 @@ def check_correlations(args_obj, parser):
         print(f"\tChecking {corr_type} correlations...", end="")
         for corr_base in corrs_base_data():
             try:
-                corr_type_fn(host)
+                corr_type_fn(host, corr_base)
                 print(" ok")
             except AssertionError:
                 print (" fail")
