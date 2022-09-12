@@ -780,9 +780,9 @@ class DataSet:
                         dataset_type = self.type
                     temp = ['T%s.value' % item for item in sample_ids_step]
                     if self.type == "Publish":
-                        query = "SELECT {}XRef.Id,".format(escape(self.type))
+                        query = "SELECT {}XRef.Id".format(escape(self.type))
                     else:
-                        query = "SELECT {}.Name,".format(escape(dataset_type))
+                        query = "SELECT {}.Name".format(escape(dataset_type))
                     data_start_pos = 1
                     query += ', '.join(temp)
                     query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
