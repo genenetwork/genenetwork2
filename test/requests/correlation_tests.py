@@ -87,8 +87,8 @@ def check_correlations(args_obj, parser):
                 print(f"\tChecking {corr_type} correlations...", end="")
                 corr_type_fn(host, corr_base)
                 print(" ok")
-            except AssertionError:
-                print (" fail")
+            except AssertionError as asserterr:
+                print (f" fail: {asserterr.args[0]}")
                 failure = True
 
     if failure:
