@@ -784,7 +784,8 @@ class DataSet:
                     else:
                         query = "SELECT {}.Name".format(escape(dataset_type))
                     data_start_pos = 1
-                    query += ', '.join(temp)
+                    if len(temp) > 0:
+                        query = query + ", " + ', '.join(temp)
                     query += ' FROM ({}, {}XRef, {}Freeze) '.format(*mescape(dataset_type,
                                                                              self.type,
                                                                              self.type))
