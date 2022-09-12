@@ -247,6 +247,9 @@ def __compute_sample_corr__(
         r = ",".join(lts)
         target_data.append(r)
 
+    if len(target_data) == 0:
+        return  {}
+
     return run_correlation(
         target_data, list(sample_data.values()), method, ",", corr_type,
         n_top)
