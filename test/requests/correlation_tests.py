@@ -82,9 +82,9 @@ def check_correlations(args_obj, parser):
     host = args_obj.host
     failure = False
     for corr_type, corr_type_fn in corr_type_fns.items():
-        print(f"\tChecking {corr_type} correlations...", end="")
         for corr_base in corrs_base_data():
             try:
+                print(f"\tChecking {corr_type} correlations...", end="")
                 corr_type_fn(host, corr_base)
                 print(" ok")
             except AssertionError:
