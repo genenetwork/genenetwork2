@@ -131,6 +131,9 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
     (sample_data, sample_ids) = __fetch_sample_ids__(
         start_vars["sample_vals"], start_vars["corr_samples_group"])
 
+    if len(trait_list) == 0:
+        return {}
+
     with database_connector() as conn:
         with conn.cursor() as curr:
             # fetching strain data in bulk
