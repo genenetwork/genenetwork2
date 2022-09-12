@@ -146,10 +146,7 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
     geneid_dict = {trait_name: geneid for (trait_name, geneid) in geneid_dict.items() if
                    trait_lists.get(trait_name)}
 
-    conn = database_connector()
-
-    with conn:
-
+    with database_connector() as conn:
         correlation_results = compute_all_lit_correlation(
             conn=conn, trait_lists=list(geneid_dict.items()),
             species=species, gene_id=this_trait_geneid)
@@ -238,7 +235,9 @@ def compute_corr_for_top_results(start_vars,
 def do_lit_correlation(this_trait, this_dataset):
     """function for fetching lit inputs"""
     geneid_dict = this_dataset.retrieve_genes("GeneId")
-    species = this_dataset.group.species.lower()
+    species = this_dataset.group.species
+    if species:
+        species = species.lower()
     trait_geneid = this_trait.geneid
     return (trait_geneid, geneid_dict, species)
 
