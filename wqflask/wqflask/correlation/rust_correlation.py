@@ -139,15 +139,15 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
             # fetching strain data in bulk
             query = (
                 "SELECT * from ProbeSetData "
-                f"WHERE StrainID IN ({', '.join(['%s'] * len(sample_ids))})"
-                "AND id IN ("
+                f"WHERE StrainID IN ({', '.join(['%s'] * len(sample_ids))}) "
+                "AND Id IN ("
                 "  SELECT ProbeSetXRef.DataId "
                 "  FROM (ProbeSet, ProbeSetXRef, ProbeSetFreeze) "
                 "  WHERE ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
                 "  AND ProbeSetFreeze.Name = %s "
                 "  AND ProbeSet.Name "
-                f" IN ({', '.join(['%s'] * len(trait_list))})"
-                "  ProbeSet.Id = ProbeSetXRef.ProbeSetId)"
+                f" IN ({', '.join(['%s'] * len(trait_list))}) "
+                "  AND ProbeSet.Id = ProbeSetXRef.ProbeSetId"
                 ")")
             curr.execute(
                 query,
