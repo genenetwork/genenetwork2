@@ -1,3 +1,4 @@
+import sys
 import requests
 from lxml.html import parse
 from link_checker import check_page
@@ -92,5 +93,5 @@ def check_correlations(args_obj, parser):
 
     if failure:
         print("FAIL!")
-        return
+        sys.exit(1)
     print("OK")
