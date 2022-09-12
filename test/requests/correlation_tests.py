@@ -44,7 +44,7 @@ def check_sample_correlations(baseurl, base_data):
     top_n_message = "The top 200 correlations ranked by the Genetic Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
-    assert (result.text.find("Values of record 1435464_at") >= 0), result.text
+    assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
     assert (result.text.find(top_n_message) >= 0), result.text
 
 def check_tissue_correlations(baseurl, base_data):
@@ -56,7 +56,7 @@ def check_tissue_correlations(baseurl, base_data):
     top_n_message = "The top 100 correlations ranked by the Tissue Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
-    assert (result.text.find("Values of record 1435464_at") >= 0), result.text
+    assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
     assert (result.text.find(top_n_message) >= 0), result.text
 
 def check_lit_correlations(baseurl, base_data):
@@ -68,7 +68,7 @@ def check_lit_correlations(baseurl, base_data):
     top_n_message = "The top 200 correlations ranked by the Literature Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
-    assert (result.text.find("Values of record 1435464_at") >= 0), result.text
+    assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
     assert (result.text.find(top_n_message) >= 0), result.text
 
 def check_correlations(args_obj, parser):
