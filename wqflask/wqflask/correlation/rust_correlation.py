@@ -194,7 +194,7 @@ def compute_top_n_tissue(this_dataset, this_trait, traits, method):
                                   dataset_symbols=trait_symbol_dict,
                                   dataset_vals=corr_result_tissue_vals_dict)    
 
-    if data[0]:
+    if data and data[0]:
         return run_correlation(
             data[1], data[0], method, ",", "tissue")
 
