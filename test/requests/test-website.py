@@ -125,6 +125,16 @@ parser.add_argument(
     help="Checks for mapping.",
 )
 
+parser.add_argument(
+    "-c",
+    "--correlations",
+    dest="accumulate",
+    action="store_const",
+    const=check_correlations,
+    default=print_help,
+    help="Checks that correlations run correctly.",
+)
+
 
 args = parser.parse_args()
 
