@@ -31,8 +31,9 @@ def retrieve_species(group):
         cursor.execute(
             "SELECT Species.Name FROM Species, InbredSet WHERE InbredSet.Name = %s AND InbredSet.SpeciesId = Species.Id",
             (group,))
-        return cursor.fetchone()[0]
-    return result
+        results = cursor.fetchone()
+        if results and results[0]:
+            return results[0]
 
 
 def retrieve_species_id(group):

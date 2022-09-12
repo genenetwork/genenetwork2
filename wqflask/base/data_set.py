@@ -328,8 +328,11 @@ class DatasetGroup:
                     "InbredSet.InbredSetCode "
                     "FROM InbredSet WHERE Name = %s",
                     (dataset.name,))
-            (self.name, self.id,
-             self.genetic_type, self.code) = cursor.fetchone()
+            results = cursor.fetchone()
+            if results:
+                (self.name, self.id, self.genetic_type, self.code) = results
+            else:
+                self.name = name or dataset.name
         if self.name == 'BXD300':
             self.name = "BXD"
 
@@ -353,7 +356,9 @@ class DatasetGroup:
                 "SELECT MappingMethodId FROM "
                 "InbredSet WHERE Name= %s",
                 (self.name,))
-            mapping_id = cursor.fetchone()[0]
+            results = cursor.fetchone()
+            if results and results[0]:
+                mapping_id = results[0]
         if mapping_id == "1":
             mapping_names = ["GEMMA", "QTLReaper", "R/qtl"]
         elif mapping_id == "2":
@@ -1227,8 +1232,8 @@ def geno_mrna_confidentiality(ob):
             f"AuthorisedUsers FROM {ob.type}Freeze WHERE Name = %s",
             (ob.name,)
         )
-        result = cursor.fetchall()[0]
-        if result:
+        result = cursor.fetchall()
+        if len(result) > 0 and result[0]:
             return True
 
 
