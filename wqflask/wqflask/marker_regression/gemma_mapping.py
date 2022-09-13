@@ -27,6 +27,7 @@ def generate_random_n_string(n):
 def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
               maf=0.01, first_run=True, output_files=None):
     """Generates p-values for each marker using GEMMA"""
+
     if this_dataset.group.genofile is not None:
         genofile_name = this_dataset.group.genofile[:-5]
     else:
@@ -53,7 +54,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
         chr_list_string = ",".join(this_chromosomes_name)
         if covariates != "":
             covar_filename = gen_covariates_file(this_dataset, covariates, samples)
-        if use_loco == "True":
+        if str(use_loco).lower() == "true":
             generate_k_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
                                   f"{chr_list_string} -- {GEMMAOPTS} "
                                   f"-g {flat_files('genotype/bimbam')}/"
