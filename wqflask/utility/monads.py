@@ -20,6 +20,50 @@ class MonadicDict(UserDict):
 
     Keys in this dictionary can be any python object, but values must
     be monadic values.
+
+    from pymonad.maybe import Just, Nothing
+
+    Initialize by setting individual keys to monadic values.
+    >>> d = MonadicDict()
+    >>> d["foo"] = Just(1)
+    >>> d["bar"] = Nothing
+    >>> d
+    {'foo': 1}
+
+    Initialize by converting a built-in dictionary object.
+    >>> MonadicDict({"foo": 1})
+    {'foo': 1}
+    >>> MonadicDict({"foo": 1, "bar": None})
+    {'foo': 1}
+
+    Initialize from a built-in dictionary object with monadic values.
+    >>> MonadicDict({"foo": Just(1)}, convert=False)
+    {'foo': 1}
+    >>> MonadicDict({"foo": Just(1), "bar": Nothing}, convert=False)
+    {'foo': 1}
+
+    Get values. For non-existent keys, Nothing is returned. Else, a
+    Just value is returned.
+    >>> d["foo"]
+    Just 1
+    >>> d["bar"]
+    Nothing
+
+    Convert MonadicDict object to a built-in dictionary object.
+    >>> d.data
+    {'foo': 1}
+    >>> type(d)
+    <class 'utility.monads.MonadicDict'>
+    >>> type(d.data)
+    <class 'dict'>
+
+    Delete keys. Deleting non-existent keys does nothing.
+    >>> del d["bar"]
+    >>> d
+    {'foo': 1}
+    >>> del d["foo"]
+    >>> d
+    {}
     """
     def __init__(self, d={}, convert=True):
         """
