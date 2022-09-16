@@ -115,6 +115,13 @@ class MonadicDictCursor(DictCursor):
 
     Monadic version of MySQLdb.cursors.DictCursor that returns a
     MonadicDict instead of the built-in dictionary.
+
+    Execute a SQL query and retrieve results as MonadicDict
+    objects. Each row object in the following code is a MonadicDict.
+    >>> with conn.cursor(MonadicDictCursor) as cursor:
+    ...    cursor.execute("SELECT foo FROM bar")
+    ...    for row in cursor.fetchall():
+    ...        print(row)
     """
     def fetchone(self):
         return MonadicDict(super().fetchone())
