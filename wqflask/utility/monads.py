@@ -21,7 +21,7 @@ class MonadicDict(UserDict):
     Keys in this dictionary can be any python object, but values must
     be monadic values.
     """
-    def __init__(self, d, convert=True):
+    def __init__(self, d={}, convert=True):
         """
         Initialize monadic dictionary.
 
