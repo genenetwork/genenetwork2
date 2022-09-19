@@ -152,10 +152,10 @@ def assert_bin(fn):
     return fn
 
 
-def assert_dir(dir):
-    if not valid_path(dir):
-        raise Exception("ERROR: can not find directory " + dir)
-    return dir
+def assert_dir(the_dir):
+    if not valid_path(the_dir):
+        raise FileNotFoundError(f"ERROR: can not find directory '{the_dir}'")
+    return the_dir
 
 
 def assert_writable_dir(dir):
@@ -172,7 +172,7 @@ def assert_writable_dir(dir):
 
 def assert_file(fn):
     if not valid_file(fn):
-        raise Exception('Unable to find file ' + fn)
+        raise FileNotFoundError(f"Unable to find file '{fn}'")
     return fn
 
 
