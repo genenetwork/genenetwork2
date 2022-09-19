@@ -68,13 +68,11 @@ class TestGemmaMapping(unittest.TestCase):
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
         ], vals=[], covariates="", use_loco=True)
-        self.assertEqual(mock_os.system.call_count, 2)
         mock_gen_pheno_txt.assert_called_once()
         mock_parse_loco.assert_called_once_with(
             dataset, "GP1_GWA_RRRRRR", True)
         mock_os.path.isfile.assert_called_once_with(
             ('/home/user/imgfile_output.assoc.txt'))
-        self.assertEqual(mock_flat_files.call_count, 4)
         self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
 
     @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
