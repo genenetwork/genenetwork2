@@ -7,7 +7,7 @@ def check_home(url):
     results = requests.get(url)
     doc = document_fromstring(results.text)
     search_button = doc.cssselect("#btsearch")
-    assert(search_button[0].value == "Search")
+    assert("Search" in ''.join(search_button[0].text_content()))
     print("OK")
 
 def check_search_page(host):
