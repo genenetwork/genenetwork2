@@ -183,8 +183,12 @@ def gen_covariates_file(this_dataset, covariates, samples):
 
 def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
 
+    output_filename = f"{TEMPDIR}/gn2/{gwa_output_filename}.json"
+    if os.stat(output_filename).st_size == 0:
+        return {}
+
     output_filelist = []
-    with open(f"{TEMPDIR}/gn2/{gwa_output_filename}.json") as data_file:
+    with open(output_filename) as data_file:
         data = json.load(data_file)
 
     files = data['files']
