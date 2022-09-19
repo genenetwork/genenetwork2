@@ -7,7 +7,7 @@ import json
 from base import webqtlConfig
 from base.trait import create_trait
 from base.data_set import create_dataset
-from utility.tools import flat_files
+from utility.tools import flat_files, assert_file
 from utility.tools import GEMMA_WRAPPER_COMMAND
 from utility.tools import TEMPDIR
 from utility.tools import WEBSERVER_MODE
@@ -55,22 +55,26 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
         if covariates != "":
             covar_filename = gen_covariates_file(this_dataset, covariates, samples)
         if str(use_loco).lower() == "true":
+            bimbam_dir = flat_files('genotype/bimbam')
+            geno_filepath = assert_file(
+                f"{bimbam_dir}/{genofile_name}_geno.txt")
+            pheno_filepath = assert_file(f"{TEMPDIR}/gn2/{pheno_filename}.txt")
+            snps_filepath = assert_file(
+                f"{bimbam_dir}/{genofile_name}_snps.txt")
+            k_json_output_filepath = f"{TEMPDIR}/gn2/{k_output_filename}.json"
             generate_k_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
                                   f"{chr_list_string} -- {GEMMAOPTS} "
-                                  f"-g {flat_files('genotype/bimbam')}/"
-                                  f"{genofile_name}_geno.txt -p "
-                                  f"{TEMPDIR}/gn2/{pheno_filename}.txt -a "
-                                  f"{flat_files('genotype/bimbam')}/"
-                                  f"{genofile_name}_snps.txt -gk > "
-                                  f"{TEMPDIR}/gn2/{k_output_filename}.json")
+                                  f"-g {geno_filepath} -p "
+                                  f"{pheno_filepath} -a "
+                                  f"{snps_filepath} -gk > "
+                                  f"{k_json_output_filepath}")
             os.system(generate_k_command)
 
             gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
-                             f"--input {TEMPDIR}/gn2/{k_output_filename}.json "
+                             f"--input {k_json_output_filepath} "
                              f"-- {GEMMAOPTS} "
-                             f"-g {flat_files('genotype/bimbam')}/"
-                             f"{genofile_name}_geno.txt "
-                             f"-p {TEMPDIR}/gn2/{pheno_filename}.txt ")
+                             f"-g {geno_filepath} "
+                             f"-p {pheno_filepath} ")
             if covariates != "":
                 gemma_command += (f"-c {flat_files('mapping')}/"
                                   f"{covar_filename}.txt "
