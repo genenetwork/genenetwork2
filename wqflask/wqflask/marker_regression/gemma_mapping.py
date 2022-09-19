@@ -58,7 +58,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
             bimbam_dir = flat_files('genotype/bimbam')
             geno_filepath = assert_file(
                 f"{bimbam_dir}/{genofile_name}_geno.txt")
-            pheno_filepath = assert_file(f"{TEMPDIR}/gn2/{pheno_filename}.txt")
+            pheno_filepath = f"{TEMPDIR}/gn2/{pheno_filename}.txt"
             snps_filepath = assert_file(
                 f"{bimbam_dir}/{genofile_name}_snps.txt")
             k_json_output_filepath = f"{TEMPDIR}/gn2/{k_output_filename}.json"

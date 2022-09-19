@@ -1,4 +1,5 @@
 # test for wqflask/marker_regression/gemma_mapping.py
+import os
 import unittest
 import random
 from unittest import mock
@@ -40,7 +41,8 @@ class TestGemmaMapping(unittest.TestCase):
     @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
     @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMAOPTS", "-debug")
     @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMA_WRAPPER_COMMAND", "ghc")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data/")
+    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR",
+                os.path.join(os.path.dirname(__file__), "user/data"))
     @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
     @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
     @mock.patch("wqflask.marker_regression.gemma_mapping.gen_covariates_file")
@@ -64,7 +66,8 @@ class TestGemmaMapping(unittest.TestCase):
         mock_os.path.isfile.return_value = True
         mock_gen_covar.return_value = None
         mock_choice.return_value = "R"
-        mock_flat_files.return_value = "/home/genotype/bimbam"
+        mock_flat_files.return_value = os.path.join(
+            os.path.dirname(__file__), "genotype/bimbam")
         mock_parse_loco.return_value = []
         results = run_gemma(this_trait=trait, this_dataset=dataset, samples=[
         ], vals=[], covariates="", use_loco=True)
