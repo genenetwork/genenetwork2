@@ -9,7 +9,12 @@
     {%if error:%}
     <p>
       The following error was raised<br /><br />
-      &nbsp;&nbsp;&nbsp;&nbsp;{{error.args[0]}}<br /><br />
+      <dl>
+	<dt>Error message</dt>
+	<dd>{{error.args[0]}}</dd>
+	<dt>Error Type</dt>
+	<dd>{{error_type}}</dd>
+      </dl>
     </p>
     <p>
       Please contact Zach Sloan (zachary.a.sloan@gmail.com) or Arthur Centeno

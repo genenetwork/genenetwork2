@@ -46,6 +46,7 @@ from wqflask.external_tools import send_to_webgestalt
 from wqflask.external_tools import send_to_geneweaver
 from wqflask.comparison_bar_chart import comparison_bar_chart
 from wqflask.marker_regression import run_mapping
+from wqflask.marker_regression.exceptions import NoMappingResultsError
 from wqflask.marker_regression import display_mapping_results
 from wqflask.network_graph import network_graph
 from wqflask.correlation.show_corr_results import set_template_vars
@@ -720,10 +721,11 @@ def mapping_results_page():
         try:
             template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
             if template_vars.no_results:
-                rendered_template = render_template("mapping_error.html")
-                return rendered_template
-        except FileNotFoundError as fnfe:
-            rendered_template = render_template("mapping_error.html", error=fnfe)
+                raise NoMappingResultsError(
+                    start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
+        except Exception as exc:
+            rendered_template = render_template(
+                "mapping_error.html", error=exc, error_type=type(exc).__name__)
             return rendered_template
 
         if not template_vars.pair_scan:
