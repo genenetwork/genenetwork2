@@ -722,8 +722,8 @@ def mapping_results_page():
             if template_vars.no_results:
                 rendered_template = render_template("mapping_error.html")
                 return rendered_template
-        except:
-            rendered_template = render_template("mapping_error.html")
+        except FileNotFoundError as fnfe:
+            rendered_template = render_template("mapping_error.html", error=fnfe)
             return rendered_template
 
         if not template_vars.pair_scan:
