@@ -175,7 +175,8 @@ def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
     """fetch textfiles with strain vals if exists"""
 
     with conn.cursor() as cursor:
-        cursor.execute('SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (dataset_name,))
+        cursor.execute(
+            'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (dataset_name,))
         results = cursor.fetchone()
     if results:
         try:
@@ -204,3 +205,57 @@ def read_text_file(sample_dict, file_path):
         _posit, sample_vals = __fetch_id_positions__(
             next(csv_reader)[1:], sample_dict)
         return (sample_vals, [",".join([line[i] for i in _posit]) for line in csv_reader])
+
+
+def write_db_to_textfile(db_name, conn, text_dir=TEXTDIR):
+
+    def __generate_file_name__(db_name):
+        # todo add expiry time and checker
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (db_name,))
+            results = cursor.fetchone()
+            if (results):
+                return f"ProbeSetFreezeId_{results[0]}_{results[1]}"
+
+    def __parse_to_dict__(results):
+        ids = ["ID"]
+        data = {}
+        for (trait, strain, val) in results:
+            if strain not in ids:
+                ids.append(strain)
+            if trait in data:
+                data[trait].append(val)
+            else:
+                data[trait] = [trait, val]
+        return (data, ids)
+
+    def __write_to_file__(file_path, data, col_names):
+        with open(file_path, 'w+', encoding='UTF8') as file_handler:
+
+            writer = csv.writer(file_handler)
+            writer.writerow(col_names)
+            writer.writerows(data.values())
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT ProbeSet.Name,Strain.Name, ProbeSetData.value "
+            "FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, "
+            "ProbeSetXRef) LEFT JOIN ProbeSetSE ON "
+            "(ProbeSetSE.DataId = ProbeSetData.Id AND "
+            "ProbeSetSE.StrainId = ProbeSetData.StrainId) "
+            "LEFT JOIN NStrain ON "
+            "(NStrain.DataId = ProbeSetData.Id AND "
+            "NStrain.StrainId = ProbeSetData.StrainId) "
+            "WHERE ProbeSetXRef.ProbeSetId = ProbeSet.Id "
+            "AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+            "AND ProbeSetFreeze.Name = %s AND "
+            "ProbeSetXRef.DataId = ProbeSetData.Id "
+            "AND ProbeSetData.StrainId = Strain.Id "
+            "ORDER BY Strain.Name",
+            (db_name,))
+        results = cursor.fetchall()
+        file_name = __generate_file_name__(
+            db_name)
+        if (results and file_name):
+            __write_to_file__(os.path.join(text_dir, file_name),
+                              *__parse_to_dict__(results))
