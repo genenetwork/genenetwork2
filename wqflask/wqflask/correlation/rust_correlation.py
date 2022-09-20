@@ -10,6 +10,7 @@ from wqflask.correlation.correlation_gn3_api import lit_for_trait_list
 from wqflask.correlation.correlation_gn3_api import do_lit_correlation
 from wqflask.correlation.pre_computes import fetch_text_file
 from wqflask.correlation.pre_computes import read_text_file
+from wqflask.correlation.pre_computes import write_db_to_textfile
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
 from gn3.computations.rust_correlation import get_sample_corr_data
@@ -195,7 +196,7 @@ def compute_top_n_tissue(this_dataset, this_trait, traits, method):
                                   symbol_dict=get_trait_symbol_and_tissue_values(
                                       symbol_list=[this_trait.symbol]),
                                   dataset_symbols=trait_symbol_dict,
-                                  dataset_vals=corr_result_tissue_vals_dict)    
+                                  dataset_vals=corr_result_tissue_vals_dict)
 
     if data and data[0]:
         return run_correlation(
@@ -237,7 +238,15 @@ def __compute_sample_corr__(
             if file_path:
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
-                return run_correlation(target_data, sample_vals, method, ",", corr_type, n_top)
+                return run_correlation(target_data, sample_vals,
+                                       method, ",", corr_type, n_top)
+            write_db_to_textfile(target_dataset.name, conn)
+            file_path = fetch_text_file(target_dataset.name, conn)
+            if file_path:
+                (sample_vals, target_data) = read_text_file(
+                    sample_data, file_path)
+                return run_correlation(target_data, sample_vals,
+                                       method, ",", corr_type, n_top)
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
@@ -248,7 +257,7 @@ def __compute_sample_corr__(
         target_data.append(r)
 
     if len(target_data) == 0:
-        return  {}
+        return {}
 
     return run_correlation(
         target_data, list(sample_data.values()), method, ",", corr_type,
