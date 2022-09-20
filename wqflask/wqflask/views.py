@@ -34,6 +34,7 @@ from flask import send_file
 
 # Some of these (like collect) might contain endpoints, so they're still used.
 # Blueprints should probably be used instead.
+from wqflask import collect
 from wqflask import search_results
 from wqflask import server_side
 from base.data_set import create_dataset  # Used by YAML in marker_regression
@@ -54,7 +55,6 @@ from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation.rust_correlation import compute_correlation_rust
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
-# from wqflask.wgcna import wgcna_analysis
 from wqflask.ctl.gn3_ctl_analysis import run_ctl
 
 from wqflask.wgcna.gn3_wgcna import run_wgcna
