@@ -122,7 +122,7 @@
             <button class="toggle-vis" data-column="4">Description</button>
             <button class="toggle-vis" data-column="5">Location</button>
             <button class="toggle-vis" data-column="6">Mean</button>
-            <button class="toggle-vis" data-column="7">Peak LOD</button>
+            <button class="toggle-vis" data-column="7">Peak -logP</button>
             <button class="toggle-vis" data-column="8">Peak Location</button>
             <button class="toggle-vis" data-column="9">Effect Size</button>
             {% elif dataset.type == 'Publish' %}
@@ -130,7 +130,7 @@
             <button class="toggle-vis" data-column="4">Mean</button>
             <button class="toggle-vis" data-column="5">Authors</button>
             <button class="toggle-vis" data-column="6">Year</button>
-            <button class="toggle-vis" data-column="7">Peak LOD</button>
+            <button class="toggle-vis" data-column="7">Peak -logP</button>
             <button class="toggle-vis" data-column="8">Peak Location</button>
             <button class="toggle-vis" data-column="9">Effect Size</button>
             {% endif %}
@@ -259,7 +259,7 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>LOD <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
+              'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>-logP <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'data': "lod_score",
               'width': "60px",
@@ -344,7 +344,7 @@
               'orderSequence': [ "desc", "asc"]
             },
             {
-              'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>LOD <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
+              'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>-logP <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'data': "lod_score",
               'targets': 7,

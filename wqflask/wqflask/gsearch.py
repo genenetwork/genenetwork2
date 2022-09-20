@@ -99,7 +99,7 @@ class GSearch:
                 this_trait['mean'] = "N/A"
 
                 if line[11] != "" and line[11] != None:
-                    this_trait['LRS_score_repr'] = f"{line[11]:.3f}"
+                    this_trait['LRS_score_repr'] = f"{float(line[11]) / 4.61:.1f}"
                 if line[14] != "" and line[14] != None:
                     this_trait['additive'] = f"{line[14]:.3f}"
                 if line[10] != "" and line[10] != None:
@@ -147,8 +147,8 @@ class GSearch:
                                   'Description',
                                   'Location',
                                   'Mean',
-                                  'Max LRS',
-                                  'Max LRS Location',
+                                  '-logP',
+                                  '-logP Location',
                                   'Additive Effect']
 
             self.header_data_names = [
@@ -241,7 +241,7 @@ class GSearch:
                 trait_dict['mean'] = "N/A"
 
                 if line[10] != "" and line[10] != None:
-                    trait_dict['LRS_score_repr'] = f"{line[10]:.3f}"
+                    trait_dict['LRS_score_repr'] = f"{float(line[10]) / 4.61:.1f}"
                     # Some Max LRS values in the DB are wrongly listed as 0.000, but shouldn't be displayed
                     if trait_dict['LRS_score_repr'] == "0.000":
                         trait_dict['LRS_score_repr'] = "N/A"
