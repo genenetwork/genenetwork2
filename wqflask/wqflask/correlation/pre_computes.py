@@ -171,7 +171,7 @@ def get_datasets_data(base_dataset, target_dataset_data):
     return (target_results, base_results)
 
 
-def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
+def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
     """fetch textfiles with strain vals if exists"""
 
     with conn.cursor() as cursor:
@@ -207,7 +207,7 @@ def read_text_file(sample_dict, file_path):
         return (sample_vals, [",".join([line[i] for i in _posit]) for line in csv_reader])
 
 
-def write_db_to_textfile(db_name, conn, text_dir=TEXTDIR):
+def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
 
     def __generate_file_name__(db_name):
         # todo add expiry time and checker
