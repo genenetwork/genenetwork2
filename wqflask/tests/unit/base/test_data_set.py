@@ -154,7 +154,7 @@ class TestDataSetTypes(unittest.TestCase):
                              ("All Phenotypes"), "Publish")
             redis_mock.get.assert_called_once_with("dataset_structure")
 
-    @mock.patch('base.data_set.requests.get')
+    @mock.patch('base.data_set.datasettype.requests.get')
     def test_data_set_type_with_empty_redis(self, request_mock):
         """Test that DatasetType returns correctly if the Redis Instance is empty and
         the name variable exists in the dictionary
