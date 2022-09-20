@@ -31,18 +31,13 @@ DS_NAME_MAP = {
     "ProbeSet": "MrnaAssayDataSet"
 }
 
-# Do the intensive work at startup one time only
-# TODO: Pass in the Redis conniction from elsewhere to allow fo flexible
-#       configuration
-Dataset_Getter = DatasetType(Redis())
-
 def create_dataset(dataset_name, dataset_type=None,
-                   get_samplelist=True, group_name=None):
+                   get_samplelist=True, group_name=None, redis_conn=Redis()):
     if dataset_name == "Temp":
         dataset_type = "Temp"
 
     if not dataset_type:
-        dataset_type = Dataset_Getter(dataset_name)
+        dataset_type = DatasetType(redis_conn)(dataset_name)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
