@@ -40,7 +40,7 @@ class GSearch:
                     "AS probeset_description, ProbeSet.Chr AS chr, "
                     "ProbeSet.Mb AS mb, ProbeSetXRef.Mean AS mean, "
                     "ProbeSetXRef.LRS AS lrs, ProbeSetXRef.`Locus` "
-                    "AS locus, ProbeSetXRef.`pValue` AS , "
+                    "AS locus, ProbeSetXRef.`pValue` AS pvalue, "
                     "ProbeSetXRef.`additive` AS additive, "
                     "ProbeSetFreeze.Id AS probesetfreeze_id, "
                     "Geno.Chr as geno_chr, Geno.Mb as geno_mb "
