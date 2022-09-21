@@ -5,6 +5,7 @@ import json
 
 
 from base import webqtlConfig
+from .markers import Markers, HumanMarkers
 from utility import webqtlUtil
 from utility import gen_geno_ob
 from db import webqtlDatabaseFunction

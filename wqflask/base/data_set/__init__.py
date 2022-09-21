@@ -15,7 +15,6 @@ from .datasettype import DatasetType
 from .tempdataset import TempDataSet
 from .datasetgroup import DatasetGroup
 from .utils import query_table_timestamp
-from .markers import Markers, HumanMarkers
 from .genotypedataset import GenotypeDataSet
 from .phenotypedataset import PhenotypeDataSet
 from .mrnaassaydataset import MrnaAssayDataSet
