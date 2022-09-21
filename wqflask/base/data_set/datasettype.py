@@ -1,11 +1,8 @@
-# builtins imports
+"DatasetType class ..."
 
 import json
 import requests
-from dataclasses import field
-from dataclasses import InitVar
 from typing import Optional, Dict
-from dataclasses import dataclass
 
 
 from redis import Redis
@@ -14,7 +11,7 @@ from redis import Redis
 from utility.tools import GN2_BASE_URL
 from wqflask.database import database_connection
 
-@dataclass
+
 class DatasetType:
     """Create a dictionary of samples where the value is set to Geno,
     Publish or ProbeSet. E.g.
@@ -30,13 +27,13 @@ class DatasetType:
          'B139_K_1206_R': 'ProbeSet' ...
         }
         """
-    redis_instance: InitVar[Redis]
-    datasets: Optional[Dict] = field(init=False, default_factory=dict)
-    data: Optional[Dict] = field(init=False)
 
-    def __post_init__(self, redis_instance):
-        self.redis_instance = redis_instance
-        data = redis_instance.get("dataset_structure")
+    def __init__(self, redis_conn):
+        "Initialise the object"
+        self.datasets = {}
+        self.data = {}
+        # self.redis_instance = redis_instance
+        data = redis_conn.get("dataset_structure")
         if data:
             self.datasets = json.loads(data)
         else:
@@ -61,11 +58,10 @@ class DatasetType:
             except Exception:  # Do nothing
                 pass
 
-            self.redis_instance.set("dataset_structure",
-                                    json.dumps(self.datasets))
+            redis_conn.set("dataset_structure", json.dumps(self.datasets))
         self.data = data
 
-    def set_dataset_key(self, t, name):
+    def set_dataset_key(self, t, name, redis_conn, db_cursor):
         """If name is not in the object's dataset dictionary, set it, and
         update dataset_structure in Redis
         args:
@@ -102,21 +98,20 @@ class DatasetType:
         if t in ['pheno', 'other_pheno']:
             group_name = name.replace("Publish", "")
 
-        with database_connection() as conn, conn.cursor() as cursor:
-            cursor.execute(sql_query_mapping[t], (group_name,))
-            if cursor.fetchone():
-                self.datasets[name] = dataset_name_mapping[t]
-                self.redis_instance.set(
-                    "dataset_structure", json.dumps(self.datasets))
-                return True
+        db_cursor.execute(sql_query_mapping[t], (group_name,))
+        if db_cursor.fetchone():
+            self.datasets[name] = dataset_name_mapping[t]
+            redis_conn.set(
+                "dataset_structure", json.dumps(self.datasets))
+            return True
 
 
-    def __call__(self, name):
+    def __call__(self, name, redis_conn, db_cursor):
         if name not in self.datasets:
             for t in ["mrna_expr", "pheno", "other_pheno", "geno"]:
                 # This has side-effects, with the end result being a
                 # truth-y value
-                if(self.set_dataset_key(t, name)):
+                if(self.set_dataset_key(t, name, redis_conn, db_cursor)):
                     break
         # Return None if name has not been set
         return self.datasets.get(name, None)

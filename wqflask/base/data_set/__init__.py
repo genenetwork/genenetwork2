@@ -37,7 +37,9 @@ def create_dataset(dataset_name, dataset_type=None,
         dataset_type = "Temp"
 
     if not dataset_type:
-        dataset_type = DatasetType(redis_conn)(dataset_name)
+        with database_connection() as db_conn, db_conn.cursor() as cursor:
+            dataset_type = DatasetType(redis_conn)(
+                dataset_name, redis_conn, cursor)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
