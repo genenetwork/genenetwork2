@@ -93,7 +93,8 @@
                 'type': "natural",
                 'width': "30px",
                 'targets': 1,
-                'data': "index"
+                'data': "index",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Record",
@@ -111,35 +112,40 @@
                 'type': "natural",
                 'width': "60px",
                 'targets': 3,
-                'data': "species"
+                'data': "species",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Group",
                 'type': "natural",
                 'width': "150px",
                 'targets': 4,
-                'data': "group"
+                'data': "group",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Tissue",
                 'type': "natural",
                 'width': "150px",
                 'targets': 5,
-                'data': "tissue"
+                'data': "tissue",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Dataset",
                 'type': "natural",
                 'targets': 6,
                 'width': "320px",
-                'data': "dataset_fullname"
+                'data': "dataset_fullname",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Symbol",
                 'type': "natural",
                 'width': "60px",
                 'targets': 7,
-                'data': "symbol"
+                'data': "symbol",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Description",
@@ -160,7 +166,8 @@
                 'type': "natural-minus-na",
                 'width': "125px",
                 'targets': 9,
-                'data': "location_repr"
+                'data': "location_repr",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Mean",
@@ -168,7 +175,8 @@
                 'orderSequence': [ "desc", "asc"],
                 'width': "30px",
                 'targets': 10,
-                'data': "mean"
+                'data': "mean",
+                'defaultContent': "N/A"
               },
               {
                 'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>-logP <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a></div>",
@@ -176,6 +184,7 @@
                 'width': "60px",
                 'targets': 11,
                 'data': "LRS_score_repr",
+                'defaultContent': "N/A",
                 'orderSequence': [ "desc", "asc"]
               },
               {
@@ -183,7 +192,8 @@
                 'type': "natural-minus-na",
                 'width': "125px",
                 'targets': 12,
-                'data': "max_lrs_text"
+                'data': "max_lrs_text",
+                'defaultContent': "N/A"
               },
               {
                 'title': "Additive<br>Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
@@ -191,6 +201,7 @@
                 'width': "50px",
                 'targets': 13,
                 'data': "additive",
+                'defaultContent': "N/A",
                 'orderSequence': [ "desc", "asc"]
               }
             ]

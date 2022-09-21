@@ -93,21 +93,24 @@
               'type': "natural",
               'width': "30px",
               'targets': 1,
-              'data': "index"
+              'data': "index",
+              'defaultContent': "N/A"
             },
             {
               'title': "Species",
               'type': "natural",
               'width': "60px",
               'targets': 2,
-              'data': "species"
+              'data': "species",
+              'defaultContent': "N/A"
             },
             {
               'title': "Group",
               'type': "natural",
               'width': "100px",
               'targets': 3,
-              'data': "group"
+              'data': "group",
+              'defaultContent': "N/A"
             },
             {
               'title': "Record",
@@ -139,14 +142,16 @@
               'type': "natural-minus-na",
               'width': "30px",
               'targets': 6,
-              'data': "mean"
+              'data': "mean",
+              'defaultContent': "N/A"
             },
             {
               'title': "Authors",
               'type': "natural",
               'width': "300px",
               'targets': 7,
-              'data': "authors_display"
+              'data': "authors_display",
+              'defaultContent': "N/A"
             },
             {
               'title': "Year",
@@ -156,7 +161,7 @@
               'width': "25px",
               'targets': 8,
               'render': function(data) {
-                if (data.pubmed_id != "N/A"){
+                if ("pubmed_id" in data){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
                 } else {
                   return data.pubmed_text
@@ -168,6 +173,7 @@
               'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>-logP <a href=\"{{ url_for('glossary_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a></div>",
               'type': "natural-minus-na",
               'data': "LRS_score_repr",
+              'defaultContent': "N/A",
               'width': "60px",
               'targets': 9,
               'orderSequence': [ "desc", "asc"]
@@ -177,12 +183,14 @@
               'type': "natural-minus-na",
               'width': "125px",
               'targets': 10,
-              'data': "max_lrs_text"
+              'data': "max_lrs_text",
+              'defaultContent': "N/A"
             },
             {
               'title': "Additive Effect<a href=\"{{ url_for('glossary_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup>?</sup></a>",
               'type': "natural-minus-na",
               'data': "additive",
+              'defaultContent': "N/A",
               'width': "60px",
               'targets': 11,
               'orderSequence': [ "desc", "asc"]
