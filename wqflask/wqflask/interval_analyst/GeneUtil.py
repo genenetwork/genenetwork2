@@ -70,7 +70,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                     cursor.execute(
                         f"SELECT {', '.join(fetchFields)} FROM GeneList WHERE "
                         "SpeciesId = %s AND "
-                        "geneSymbol= '%s' LIMIT 1",
+                        "geneSymbol= %s LIMIT 1",
                         (othSpecId,
                          newdict["GeneSymbol"]))
                     resultsOther = cursor.fetchone()
