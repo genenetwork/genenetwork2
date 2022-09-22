@@ -82,20 +82,19 @@ class ShowTrait:
             if not blatsequence:
                 # XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 seqs = ()
-                with database_connection() as conn, conn.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT Probe.Sequence, Probe.Name "
-                        "FROM Probe, ProbeSet, ProbeSetFreeze, "
-                        "ProbeSetXRef WHERE "
-                        "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
-                        "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
-                        "ProbeSetFreeze.Name = %s AND "
-                        "ProbeSet.Name = %s AND "
-                        "Probe.ProbeSetId = ProbeSet.Id ORDER "
-                        "BY Probe.SerialOrder",
-                        (self.this_trait.dataset.name, self.this_trait.name,)
-                    )
-                    seqs = cursor.fetchall()
+                db_cursor.execute(
+                    "SELECT Probe.Sequence, Probe.Name "
+                    "FROM Probe, ProbeSet, ProbeSetFreeze, "
+                    "ProbeSetXRef WHERE "
+                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                    "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                    "ProbeSetFreeze.Name = %s AND "
+                    "ProbeSet.Name = %s AND "
+                    "Probe.ProbeSetId = ProbeSet.Id ORDER "
+                    "BY Probe.SerialOrder",
+                    (self.this_trait.dataset.name, self.this_trait.name,)
+                )
+                seqs = db_cursor.fetchall()
                 if not seqs:
                     raise ValueError
                 else:
@@ -109,19 +108,18 @@ class ShowTrait:
 
             # XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
             seqs = ()
-            with database_connection() as conn, conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT Probe.Sequence, Probe.Name "
-                    "FROM Probe, ProbeSet, ProbeSetFreeze, "
-                    "ProbeSetXRef WHERE "
-                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
-                    "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
-                    "ProbeSetFreeze.Name = %s AND ProbeSet.Name = %s "
-                    "AND Probe.ProbeSetId = ProbeSet.Id "
-                    "ORDER BY Probe.SerialOrder",
-                    (self.this_trait.dataset.name, self.this_trait.name,)
-                )
-                seqs = cursor.fetchall()
+            db_cursor.execute(
+                "SELECT Probe.Sequence, Probe.Name "
+                "FROM Probe, ProbeSet, ProbeSetFreeze, "
+                "ProbeSetXRef WHERE "
+                "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                "ProbeSetFreeze.Name = %s AND ProbeSet.Name = %s "
+                "AND Probe.ProbeSetId = ProbeSet.Id "
+                "ORDER BY Probe.SerialOrder",
+                (self.this_trait.dataset.name, self.this_trait.name,)
+            )
+            seqs = db_cursor.fetchall()
             for seqt in seqs:
                 if int(seqt[1][-1]) % 2 == 1:
                     blatsequence += '%3EProbe_' + \
