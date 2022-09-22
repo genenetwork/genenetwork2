@@ -36,7 +36,7 @@ ONE_YEAR = 60 * 60 * 24 * 365
 
 
 class ShowTrait:
-    def __init__(self, user_id, kw):
+    def __init__(self, db_cursor, user_id, kw):
         self.admin_status = None
         if 'trait_id' in kw and kw['dataset'] != "Temp":
             self.temp_trait = False
@@ -197,9 +197,9 @@ class ShowTrait:
 
         # ZS: Get list of chromosomes to select for mapping
         self.chr_list = [["All", -1]]
-        for i, this_chr in enumerate(self.dataset.species.chromosomes.chromosomes):
+        for i, this_chr in enumerate(self.dataset.species.chromosomes.chromosomes(db_cursor)):
             self.chr_list.append(
-                [self.dataset.species.chromosomes.chromosomes[this_chr].name, i])
+                [self.dataset.species.chromosomes.chromosomes(db_cursor)[this_chr].name, i])
 
         self.genofiles = self.dataset.group.get_genofiles()
         study_samplelist_json = self.dataset.group.get_study_samplelists()

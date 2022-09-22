@@ -45,7 +45,7 @@ class DataSet:
             self.accession_id = self.get_accession_id()
         if get_samplelist == True:
             self.group.get_samplelist(redis_conn)
-        self.species = species.TheSpecies(self)
+        self.species = species.TheSpecies(dataset=self)
 
     def as_dict(self):
         return {

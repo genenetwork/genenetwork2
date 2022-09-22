@@ -9,7 +9,7 @@ from wqflask.database import database_connection
 
 class SnpBrowser:
 
-    def __init__(self, start_vars):
+    def __init__(self, db_cursor, start_vars):
         self.strain_lists = get_browser_sample_lists()
         self.initialize_parameters(start_vars)
 
@@ -30,7 +30,7 @@ class SnpBrowser:
                 self.header_fields, self.empty_field_count, self.header_data_names = get_header_list(
                     variant_type=self.variant_type, strains=self.strain_lists, species=self.species_name, empty_columns=self.empty_columns)
 
-    def initialize_parameters(self, start_vars):
+    def initialize_parameters(self, db_cursor, start_vars):
         if 'first_run' in start_vars:
             self.first_run = "false"
         else:
@@ -51,13 +51,13 @@ class SnpBrowser:
         self.mouse_chr_list = []
         self.rat_chr_list = []
         mouse_species_ob = species.TheSpecies(species_name="Mouse")
-        for key in mouse_species_ob.chromosomes.chromosomes:
+        for key in mouse_species_ob.chromosomes.chromosomes(db_cursor):
             self.mouse_chr_list.append(
                 mouse_species_ob.chromosomes.chromosomes[key].name)
         rat_species_ob = species.TheSpecies(species_name="Rat")
-        for key in rat_species_ob.chromosomes.chromosomes:
+        for key in rat_species_ob.chromosomes.chromosomes(db_cursor):
             self.rat_chr_list.append(
-                rat_species_ob.chromosomes.chromosomes[key].name)
+                rat_species_ob.chromosomes.chromosomes(db_cursor)[key].name)
 
         if self.species_id == 1:
             self.this_chr_list = self.mouse_chr_list

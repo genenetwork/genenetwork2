@@ -80,6 +80,8 @@ from utility.redis_tools import get_redis_conn
 
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 
+from wqflask.database import database_connection
+
 
 Redis = get_redis_conn()
 
@@ -452,26 +454,30 @@ def export_perm_data():
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
-    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-               or g.user_session.record.get("user_id") or "")
-    template_vars = show_trait.ShowTrait(user_id=user_id,
-                                         kw=request.form)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
-    return render_template("show_trait.html", **template_vars.__dict__)
+    with database_connection() as conn, conn.cursor() as cursor:
+        user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+                   or g.user_session.record.get("user_id") or "")
+        template_vars = show_trait.ShowTrait(cursor,
+                                             user_id=user_id,
+                                             kw=request.form)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+        return render_template("show_trait.html", **template_vars.__dict__)
 
 
 @app.route("/show_trait")
 def show_trait_page():
-    user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-               or g.user_session.record.get("user_id") or "")
-    template_vars = show_trait.ShowTrait(user_id=user_id,
-                                         kw=request.args)
-    template_vars.js_data = json.dumps(template_vars.js_data,
-                                       default=json_default_handler,
-                                       indent="   ")
-    return render_template("show_trait.html", **template_vars.__dict__)
+    with database_connection() as conn, conn.cursor() as cursor:
+        user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+                   or g.user_session.record.get("user_id") or "")
+        template_vars = show_trait.ShowTrait(cursor,
+                                             user_id=user_id,
+                                             kw=request.args)
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+        return render_template("show_trait.html", **template_vars.__dict__)
 
 
 @app.route("/heatmap", methods=('POST',))
@@ -480,31 +486,32 @@ def heatmap_page():
     temp_uuid = uuid.uuid4()
 
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-    if traits[0] != "":
-        version = "v5"
-        key = "heatmap:{}:".format(
-            version) + json.dumps(start_vars, sort_keys=True)
-        result = Redis.get(key)
+    with database_connection() as conn, conn.cursor() as cursor:
+        if traits[0] != "":
+            version = "v5"
+            key = "heatmap:{}:".format(
+                version) + json.dumps(start_vars, sort_keys=True)
+            result = Redis.get(key)
 
-        if result:
-            result = pickle.loads(result)
+            if result:
+                result = pickle.loads(result)
+
+            else:
+                template_vars = heatmap.Heatmap(cursor, request.form, temp_uuid)
+                template_vars.js_data = json.dumps(template_vars.js_data,
+                                                   default=json_default_handler,
+                                                   indent="   ")
+
+                result = template_vars.__dict__
+
+                pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+                Redis.set(key, pickled_result)
+                Redis.expire(key, 60 * 60)
+            rendered_template = render_template("heatmap.html", **result)
 
         else:
-            template_vars = heatmap.Heatmap(request.form, temp_uuid)
-            template_vars.js_data = json.dumps(template_vars.js_data,
-                                               default=json_default_handler,
-                                               indent="   ")
-
-            result = template_vars.__dict__
-
-            pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-            Redis.set(key, pickled_result)
-            Redis.expire(key, 60 * 60)
-        rendered_template = render_template("heatmap.html", **result)
-
-    else:
-        rendered_template = render_template(
-            "empty_collection.html", **{'tool': 'Heatmap'})
+            rendered_template = render_template(
+                "empty_collection.html", **{'tool': 'Heatmap'})
 
     return rendered_template
 
@@ -856,9 +863,9 @@ def corr_scatter_plot_page():
 
 @app.route("/snp_browser", methods=('GET',))
 def snp_browser_page():
-    template_vars = snp_browser.SnpBrowser(request.args)
-
-    return render_template("snp_browser.html", **template_vars.__dict__)
+    with database_connection() as conn, conn.cursor() as cursor:
+        template_vars = snp_browser.SnpBrowser(cursor, request.args)
+        return render_template("snp_browser.html", **template_vars.__dict__)
 
 
 @app.route("/db_info", methods=('GET',))
@@ -870,15 +877,16 @@ def db_info_page():
 
 @app.route("/snp_browser_table", methods=('GET',))
 def snp_browser_table():
-    snp_table_data = snp_browser.SnpBrowser(request.args)
-    current_page = server_side.ServerSideTable(
-        snp_table_data.rows_count,
-        snp_table_data.table_rows,
-        snp_table_data.header_data_names,
-        request.args,
-    ).get_page()
+    with database_connection() as conn, conn.cursor() as cursor:
+        snp_table_data = snp_browser.SnpBrowser(cursor, request.args)
+        current_page = server_side.ServerSideTable(
+            snp_table_data.rows_count,
+            snp_table_data.table_rows,
+            snp_table_data.header_data_names,
+            request.args,
+        ).get_page()
 
-    return flask.jsonify(current_page)
+        return flask.jsonify(current_page)
 
 
 @app.route("/tutorial/WebQTLTour", methods=('GET',))

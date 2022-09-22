@@ -9,12 +9,14 @@ from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 from redis import Redis
 from flask import Flask, g
 
+from wqflask.database import database_connection
+
 Redis = Redis()
 
 
 class Heatmap:
 
-    def __init__(self, start_vars, temp_uuid):
+    def __init__(self, db_cursor, start_vars, temp_uuid):
         trait_db_list = [trait.strip()
                          for trait in start_vars['trait_list'].split(',')]
         helper_functions.get_trait_db_obs(self, trait_db_list)
@@ -30,7 +32,8 @@ class Heatmap:
 
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
-        for key in list(self.species.chromosomes.chromosomes.keys()):
+
+        for key in list(self.species.chromosomes(db_cursor).chromosomes.keys()):
             chrnames.append([self.species.chromosomes.chromosomes[key].name,
                              self.species.chromosomes.chromosomes[key].mb_length])
 
