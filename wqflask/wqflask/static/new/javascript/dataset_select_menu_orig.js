@@ -290,4 +290,3 @@ check_search_term = function() {
 };
 
 $("#make_default").click(make_default);
-$("#btsearch").click(check_search_term);
