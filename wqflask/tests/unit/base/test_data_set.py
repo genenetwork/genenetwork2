@@ -149,9 +149,10 @@ class TestDataSetTypes(unittest.TestCase):
         """
         with app.app_context():
             redis_mock = mock.Mock()
+            cursor_mock = mock.Mock()
             redis_mock.get.return_value = self.test_dataset
             self.assertEqual(DatasetType(redis_mock)
-                             ("All Phenotypes"), "Publish")
+                             ("All Phenotypes", redis_mock, cursor_mock), "Publish")
             redis_mock.get.assert_called_once_with("dataset_structure")
 
     @mock.patch('base.data_set.datasettype.requests.get')
@@ -163,11 +164,15 @@ class TestDataSetTypes(unittest.TestCase):
         with app.app_context():
             request_mock.return_value.content = GEN_MENU_JSON
             redis_mock = mock.Mock()
+            cursor_mock = mock.Mock()
             redis_mock.get.return_value = None
             data_set = DatasetType(redis_mock)
-            self.assertEqual(data_set("BXDGeno"), "Geno")
-            self.assertEqual(data_set("BXDPublish"), "Publish")
-            self.assertEqual(data_set("HLC_0311"), "ProbeSet")
+            self.assertEqual(data_set("BXDGeno", redis_mock, cursor_mock),
+                             "Geno")
+            self.assertEqual(data_set("BXDPublish", redis_mock, cursor_mock),
+                             "Publish")
+            self.assertEqual(data_set("HLC_0311", redis_mock, cursor_mock),
+                             "ProbeSet")
 
             redis_mock.set.assert_called_once_with(
                 "dataset_structure",
