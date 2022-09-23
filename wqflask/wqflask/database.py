@@ -23,13 +23,13 @@ def read_from_pyfile(pyfile: str, setting: str) -> Any:
     return module.__dict__.get(setting)
 
 
-def sql_uri() -> str:
-    """Read the SQL_URI from the environment or settings file."""
+def get_setting(setting: str) -> str:
+    """Read setting from the environment or settings file."""
     return os.environ.get(
-        "SQL_URI", read_from_pyfile(
+        setting, read_from_pyfile(
             os.environ.get(
                 "GN2_SETTINGS", os.path.abspath("../etc/default_settings.py")),
-            "SQL_URI"))
+            setting))
 
 
 def parse_db_url(sql_uri: str) -> Tuple:
@@ -51,7 +51,7 @@ def database_connection() -> Iterator[Connection]:
     rolled back.
 
     """
-    host, user, passwd, db_name, port = parse_db_url(sql_uri())
+    host, user, passwd, db_name, port = parse_db_url(get_setting("SQL_URI"))
     connection = MySQLdb.connect(
         db=db_name, user=user, passwd=passwd or '', host=host,
         port=(port or 3306), autocommit=False  # Required for roll-backs
