@@ -319,7 +319,7 @@ def jsonable(trait, dataset=None):
         if trait.pubmed_id:
             return dict(name=trait.name,
                         display_name=trait.display_name,
-                        hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
+                        hmac=hmac.data_hmac('{}:{}'.format(trait.name, dataset.name)),
                         view=str(trait.view),
                         symbol=trait_symbol,
                         dataset=dataset.name,
@@ -338,7 +338,7 @@ def jsonable(trait, dataset=None):
         else:
             return dict(name=trait.name,
                         display_name=trait.display_name,
-                        hmac=hmac.data_hmac('{}:{}'.format(trait.display_name, dataset.name)),
+                        hmac=hmac.data_hmac('{}:{}'.format(trait.name, dataset.name)),
                         view=str(trait.view),
                         symbol=trait_symbol,
                         dataset=dataset.name,
