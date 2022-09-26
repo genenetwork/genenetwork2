@@ -776,6 +776,13 @@ def get_mapping_results():
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
+@app.route("/api/v_{}/genotypes/view/<string:group_name>".format(version))
+def view_genotype_files(group_name):
+    if os.path.isfile("{0}/{1}.json".format(flat_files("genotype"), group_name)):
+        with open("{0}/{1}.json".format(flat_files("genotype"), group_name)) as geno_json:
+            return flask.jsonify(json.load(geno_json))
+
+
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>.zip".format(version))
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>".format(version))
 @app.route("/api/v_{}/genotypes/<string:file_format>/<string:group_name>.zip".format(version))
