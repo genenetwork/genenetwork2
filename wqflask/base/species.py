@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional, Union
 from collections import OrderedDict
 
-from wqflask.database import database_connection
-
 
 class TheSpecies:
     """Data related to species."""
