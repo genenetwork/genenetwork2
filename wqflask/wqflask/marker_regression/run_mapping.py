@@ -30,6 +30,7 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil, helper_functions, hmac, Plot, Bunch, temp_data
+from wqflask.database import database_connection
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from wqflask.show_trait.SampleList import SampleList
 
@@ -658,12 +659,13 @@ def geno_db_exists(this_dataset):
 def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
     chr_lengths = []
     if mapping_scale == "physic":
-        for i, the_chr in enumerate(dataset.species.chromosomes.chromosomes):
-            this_chr = {
-                "chr": dataset.species.chromosomes.chromosomes[the_chr].name,
-                "size": str(dataset.species.chromosomes.chromosomes[the_chr].length)
-            }
-            chr_lengths.append(this_chr)
+        with database_connection() as conn, conn.cursor() as db_cursor:
+            for i, the_chr in enumerate(dataset.species.chromosomes.chromosomes(db_cursor)):
+                this_chr = {
+                    "chr": dataset.species.chromosomes.chromosomes(db_cursor)[the_chr].name,
+                    "size": str(dataset.species.chromosomes.chromosomes(db_cursor)[the_chr].length)
+                }
+                chr_lengths.append(this_chr)
     else:
         this_chr = 1
         highest_pos = 0

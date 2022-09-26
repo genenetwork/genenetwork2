@@ -11,6 +11,7 @@ from utility.tools import flat_files, assert_file
 from utility.tools import GEMMA_WRAPPER_COMMAND
 from utility.tools import TEMPDIR
 from utility.tools import WEBSERVER_MODE
+from wqflask.database import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 
 
@@ -47,9 +48,11 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
         gwa_output_filename = (f"{this_dataset.group.name}_GWA_"
                                f"{generate_random_n_string(6)}")
 
-        this_chromosomes = this_dataset.species.chromosomes.chromosomes
-        this_chromosomes_name = [this_chromosomes[chromosome].name
-                                 for chromosome in this_chromosomes]
+
+        this_chromosomes_name = []
+        with database_connection() as conn, conn.cursor() as db_cursor:
+            for this_chr in this_dataset.species.chromosomes.chromosomes(db_cursor):
+                this_chromosomes_name.append(this_dataset.species.chromosomes.chromosomes(db_cursor)[this_chr].name)
 
         chr_list_string = ",".join(this_chromosomes_name)
         if covariates != "":

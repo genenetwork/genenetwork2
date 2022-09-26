@@ -33,9 +33,10 @@ class Heatmap:
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
 
-        for key in list(self.species.chromosomes(db_cursor).chromosomes.keys()):
-            chrnames.append([self.species.chromosomes.chromosomes[key].name,
-                             self.species.chromosomes.chromosomes[key].mb_length])
+        with database_connection() as conn, conn.cursor() as db_cursor:
+            for this_chr in self.species.chromosomes.chromosomes(db_cursor):
+                chrnames.append([self.species.chromosomes.chromosomes(db_cursor)[this_chr].name,
+                                self.species.chromosomes.chromosomes(db_cursor)[this_chr].mb_length])
 
         for trait_db in self.trait_list:
 
