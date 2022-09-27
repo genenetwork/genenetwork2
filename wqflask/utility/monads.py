@@ -74,8 +74,8 @@ class MonadicDict(UserDict):
         converted to monadic values.
         """
         if convert:
-            super().__init__({key:(Nothing if value is None else Just(value))
-                              for key, value in d.items()})
+            super().__init__({key:Just(value) for key, value in d.items()
+                              if value is not None})
         else:
             super().__init__(d)
     def __getitem__(self, key):
