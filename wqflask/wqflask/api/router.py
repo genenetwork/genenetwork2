@@ -47,8 +47,8 @@ def get_species_list():
             "Name": species[1],
             "FullName": species[2],
             "TaxonomyId": species[3]
-        }
-        species_list.append(species_dict)
+            }
+            species_list.append(species_dict)
     return flask.jsonify(species_list)
 
 
