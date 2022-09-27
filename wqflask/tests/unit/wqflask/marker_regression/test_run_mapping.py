@@ -45,7 +45,7 @@ class TestRunMapping(unittest.TestCase):
         self.dataset = AttributeSetter(
             {"fullname": "dataset_1", "group": self.group, "type": "ProbeSet"})
 
-        self.chromosomes = AttributeSetter({"chromosomes": chromosomes})
+        self.chromosomes = AttributeSetter({"chromosomes": lambda cur: chromosomes})
         self.trait = AttributeSetter(
             {"symbol": "IGFI", "chr": "X1", "mb": 123313, "display_name": "Test Name"})
 
@@ -251,12 +251,13 @@ class TestRunMapping(unittest.TestCase):
 
     def test_get_chr_length(self):
         """test for getting chromosome length"""
+        cursor = mock.MagicMock()
         chromosomes = AttributeSetter({"chromosomes": self.chromosomes})
         dataset = AttributeSetter({"species": chromosomes})
         results = get_chr_lengths(
             mapping_scale="physic", mapping_method="reaper", dataset=dataset, qtl_results=[])
         chr_lengths = []
-        for key, chromo in self.chromosomes.chromosomes.items():
+        for key, chromo in self.chromosomes.chromosomes(cursor).items():
             chr_lengths.append({"chr": chromo.name, "size": chromo.length})
 
         self.assertEqual(chr_lengths, results)
