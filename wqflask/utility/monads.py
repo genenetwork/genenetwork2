@@ -66,8 +66,7 @@ class MonadicDict(UserDict):
     {}
     """
     def __init__(self, d={}, convert=True):
-        """
-        Initialize monadic dictionary.
+        """Initialize monadic dictionary.
 
         If convert is False, values in dictionary d must be
         monadic. If convert is True, values in dictionary d are
@@ -79,8 +78,7 @@ class MonadicDict(UserDict):
         else:
             super().__init__(d)
     def __getitem__(self, key):
-        """
-        Get key from dictionary.
+        """Get key from dictionary.
 
         If key exists in the dictionary, return a Just value. Else,
         return Nothing.
@@ -90,8 +88,7 @@ class MonadicDict(UserDict):
         except KeyError:
             return Nothing
     def __setitem__(self, key, value):
-        """
-        Set key in dictionary.
+        """Set key in dictionary.
 
         value must be a monadic value---either Nothing or a Just
         value. If value is a Just value, set it in the dictionary. If
@@ -99,8 +96,7 @@ class MonadicDict(UserDict):
         """
         value.bind(partial(super().__setitem__, key))
     def __delitem__(self, key):
-        """
-        Delete key from dictionary.
+        """Delete key from dictionary.
 
         If key exists in the dictionary, delete it. Else, do nothing.
         """
@@ -110,8 +106,7 @@ class MonadicDict(UserDict):
             pass
 
 class MonadicDictCursor(DictCursor):
-    """
-    Monadic version of MySQLdb.cursors.DictCursor.
+    """Monadic version of MySQLdb.cursors.DictCursor.
 
     Monadic version of MySQLdb.cursors.DictCursor that returns a
     MonadicDict instead of the built-in dictionary.
