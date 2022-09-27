@@ -68,8 +68,10 @@ def xapian_database():
     """Open xapian database read-only."""
     # pylint: disable-next=invalid-name
     db = xapian.Database(get_setting("XAPIAN_DB_PATH"))
-    yield db
-    db.close()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @contextlib.contextmanager
@@ -77,5 +79,7 @@ def xapian_writable_database():
     """Open xapian database for writing."""
     # pylint: disable-next=invalid-name
     db = xapian.WritableDatabase(get_setting("XAPIAN_DB_PATH"))
-    yield db
-    db.close()
+    try:
+        yield db
+    finally:
+        db.close()
