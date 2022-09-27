@@ -124,7 +124,7 @@ class MonadicDictCursor(DictCursor):
     ...        print(row)
     """
     def fetchone(self):
-        return MonadicDict(super().fetchone())
+        return Just(MonadicDict(row)) if (row := super().fetchone()) else Nothing
     def fetchmany(self, size=None):
         return [MonadicDict(row) for row in super().fetchmany(size=size)]
     def fetchall(self):
