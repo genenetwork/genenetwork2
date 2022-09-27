@@ -19,6 +19,15 @@ def index_text(termgenerator, text):
     termgenerator.increase_termpos()
 
 
+# pylint: disable=invalid-name
+def write_document(db, idterm, doctype, doc):
+    """Write document into xapian database."""
+    # We use the XT prefix to indicate the type.
+    doc.add_boolean_term(f"XT{doctype}")
+    doc.add_boolean_term(idterm)
+    db.replace_document(idterm, doc)
+
+
 # pylint: disable=missing-function-docstring
 def main():
     with database_connection() as conn, conn.cursor(MonadicDictCursor) as cursor:
@@ -75,14 +84,8 @@ def main():
                 trait.pop("unigeneid").bind(indexer)
                 trait.pop("probe_target_description").bind(indexer)
 
-                # Identify document as type "gene". We use the XT
-                # prefix to indicate the type.
-                doc.add_boolean_term("XTgene")
                 doc.set_data(json.dumps(trait.data))
-                # Write document into xapian database.
-                idterm = trait["name"].bind(lambda name: "Q" + name)
-                doc.add_boolean_term(idterm)
-                db.replace_document(idterm, doc)
+                write_document(db, trait["name"].bind(lambda name: f"Q{name}"), "gene", doc)
 
         cursor.execute("""
         SELECT Species.Name AS species,
@@ -133,14 +136,8 @@ def main():
                 trait["authors"] = trait["authors"].map(
                     lambda s: [author.strip() for author in s.split(",")])
 
-                # Identify document as type "phenotype". We use the XT
-                # prefix to indicate the type.
-                doc.add_boolean_term("XTphenotype")
-                # Write document into xapian database.
                 doc.set_data(json.dumps(trait.data))
-                idterm = f"Q{i}"
-                doc.add_boolean_term(idterm)
-                db.replace_document(idterm, doc)
+                write_document(db, f"Q{i}", "phenotype", doc)
 
 
 if __name__ == "__main__":
