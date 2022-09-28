@@ -32,7 +32,25 @@ def write_document(db, idterm, doctype, doc):
 def main():
     termgenerator = xapian.TermGenerator()
     termgenerator.set_stemmer(xapian.Stem("en"))
+
     indexer = partial(index_text, termgenerator)
+
+    authors_indexer = lambda text: termgenerator.index_text(text, 1, "A")
+    species_indexer = lambda text: termgenerator.index_text(text, 1, "XS")
+    group_indexer = lambda text: termgenerator.index_text(text, 1, "XG")
+    tissue_indexer = lambda text: termgenerator.index_text(text, 1, "XI")
+    description_indexer = lambda text: termgenerator.index_text(text, 1, "XD")
+    dataset_indexer = lambda text: termgenerator.index_text(text, 1, "XDS")
+    symbol_indexer = lambda text: termgenerator.index_text(text, 1, "XY")
+    chr_indexer = lambda text: termgenerator.index_text(text, 0, "XC")
+    peakchr_indexer = lambda text: termgenerator.index_text(text, 0, "XPC")
+
+    mean_adder = lambda mean: doc.add_value(0, xapian.sortable_serialise(mean))
+    peak_adder = lambda peak: doc.add_value(1, xapian.sortable_serialise(peak))
+    mb_adder = lambda mb: doc.add_value(2, xapian.sortable_serialise(mb))
+    peakmb_adder = lambda peakmb: doc.add_value(3, xapian.sortable_serialise(peakmb))
+    additive_adder = lambda additive: doc.add_value(4, xapian.sortable_serialise(additive))
+    year_adder = lambda year: doc.add_value(5, xapian.sortable_serialise(float(year)))
 
     # FIXME: Some Max LRS values in the DB are wrongly listed as
     # 0.000, but shouldn't be displayed. Make them NULLs in the
@@ -74,6 +92,13 @@ def main():
                 doc = xapian.Document()
                 termgenerator.set_document(doc)
 
+                # Add values.
+                trait["mean"].bind(mean_adder)
+                trait["lrs"].bind(peak_adder)
+                trait["mb"].bind(mb_adder)
+                trait["geno_mb"].bind(peakmb_adder)
+                trait["additive"].bind(additive_adder)
+
                 # Index text.
                 trait["name"].bind(indexer)
                 trait["description"].bind(indexer)
@@ -82,6 +107,14 @@ def main():
                 trait.pop("genbankid").bind(indexer)
                 trait.pop("unigeneid").bind(indexer)
                 trait.pop("probe_target_description").bind(indexer)
+                trait["species"].bind(species_indexer)
+                trait["group"].bind(group_indexer)
+                trait["tissue"].bind(tissue_indexer)
+                trait["description"].bind(description_indexer)
+                trait["dataset"].bind(dataset_indexer)
+                trait["symbol"].bind(symbol_indexer)
+                trait["chr"].bind(chr_indexer)
+                trait["geno_chr"].bind(peakchr_indexer)
 
                 doc.set_data(json.dumps(trait.data))
                 write_document(db, trait["name"].bind(lambda name: f"Q{name}"), "gene", doc)
@@ -99,7 +132,7 @@ def main():
                    Publication.Abstract,
                    Publication.Title,
                    Publication.Authors AS authors,
-                   Publication.Year AS year,
+                   IF(Publication.Year='', 0, Publication.Year) AS year,
                    Publication.PubMed_ID AS pubmed_id,
                    PublishXRef.LRS as lrs,
                    PublishXRef.additive,
@@ -119,6 +152,13 @@ def main():
                 doc = xapian.Document()
                 termgenerator.set_document(doc)
 
+                # Add values.
+                trait["mean"].bind(mean_adder)
+                trait["lrs"].bind(peak_adder)
+                trait["geno_mb"].bind(peakmb_adder)
+                trait["additive"].bind(additive_adder)
+                trait["year"].bind(year_adder)
+
                 # Index text.
                 trait.pop("abbreviation").bind(indexer)
                 trait["description"].bind(indexer)
@@ -127,6 +167,11 @@ def main():
                 trait.pop("Title").bind(indexer)
                 trait["authors"].bind(indexer)
                 trait["inbredsetcode"].bind(indexer)
+                trait["species"].bind(species_indexer)
+                trait["group"].bind(group_indexer)
+                trait["description"].bind(description_indexer)
+                trait["authors"].bind(authors_indexer)
+                trait["geno_chr"].bind(peakchr_indexer)
 
                 # Convert name from integer to string.
                 trait["name"] = trait["name"].map(str)
