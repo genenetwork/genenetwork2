@@ -9,7 +9,7 @@ from functools import partial
 import json
 import xapian
 
-from utility.monads import MonadicDictCursor
+from utility.monads import sql_query_mdict
 from wqflask.database import database_connection, xapian_writable_database
 
 
@@ -39,8 +39,8 @@ def main():
     # database.
     # pylint: disable=invalid-name
     with xapian_writable_database() as db:
-        with database_connection() as conn, conn.cursor(MonadicDictCursor) as cursor:
-            cursor.execute("""
+        with database_connection() as conn:
+            for trait in sql_query_mdict(conn, """
             SELECT ProbeSet.Name AS name,
                    ProbeSet.Symbol AS symbol,
                    ProbeSet.description AS description,
@@ -70,8 +70,7 @@ def main():
                  INNER JOIN ProbeSet ON ProbeSet.Id = ProbeSetXRef.ProbeSetId
                  LEFT JOIN Geno ON ProbeSetXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id
             WHERE ProbeSetFreeze.confidentiality < 1 AND ProbeSetFreeze.public > 0
-            """)
-            for trait in cursor.fetchall():
+            """):
                 doc = xapian.Document()
                 termgenerator.set_document(doc)
 
@@ -87,8 +86,8 @@ def main():
                 doc.set_data(json.dumps(trait.data))
                 write_document(db, trait["name"].bind(lambda name: f"Q{name}"), "gene", doc)
 
-        with database_connection() as conn, conn.cursor(MonadicDictCursor) as cursor:
-            cursor.execute("""
+        with database_connection() as conn:
+            for i, trait in enumerate(sql_query_mdict(conn, """
             SELECT Species.Name AS species,
                    InbredSet.Name AS `group`,
                    PublishFreeze.Name AS dataset,
@@ -116,8 +115,7 @@ def main():
                  INNER JOIN Phenotype ON PublishXRef.PhenotypeId = Phenotype.Id
                  INNER JOIN Publication ON PublishXRef.PublicationId = Publication.Id
                  LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id
-            """)
-            for i, trait in enumerate(cursor.fetchall()):
+            """)):
                 doc = xapian.Document()
                 termgenerator.set_document(doc)
 

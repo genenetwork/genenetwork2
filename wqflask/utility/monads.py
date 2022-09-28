@@ -105,22 +105,10 @@ class MonadicDict(UserDict):
         except KeyError:
             pass
 
-class MonadicDictCursor(DictCursor):
-    """Monadic version of MySQLdb.cursors.DictCursor.
 
-    Monadic version of MySQLdb.cursors.DictCursor that returns a
-    MonadicDict instead of the built-in dictionary.
-
-    Execute a SQL query and retrieve results as MonadicDict
-    objects. Each row object in the following code is a MonadicDict.
-    >>> with conn.cursor(MonadicDictCursor) as cursor:
-    ...    cursor.execute("SELECT foo FROM bar")
-    ...    for row in cursor.fetchall():
-    ...        print(row)
-    """
-    def fetchone(self):
-        return Just(MonadicDict(row)) if (row := super().fetchone()) else Nothing
-    def fetchmany(self, size=None):
-        return [MonadicDict(row) for row in super().fetchmany(size=size)]
-    def fetchall(self):
-        return [MonadicDict(row) for row in super().fetchall()]
+def sql_query_mdict(conn, query):
+    """Execute SQL query and return a generator of MonadicDict objects."""
+    with conn.cursor(DictCursor) as cursor:
+        cursor.execute(query)
+        while (row := cursor.fetchone()):
+            yield MonadicDict(row)
