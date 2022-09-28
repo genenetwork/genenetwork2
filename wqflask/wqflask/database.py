@@ -59,11 +59,6 @@ def database_connection() -> Iterator[Connection]:
     )
     try:
         yield connection
-    except Exception:
-        connection.rollback()
-        raise
-    else:
-        connection.commit()
     finally:
         connection.close()
 
