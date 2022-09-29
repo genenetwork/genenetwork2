@@ -250,11 +250,15 @@ def __compute_sample_corr__(
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
-    target_data = []
-    for (key, val) in target_dataset.trait_data.items():
-        lts = [key] + [str(x) for x in val if x is not None]
-        r = ",".join(lts)
-        target_data.append(r)
+
+    def __merge_key_and_values__(rows, current):
+        wo_nones = [value for value in current[1] if value is not None]
+        if len(wo_nones) > 0:
+            return rows + [[current[0]] + wo_nones]
+        return rows
+
+    target_data = reduce(
+        __merge_key_and_values__, target_dataset.trait_data.items(), [])
 
     if len(target_data) == 0:
         return {}
