@@ -133,31 +133,32 @@ class SampleList:
                 "AND CaseAttributeXRefNew.InbredSetId = %s "
                 "ORDER BY CaseAttribute.Id", (str(self.dataset.group.id),)
             )
-        self.attributes = {}
-        for attr, values in itertools.groupby(
-                cursor.fetchall(), lambda row: (row[0], row[1], row[2])
-        ):
-            key, name, description = attr
-            self.attributes[key] = Bunch()
-            self.attributes[key].id = key
-            self.attributes[key].name = name
-            self.attributes[key].description = description
-            self.attributes[key].distinct_values = [
-                item.Value for item in values]
-            self.attributes[key].distinct_values = natural_sort(
-                self.attributes[key].distinct_values)
-            all_numbers = True
-            for value in self.attributes[key].distinct_values:
-                try:
-                    val_as_float = float(value)
-                except:
-                    all_numbers = False
-                    break
 
-            if all_numbers:
-                self.attributes[key].alignment = "right"
-            else:
-                self.attributes[key].alignment = "left"
+            self.attributes = {}
+            for attr, values in itertools.groupby(
+                    cursor.fetchall(), lambda row: (row[0], row[1], row[2])
+            ):
+                key, name, description = attr
+                self.attributes[key] = Bunch()
+                self.attributes[key].id = key
+                self.attributes[key].name = name
+                self.attributes[key].description = description
+                self.attributes[key].distinct_values = [
+                    item[3] for item in values]
+                self.attributes[key].distinct_values = natural_sort(
+                    self.attributes[key].distinct_values)
+                all_numbers = True
+                for value in self.attributes[key].distinct_values:
+                    try:
+                        val_as_float = float(value)
+                    except:
+                        all_numbers = False
+                        break
+
+                if all_numbers:
+                    self.attributes[key].alignment = "right"
+                else:
+                    self.attributes[key].alignment = "left"
 
     def get_extra_attribute_values(self):
         if self.attributes:
@@ -175,30 +176,30 @@ class SampleList:
                     "ORDER BY SampleName", (self.dataset.group.id,)
                 )
 
-            for sample_name, items in itertools.groupby(
-                    cursor.fetchall(), lambda row: row[0]
-            ):
-                attribute_values = {}
-                # Make a list of attr IDs without values (that have values for other samples)
-                valueless_attr_ids = [self.attributes[key].id for key in self.attributes.keys()]
-                for item in items:
-                    sample_name, _id, value = item
-                    valueless_attr_ids.remove(_id)
-                    attribute_value = value
+                for sample_name, items in itertools.groupby(
+                        cursor.fetchall(), lambda row: row[0]
+                ):
+                    attribute_values = {}
+                    # Make a list of attr IDs without values (that have values for other samples)
+                    valueless_attr_ids = [self.attributes[key].id for key in self.attributes.keys()]
+                    for item in items:
+                        sample_name, _id, value = item
+                        valueless_attr_ids.remove(_id)
+                        attribute_value = value
 
-                    # If it's an int, turn it into one for sorting
-                    # (for example, 101 would be lower than 80 if
-                    # they're strings instead of ints)
-                    try:
-                        attribute_value = int(attribute_value)
-                    except ValueError:
-                        pass
+                        # If it's an int, turn it into one for sorting
+                        # (for example, 101 would be lower than 80 if
+                        # they're strings instead of ints)
+                        try:
+                            attribute_value = int(attribute_value)
+                        except ValueError:
+                            pass
 
-                    attribute_values[str(_id)] = attribute_value
-                for attr_id in valueless_attr_ids:
-                    attribute_values[str(attr_id)] = ""
+                        attribute_values[str(_id)] = attribute_value
+                    for attr_id in valueless_attr_ids:
+                        attribute_values[str(attr_id)] = ""
 
-                self.sample_attribute_values[sample_name] = attribute_values
+                    self.sample_attribute_values[sample_name] = attribute_values
 
     def get_first_attr_col(self):
         first_attr_col = 4
