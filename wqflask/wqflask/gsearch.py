@@ -88,8 +88,8 @@ class GSearch:
                     trait["display_name"] = trait["name"]
                     inbredsetcode = trait.pop("inbredsetcode")
                     if inbredsetcode.map(len) == Just(3):
-                        trait["display_name"] = (Maybe.apply(lambda inbredsetcode, name:
-                                                             f"{inbredsetcode}_{name}")
+                        trait["display_name"] = (Maybe.apply(
+                            curry(2, lambda inbredsetcode, name: f"{inbredsetcode}_{name}"))
                                                  .to_arguments(inbredsetcode, trait["name"]))
                     trait["hmac"] = (Maybe.apply(hmac)
                                      .to_arguments(trait.pop("dataset_fullname"), trait["name"]))
