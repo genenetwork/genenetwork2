@@ -38,6 +38,17 @@ class GSearch:
         queryparser = xapian.QueryParser()
         queryparser.set_stemmer(xapian.Stem("en"))
         queryparser.set_stemming_strategy(queryparser.STEM_SOME)
+        queryparser.add_prefix("author", "A")
+        queryparser.add_prefix("species", "XS")
+        queryparser.add_prefix("group", "XG")
+        queryparser.add_prefix("tissue", "XI")
+        queryparser.add_prefix("description", "XD")
+        queryparser.add_prefix("dataset", "XDS")
+        queryparser.add_prefix("symbol", "XY")
+        queryparser.add_prefix("chr", "XC")
+        queryparser.add_prefix("peakchr", "XPC")
+        for i, prefix in enumerate(["mean:", "peak:", "mb:", "peakmb:", "additive:", "year:"]):
+            queryparser.add_rangeprocessor(xapian.NumberRangeProcessor(i, prefix))
         querystring = self.terms
         query = queryparser.parse_query(querystring)
         # FIXME: Handle presentation (that is, formatting strings for
