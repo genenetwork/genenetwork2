@@ -11,7 +11,7 @@ from wqflask.database import xapian_database
 
 # KLUDGE: Due to the lack of pagination, we hard-limit the maximum
 # number of search results.
-MAX_SEARCH_RESULTS = 1000
+MAX_SEARCH_RESULTS = 10000
 
 class GSearch:
     def __init__(self, kwargs):
