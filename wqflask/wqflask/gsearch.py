@@ -1,5 +1,4 @@
 import json
-from types import SimpleNamespace
 
 from pymonad.maybe import Just, Maybe, Nothing
 from pymonad.tools import curry
@@ -13,23 +12,6 @@ from wqflask.database import xapian_database
 # KLUDGE: Due to the lack of pagination, we hard-limit the maximum
 # number of search results.
 MAX_SEARCH_RESULTS = 1000
-
-def is_permitted_for_listing(trait, search_type):
-    """Check if it is permissible to list trait in search results."""
-    dataset_type = {"gene": "ProbeSet", "phenotype": "Publish"}
-    dataset_ob = (Maybe.apply(curry(2, lambda id, species:
-                                    SimpleNamespace(id=id,
-                                                    type=dataset_type[search_type],
-                                                    name=trait["dataset"],
-                                                    species=species)))
-                  .to_arguments(trait["dataset_id"], trait["species"]))
-    return (Maybe.apply(curry(2, check_resource_availability))
-            .to_arguments(dataset_ob, trait["name"])
-            .map(lambda permissions:
-                 ((isinstance(permissions["data"], list)) and ("view" in permissions["data"]))
-                 or (permissions["data"] != 'no-access'))
-            .maybe(False, lambda x: x))
-
 
 class GSearch:
     def __init__(self, kwargs):
@@ -69,10 +51,8 @@ class GSearch:
                                            query,
                                            xapian.Query(f"XT{self.type}")))
             for i, trait in enumerate(
-                    [trait for xapian_match in enquire.get_mset(0, MAX_SEARCH_RESULTS)
-                     if is_permitted_for_listing(
-                             trait := MonadicDict(json.loads(xapian_match.document.get_data())),
-                             search_type=self.type)]):
+                    [MonadicDict(json.loads(xapian_match.document.get_data()))
+                     for xapian_match in enquire.get_mset(0, MAX_SEARCH_RESULTS)]):
                 trait["index"] = Just(i)
                 trait["location_repr"] = (Maybe.apply(chr_mb)
                                           .to_arguments(trait.pop("chr"), trait.pop("mb")))
