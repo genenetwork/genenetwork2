@@ -82,8 +82,7 @@ class GSearch:
                     trait["authors_display"] = (trait.pop("authors").map(
                         lambda authors:
                         ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors)))
-                    trait["pubmed_text"] = (trait["year"].bind(
-                        lambda year: Just(year) if year.isdigit() else Nothing))
+                    trait["pubmed_text"] = trait["year"].map(str)
                     trait["pubmed_link"] = (trait["pubmed_id"].map(
                         lambda pubmedid: webqtlConfig.PUBMEDLINK_URL % pubmedid))
                 self.trait_list.append(trait.data)

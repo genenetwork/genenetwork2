@@ -120,6 +120,9 @@ def main():
                 write_document(db, trait["name"].bind(lambda name: f"Q{name}"), "gene", doc)
 
         with database_connection() as conn:
+            # FIXME: Some years are blank strings or strings that
+            # contain text other than the year. These should be fixed
+            # in the database and the year field must be made an integer.
             for i, trait in enumerate(sql_query_mdict(conn, """
             SELECT Species.Name AS species,
                    InbredSet.Name AS `group`,
@@ -132,7 +135,7 @@ def main():
                    Publication.Abstract,
                    Publication.Title,
                    Publication.Authors AS authors,
-                   IF(Publication.Year='', 0, Publication.Year) AS year,
+                   IF(CONVERT(Publication.Year, UNSIGNED)=0, NULL, CONVERT(Publication.Year, UNSIGNED)) AS year,
                    Publication.PubMed_ID AS pubmed_id,
                    PublishXRef.LRS as lrs,
                    PublishXRef.additive,
