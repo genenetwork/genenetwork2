@@ -10,6 +10,9 @@ from utility.authentication_tools import check_resource_availability
 from utility.monads import MonadicDict
 from wqflask.database import xapian_database
 
+# KLUDGE: Due to the lack of pagination, we hard-limit the maximum
+# number of search results.
+MAX_SEARCH_RESULTS = 1000
 
 def is_permitted_for_listing(trait, search_type):
     """Check if it is permissible to list trait in search results."""
@@ -66,7 +69,7 @@ class GSearch:
                                            query,
                                            xapian.Query(f"XT{self.type}")))
             for i, trait in enumerate(
-                    [trait for xapian_match in enquire.get_mset(0, db.get_doccount())
+                    [trait for xapian_match in enquire.get_mset(0, MAX_SEARCH_RESULTS)
                      if is_permitted_for_listing(
                              trait := MonadicDict(json.loads(xapian_match.document.get_data())),
                              search_type=self.type)]):
