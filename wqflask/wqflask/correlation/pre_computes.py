@@ -248,8 +248,7 @@ def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
             "ORDER BY Strain.Name",
             (db_name,))
         results = cursor.fetchall()
-        file_name = __generate_file_name__(
-            db_name)
+        file_name = __generate_file_name__(db_name)
         if (results and file_name):
             __write_to_file__(os.path.join(text_dir, file_name),
                               *__parse_to_dict__(results))
