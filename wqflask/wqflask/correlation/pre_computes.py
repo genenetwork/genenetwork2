@@ -238,19 +238,13 @@ def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
             writer.writerows(data.values())
     with conn.cursor() as cursor:
         cursor.execute(
-            "SELECT ProbeSet.Name,Strain.Name, ProbeSetData.value "
-            "FROM (ProbeSetData, ProbeSetFreeze, Strain, ProbeSet, "
-            "ProbeSetXRef) LEFT JOIN ProbeSetSE ON "
-            "(ProbeSetSE.DataId = ProbeSetData.Id AND "
-            "ProbeSetSE.StrainId = ProbeSetData.StrainId) "
-            "LEFT JOIN NStrain ON "
-            "(NStrain.DataId = ProbeSetData.Id AND "
-            "NStrain.StrainId = ProbeSetData.StrainId) "
-            "WHERE ProbeSetXRef.ProbeSetId = ProbeSet.Id "
-            "AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
-            "AND ProbeSetFreeze.Name = %s AND "
-            "ProbeSetXRef.DataId = ProbeSetData.Id "
-            "AND ProbeSetData.StrainId = Strain.Id "
+            "SELECT ProbeSet.Name, Strain.Name, ProbeSetData.value "
+            "FROM Strain LEFT JOIN ProbeSetData "
+            "ON Strain.Id = ProbeSetData.StrainId "
+            "LEFT JOIN ProbeSetXRef ON ProbeSetData.Id = ProbeSetXRef.DataId "
+            "LEFT JOIN ProbeSet ON ProbeSetXRef.ProbeSetId = ProbeSet.Id "
+            "WHERE ProbeSetXRef.ProbeSetFreezeId IN "
+            "(SELECT Id FROM ProbeSetFreeze WHERE Name = %s) "
             "ORDER BY Strain.Name",
             (db_name,))
         results = cursor.fetchall()
