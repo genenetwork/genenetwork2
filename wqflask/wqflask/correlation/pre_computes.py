@@ -204,7 +204,7 @@ def read_text_file(sample_dict, file_path):
         csv_reader = csv.reader(csv_file, delimiter=',')
         _posit, sample_vals = __fetch_id_positions__(
             next(csv_reader)[1:], sample_dict)
-        return (sample_vals, [",".join([line[i] for i in _posit]) for line in csv_reader])
+        return (sample_vals, [[line[i] for i in _posit] for line in csv_reader])
 
 
 def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
