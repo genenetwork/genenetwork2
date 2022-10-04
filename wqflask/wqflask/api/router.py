@@ -440,6 +440,7 @@ def fetch_traits(dataset_name, file_format="json"):
                 if file_format == "json":
                     filename = dataset_name + "_traits.json"
                     cursor.execute(query.format(dataset_id))
+                    result_list = []
                     for result in cursor.fetchall():
                         trait_dict = {}
                         for i, field in enumerate(field_list):
