@@ -50,13 +50,11 @@ def set_template_vars(start_vars, correlation_data):
 
     target_dataset_ob = create_dataset(correlation_data['target_dataset'])
     correlation_data['target_dataset'] = target_dataset_ob.as_dict()
-
-    table_json = correlation_json_for_table(correlation_data,
-                                            correlation_data['this_trait'],
-                                            correlation_data['this_dataset'],
-                                            target_dataset_ob)
-
-    correlation_data['table_json'] = table_json
+    correlation_data['table_json'] = correlation_json_for_table(
+        correlation_data,
+        correlation_data['this_trait'],
+        correlation_data['this_dataset'],
+        target_dataset_ob)
 
     if target_dataset_ob.type == "ProbeSet":
         filter_cols = [7, 6]
