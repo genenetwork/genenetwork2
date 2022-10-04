@@ -197,7 +197,7 @@ class CorrelationMatrix:
         temp_dataset = create_dataset(
             dataset_name="Temp", dataset_type="Temp",
             group_name=this_group_name)
-        temp_dataset.group.get_samplelist()
+        temp_dataset.group.get_samplelist(redis_conn=get_redis_conn())
 
         pca_temp_traits = generate_pca_temp_traits(species=temp_dataset.group.species, group=this_group_name,
                                                    traits_data=self.trait_data_array, corr_array=self.pca_corr_results,
