@@ -969,12 +969,13 @@ def get_dataset_trait_ids(dataset_name, start_vars):
 
 
 def get_samplelist(dataset_name):
+    group_id = get_group_id_from_dataset(dataset_name)
     with database_connection() as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT Strain.Name FROM Strain, StrainXRef "
             "WHERE StrainXRef.StrainId = Strain.Id AND "
             "StrainXRef.InbredSetId = %s",
-            (dataset_name,)
+            (group_id,)
         )
         # sample list
         return [result[0] for result in cursor.fetchall()]
