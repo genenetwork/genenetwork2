@@ -596,6 +596,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                     if str(trait.lrs or "") != "":
                         trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
         else:
-            raise KeyError(repr(trait.name)
-                           + ' information is not found in the database.')
+            raise KeyError(
+                f"{repr(trait.name)} information is not found in the database "
+                f"for dataset '{dataset.name}' with id '{dataset.id}'.")
         return trait
