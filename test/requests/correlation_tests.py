@@ -1,4 +1,5 @@
 import sys
+import html
 import requests
 from lxml.html import parse
 from link_checker import check_page
@@ -58,11 +59,20 @@ def check_tissue_correlations(baseurl, base_data):
         "corr_type": "tissue",
         "location_type": "gene",
     }
-    top_n_message = "The top 100 correlations ranked by the Tissue Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
+
     assert result.status_code == 200
-    assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
-    assert (result.text.find(top_n_message) >= 0), result.text
+    if (data["trait_id"] == "1442370_at"
+        and data["corr_dataset"] in ("BXDPublish",)):
+        top_n_message = (
+            "It is not possible to compute the 'Tissue' correlations between "
+            f"trait '{data['trait_id']}' and the data")
+    else:
+        top_n_message = "The top 100 correlations ranked by the Tissue Correlation"
+        assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
+
+    assert (html.unescape(result.text).find(top_n_message) >= 0), (
+        f"NOT FOUND: {top_n_message}")
 
 def check_lit_correlations(baseurl, base_data):
     data = {
@@ -70,11 +80,20 @@ def check_lit_correlations(baseurl, base_data):
         "corr_type": "lit",
         "corr_return_results": "200"
     }
-    top_n_message = "The top 200 correlations ranked by the Literature Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
+
     assert result.status_code == 200
-    assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
-    assert (result.text.find(top_n_message) >= 0), result.text
+    if (data["trait_id"] == "1442370_at"
+        and data["corr_dataset"] in ("BXDPublish",)):
+        top_n_message = (
+            "It is not possible to compute the 'Literature' correlations "
+            f"between trait '{data['trait_id']}' and the data")
+    else:
+        top_n_message = "The top 200 correlations ranked by the Literature Correlation"
+        assert (result.text.find(f"Values of record {base_data['trait_id']}") >= 0), result.text
+
+    assert (html.unescape(result.text).find(top_n_message) >= 0), (
+        f"NOT FOUND: {top_n_message}")
 
 def check_correlations(args_obj, parser):
     print("")
