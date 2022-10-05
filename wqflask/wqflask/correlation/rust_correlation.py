@@ -98,12 +98,8 @@ def chunk_dataset(dataset, steps, name):
 
     for i in range(0, len(dataset), steps):
         matrix = list(dataset[i:i + steps])
-        trait_name = traits_name_dict[matrix[0][0]]
-
-        strains = [trait_name] + [str(value)
-                                  for (trait_name, strain, value) in matrix]
-        results.append(",".join(strains))
-
+        results.append([traits_name_dict[matrix[0][0]]] + [str(value)
+                                  for (trait_name, strain, value) in matrix])        
     return results
 
 
