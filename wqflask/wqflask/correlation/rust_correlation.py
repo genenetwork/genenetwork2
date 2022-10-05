@@ -273,7 +273,7 @@ def __compute_tissue_corr__(
         target_trait_info: tuple):
     """Compute the tissue correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
-    trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
+    trait_symbol_dict = target_dataset.retrieve_genes("Symbol")
     corr_result_tissue_vals_dict = get_trait_symbol_and_tissue_values(
         symbol_list=list(trait_symbol_dict.values()))
 
