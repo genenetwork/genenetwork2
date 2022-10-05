@@ -55,6 +55,7 @@ from wqflask.correlation.correlation_gn3_api import compute_correlation
 from wqflask.correlation.rust_correlation import compute_correlation_rust
 from wqflask.correlation_matrix import show_corr_matrix
 from wqflask.correlation import corr_scatter_plot
+from wqflask.correlation.exceptions import WrongCorrelationType
 from wqflask.ctl.gn3_ctl_analysis import run_ctl
 
 from wqflask.wgcna.gn3_wgcna import run_wgcna
@@ -812,10 +813,23 @@ def network_graph_page():
     else:
         return render_template("empty_collection.html", **{'tool': 'Network Graph'})
 
+def __handle_correlation_error__(exc):
+    return render_template(
+        "correlation_error_page.html",
+        error = {
+            "error-type": {
+                "WrongCorrelationType": "Wrong Correlation Type"
+            }[type(exc).__name__],
+            "error-message": exc.args[0]
+        })
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
-    correlation_results = compute_correlation(request.form, compute_all=True)
+    try:
+        correlation_results = compute_correlation(
+            request.form, compute_all=True)
+    except WrongCorrelationType as exc:
+        return __handle_correlation_error__(exc)
 
     correlation_results = set_template_vars(request.form, correlation_results)
     return render_template("correlation_page.html", **correlation_results)
@@ -826,15 +840,18 @@ def test_corr_compute_page():
 
     start_vars = request.form
 
-    correlation_results = compute_correlation_rust(start_vars,
-                                                   start_vars["corr_type"],
-                                                   start_vars['corr_sample_method'],
-                                                   int(start_vars.get("corr_return_results", 500)),True)
+    try:
+        correlation_results = compute_correlation_rust(
+            start_vars,
+            start_vars["corr_type"],
+            start_vars['corr_sample_method'],
+            int(start_vars.get("corr_return_results", 500)),
+            True)
+    except WrongCorrelationType as exc:
+        return __handle_correlation_error__(exc)
 
     correlation_results = set_template_vars(request.form, correlation_results)
-
     return render_template("correlation_page.html", **correlation_results)
-    # return render_template("test_correlation_page.html", **correlation_data)
 
 
 @app.route("/corr_matrix", methods=('POST',))
