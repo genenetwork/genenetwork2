@@ -17,6 +17,8 @@ from gn3.computations.rust_correlation import get_sample_corr_data
 from gn3.computations.rust_correlation import parse_tissue_corr_data
 from gn3.db_utils import database_connector
 
+from wqflask.correlation.exceptions import WrongCorrelationType
+
 
 def query_probes_metadata(dataset, trait_list):
     """query traits metadata in bulk for probeset"""
@@ -267,12 +269,20 @@ def __compute_sample_corr__(
         target_data, list(sample_data.values()), method, ",", corr_type,
         n_top)
 
+def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
+    return not (
+        corr_method in ("tissue", "Tissue r", "Literature r", "lit")
+        and (trait_dataset.type == "ProbeSet" and
+             target_dataset.type in ("Publish", "Geno")))
 
 def __compute_tissue_corr__(
         start_vars: dict, corr_type: str, method: str, n_top: int,
         target_trait_info: tuple):
     """Compute the tissue correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
+    if not __datasets_compatible_p__(this_dataset, target_dataset, corr_type):
+        raise WrongCorrelationType(this_trait, target_dataset, corr_type)
+
     trait_symbol_dict = target_dataset.retrieve_genes("Symbol")
     corr_result_tissue_vals_dict = get_trait_symbol_and_tissue_values(
         symbol_list=list(trait_symbol_dict.values()))
@@ -294,6 +304,9 @@ def __compute_lit_corr__(
         target_trait_info: tuple):
     """Compute the literature correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
+    if not __datasets_compatible_p__(this_dataset, target_dataset, corr_type):
+        raise WrongCorrelationType(this_trait, target_dataset, corr_type)
+
     target_dataset_type = target_dataset.type
     this_dataset_type = this_dataset.type
     (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
