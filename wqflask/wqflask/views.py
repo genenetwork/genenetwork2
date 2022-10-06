@@ -825,11 +825,19 @@ def __handle_correlation_error__(exc):
 
 @app.route("/corr_compute", methods=('POST',))
 def corr_compute_page():
+    import subprocess
+    from gn3.settings import CORRELATION_COMMAND
     try:
         correlation_results = compute_correlation(
             request.form, compute_all=True)
     except WrongCorrelationType as exc:
         return __handle_correlation_error__(exc)
+    except subprocess.CalledProcessError as cpe:
+        actual_command = (
+            os.readlink(CORRELATION_COMMAND)
+            if os.path.islink(CORRELATION_COMMAND)
+            else CORRELATION_COMMAND)
+        raise Exception(command_list, actual_command, cpe.stdout) from cpe
 
     correlation_results = set_template_vars(request.form, correlation_results)
     return render_template("correlation_page.html", **correlation_results)
