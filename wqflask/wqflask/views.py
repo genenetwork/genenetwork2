@@ -837,7 +837,7 @@ def corr_compute_page():
             os.readlink(CORRELATION_COMMAND)
             if os.path.islink(CORRELATION_COMMAND)
             else CORRELATION_COMMAND)
-        raise Exception(actual_command, cpe.stdout) from cpe
+        raise Exception(actual_command, cpe.output, cpe.stdout, cpe.stderr) from cpe
 
     correlation_results = set_template_vars(request.form, correlation_results)
     return render_template("correlation_page.html", **correlation_results)
