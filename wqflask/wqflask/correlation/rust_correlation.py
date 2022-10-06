@@ -160,6 +160,9 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
 
 
 def compute_top_n_lit(corr_results, target_dataset, this_trait) -> dict:
+    if not __datasets_compatible_p__(this_trait.dataset, target_dataset, "lit"):
+        return {}
+
     (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
         this_trait, target_dataset)
 
@@ -178,8 +181,9 @@ def compute_top_n_lit(corr_results, target_dataset, this_trait) -> dict:
 
 
 def compute_top_n_tissue(target_dataset, this_trait, traits, method):
-
     # refactor lots of rpt
+    if not __datasets_compatible_p__(this_trait.dataset, target_dataset, "tissue"):
+        return {}
 
     trait_symbol_dict = dict({
         trait_name: symbol
@@ -326,6 +330,8 @@ def compute_correlation_rust(
     target_trait_info = create_target_this_trait(start_vars)
     (this_dataset, this_trait, target_dataset, sample_data) = (
         target_trait_info)
+    if not __datasets_compatible_p__(this_dataset, target_dataset, corr_type):
+        raise WrongCorrelationType(this_trait, target_dataset, corr_type)
 
     # Replace this with `match ...` once we hit Python 3.10
     corr_type_fns = {
