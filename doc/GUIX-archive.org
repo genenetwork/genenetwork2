@@ -50,7 +50,7 @@ and you should be able to use this directly, e.g.
 
 Find the archive on 
 
-  http://files.genenetwork.org/software/
+=> https://files.genenetwork.org/software/
 
 download and install with
 

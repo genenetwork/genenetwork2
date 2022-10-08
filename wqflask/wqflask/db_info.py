@@ -63,7 +63,7 @@ class InfoPage:
         self.filelist = []
         try:
             response = urllib.request.urlopen(
-                "http://datafiles.genenetwork.org/download/GN%s" % self.gn_accession_id)
+                "https://files.genenetwork.org/current/GN%s" % self.gn_accession_id)
             data = response.read()
 
             matches = re.findall(r"<tr>.+?</tr>", data, re.DOTALL)
