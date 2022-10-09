@@ -19,15 +19,9 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 import json
-import os
-from pathlib import Path
 
 from base.trait import create_trait, jsonable
 from base.data_set import create_dataset
-from base.webqtlConfig import TMPDIR
-
-from wqflask.correlation.pre_computes import fetch_all_cached_metadata
-from wqflask.correlation.pre_computes import cache_new_traits_metadata
 
 from utility import hmac
 from utility.type_checking import get_float, get_int, get_string
