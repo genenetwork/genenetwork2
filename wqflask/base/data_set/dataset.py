@@ -88,9 +88,9 @@ class DataSet:
                 )
                 results = cursor.fetchone()
 
+        # Returns None by default if this is not executed
         if results:
             return str(results[0])
-        return "None"
 
     def retrieve_other_names(self):
         """This method fetches the the dataset names in search_result.
