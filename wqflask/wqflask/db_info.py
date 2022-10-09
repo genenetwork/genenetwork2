@@ -44,13 +44,11 @@ class InfoPage:
             if self.gn_accession_id:
                 cursor.execute(f"{query_base}GN_AccesionId = %s",
                                (self.gn_accession_id,))
-                results = cursor.fetchone()
             elif self.info_page_name:
                 cursor.execute(f"{query_base}InfoPageName = %s",
                                (self.info_page_name,))
-                results = cursor.fetchone()
-        if results:
-            self.info = process_query_results(results)
+            if (results := cursor.fetchone()):
+                self.info = results
         if ((not results or len(results) < 1)
             and self.info_page_name and create):
             return self.get_info()
