@@ -40,16 +40,17 @@ def set_template_vars(start_vars, correlation_data):
                               name=start_vars['trait_id'])
 
     correlation_data['this_trait'] = jsonable(this_trait, this_dataset_ob)
-    correlation_data['this_dataset'] = this_dataset_ob.as_dict()
+    correlation_data['this_dataset'] = this_dataset_ob.as_monadic_dict()
 
     target_dataset_ob = create_dataset(correlation_data['target_dataset'])
-    correlation_data['target_dataset'] = target_dataset_ob.as_dict()
-    correlation_data['table_json'] = correlation_json_for_table(
-        start_vars,
-        correlation_data,
-        correlation_data['this_trait'],
-        correlation_data['this_dataset'],
-        target_dataset_ob)
+    correlation_data['target_dataset'] = target_dataset_ob.as_monadic_dict()
+
+    table_json = correlation_json_for_table(correlation_data,
+                                            correlation_data['this_trait'],
+                                            correlation_data['this_dataset'],
+                                            target_dataset_ob)
+
+    correlation_data['table_json'] = table_json
 
     if target_dataset_ob.type == "ProbeSet":
         filter_cols = [7, 6]
@@ -74,12 +75,12 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
     Keyword arguments:
     correlation_data -- Correlation results
     this_trait -- Trait being correlated against a dataset, as a dict
-    this_dataset -- Dataset of this_trait, as a dict
+    this_dataset -- Dataset of this_trait, as a monadic dict
     target_dataset_ob - Target dataset, as a Dataset ob
     """
     this_trait = correlation_data['this_trait']
     this_dataset = correlation_data['this_dataset']
-    target_dataset = target_dataset_ob.as_dict()
+    target_dataset = target_dataset_ob.as_monadic_dict()
 
     corr_results = correlation_data['correlation_results']
     results_list = []
