@@ -40,10 +40,10 @@ def set_template_vars(start_vars, correlation_data):
                               name=start_vars['trait_id'])
 
     correlation_data['this_trait'] = jsonable(this_trait, this_dataset_ob)
-    correlation_data['this_dataset'] = this_dataset_ob.as_monadic_dict()
+    correlation_data['this_dataset'] = this_dataset_ob.as_monadic_dict().data
 
     target_dataset_ob = create_dataset(correlation_data['target_dataset'])
-    correlation_data['target_dataset'] = target_dataset_ob.as_monadic_dict()
+    correlation_data['target_dataset'] = target_dataset_ob.as_monadic_dict().data
 
     table_json = correlation_json_for_table(correlation_data,
                                             correlation_data['this_trait'],
@@ -80,7 +80,7 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
     """
     this_trait = correlation_data['this_trait']
     this_dataset = correlation_data['this_dataset']
-    target_dataset = target_dataset_ob.as_monadic_dict()
+    target_dataset = target_dataset_ob.as_monadic_dict().data
 
     corr_results = correlation_data['correlation_results']
     results_list = []
