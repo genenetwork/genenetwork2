@@ -4,7 +4,9 @@ import urllib.error
 import urllib.parse
 import re
 
+from MySQLdb.cursors import DictCursor
 from wqflask.database import database_connection
+
 
 class InfoPage:
     def __init__(self, start_vars):
@@ -18,29 +20,62 @@ class InfoPage:
         self.get_datasets_list()
 
     def get_info(self, create=False):
-        query_base = ("SELECT InfoPageName, GN_AccesionId, Species.MenuName, Species.TaxonomyId, Tissue.Name, InbredSet.Name, "
-                      "GeneChip.GeneChipName, GeneChip.GeoPlatform, AvgMethod.Name, Datasets.DatasetName, Datasets.GeoSeries, "
-                      "Datasets.PublicationTitle, DatasetStatus.DatasetStatusName, Datasets.Summary, Datasets.AboutCases, "
-                      "Datasets.AboutTissue, Datasets.AboutDataProcessing, Datasets.Acknowledgment, Datasets.ExperimentDesign, "
-                      "Datasets.Contributors, Datasets.Citation, Datasets.Notes, Investigators.FirstName, Investigators.LastName, "
-                      "Investigators.Address, Investigators.City, Investigators.State, Investigators.ZipCode, Investigators.Country, "
-                      "Investigators.Phone, Investigators.Email, Investigators.Url, Organizations.OrganizationName, "
-                      "InvestigatorId, DatasetId, DatasetStatusId, Datasets.AboutPlatform, InfoFileTitle, Specifics "
-                      "FROM InfoFiles "
-                      "LEFT JOIN Species USING (SpeciesId) "
-                      "LEFT JOIN Tissue USING (TissueId) "
-                      "LEFT JOIN InbredSet USING (InbredSetId) "
-                      "LEFT JOIN GeneChip USING (GeneChipId) "
-                      "LEFT JOIN AvgMethod USING (AvgMethodId) "
-                      "LEFT JOIN Datasets USING (DatasetId) "
-                      "LEFT JOIN Investigators USING (InvestigatorId) "
-                      "LEFT JOIN Organizations USING (OrganizationId) "
-                      "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE ")
+        query_base = (
+            "SELECT InfoPageName AS info_page_name, "
+            "GN_AccesionId AS accession_id, "
+            "Species.MenuName AS menu_name, "
+            "Species.TaxonomyId AS taxonomy_id, "
+            "Tissue.Name AS tissue_name, "
+            "InbredSet.Name AS group_name, "
+            "GeneChip.GeneChipName AS gene_chip_name, "
+            "GeneChip.GeoPlatform AS geo_platform, "
+            "AvgMethod.Name AS avg_method_name, "
+            "Datasets.DatasetName AS dataset_name, "
+            "Datasets.GeoSeries AS geo_series, "
+            "Datasets.PublicationTitle AS publication_title, "
+            "DatasetStatus.DatasetStatusName AS dataset_status_name, "
+            "Datasets.Summary AS dataset_summary, "
+            "Datasets.AboutCases AS about_cases, "
+            "Datasets.AboutTissue AS about_tissue, "
+            "Datasets.AboutDataProcessing AS about_data_processing, "
+            "Datasets.Acknowledgment AS acknowledgement, "
+            "Datasets.ExperimentDesign AS experiment_design, "
+            "Datasets.Contributors AS contributors, "
+            "Datasets.Citation AS citation, "
+            "Datasets.Notes AS notes, "
+            "Investigators.FirstName AS investigator_firstname, "
+            "Investigators.LastName AS investigator_lastname, "
+            "Investigators.Address AS investigator_address, "
+            "Investigators.City AS investigator_city, "
+            "Investigators.State AS investigator_state, "
+            "Investigators.ZipCode AS investigator_zipcode, "
+            "Investigators.Country AS investigator_country, "
+            "Investigators.Phone AS investigator_phone, "
+            "Investigators.Email AS investigator_email, "
+            "Investigators.Url AS investigator_url, "
+            "Organizations.OrganizationName AS organization_name, "
+            "InvestigatorId AS investigator_id, "
+            "DatasetId AS dataset_id, "
+            "DatasetStatusId AS dataset_status_id, "
+            "Datasets.AboutPlatform AS about_platform, "
+            "InfoFileTitle AS info_file_title, "
+            "Specifics AS specifics"
+            "FROM InfoFiles "
+            "LEFT JOIN Species USING (SpeciesId) "
+            "LEFT JOIN Tissue USING (TissueId) "
+            "LEFT JOIN InbredSet USING (InbredSetId) "
+            "LEFT JOIN GeneChip USING (GeneChipId) "
+            "LEFT JOIN AvgMethod USING (AvgMethodId) "
+            "LEFT JOIN Datasets USING (DatasetId) "
+            "LEFT JOIN Investigators USING (InvestigatorId) "
+            "LEFT JOIN Organizations USING (OrganizationId) "
+            "LEFT JOIN DatasetStatus USING (DatasetStatusId) WHERE "
+        )
         if not all([self.gn_accession_id, self.info_page_name]):
             raise ValueError('No correct parameter found')
 
-        results = None
-        with database_connection() as conn, conn.cursor() as cursor:
+        results = {}
+        with database_connection() as conn, conn.cursor(DictCursor) as cursor:
             if self.gn_accession_id:
                 cursor.execute(f"{query_base}GN_AccesionId = %s",
                                (self.gn_accession_id,))
@@ -78,49 +113,3 @@ class InfoPage:
                 self.filelist.append([filename, filedate, filesize])
         except Exception as e:
             pass
-
-
-def process_query_results(results):
-    info_ob = {
-        'info_page_name': results[0],
-        'accession_id': results[1],
-        'menu_name': results[2],
-        'taxonomy_id': results[3],
-        'tissue_name': results[4],
-        'group_name': results[5],
-        'gene_chip_name': results[6],
-        'geo_platform': results[7],
-        'avg_method_name': results[8],
-        'dataset_name': results[9],
-        'geo_series': results[10],
-        'publication_title': results[11],
-        'dataset_status_name': results[12],
-        'dataset_summary': results[13],
-        'about_cases': results[14],
-        'about_tissue': results[15],
-        'about_data_processing': results[16],
-        'acknowledgement': results[17],
-        'experiment_design': results[18],
-        'contributors': results[19],
-        'citation': results[20],
-        'notes': results[21],
-        'investigator_firstname': results[22],
-        'investigator_lastname': results[23],
-        'investigator_address': results[24],
-        'investigator_city': results[25],
-        'investigator_state': results[26],
-        'investigator_zipcode': results[27],
-        'investigator_country': results[28],
-        'investigator_phone': results[29],
-        'investigator_email': results[30],
-        'investigator_url': results[31],
-        'organization_name': results[32],
-        'investigator_id': results[33],
-        'dataset_id': results[34],
-        'dataset_status_is': results[35],
-        'about_platform': results[36],
-        'info_file_title': results[37],
-        'specifics': results[38]
-    }
-
-    return info_ob
