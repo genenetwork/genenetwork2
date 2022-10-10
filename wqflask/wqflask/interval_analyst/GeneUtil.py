@@ -13,10 +13,10 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
     speciesDict = {}
     results = []
     with database_connection() as conn, conn.cursor() as cursor:
-        cursor.execute("SELECT Species.Name, GeneList.SpeciesId "
-                       "FROM Species, GeneList WHERE "
-                       "GeneList.SpeciesId = Species.Id "
-                       "GROUP BY GeneList.SpeciesId")
+        cursor.execute("SELECT Species.Name, GeneList081722.SpeciesId "
+                       "FROM Species, GeneList081722 WHERE "
+                       "GeneList081722.SpeciesId = Species.Id "
+                       "GROUP BY GeneList081722.SpeciesId")
         results = cursor.fetchall()
         for item in results:
             speciesDict[item[0]] = item[1]
@@ -25,7 +25,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
         speciesId = speciesDict[species]
         otherSpecies = [[X, speciesDict[X]] for X in list(speciesDict.keys())]
         otherSpecies.remove([species, speciesId])
-        cursor.execute(f"SELECT {', '.join(fetchFields)} FROM GeneList "
+        cursor.execute(f"SELECT {', '.join(fetchFields)} FROM GeneList081722 "
                        "WHERE SpeciesId = %s AND "
                        "Chromosome = %s AND "
                        "((TxStart > %s and TxStart <= %s) "
@@ -68,7 +68,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                     othSpec, othSpecId = item
                     newdict2 = {}
                     cursor.execute(
-                        f"SELECT {', '.join(fetchFields)} FROM GeneList WHERE "
+                        f"SELECT {', '.join(fetchFields)} FROM GeneList081722 WHERE "
                         "SpeciesId = %s AND "
                         "geneSymbol= %s LIMIT 1",
                         (othSpecId,
