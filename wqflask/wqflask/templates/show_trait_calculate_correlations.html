@@ -72,7 +72,6 @@
                 <select name="corr_sample_method" class="form-control">
                     <option value="pearson">Pearson</option>
                     <option value="spearman">Spearman Rank</option>
-                    <option value="bicor">Biweight Midcorrelation</option>
                 </select>
             </div>
         </div>
@@ -118,10 +117,6 @@
               <label for="corr_sample_method" class="col-xs-2 control-label"></label>
               <div class="col-xs-3 controls">
                   <input type="button" class="btn corr_compute submit_special btn-success" data-url="/corr_compute" title="Compute Correlation" value="Compute">
-              </div>
-
-              <div class="col-xs-3 controls">
-                  <input type="button" class="btn test_corr_compute submit_special btn-success" data-url="/test_corr_compute" title="Compute Correlation" value="Test Compute">
               </div>
           </div>
       </div>
