@@ -72,7 +72,11 @@ def get_metadata(dataset, traits):
             "additive": additive,
             "lrs_score": f"{lrs:3.1f}",
             "location": __location__(probe_chr, probe_mb),
-            "lrs_location": f"Chr{chr_score}: {mb:.6f}"
+            "chr": probe_chr,
+            "mb": probe_mb,
+            "lrs_location": f"Chr{chr_score}: {mb:.6f}",
+            "lrs_chr": chr_score,
+            "lrs_mb": mb
 
             } for trait_name, probe_chr, probe_mb, symbol, mean, description,
             additive, lrs, chr_score, mb
