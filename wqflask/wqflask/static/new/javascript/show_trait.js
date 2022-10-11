@@ -1755,7 +1755,7 @@ $('.stats_panel').click(function() {
   }
 });
 
-$('#blockByIndex').click(function(){
+$('#block_by_index').click(function(){
   blockByIndex();
   editDataChange();
 });
