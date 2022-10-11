@@ -31,6 +31,7 @@ from wqflask.correlation.pre_computes import cache_new_traits_metadata
 
 from utility.authentication_tools import check_resource_availability
 from utility import hmac
+from utility.type_checking import get_float, get_int, get_string
 
 
 def set_template_vars(start_vars, correlation_data):
@@ -51,6 +52,7 @@ def set_template_vars(start_vars, correlation_data):
     target_dataset_ob = create_dataset(correlation_data['target_dataset'])
     correlation_data['target_dataset'] = target_dataset_ob.as_dict()
     correlation_data['table_json'] = correlation_json_for_table(
+        start_vars,
         correlation_data,
         correlation_data['this_trait'],
         correlation_data['this_dataset'],
@@ -73,7 +75,7 @@ def set_template_vars(start_vars, correlation_data):
     return correlation_data
 
 
-def correlation_json_for_table(correlation_data, this_trait, this_dataset, target_dataset_ob):
+def correlation_json_for_table(start_vars, correlation_data, this_trait, this_dataset, target_dataset_ob):
     """Return JSON data for use with the DataTable in the correlation result page
 
     Keyword arguments:
@@ -93,6 +95,20 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
 
     dataset_metadata = correlation_data["traits_metadata"]
 
+    min_expr = get_float(start_vars, 'min_expr')
+    p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
+    p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
+
+    if ('loc_chr' in start_vars and
+        'min_loc_mb' in start_vars and
+        'max_loc_mb' in start_vars):
+
+        location_chr = get_string(start_vars, 'loc_chr')
+        min_location_mb = get_int(start_vars, 'min_loc_mb')
+        max_location_mb = get_int(start_vars, 'max_loc_mb')
+    else:
+        location_chr = min_location_mb = max_location_mb = None
+
     for i, trait_dict in enumerate(corr_results):
         trait_name = list(trait_dict.keys())[0]
         trait = trait_dict[trait_name]
@@ -104,14 +120,32 @@ def correlation_json_for_table(correlation_data, this_trait, this_dataset, targe
                                            get_qtl_info=True)
             target_trait = jsonable(target_trait_ob, target_dataset_ob)
             new_traits_metadata[trait_name] = target_trait
-        else:
-            if target_dataset['type'] == "Publish":
-                permissions = check_resource_availability(target_dataset_ob, trait_name)
-                if permissions['metadata'] == "no-access":
+
+        if (float(trait.get('corr_coefficient',0.0)) >= p_range_lower and
+            float(trait.get('corr_coefficient',0.0)) <= p_range_upper):
+
+            if (target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Publish") and bool(target_trait['mean']):
+                if (min_expr != None) and (float(target_trait['mean']) < min_expr):
                     continue
 
-        if target_trait['view'] == False:
+            if target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Geno":
+                if start_vars['location_type'] == "gene":
+                    if location_chr != None and (target_trait['chr'] != location_chr):
+                        continue
+                    if (min_location_mb != None) and (float(target_trait['mb']) < float(min_location_mb)):
+                        continue
+                    if (max_location_mb != None) and (float(target_trait['mb']) > float(max_location_mb)):
+                        continue
+                else:
+                    if location_chr != None and (target_trait['lrs_chr'] != location_chr):
+                        continue
+                    if (min_location_mb != None) and (float(target_trait['lrs_mb']) < float(min_location_mb)):
+                        continue
+                    if (max_location_mb != None) and (float(target_trait['lrs_mb']) > float(max_location_mb)):
+                        continue
+        else:
             continue
+
         results_dict = {}
         results_dict['index'] = i + 1
         results_dict['trait_id'] = target_trait['name']
