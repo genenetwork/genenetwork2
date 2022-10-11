@@ -42,6 +42,6 @@ def get_int(vars_obj, name, default=None):
 
 def get_string(vars_obj, name, default=None):
     if name in vars_obj:
-        if not vars_obj[name] is None:
+        if not vars_obj[name] is None and not vars_obj[name] == "":
             return str(vars_obj[name])
     return default
