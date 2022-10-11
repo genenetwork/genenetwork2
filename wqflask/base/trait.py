@@ -96,6 +96,7 @@ class GeneralTrait:
 
         self.LRS_score_repr = "N/A"
         self.LRS_location_repr = "N/A"
+        self.chr = self.mb = self.locus_chr = self.locus_mb = ""
 
         if kw.get('fullname'):
             name2 = value.split("::")
@@ -311,8 +312,12 @@ def jsonable(trait, dataset=None):
                     description=trait.description_display,
                     mean=trait.mean,
                     location=trait.location_repr,
+                    chr=trait.chr,
+                    mb=trait.mb,
                     lrs_score=trait.LRS_score_repr,
                     lrs_location=trait.LRS_location_repr,
+                    lrs_chr=trait.locus_chr,
+                    lrs_mb=trait.locus_mb,
                     additive=trait.additive
                     )
     elif dataset.type == "Publish":
@@ -333,6 +338,8 @@ def jsonable(trait, dataset=None):
                         mean=trait.mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
+                        lrs_chr=trait.locus_chr,
+                        lrs_mb=trait.locus_mb,
                         additive=trait.additive
                         )
         else:
@@ -350,6 +357,8 @@ def jsonable(trait, dataset=None):
                         mean=trait.mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
+                        lrs_chr=trait.locus_chr,
+                        lrs_mb=trait.locus_mb,
                         additive=trait.additive
                         )
     elif dataset.type == "Geno":
@@ -359,7 +368,9 @@ def jsonable(trait, dataset=None):
                     view=str(trait.view),
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
-                    location=trait.location_repr
+                    location=trait.location_repr,
+                    chr=trait.chr,
+                    mb=trait.mb
                     )
     elif dataset.name == "Temp":
         return dict(name=trait.name,
