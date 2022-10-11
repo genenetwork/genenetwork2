@@ -5,7 +5,23 @@ from wqflask.database import database_connection
 # Just return a list of dictionaries
 # each dictionary contains sub-dictionary
 def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
-    fetchFields = ['SpeciesId', 'Id', 'GeneSymbol', 'GeneDescription', 'Chromosome', 'TxStart', 'TxEnd',
+    assembly_map = {
+        "mouse": "mm10",
+        "rat": "rn7"
+    }
+
+    def append_assembly(fetch_fields, species):
+        query_fields = []
+        for field in fetch_fields:
+            if field in ['Chr', 'TxStart', 'TxEnd', 'Strand']:
+                query_fields.append(field + "_" + assembly_map[species])
+            else:
+                query_fields.append(field)
+
+        return query_fields
+
+
+    fetchFields = ['SpeciesId', 'Id', 'GeneSymbol', 'GeneDescription', 'Chr', 'TxStart', 'TxEnd',
                    'Strand', 'GeneID', 'NM_ID', 'kgID', 'GenBankID', 'UnigenID', 'ProteinID', 'AlignID',
                    'exonCount', 'exonStarts', 'exonEnds', 'cdsStart', 'cdsEnd']
 
@@ -19,18 +35,23 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                        "GROUP BY GeneList081722.SpeciesId")
         results = cursor.fetchall()
         for item in results:
-            speciesDict[item[0]] = item[1]
+            if item[0] == "rat":
+                speciesDict[item[0]] = (item[1], "rn7")
+            else:
+                speciesDict[item[0]] = (item[1], "mm10")
 
         # List current Species and other Species
-        speciesId = speciesDict[species]
-        otherSpecies = [[X, speciesDict[X]] for X in list(speciesDict.keys())]
-        otherSpecies.remove([species, speciesId])
-        cursor.execute(f"SELECT {', '.join(fetchFields)} FROM GeneList081722 "
+        speciesId, assembly = speciesDict[species]
+        otherSpecies = [[X, speciesDict[X][0], speciesDict[X][1]] for X in list(speciesDict.keys())]
+        otherSpecies.remove([species, speciesId, assembly])
+        query_fields = append_assembly(fetchFields, species)
+
+        cursor.execute(f"SELECT {', '.join(query_fields)} FROM GeneList081722 "
                        "WHERE SpeciesId = %s AND "
-                       "Chromosome = %s AND "
-                       "((TxStart > %s and TxStart <= %s) "
-                       "OR (TxEnd > %s and TxEnd <= %s)) "
-                       "ORDER BY txStart",
+                       f"Chr_{assembly}" + " = %s AND "
+                       f"((TxStart_{assembly}" + " > %s and " + f"TxStart_{assembly}" + " <= %s) "
+                       f"OR (TxEnd_{assembly}" + " > %s and " + f"TxEnd_{assembly}" + " <= %s)) "
+                       f"ORDER BY TxStart_{assembly}",
                        (speciesId, chrName,
                         startMb, endMb,
                         startMb, endMb))
@@ -65,10 +86,11 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                     pass
                 # load gene from other Species by the same name
                 for item in otherSpecies:
-                    othSpec, othSpecId = item
+                    othSpec, othSpecId, othSpecAssembly = item
                     newdict2 = {}
+                    query_fields = append_assembly(fetchFields, othSpec)
                     cursor.execute(
-                        f"SELECT {', '.join(fetchFields)} FROM GeneList081722 WHERE "
+                        f"SELECT {', '.join(query_fields)} FROM GeneList081722 WHERE "
                         "SpeciesId = %s AND "
                         "geneSymbol= %s LIMIT 1",
                         (othSpecId,

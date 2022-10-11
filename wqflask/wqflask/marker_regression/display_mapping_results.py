@@ -1341,9 +1341,10 @@ class DisplayMappingResults:
                 tenPercentLength = geneLength * 0.0001
                 SNPdensity = theGO["snpCount"] / geneLength
 
-                exonStarts = list(
-                    map(float, theGO['exonStarts'].split(",")[:-1]))
-                exonEnds = list(map(float, theGO['exonEnds'].split(",")[:-1]))
+                if theGO['exonStarts']:
+                    exonStarts = list(
+                        map(float, theGO['exonStarts'].split(",")[:-1]))
+                    exonEnds = list(map(float, theGO['exonEnds'].split(",")[:-1]))
                 cdsStart = theGO['cdsStart']
                 cdsEnd = theGO['cdsEnd']
                 accession = theGO['NM_ID']
@@ -2993,7 +2994,7 @@ class DisplayMappingResults:
                     if theGO["snpCount"]:
                         snpString = HT.Link(
                             (f"http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&"
-                             f"chr={theGO['Chromosome']}&"
+                             f"chr={theGO['Chr']}&"
                              f"start={theGO['TxStart']}&"
                              f"end={theGO['TxEnd']}&"
                              f"geneName={theGO['GeneSymbol']}&"
@@ -3006,17 +3007,17 @@ class DisplayMappingResults:
                         snpString = 0
 
                     mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm10&position=chr" + \
-                        theGO["Chromosome"] + "%3A" + str(int(theGO["TxStart"] * 1000000.0)) + "-" + str(
+                        theGO["Chr"] + "%3A" + str(int(theGO["TxStart"] * 1000000.0)) + "-" + str(
                             int(theGO["TxEnd"] * 1000000.0)) + "&pix=620&Submit=submit"
 
                     # the chromosomes for human 1 are 1qXX.XX
-                    if theGO['humanGene']:
+                    if 'humanGene' in theGO:
                         if theGO['humanGene']["TxStart"] == '':
                             humanStartDisplay = ""
                         else:
                             humanStartDisplay = "%0.6f" % theGO['humanGene']["TxStart"]
 
-                        humanChr = theGO['humanGene']["Chromosome"]
+                        humanChr = theGO['humanGene']["Chr"]
                         humanTxStart = theGO['humanGene']["TxStart"]
 
                         humanStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Human&db=hg17&position=chr%s:%d-%d" % (
@@ -3040,10 +3041,10 @@ class DisplayMappingResults:
                         avgExpr = "%0.6f" % avgExpr
 
                     # If we have a referenceGene then we will show the Literature Correlation
-                    if theGO["Chromosome"] == "X":
+                    if theGO["Chr"] == "X":
                         chr_as_int = 19
                     else:
-                        chr_as_int = int(theGO["Chromosome"]) - 1
+                        chr_as_int = int(theGO["Chr"]) - 1
                     if refGene:
                         literatureCorrelationString = str(self.getLiteratureCorrelation(
                             self.cursor, refGene, theGO['GeneID']) or "N/A")
@@ -3122,13 +3123,13 @@ class DisplayMappingResults:
                 else:
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
-                if theGO["Chromosome"] == "X":
+                if theGO["Chr"] == "X":
                     chr_as_int = 20
                 else:
-                    chr_as_int = int(theGO["Chromosome"]) - 1
+                    chr_as_int = int(theGO["Chr"]) - 1
 
                 geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
-                geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chromosome"], float(
+                geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chr"], float(
                     theGO["TxStart"]) - (geneLength * 0.1), float(theGO["TxEnd"]) + (geneLength * 0.1))
 
                 avgExprVal = []
@@ -3139,14 +3140,14 @@ class DisplayMappingResults:
 
                 # Mouse Gene
                 if theGO['mouseGene']:
-                    mouseChr = theGO['mouseGene']["Chromosome"]
+                    mouseChr = theGO['mouseGene']["Chr"]
                     mouseTxStart = "%0.6f" % theGO['mouseGene']["TxStart"]
                 else:
                     mouseChr = mouseTxStart = ""
 
                 # the chromosomes for human 1 are 1qXX.XX
                 if theGO['humanGene']:
-                    humanChr = theGO['humanGene']["Chromosome"]
+                    humanChr = theGO['humanGene']["Chr"]
                     humanTxStart = "%0.6f" % theGO['humanGene']["TxStart"]
                 else:
                     humanChr = humanTxStart = ""
