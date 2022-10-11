@@ -348,7 +348,7 @@ def compute_correlation_rust(
 
     if should_compute_all:
 
-        if corr_type == "sample":
+        if corr_type == "sample" and this_dataset.type == "ProbeSet":
 
             top_a = compute_top_n_tissue(
                 target_dataset, this_trait, results, method)
@@ -368,8 +368,6 @@ def compute_correlation_rust(
 
             top_a = compute_top_n_sample(
                 start_vars, target_dataset, list(results.keys()))
-
-            top_b = compute_top_n_lit(results, target_dataset, this_trait)
 
     return {
         "correlation_results": merge_results(
