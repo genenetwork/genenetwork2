@@ -16,11 +16,9 @@ $(function() {
       }
       return _results;
     })();
-    console.log("new_splats:", new_splats);
     pattern = /^\d+\s*(?:-\s*\d+)?\s*$/;
     for (_i = 0, _len = new_splats.length; _i < _len; _i++) {
       splat = new_splats[_i];
-      console.log("splat is:", splat);
       if (!splat.match(pattern)) {
         return false;
       }
@@ -34,12 +32,9 @@ $(function() {
      */
     var input;
     input = $('#remove_samples_field').val();
-    console.log("input is:", input);
     if (remove_samples_is_valid(input)) {
-      console.log("input is valid");
       return $('#remove_samples_invalid').hide();
     } else {
-      console.log("input isn't valid");
       return $('#remove_samples_invalid').show();
     }
   };
