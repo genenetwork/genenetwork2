@@ -395,79 +395,75 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
         the_url = GN_PROXY_URL + "run-action?resource={}&user={}&branch=data&action=view&trait={}".format(
             resource_id, g.user_session.user_id, trait.name)
     with database_connection() as conn, conn.cursor() as cursor:
-        try:
-            response = requests.get(the_url).content
-            trait_info = json.loads(response)
-        except:  # ZS: I'm assuming the trait is viewable if the try fails for some reason; it should never reach this point unless the user has privileges, since that's dealt with in create_trait
-            trait_info = ()
-            if dataset.type == 'Publish':
-                cursor.execute(
-                    "SELECT PublishXRef.Id, InbredSet.InbredSetCode, "
-                    "Publication.PubMed_ID, "
-                    "CAST(Phenotype.Pre_publication_description AS BINARY), "
-                    "CAST(Phenotype.Post_publication_description AS BINARY), "
-                    "CAST(Phenotype.Original_description AS BINARY), "
-                    "CAST(Phenotype.Pre_publication_abbreviation AS BINARY), "
-                    "CAST(Phenotype.Post_publication_abbreviation AS BINARY), "
-                    "PublishXRef.mean, Phenotype.Lab_code, "
-                    "Phenotype.Submitter, Phenotype.Owner, "
-                    "Phenotype.Authorized_Users, "
-                    "CAST(Publication.Authors AS BINARY), "
-                    "CAST(Publication.Title AS BINARY), "
-                    "CAST(Publication.Abstract AS BINARY), "
-                    "CAST(Publication.Journal AS BINARY), "
-                    "Publication.Volume, Publication.Pages, "
-                    "Publication.Month, Publication.Year, "
-                    "PublishXRef.Sequence, Phenotype.Units, "
-                    "PublishXRef.comments FROM PublishXRef, Publication, "
-                    "Phenotype, PublishFreeze, InbredSet WHERE "
-                    "PublishXRef.Id = %s AND "
-                    "Phenotype.Id = PublishXRef.PhenotypeId "
-                    "AND Publication.Id = PublishXRef.PublicationId "
-                    "AND PublishXRef.InbredSetId = PublishFreeze.InbredSetId "
-                    "AND PublishXRef.InbredSetId = InbredSet.Id AND "
-                    "PublishFreeze.Id = %s",
-                    (trait.name, dataset.id,)
-                )
-                trait_info = cursor.fetchone()
+        trait_info = ()
+        if dataset.type == 'Publish':
+            cursor.execute(
+                "SELECT PublishXRef.Id, InbredSet.InbredSetCode, "
+                "Publication.PubMed_ID, "
+                "CAST(Phenotype.Pre_publication_description AS BINARY), "
+                "CAST(Phenotype.Post_publication_description AS BINARY), "
+                "CAST(Phenotype.Original_description AS BINARY), "
+                "CAST(Phenotype.Pre_publication_abbreviation AS BINARY), "
+                "CAST(Phenotype.Post_publication_abbreviation AS BINARY), "
+                "PublishXRef.mean, Phenotype.Lab_code, "
+                "Phenotype.Submitter, Phenotype.Owner, "
+                "Phenotype.Authorized_Users, "
+                "CAST(Publication.Authors AS BINARY), "
+                "CAST(Publication.Title AS BINARY), "
+                "CAST(Publication.Abstract AS BINARY), "
+                "CAST(Publication.Journal AS BINARY), "
+                "Publication.Volume, Publication.Pages, "
+                "Publication.Month, Publication.Year, "
+                "PublishXRef.Sequence, Phenotype.Units, "
+                "PublishXRef.comments FROM PublishXRef, Publication, "
+                "Phenotype, PublishFreeze, InbredSet WHERE "
+                "PublishXRef.Id = %s AND "
+                "Phenotype.Id = PublishXRef.PhenotypeId "
+                "AND Publication.Id = PublishXRef.PublicationId "
+                "AND PublishXRef.InbredSetId = PublishFreeze.InbredSetId "
+                "AND PublishXRef.InbredSetId = InbredSet.Id AND "
+                "PublishFreeze.Id = %s",
+                (trait.name, dataset.id,)
+            )
+            trait_info = cursor.fetchone()
 
-            # XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
-            # XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
-            elif dataset.type == 'ProbeSet':
-                display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
-                display_fields_string = f'ProbeSet.{display_fields_string}'
-                cursor.execute(
-                    f"SELECT {display_fields_string} FROM ProbeSet, ProbeSetFreeze, "
-                    "ProbeSetXRef WHERE "
-                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
-                    "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
-                    "ProbeSetFreeze.Name = %s AND "
-                    "ProbeSet.Name = %s",
-                    (dataset.name, str(trait.name),)
-                )
-                trait_info = cursor.fetchone()
-            # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
-            # to avoid the problem of same marker name from different species.
-            elif dataset.type == 'Geno':
-                display_fields_string = ',Geno.'.join(dataset.display_fields)
-                display_fields_string = f'Geno.{display_fields_string}'
-                cursor.execute(
-                    f"SELECT {display_fields_string} FROM Geno, GenoFreeze, "
-                    "GenoXRef WHERE "
-                    "GenoXRef.GenoFreezeId = GenoFreeze.Id "
-                    "AND GenoXRef.GenoId = Geno.Id "
-                    "AND GenoFreeze.Name = %s "
-                    "AND Geno.Name = %s",
-                    (dataset.name, trait.name)
-                )
-                trait_info = cursor.fetchone()
-            else:  # Temp type
-                cursor.execute(
-                    f"SELECT {','.join(dataset.display_fields)} "
-                    f"FROM {dataset.type} WHERE Name = %s",
-                    (trait.name,)
-                )
-                trait_info = cursor.fetchone()
+        # XZ, 05/08/2009: Xiaodong add this block to use ProbeSet.Id to find the probeset instead of just using ProbeSet.Name
+        # XZ, 05/08/2009: to avoid the problem of same probeset name from different platforms.
+        elif dataset.type == 'ProbeSet':
+            display_fields_string = ', ProbeSet.'.join(dataset.display_fields)
+            display_fields_string = f'ProbeSet.{display_fields_string}'
+            cursor.execute(
+                f"SELECT {display_fields_string} FROM ProbeSet, ProbeSetFreeze, "
+                "ProbeSetXRef WHERE "
+                "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                "ProbeSetFreeze.Name = %s AND "
+                "ProbeSet.Name = %s",
+                (dataset.name, str(trait.name),)
+            )
+            trait_info = cursor.fetchone()
+        # XZ, 05/08/2009: We also should use Geno.Id to find marker instead of just using Geno.Name
+        # to avoid the problem of same marker name from different species.
+        elif dataset.type == 'Geno':
+            display_fields_string = ',Geno.'.join(dataset.display_fields)
+            display_fields_string = f'Geno.{display_fields_string}'
+            cursor.execute(
+                f"SELECT {display_fields_string} FROM Geno, GenoFreeze, "
+                "GenoXRef WHERE "
+                "GenoXRef.GenoFreezeId = GenoFreeze.Id "
+                "AND GenoXRef.GenoId = Geno.Id "
+                "AND GenoFreeze.Name = %s "
+                "AND Geno.Name = %s",
+                (dataset.name, trait.name)
+            )
+            trait_info = cursor.fetchone()
+        else:  # Temp type
+            cursor.execute(
+                f"SELECT {','.join(dataset.display_fields)} "
+                f"FROM {dataset.type} WHERE Name = %s",
+                (trait.name,)
+            )
+            trait_info = cursor.fetchone()
 
         if trait_info:
             trait.haveinfo = True
