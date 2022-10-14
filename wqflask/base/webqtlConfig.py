@@ -33,6 +33,9 @@ MAXLRS = 460.0
 # MINIMUM Database public value
 PUBLICTHRESH = 0
 
+# Groups to treat as unique when drawing correlation dropdowns (not sure if this logic even makes sense or is necessary)
+BXD_GROUP_EXCEPTIONS = ['BXD-Longevity', 'BXD-AE', 'BXD-Heart-Metals']
+
 # EXTERNAL LINK ADDRESSES
 PUBMEDLINK_URL = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=%s&dopt=Abstract"
 UCSC_BLAT = 'http://genome.ucsc.edu/cgi-bin/hgBlat?org=%s&db=%s&type=0&sort=0&output=0&userSeq=%s'
