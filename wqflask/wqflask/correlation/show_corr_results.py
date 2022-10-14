@@ -188,7 +188,7 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
             results_dict['authors_display'] = "N/A"
             results_dict['additive'] = "N/A"
             results_dict['pubmed_link'] = "N/A"
-            results_dict['pubmed_text'] = "N/A"
+            results_dict['pubmed_text'] = target_trait["pubmed_text"]
 
             if bool(target_trait['abbreviation']):
                 results_dict['abbreviation_display'] = target_trait['abbreviation']
