@@ -617,8 +617,7 @@ def loading_page():
                 dataset = create_dataset(start_vars['dataset'])
             start_vars['trait_name'] = start_vars['trait_id']
             if dataset.type == "Publish":
-                start_vars['trait_name'] = dataset.group.code + \
-                    "_" + start_vars['trait_name']
+                start_vars['trait_name'] = f"{dataset.group.code}_{start_vars['trait_name']}"
             samples = dataset.group.samplelist
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
