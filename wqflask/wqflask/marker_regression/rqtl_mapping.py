@@ -13,6 +13,7 @@ import numpy as np
 
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
+from utility.redis_tools import get_redis_conn
 from utility.tools import locate, GN3_LOCAL_URL
 from wqflask.database import database_connection
 
@@ -148,7 +149,7 @@ def cofactors_to_dict(cofactors: str, dataset_ob, samples) -> Dict:
     """
     cofactor_dict = {}
     if cofactors:
-        dataset_ob.group.get_samplelist()
+        dataset_ob.group.get_samplelist(redis_conn=get_redis_conn())
         sample_list = dataset_ob.group.samplelist
         for cofactor in cofactors.split(","):
             cofactor_name, cofactor_dataset = cofactor.split(":")

@@ -7,6 +7,7 @@ import json
 from base import webqtlConfig
 from base.trait import create_trait
 from base.data_set import create_dataset
+from utility.redis_tools import get_redis_conn
 from utility.tools import flat_files, assert_file
 from utility.tools import GEMMA_WRAPPER_COMMAND
 from utility.tools import TEMPDIR
@@ -163,7 +164,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
         trait_ob = create_trait(dataset=dataset_ob,
                                 name=trait_name,
                                 cellid=None)
-        this_dataset.group.get_samplelist()
+        this_dataset.group.get_samplelist(redis_conn=get_redis_conn())
         trait_samples = this_dataset.group.samplelist
         trait_sample_data = trait_ob.data
         for index, sample in enumerate(trait_samples):
