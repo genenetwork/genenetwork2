@@ -48,6 +48,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                                                        requests_mock):
         """Empty trait info"""
         conn = mock.MagicMock()
+        cursor = mock.MagicMock()
+        cursor.fetchone.return_value = {}
+        conn.cursor.return_value.__enter__.return_value = cursor
         mock_db.return_value.__enter__.return_value = conn
         requests_mock.return_value = TestNilResponse()
         with self.assertRaises(KeyError):
@@ -63,6 +66,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         """Test that attributes are set"""
         mock_dataset = mock.MagicMock()
         conn = mock.MagicMock()
+        cursor = mock.MagicMock()
+        cursor.fetchone.return_value = [1, 2, 3, 4]
+        conn.cursor.return_value.__enter__.return_value = cursor
         mock_db.return_value.__enter__.return_value = conn
         requests_mock.return_value = TestResponse()
         type(mock_dataset).display_fields = mock.PropertyMock(
