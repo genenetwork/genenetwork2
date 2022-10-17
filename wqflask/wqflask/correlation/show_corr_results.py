@@ -128,21 +128,22 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
                 if (min_expr != None) and (float(target_trait['mean']) < min_expr):
                     continue
 
-            if target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Geno":
-                if start_vars['location_type'] == "gene":
-                    if location_chr != None and (target_trait['chr'] != location_chr):
-                        continue
-                    if (min_location_mb != None) and (float(target_trait['mb']) < float(min_location_mb)):
-                        continue
-                    if (max_location_mb != None) and (float(target_trait['mb']) > float(max_location_mb)):
-                        continue
-                else:
-                    if location_chr != None and (target_trait['lrs_chr'] != location_chr):
-                        continue
-                    if (min_location_mb != None) and (float(target_trait['lrs_mb']) < float(min_location_mb)):
-                        continue
-                    if (max_location_mb != None) and (float(target_trait['lrs_mb']) > float(max_location_mb)):
-                        continue
+            if start_vars['location_type'] == "gene" and (target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Geno"):
+                if location_chr != None and (target_trait['chr'] != location_chr):
+                    continue
+                if (min_location_mb != None) and (float(target_trait['mb']) < float(min_location_mb)):
+                    continue
+                if (max_location_mb != None) and (float(target_trait['mb']) > float(max_location_mb)):
+                    continue
+            elif target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Publish":
+                if location_chr != None and (target_trait['lrs_chr'] != location_chr):
+                    continue
+                if (min_location_mb != None) and (float(target_trait['lrs_mb']) < float(min_location_mb)):
+                    continue
+                if (max_location_mb != None) and (float(target_trait['lrs_mb']) > float(max_location_mb)):
+                    continue
+            else:
+                continue
         else:
             continue
 
