@@ -40,7 +40,7 @@ class DatasetGroup:
                     "InbredSet.GeneticType, "
                     "InbredSet.InbredSetCode "
                     "FROM InbredSet WHERE Name = %s",
-                    (dataset.name,))
+                    (name,))
             results = cursor.fetchone()
             if results:
                 (self.name, self.id, self.genetic_type, self.code) = results
