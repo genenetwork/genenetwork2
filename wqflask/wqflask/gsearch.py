@@ -42,6 +42,7 @@ class GSearch:
         chr_mb = curry(2, lambda chr, mb: f"Chr{chr}: {mb:.6f}")
         format3f = lambda x: f"{x:.3f}"
         hmac = curry(2, lambda dataset, dataset_fullname: f"{dataset_fullname}:{dataset}")
+        convert_lod = lambda x: x / 4.61
         self.trait_list = []
         # pylint: disable=invalid-name
         with xapian_database() as db:
@@ -56,7 +57,7 @@ class GSearch:
                 trait["index"] = Just(i)
                 trait["location_repr"] = (Maybe.apply(chr_mb)
                                           .to_arguments(trait.pop("chr"), trait.pop("mb")))
-                trait["LRS_score_repr"] = trait.pop("lrs").map(format3f)
+                trait["LRS_score_repr"] = trait.pop("lrs").map(convert_lod).map(format3f)
                 trait["additive"] = trait["additive"].map(format3f)
                 trait["mean"] = trait["mean"].map(format3f)
                 trait["max_lrs_text"] = (Maybe.apply(chr_mb)
