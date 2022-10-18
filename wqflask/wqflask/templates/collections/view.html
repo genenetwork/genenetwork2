@@ -178,6 +178,8 @@
                     'render': function(data) {
                         if (Object.hasOwn(data, 'symbol')){
                             return data.symbol
+                        } else if (Object.hasOwn(data, 'name')){
+                            return data.name
                         } else {
                             return "N/A"
                         }
@@ -195,6 +197,10 @@
                             } catch(err){
                                 return escape(data.description)
                             }
+                        } else if (Object.hasOwn(data, 'location')){
+                            return data.location
+                        } else if (Object.hasOwn(data, 'name')){
+                            return data.name
                         } else {
                             return "N/A"
                         }
