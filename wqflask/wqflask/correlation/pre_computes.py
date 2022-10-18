@@ -209,6 +209,10 @@ def read_text_file(sample_dict, file_path):
 
 def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
 
+    def __sanitise_filename__(filename):
+        ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
+        return str.translate(filename, ttable)
+
     def __generate_file_name__(db_name):
         # todo add expiry time and checker
         with conn.cursor() as cursor:
@@ -216,7 +220,8 @@ def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
                 'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (db_name,))
             results = cursor.fetchone()
             if (results):
-                return f"ProbeSetFreezeId_{results[0]}_{results[1]}"
+                return __sanitise_filename__(
+                    f"ProbeSetFreezeId_{results[0]}_{results[1]}")
 
     def __parse_to_dict__(results):
         ids = ["ID"]
@@ -232,10 +237,10 @@ def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
 
     def __write_to_file__(file_path, data, col_names):
         with open(file_path, 'w+', encoding='UTF8') as file_handler:
-
             writer = csv.writer(file_handler)
             writer.writerow(col_names)
             writer.writerows(data.values())
+
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT ProbeSet.Name, Strain.Name, ProbeSetData.value "
