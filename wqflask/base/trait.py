@@ -550,7 +550,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                         (trait.name, dataset.id,)
                     )
                     trait_qtl = cursor.fetchone()
-                    if trait_qtl:
+                    if any(trait_qtl):
                         trait.locus, trait.lrs, trait.pvalue, trait.mean, trait.additive = trait_qtl
                         if trait.locus:
                             cursor.execute(
@@ -565,7 +565,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                                 trait.locus_chr = result[0]
                                 trait.locus_mb = result[1]
                             else:
-                                trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
+                                trait.locus_chr = trait.locus_mb = ""
                         else:
                             trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
 
@@ -597,9 +597,10 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                             trait.locus = trait.locus_chr = trait.locus_mb = trait.additive = ""
                     else:
                         trait.locus = trait.lrs = trait.additive = ""
-                if (dataset.type == 'Publish' or dataset.type == "ProbeSet") and str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
-                    trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
-                        trait.locus_chr, float(trait.locus_mb))
+                if (dataset.type == 'Publish' or dataset.type == "ProbeSet"):
+                    if str(trait.locus_chr or "") != "" and str(trait.locus_mb or "") != "":
+                        trait.LRS_location_repr = LRS_location_repr = 'Chr%s: %.6f' % (
+                            trait.locus_chr, float(trait.locus_mb))
                     if str(trait.lrs or "") != "":
                         trait.LRS_score_repr = LRS_score_repr = '%3.1f' % trait.lrs
         else:
