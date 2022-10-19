@@ -842,25 +842,6 @@ def corr_compute_page():
     return render_template("correlation_page.html", **correlation_results)
 
 
-@app.route("/test_corr_compute", methods=["POST"])
-def test_corr_compute_page():
-
-    start_vars = request.form
-
-    try:
-        correlation_results = compute_correlation_rust(
-            start_vars,
-            start_vars["corr_type"],
-            start_vars['corr_sample_method'],
-            int(start_vars.get("corr_return_results", 500)),
-            True)
-    except WrongCorrelationType as exc:
-        return __handle_correlation_error__(exc)
-
-    correlation_results = set_template_vars(request.form, correlation_results)
-    return render_template("correlation_page.html", **correlation_results)
-
-
 @app.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     start_vars = request.form
