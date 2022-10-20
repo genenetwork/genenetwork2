@@ -387,13 +387,6 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     if not dataset:
         raise ValueError("Dataset doesn't exist")
 
-    resource_id = get_resource_id(dataset, trait.name)
-    if dataset.type == 'Publish':
-        the_url = GN_PROXY_URL + "run-action?resource={}&user={}&branch=data&action=view".format(
-            resource_id, g.user_session.user_id)
-    else:
-        the_url = GN_PROXY_URL + "run-action?resource={}&user={}&branch=data&action=view&trait={}".format(
-            resource_id, g.user_session.user_id, trait.name)
     with database_connection() as conn, conn.cursor() as cursor:
         trait_info = ()
         if dataset.type == 'Publish':
