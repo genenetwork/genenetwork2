@@ -159,17 +159,15 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
     corr_samples_group = start_vars["corr_samples_group"]
     if corr_samples_group == "samples_primary":
         sample_data = process_samples(
-            start_vars, this_dataset.group.all_samples_ordered())
+            start_vars, this_dataset.group.samplelist)
 
     elif corr_samples_group == "samples_other":
         sample_data = process_samples(
             start_vars, excluded_samples=this_dataset.group.samplelist)
 
     else:
-        sample_data = process_samples(start_vars)
-
-    sample_data = process_samples(
-        start_vars, this_dataset.group.all_samples_ordered())
+        sample_data = process_samples(start_vars,
+            this_dataset.group.all_samples_ordered())
 
     target_dataset.get_trait_data(list(sample_data.keys()))
     this_trait = retrieve_sample_data(this_trait, this_dataset)
