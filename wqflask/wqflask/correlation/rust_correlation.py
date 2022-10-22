@@ -231,10 +231,12 @@ def __compute_sample_corr__(
         target_trait_info: tuple):
     """Compute the sample correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
-    all_samples = json.loads(start_vars["sample_vals"])
+
     sample_data = get_sample_corr_data(
-        sample_type=start_vars["corr_samples_group"], all_samples=all_samples,
-        dataset_samples=this_dataset.group.all_samples_ordered())
+        sample_type=start_vars["corr_samples_group"],
+        sample_data= json.loads(start_vars["sample_vals"]),
+        all_samples=this_dataset.group.all_samples_ordered(),
+        dataset_samples=this_dataset.group.samplelist)
     if not bool(sample_data):
         return {}
 
