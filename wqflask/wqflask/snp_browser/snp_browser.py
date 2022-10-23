@@ -11,7 +11,7 @@ class SnpBrowser:
 
     def __init__(self, db_cursor, start_vars):
         self.strain_lists = get_browser_sample_lists()
-        self.initialize_parameters(start_vars)
+        self.initialize_parameters(db_cursor, start_vars)
 
         if self.first_run == "false":
             self.filtered_results = self.get_browser_results()
@@ -53,7 +53,7 @@ class SnpBrowser:
         mouse_species_ob = species.TheSpecies(species_name="Mouse")
         for key in mouse_species_ob.chromosomes.chromosomes(db_cursor):
             self.mouse_chr_list.append(
-                mouse_species_ob.chromosomes.chromosomes[key].name)
+                mouse_species_ob.chromosomes.chromosomes(db_cursor)[key].name)
         rat_species_ob = species.TheSpecies(species_name="Rat")
         for key in rat_species_ob.chromosomes.chromosomes(db_cursor):
             self.rat_chr_list.append(
