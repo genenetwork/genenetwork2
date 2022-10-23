@@ -16,7 +16,7 @@ class AttributeSetter:
 
 
 class MockGroup(AttributeSetter):
-    def get_samplelist(self):
+    def get_samplelist(self, redis_conn):
         return None
 
 
