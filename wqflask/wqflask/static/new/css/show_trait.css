@@ -6,6 +6,23 @@ table.dataTable tbody tr.selected {
   background-color: #ffee99;
 }
 
+table.metadata {
+    table-layout: fixed;
+}
+
+table.metadata td:nth-child(1) {
+    width: 10%;
+}
+
+table summary b {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+table details[open] {
+    width: 80%;
+}
+
 #bar_chart_container {
   overflow-x:scroll;
 }
