@@ -244,5 +244,10 @@
         {% endif %}
         {% endif %}
     </div>
+    {% if admin_status != None and admin_status.get('metadata', DataRole.VIEW) > DataRole.VIEW %}
+    <div class="btn-group">
+        <button type="button" id="edit_resource" class="btn btn-success" title="Edit Privileges" onclick="window.open('/resource-management/resources/{{ resource_id }}', '_blank')">Edit Privileges</button>
+    </div>
+    {% endif %}
 </div>
 
