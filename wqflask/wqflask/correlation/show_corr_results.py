@@ -29,7 +29,6 @@ from base.webqtlConfig import TMPDIR
 from wqflask.correlation.pre_computes import fetch_all_cached_metadata
 from wqflask.correlation.pre_computes import cache_new_traits_metadata
 
-from utility.authentication_tools import check_resource_availability
 from utility import hmac
 from utility.type_checking import get_float, get_int, get_string
 

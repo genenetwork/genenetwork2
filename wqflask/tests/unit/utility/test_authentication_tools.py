@@ -21,6 +21,8 @@ class TestUser:
         """Mockes user id. Used in Flask.g.user_session.user_id"""
         return b"Jane"
 
+user_id = b"Jane"
+
 
 class TestUserSession:
     """Mock user session"""
@@ -52,7 +54,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
         test_dataset = mock.MagicMock()
         type(test_dataset).type = mock.PropertyMock(return_value="Test")
         add_new_resource_mock.return_value = {"default_mask": 2}
-        self.assertEqual(check_resource_availability(test_dataset), 2)
+        self.assertEqual(check_resource_availability(test_dataset, user_id), 2)
 
     @mock.patch('utility.authentication_tools.requests.get')
     @mock.patch('utility.authentication_tools.add_new_resource')
@@ -72,7 +74,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
         requests_mock.return_value = TestResponse()
         test_dataset = mock.MagicMock()
         type(test_dataset).type = mock.PropertyMock(return_value="Test")
-        self.assertEqual(check_resource_availability(test_dataset),
+        self.assertEqual(check_resource_availability(test_dataset, user_id),
                          ['foo'])
 
     @mock.patch('utility.authentication_tools.webqtlConfig.SUPER_PRIVILEGES',
@@ -95,14 +97,14 @@ class TestCheckResourceAvailability(unittest.TestCase):
         requests_mock.return_value = TestResponse()
         test_dataset = mock.MagicMock()
         type(test_dataset).type = mock.PropertyMock(return_value="Test")
-        self.assertEqual(check_resource_availability(test_dataset),
+        self.assertEqual(check_resource_availability(test_dataset, user_id),
                          "SUPERUSER")
 
     @mock.patch('utility.authentication_tools.webqtlConfig.DEFAULT_PRIVILEGES',
                 "John Doe")
     def test_check_resource_availability_string_dataset(self):
         """Test the resource availability if the dataset is a string"""
-        self.assertEqual(check_resource_availability("Test"),
+        self.assertEqual(check_resource_availability("Test", user_id),
                          "John Doe")
 
     @mock.patch('utility.authentication_tools.webqtlConfig.DEFAULT_PRIVILEGES',
@@ -111,7 +113,7 @@ class TestCheckResourceAvailability(unittest.TestCase):
         """Test the resource availability if the dataset is a string"""
         test_dataset = mock.MagicMock()
         type(test_dataset).type = mock.PropertyMock(return_value="Temp")
-        self.assertEqual(check_resource_availability(test_dataset),
+        self.assertEqual(check_resource_availability(test_dataset, user_id),
                          "John Doe")
 
 

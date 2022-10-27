@@ -13,7 +13,7 @@ from utility.tools import GN_PROXY_URL
 
 Redis = get_redis_conn()
 
-def check_resource_availability(dataset, trait_id=None):
+def check_resource_availability(dataset, user_id, trait_id=None):
     # At least for now assume temporary entered traits are accessible
     if type(dataset) == str or dataset.type == "Temp":
         return webqtlConfig.DEFAULT_PRIVILEGES
@@ -33,14 +33,11 @@ def check_resource_availability(dataset, trait_id=None):
 
     # Check if super-user - we should probably come up with some
     # way to integrate this into the proxy
-    if g.user_session.user_id in Redis.smembers("super_users"):
+    if user_id in Redis.smembers("super_users"):
         return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
-
-    the_url = GN_PROXY_URL + "available?resource={}&user={}".format(
-        resource_id, g.user_session.user_id)
-
+    the_url = f"{GN_PROXY_URL}available?resource={resource_id}&user={user_id}"
     try:
         response = json.loads(requests.get(the_url).content)
     except:

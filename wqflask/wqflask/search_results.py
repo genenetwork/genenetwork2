@@ -6,6 +6,8 @@ import re
 
 import json
 
+from flask import g
+
 from base.data_set import create_dataset
 from base.webqtlConfig import PUBMEDLINK_URL
 from wqflask import parser
@@ -137,7 +139,8 @@ class SearchResultPage:
                 # Check permissions on a trait-by-trait basis for phenotype traits
                 trait_dict['name'] = trait_dict['display_name'] = str(result[0])
                 trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
-                permissions = check_resource_availability(self.dataset, trait_dict['display_name'])
+                permissions = check_resource_availability(
+                    self.dataset, g.user_session.user_id, trait_dict['display_name'])
                 if not any(x in permissions['data'] for x in ["view", "edit"]):
                     continue
 

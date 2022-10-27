@@ -4,8 +4,9 @@ from pymonad.maybe import Just, Maybe
 from pymonad.tools import curry
 import requests
 
-from gn3.monads import MonadicDict
-from utility.tools import GN3_LOCAL_URL
+from base import webqtlConfig
+from utility.monads import MonadicDict
+from wqflask.database import xapian_database
 
 # KLUDGE: Due to the lack of pagination, we hard-limit the maximum
 # number of search results.

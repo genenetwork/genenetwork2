@@ -44,9 +44,10 @@ def create_trait(**kw):
 
     if dataset.type == 'Publish':
         permissions = check_resource_availability(
-            dataset, kw.get('name'))
+            dataset, g.user_session.user_id, kw.get('name'))
     else:
-        permissions = check_resource_availability(dataset)
+        permissions = check_resource_availability(
+            dataset, g.user_session.user_id)
 
 
     if permissions['data'] != "no-access":
