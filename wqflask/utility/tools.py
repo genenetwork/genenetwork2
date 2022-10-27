@@ -278,6 +278,7 @@ LOG_SQL_ALCHEMY = get_setting_bool('LOG_SQL_ALCHEMY')
 LOG_BENCH = get_setting_bool('LOG_BENCH')
 LOG_FORMAT = "%(message)s"    # not yet in use
 USE_REDIS = get_setting_bool('USE_REDIS')
+REDIS_URL = get_setting('REDIS_URL')
 USE_GN_SERVER = get_setting_bool('USE_GN_SERVER')
 
 GENENETWORK_FILES = get_setting('GENENETWORK_FILES')
