@@ -22,7 +22,7 @@ print("Mechanical Rob firing up...")
 def host_is_online(host):
     import time
     import requests
-    for count in range(1, 5):
+    for count in range(1, 10):
         try:
             time.sleep(count)
             requests.get(host)
