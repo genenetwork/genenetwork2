@@ -36,7 +36,7 @@ def run_all(args_obj, parser):
     print("")
     print("Running all tests.")
     print(args_obj)
-    assert host_is_online(args_obj.host), f"Could not connect to {host}"
+    assert host_is_online(args_obj.host), f"Could not connect to {args_obj.host}"
     link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
