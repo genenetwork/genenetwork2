@@ -19,6 +19,8 @@ import xlsxwriter
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 
+from uuid import UUID
+
 from wqflask import app
 
 from gn3.computations.gemma import generate_hash_of_string
@@ -31,6 +33,7 @@ from flask import render_template
 from flask import send_from_directory
 from flask import redirect
 from flask import send_file
+from flask import url_for
 
 # Some of these (like collect) might contain endpoints, so they're still used.
 # Blueprints should probably be used instead.
@@ -71,6 +74,7 @@ from wqflask.db_info import InfoPage
 from utility import temp_data
 from utility.tools import TEMPDIR
 from utility.tools import USE_REDIS
+from utility.tools import REDIS_URL
 from utility.tools import GN_SERVER_URL
 from utility.tools import GN_VERSION
 from utility.tools import JS_TWITTER_POST_FETCHER_PATH
@@ -78,10 +82,15 @@ from utility.tools import JS_GUIX_PATH
 from utility.helper_functions import get_species_groups
 from utility.redis_tools import get_redis_conn
 
+import utility.hmac as hmac
 
+
+from base.webqtlConfig import TMPDIR
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 from wqflask.database import database_connection
+
+import jobs.jobs as jobs
 
 
 Redis = get_redis_conn()
@@ -822,24 +831,40 @@ def __handle_correlation_error__(exc):
             "error-message": exc.args[0]
         })
 
-@app.route("/corr_compute", methods=('POST',))
+@app.route("/corr_compute", methods=('POST', 'GET'))
 def corr_compute_page():
-    import subprocess
-    from gn3.settings import CORRELATION_COMMAND
-    try:
-        correlation_results = compute_correlation(
-            request.form, compute_all=True)
-    except WrongCorrelationType as exc:
-        return __handle_correlation_error__(exc)
-    except subprocess.CalledProcessError as cpe:
-        actual_command = (
-            os.readlink(CORRELATION_COMMAND)
-            if os.path.islink(CORRELATION_COMMAND)
-            else CORRELATION_COMMAND)
-        raise Exception(actual_command, cpe.output, cpe.stdout, cpe.stderr) from cpe
+    with Redis.from_url(REDIS_URL, decode_responses=True) as rconn:
+        if request.method == "POST":
+            request_received = datetime.datetime.utcnow()
+            filename=hmac.hmac_creation(f"request_form_{request_received.isoformat()}")
+            filepath = f"{TMPDIR}{filename}"
+            with open(filepath, "wb") as pfile:
+                pickle.dump(request.form, pfile, protocol=pickle.HIGHEST_PROTOCOL)
+                job_id = jobs.queue(
+                    rconn, {
+                        "command": [
+                            sys.executable, "-m", "scripts.corr_compute", filepath,
+                            g.user_session.user_id],
+                        "request_received_time": request_received.isoformat(),
+                        "status": "queued"
+                    })
+                jobs.run(job_id, REDIS_URL)
 
-    correlation_results = set_template_vars(request.form, correlation_results)
-    return render_template("correlation_page.html", **correlation_results)
+            return redirect(url_for("corr_compute_page", job_id=str(job_id)))
+
+        job = jobs.job(
+            rconn, UUID(request.args.get("job_id"))).maybe(
+                {}, lambda the_job: the_job)
+
+        if jobs.completed_successfully(job):
+            output = json.loads(job.get("stdout", "{}"))
+            return render_template("correlation_page.html", **output)
+
+        if jobs.completed_erroneously(job):
+            output = json.loads(job.get("stdout", "{}"))
+            return render_template("correlation_error_page.html", error=output)
+
+        return render_template("loading_corrs.html")
 
 
 @app.route("/corr_matrix", methods=('POST',))
