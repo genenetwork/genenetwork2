@@ -112,6 +112,10 @@ $(".select_covariates").click(function () {
   openCovariateSelection();
 });
 
+$(".add-traits-to-table").click(function () {
+  openTraitSelection();
+});
+
 $(".remove_covariates").click(function () {
   $(".selected-covariates option:selected").each(function() {
     this_val = $(this).val();
@@ -160,19 +164,22 @@ $(".remove_all_covariates").click(function() {
 })
 
 openTraitSelection = function() {
-  return $('#collections_holder').load('/collections/list?color_by_trait #collections_list', (function(_this) {
+  return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
     return function() {
       $.colorbox({
         inline: true,
         href: "#collections_holder",
+        width: "1000px",
+        height: "700px",
         onComplete: function(){
-            $.getScript("/static/new/javascript/get_traits_from_collection.js");
+            $.getScript("/static/new/javascript/add_traits_to_table.js");
         }
       });
       return $('a.collection_name').attr('onClick', 'return false');
     };
   })(this));
 };
+
 openCovariateSelection = function() {
   return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
     return function() {
