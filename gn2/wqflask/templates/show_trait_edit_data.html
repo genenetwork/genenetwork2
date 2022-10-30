@@ -1,6 +1,8 @@
 <div>
     {% for sample_type in sample_groups %}
       <div class="sample-table-container">
+        <button type="button" class="btn btn-success add-traits-to-table">Add Trait(s) to Table</button>
+        <br><br>
         {% if loop.index == 1 and (sample_groups[0].se_exists or has_num_cases or sample_groups[0].attributes|length > 0) %}
         <b>Show/Hide Columns:</b>
         <br>
