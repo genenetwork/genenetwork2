@@ -273,7 +273,11 @@
                     'orderSequence': [ "desc", "asc"],
                     'render': function(data) {
                         if (Object.hasOwn(data, 'additive')){
-                            return data.additive.toFixed(3)
+                            if (data.additive != "") {
+                                return data.additive.toFixed(3)
+                            } else {
+                                return "N/A"
+                            }
                         } else {
                             return "N/A"
                         }
