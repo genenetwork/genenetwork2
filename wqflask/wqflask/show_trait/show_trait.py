@@ -127,7 +127,7 @@ class ShowTrait:
 
             if self.dataset.group.species == "rat":
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % (
-                    'rat', 'rn6', blatsequence)
+                    'rat', 'rn7', blatsequence)
                 self.UTHSC_BLAT_URL = ""
             elif self.dataset.group.species == "mouse":
                 self.UCSC_BLAT_URL = webqtlConfig.UCSC_BLAT % (
@@ -429,7 +429,7 @@ class ShowTrait:
                     transcript_start = int(transcript_start * 1000000)
                     transcript_end = int(transcript_end * 1000000)
                     self.ucsc_blat_link = webqtlConfig.UCSC_REFSEQ % (
-                        'rn6', kgId, chr, transcript_start, transcript_end)
+                        'rn7', kgId, chr, transcript_start, transcript_end)
 
             if self.this_trait.geneid and (self.dataset.group.species == "mouse" or self.dataset.group.species == "rat" or self.dataset.group.species == "human"):
                 self.biogps_link = webqtlConfig.BIOGPS_URL % (
