@@ -3146,7 +3146,7 @@ class DisplayMappingResults:
                     mouseChr = mouseTxStart = ""
 
                 # the chromosomes for human 1 are 1qXX.XX
-                if theGO['humanGene']:
+                if 'humanGene' in theGO:
                     humanChr = theGO['humanGene']["Chr"]
                     humanTxStart = "%0.6f" % theGO['humanGene']["TxStart"]
                 else:
