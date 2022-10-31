@@ -20,7 +20,7 @@
         <td><b>Journal</b></td>
         <td>{{ this_trait.journal }} ({% if this_trait.pubmed_id %}<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ this_trait.pubmed_id }}&dop=Abstract" target="_blank" title="PubMed">{{ this_trait.year }}</a>{% else %}{{ this_trait.year }}{% endif %})</td>
     </tr>
-    {% else %}
+    {% elif this_trait.dataset.type == 'ProbeSet' %}
     <tr>
         <td><b>Tissue</b></td>
         <td>{{ this_trait.dataset.tissue }}</td>
