@@ -76,24 +76,35 @@ class ShowTrait:
                                            cellid=None)
             self.trait_vals = Redis.get(self.trait_id).split()
 
-        # ZS: Get verify/rna-seq link URLs
+        # Get verify/rna-seq link URLs
         try:
-            blatsequence = self.this_trait.blatseq
+            blatsequence = self.this_trait.blatseq if self.dataset.type == "ProbeSet" else self.this_trait.sequence
             if not blatsequence:
                 # XZ, 06/03/2009: ProbeSet name is not unique among platforms. We should use ProbeSet Id instead.
                 seqs = ()
-                db_cursor.execute(
-                    "SELECT Probe.Sequence, Probe.Name "
-                    "FROM Probe, ProbeSet, ProbeSetFreeze, "
-                    "ProbeSetXRef WHERE "
-                    "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
-                    "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
-                    "ProbeSetFreeze.Name = %s AND "
-                    "ProbeSet.Name = %s AND "
-                    "Probe.ProbeSetId = ProbeSet.Id ORDER "
-                    "BY Probe.SerialOrder",
-                    (self.this_trait.dataset.name, self.this_trait.name,)
-                )
+                if self.dataset.type == "ProbeSet":
+                    db_cursor.execute(
+                        "SELECT Probe.Sequence, Probe.Name "
+                        "FROM Probe, ProbeSet, ProbeSetFreeze, "
+                        "ProbeSetXRef WHERE "
+                        "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
+                        "AND ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
+                        "ProbeSetFreeze.Name = %s AND "
+                        "ProbeSet.Name = %s AND "
+                        "Probe.ProbeSetId = ProbeSet.Id ORDER "
+                        "BY Probe.SerialOrder",
+                        (self.this_trait.dataset.name, self.this_trait.name,)
+                    )
+                else:
+                    db_cursor.execute(
+                        "SELECT Geno.Sequence "
+                        "FROM Geno, GenoXRef, GenoFreeze "
+                        "WHERE Geno.Name = %s AND "
+                        "Geno.Id = GenoXRef.GenoId AND "
+                        "GenoXRef.GenoFreezeId = GenoFreeze.Id AND "
+                        "GenoFreeze.Name = %s",
+                        (self.this_trait.name, self.this_trait.dataset.name)
+                    )
                 seqs = db_cursor.fetchall()
                 if not seqs:
                     raise ValueError
