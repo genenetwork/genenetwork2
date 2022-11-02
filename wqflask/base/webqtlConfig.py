@@ -65,7 +65,7 @@ PROTEIN_ATLAS_URL = "http://www.proteinatlas.org/search/%s"
 OPEN_TARGETS_URL = "https://genetics.opentargets.org/gene/%s"
 UNIPROT_URL = "https://www.uniprot.org/uniprot/%s"
 RGD_URL = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term=%s&category=Gene&species=%s"
-PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&genomeVer=rn6&section=geneEQTL"
+PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&genomeVer=rn7&section=geneEQTL"
 RRID_MOUSE_URL = "https://www.jax.org/strain/%s"
 RRID_RAT_URL = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id=%s"
 
