@@ -238,7 +238,7 @@ def __compute_sample_corr__(
         sample_type=start_vars["corr_samples_group"],
         sample_data= json.loads(start_vars["sample_vals"]),
         all_samples=this_dataset.group.all_samples_ordered(),
-        dataset_samples=this_dataset.group.samplelist)
+        dataset_samples=this_dataset.group.all_samples_ordered())
     if not bool(sample_data):
         return {}
 
