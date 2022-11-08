@@ -73,6 +73,49 @@ def set_template_vars(start_vars, correlation_data):
 
     return correlation_data
 
+    min_expr = get_float(start_vars, 'min_expr')
+    p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
+    p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
+
+    if ('loc_chr' in start_vars and
+        'min_loc_mb' in start_vars and
+            'max_loc_mb' in start_vars):
+
+        location_chr = get_string(start_vars, 'loc_chr')
+        min_location_mb = get_int(start_vars, 'min_loc_mb')
+        max_location_mb = get_int(start_vars, 'max_loc_mb')
+    else:
+        location_chr = min_location_mb = max_location_mb = None
+
+
+def get_user_filters(start_vars):
+    """ a user can filter the results based on different criterias"""
+    (min_expr, p_min, p_max) = (
+        get_float(start_vars, 'min_expr'),
+        get_float(start_vars, 'p_range_lower', -1.0),
+        get_float(start_vars, 'p_range_upper', 1.0)
+    )
+
+    if ["loc_chr", "min_loc_mb", "max_location_mb"] in start_vars:
+
+        location_chr = get_string(start_vars, "loc_chr")
+        min_location_mb = get_int(start_vars, "min_loc_mb")
+        max_location_mb = get_int(start_vars, "max_loc_mb")
+
+    else:
+        location_chr = min_location_mb = max_location_mb = None
+
+    return {
+
+        "min_expr": min_expr,
+        "p_range_lower": p_min,
+        "p_range_upper": p_max,
+        "location_chr": location_chr,
+        "min_location_mb": min_location_mb,
+        "max_location_mb": max_location_mb
+
+    }
+
 
 def generate_table_metadata(all_traits, dataset_metadata, dataset_obj):
 
@@ -87,7 +130,7 @@ def generate_table_metadata(all_traits, dataset_metadata, dataset_obj):
     return (dataset_metadata | ({trait["name"]: trait for trait in metadata}))
 
 
-def populate_table(dataset_metadata,target_dataset,corr_results):
+def populate_table(dataset_metadata, target_dataset, corr_results):
     def __populate_trait__(idx, target_trait, target_dataset):
         results_dict = {}
         results_dict['index'] = idx + 1  #
@@ -227,7 +270,6 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
                 continue
         else:
             continue
-
 
         results_dict = {}
         results_dict['index'] = i + 1
