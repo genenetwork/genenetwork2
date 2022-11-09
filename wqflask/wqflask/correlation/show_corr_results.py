@@ -74,10 +74,10 @@ def set_template_vars(start_vars, correlation_data):
     return correlation_data
 
 
-def apply_filters(target_trait, target_dataset, **filters):
+def apply_filters(trait, target_trait, target_dataset, **filters):
     def __p_val_filter__(p_lower, p_upper):
         return not (float(trait.get('corr_coefficient', 0.0)) >= p_lower and
-                float(trait.get('corr_coefficient', 0.0)) <= p_upper)
+                    float(trait.get('corr_coefficient', 0.0)) <= p_upper)
 
     def __min_filter__(min_expr):
         if (target_dataset['type'] in ["ProbeSet", "Publish"] and target_trait['mean']):
@@ -111,8 +111,6 @@ def apply_filters(target_trait, target_dataset, **filters):
 
         return True
 
-
-
     # check if one of the condition is not met i.e One is True
 
     return (__p_val_filter__(
@@ -144,7 +142,9 @@ def get_user_filters(start_vars):
         get_float(start_vars, 'p_range_upper', 1.0)
     )
 
-    if ["loc_chr", "min_loc_mb", "max_location_mb"] in start_vars:
+    if all(keys in start_vars for keys in ["loc_chr",
+                                           "min_loc_mb",
+                                           "max_location_mb"]):
 
         location_chr = get_string(start_vars, "loc_chr")
         min_location_mb = get_int(start_vars, "min_loc_mb")
@@ -179,80 +179,86 @@ def generate_table_metadata(all_traits, dataset_metadata, dataset_obj):
     return (dataset_metadata | ({trait["name"]: trait for trait in metadata}))
 
 
-def populate_table(dataset_metadata, target_dataset, corr_results):
-    def __populate_trait__(idx, target_trait, target_dataset):
-        results_dict = {}
-        results_dict['index'] = idx + 1  #
-        results_dict['trait_id'] = target_trait['name']
-        results_dict['dataset'] = target_dataset['name']
-        results_dict['hmac'] = hmac.data_hmac(
-            '{}:{}'.format(target_trait['name'], target_dataset['name']))
-        results_dict['sample_r'] = f"{float(trait.get('corr_coefficient',0.0)):.3f}"
-        results_dict['num_overlap'] = trait.get('num_overlap', 0)
-        results_dict['sample_p'] = f"{float(trait.get('p_value',0)):.3e}"
-        if target_dataset['type'] == "ProbeSet":
-            results_dict['symbol'] = target_trait['symbol']
-            results_dict['description'] = "N/A"
-            results_dict['location'] = target_trait['location']
-            results_dict['mean'] = "N/A"
-            results_dict['additive'] = "N/A"
-            if target_trait['description']:
-                results_dict['description'] = target_trait['description']
-            if target_trait['mean']:
-                results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
-            try:
-                results_dict['lod_score'] = f"{float(target_trait['lrs_score']) / 4.61:.1f}"
-            except:
-                results_dict['lod_score'] = "N/A"
-            results_dict['lrs_location'] = target_trait['lrs_location']
-            if target_trait['additive']:
-                results_dict['additive'] = f"{float(target_trait['additive']):.3f}"
-            results_dict['lit_corr'] = "--"
-            results_dict['tissue_corr'] = "--"
-            results_dict['tissue_pvalue'] = "--"
-            if this_dataset['type'] == "ProbeSet":
-                if 'lit_corr' in trait:
-                    results_dict['lit_corr'] = f"{float(trait['lit_corr']):.3f}"
-                if 'tissue_corr' in trait:
-                    results_dict['tissue_corr'] = f"{float(trait['tissue_corr']):.3f}"
-                    results_dict['tissue_pvalue'] = f"{float(trait['tissue_p_val']):.3e}"
-        elif target_dataset['type'] == "Publish":
-            results_dict['abbreviation_display'] = "N/A"
-            results_dict['description'] = "N/A"
-            results_dict['mean'] = "N/A"
-            results_dict['authors_display'] = "N/A"
-            results_dict['additive'] = "N/A"
-            results_dict['pubmed_link'] = "N/A"
-            results_dict['pubmed_text'] = target_trait["pubmed_text"]
+def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results, filters):
 
-            if target_trait["abbreviation"]:
-                results_dict = target_trait['abbreviation']
+    def __populate_trait__(idx, trait):
 
-            if target_trait["description"] == target_trait['description']:
-                results_dict['description'] = target_trait['description']
+        trait_name = list(trait.keys())[0]
+        target_trait = dataset_metadata.get(trait_name)
+        trait = trait[trait_name]
+        if not apply_filters(trait, target_trait, target_dataset, **filters):
+            results_dict = {}
+            results_dict['index'] = idx + 1  #
+            results_dict['trait_id'] = target_trait['name']
+            results_dict['dataset'] = target_dataset['name']
+            results_dict['hmac'] = hmac.data_hmac(
+                '{}:{}'.format(target_trait['name'], target_dataset['name']))
+            results_dict['sample_r'] = f"{float(trait.get('corr_coefficient',0.0)):.3f}"
+            results_dict['num_overlap'] = trait.get('num_overlap', 0)
+            results_dict['sample_p'] = f"{float(trait.get('p_value',0)):.3e}"
+            if target_dataset['type'] == "ProbeSet":
+                results_dict['symbol'] = target_trait['symbol']
+                results_dict['description'] = "N/A"
+                results_dict['location'] = target_trait['location']
+                results_dict['mean'] = "N/A"
+                results_dict['additive'] = "N/A"
+                if target_trait['description']:
+                    results_dict['description'] = target_trait['description']
+                if target_trait['mean']:
+                    results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
+                try:
+                    results_dict['lod_score'] = f"{float(target_trait['lrs_score']) / 4.61:.1f}"
+                except:
+                    results_dict['lod_score'] = "N/A"
+                results_dict['lrs_location'] = target_trait['lrs_location']
+                if target_trait['additive']:
+                    results_dict['additive'] = f"{float(target_trait['additive']):.3f}"
+                results_dict['lit_corr'] = "--"
+                results_dict['tissue_corr'] = "--"
+                results_dict['tissue_pvalue'] = "--"
+                if this_dataset['type'] == "ProbeSet":
+                    if 'lit_corr' in trait:
+                        results_dict['lit_corr'] = f"{float(trait['lit_corr']):.3f}"
+                    if 'tissue_corr' in trait:
+                        results_dict['tissue_corr'] = f"{float(trait['tissue_corr']):.3f}"
+                        results_dict['tissue_pvalue'] = f"{float(trait['tissue_p_val']):.3e}"
+            elif target_dataset['type'] == "Publish":
+                results_dict['abbreviation_display'] = "N/A"
+                results_dict['description'] = "N/A"
+                results_dict['mean'] = "N/A"
+                results_dict['authors_display'] = "N/A"
+                results_dict['additive'] = "N/A"
+                results_dict['pubmed_link'] = "N/A"
+                results_dict['pubmed_text'] = target_trait["pubmed_text"]
 
-            if target_trait["mean"]:
-                results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
+                if target_trait["abbreviation"]:
+                    results_dict = target_trait['abbreviation']
 
-            if target_trait["authors"]:
-                authors_list = target_trait['authors'].split(',')
-                results_dict['authors_display'] = ", ".join(
-                    authors_list[:6]) + ", et al." if len(authors_list) > 6 else target_trait['authors']
+                if target_trait["description"] == target_trait['description']:
+                    results_dict['description'] = target_trait['description']
 
-            if "pubmed_id" in target_trait:
-                results_dict['pubmed_link'] = target_trait['pubmed_link']
-                results_dict['pubmed_text'] = target_trait['pubmed_text']
-            try:
-                results_dict["lod_score"] = f"{float(target_trait['lrs_score']) / 4.61:.1f}"
-            except ValueError:
-                results_dict['lod_score'] = "N/A"
-        else:
-            results_dict['lrs_location'] = target_trait['lrs_location']
+                if target_trait["mean"]:
+                    results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
 
-        return results_dict
+                if target_trait["authors"]:
+                    authors_list = target_trait['authors'].split(',')
+                    results_dict['authors_display'] = ", ".join(
+                        authors_list[:6]) + ", et al." if len(authors_list) > 6 else target_trait['authors']
 
-    return [__populate_trait__(idx, target_trait, target_dataset)
-            for (idx, target_trait) in enumerate(corr_results)]
+                if "pubmed_id" in target_trait:
+                    results_dict['pubmed_link'] = target_trait['pubmed_link']
+                    results_dict['pubmed_text'] = target_trait['pubmed_text']
+                try:
+                    results_dict["lod_score"] = f"{float(target_trait['lrs_score']) / 4.61:.1f}"
+                except ValueError:
+                    results_dict['lod_score'] = "N/A"
+            else:
+                results_dict['lrs_location'] = target_trait['lrs_location']
+
+            return results_dict
+
+    return [__populate_trait__(idx, trait)
+            for (idx, trait) in enumerate(corr_results)]
 
 
 def correlation_json_for_table(start_vars, correlation_data, this_trait, this_dataset, target_dataset_ob):
@@ -267,132 +273,18 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
     this_trait = correlation_data['this_trait']
     this_dataset = correlation_data['this_dataset']
     target_dataset = target_dataset_ob.as_dict()
-
-    results_list = []
+    corr_results = correlation_data['correlation_results']
 
     dataset_metadata = generate_table_metadata({name for trait in corr_results
                                                 for (name, _val) in trait.items()},
                                                correlation_data["traits_metadata"],
                                                target_dataset_ob)
 
-    min_expr = get_float(start_vars, 'min_expr')
-    p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
-    p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
-
-    if ('loc_chr' in start_vars and
-        'min_loc_mb' in start_vars and
-            'max_loc_mb' in start_vars):
-
-        location_chr = get_string(start_vars, 'loc_chr')
-        min_location_mb = get_int(start_vars, 'min_loc_mb')
-        max_location_mb = get_int(start_vars, 'max_loc_mb')
-    else:
-        location_chr = min_location_mb = max_location_mb = None
-
-    for i, trait_dict in enumerate(corr_results):
-        trait_name = list(trait_dict.keys())[0]
-        trait = trait_dict[trait_name]
-
-        target_trait = dataset_metadata.get(trait_name)
-        if (float(trait.get('corr_coefficient', 0.0)) >= p_range_lower and
-                float(trait.get('corr_coefficient', 0.0)) <= p_range_upper):
-
-            if (target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Publish") and bool(target_trait['mean']):
-                if (min_expr != None) and (float(target_trait['mean']) < min_expr):
-                    continue
-
-            if start_vars['location_type'] == "gene" and (target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Geno"):
-                if location_chr != None and (target_trait['chr'] != location_chr):
-                    continue
-                if (min_location_mb != None) and (float(target_trait['mb']) < float(min_location_mb)):
-                    continue
-                if (max_location_mb != None) and (float(target_trait['mb']) > float(max_location_mb)):
-                    continue
-            elif target_dataset['type'] == "ProbeSet" or target_dataset['type'] == "Publish":
-                if location_chr != None and (target_trait['lrs_chr'] != location_chr):
-                    continue
-                if (min_location_mb != None) and (float(target_trait['lrs_mb']) < float(min_location_mb)):
-                    continue
-                if (max_location_mb != None) and (float(target_trait['lrs_mb']) > float(max_location_mb)):
-                    continue
-            else:
-                continue
-        else:
-            continue
-
-        results_dict = {}
-        results_dict['index'] = i + 1
-        results_dict['trait_id'] = target_trait['name']
-        results_dict['dataset'] = target_dataset['name']
-        results_dict['hmac'] = hmac.data_hmac(
-            '{}:{}'.format(target_trait['name'], target_dataset['name']))
-        results_dict['sample_r'] = f"{float(trait.get('corr_coefficient',0.0)):.3f}"
-        results_dict['num_overlap'] = trait.get('num_overlap', 0)
-        results_dict['sample_p'] = f"{float(trait.get('p_value',0)):.3e}"
-        if target_dataset['type'] == "ProbeSet":
-            results_dict['symbol'] = target_trait['symbol']
-            results_dict['description'] = "N/A"
-            results_dict['location'] = target_trait['location']
-            results_dict['mean'] = "N/A"
-            results_dict['additive'] = "N/A"
-            if bool(target_trait['description']):
-                results_dict['description'] = target_trait['description']
-            if bool(target_trait['mean']):
-                results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
-            try:
-                results_dict['lod_score'] = f"{float(target_trait['lrs_score']) / 4.61:.1f}"
-            except:
-                results_dict['lod_score'] = "N/A"
-            results_dict['lrs_location'] = target_trait['lrs_location']
-            if bool(target_trait['additive']):
-                results_dict['additive'] = f"{float(target_trait['additive']):.3f}"
-            results_dict['lit_corr'] = "--"
-            results_dict['tissue_corr'] = "--"
-            results_dict['tissue_pvalue'] = "--"
-            if this_dataset['type'] == "ProbeSet":
-                if 'lit_corr' in trait:
-                    results_dict['lit_corr'] = f"{float(trait['lit_corr']):.3f}"
-                if 'tissue_corr' in trait:
-                    results_dict['tissue_corr'] = f"{float(trait['tissue_corr']):.3f}"
-                    results_dict['tissue_pvalue'] = f"{float(trait['tissue_p_val']):.3e}"
-        elif target_dataset['type'] == "Publish":
-            results_dict['abbreviation_display'] = "N/A"
-            results_dict['description'] = "N/A"
-            results_dict['mean'] = "N/A"
-            results_dict['authors_display'] = "N/A"
-            results_dict['additive'] = "N/A"
-            results_dict['pubmed_link'] = "N/A"
-            results_dict['pubmed_text'] = target_trait["pubmed_text"]
-
-            if bool(target_trait['abbreviation']):
-                results_dict['abbreviation_display'] = target_trait['abbreviation']
-            if bool(target_trait['description']):
-                results_dict['description'] = target_trait['description']
-            if bool(target_trait['mean']):
-                results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
-            if bool(target_trait['authors']):
-                authors_list = target_trait['authors'].split(',')
-                if len(authors_list) > 6:
-                    results_dict['authors_display'] = ", ".join(
-                        authors_list[:6]) + ", et al."
-                else:
-                    results_dict['authors_display'] = target_trait['authors']
-            if 'pubmed_id' in target_trait:
-                results_dict['pubmed_link'] = target_trait['pubmed_link']
-                results_dict['pubmed_text'] = target_trait['pubmed_text']
-            try:
-                results_dict['lod_score'] = f"{float(target_trait['lrs_score']) / 4.61:.1f}"
-            except:
-                results_dict['lod_score'] = "N/A"
-            results_dict['lrs_location'] = target_trait['lrs_location']
-            if bool(target_trait['additive']):
-                results_dict['additive'] = f"{float(target_trait['additive']):.3f}"
-        else:
-            results_dict['location'] = target_trait['location']
-
-        results_list.append(results_dict)
-
-    return json.dumps(results_list)
+    results = populate_table(dataset_metadata,
+                             target_dataset,
+                             this_dataset, corr_results,
+                             get_user_filters(start_vars))
+    return json.dumps([result for result in results if result])
 
 
 def get_formatted_corr_type(corr_type, corr_method):
