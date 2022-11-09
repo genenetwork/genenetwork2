@@ -73,23 +73,71 @@ def set_template_vars(start_vars, correlation_data):
 
     return correlation_data
 
-    min_expr = get_float(start_vars, 'min_expr')
-    p_range_lower = get_float(start_vars, 'p_range_lower', -1.0)
-    p_range_upper = get_float(start_vars, 'p_range_upper', 1.0)
 
-    if ('loc_chr' in start_vars and
-        'min_loc_mb' in start_vars and
-            'max_loc_mb' in start_vars):
+def apply_filters(target_trait, target_dataset, **filters):
+    def __p_val_filter__(p_lower, p_upper):
+        return not (float(trait.get('corr_coefficient', 0.0)) >= p_lower and
+                float(trait.get('corr_coefficient', 0.0)) <= p_upper)
 
-        location_chr = get_string(start_vars, 'loc_chr')
-        min_location_mb = get_int(start_vars, 'min_loc_mb')
-        max_location_mb = get_int(start_vars, 'max_loc_mb')
-    else:
-        location_chr = min_location_mb = max_location_mb = None
+    def __min_filter__(min_expr):
+        if (target_dataset['type'] in ["ProbeSet", "Publish"] and target_trait['mean']):
+            return (min_expr != None) and (float(target_trait['mean']) < min_expr)
+
+        return False
+
+    def __location_filter__(location_type, location_chr,
+                            min_location_mb, max_location_mb):
+
+        if target_dataset["type"] in ["ProbeSet", "'Geno"] and location_type == "gene":
+
+            return ((location_chr != None and (target_trait["chr"] != location_chr)
+                     or
+                     (min_location_mb != None) and (
+                     float(target_trait['mb']) < min_location_mb)
+                     or
+                     max_location_mb != None) and
+                    (float(target_trait['mb']) > float(max_location_mb)
+                     ))
+        elif target_dataset["type"] in ["ProbeSet", "Publish"]:
+            return ((location_chr != None and (target_trait["lrs_chr"] != location_chr)
+                     or
+                     (min_location_mb != None) and (
+                         float(target_trait['lrs_mb']) < float(min_location_mb))
+                     or
+                     (max_location_mb != None) and (
+                float(target_trait['lrs_mb']) > float(max_location_mb))
+            )
+            )
+
+        return True
+
+
+
+    # check if one of the condition is not met i.e One is True
+
+    return (__p_val_filter__(
+        filters.get("p_range_lower"),
+        filters.get("p_range_upper")
+    )
+        or
+        (
+            __min_filter__(
+                filters.get("min_expr")
+            )
+    )
+        or
+        __location_filter__(
+            filters.get("location_type"),
+            filters.get("location_chr"),
+            filters.get("min_location_mb"),
+            filters.get("max_location_mb")
+
+
+    )
+    )
 
 
 def get_user_filters(start_vars):
-    """ a user can filter the results based on different criterias"""
     (min_expr, p_min, p_max) = (
         get_float(start_vars, 'min_expr'),
         get_float(start_vars, 'p_range_lower', -1.0),
@@ -111,6 +159,7 @@ def get_user_filters(start_vars):
         "p_range_lower": p_min,
         "p_range_upper": p_max,
         "location_chr": location_chr,
+        "location_type": start_vars['location_type'],
         "min_location_mb": min_location_mb,
         "max_location_mb": max_location_mb
 
