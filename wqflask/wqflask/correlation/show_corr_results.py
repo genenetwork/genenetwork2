@@ -53,8 +53,6 @@ def set_template_vars(start_vars, correlation_data):
     correlation_data['table_json'] = correlation_json_for_table(
         start_vars,
         correlation_data,
-        correlation_data['this_trait'],
-        correlation_data['this_dataset'],
         target_dataset_ob)
 
     if target_dataset_ob.type == "ProbeSet":
@@ -76,8 +74,8 @@ def set_template_vars(start_vars, correlation_data):
 
 def apply_filters(trait, target_trait, target_dataset, **filters):
     def __p_val_filter__(p_lower, p_upper):
-        return not (float(trait.get('corr_coefficient', 0.0)) >= p_lower and
-                    float(trait.get('corr_coefficient', 0.0)) <= p_upper)
+
+        return  not  (p_lower <= float(trait.get("corr_coefficient",0.0)) <= p_upper)
 
     def __min_filter__(min_expr):
         if (target_dataset['type'] in ["ProbeSet", "Publish"] and target_trait['mean']):
@@ -90,25 +88,32 @@ def apply_filters(trait, target_trait, target_dataset, **filters):
 
         if target_dataset["type"] in ["ProbeSet", "'Geno"] and location_type == "gene":
 
-            return ((location_chr != None and (target_trait["chr"] != location_chr)
+            return (
+                ((location_chr!=None) and (target_trait["chr"]!=location_chr))
                      or
-                     (min_location_mb != None) and (
-                     float(target_trait['mb']) < min_location_mb)
+                ((min_location_mb!= None) and (
+                    float(target_trait['mb']) < min_location_mb)
+                    )
+
                      or
-                     max_location_mb != None) and
+                    ((max_location_mb != None) and
                     (float(target_trait['mb']) > float(max_location_mb)
                      ))
+
+                )
         elif target_dataset["type"] in ["ProbeSet", "Publish"]:
-            return ((location_chr != None and (target_trait["lrs_chr"] != location_chr)
-                     or
-                     (min_location_mb != None) and (
-                         float(target_trait['lrs_mb']) < float(min_location_mb))
-                     or
-                     (max_location_mb != None) and (
+
+            return ((location_chr!=None) and (target_trait["lrs_chr"] != location_chr)
+                  or 
+                  ((min_location_mb != None) and (
+                         float(target_trait['lrs_mb']) < float(min_location_mb)))
+                  or
+                ((max_location_mb != None) and (
                 float(target_trait['lrs_mb']) > float(max_location_mb))
             )
-            )
 
+                )
+            
         return True
 
     # check if one of the condition is not met i.e One is True
@@ -261,7 +266,7 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
             for (idx, trait) in enumerate(corr_results)]
 
 
-def correlation_json_for_table(start_vars, correlation_data, this_trait, this_dataset, target_dataset_ob):
+def correlation_json_for_table(start_vars, correlation_data, target_dataset_ob):
     """Return JSON data for use with the DataTable in the correlation result page
 
     Keyword arguments:
@@ -270,21 +275,22 @@ def correlation_json_for_table(start_vars, correlation_data, this_trait, this_da
     this_dataset -- Dataset of this_trait, as a dict
     target_dataset_ob - Target dataset, as a Dataset ob
     """
-    this_trait = correlation_data['this_trait']
-    this_dataset = correlation_data['this_dataset']
-    target_dataset = target_dataset_ob.as_dict()
-    corr_results = correlation_data['correlation_results']
 
-    dataset_metadata = generate_table_metadata({name for trait in corr_results
-                                                for (name, _val) in trait.items()},
+
+    traits = set()
+
+    for trait in correlation_data["correlation_results"]:
+        traits.add(list(trait)[0])
+
+    dataset_metadata = generate_table_metadata(traits,
                                                correlation_data["traits_metadata"],
                                                target_dataset_ob)
-
-    results = populate_table(dataset_metadata,
-                             target_dataset,
-                             this_dataset, corr_results,
-                             get_user_filters(start_vars))
-    return json.dumps([result for result in results if result])
+    return json.dumps([result for result in (
+        populate_table(dataset_metadata=dataset_metadata,
+                       target_dataset=target_dataset_ob.as_dict(),
+                       this_dataset=correlation_data['this_dataset'],
+                       corr_results=correlation_data['correlation_results'],
+                       filters=get_user_filters(start_vars))) if result])
 
 
 def get_formatted_corr_type(corr_type, corr_method):
