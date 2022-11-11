@@ -447,6 +447,15 @@ def update_probeset(name: str):
                     json_data=json.dumps(diff_data),
                 ),
             )
+            edited_values = {k: v for (k, v) in diff_data['Probeset'].items() if k not in {"id_", "timestamp", "author"}}
+            changes = []
+            for k in edited_values.keys():
+                changes.append(f"<b><span data-message-id='{k}'></span></b>")
+            message = f"You successfully updated the following entries \
+            at {diff_data['timestamp']}: {', '.join(changes)}"
+            flash(f"You successfully edited: {message}", "success")
+        else:
+            flash("No edits were made!", "warning")
         return redirect(
             f"/datasets/traits/{name}"
             f"?resource-id={request.args.get('resource-id')}"
