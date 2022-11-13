@@ -23,7 +23,7 @@ from wqflask.correlation.exceptions import WrongCorrelationType
 def query_probes_metadata(dataset, trait_list):
     """query traits metadata in bulk for probeset"""
 
-    if not bool(trait_list):
+    if not bool(trait_list) or dataset.type!="ProbeSet":
         return []
 
     with database_connector() as conn:
