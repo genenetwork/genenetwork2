@@ -90,6 +90,7 @@ from base.webqtlConfig import TMPDIR
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 from wqflask.database import database_connection
+from wqflask.database import sparql_connection
 
 import jobs.jobs as jobs
 
@@ -491,7 +492,10 @@ def show_trait_page():
         metadata = (
             template_vars.dataset.accession_id
             .bind(
-                lambda idx: get_dataset_metadata(f"GN{idx}")
+                lambda idx: get_dataset_metadata(
+                    sparql_connection(),
+                    f"GN{idx}"
+                )
             )
         ).data
 
