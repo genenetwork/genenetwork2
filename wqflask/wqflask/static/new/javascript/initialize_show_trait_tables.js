@@ -1,5 +1,5 @@
 // This file initializes the tables for the show_trait page
-initialize_show_trait_tables = function(new_data = [], new_columns = []) {
+initialize_show_trait_tables = function(new_data = []) {
   // This variable is just created to get the column position of the first case attribute (if case attributes exist), since it's needed to set the row classes in createdRow for the DataTable
   var attributeStartPos = 3;
   if (js_data.se_exists) {
@@ -9,7 +9,7 @@ initialize_show_trait_tables = function(new_data = [], new_columns = []) {
     attributeStartPos += 1;
   }
 
-  buildColumns = function(new_columns = []) {
+  buildColumns = function() {
     let columnList = [
       {
         'data': null,
@@ -134,32 +134,36 @@ initialize_show_trait_tables = function(new_data = [], new_columns = []) {
 
     attrKeys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].id > js_data.attributes[b].id) ? 1 : -1)
     for (i = 0; i < attrKeys.length; i++){
-      columnList.push(
-        {
-          'title': "<div title='" + js_data.attributes[attrKeys[i]].description + "' style='text-align: " + js_data.attributes[attrKeys[i]].alignment + "'>" + js_data.attributes[attrKeys[i]].name + "</div>",
-          'type': "natural",
-          'data': null,
-          'targets': attrStart + i,
-          'render': function(data, type, row, meta) {
-            attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
+      thisCol = {
+        'data': null,
+        'title': "<div title='" + js_data.attributes[attrKeys[i]].description + "' style='text-align: " + js_data.attributes[attrKeys[i]].alignment + "'>" + js_data.attributes[attrKeys[i]].name + "</div>",
+        'type': "natural",
+        'targets': attrStart + i,
+      }
+      if ('data' in js_data.attributes[attrKeys[i]]) {
+        thisCol['data'] = js_data.attributes[attrKeys[i]].data
+      } else {
+        thisCol['render'] = function(data, type, row, meta) {
+          attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
 
-            if (attr_name != null && attr_name != undefined){
-              if (Array.isArray(data.extra_attributes[attr_name])){
-                return '<a href="' + data.extra_attributes[attr_name][1] + '">' + data.extra_attributes[attr_name][0] + '</a>'
-              } else {
-                return data.extra_attributes[attr_name]
-              }
+          if (attr_name != null && attr_name != undefined){
+            if (Array.isArray(data.extra_attributes[attr_name])){
+              return '<a href="' + data.extra_attributes[attr_name][1] + '">' + data.extra_attributes[attr_name][0] + '</a>'
             } else {
-                return ""
+              return data.extra_attributes[attr_name]
             }
+          } else {
+              return ""
           }
         }
-      )
+      }
+
+      columnList.push(thisCol)
     }
-    return columnList.concat(new_columns)
+    return columnList
   }
 
-  columnDefs = buildColumns(new_columns);
+  columnDefs = buildColumns();
 
   tableIds = ["samples_primary"]
   if (js_data.sample_lists.length > 1) {

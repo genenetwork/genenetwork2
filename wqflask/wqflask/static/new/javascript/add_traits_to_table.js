@@ -1,9 +1,17 @@
-var add_trait_data, assemble_into_json, back_to_collections, collection_click, collection_list, color_by_trait, create_trait_data_csv, get_this_trait_vals, get_trait_data, process_traits, submit_click, this_trait_data, trait_click,
+var add_trait_data, assemble_into_json, back_to_collections, collection_click, collection_list, create_trait_data_csv, get_this_trait_vals, get_trait_data, process_traits, submit_click, this_trait_data, trait_click,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 this_trait_data = null;
 
 var selected_traits = {};
+
+var attributeStartPos = 3;
+if (js_data.se_exists) {
+  attributeStartPos += 2;
+}
+if (js_data.has_num_cases === true) {
+  attributeStartPos += 1;
+}
 
 $('#collections_list').attr("style", "width: 100%;");
 $('#trait_table').dataTable( {
@@ -92,7 +100,6 @@ submit_click = function() {
   });
 
   tableIds = ["samples_primary"]
-  console.log("WIDTH:",  $('#primary_container').width() )
   $('#primary_container').width($('#primary_container').width() + 40*Object.keys(selected_traits).length)
   if (js_data.sample_lists.length > 1) {
     tableIds.push("samples_other")
@@ -111,27 +118,33 @@ submit_click = function() {
     }
   }
 
-  var other_columns = []
+  attrIds = Object.keys(js_data.attributes).sort((a, b) => (parseInt(js_data.attributes[a].id) > parseInt(js_data.attributes[b].id)) ? 1 : -1)
+  maxAttrId = attrIds[attrIds.length - 1]
+
   i = 0;
   for (const [key, _value] of Object.entries(selected_traits)) {
-    new_ob = {
-        'title': key,
-        'type': "natural",
-        'searchable' : true,
-        'width': "40px",
-        'targets': $('#samples_primary thead th').length + i,
-        'data': key
+    let distinctVals = [...new Set(Object.keys(selected_traits[key]).map((key2) => selected_traits[key][key2]))];
+
+    js_data.attributes[parseInt(maxAttrId) + i] = {
+      id: (parseInt(maxAttrId) + i).toString(),
+      name: key,
+      description: key,
+      distinct_values: distinctVals,
+      alignment: 'right',
+      data: key
     }
-    console.log("NEW OB:", new_ob)
-    other_columns.push(new_ob);
+
+    $('#filter_column').append(new Option(key, attributeStartPos + i))
+
+    if (distinctVals.length <= 10 && distinctVals.length > 1) {
+      $('#exclude_column').append(new Option(key, attrIds.length + i))
+    }
+
     i++;
   }
-  someotherthing = other_columns
-  console.log(someotherthing)
 
-  console.log("CHECKING:", other_columns)
-
-  initialize_show_trait_tables(new_data=new_data, new_columns=other_columns)
+  initialize_show_trait_tables(new_data=new_data)
+  populateSampleAttributesValuesDropdown();
 
   return $.colorbox.close();
 };
@@ -239,10 +252,6 @@ assemble_into_json = function(this_trait_vals) {
   })(this));
   json_data += ']';
   return [json_ids, json_data];
-};
-
-color_by_trait = function(trait_sample_data, textStatus, jqXHR) {
-  return root.bar_chart.color_by_trait(trait_sample_data);
 };
 
 process_traits = function(trait_data, textStatus, jqXHR) {
