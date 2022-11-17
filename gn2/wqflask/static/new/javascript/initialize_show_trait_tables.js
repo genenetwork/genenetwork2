@@ -60,15 +60,8 @@ buildColumns = function() {
     }
   ];
 
-  attrStart = 4
-  if (js_data.se_exists) {
-    attributeStartPos += 2;
-  }
-  if (js_data.has_num_cases === true) {
-    attributeStartPos += 1;
-  }
-
-  buildColumns = function(new_columns = []) {
+initialize_show_trait_tables = function(new_data = []) {
+  buildColumns = function() {
     let columnList = [
       {
         'data': null,
@@ -193,32 +186,35 @@ buildColumns = function() {
 
     attrKeys = Object.keys(js_data.attributes).sort((a, b) => (js_data.attributes[a].id > js_data.attributes[b].id) ? 1 : -1)
     for (i = 0; i < attrKeys.length; i++){
-      columnList.push(
-        {
-          'title': "<div title='" + js_data.attributes[attrKeys[i]].description + "' style='text-align: " + js_data.attributes[attrKeys[i]].alignment + "'>" + js_data.attributes[attrKeys[i]].name + "</div>",
-          'type': "natural-minus-na",
-          'data': null,
-          'targets': attrStart + i,
-          'render': function(data, type, row, meta) {
-            attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
-
-            if (attr_name != null && attr_name != undefined){
-              if (Array.isArray(data.extra_attributes[attr_name])){
-                return '<a href="' + data.extra_attributes[attr_name][1] + '">' + data.extra_attributes[attr_name][0] + '</a>'
-              } else {
-                return data.extra_attributes[attr_name]
-              }
+      thisCol = {
+        'data': null,
+        'title': "<div title='" + js_data.attributes[attrKeys[i]].description + "' style='text-align: " + js_data.attributes[attrKeys[i]].alignment + "'>" + js_data.attributes[attrKeys[i]].name + "</div>",
+        'type': "natural-minus-na",
+        'targets': attrStart + i,
+      }
+      if ('data' in js_data.attributes[attrKeys[i]]) {
+        thisCol['data'] = js_data.attributes[attrKeys[i]].data
+      } else {
+        thisCol['render'] = function(data, type, row, meta) {
+          attr_name = Object.keys(data.extra_attributes).sort((a, b) => (parseInt(a) > parseInt(b)) ? 1 : -1)[meta.col - data.first_attr_col]
+          if (attr_name != null && attr_name != undefined){
+            if (Array.isArray(data.extra_attributes[attr_name])){
+              return '<a href="' + data.extra_attributes[attr_name][1] + '">' + data.extra_attributes[attr_name][0] + '</a>'
             } else {
-                return ""
+              return data.extra_attributes[attr_name]
             }
+          } else {
+              return ""
           }
         }
-      )
+      }
+
+      columnList.push(thisCol)
     }
-    return columnList.concat(new_columns)
+    return columnList
   }
 
-  columnDefs = buildColumns(new_columns);
+  columnDefs = buildColumns();
 
   tableIds = ["samples_primary"]
   if (js_data.sample_lists.length > 1) {
