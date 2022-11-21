@@ -83,12 +83,14 @@ from utility.helper_functions import get_species_groups
 from utility.redis_tools import get_redis_conn
 
 import utility.hmac as hmac
+from gn3.db.rdf import get_dataset_metadata
 
 
 from base.webqtlConfig import TMPDIR
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 from wqflask.database import database_connection
+from wqflask.database import sparql_connection
 
 import jobs.jobs as jobs
 
@@ -487,7 +489,18 @@ def show_trait_page():
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
-        return render_template("show_trait.html", **template_vars.__dict__)
+        metadata = (
+            template_vars.dataset.accession_id
+            .bind(
+                lambda idx: get_dataset_metadata(
+                    sparql_connection(),
+                    f"GN{idx}"
+                )
+            )
+        ).data
+
+        return render_template("show_trait.html",
+                               metadata=metadata, **template_vars.__dict__)
 
 
 @app.route("/heatmap", methods=('POST',))

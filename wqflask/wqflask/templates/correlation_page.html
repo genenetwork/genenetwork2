@@ -17,8 +17,8 @@
             <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
         <div style="max-width: 100%;">
-          <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if this_dataset.accession_id != 'None' %}GN_AccessionId={{ this_dataset.accession_id }}{% else %}InfoPageName={{ this_dataset.name }}{% endif %}">{{ this_dataset.fullname }}</a>
-          dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id != 'None' %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
+          <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if this_dataset.accession_id %}GN_AccessionId={{ this_dataset.accession_id }}{% else %}InfoPageName={{ this_dataset.name }}{% endif %}">{{ this_dataset.fullname }}</a>
+          dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
           dataset. The top {{ return_results }} correlations ranked by the {{ formatted_corr_type }} are displayed.
           You can resort this list by clicking the headers. Select the Record ID to open the trait data
           and analysis page.

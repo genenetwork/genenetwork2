@@ -3,6 +3,31 @@
 {% block content %}
 <!-- Start of body -->
 <div class="container">
+    {% with messages = get_flashed_messages(category_filter=["warning"]) %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+	<button class="close" type="button" data-dismiss="alert" aria-label="Close">
+	    <span aria-hidden="true">&times;</span>
+	</button>
+	{{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% with messages = get_flashed_messages(category_filter=["success"]) %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible" role="alert">
+	<button class="close" type="button" data-dismiss="alert" aria-label="Close">
+	    <span aria-hidden="true">&times;</span>
+	</button>
+	{{ message|safe }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="page-header text-left">
 	<h1>Probeset Editing Form: {{ probeset.name }}</h1>
 	<small><a href="{{url_for('metadata_edit.show_history', name=name)}}" target="_blank">[View History]</a></small>
@@ -71,7 +96,7 @@
 	</div>
 	<div class="form-group">
             <label for="homologeneid" class="col-sm-3 col-lg-2 control-label text-left">
-		Homolegene Id:
+		Homologene Id:
             </label>
             <div class="col-sm-4">
 		<textarea name="homologeneid" class="form-control" rows="1">{{ probeset.homologeneid |default('', true) }}</textarea>
@@ -188,6 +213,12 @@
 {% block js %}
 <script>
  gn_server_url = "{{ gn_server_url }}";
+ spans = document.querySelectorAll("[data-message-id]")
+ spans.forEach((span) => {
+     span.innerHTML = $("[for='" + span.getAttribute("data-message-id") + "']").text();
+ });
+ $("[data-message-id]").lead
+ 
  function MarkAsChanged(){
      $(this).addClass("changed");
  }

@@ -19,15 +19,9 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
 import json
-import os
-from pathlib import Path
 
 from base.trait import create_trait, jsonable
 from base.data_set import create_dataset
-from base.webqtlConfig import TMPDIR
-
-from wqflask.correlation.pre_computes import fetch_all_cached_metadata
-from wqflask.correlation.pre_computes import cache_new_traits_metadata
 
 from utility import hmac
 from utility.type_checking import get_float, get_int, get_string
@@ -46,14 +40,14 @@ def set_template_vars(start_vars, correlation_data):
                               name=start_vars['trait_id'])
 
     correlation_data['this_trait'] = jsonable(this_trait, this_dataset_ob)
-    correlation_data['this_dataset'] = this_dataset_ob.as_dict()
+    correlation_data['this_dataset'] = this_dataset_ob.as_monadic_dict().data
 
     target_dataset_ob = create_dataset(correlation_data['target_dataset'])
-    correlation_data['target_dataset'] = target_dataset_ob.as_dict()
+    correlation_data['target_dataset'] = target_dataset_ob.as_monadic_dict().data
     correlation_data['table_json'] = correlation_json_for_table(
         start_vars,
         correlation_data,
-        target_dataset_ob)
+        target_dataset_ob.as_monadic_dict().data)
 
     if target_dataset_ob.type == "ProbeSet":
         filter_cols = [7, 6]
@@ -272,13 +266,12 @@ def correlation_json_for_table(start_vars, correlation_data, target_dataset_ob):
     Keyword arguments:
     correlation_data -- Correlation results
     this_trait -- Trait being correlated against a dataset, as a dict
-    this_dataset -- Dataset of this_trait, as a dict
+    this_dataset -- Dataset of this_trait, as a monadic dict
     target_dataset_ob - Target dataset, as a Dataset ob
     """
-
+    this_dataset = correlation_data['this_dataset']
 
     traits = set()
-
     for trait in correlation_data["correlation_results"]:
         traits.add(list(trait)[0])
 

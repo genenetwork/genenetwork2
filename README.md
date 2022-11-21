@@ -67,6 +67,7 @@ env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
     GENENETWORK_FILES=~/data/gn2_data/ \
     GN_PROXY_URL="http://localhost:8080"\
     GN3_LOCAL_URL="http://localhost:8081"\
+	SPARQL_ENDPOINT=http://localhost:8892/sparql\
     ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
 ```
 
@@ -182,6 +183,7 @@ env HOME=/home/frederick \
     GN2_PROFILE=~/opt/gn2-latest \
     GN3_DEV_REPO_PATH=~/genenetwork/genenetwork3 \
     SQL_URI="mysql://username:password@host-ip:host-port/db_webqtl" \
+	SPARQL_ENDPOINT=http://localhost:8892/sparql\
     SERVER_PORT=5001 \
     bin/genenetwork2 ../gn2_settings.py \
     -cli python3 -m scripts.profile_corrs \

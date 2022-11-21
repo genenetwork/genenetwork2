@@ -2,13 +2,15 @@
 
 import math
 import collections
-
+import itertools
 
 from redis import Redis
 
-
+from MySQLdb.cursors import DictCursor
 from base import species
 from utility import chunks
+from gn3.monads import MonadicDict, query_sql
+from pymonad.maybe import Maybe, Nothing
 from .datasetgroup import DatasetGroup
 from wqflask.database import database_connection
 from utility.db_tools import escape, mescape, create_in_clause
@@ -30,7 +32,7 @@ class DataSet:
         self.fullname = None
         self.type = None
         self.data_scale = None  # ZS: For example log2
-        self.accession_id = None
+        self.accession_id = Nothing
 
         self.setup()
 
@@ -47,50 +49,58 @@ class DataSet:
             self.group.get_samplelist(redis_conn)
         self.species = species.TheSpecies(dataset=self)
 
-    def as_dict(self):
-        return {
+    def as_monadic_dict(self):
+        _result = MonadicDict({
             'name': self.name,
             'shortname': self.shortname,
             'fullname': self.fullname,
             'type': self.type,
             'data_scale': self.data_scale,
-            'group': self.group.name,
-            'accession_id': self.accession_id
-        }
+            'group': self.group.name
+        })
+        _result["accession_id"] = self.accession_id
+        return _result
 
-    def get_accession_id(self):
-        results = None
-        with database_connection() as conn, conn.cursor() as cursor:
+    def get_accession_id(self) -> Maybe[str]:
+        """Get the accession_id of this dataset depending on the
+        dataset type."""
+        __accession_id_dict = MonadicDict()
+        with database_connection() as conn:
             if self.type == "Publish":
-                cursor.execute(
-                    "SELECT InfoFiles.GN_AccesionId FROM "
-                    "InfoFiles, PublishFreeze, InbredSet "
-                    "WHERE InbredSet.Name = %s AND "
-                    "PublishFreeze.InbredSetId = InbredSet.Id "
-                    "AND InfoFiles.InfoPageName = PublishFreeze.Name "
-                    "AND PublishFreeze.public > 0 AND "
-                    "PublishFreeze.confidentiality < 1 "
-                    "ORDER BY PublishFreeze.CreateTime DESC",
-                    (self.group.name,)
-                )
-                results = cursor.fetchone()
+                __accession_id_dict, = itertools.islice(
+                    query_sql(conn,
+                        ("SELECT InfoFiles.GN_AccesionId AS accession_id FROM "
+                        "InfoFiles, PublishFreeze, InbredSet "
+                        f"WHERE InbredSet.Name = '{conn.escape_string(self.group.name).decode()}' "
+                        "AND PublishFreeze.InbredSetId = InbredSet.Id "
+                        "AND InfoFiles.InfoPageName = PublishFreeze.Name "
+                        "AND PublishFreeze.public > 0 AND "
+                        "PublishFreeze.confidentiality < 1 "
+                        "ORDER BY PublishFreeze.CreateTime DESC")
+                    ), 1)
             elif self.type == "Geno":
-                cursor.execute(
-                    "SELECT InfoFiles.GN_AccesionId FROM "
-                    "InfoFiles, GenoFreeze, InbredSet "
-                    "WHERE InbredSet.Name = %s AND "
-                    "GenoFreeze.InbredSetId = InbredSet.Id "
-                    "AND InfoFiles.InfoPageName = GenoFreeze.ShortName "
-                    "AND GenoFreeze.public > 0 AND "
-                    "GenoFreeze.confidentiality < 1 "
-                    "ORDER BY GenoFreeze.CreateTime DESC",
-                    (self.group.name,)
-                )
-                results = cursor.fetchone()
-
-        if results:
-            return str(results[0])
-        return "None"
+                __accession_id_dict, = itertools.islice(
+                    query_sql(conn,
+                        ("SELECT InfoFiles.GN_AccesionId AS accession_id FROM "
+                        "InfoFiles, GenoFreeze, InbredSet "
+                        f"WHERE InbredSet.Name = '{conn.escape_string(self.group.name).decode()}' AND "
+                        "GenoFreeze.InbredSetId = InbredSet.Id "
+                        "AND InfoFiles.InfoPageName = GenoFreeze.ShortName "
+                        "AND GenoFreeze.public > 0 AND "
+                        "GenoFreeze.confidentiality < 1 "
+                        "ORDER BY GenoFreeze.CreateTime DESC")
+                    ), 1)
+            elif self.type == "ProbeSet":
+                __accession_id_dict, = itertools.islice(
+                    query_sql(conn,
+                        ("SELECT InfoFiles.GN_AccesionId AS accession_id "
+                        f"FROM InfoFiles WHERE InfoFiles.InfoPageName = '{conn.escape_string(self.name).decode()}' "
+                        f"AND InfoFiles.DB_Name = '{conn.escape_string(self.fullname).decode()}' "
+                        f"OR InfoFiles.DB_Name = '{conn.escape_string(self.shortname).decode()}'")
+                    ), 1)
+            else:  # The Value passed is not present
+                raise LookupError
+        return __accession_id_dict["accession_id"]
 
     def retrieve_other_names(self):
         """This method fetches the the dataset names in search_result.
