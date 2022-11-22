@@ -234,11 +234,18 @@ def __compute_sample_corr__(
     """Compute the sample correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
 
+    if this_dataset.group.f1list !=None:
+        this_dataset.group.samplelist+= this_dataset.group.f1list
+
+    if this_dataset.group.parlist!= None:
+        this_dataset.group.samplelist+= this_dataset.group.parlist
+
     sample_data = get_sample_corr_data(
         sample_type=start_vars["corr_samples_group"],
         sample_data= json.loads(start_vars["sample_vals"]),
         all_samples=this_dataset.group.all_samples_ordered(),
         dataset_samples=this_dataset.group.all_samples_ordered())
+
     if not bool(sample_data):
         return {}
 
