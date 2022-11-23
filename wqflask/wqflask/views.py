@@ -11,6 +11,7 @@ import numpy as np
 import os
 import pickle as pickle
 import random
+import requests
 import sys
 import traceback
 import uuid
@@ -20,6 +21,8 @@ from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 
 from uuid import UUID
+
+from urllib.parse import urljoin
 
 from wqflask import app
 
@@ -76,6 +79,7 @@ from utility.tools import TEMPDIR
 from utility.tools import USE_REDIS
 from utility.tools import REDIS_URL
 from utility.tools import GN_SERVER_URL
+from utility.tools import GN3_LOCAL_URL
 from utility.tools import GN_VERSION
 from utility.tools import JS_TWITTER_POST_FETCHER_PATH
 from utility.tools import JS_GUIX_PATH
@@ -83,14 +87,11 @@ from utility.helper_functions import get_species_groups
 from utility.redis_tools import get_redis_conn
 
 import utility.hmac as hmac
-from gn3.db.rdf import get_dataset_metadata
-
 
 from base.webqtlConfig import TMPDIR
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 from wqflask.database import database_connection
-from wqflask.database import sparql_connection
 
 import jobs.jobs as jobs
 
@@ -492,13 +493,13 @@ def show_trait_page():
         metadata = (
             template_vars.dataset.accession_id
             .bind(
-                lambda idx: get_dataset_metadata(
-                    sparql_connection(),
-                    f"GN{idx}"
+                lambda idx: requests.get(
+                    urljoin(
+                        GN3_LOCAL_URL,
+                        f"/api/metadata/dataset/GN{idx}")
                 )
             )
-        ).data
-
+        ).json()
         return render_template("show_trait.html",
                                metadata=metadata, **template_vars.__dict__)
 

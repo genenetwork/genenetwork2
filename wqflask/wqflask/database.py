@@ -1,7 +1,6 @@
 # Module to initialize sqlalchemy with flask
 import os
 import sys
-from SPARQLWrapper import JSON, SPARQLWrapper
 from typing import Tuple, Protocol, Any, Iterator
 from urllib.parse import urlparse
 import importlib
@@ -61,10 +60,3 @@ def database_connection() -> Iterator[Connection]:
         yield connection
     finally:
         connection.close()
-
-
-def sparql_connection():
-    """Create a sparql objection that is used to query RDF"""
-    return SPARQLWrapper(
-        get_setting("SPARQL_ENDPOINT")
-    )
