@@ -26,7 +26,6 @@ from base.data_set import create_dataset
 from utility import hmac
 from utility.type_checking import get_float, get_int, get_string
 
-
 def set_template_vars(start_vars, correlation_data):
     corr_type = start_vars['corr_type']
     corr_method = start_vars['corr_sample_method']
@@ -47,7 +46,7 @@ def set_template_vars(start_vars, correlation_data):
     correlation_data['table_json'] = correlation_json_for_table(
         start_vars,
         correlation_data,
-        target_dataset_ob.as_monadic_dict().data)
+        target_dataset_ob)
 
     if target_dataset_ob.type == "ProbeSet":
         filter_cols = [7, 6]
@@ -110,28 +109,30 @@ def apply_filters(trait, target_trait, target_dataset, **filters):
             
         return True
 
-    # check if one of the condition is not met i.e One is True
+    if not target_trait:
+        return True
+    else:
+        # check if one of the condition is not met i.e One is True
+        return (__p_val_filter__(
+            filters.get("p_range_lower"),
+            filters.get("p_range_upper")
+        )
+            or
+            (
+                __min_filter__(
+                    filters.get("min_expr")
+                )
+        )
+            or
+            __location_filter__(
+                filters.get("location_type"),
+                filters.get("location_chr"),
+                filters.get("min_location_mb"),
+                filters.get("max_location_mb")
 
-    return (__p_val_filter__(
-        filters.get("p_range_lower"),
-        filters.get("p_range_upper")
-    )
-        or
-        (
-            __min_filter__(
-                filters.get("min_expr")
-            )
-    )
-        or
-        __location_filter__(
-            filters.get("location_type"),
-            filters.get("location_chr"),
-            filters.get("min_location_mb"),
-            filters.get("max_location_mb")
 
-
-    )
-    )
+        )
+        )
 
 
 def get_user_filters(start_vars):
@@ -280,7 +281,7 @@ def correlation_json_for_table(start_vars, correlation_data, target_dataset_ob):
                                                target_dataset_ob)
     return json.dumps([result for result in (
         populate_table(dataset_metadata=dataset_metadata,
-                       target_dataset=target_dataset_ob.as_dict(),
+                       target_dataset=target_dataset_ob.as_monadic_dict().data,
                        this_dataset=correlation_data['this_dataset'],
                        corr_results=correlation_data['correlation_results'],
                        filters=get_user_filters(start_vars))) if result])
