@@ -176,7 +176,8 @@ def generate_table_metadata(all_traits, dataset_metadata, dataset_obj):
 
     metadata = [__fetch_trait_data__(trait, dataset_obj) for
                 trait in (all_traits ^ dataset_metadata.keys())]
-    return (dataset_metadata | ({trait["name"]: trait for trait in metadata}))
+
+    return (dataset_metadata | ({str(trait["name"]): trait for trait in metadata}))
 
 
 def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results, filters):
