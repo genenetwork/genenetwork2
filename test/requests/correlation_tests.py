@@ -1,7 +1,12 @@
+import csv
 import sys
 import html
+import json
 import requests
+from lxml import etree
+from pathlib import Path
 from lxml.html import parse
+from functools import reduce
 from link_checker import check_page
 
 def corrs_base_data():
@@ -124,3 +129,97 @@ def check_correlations(args_obj, parser):
         print("FAIL!")
         sys.exit(1)
     print("OK")
+
+def thread(value, *functions):
+    return reduce(lambda result, func: func(result), functions, value)
+
+def parse_results_from_html(raw_html):
+    doc = etree.HTML(raw_html)
+    # print(f"THE RESPONSE: {response.text}")
+    scripts = doc.xpath('//script')
+    for script in scripts:
+        script_content = thread(
+            script.xpath('.//child::text()'),
+            lambda val: "".join(val).strip())
+        if script_content.find("var tableJson") >= 0:
+            return json.loads(thread(
+                script_content,
+                lambda val: val[len("var tableJson = "):].strip()))
+
+    return []
+
+def parse_expected(filepath):
+    with open(filepath, encoding="utf-8") as infl:
+        reader = csv.DictReader(infl, dialect=csv.unix_dialect)
+        for line in reader:
+            yield line
+
+def verify_correctness(actual, expected):
+    # assert len(actual) == len(expected), (
+    #     f"Expected {len(expected)} results but instead got {len(actual)} "
+    #     "results")
+    def __assert(act_val, exp_val, title):
+        assert act_val == exp_val, (
+            f"Different '{title}' values: expected: '{exp_val}' but got "
+            f"'{act_val}'")
+
+    for act, exp in zip(actual, expected):
+        __assert(act["trait_id"], exp["Record ID"], "Trait/Record ID")
+        # __assert(act["dataset"], exp[""], "Dataset")
+        __assert(act["sample_r"], exp["Sample r ?"], "Sample r"),
+        __assert(act["num_overlap"], exp["N Cases"], "N Cases")
+        __assert(act["sample_p"], exp["Sample p(r) ?"], "Sample p")
+        __assert(act["symbol"], exp["Symbol"], "Symbol")
+        __assert(act["description"], exp["Description"], "Description")
+        __assert(act["location"], exp["Location Chr and Mb"], "Location Chr and Mb")
+        __assert(act["mean"], exp["Mean Expr"], "Mean")
+        # __assert(act["additive"], exp[], "Additive")
+        # __assert(act["lod_score"], exp[], "LOD Score")
+        __assert(act["lrs_location"], exp["Max LRS Location Chr and Mb"], "Max LRS Location Chr and Mb")
+        __assert(act["lit_corr"], exp["Lit Corr ?"], "Lit Corr")
+        __assert(act["tissue_corr"], exp["Tissue r ?"], "Tissue r")
+        __assert(act["tissue_pvalue"], exp["Tissue p(r) ?"], "Tissue p(r)")
+        # __assert(act[], exp[], "Different ...")
+
+def check_correctness(host):
+    failures = tuple()
+    __idx = 1
+    tests = [
+        ({"dataset": "HC_M2_0606_P", "trait_id": "1435464_at",
+          "corr_dataset": "HC_M2_0606_P", "corr_type": "sample",
+          "corr_sample_method": "pearson", "location_type": "gene",
+          "corr_samples_group": "samples_primary", "sample_vals": sample_vals(),
+          "corr_return_results": "500"},
+         "HC_M2_0606_P___1435464_at___sample_r___pearson__results.csv"),]
+
+    for test_data, expected_file in tests:
+        print(f"Test {__idx} ...", end="\t")
+        response = requests.post(f"{host}/corr_compute", data=test_data)
+        while response.text.find('<meta http-equiv="refresh" content="5">') >= 0:
+            response = requests.get(response.url)
+            pass
+        results = parse_results_from_html(response.text)
+        filepath = Path.cwd().parent.joinpath(
+            f"test/requests/correlation_results_text_files/{expected_file}")
+        try:
+            verify_correctness(results, tuple(parse_expected(filepath)))
+            print("OK")
+        except AssertionError as aerr:
+            failures = failures + ((__idx, aerr.args[0]),)
+            print("FAIL!")
+
+        __idx = __idx + 1
+
+    if len(failures) > 0:
+        print("\n\nFAILURES: ")
+        for test_num, err_msg in failures:
+            print(f"\tTest {test_num}: {err_msg}")
+        return False
+
+    return True
+
+def check_correlations_correctness(args_obj, parser):
+    print("")
+    print("Checking the correctness of the correlations...")
+    if not check_correctness(args_obj.host):
+        sys.exit(1)

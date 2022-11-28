@@ -9,7 +9,7 @@ from link_checker import check_links
 from link_checker import check_packaged_js_files
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
-from correlation_tests import check_correlations
+from correlation_tests import check_correlations, check_correlations_correctness
 from main_web_functionality import check_main_web_functionality
 import link_checker
 import sys
@@ -43,6 +43,7 @@ def run_all(args_obj, parser):
     check_packaged_js_files(args_obj, parser)
     check_mapping(args_obj, parser)
     check_correlations(args_obj, parser)
+    # check_correlations_correctness(args_obj, parser) # activate once all correlations are verified
     # TODO: Add other functions as they are created.
 
 
@@ -133,6 +134,16 @@ parser.add_argument(
     const=check_correlations,
     default=print_help,
     help="Checks that correlations run correctly.",
+)
+
+parser.add_argument(
+    "-e",
+    "--correlations-correctness",
+    dest="accumulate",
+    action="store_const",
+    const=check_correlations_correctness,
+    default=print_help,
+    help="Check that the correlation results are correct"
 )
 
 
