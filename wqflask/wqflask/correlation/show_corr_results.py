@@ -79,8 +79,7 @@ def apply_filters(trait, target_trait, target_dataset, **filters):
     def __location_filter__(location_type, location_chr,
                             min_location_mb, max_location_mb):
 
-        if target_dataset["type"] in ["ProbeSet", "'Geno"] and location_type == "gene":
-
+        if target_dataset["type"] in ["ProbeSet", "Geno"] and location_type == "gene":
             return (
                 ((location_chr!=None) and (target_trait["chr"]!=location_chr))
                      or
@@ -233,13 +232,15 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 results_dict['pubmed_text'] = target_trait["pubmed_text"]
 
                 if target_trait["abbreviation"]:
-                    results_dict = target_trait['abbreviation']
+                    results_dict['abbreviation'] = target_trait['abbreviation']
 
                 if target_trait["description"] == target_trait['description']:
                     results_dict['description'] = target_trait['description']
 
                 if target_trait["mean"]:
                     results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
+
+                results_dict['lrs_location'] = target_trait['lrs_location']
 
                 if target_trait["authors"]:
                     authors_list = target_trait['authors'].split(',')
@@ -254,7 +255,7 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 except ValueError:
                     results_dict['lod_score'] = "N/A"
             else:
-                results_dict['lrs_location'] = target_trait['lrs_location']
+                results_dict['location'] = target_trait['location']
 
             return results_dict
 
