@@ -67,7 +67,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                 if diffCol and species == 'mouse':
                     cursor.execute(
                         "SELECT count(*) FROM BXDSnpPosition "
-                        "WHERE Chr = '%s' AND "
+                        "WHERE Chr = %s AND "
                         "Mb >= %s AND Mb < %s "
                         "AND StrainId1 = %s AND StrainId2 = %s",
                     (chrName, f"{newdict['TxStart']:2.6f}",

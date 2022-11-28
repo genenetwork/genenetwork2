@@ -560,14 +560,14 @@ class DisplayMappingResults:
                 else:
                     chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(
-                    chrName, self.diffCol, self.startMb, self.endMb, "mouse")
+                    str(chrName), self.diffCol, self.startMb, self.endMb, "mouse")
             elif self.dataset.group.species == "rat":
                 if self.selectedChr == 21:
                     chrName = "X"
                 else:
                     chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(
-                    chrName, self.diffCol, self.startMb, self.endMb, "rat")
+                    str(chrName), self.diffCol, self.startMb, self.endMb, "rat")
 
             if self.geneCol and self.intervalAnalystChecked:
                 #######################################################################
