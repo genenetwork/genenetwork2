@@ -135,7 +135,6 @@ def thread(value, *functions):
 
 def parse_results_from_html(raw_html):
     doc = etree.HTML(raw_html)
-    # print(f"THE RESPONSE: {response.text}")
     scripts = doc.xpath('//script')
     for script in scripts:
         script_content = thread(
@@ -154,66 +153,118 @@ def parse_expected(filepath):
         for line in reader:
             yield line
 
-def verify_correctness(actual, expected):
+def collect_failures(actual, expected, keys):
     # assert len(actual) == len(expected), (
     #     f"Expected {len(expected)} results but instead got {len(actual)} "
     #     "results")
-    def __assert(act_val, exp_val, title):
-        assert act_val == exp_val, (
-            f"Different '{title}' values: expected: '{exp_val}' but got "
-            f"'{act_val}'")
+    def __equal(act_row, exp_row):
+        __eq = tuple()
+        for act_key, exp_key, title in keys:
+            act_val, exp_val = (act_row[act_key], exp_row[exp_key])
+            if act_val == exp_val:
+                # __eq = __eq + ("PASSED",)
+                continue
+            __eq = __eq + ((
+                f"Different '{title}' values: expected: '{exp_val}' but got "
+                f"'{act_val}'"),)
+            continue
+        return __eq
 
-    for act, exp in zip(actual, expected):
-        __assert(act["trait_id"], exp["Record ID"], "Trait/Record ID")
-        # __assert(act["dataset"], exp[""], "Dataset")
-        __assert(act["sample_r"], exp["Sample r ?"], "Sample r"),
-        __assert(act["num_overlap"], exp["N Cases"], "N Cases")
-        __assert(act["sample_p"], exp["Sample p(r) ?"], "Sample p")
-        __assert(act["symbol"], exp["Symbol"], "Symbol")
-        __assert(act["description"], exp["Description"], "Description")
-        __assert(act["location"], exp["Location Chr and Mb"], "Location Chr and Mb")
-        __assert(act["mean"], exp["Mean Expr"], "Mean")
-        # __assert(act["additive"], exp[], "Additive")
-        # __assert(act["lod_score"], exp[], "LOD Score")
-        __assert(act["lrs_location"], exp["Max LRS Location Chr and Mb"], "Max LRS Location Chr and Mb")
-        __assert(act["lit_corr"], exp["Lit Corr ?"], "Lit Corr")
-        __assert(act["tissue_corr"], exp["Tissue r ?"], "Tissue r")
-        __assert(act["tissue_pvalue"], exp["Tissue p(r) ?"], "Tissue p(r)")
-        # __assert(act[], exp[], "Different ...")
+    return tuple(
+        __equal(act_row, exp_row)
+        for act_row, exp_row in zip(actual, expected))
 
 def check_correctness(host):
-    failures = tuple()
-    __idx = 1
+    pearsons_keys = (
+        ("trait_id", "Record ID", "Trait/Record ID"),
+        ("sample_r", "Sample r ?", "Sample r value"),
+        ("num_overlap", "N Cases", "N Cases"),
+        ("sample_p", "Sample p(r) ?", "Sample p value"),
+        ("symbol", "Symbol", "Symbol"),
+        ("description", "Description", "Description"),
+        ("location", "Location Chr and Mb", "Location Chr and Mb"),
+        ("mean", "Mean Expr", "Mean"),
+        ("lrs_location", "Max LRS Location Chr and Mb", "Max LRS Location Chr and Mb"),
+        ("lit_corr", "Lit Corr ?", "Literature Correlation"),
+        ("tissue_corr", "Tissue r ?", "Tissue Correlation r"),
+        ("tissue_pvalue", "Tissue p(r) ?", "Tissue Correlation p value"))
+
+    spearmans_keys = (
+        ("trait_id", "Record ID", "Trait/Record ID"),
+        ("sample_r", "Sample rho ?", "Sample rho value"),
+        ("num_overlap", "N Cases", "N Cases"),
+        ("sample_p", "Sample p(rho) ?", "Sample p(rho) value"),
+        ("symbol", "Symbol", "Symbol"),
+        ("description", "Description", "Description"),
+        ("location", "Location Chr and Mb", "Location Chr and Mb"),
+        ("mean", "Mean Expr", "Mean"),
+        ("lrs_location", "Max LRS Location Chr and Mb", "Max LRS Location Chr and Mb"),
+        ("lit_corr", "Lit Corr ?", "Literature Correlation"),
+        ("tissue_corr", "Tissue rho ?", "Tissue Correlation rho"),
+        ("tissue_pvalue", "Tissue p(rho) ?", "Tissue Correlation p(rho) value"))
+    failures = {}
     tests = [
-        ({"dataset": "HC_M2_0606_P", "trait_id": "1435464_at",
+        ("Trait '1435464_at' (Dataset 'HC_M2_0606_P'): Sample Correlation, Pearson, 500 results",
+         {"dataset": "HC_M2_0606_P", "trait_id": "1435464_at",
           "corr_dataset": "HC_M2_0606_P", "corr_type": "sample",
           "corr_sample_method": "pearson", "location_type": "gene",
           "corr_samples_group": "samples_primary", "sample_vals": sample_vals(),
           "corr_return_results": "500"},
-         "HC_M2_0606_P___1435464_at___sample_r___pearson__results.csv"),]
+         "HC_M2_0606_P___1435464_at___sample_r___pearson__results.csv",
+         pearsons_keys),
+        ("Trait '1435464_at' (Dataset 'HC_M2_0606_P'): Sample Correlation, Spearmans, 500 results",
+         {"dataset": "HC_M2_0606_P", "trait_id": "1435464_at",
+          "corr_dataset": "HC_M2_0606_P", "corr_type": "sample",
+          "corr_sample_method": "spearman", "location_type": "gene",
+          "corr_samples_group": "samples_primary", "sample_vals": sample_vals(),
+          "corr_return_results": "500"},
+         "HC_M2_0606_P___1435464_at___sample_r___spearman___no_filters__results.csv",
+         spearmans_keys),
+        ("Trait '1435464_at' (Dataset 'HC_M2_0606_P'): Tissue Correlation, Pearsons, 500 results",
+         {"dataset": "HC_M2_0606_P", "trait_id": "1435464_at",
+          "corr_dataset": "HC_M2_0606_P", "corr_type": "tissue",
+          "corr_sample_method": "pearson", "location_type": "gene",
+          "corr_samples_group": "samples_primary", "sample_vals": sample_vals(),
+          "corr_return_results": "500"},
+         "HC_M2_0606_P___1435464_at___tissue_r___pearson__results.csv",
+         pearsons_keys),
+        ("Trait '1435464_at' (Dataset 'HC_M2_0606_P'): Tissue Correlation, Spearmans, 500 results",
+         {"dataset": "HC_M2_0606_P", "trait_id": "1435464_at",
+          "corr_dataset": "HC_M2_0606_P", "corr_type": "tissue",
+          "corr_sample_method": "spearman", "location_type": "gene",
+          "corr_samples_group": "samples_primary", "sample_vals": sample_vals(),
+          "corr_return_results": "500"},
+         "HC_M2_0606_P___1435464_at___tissue_r___spearman__results.csv",
+         spearmans_keys)]
 
-    for test_data, expected_file in tests:
-        print(f"Test {__idx} ...", end="\t")
+    for test_title, test_data, expected_file, method_keys in tests:
+        print(f"Test: {test_title} ...", end="\t")
         response = requests.post(f"{host}/corr_compute", data=test_data)
         while response.text.find('<meta http-equiv="refresh" content="5">') >= 0:
             response = requests.get(response.url)
             pass
         results = parse_results_from_html(response.text)
+        if len(results) == 0:
+            failures = {
+                **failures,
+                test_title: (("No results found.",),)}
+            continue
         filepath = Path.cwd().parent.joinpath(
             f"test/requests/correlation_results_text_files/{expected_file}")
-        try:
-            verify_correctness(results, tuple(parse_expected(filepath)))
-            print("OK")
-        except AssertionError as aerr:
-            failures = failures + ((__idx, aerr.args[0]),)
-            print("FAIL!")
-
-        __idx = __idx + 1
+        failures = {
+            **failures,
+            test_title: collect_failures(
+                results, tuple(parse_expected(filepath)), method_keys)
+        }
 
     if len(failures) > 0:
         print("\n\nFAILURES: ")
-        for test_num, err_msg in failures:
-            print(f"\tTest {test_num}: {err_msg}")
+        for test_title, failures in failures.items():
+            print(f"\nTest: {test_title}")
+            for result, result_failures in enumerate(failures):
+                for failure in result_failures:
+                    print(f"\tResult {result}: {failure}")
+                print("")
         return False
 
     return True
