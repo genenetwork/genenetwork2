@@ -268,7 +268,7 @@ def __compute_sample_corr__(
     target_dataset.get_trait_data(list(sample_data.keys()))
 
     def __merge_key_and_values__(rows, current):
-        wo_nones = [value for value in current[1] if value is not None]
+        wo_nones = [value for value in current[1]]
         if len(wo_nones) > 0:
             return rows + [[current[0]] + wo_nones]
         return rows
