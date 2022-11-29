@@ -43,7 +43,7 @@ def run_all(args_obj, parser):
     check_packaged_js_files(args_obj, parser)
     check_mapping(args_obj, parser)
     check_correlations(args_obj, parser)
-    # check_correlations_correctness(args_obj, parser) # activate once all correlations are verified
+    check_correlations_correctness(args_obj, parser) # activate once all correlations are verified
     # TODO: Add other functions as they are created.
 
 
