@@ -114,11 +114,9 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
         return {}
 
     def __fetch_sample_ids__(samples_vals, samples_group):
-        all_samples = json.loads(samples_vals)
         sample_data = get_sample_corr_data(
             sample_type=samples_group,
-            sample_data=json.loads(start_vars["sample_vals"]),
-            all_samples=all_samples,
+            sample_data=json.loads(samples_vals),
             dataset_samples=dataset.group.all_samples_ordered())
 
         with database_connector() as conn:
