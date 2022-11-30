@@ -325,39 +325,6 @@ updateBarChart = function() {
   }
 };
 
-update_box_plot = function() {
-  var y_value_list = []
-  if (sampleLists.length > 1) {
-    i = 0;
-    for (var sample_group in root.selected_samples){
-      var trait_sample_data = _.values(root.selected_samples[sample_group])
-      var trait_vals = [];
-      for (j = 0, len = trait_sample_data.length; j < len; j++) {
-        this_sample_data = trait_sample_data[j];
-        trait_vals.push(this_sample_data.value);
-      }
-      root.box_data[i]['y'] = trait_vals
-      i++;
-    }
-  } else {
-    var trait_sample_data = _.values(root.selected_samples['samples_all'])
-    var trait_vals = [];
-    for (j = 0, len = trait_sample_data.length; j < len; j++) {
-      this_sample_data = trait_sample_data[j];
-      trait_vals.push(this_sample_data.value);
-    }
-    root.box_data[0]['y'] = trait_vals
-  }
-
-  if ($('input[name="transform"]').val() != ""){
-    root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type +  " (" + $('input[name="transform"]').val() + ")</b>"
-  } else {
-    root.box_layout['yaxis']['title'] = "<b>" + js_data.unit_type + "</b>"
-  }
-
-  Plotly.newPlot('box_plot', root.box_data, root.box_layout, root.modebar_options)
-}
-
 updateViolinPlot = function() {
   var y_value_list = []
   if (sampleLists.length > 1) {
@@ -541,9 +508,6 @@ editDataChange = function() {
   }
   if ($('#bar_chart').hasClass('js-plotly-plot')){
     updateBarChart();
-  }
-  if ($('#box_plot').hasClass('js-plotly-plot')){
-    update_box_plot();
   }
   if ($('#violin_plot').hasClass('js-plotly-plot')){
     updateViolinPlot();
@@ -1480,127 +1444,6 @@ $('.histogram_samples_group').val(root.stats_group);
 $('.histogram_samples_group').change(function() {
   root.stats_group = $(this).val();
   return updateHistogram();
-});
-
-root.box_layout = {
-    xaxis: {
-        showline: true,
-        titlefont: {
-          family: "arial",
-          size: 20
-        },
-        tickfont: {
-          size: 16
-        },
-    },
-    yaxis: {
-        title: "<b>" + js_data.unit_type +"</b>",
-        autorange: true,
-        showline: true,
-        titlefont: {
-          family: "arial",
-          size: 20
-        },
-        ticklen: 4,
-        tickfont: {
-          size: 16
-        },
-        tickformat: tickDigits,
-        zeroline: false,
-        automargin: true
-    },
-    margin: {
-        l: 90,
-        r: 30,
-        t: 30,
-        b: 80
-    }
-};
-if (fullSampleLists.length > 1) {
-    root.box_layout['width'] = 600;
-    root.box_layout['height'] = 500;
-    var trace1 = {
-        y: getSampleVals(fullSampleLists[0]),
-        type: 'box',
-        name: sampleGroupList[0],
-        boxpoints: 'Outliers',
-        jitter: 0.5,
-        whiskerwidth: 0.2,
-        fillcolor: 'cls',
-        pointpos: -3,
-        marker: {
-            color: 'blue',
-            size: 3
-        },
-        line: {
-            width: 1
-        }
-    }
-    var trace2 = {
-        y: getSampleVals(fullSampleLists[1]),
-        type: 'box',
-        name: sampleGroupList[1],
-        boxpoints: 'Outliers',
-        jitter: 0.5,
-        whiskerwidth: 0.2,
-        fillcolor: 'cls',
-        pointpos: -3,
-        marker: {
-            color: 'red',
-            size: 3
-        },
-        line: {
-            width: 1
-        }
-    }
-    var trace3 = {
-        y: getSampleVals(fullSampleLists[2]),
-        type: 'box',
-        name: sampleGroupList[2],
-        boxpoints: 'Outliers',
-        jitter: 0.5,
-        whiskerwidth: 0.2,
-        fillcolor: 'cls',
-        pointpos: -3,
-        marker: {
-            color: 'green',
-            size: 3
-        },
-        line: {
-            width: 1
-        }
-    }
-    root.box_data = [trace1, trace2, trace3]
-} else {
-    root.box_layout['width'] = 300;
-    root.box_layout['height'] = 400;
-    root.box_data = [
-      {
-        type: 'box',
-        y: getSampleVals(fullSampleLists[0]),
-        name: "<b>Trait " + js_data.trait_id + "</b>",
-        boxpoints: 'Outliers',
-        jitter: 0.5,
-        whiskerwidth: 0.2,
-        fillcolor: 'cls',
-        pointpos: -3,
-        marker: {
-            size: 3
-        },
-        line: {
-            width: 1
-        }
-      }
-    ]
-}
-
-box_obj = {
-  data: box_data,
-  layout: root.box_layout
-}
-
-$('.box_plot_tab').click(function() {
-  update_box_plot();
 });
 
 // Violin Plot
