@@ -94,9 +94,8 @@ class DataSet:
                 __accession_id_dict, = itertools.islice(
                     query_sql(conn,
                         ("SELECT InfoFiles.GN_AccesionId AS accession_id "
-                        f"FROM InfoFiles WHERE InfoFiles.InfoPageName = '{conn.escape_string(self.name).decode()}' "
-                        f"AND InfoFiles.DB_Name = '{conn.escape_string(self.fullname).decode()}' "
-                        f"OR InfoFiles.DB_Name = '{conn.escape_string(self.shortname).decode()}'")
+                        "FROM InfoFiles WHERE InfoFiles.InfoPageName = "
+                         f"'{conn.escape_string(self.name).decode()}'")
                     ), 1)
             else:  # The Value passed is not present
                 raise LookupError
