@@ -2,10 +2,12 @@
 
 import unittest
 from unittest import mock
+from dataclasses import dataclass
+from gn3.monads import MonadicDict
 
 from wqflask import app
 from base.data_set import DatasetType
-
+from base.data_set.dataset import DataSet
 
 GEN_MENU_JSON = """
 {
@@ -118,6 +120,22 @@ GEN_MENU_JSON = """
 }
 """
 
+class MockPhenotypeDataset(DataSet):
+    def setup(self):
+        self.type = "Publish"
+        self.query_for_group = ""
+        self.group = ""
+
+
+    def check_confidentiality(self):
+        pass
+
+    def retrieve_other_names(self):
+        pass
+
+@dataclass
+class MockGroup:
+    name = "Group"
 
 class TestDataSetTypes(unittest.TestCase):
     """Tests for the DataSetType class"""
@@ -182,3 +200,39 @@ class TestDataSetTypes(unittest.TestCase):
                  '"HC_M2_0606_P": "ProbeSet", '
                  '"BXDPublish": "Publish"}'))
 
+
+class TestDatasetAccessionId(unittest.TestCase):
+    """Tests for the DataSetType class"""
+
+    @mock.patch("base.data_set.dataset.query_sql")
+    @mock.patch("base.data_set.dataset.DatasetGroup")
+    def test_get_accession_id(self, mock_dataset_group, mock_query_sql):
+        def mock_fn():
+            yield MonadicDict({"accession_id": 7})
+        mock_dataset_group.return_value = MockGroup()
+        mock_query_sql.return_value = mock_fn()
+        sample_dataset = MockPhenotypeDataset(
+            name="BXD-LongevityPublish",
+            get_samplelist=False,
+            group_name="BXD",
+            redis_conn=mock.Mock()
+        )
+        sample_dataset\
+            .accession_id\
+            .bind(lambda x: self.assertEqual(7, x))
+
+    @mock.patch("base.data_set.dataset.query_sql")
+    @mock.patch("base.data_set.dataset.DatasetGroup")
+    def test_get_accession_id_empty_return(self, mock_dataset_group,
+                                           mock_query_sql):
+        mock_dataset_group.return_value = MockGroup()
+        mock_query_sql.return_value = None
+        sample_dataset = MockPhenotypeDataset(
+            name="BXD-LongevityPublish",
+            get_samplelist=False,
+            group_name="BXD",
+            redis_conn=mock.Mock()
+        )
+        sample_dataset\
+            .accession_id\
+            .bind(lambda x: self.assertNone(x))
