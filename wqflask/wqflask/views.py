@@ -490,23 +490,21 @@ def show_trait_page():
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
-
+        # Should there be any mis-configurations, things will still
+        # work.
+        metadata = {}
         try:
-            metadata = (
-                template_vars.dataset.accession_id
-                .bind(
-                    lambda idx: requests.get(
-                        urljoin(
-                            GN3_LOCAL_URL,
-                            f"/api/metadata/dataset/GN{idx}")
-                    )
-                )
+            metadata = requests.get(
+                urljoin(
+                    GN3_LOCAL_URL,
+                    f"/api/metadata/dataset/{request.args.get('dataset')}")
             ).json()
         except:
             metadata = {}
-
-        return render_template("show_trait.html",
-                               metadata=metadata, **template_vars.__dict__)
+        return render_template(
+            "show_trait.html",
+            metadata=metadata,
+            **template_vars.__dict__)
 
 
 @app.route("/heatmap", methods=('POST',))
