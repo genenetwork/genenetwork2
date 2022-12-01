@@ -1248,6 +1248,7 @@ if (Object.keys(js_data.sample_group_types).length > 1) {
 // Define Plotly Options (for the options bar at the top of each figure)
 
 root.modebar_options = {
+  displayModeBar: true,
   modeBarButtonsToAdd:[{
     name: 'Export as SVG',
     icon: Plotly.Icons.disk,
@@ -1343,7 +1344,12 @@ if (js_data.num_values < 256) {
   bottomMargin = getBarBottomMargin(sampleLists[0])
 
   root.bar_layout = {
-    title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+    title: {
+      x: 0,
+      y: 10,
+      xanchor: 'left',
+      text: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+    },
     xaxis: {
         type: 'category',
         titlefont: {
@@ -1397,7 +1403,10 @@ var hist_trace = {
 root.histogram_data = [hist_trace];
 root.histogram_layout = {
   bargap: 0.05,
-  title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+  title: {
+    xanchor: 'left',
+    text: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+  },
   xaxis: {
            autorange: true,
            title: js_data.unit_type,
@@ -1449,6 +1458,7 @@ $('.histogram_samples_group').change(function() {
 // Violin Plot
 
 root.violin_layout = {
+  title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
   xaxis: {
       showline: true,
       titlefont: {
@@ -1460,7 +1470,13 @@ root.violin_layout = {
       }
   },
   yaxis: {
-      title: "<b>"+js_data.unit_type+"</b>",
+      title: {
+        text: "<b>"+js_data.unit_type+"</b>",
+        font: {
+          family: 'arial',
+          size: 20
+        }
+      },
       autorange: true,
       showline: true,
       titlefont: {
@@ -1478,7 +1494,7 @@ root.violin_layout = {
   margin: {
         l: 90,
         r: 30,
-        t: 30,
+        t: 100,
         b: 80
   }
 };
@@ -1536,7 +1552,7 @@ if (fullSampleLists.length > 1) {
     }
     root.violin_data = [trace1, trace2, trace3]
 } else {
-    root.violin_layout['width'] = 300;
+    root.violin_layout['width'] = 400;
     root.violin_layout['height'] = 400;
     root.violin_data = [
       {
@@ -1550,7 +1566,7 @@ if (fullSampleLists.length > 1) {
           visible: true
         },
         name: "<b>Trait " + js_data.trait_id + "</b>",
-        x0: "<b>Trait " + js_data.trait_id + "</b>"
+        x0: "<b>Density</br>"
       }
     ]
 }
