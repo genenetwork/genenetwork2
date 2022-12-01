@@ -424,7 +424,7 @@ def fetch_traits(dataset_name, file_format="json"):
                         PublishXRef.`LRS`,
                         PublishXRef.`additive`,
                         PublishXRef.`Locus`,
-                        CONCAT('Chr', Geno.`Chr`, ': ', Geno.`Mb`)
+                        Geno.`Chr`, Geno.`Mb`
                         FROM Species
                             INNER JOIN InbredSet ON InbredSet.`SpeciesId` = Species.`Id`
                             INNER JOIN PublishXRef ON PublishXRef.`InbredSetId` = InbredSet.`Id`
@@ -441,7 +441,7 @@ def fetch_traits(dataset_name, file_format="json"):
                                 PublishXRef.Id"""
 
                 field_list = ["Id", "Authors", "Year", "PubMedID", "Mean",
-                              "LRS", "Additive", "Locus", "Position"]
+                              "LRS", "Additive", "Locus", "Chr", "Mb"]
 
             if 'limit_to' in request.args:
                 limit_number = request.args['limit_to']
