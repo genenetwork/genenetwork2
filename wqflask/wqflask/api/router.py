@@ -416,22 +416,32 @@ def fetch_traits(dataset_name, file_format="json"):
                 field_list = ["Id", "Name", "Marker_Name",
                               "Chr", "Mb", "Sequence", "Source"]
             else:
-                query = """
-                            SELECT
-                                PublishXRef.Id, PublishXRef.PhenotypeId, PublishXRef.PublicationId, PublishXRef.Locus, PublishXRef.LRS, PublishXRef.additive, PublishXRef.Sequence
-                            FROM
-                                PublishXRef, PublishFreeze
-                            WHERE
-                                PublishXRef.InbredSetId = {0} AND
-                                PublishFreeze.InbredSetId = PublishXRef.InbredSetId AND
-                                PublishFreeze.public > 0 AND
-                                PublishFreeze.confidentiality < 1
+                query = """SELECT PublishXRef.Id,
+                        Publication.`Authors`,
+                        Publication.`Year`,
+                        Publication.`PubMed_ID`,
+                        PublishXRef.`mean`,
+                        PublishXRef.`LRS`,
+                        PublishXRef.`additive`,
+                        PublishXRef.`Locus`,
+                        CONCAT('Chr', Geno.`Chr`, ': ', Geno.`Mb`)
+                        FROM Species
+                            INNER JOIN InbredSet ON InbredSet.`SpeciesId` = Species.`Id`
+                            INNER JOIN PublishXRef ON PublishXRef.`InbredSetId` = InbredSet.`Id`
+                            INNER JOIN PublishFreeze ON PublishFreeze.`InbredSetId` = InbredSet.`Id`
+                            INNER JOIN Publication ON Publication.`Id` = PublishXRef.`PublicationId`
+                            INNER JOIN Phenotype ON Phenotype.`Id` = PublishXRef.`PhenotypeId`
+                            LEFT JOIN Geno ON PublishXRef.Locus = Geno.Name AND Geno.SpeciesId = Species.Id
+                        WHERE
+                            PublishXRef.InbredSetId = {0} AND
+                            PublishFreeze.InbredSetId = PublishXRef.InbredSetId AND
+                            PublishFreeze.public > 0 AND
+                            PublishFreeze.confidentiality < 1
                             ORDER BY
-                                PublishXRef.Id
-                        """
+                                PublishXRef.Id"""
 
-                field_list = ["Id", "PhenotypeId", "PublicationId",
-                              "Locus", "LRS", "Additive", "Sequence"]
+                field_list = ["Id", "Authors", "Year", "PubMedID", "Mean",
+                              "LRS", "Additive", "Locus", "Position"]
 
             if 'limit_to' in request.args:
                 limit_number = request.args['limit_to']
