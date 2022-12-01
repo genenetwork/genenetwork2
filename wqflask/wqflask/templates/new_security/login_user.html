@@ -6,7 +6,7 @@
 
         {{ flash_me() }}
 
-        <h4>Already have an account? Sign in here.</h4>
+        <h3>Sign in here.</h3>
 
 	    {% if redis_is_available: %}
             <form class="form-horizontal" action="/n/login" method="POST" name="login_user_form" id="loginUserForm">
@@ -15,14 +15,15 @@
                     <div class="form-group">
                         <label style="text-align:left;" class="col-xs-1 control-label" for="email_address">Email&nbsp;Address</label>
                         <div style="margin-left:20px;" class="col-xs-4">
-                            <input id="email_address" class="focused" name="email_address" type="text" value="">
+                            <input id="email_address" class="focused" name="email_address" type="text" value="" size="50">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label style="text-align:left;" class="col-xs-1 control-label" for="password">Password</label>
                         <div style="margin-left:20px;" class="col-xs-4 controls">
-                            <input id="password" name="password" type="password" value="">
+                            <input id="password" class="focused" name="password" type="password" value="" size="50">
+                            <br />
                             <br />
                             <a href="/n/forgot_password">Forgot your password?</a><br/>
                         </div>
