@@ -83,10 +83,6 @@ table.dataTable.cell-border tbody tr td:first-child {
   top: 2px;
 }
 
-.showtrait-main-div {
-  min-width: 1400px;
-}
-
 table.dataTable tbody td.column_name-Checkbox {
   padding: 1px 0px 0px 9px; /* The left padding here is because text-align:center does not seem to be working properly. No idea why this is. */
   text-align: center;
