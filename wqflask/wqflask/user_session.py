@@ -150,7 +150,7 @@ class UserSession:
     def user_email(self):
         """Shortcut to the user email address"""
 
-        if self.logged_in:
+        if self.logged_in and 'email_address' in self.user_details:
             return self.user_details['email_address']
         else:
             return None
