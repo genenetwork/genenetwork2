@@ -195,7 +195,7 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 '{}:{}'.format(target_trait['name'], target_dataset['name']))
             results_dict['sample_r'] = f"{float(trait.get('corr_coefficient',0.0)):.3f}"
             results_dict['num_overlap'] = trait.get('num_overlap', 0)
-            results_dict['sample_p'] = f"{float(trait.get('p_value',0)):.3e}"
+            results_dict['sample_p'] = f"{float(trait.get('p_value',0)):.2e}"
             if target_dataset['type'] == "ProbeSet":
                 results_dict['symbol'] = target_trait['symbol']
                 results_dict['description'] = "N/A"
