@@ -31,7 +31,8 @@ def query_probes_metadata(dataset, trait_list):
 
             query = """
                     SELECT ProbeSet.Name,ProbeSet.Chr,ProbeSet.Mb,
-                    ProbeSet.Symbol,ProbeSetXRef.mean,ProbeSet.description,
+                    ProbeSet.Symbol,ProbeSetXRef.mean,
+                    CONCAT_WS('; ', ProbeSet.description, ProbeSet.Probe_Target_Description) AS description,
                     ProbeSetXRef.additive,ProbeSetXRef.LRS,Geno.Chr, Geno.Mb
                     FROM ProbeSet INNER JOIN ProbeSetXRef
                     ON ProbeSet.Id=ProbeSetXRef.ProbeSetId
