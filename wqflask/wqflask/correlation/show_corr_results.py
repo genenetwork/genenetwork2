@@ -218,7 +218,9 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 results_dict['tissue_pvalue'] = "--"
                 if this_dataset['type'] == "ProbeSet":
                     if 'lit_corr' in trait:
-                        results_dict['lit_corr'] = f"{float(trait['lit_corr']):.3f}"
+                        results_dict['lit_corr'] = (
+                            f"{float(trait['lit_corr']):.3f}"
+                            if trait["lit_corr"] else "--")
                     if 'tissue_corr' in trait:
                         results_dict['tissue_corr'] = f"{float(trait['tissue_corr']):.3f}"
                         results_dict['tissue_pvalue'] = f"{float(trait['tissue_p_val']):.3e}"
