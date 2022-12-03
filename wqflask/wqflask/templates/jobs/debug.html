@@ -1,0 +1,42 @@
+{%extends "base.html"%}
+{%block title%}Debug Job{% endblock%}
+{%block css%}
+{%endblock%}
+
+{%block content%}
+<h1>Debug Job</h1>
+
+The following show details for job "{{job_id}}" to assist in debugging.
+
+<h2>Metadata</h2>
+
+<ul>
+  <li><strong>Job ID:</strong> {{job_id}}</li>
+  <li><strong>Command:</strong> <code>{{command}}</code></li>
+  <li><strong>Received:</strong> {{request_received_time}}</li>
+  <li><strong>Return Code:</strong> {{return_code}}</li>
+  <li><strong>Completion Status:</strong> {{completion_status}}</li>
+  <li><strong>Status:</strong> {{status}}</li>
+</ul>
+
+<h2>STDERR</h2>
+
+<div style="background-color: black; color: red;">
+  {%for line in stderr:%}
+  <p>{{line}}</p>
+  {%endfor%}
+</div>
+
+<h2>STDOUT</h2>
+
+<div style="background-color: black; color: green;">
+  {%for line in stdout:%}
+  <p>{{line}}</p>
+  {%endfor%}
+</div>
+
+
+{%endblock%}
+
+{%block js%}
+{%endblock%}

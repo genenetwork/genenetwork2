@@ -101,7 +101,7 @@ def run_job(redis_conn: Redis, job_id: UUID):
     returncode = process.returncode
     set_meta(redis_conn, job_id, "completion-status",
              ("success" if returncode == 0 else "error"))
-    set_meta(redis_conn, job_id, "return-code", "error")
+    set_meta(redis_conn, job_id, "return-code", returncode)
     return process.returncode
 
 def run_job_parser(parent_parser):

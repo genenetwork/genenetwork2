@@ -25,6 +25,7 @@ from wqflask.api.markdown import environments_blueprint
 from wqflask.api.markdown import facilities_blueprint
 from wqflask.api.markdown import blogs_blueprint
 from wqflask.api.markdown import news_blueprint
+from wqflask.api.jobs import jobs as jobs_bp
 
 from wqflask.jupyter_notebooks import jupyter_notebooks
 
@@ -60,6 +61,7 @@ app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
 app.register_blueprint(resource_management, url_prefix="/resource-management")
 app.register_blueprint(metadata_edit, url_prefix="/datasets/")
 app.register_blueprint(group_management, url_prefix="/group-management")
+app.register_blueprint(jobs_bp, url_prefix="/jobs")
 
 @app.before_request
 def before_request():
