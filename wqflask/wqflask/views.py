@@ -490,16 +490,21 @@ def show_trait_page():
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
-        metadata = (
-            template_vars.dataset.accession_id
-            .bind(
-                lambda idx: requests.get(
-                    urljoin(
-                        GN3_LOCAL_URL,
-                        f"/api/metadata/dataset/GN{idx}")
+
+        try:
+            metadata = (
+                template_vars.dataset.accession_id
+                .bind(
+                    lambda idx: requests.get(
+                        urljoin(
+                            GN3_LOCAL_URL,
+                            f"/api/metadata/dataset/GN{idx}")
+                    )
                 )
-            )
-        ).json()
+            ).json()
+        except:
+            metadata = {}
+
         return render_template("show_trait.html",
                                metadata=metadata, **template_vars.__dict__)
 
