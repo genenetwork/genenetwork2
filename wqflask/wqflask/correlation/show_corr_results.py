@@ -62,7 +62,8 @@ def set_template_vars(start_vars, correlation_data):
     correlation_data['formatted_corr_type'] = get_formatted_corr_type(
         corr_type, corr_method)
 
-    return correlation_data
+    top_n = int(start_vars.get("corr_return_results", 500))
+    return correlation_data[0:top_n]
 
 
 def apply_filters(trait, target_trait, target_dataset, **filters):

@@ -228,7 +228,7 @@ def merge_results(dict_a: dict, dict_b: dict, dict_c: dict) -> list[dict]:
 
 
 def __compute_sample_corr__(
-        start_vars: dict, corr_type: str, method: str, n_top: int,
+        start_vars: dict, corr_type: str, method: str,
         target_trait_info: tuple):
     """Compute the sample correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
@@ -254,14 +254,14 @@ def __compute_sample_corr__(
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
                 return run_correlation(target_data, sample_vals,
-                                       method, ",", corr_type, n_top)
+                                       method, ",", corr_type)
             write_db_to_textfile(target_dataset.name, conn)
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
                 return run_correlation(target_data, sample_vals,
-                                       method, ",", corr_type, n_top)
+                                       method, ",", corr_type)
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
@@ -278,8 +278,7 @@ def __compute_sample_corr__(
         return {}
 
     return run_correlation(
-        target_data, list(sample_data.values()), method, ",", corr_type,
-        n_top)
+        target_data, list(sample_data.values()), method, ",", corr_type)
 
 
 def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
@@ -290,7 +289,7 @@ def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
 
 
 def __compute_tissue_corr__(
-        start_vars: dict, corr_type: str, method: str, n_top: int,
+        start_vars: dict, corr_type: str, method: str,
         target_trait_info: tuple):
     """Compute the tissue correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
@@ -314,7 +313,7 @@ def __compute_tissue_corr__(
 
 
 def __compute_lit_corr__(
-        start_vars: dict, corr_type: str, method: str, n_top: int,
+        start_vars: dict, corr_type: str, method: str,
         target_trait_info: tuple):
     """Compute the literature correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
@@ -331,7 +330,7 @@ def __compute_lit_corr__(
             lambda acc, lit: {**acc, **lit},
             compute_all_lit_correlation(
                 conn=conn, trait_lists=list(geneid_dict.items()),
-                species=species, gene_id=this_trait_geneid)[:n_top],
+                species=species, gene_id=this_trait_geneid),
             {})
     return {}
 
