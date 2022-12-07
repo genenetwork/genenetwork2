@@ -174,16 +174,23 @@ def get_datasets_data(base_dataset, target_dataset_data):
 def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
     """fetch textfiles with strain vals if exists"""
 
+
+    def __file_scanner__(text_dir,target_file):
+        for file  in os.listdir(text_dir):
+            if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
+                return os.path.join(text_dir,file)
+
     with conn.cursor() as cursor:
         cursor.execute(
             'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (dataset_name,))
         results = cursor.fetchone()
     if results:
         try:
-            for file in os.listdir(text_dir):
-                if file.startswith(f"ProbeSetFreezeId_{results[0]}_"):
-                    return os.path.join(text_dir, file)
-        except FileNotFoundError:
+            # addition check for matrix file in gn_matrix folder
+
+            return __file_scanner__(text_dir,results) or __file_scanner__(TEXTDIR,results)
+
+        except Exception:
             pass
 
 
