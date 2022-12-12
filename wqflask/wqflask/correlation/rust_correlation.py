@@ -361,12 +361,14 @@ def compute_correlation_rust(
 
     if should_compute_all:
 
-        if corr_type == "sample" and this_dataset.type == "ProbeSet":
+        if corr_type == "sample":
+            if this_dataset.type == "ProbeSet":
+                top_a = compute_top_n_tissue(
+                    target_dataset, this_trait, results, method)
 
-            top_a = compute_top_n_tissue(
-                target_dataset, this_trait, results, method)
-
-            top_b = compute_top_n_lit(results, target_dataset, this_trait)
+                top_b = compute_top_n_lit(results, target_dataset, this_trait)
+            else:
+                pass
 
         elif corr_type == "lit":
 
