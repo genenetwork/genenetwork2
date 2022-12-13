@@ -171,7 +171,7 @@ def get_datasets_data(base_dataset, target_dataset_data):
     return (target_results, base_results)
 
 
-def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
+def fetch_text_file(dataset_name, conn, text_dir=TEXTDIR):
     """fetch textfiles with strain vals if exists"""
 
 
