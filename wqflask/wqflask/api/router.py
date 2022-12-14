@@ -417,6 +417,7 @@ def fetch_traits(dataset_name, file_format="json"):
                               "Chr", "Mb", "Sequence", "Source"]
             else:
                 query = """SELECT PublishXRef.Id,
+                        Phenotype.`Original_description`,
                         Publication.`Authors`,
                         Publication.`Year`,
                         Publication.`PubMed_ID`,
@@ -440,7 +441,7 @@ def fetch_traits(dataset_name, file_format="json"):
                             ORDER BY
                                 PublishXRef.Id"""
 
-                field_list = ["Id", "Authors", "Year", "PubMedID", "Mean",
+                field_list = ["Id", "Description", "Authors", "Year", "PubMedID", "Mean",
                               "LRS", "Additive", "Locus", "Chr", "Mb"]
 
             if 'limit_to' in request.args:
