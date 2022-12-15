@@ -163,7 +163,7 @@ def search_user(resource_id: str):
         user = json.loads(users[user])
         for q in (request.form.get("user_name"),
                   request.form.get("user_email")):
-            if q and (q in user.get("email_address") or
-                      q in user.get("full_name")):
+            if q and (q in user.get("email_address", "") or
+                      q in user.get("full_name", "")):
                 results[user.get("user_id", "")] = user
     return json.dumps(tuple(results.values()))
