@@ -20,12 +20,12 @@
         Organization: {{ user_details.get('organization')}}
     </h3>
     {% endif %}
+    {% endif %}
     {% if DATA_ACCESS > DataRole.VIEW and ADMIN_STATUS > AdminRole.NOT_ADMIN %}
     <a class="btn btn-danger" target="_blank"
        href="/resource-management/resources/{{ resource_info.get('resource_id') }}/change-owner">
         Change Owner
     </a>
-    {% endif %}
     {% endif %}
         </section>
 
