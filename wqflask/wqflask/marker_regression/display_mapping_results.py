@@ -544,7 +544,8 @@ class DisplayMappingResults:
                     chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(
                     str(chrName), self.diffCol, self.startMb, self.endMb, "mouse")
-                self.homology = GeneUtil.load_homology(str(chrName), self.startMb, self.endMb)
+                self.homology = GeneUtil.load_homology(str(chrName), self.startMb, self.endMb, "mouse_to_human.csv")
+
             elif self.dataset.group.species == "rat":
                 if self.selectedChr == 21:
                     chrName = "X"
@@ -586,7 +587,7 @@ class DisplayMappingResults:
                 (self.NR_INDIVIDUALS + 10) * self.EACH_GENE_HEIGHT
 # END HaplotypeAnalyst
 
-        if self.homologyChecked and self.homology and (self.endMb - self.startMb < 2) and self.geneChecked and self.geneCol:
+        if self.homologyChecked and self.homology and self.geneChecked and self.geneCol:
             self.graphHeight = self.graphHeight + (self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT
         if self.geneChecked and self.geneCol:
             self.graphHeight = self.graphHeight + (self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT
@@ -739,7 +740,7 @@ class DisplayMappingResults:
             if self.geneChecked and self.geneCol:
                 self.drawGeneBand(canvas, gifmap, plotXScale, offset=newoffset,
                                   zoom=zoom, startMb=startMb, endMb=endMb)
-            if self.homologyChecked and self.homology and (endMb - startMb < 2):
+            if self.homologyChecked and self.homology:
                 if self.geneChecked and self.geneCol:
                     yTopOffset = newoffset[3] + self.NUM_GENE_ROWS * \
                         self.EACH_GENE_HEIGHT + 3 * self.BAND_SPACING + 10
