@@ -2,8 +2,29 @@ import string
 
 from wqflask.database import database_connection
 
-# Just return a list of dictionaries
-# each dictionary contains sub-dictionary
+mm10_to_hg38_file = "/home/zas1024/gn2-zach/mm10_hg38_homology/mm10ToHg38_chain_only_sorted.csv"
+
+def load_homology(chr_name, start_mb, end_mb):
+    homology_list = []
+    with open(mm10_to_hg38_file) as h_file:
+        current_chr = 0
+        for line in h_file:
+            line_items = line.split()
+            this_dict = {
+                "mm10_chr": line_items[2][3:],
+                "mm10_start": float(line_items[5])/1000000,
+                "mm10_end": float(line_items[6])/1000000,
+                "hg38_chr": line_items[7][3:],
+                "hg38_strand": line_items[9],
+                "hg38_start": float(line_items[10])/1000000,
+                "hg38_end": float(line_items[11])/1000000
+            }
+
+            if str(this_dict["mm10_chr"]) == str(chr_name) and this_dict["mm10_start"]>= start_mb and this_dict["mm10_end"] <= end_mb:
+                homology_list.append(this_dict)
+
+    return homology_list
+
 def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
     assembly_map = {
         "mouse": "mm10",
