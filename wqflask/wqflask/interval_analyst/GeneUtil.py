@@ -2,11 +2,9 @@ import string
 
 from wqflask.database import database_connection
 
-mm10_to_hg38_file = "/home/zas1024/gn2-zach/mm10_hg38_homology/mm10ToHg38_chain_only_sorted.csv"
-
-def load_homology(chr_name, start_mb, end_mb):
+def load_homology(chr_name, start_mb, end_mb, source_file):
     homology_list = []
-    with open(mm10_to_hg38_file) as h_file:
+    with open(source_file) as h_file:
         current_chr = 0
         for line in h_file:
             line_items = line.split()
