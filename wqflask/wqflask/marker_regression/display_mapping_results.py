@@ -429,6 +429,10 @@ class DisplayMappingResults:
             self.SNPChecked = start_vars['showSNP']
         else:
             self.SNPChecked = False
+        if 'showHomology' in list(start_vars.keys()):
+            self.homologyChecked = start_vars['showHomology']
+        else:
+            self.homologyChecked = False
         if 'showGenes' in list(start_vars.keys()):
             self.geneChecked = start_vars['showGenes']
         else:
@@ -490,28 +494,6 @@ class DisplayMappingResults:
         else:
             self.GraphInterval = self.cMGraphInterval  # cM
 
-# BEGIN HaplotypeAnalyst
-# count the amount of individuals to be plotted, and increase self.graphHeight
-        if self.haplotypeAnalystChecked and self.selectedChr > -1:
-            thisTrait = self.this_trait
-            smd = []
-            for sample in self.sample_vals_dict.keys():
-                if self.sample_vals_dict[sample] != "x":
-                    temp = GeneralObject(name=sample, value=float(
-                        self.sample_vals_dict[sample]))
-                    smd.append(temp)
-                else:
-                    continue
-            samplelist = list(self.genotype.prgy)
-            for j, _geno in enumerate(self.genotype[0][1].genotype):
-                for item in smd:
-                    if item.name == samplelist[j]:
-                        self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
-# default:
-            self.graphHeight = self.graphHeight + 2 * \
-                (self.NR_INDIVIDUALS + 10) * self.EACH_GENE_HEIGHT
-# END HaplotypeAnalyst
-
         #########################
         # Get the sorting column
         #########################
@@ -550,7 +532,8 @@ class DisplayMappingResults:
         geneTable = ""
 
         self.geneCol = None
-        if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked or self.geneChecked):
+        self.homology = None
+        if self.plotScale == 'physic' and self.selectedChr > -1 and (self.intervalAnalystChecked or self.geneChecked or self.homologyChecked):
             # Draw the genes for this chromosome / region of this chromosome
             webqtldatabase = self.dataset.name
 
@@ -561,6 +544,7 @@ class DisplayMappingResults:
                     chrName = self.selectedChr
                 self.geneCol = GeneUtil.loadGenes(
                     str(chrName), self.diffCol, self.startMb, self.endMb, "mouse")
+                self.homology = GeneUtil.load_homology(str(chrName), self.startMb, self.endMb)
             elif self.dataset.group.species == "rat":
                 if self.selectedChr == 21:
                     chrName = "X"
@@ -579,6 +563,34 @@ class DisplayMappingResults:
                 GENEID = None
 
                 self.geneTable(self.geneCol, GENEID)
+
+# BEGIN HaplotypeAnalyst
+# count the amount of individuals to be plotted, and increase self.graphHeight
+        if self.haplotypeAnalystChecked and self.selectedChr > -1:
+            thisTrait = self.this_trait
+            smd = []
+            for sample in self.sample_vals_dict.keys():
+                if self.sample_vals_dict[sample] != "x":
+                    temp = GeneralObject(name=sample, value=float(
+                        self.sample_vals_dict[sample]))
+                    smd.append(temp)
+                else:
+                    continue
+            samplelist = list(self.genotype.prgy)
+            for j, _geno in enumerate(self.genotype[0][1].genotype):
+                for item in smd:
+                    if item.name == samplelist[j]:
+                        self.NR_INDIVIDUALS = self.NR_INDIVIDUALS + 1
+# default:
+            self.graphHeight = self.graphHeight + 2 * \
+                (self.NR_INDIVIDUALS + 10) * self.EACH_GENE_HEIGHT
+# END HaplotypeAnalyst
+
+        if self.homologyChecked and self.homology and (self.endMb - self.startMb < 2) and self.geneChecked and self.geneCol:
+            self.graphHeight = self.graphHeight + (self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT
+        if self.geneChecked and self.geneCol:
+            self.graphHeight = self.graphHeight + (self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT
+
 
         ################################################################
         # Plots goes here
@@ -685,9 +697,12 @@ class DisplayMappingResults:
                 drawAreaHeight -= 4 * self.BAND_HEIGHT + 4 * self.BAND_SPACING + 10 * zoom
             else:
                 drawAreaHeight -= 3 * self.BAND_HEIGHT + 3 * self.BAND_SPACING + 10 * zoom
+            if self.homologyChecked:
+                drawAreaHeight -= self.NUM_GENE_ROWS * \
+                    self.EACH_GENE_HEIGHT + 3 * self.BAND_SPACING
             if self.geneChecked:
                 drawAreaHeight -= self.NUM_GENE_ROWS * \
-                    self.EACH_GENE_HEIGHT + 3 * self.BAND_SPACING + 10 * zoom
+                    self.EACH_GENE_HEIGHT + 3 * self.BAND_SPACING
         else:
             if self.selectedChr > -1:
                 drawAreaHeight -= 20
@@ -720,8 +735,15 @@ class DisplayMappingResults:
         if self.plotScale == 'physic' and self.selectedChr > -1:
             self.drawClickBand(canvas, gifmap, plotXScale, offset=newoffset,
                                zoom=zoom, startMb=startMb, endMb=endMb)
+
             if self.geneChecked and self.geneCol:
                 self.drawGeneBand(canvas, gifmap, plotXScale, offset=newoffset,
+                                  zoom=zoom, startMb=startMb, endMb=endMb)
+            if self.homologyChecked and self.homology and (endMb - startMb < 2):
+                if self.geneChecked and self.geneCol:
+                    yTopOffset = newoffset[3] + self.NUM_GENE_ROWS * \
+                        self.EACH_GENE_HEIGHT + 3 * self.BAND_SPACING + 10
+                self.drawHomologyBand(canvas, gifmap, plotXScale, offset=(xLeftOffset, xRightOffset, yTopOffset, yBottomOffset),
                                   zoom=zoom, startMb=startMb, endMb=endMb)
             if self.SNPChecked:
                 self.drawSNPTrackNew(
@@ -1316,6 +1338,130 @@ class DisplayMappingResults:
                 im_drawer.text(
                     text=string6, xy=(xLeftOffset, y_constant * fontZoom),
                     font=labelFont, fill=labelColor)
+
+    def drawHomologyBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
+        im_drawer = ImageDraw.Draw(canvas)
+        if self.plotScale != 'physic' or self.selectedChr == -1 or not self.homology:
+            return
+
+        xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
+        plotWidth = canvas.size[0] - xLeftOffset - xRightOffset
+        plotHeight = canvas.size[1] - yTopOffset - yBottomOffset
+        yZero = canvas.size[1] - yBottomOffset
+        fontZoom = zoom
+        if zoom == 2:
+            fontZoom = 1.5
+
+        yPaddingTop = yTopOffset
+
+        for index, homology_dict in enumerate(self.homology):
+            if self.dataset.group.species == "mouse":
+                mm10_start = homology_dict["mm10_start"]
+                mm10_end = homology_dict["mm10_end"]
+                hg38_chr = homology_dict["hg38_chr"]
+                hg38_strand = homology_dict["hg38_strand"]
+                hg38_start = homology_dict["hg38_start"]
+                hg38_end = homology_dict["hg38_end"]
+                geneLength = (mm10_end - mm10_start) * 1000.0
+                tenPercentLength = geneLength * 0.0001
+
+                geneStartPix = xLeftOffset + \
+                    plotXScale * (float(mm10_start) - startMb)
+                geneEndPix = xLeftOffset + plotXScale * \
+                    (float(mm10_end) - startMb)  # at least one pixel
+
+                if (geneEndPix < xLeftOffset):
+                    return  # this gene is not on the screen
+                elif (geneEndPix > xLeftOffset + plotWidth):
+                    geneEndPix = xLeftOffset + plotWidth  # clip the last in-range gene
+                if (geneStartPix > xLeftOffset + plotWidth):
+                    return  # we are outside the valid on-screen range, so stop drawing genes
+                elif (geneStartPix < xLeftOffset):
+                    geneStartPix = xLeftOffset  # clip the first in-range gene
+
+                # color the gene based on SNP density
+                # found earlier, needs to be recomputed as snps are added
+                # always apply colors now, even if SNP Track not checked - Zach 11/24/2010
+
+                myColor = BLACK
+
+                outlineColor = myColor
+                fillColor = myColor
+
+                TITLE = f"hg38: Chr {hg38_chr} from {hg38_start:.3f} to {hg38_end:.3f} Mb"
+                HREF = f"http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{hg38_chr}:{int(hg38_start * 1000000)}-{int(hg38_end * 1000000)}"
+
+            # Draw Genes
+            geneYLocation = yPaddingTop + \
+                (index % self.NUM_GENE_ROWS) * self.EACH_GENE_HEIGHT * zoom
+            if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
+                geneYLocation += 4 * self.BAND_HEIGHT + 4 * self.BAND_SPACING
+            else:
+                geneYLocation += 3 * self.BAND_HEIGHT + 3 * self.BAND_SPACING
+
+            # draw the detail view
+            if self.endMb - self.startMb <= self.DRAW_DETAIL_MB and geneEndPix - geneStartPix > self.EACH_GENE_ARROW_SPACING * 3:
+                utrColor = ImageColor.getrgb("rgb(66%, 66%, 66%)")
+                arrowColor = ImageColor.getrgb("rgb(70%, 70%, 70%)")
+
+                # draw the line that runs the entire length of the gene
+                im_drawer.line(
+                    xy=(
+                        (geneStartPix, geneYLocation + \
+                         self.EACH_GENE_HEIGHT / 2 * zoom),
+                        (geneEndPix, geneYLocation + self.EACH_GENE_HEIGHT / 2 * zoom)),
+                    fill=outlineColor, width=1)
+
+                # draw the arrows
+                if geneEndPix - geneStartPix < 1:
+                    genePixRange = 1
+                else:
+                    genePixRange = int(geneEndPix - geneStartPix)
+                for xCoord in range(0, genePixRange):
+
+                    if (xCoord % self.EACH_GENE_ARROW_SPACING == 0 and xCoord + self.EACH_GENE_ARROW_SPACING < geneEndPix - geneStartPix) or xCoord == 0:
+                        if hg38_strand == "+":
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord, geneYLocation),
+                                    (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                fill=arrowColor, width=1)
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord,
+                                     geneYLocation + self.EACH_GENE_HEIGHT * zoom),
+                                    (geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                fill=arrowColor, width=1)
+                        else:
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation),
+                                    (geneStartPix + xCoord,
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                fill=arrowColor, width=1)
+                            im_drawer.line(
+                                xy=((geneStartPix + xCoord + self.EACH_GENE_ARROW_WIDTH,
+                                     geneYLocation + self.EACH_GENE_HEIGHT * zoom),
+                                    (geneStartPix + xCoord,
+                                     geneYLocation + (self.EACH_GENE_HEIGHT / 2) * zoom)),
+                                fill=arrowColor, width=1)
+            # draw the genes as rectangles
+            else:
+                im_drawer.rectangle(
+                    xy=((geneStartPix, geneYLocation),
+                        (geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT * zoom))),
+                    outline=outlineColor, fill=fillColor)
+
+            COORDS = "%d, %d, %d, %d" % (
+                geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
+            # NL: 06-02-2011 Rob required to display NCBI info in a new window
+            gifmap.append(
+                HtmlGenWrapper.create_area_tag(
+                    shape='rect',
+                    coords=COORDS,
+                    href=HREF,
+                    title=TITLE,
+                    target="_blank"))
 
     def drawGeneBand(self, canvas, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
