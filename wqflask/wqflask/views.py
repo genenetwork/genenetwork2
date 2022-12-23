@@ -752,15 +752,10 @@ def mapping_results_page():
     if result:
         result = pickle.loads(result)
     else:
-        try:
-            template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
-            if template_vars.no_results:
-                raise NoMappingResultsError(
-                    start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
-        except Exception as exc:
-            rendered_template = render_template(
-                "mapping_error.html", error=exc, error_type=type(exc).__name__)
-            return rendered_template
+        template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+        if template_vars.no_results:
+            raise NoMappingResultsError(
+                start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
 
         if not template_vars.pair_scan:
             template_vars.js_data = json.dumps(template_vars.js_data,
