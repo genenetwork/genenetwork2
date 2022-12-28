@@ -1,12 +1,16 @@
 """Entry point for flask app"""
 # pylint: disable=C0413,E0611
 import time
-import jinja2
-
-from flask import g
-from flask import Flask
 from typing import Tuple
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
+
+import redis
+import jinja2
+from flask_session import Session
+from authlib.integrations.requests_client import OAuth2Session
+from flask import g, Flask, flash, session, url_for, redirect, current_app
+
+
 from utility import formatting
 
 from gn3.authentication import DataRole, AdminRole
@@ -26,6 +30,7 @@ from wqflask.api.markdown import facilities_blueprint
 from wqflask.api.markdown import blogs_blueprint
 from wqflask.api.markdown import news_blueprint
 from wqflask.api.jobs import jobs as jobs_bp
+from wqflask.oauth2.routes import oauth2
 
 from wqflask.jupyter_notebooks import jupyter_notebooks
 
@@ -47,6 +52,8 @@ app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
     numify=formatting.numify)
 
+app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+
 # Registering blueprints
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
 app.register_blueprint(references_blueprint, url_prefix="/references")
@@ -62,12 +69,31 @@ app.register_blueprint(resource_management, url_prefix="/resource-management")
 app.register_blueprint(metadata_edit, url_prefix="/datasets/")
 app.register_blueprint(group_management, url_prefix="/group-management")
 app.register_blueprint(jobs_bp, url_prefix="/jobs")
+app.register_blueprint(oauth2, url_prefix="/oauth2")
+
+server_session = Session(app)
 
 @app.before_request
 def before_request():
     g.request_start_time = time.time()
     g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
 
+    token = session.get("oauth2_token", False)
+    if token and not bool(session.get("user_details", False)):
+        config = current_app.config
+        client = OAuth2Session(
+            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
+            token=token)
+        resp = client.get(
+            urljoin(config["GN_SERVER_URL"], "oauth2/user"))
+        user_details = resp.json()
+        session["user_details"] = user_details
+
+        if user_details.get("error") == "invalid_token":
+            flash(user_details["error_description"], "alert-danger")
+            flash("You are now logged out.", "alert-info")
+            session.pop("user_details", None)
+            session.pop("oauth2_token", None)
 
 @app.context_processor
 def include_admin_role_class():

@@ -27,6 +27,8 @@ import sys
 with open("../etc/VERSION", "r") as version_file:
     GN_VERSION = version_file.read()
 
+SECRET_KEY = "pleaseChangeThisToSomethingSecretInAnExternalConfigFileOrEnvvars"
+
 # Redis
 REDIS_URL = "redis://:@localhost:6379/0"
 
@@ -115,3 +117,10 @@ JS_GN_PATH = os.environ['HOME'] + "/genenetwork/javascript"
 # GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
 REAPER_COMMAND = os.environ['GN2_PROFILE'] + "/bin/qtlreaper"
 # GEMMA_WRAPPER_COMMAND = str.strip(os.popen("which gemma-wrapper").read())
+
+OAUTH2_CLIENT_ID="0bbfca82-d73f-4bd4-a140-5ae7abb4a64d"
+OAUTH2_CLIENT_SECRET="yadabadaboo"
+
+SESSION_TYPE = "redis"
+SESSION_PERMANENT = True
+SESSION_USE_SIGNER = True

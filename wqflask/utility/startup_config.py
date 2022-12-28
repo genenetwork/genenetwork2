@@ -15,7 +15,7 @@ ENDC = '\033[0m'
 
 
 def app_config():
-    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_TYPE'] = app.config.get('SESSION_TYPE', 'filesystem')
     if not app.config.get('SECRET_KEY'):
         import os
         app.config['SECRET_KEY'] = str(os.urandom(24))
