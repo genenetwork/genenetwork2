@@ -9,11 +9,9 @@ from flask import (
     flash, request, session, redirect, Blueprint, render_template,
     current_app as app)
 
-oauth2 = Blueprint("oauth2", __name__)
+from .checks import require_oauth2, user_logged_in
 
-def user_logged_in():
-    """Check whether the user has logged in."""
-    return bool(session.get("oauth2_token", False))
+oauth2 = Blueprint("oauth2", __name__)
 
 @oauth2.route("/login", methods=["GET", "POST"])
 def login():
