@@ -1,12 +1,10 @@
 """Routes for the OAuth2 auth system in GN3"""
-import uuid
 from urllib.parse import urljoin
 
-import redis
 from authlib.integrations.requests_client import OAuth2Session
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
-    flash, request, session, redirect, Blueprint, render_template,
+    flash, request, session, url_for, redirect, Blueprint, render_template,
     current_app as app)
 
 from .checks import require_oauth2, user_logged_in
@@ -16,6 +14,8 @@ oauth2 = Blueprint("oauth2", __name__)
 @oauth2.route("/login", methods=["GET", "POST"])
 def login():
     """Route to allow users to sign up."""
+    next_endpoint=request.args.get("next", False)
+
     if request.method == "POST":
         config = app.config
         form = request.form
@@ -35,9 +35,11 @@ def login():
             return render_template("oauth2/login.html")
 
     if user_logged_in():
+        if next_endpoint:
+            return redirect(url_for(next_endpoint))
         return redirect("/")
 
-    return render_template("oauth2/login.html")
+    return render_template("oauth2/login.html", next_endpoint=next_endpoint)
 
 
 @oauth2.route("/logout", methods=["GET", "POST"])
@@ -47,3 +49,9 @@ def logout():
         session.pop(key, default=None)
 
     return redirect("/")
+
+@oauth2.route("/register-client", methods=["GET", "POST"])
+@require_oauth2
+def register_client():
+    """Register an OAuth2 client."""
+    return "USER IS LOGGED IN AND SUCCESSFULLY ACCESSED THIS ENDPOINT!"

@@ -4,7 +4,12 @@
 <div class="container" style="min-width: 1250px;">
   <h3>Sign in here.</h3>
 
-  <form class="form-horizontal" action="{{url_for('oauth2.login')}}"
+  <form class="form-horizontal"
+	{%if next_endpoint%}
+	action="{{url_for('oauth2.login', next=next_endpoint)}}"
+	{%else%}
+	action="{{url_for('oauth2.login')}}"
+	{%endif%}
 	method="POST" id="oauth2-login-form">
     <fieldset>
       <legend>Sign in with Genenetwork</legend>
