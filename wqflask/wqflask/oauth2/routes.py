@@ -1,6 +1,7 @@
 """Routes for the OAuth2 auth system in GN3"""
 from urllib.parse import urljoin
 
+from pymonad.maybe import Just, Maybe, Nothing
 from authlib.integrations.requests_client import OAuth2Session
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
@@ -10,6 +11,27 @@ from flask import (
 from .checks import require_oauth2, user_logged_in
 
 oauth2 = Blueprint("oauth2", __name__)
+
+def get_endpoint(uri_path: str) -> Maybe:
+    token = session.get("oauth2_token", False)
+    if token and not bool(session.get("user_details", False)):
+        config = app.config
+        client = OAuth2Session(
+            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
+            token=token)
+        resp = client.get(
+            urljoin(config["GN_SERVER_URL"], uri_path))
+        resp_json = resp.json()
+
+        if resp_json.get("error") == "invalid_token":
+            flash(resp_json["error_description"], "alert-danger")
+            flash("You are now logged out.", "alert-info")
+            session.pop("oauth2_token", None)
+            return Nothing
+
+        return Just(resp_json)
+
+    return Nothing
 
 @oauth2.route("/login", methods=["GET", "POST"])
 def login():
@@ -55,3 +77,15 @@ def logout():
 def register_client():
     """Register an OAuth2 client."""
     return "USER IS LOGGED IN AND SUCCESSFULLY ACCESSED THIS ENDPOINT!"
+
+@oauth2.route("/user-profile", methods=["GET"])
+@require_oauth2
+def user_profile():
+    __id__ = lambda the_val: the_val
+    user_details = session.get("user_details", False) or get_endpoint(
+        "oauth2/user").maybe(False, __id__)
+    roles = get_endpoint("oauth/user-roles").maybe([], __id__)
+    resources = []
+    return render_template(
+        "oauth2/view-user.html", user_details=user_details, roles=roles,
+        resources=resources)
