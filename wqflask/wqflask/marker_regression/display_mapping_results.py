@@ -432,7 +432,7 @@ class DisplayMappingResults:
         if 'showHomology' in list(start_vars.keys()):
             self.homologyChecked = start_vars['showHomology']
         else:
-            self.homologyChecked = False
+            self.homologyChecked = "ON"
         if 'showGenes' in list(start_vars.keys()):
             self.geneChecked = start_vars['showGenes']
         else:
