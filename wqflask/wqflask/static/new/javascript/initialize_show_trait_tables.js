@@ -223,3 +223,15 @@ for (var i = 0; i < tableIds.length; i++) {
 
   create_table(tableId, js_data['sample_lists'][i], columnDefs, tableSettings);
 }
+
+primary_table = $('#samples_primary').DataTable();
+$('#primary_searchbox').on( 'keyup', function () {
+  primary_table.search($(this).val()).draw();
+} );
+
+if ($('#samples_other').length) {
+  other_table = $('#samples_other').DataTable();
+  $('#other_searchbox').on( 'keyup', function () {
+    other_table.search($(this).val()).draw();
+  } );
+}
