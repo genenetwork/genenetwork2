@@ -874,7 +874,7 @@ def corr_compute_page():
             return render_template("correlation_page.html", **output)
 
         if jobs.completed_erroneously(job):
-            output = json.loads(job.get("stdout", "{}"))
+            output = json.loads(job.get("stderr", "{}"))
             return render_template("correlation_error_page.html", error=output)
 
         return render_template("loading_corrs.html")
