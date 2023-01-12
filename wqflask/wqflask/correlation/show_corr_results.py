@@ -202,8 +202,8 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 results_dict['location'] = target_trait['location']
                 results_dict['mean'] = "N/A"
                 results_dict['additive'] = "N/A"
-                if target_trait['description']:
-                    results_dict['description'] = target_trait['description']
+                if target_trait['description'].strip():
+                    results_dict['description'] = target_trait['description'].strip()
                 if target_trait['mean']:
                     results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
                 try:
@@ -236,8 +236,8 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 if target_trait["abbreviation"]:
                     results_dict['abbreviation'] = target_trait['abbreviation']
 
-                if target_trait["description"] == target_trait['description']:
-                    results_dict['description'] = target_trait['description']
+                if target_trait["description"].strip():
+                    results_dict['description'] = target_trait['description'].strip()
 
                 if target_trait["mean"]:
                     results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
