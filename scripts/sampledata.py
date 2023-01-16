@@ -59,3 +59,14 @@ def fetch_all_traits(species, group, type_, dataset):
                 "search_terms_or": "*",
         }).trait_list:
             yield result.get('name')
+
+
+# Dump all traits from a given dataset
+for trait in fetch_all_traits(
+        species="mouse",
+        group="BXD",
+        type_="Phenotypes",
+        dataset="BXDPublish",
+):
+    print(json.dumps(dump_sample_data("BXDPublish", trait)))
+    break  # Just do this once!
