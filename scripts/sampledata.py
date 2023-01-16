@@ -6,6 +6,7 @@ from wqflask import app
 
 from wqflask.show_trait import show_trait
 from wqflask.database import database_connection
+from wqflask.search_results import SearchResultPage
 
 
 class UserSessionSimulator():
@@ -47,4 +48,14 @@ def dump_sample_data(dataset_name, trait_id):
             return sample_data
 
 
-print(json.dumps(dump_sample_data("BXDPublish", "10007")))
+def fetch_all_traits(species, group, type_, dataset):
+    with app.app_context():
+        g.user_session = UserSessionSimulator(None)
+        for result in SearchResultPage({
+                "species": species,
+                "group": group,
+                "type": type_,
+                "dataset": dataset,
+                "search_terms_or": "*",
+        }).trait_list:
+            yield result.get('name')
