@@ -6,6 +6,7 @@ import sys
 from flask import g
 from wqflask import app
 
+from wqflask.api.gen_menu import gen_dropdown_json
 from wqflask.show_trait import show_trait
 from wqflask.database import database_connection
 from wqflask.search_results import SearchResultPage
@@ -62,25 +63,41 @@ def fetch_all_traits(species, group, type_, dataset):
         }).trait_list:
             yield result.get('name') or result.get('display_name')
 
+
+def main():
+    # Dump all sampledata into a given directory
+    with database_connection() as conn:
+        for species, group in gen_dropdown_json(conn).get("datasets").items():
+            for group_name, type_ in group.items():
+                for dataset_type, datasets in type_.items():
+                    for dataset in datasets:
+                        dataset_name = dataset[1]
+                        if not os.path.isdir(
+                                BASE_DIR:=os.path.join(
+                                    sys.argv[1],
+                                    dataset_name)
+                        ):
+                            os.makedirs(BASE_DIR)
+                        print("\n\n======================================\n\n")
+                        print(f"Dumping {dataset_name} into {sys.argv[1]}:\n\n")    
+                        for trait in fetch_all_traits(
+                                species=species,
+                                group=group_name,
+                                type_=dataset_type,
+                                dataset=dataset_name
+                        ):
+                            # Dump all sample data into a given directory:
+                            print(f"\033[FDumping: {dataset_name}/{trait}")
+                            with open(
+                                    os.path.join(BASE_DIR, f"{trait}.json"), "w"
+                            ) as f:
+                                json.dump(
+                                    dump_sample_data(dataset_name, trait), f
+                                )
+                        print(f"\033[FDONE DUMPING: {BASE_DIR} !!")
+
 
+
+
 if __name__ == "__main__":
-    DATASET_NAME = "BXDPublish"
-
-    if not os.path.isdir(
-            BASE_DIR:=os.path.join(sys.argv[1],DATASET_NAME)
-    ):
-        os.makedirs(BASE_DIR)
-
-    print("\n\n======================================\n\n")
-    print(f"Dumping Sampledata into {sys.argv[1]}:\n\n")
-    for trait in fetch_all_traits(
-            species="mouse",
-            group="BXD",
-            type_="Phenotypes",
-            dataset="BXDPublish",
-    ):
-        # Dump all sample data into a given directory:
-        print(f"\033[FDumping: {DATASET_NAME}/{trait}")
-        with open(os.path.join(BASE_DIR, f"{trait}.json"), "w") as f:
-            json.dump(dump_sample_data(DATASET_NAME, trait), f)
-    print("DONE DUMPING!")
+    main()
