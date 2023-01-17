@@ -29,8 +29,8 @@ def dump_sample_data(dataset_name, trait_id):
             data = show_trait.ShowTrait(
                 cursor, user_id=None,
                 kw={
-                    "trait_id": "10007",
-                    "dataset": "BXDPublish",
+                    "trait_id": trait_id,
+                    "dataset": dataset_name
                 }
             )
             attributes = data.js_data.get("attributes")
