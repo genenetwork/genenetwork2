@@ -1,4 +1,6 @@
 import json
+import os
+import sys
 
 # Required Evils!
 from flask import g
@@ -61,12 +63,24 @@ def fetch_all_traits(species, group, type_, dataset):
             yield result.get('name')
 
 
-# Dump all traits from a given dataset
-for trait in fetch_all_traits(
-        species="mouse",
-        group="BXD",
-        type_="Phenotypes",
-        dataset="BXDPublish",
-):
-    print(json.dumps(dump_sample_data("BXDPublish", trait)))
-    break  # Just do this once!
+if __name__ == "__main__":
+    DATASET_NAME = "BXDPublish"
+
+    if not os.path.isdir(
+            BASE_DIR:=os.path.join(sys.argv[1],DATASET_NAME)
+    ):
+        os.makedirs(BASE_DIR)
+
+    print("\n\n======================================\n\n")
+    print(f"Dumping Sampledata into {sys.argv[1]}:\n\n")
+    for trait in fetch_all_traits(
+            species="mouse",
+            group="BXD",
+            type_="Phenotypes",
+            dataset="BXDPublish",
+    ):
+        # Dump all sample data into a given directory:
+        print(f"\033[FDumping: {DATASET_NAME}/{trait}")
+        with open(os.path.join(BASE_DIR, f"{trait}.json"), "w") as f:
+            json.dump(dump_sample_data(DATASET_NAME, trait), f)
+    print("DONE DUMPING!")
