@@ -60,7 +60,7 @@ def fetch_all_traits(species, group, type_, dataset):
                 "dataset": dataset,
                 "search_terms_or": "*",
         }).trait_list:
-            yield result.get('name')
+            yield result.get('name') or result.get('display_name')
 
 
 if __name__ == "__main__":
