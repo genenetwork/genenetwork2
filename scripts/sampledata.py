@@ -19,7 +19,7 @@ class UserSessionSimulator():
 
 
 def dump_sample_data(dataset_name, trait_id):
-    """Givena DATASET_NAME e.g. 'BXDPublish' and a TRAIT_ID
+    """Given a DATASET_NAME e.g. 'BXDPublish' and a TRAIT_ID
     e.g. '10007', dump the sample data as json object"""
     with database_connection() as conn, conn.cursor() as cursor:
         sample_data = {"headers": ["Name", "Value", "SE"], "data": []}
