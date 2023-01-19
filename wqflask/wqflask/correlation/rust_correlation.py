@@ -247,21 +247,30 @@ def __compute_sample_corr__(
     if not bool(sample_data):
         return {}
 
-    if target_dataset.type == "ProbeSet":
+
+    if target_dataset.type == "ProbeSet" and start_vars.get("use_cache") == "true":
         with database_connector() as conn:
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
+
+        
                 return run_correlation(target_data, sample_vals,
                                        method, ",", corr_type, n_top)
+
+
             write_db_to_textfile(target_dataset.name, conn)
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
+
+
                 return run_correlation(target_data, sample_vals,
                                        method, ",", corr_type, n_top)
+
+
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
@@ -276,6 +285,7 @@ def __compute_sample_corr__(
 
     if len(target_data) == 0:
         return {}
+
 
     return run_correlation(
         target_data, list(sample_data.values()), method, ",", corr_type,
@@ -352,6 +362,7 @@ def compute_correlation_rust(
         "tissue": __compute_tissue_corr__,
         "lit": __compute_lit_corr__
     }
+
     results = corr_type_fns[corr_type](
         start_vars, corr_type, method, n_top, target_trait_info)
 
