@@ -677,9 +677,13 @@ def loading_page():
     return rendered_template
 
 
-@app.route("/run_mapping", methods=('POST',))
+@app.route("/run_mapping", methods=('POST','GET'))
 def mapping_results_page():
-    initial_start_vars = request.form
+    if request.method == "GET":
+        initial_start_vars = json.loads(Redis.get(request.args.get("hash")))
+    else:
+        initial_start_vars = request.form
+
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
