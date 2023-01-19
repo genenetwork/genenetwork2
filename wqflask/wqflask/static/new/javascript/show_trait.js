@@ -567,27 +567,37 @@ $('select[name=location_type]').change(on_dataset_change);
 submit_special = function(url) {
   $("input[name=sample_vals]").val(JSON.stringify(fetchSampleValues()))
   $("#trait_data_form").attr("action", url);
+
   $("#trait_data_form").submit();
 };
 
 var corrInputList = ['sample_vals', 'corr_type', 'primary_samples', 'trait_id', 'dataset', 'group', 'tool_used', 'form_url', 'corr_sample_method', 'corr_samples_group', 'corr_dataset', 'min_expr',
-                        'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper']
+                        'corr_return_results', 'location_type', 'loc_chr', 'min_loc_mb', 'max_loc_mb', 'p_range_lower', 'p_range_upper',"use_cache"]
 
 $(".test_corr_compute").on("click", (function(_this) {
   return function() {
     $('input[name=tool_used]').val("Correlation");
     $('input[name=form_url]').val("/test_corr_compute");
     $('input[name=wanted_inputs]').val(corrInputList.join(","));
+    
+
     url = "/loading";
     return submit_special(url);
   };
 })(this));
 
 $(".corr_compute").on("click", (function(_this) {
-  return function() {
+
+    return function() {
+
+
     $('input[name=tool_used]').val("Correlation");
     $('input[name=form_url]').val("/corr_compute");
     $('input[name=wanted_inputs]').val(corrInputList.join(","));
+
+
+    $('input[name=use_cache]').val($('#use_cache').is(":checked") ? "true": "false");
+
     url = "/loading";
     return submit_special(url);
   };
