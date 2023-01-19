@@ -3,6 +3,7 @@ from base import data_set  # import create_dataset
 
 from pprint import pformat as pf
 
+import hashlib
 import string
 import math
 from decimal import Decimal
@@ -30,6 +31,7 @@ from base import data_set
 from base import species
 from base import webqtlConfig
 from utility import webqtlUtil, helper_functions, hmac, Plot, Bunch, temp_data
+from utility.redis_tools import get_redis_conn
 from wqflask.database import database_connection
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from wqflask.show_trait.SampleList import SampleList
@@ -38,10 +40,21 @@ from utility.tools import locate, locate_ignore_error, GEMMA_COMMAND, PLINK_COMM
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
+Redis = get_redis_conn()
 
 class RunMapping:
 
     def __init__(self, start_vars, temp_uuid):
+
+        # Get hash of inputs (as JSON) for sharing results
+        inputs_json = json.dumps(start_vars, sort_keys=True)
+        dhash = hashlib.md5()
+        dhash.update(inputs_json.encode())
+        self.hash_of_inputs = dhash.hexdigest()
+
+        # Just store for one hour on initial load; will be stored for longer if user clicks Share
+        Redis.hset("mapping", self.hash_of_inputs, inputs_json, ex=60*60)
+
         helper_functions.get_species_dataset_trait(self, start_vars)
 
         # needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
