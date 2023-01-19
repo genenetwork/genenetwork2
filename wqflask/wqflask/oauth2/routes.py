@@ -1,4 +1,5 @@
 """Routes for the OAuth2 auth system in GN3"""
+import requests
 from urllib.parse import urljoin
 
 from pymonad.maybe import Just, Maybe, Nothing
@@ -71,6 +72,39 @@ def logout():
         session.pop(key, default=None)
 
     return redirect("/")
+
+@oauth2.route("/register-user", methods=["GET", "POST"])
+def register_user():
+    if user_logged_in():
+        next_endpoint=request.args.get("next", url_for("/"))
+        flash(("You cannot register a new user while logged in. "
+               "Please logout to register a new user."),
+              "alert-danger")
+        return redirect(next_endpoint)
+
+    if request.method == "GET":
+        return render_template("oauth2/register_user.html")
+
+    config = app.config
+    form = request.form
+    response = requests.post(
+        urljoin(config["GN_SERVER_URL"], "oauth2/register-user"),
+        data = {
+            "user_name": form.get("user_name"),
+            "email": form.get("email_address"),
+            "password": form.get("password"),
+            "confirm_password": form.get("confirm_password")})
+    results = response.json()
+    if "error" in results:
+        error_messages = tuple(
+            f"{results['error']}: {msg.strip()}"
+            for msg in results.get("error_description").split("::"))
+        for message in error_messages:
+            flash(message, "alert-danger")
+        return redirect(url_for("oauth2.register_user"))
+
+    flash("Registration successful! Please login to continue.", "alert-success")
+    return redirect(url_for("oauth2.login"))
 
 @oauth2.route("/register-client", methods=["GET", "POST"])
 @require_oauth2
