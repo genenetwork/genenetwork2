@@ -4,6 +4,7 @@ import base64
 import csv
 import datetime
 import flask
+import hashlib
 import io  # Todo: Use cStringIO?
 
 import json
@@ -680,9 +681,20 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST','GET'))
 def mapping_results_page():
     if request.method == "GET":
-        initial_start_vars = json.loads(Redis.get(request.args.get("hash")))
+        hash_of_inputs = request.args.get("hash")
+        initial_start_vars = json.loads(Redis.get(hash_of_inputs))
+        initial_start_vars['hash_of_inputs'] = hash_of_inputs
     else:
         initial_start_vars = request.form
+
+        # Get hash of inputs (as JSON) for sharing results
+        inputs_json = json.dumps(initial_start_vars, sort_keys=True)
+        dhash = hashlib.md5()
+        dhash.update(inputs_json.encode())
+        hash_of_inputs = dhash.hexdigest()
+
+        # Just store for one hour on initial load; will be stored for longer if user clicks Share
+        Redis.set(hash_of_inputs, inputs_json, ex=60*60)
 
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
@@ -749,6 +761,8 @@ def mapping_results_page():
         if key in wanted:
             start_vars[key] = value
 
+    start_vars['hash_of_inputs'] = hash_of_inputs
+
     version = "v3"
     key = "mapping_results:{}:".format(
         version) + json.dumps(start_vars, sort_keys=True)
@@ -783,10 +797,10 @@ def mapping_results_page():
 
 @app.route("/cache_mapping_inputs", methods=('POST',))
 def cache_mapping_inputs():
-    TWO_MONTHS = 60 * 60 * 24 * 60
+    ONE_MONTH = 60 * 60 * 24 * 30
     cache_id = request.form.get("inputs_hash")
     inputs_json = Redis.get(cache_id)
-    Redis.set(cache_id, inputs_json, ex=TWO_MONTHS)
+    Redis.set(cache_id, inputs_json, ex=ONE_MONTH)
 
     return "Success"
 

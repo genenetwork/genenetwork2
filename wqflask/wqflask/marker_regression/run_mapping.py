@@ -3,7 +3,6 @@ from base import data_set  # import create_dataset
 
 from pprint import pformat as pf
 
-import hashlib
 import string
 import math
 from decimal import Decimal
@@ -45,16 +44,6 @@ Redis = get_redis_conn()
 class RunMapping:
 
     def __init__(self, start_vars, temp_uuid):
-
-        # Get hash of inputs (as JSON) for sharing results
-        inputs_json = json.dumps(start_vars, sort_keys=True)
-        dhash = hashlib.md5()
-        dhash.update(inputs_json.encode())
-        self.hash_of_inputs = dhash.hexdigest()
-
-        # Just store for one hour on initial load; will be stored for longer if user clicks Share
-        Redis.set(self.hash_of_inputs, inputs_json, ex=60*60)
-
         helper_functions.get_species_dataset_trait(self, start_vars)
 
         # needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
@@ -64,6 +53,8 @@ class RunMapping:
         if "temp_trait" in start_vars and start_vars['temp_trait'] != "False":
             self.temp_trait = "True"
             self.group = self.dataset.group.name
+
+        self.hash_of_inputs = start_vars['hash_of_inputs']
 
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
