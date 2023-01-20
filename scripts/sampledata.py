@@ -1,6 +1,10 @@
 import json
 import os
 import sys
+import time
+
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from functools import partial
 
 # Required Evils!
 from flask import g
@@ -64,40 +68,66 @@ def fetch_all_traits(species, group, type_, dataset):
             yield result.get('name') or result.get('display_name')
 
 
+def dump_json(base_dir, dataset_name, trait):
+    print(f"\033[FDumping: {dataset_name}/{trait}]")
+    with open(os.path.join(base_dir, f"{trait}.json"), "w") as f:
+        json.dump(dump_sample_data(dataset_name, trait), f)
+
+
+def dump_dataset(target_dir, species, group_name, dataset_type, dataset):
+    start = time.perf_counter()
+    dataset_name = dataset[1]
+    if not os.path.isdir(
+            BASE_DIR := os.path.join(
+                target_dir,
+                dataset_name
+            )
+    ):
+        os.makedirs(BASE_DIR)
+    _l = len(f"Dumping {dataset_name} into {target_dir}:")
+    print(f"""
+{'='*_l}
+Dumping {dataset_name} into {sys.argv[1]}:
+{'='*_l}
+""")
+    with ThreadPoolExecutor() as executor:
+        executor.map(
+            partial(
+                dump_json,
+                BASE_DIR,
+                dataset_name
+            ),
+            fetch_all_traits(
+                species=species,
+                group=group_name,
+                type_=dataset_type,
+                dataset=dataset_name
+            )
+        )
+    print(f"\033[FDONE DUMPING: {BASE_DIR} !!")
+    finish = time.perf_counter()
+    print(f"It took {finish-start: .2f} second(s) to finish")
+
+
 def main():
     # Dump all sampledata into a given directory
     with database_connection() as conn:
         for species, group in gen_dropdown_json(conn).get("datasets").items():
             for group_name, type_ in group.items():
                 for dataset_type, datasets in type_.items():
-                    for dataset in datasets:
-                        dataset_name = dataset[1]
-                        if not os.path.isdir(
-                                BASE_DIR:=os.path.join(
-                                    sys.argv[1],
-                                    dataset_name)
-                        ):
-                            os.makedirs(BASE_DIR)
-                        print("\n\n======================================\n\n")
-                        print(f"Dumping {dataset_name} into {sys.argv[1]}:\n\n")    
-                        for trait in fetch_all_traits(
-                                species=species,
-                                group=group_name,
-                                type_=dataset_type,
-                                dataset=dataset_name
-                        ):
-                            # Dump all sample data into a given directory:
-                            print(f"\033[FDumping: {dataset_name}/{trait}")
-                            with open(
-                                    os.path.join(BASE_DIR, f"{trait}.json"), "w"
-                            ) as f:
-                                json.dump(
-                                    dump_sample_data(dataset_name, trait), f
-                                )
-                        print(f"\033[FDONE DUMPING: {BASE_DIR} !!")
+                    with ProcessPoolExecutor() as p_exec:
+                        p_exec.map(
+                            partial(
+                                dump_dataset,
+                                sys.argv[1],
+                                species,
+                                group_name,
+                                dataset_type
+                            ),
+                            datasets
+                        )
 
 
-
-
 if __name__ == "__main__":
     main()
+
