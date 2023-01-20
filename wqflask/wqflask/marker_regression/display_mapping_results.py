@@ -88,7 +88,6 @@ ARIAL_FILE = "./wqflask/static/fonts/arial.ttf"
 
 assert(os.path.isfile(VERDANA_FILE))
 
-
 class HtmlGenWrapper:
     """Wrapper Methods for HTML gen"""
     @staticmethod
@@ -244,6 +243,7 @@ class DisplayMappingResults:
 
     def __init__(self, start_vars):
         self.temp_uuid = start_vars['temp_uuid']
+        self.hash_of_inputs = start_vars['hash_of_inputs']
 
         self.dataset = start_vars['dataset']
         self.this_trait = start_vars['this_trait']
