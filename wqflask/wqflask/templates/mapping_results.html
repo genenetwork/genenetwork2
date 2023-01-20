@@ -18,6 +18,7 @@
         {% if temp_trait is defined %}
         <input type="hidden" name="temp_trait" value="{{ temp_trait }}">
         {% endif %}
+        <input type="hidden" name="inputs_hash" value="{{ hash_of_inputs }}">
         <input type="hidden" name="group" value="{{ dataset.group.name }}">
         <input type="hidden" name="species" value="{{ dataset.group.species }}">
         <input type="hidden" name="trait_id" value="{{ this_trait.name }}">
@@ -82,7 +83,9 @@
               <br>
               <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
               <br><br>
-              <button type="button" class="btn btn-default share-results" style="padding-bottom: 2px; padding-top: 2px;"><span class="glyphicon glyphicon-link"></span> Copy Results Link</button>
+              <button type="button" class="btn btn-default share-results" style="padding-bottom: 2px; padding-top: 2px;"><span class="glyphicon glyphicon-link"></span> Generate Link</button>
+              <br>
+              <input type="text" name="mappingLink" style="display:none;" size="75"></input>
           </div>
           <div id="gn1_map_options" class="col-xs-6" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -668,6 +671,21 @@
         $('#gn1_map_tab').click(function() {
           $('#gn1_map_options').css("display", "block")
         })
+
+        $('.share-results').click(function() {
+            hash = $('input[name=inputs_hash]').val()
+            $.ajax({
+                method: "POST",
+                url: "/cache_mapping_inputs",
+                data: {
+                    inputs_hash: hash
+                },
+                success: function() {
+                  $('input[name=mappingLink]').val(window.location.origin + "/run_mapping?hash=" + hash).show();
+                }
+            });
+        })
+
     </script>
 
 {% endblock %}
