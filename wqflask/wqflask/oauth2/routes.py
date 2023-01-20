@@ -130,3 +130,13 @@ def user_profile():
     return render_template(
         "oauth2/view-user.html", user_details=user_details, roles=roles,
         resources=resources)
+
+@oauth2.route("/request-add-to-group")
+@require_oauth2
+def request_add_to_group():
+    return "WOULD SEND MESSAGE TO HAVE YOU ADDED TO GROUP..."
+
+@oauth2.route("/create-group")
+@require_oauth2
+def create_group():
+    return "WOULD CREATE A NEW GROUP..."
