@@ -741,7 +741,8 @@ def mapping_results_page():
         'mapmodel_rqtl',
         'temp_trait',
         'n_samples',
-        'transform'
+        'transform',
+        'hash_of_inputs'
     )
     start_vars = {}
     for key, value in list(initial_start_vars.items()):
@@ -780,6 +781,14 @@ def mapping_results_page():
 
     return rendered_template
 
+@app.route("/cache_mapping_inputs", methods=('POST',))
+def cache_mapping_inputs():
+    TWO_MONTHS = 60 * 60 * 24 * 60
+    cache_id = request.form.get("inputs_hash")
+    inputs_json = Redis.get(cache_id)
+    Redis.set(cache_id, inputs_json, ex=TWO_MONTHS)
+
+    return "Success"
 
 @app.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
