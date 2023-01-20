@@ -53,7 +53,7 @@ class RunMapping:
         self.hash_of_inputs = dhash.hexdigest()
 
         # Just store for one hour on initial load; will be stored for longer if user clicks Share
-        Redis.hset("mapping", self.hash_of_inputs, inputs_json, ex=60*60)
+        Redis.set(self.hash_of_inputs, inputs_json, ex=60*60)
 
         helper_functions.get_species_dataset_trait(self, start_vars)
 
