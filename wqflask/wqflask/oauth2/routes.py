@@ -67,9 +67,16 @@ def login():
 
 @oauth2.route("/logout", methods=["GET", "POST"])
 def logout():
-    keys = tuple(key for key in session.keys() if not key.startswith("_"))
-    for key in keys:
-        session.pop(key, default=None)
+    if user_logged_in():
+        token = session.get("oauth2_token", False)
+        config = app.config
+        client = OAuth2Session(
+            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
+            scope = "profile resource", token=token)
+        resp = client.revoke_token(urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
+        keys = tuple(key for key in session.keys() if not key.startswith("_"))
+        for key in keys:
+            session.pop(key, default=None)
 
     return redirect("/")
 
