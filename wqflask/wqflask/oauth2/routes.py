@@ -3,6 +3,7 @@ import requests
 from urllib.parse import urljoin
 
 from pymonad.maybe import Just, Maybe, Nothing
+from pymonad.either import Left, Right, Either
 from authlib.integrations.requests_client import OAuth2Session
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
@@ -12,6 +13,7 @@ from flask import (
 from .checks import require_oauth2, user_logged_in
 
 oauth2 = Blueprint("oauth2", __name__)
+SCOPE = "profile group role resource register-client"
 
 def get_endpoint(uri_path: str) -> Maybe:
     token = session.get("oauth2_token", False)
@@ -34,6 +36,19 @@ def get_endpoint(uri_path: str) -> Maybe:
 
     return Nothing
 
+def oauth2_get(uri_path: str) -> Either:
+    token = session.get("oauth2_token")
+    config = app.config
+    client = OAuth2Session(
+        config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
+        token=token, scope=SCOPE)
+    resp = client.get(
+            urljoin(config["GN_SERVER_URL"], uri_path))
+    if resp.status_code == 200:
+        return Right(resp.json())
+
+    return Left(resp.json())
+
 @oauth2.route("/login", methods=["GET", "POST"])
 def login():
     """Route to allow users to sign up."""
@@ -42,10 +57,9 @@ def login():
     if request.method == "POST":
         config = app.config
         form = request.form
-        scope = "profile resource"
         client = OAuth2Session(
             config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-            scope=scope, token_endpoint_auth_method="client_secret_post")
+            scope=SCOPE, token_endpoint_auth_method="client_secret_post")
         try:
             token = client.fetch_token(
                 urljoin(config["GN_SERVER_URL"], "oauth2/token"),
@@ -72,7 +86,7 @@ def logout():
         config = app.config
         client = OAuth2Session(
             config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-            scope = "profile resource", token=token)
+            scope = SCOPE, token=token)
         resp = client.revoke_token(urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
         keys = tuple(key for key in session.keys() if not key.startswith("_"))
         for key in keys:
@@ -125,18 +139,25 @@ def user_profile():
     __id__ = lambda the_val: the_val
     user_details = session.get("user_details", False) or get_endpoint(
         "oauth2/user").maybe(False, __id__)
-    roles = get_endpoint("oauth/user-roles").maybe([], __id__)
-    resources = []
-    return render_template(
-        "oauth2/view-user.html", user_details=user_details, roles=roles,
-        resources=resources)
+    config = app.config
+    client = OAuth2Session(
+        config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
+        scope = SCOPE, token=session.get("oauth2_token"))
 
-@oauth2.route("/request-add-to-group")
+    roles = oauth2_get("oauth2/user-roles").either(lambda x: "Error", lambda x: x)
+    resources = []
+    groups = [] if user_details.get("group") else oauth2_get("oauth2/groups").either(
+        lambda x: "Error", lambda x: x)
+    return render_template(
+        "oauth2/view-user.html", user_details=user_details, groups=groups,
+        roles=roles, resources=resources)
+
+@oauth2.route("/request-add-to-group", methods=["POST"])
 @require_oauth2
 def request_add_to_group():
     return "WOULD SEND MESSAGE TO HAVE YOU ADDED TO GROUP..."
 
-@oauth2.route("/create-group")
+@oauth2.route("/create-group", methods=["POST"])
 @require_oauth2
 def create_group():
     return "WOULD CREATE A NEW GROUP..."
