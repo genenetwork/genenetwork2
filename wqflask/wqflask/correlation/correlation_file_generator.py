@@ -123,3 +123,26 @@ def generate_csv_file(conn,db_name,txt_dir,file_name):
     except Exception as e:
         raise e
 
+
+
+def lmdb_file_generator():
+	pass 
+
+
+
+""""
+import  lmdb
+import os
+import tempfile
+with tempfile.TemporaryDirectory() as tmpdirname:
+
+    tmp_file_path = os.path.join(tmpdirname,"img_lmdb")
+    breakpoint()
+    db = lmdb.open(tmp_file_path, map_size=int(1e12))
+
+    with db.begin(write=True) as in_txn:
+       
+
+    db.close()
+
+"""
