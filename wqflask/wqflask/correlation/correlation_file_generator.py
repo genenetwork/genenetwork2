@@ -53,3 +53,24 @@ def get_probesetfreeze(conn, probes):
             (probes,)
         )
         return cursor.fetchone()
+
+
+ def query_for_last_modification():
+
+ 	pass
+ 	"""
+
+SELECT database_name,table_name,last_update FROM
+  mysql.innodb_table_stats a,
+  (SELECT database_name AS db_last_update_name,
+       max(last_update) AS db_last_update 
+   FROM mysql.innodb_table_stats 
+   WHERE database_name  in ( "db_webqtl")
+   GROUP BY database_name )  AS b 
+WHERE a.database_name = b.db_last_update_name
+
+  AND a.last_update = b.db_last_update ;
+
+"""
+
+
