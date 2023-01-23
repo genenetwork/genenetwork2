@@ -24,3 +24,19 @@ def get_strains(conn, inbredsetid=1):
         )
 
         return cursor.fetchall()
+
+def fetch_datasets(conn):
+
+	#fi parents included?????
+	with conn.cursor() as cursor:
+	    cursor.execute(
+	        "SELECT ProbeSet.Name, Strain.Name, ProbeSetData.value "
+	        "FROM Strain LEFT JOIN ProbeSetData "
+	        "ON Strain.Id = ProbeSetData.StrainId "
+	        "LEFT JOIN ProbeSetXRef ON ProbeSetData.Id = ProbeSetXRef.DataId "
+	        "LEFT JOIN ProbeSet ON ProbeSetXRef.ProbeSetId = ProbeSet.Id "
+	        "WHERE ProbeSetXRef.ProbeSetFreezeId IN "
+	        "(SELECT Id FROM ProbeSetFreeze WHERE Name = %s) "
+	        "ORDER BY Strain.Name",
+	        (db_name,))
+	    return cursor.fetchall()
