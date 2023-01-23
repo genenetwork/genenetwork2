@@ -1,0 +1,16 @@
+.mytooltiptext {
+    visibility: hidden;
+    width: inherit;
+    background-color: #E5E5AF;
+    color: #595959;
+    text-align: left;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    position: absolute;
+    z-index: 1;
+}
+
+.mytooltip:hover .mytooltiptext {
+    visibility: visible;
+}

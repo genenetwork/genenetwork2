@@ -1,0 +1,83 @@
+{%extends "base.html"%}
+{%block title%}Join or Create Group{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css" href="/static/new/css/mytooltip.css" />
+{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  <h3>Join or Create Group</h3>
+
+  {{flash_me()}}
+
+  <p>You can</p>
+
+  {%if groups | length > 0 %}
+  <div  class="explainer">
+    <p>
+    For most users, this is the preffered choice. You request access to an
+    existing group, and the group leader will chose whether or not to add you to
+    their group.</p>
+
+    <p>You can only be a member of a single group.</p>
+  </div>
+
+  <form action="{{url_for('oauth2.request_add_to_group')}}"
+	method="POST">
+    <legend>Request to be added to group</legend>
+    <div class="form-group">
+      <label class="control-label" for="group">Group</label>
+      <select class="form-control" id="group" required="required">
+	<option value="">Select a group</option>
+	{%for group in groups%}
+	<option value="{{group.group_id}}">{{group.group_name}}</option>
+	{%endfor%}
+      </select>
+    </div>
+    <div class="form-group">
+      <input type="submit" value="Request Access" class="btn btn-primary" />
+    </div>
+  </form>
+
+  <p>or</p>
+  {%else%}
+  <p>
+    <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+    &nbsp;
+    <span class="text-warning">There an currently no groups to join.</span>
+  </p>
+  {%endif%}
+
+  <div  class="explainer">
+  <p>
+    Creating a new group automatically makes you that group's administrator.
+  </p>
+
+  <p>You can only be a member of a single group.</p>
+  </div>
+
+  <form action="{{url_for('oauth2.create_group')}}"
+	method="POST">
+    <legend>Create a new group</legend>
+    <div class="form-group mytooltip">
+      <label class="control-label" for="group_name">Group Name</label>
+      <input type="text" class="form-control" id="group_name"
+	     name="group_name"required="required" />
+      <span class="mytooltiptext">
+	Name of the group.
+      </span>
+    </div>
+    <div class="form-group mytooltip">
+      <label class="control-label" for="group_desc">Group Description</label>
+      <textarea class="form-control" id="group_description"
+		name="group_description"></textarea>
+      <span class="mytooltiptext">
+	A description to help identify the purpose/goal of the group
+      </span>
+    </div>
+    <div class="form-group">
+      <input type="submit" value="Create Group" class="btn btn-primary" />
+    </div>
+  </form>
+</div>
+{%endblock%}

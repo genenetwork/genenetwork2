@@ -1,5 +1,6 @@
 """Routes for the OAuth2 auth system in GN3"""
 import requests
+from typing import Optional
 from urllib.parse import urljoin
 
 from pymonad.maybe import Just, Maybe, Nothing
@@ -14,6 +15,9 @@ from .checks import require_oauth2, user_logged_in
 
 oauth2 = Blueprint("oauth2", __name__)
 SCOPE = "profile group role resource register-client"
+
+def __raise_unimplemented__():
+    raise Exception("NOT IMPLEMENTED")
 
 def get_endpoint(uri_path: str) -> Maybe:
     token = session.get("oauth2_token", False)
@@ -36,6 +40,10 @@ def get_endpoint(uri_path: str) -> Maybe:
 
     return Nothing
 
+def __user_details__():
+    return session.get("user_details", False) or get_endpoint(
+        "oauth2/user").maybe(False, __id__)
+
 def oauth2_get(uri_path: str) -> Either:
     token = session.get("oauth2_token")
     config = app.config
@@ -44,6 +52,18 @@ def oauth2_get(uri_path: str) -> Either:
         token=token, scope=SCOPE)
     resp = client.get(
             urljoin(config["GN_SERVER_URL"], uri_path))
+    if resp.status_code == 200:
+        return Right(resp.json())
+
+    return Left(resp.json())
+
+def oauth2_post(uri_path: str, data: dict) -> Either:
+    token = session.get("oauth2_token")
+    config = app.config
+    client = OAuth2Session(
+        config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
+        token=token, scope=SCOPE)
+    resp = client.post(urljoin(config["GN_SERVER_URL"], uri_path), data=data)
     if resp.status_code == 200:
         return Right(resp.json())
 
@@ -139,8 +159,7 @@ def register_client():
 @require_oauth2
 def user_profile():
     __id__ = lambda the_val: the_val
-    user_details = session.get("user_details", False) or get_endpoint(
-        "oauth2/user").maybe(False, __id__)
+    user_details = __user_details__()
     config = app.config
     client = OAuth2Session(
         config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
@@ -148,10 +167,8 @@ def user_profile():
 
     roles = oauth2_get("oauth2/user-roles").either(lambda x: "Error", lambda x: x)
     resources = []
-    groups = [] if user_details.get("group") else oauth2_get("oauth2/groups").either(
-        lambda x: "Error", lambda x: x)
     return render_template(
-        "oauth2/view-user.html", user_details=user_details, groups=groups,
+        "oauth2/view-user.html", user_details=user_details,
         roles=roles, resources=resources)
 
 @oauth2.route("/request-add-to-group", methods=["POST"])
@@ -159,7 +176,52 @@ def user_profile():
 def request_add_to_group():
     return "WOULD SEND MESSAGE TO HAVE YOU ADDED TO GROUP..."
 
+def __handle_error__(redirect_uri: Optional[str] = None, **kwargs):
+    def __handler__(error):
+        print(f"ERROR: {error}")
+        msg = error.get(
+            "error_message", error.get("error_description", "undefined error"))
+        flash(f"{error['error']}: {msg}.",
+              "alert-danger")
+        if "response_handlers" in kwargs:
+            for handler in kwargs["response_handlers"]:
+                handler(response)
+        if redirect:
+            return redirect(url_for(redirect_uri, **kwargs))
+
+    return __handler__
+
+def __handle_success__(
+        success_msg: str, redirect_uri: Optional[str] = None, **kwargs):
+    def __handler__(response):
+        flash(f"Success: {success_msg}.", "alert-success")
+        if "response_handlers" in kwargs:
+            for handler in kwargs["response_handlers"]:
+                handler(response)
+        if redirect:
+            return redirect(url_for(redirect_uri, **kwargs))
+
+    return __handler__
+
 @oauth2.route("/create-group", methods=["POST"])
 @require_oauth2
 def create_group():
-    return "WOULD CREATE A NEW GROUP..."
+    def __setup_group__(response):
+        session["user_details"]["group"] = response
+
+    resp = oauth2_post("oauth2/create-group", data=dict(request.form))
+    return resp.either(
+        __handle_error__("oauth2.group_join_or_create"),
+        __handle_success__(
+            "Created group", "oauth2.user_profile",
+            response_handlers=__setup_group__))
+
+@oauth2.route("/group-join-or-create", methods=["GET"])
+def group_join_or_create():
+    user_details = __user_details__()
+    if bool(user_details["group"]):
+        flash("You are already a member of a group.", "alert info.")
+        return redirect(url_for("oauth2.user_profile"))
+    groups = oauth2_get("oauth2/groups").either(
+        lambda x: __raise_unimplemented__(), lambda x: x)
+    return render_template("oauth2/group_join_or_create.html", groups=groups)
