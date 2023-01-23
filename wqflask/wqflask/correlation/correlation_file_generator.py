@@ -2,6 +2,29 @@ from urllib.parse import urlparse
 import pymysql as mdb
 import os
 import csv
+import  lmdb
+import os
+import tempfile
+
+
+
+def parse_db_url():
+    """function to parse SQL_URI env variable note:there\
+    is a default value for SQL_URI so a tuple result is\
+    always expected"""
+    parsed_db = urlparse(SQL_URI)
+
+
+    return (
+        parsed_db.hostname, parsed_db.username, parsed_db.password,
+        parsed_db.path[1:], 3306)
+
+
+# This function is deprecated. Use database_connection instead.
+def database_connector():
+    """function to create db connector"""
+    host, user, passwd, db_name, db_port = parse_db_url()
+    return mdb.connect(host=host,user=user,password=passwd,database=db_name)
 
 
 def get_probesetfreezes(conn, inbredsetid=1):
@@ -106,9 +129,6 @@ def generate_csv_file(conn,db_name,txt_dir,file_name):
     # write to file
 
      # file name ,file expiry,type of storage  
-
-     # I want to use lmdb to store the files
-     # file name already done  #import that
 
      # file expiry to be done lt
   
