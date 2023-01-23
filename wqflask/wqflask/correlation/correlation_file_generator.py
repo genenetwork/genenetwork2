@@ -1,3 +1,8 @@
+from urllib.parse import urlparse
+import pymysql as mdb
+import os 
+import csv
+
 def get_probesetfreezes(conn, inbredsetid=1):
     with conn.cursor() as cursor:
         cursor.execute(
@@ -72,5 +77,6 @@ WHERE a.database_name = b.db_last_update_name
   AND a.last_update = b.db_last_update ;
 
 """
+ 
 
-
+ #todo file_storage lmdb  file_parsing file_run
