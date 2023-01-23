@@ -1,7 +1,8 @@
 from urllib.parse import urlparse
 import pymysql as mdb
-import os 
+import os
 import csv
+
 
 def get_probesetfreezes(conn, inbredsetid=1):
     with conn.cursor() as cursor:
@@ -79,4 +80,46 @@ WHERE a.database_name = b.db_last_update_name
 """
  
 
- #todo file_storage lmdb  file_parsing file_run
+ # todo file_storage lmdb  file_parsing file_run
+
+
+
+
+def parse_dataset(results):
+	ids = ["ID"]
+	data = {}
+	for (trait, strain,val) in results:
+		if strain  not in ids:
+			ids.append(strain)
+
+		if trait in data:
+			data[trait].append(val)
+		else:
+			data[trait] = [trait,val]
+
+	return (data,ids)
+
+# above refactor the code
+
+def generate_csv_file(conn,db_name,txt_dir,file_name):
+
+    # write to file
+
+     # file name ,file expiry,type of storage  
+
+     # I want to use lmdb to store the files
+     # file name already done  #import that
+
+     # file expiry to be done lt
+  
+    try:
+        (data,col_ids) = parse_dataset(fetch_probeset_data(conn,db_name))
+        with open( os.path.join(txt_dir,file_name),"w+" ,encoding='UTF8') as file_handler:
+            writer = csv.writer(file_handler)
+            writer.writerow(col_ids) # write header s
+            writer.writerows(val for val in data.values() )
+            return "success"
+
+    except Exception as e:
+        raise e
+
