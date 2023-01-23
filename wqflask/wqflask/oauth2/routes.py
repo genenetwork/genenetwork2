@@ -69,7 +69,9 @@ def login():
             session["oauth2_token"] = token
         except OAuthError as _oaerr:
             flash(_oaerr.args[0], "alert-danger")
-            return render_template("oauth2/login.html")
+            return render_template(
+                "oauth2/login.html", next_endpoint=next_endpoint,
+                email=form.get("email_address"))
 
     if user_logged_in():
         if next_endpoint:

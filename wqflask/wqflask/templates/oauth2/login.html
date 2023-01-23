@@ -19,6 +19,7 @@
 	       style="text-align:left;">Email</label>
 	<div style="margin-left:20px;" class="col-xs-4">
 	  <input id="email_address" name="email_address" type="email"
+		 {%if email%}value="{{email}}"{%endif%}
 		 placeholder="your@email.address" size="50"
 		 class="form-control" />
 	</div>
