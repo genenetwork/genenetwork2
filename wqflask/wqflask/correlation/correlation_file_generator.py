@@ -2,12 +2,13 @@ from urllib.parse import urlparse
 import pymysql as mdb
 import os
 import csv
-import  lmdb
+import lmdb
 import os
-import tempfile
-import numpy as np 
-from io import  BytesIO
 
+import functools
+import tempfile
+import numpy as np
+from io import BytesIO
 
 
 def parse_db_url():
@@ -15,7 +16,6 @@ def parse_db_url():
     is a default value for SQL_URI so a tuple result is\
     always expected"""
     parsed_db = urlparse(SQL_URI)
-
 
     return (
         parsed_db.hostname, parsed_db.username, parsed_db.password,
@@ -26,7 +26,7 @@ def parse_db_url():
 def database_connector():
     """function to create db connector"""
     host, user, passwd, db_name, db_port = parse_db_url()
-    return mdb.connect(host=host,user=user,password=passwd,database=db_name)
+    return mdb.connect(host=host, user=user, password=passwd, database=db_name)
 
 
 def get_probesetfreezes(conn, inbredsetid=1):
@@ -88,8 +88,8 @@ def get_probesetfreeze(conn, probes):
 
  def query_for_last_modification():
 
- 	pass
- 	"""
+    pass
+    """
 
 SELECT database_name,table_name,last_update FROM
   mysql.innodb_table_stats a,
@@ -111,18 +111,18 @@ WHERE a.database_name = b.db_last_update_name
 
 
 def parse_dataset(results):
-	ids = ["ID"]
-	data = {}
-	for (trait, strain,val) in results:
-		if strain  not in ids:
-			ids.append(strain)
+    ids = ["ID"]
+    data = {}
+    for (trait, strain,val) in results:
+        if strain  not in ids:
+            ids.append(strain)
 
-		if trait in data:
-			data[trait].append(val)
-		else:
-			data[trait] = [trait,val]
+        if trait in data:
+            data[trait].append(val)
+        else:
+            data[trait] = [trait,val]
 
-	return (data,ids)
+    return (data,ids)
 
 # above refactor the code
 
@@ -164,27 +164,35 @@ def bytes_to_array(b: bytes) -> np.ndarray:
 
 def lmdb_file_generator(file_name,data:np.ndarray):
 
-    #create unique filename
+    # create unique filename
 
     # pass
+
+
+
+def lmdb_error_handler(func):
+    @functools.wraps(func)
+    def inner_function(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except lmdb.Error as error:
+            print(f"{func.__name__} >>>> error . {str(error)}")
+            return None
+    return inner_function
 
 
 def create_dataset(file_name, db_name, dataset: np.ndarray):
 
     # map size int(ie12)
-    with lmdb.open(file_name, map_size=(dataset.nbytes*10)) as env:
+    with lmdb.open(file_name, map_size=dataset.nbytes*10) as env:
         with env.begin(write=True) as txn:
             txn.put(db_name.encode(), array_to_bytes(dataset))
-
             return (file_name, db_name)
 
 
+@lmdb_error_handler
 def read_dataset(file_name, db_name):
     with lmdb.open(file_name, readonly=True, create=False) as env:
         with env.begin() as txn:
-            ndaray_bytes = txn.get(db_name.encode())
-            # error handling
-            return bytes_to_array(ndaray_bytes)
-
-
-#simple lmdb file
+            results = txn.get(db_name.encode())
+            return bytes_to_array(results) if results else None
