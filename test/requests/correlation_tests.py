@@ -267,9 +267,9 @@ def check_correctness(host):
                     print_newline = True
                 if len(result_failures) > 0:
                     print("")
-        print("")
         return False
 
+    print("")
     return True
 
 def check_correlations_correctness(args_obj, parser):
