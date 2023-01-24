@@ -162,11 +162,14 @@ def parse_cli_args():
     gn1_parser(subparsers)
     gn2_parser(subparsers)
 
-    return parser.parse_args()
+    return parser, parser.parse_args()
 
 def run():
-    args = parse_cli_args()
-    args.func(args)
+    parser, args = parse_cli_args()
+    try:
+        args.func(args)
+    except AttributeError as _attr_err:
+        parser.print_help()
 
 if __name__ == "__main__":
     run()
