@@ -171,7 +171,8 @@ def collect_failures(actual, expected, keys):
                 continue
             __eq = __eq + ((
                 f"Trait '{trait_id}': "
-                f"Different '{title}' values: expected:\n\t\t'{exp_val}'\nbut got "
+                f"Different '{title}' values: expected:\n\t\t'{exp_val}'"
+                "\n\nbut got\n"
                 f"\n\t\t'{act_val}'"),)
             continue
         return __eq
