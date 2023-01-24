@@ -5,6 +5,8 @@ import csv
 import  lmdb
 import os
 import tempfile
+import numpy as np 
+from io import  BytesIO
 
 
 
@@ -144,25 +146,20 @@ def generate_csv_file(conn,db_name,txt_dir,file_name):
         raise e
 
 
-
 def lmdb_file_generator():
 	pass 
 
 
 
-""""
-import  lmdb
-import os
-import tempfile
-with tempfile.TemporaryDirectory() as tmpdirname:
+def array_to_bytes(x:np.ndarray) -> bytes:
+    np_bytes = BytesIO()
 
-    tmp_file_path = os.path.join(tmpdirname,"img_lmdb")
-    breakpoint()
-    db = lmdb.open(tmp_file_path, map_size=int(1e12))
+    np.save(np_bytes,x,allow_pickle =True)
+    return (np_bytes.getvalue())
 
-    with db.begin(write=True) as in_txn:
-       
 
-    db.close()
 
-"""
+
+def bytes_to_array(b: bytes) -> np.ndarray:
+    np_bytes = BytesIO(b)
+    return np.load(np_bytes, allow_pickle=True)
