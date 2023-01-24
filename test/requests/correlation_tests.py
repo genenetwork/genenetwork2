@@ -145,7 +145,8 @@ def parse_results_from_html(raw_html):
                 str(row["trait_id"]): row for row in
                 json.loads(thread(
                     script_content,
-                    lambda val: val[len("var tableJson = "):].strip()))}
+                    lambda val: val[len("var tableJson = "):].strip().replace(
+                        "\\r\\n", "\\n")))}
 
     return {}
 
@@ -178,10 +179,12 @@ def collect_failures(actual, expected, keys):
         return __eq
 
     return tuple(
-        __equal(str(exp_row["Record"]),
-                actual.get(str(exp_row["Record"])),
-                exp_row)
-        for exp_row in expected)
+        item for item in (
+            __equal(str(exp_row["Record"]),
+                    actual.get(str(exp_row["Record"])),
+                    exp_row)
+            for exp_row in expected)
+        if bool(item))
 
 def check_correctness(host):
     # pearsons_keys = (
@@ -247,9 +250,11 @@ def check_correctness(host):
         filepath = Path.cwd().parent.joinpath(
             f"test/requests/correlation_results_text_files/{expected_file}")
         failures = {
-            **failures,
-            test_title: collect_failures(
-                results, tuple(parse_expected(filepath)), method_keys)
+            key: value for key,value in {
+                **failures,
+                test_title: collect_failures(
+                    results, tuple(parse_expected(filepath)), method_keys)
+            }.items() if len(value) > 0
         }
 
     if len(failures) > 0:
@@ -262,6 +267,7 @@ def check_correctness(host):
                     print_newline = True
                 if len(result_failures) > 0:
                     print("")
+        print("")
         return False
 
     return True
