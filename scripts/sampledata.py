@@ -6,6 +6,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import partial
 
+from re import sub
+
 # Required Evils!
 from flask import g
 from wqflask import app
@@ -23,6 +25,11 @@ class UserSessionSimulator():
     @property
     def user_id(self):
         return self._user_id
+
+
+def camel_case(string):
+    s = sub(r"(_|-)+", " ", string).title().replace(" ", "")
+    return ''.join([s[0].lower(), s[1:]])
 
 
 def dump_sample_data(dataset_name, trait_id):
@@ -68,10 +75,30 @@ def fetch_all_traits(species, group, type_, dataset):
             yield result.get('name') or result.get('display_name')
 
 
+def get_trait_metadata(dataset_name, trait_id):
+    with database_connection() as conn, conn.cursor() as cursor:
+        with app.app_context():
+            g.user_session = UserSessionSimulator(None)
+            data = show_trait.ShowTrait(
+                cursor, user_id=None,
+                kw={
+                    "trait_id": trait_id,
+                    "dataset": dataset_name,
+                }).this_trait.__dict__
+            data.pop("data")
+            data.pop("comments")
+            # filter any emply values and camelCase the keys
+            _d = {camel_case(key): value for key, value in data.items() if value}
+            _d["dataset"] = dataset_name
+            return _d
+
+
 def dump_json(base_dir, dataset_name, trait):
     print(f"\033[FDumping: {dataset_name}/{trait}]")
     with open(os.path.join(base_dir, f"{trait}.json"), "w") as f:
-        json.dump(dump_sample_data(dataset_name, trait), f)
+        _data = dump_sample_data(dataset_name, trait)
+        _data["metadata"] = get_trait_metadata(dataset_name, trait)
+        json.dump(_data, f)
 
 
 def dump_dataset(target_dir, species, group_name, dataset_type, dataset):
