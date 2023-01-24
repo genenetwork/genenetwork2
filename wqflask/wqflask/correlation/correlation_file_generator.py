@@ -146,9 +146,6 @@ def generate_csv_file(conn,db_name,txt_dir,file_name):
         raise e
 
 
-def lmdb_file_generator():
-	pass 
-
 
 
 def array_to_bytes(x:np.ndarray) -> bytes:
@@ -163,3 +160,31 @@ def array_to_bytes(x:np.ndarray) -> bytes:
 def bytes_to_array(b: bytes) -> np.ndarray:
     np_bytes = BytesIO(b)
     return np.load(np_bytes, allow_pickle=True)
+
+
+def lmdb_file_generator(file_name,data:np.ndarray):
+
+    #create unique filename
+
+    # pass
+
+
+def create_dataset(file_name, db_name, dataset: np.ndarray):
+
+    # map size int(ie12)
+    with lmdb.open(file_name, map_size=(dataset.nbytes*10)) as env:
+        with env.begin(write=True) as txn:
+            txn.put(db_name.encode(), array_to_bytes(dataset))
+
+            return (file_name, db_name)
+
+
+def read_dataset(file_name, db_name):
+    with lmdb.open(file_name, readonly=True, create=False) as env:
+        with env.begin() as txn:
+            ndaray_bytes = txn.get(db_name.encode())
+            # error handling
+            return bytes_to_array(ndaray_bytes)
+
+
+#simple lmdb file
