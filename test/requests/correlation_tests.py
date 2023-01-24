@@ -164,7 +164,8 @@ def collect_failures(actual, expected, keys):
             return (f"Could not find trait '{trait_id}' in actual results",)
         __eq = tuple()
         for act_key, exp_key, title in keys:
-            act_val, exp_val = (str(act_row[act_key]), str(exp_row[exp_key]))
+            act_val, exp_val = (
+                str(act_row[act_key]).strip(), str(exp_row[exp_key]).strip())
             if act_val == exp_val:
                 # __eq = __eq + ("PASSED",)
                 continue
