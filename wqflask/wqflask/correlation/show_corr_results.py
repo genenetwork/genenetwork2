@@ -18,6 +18,7 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
+import html
 import json
 
 from base.trait import create_trait, jsonable
@@ -203,7 +204,8 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                 results_dict['mean'] = "N/A"
                 results_dict['additive'] = "N/A"
                 if target_trait['description'].strip():
-                    results_dict['description'] = target_trait['description'].strip().replace("<", "&lt;").replace(">", "&gt;")
+                    results_dict['description'] = html.escape(
+                        target_trait['description'].strip(), quote=True)
                 if target_trait['mean']:
                     results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
                 try:
@@ -237,7 +239,8 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                     results_dict['abbreviation'] = target_trait['abbreviation']
 
                 if target_trait["description"].strip():
-                    results_dict['description'] = target_trait['description'].strip().replace("<", "&lt;").replace(">", "&gt;")
+                    results_dict['description'] = html.escape(
+                        target_trait['description'].strip(), quote=True)
 
                 if target_trait["mean"]:
                     results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
