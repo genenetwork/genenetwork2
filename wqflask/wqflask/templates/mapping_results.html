@@ -81,11 +81,14 @@
               {% endif %}
               <b>Current Date/Time:</b> {{ current_datetime }}<br>
               <br>
-              <a class="export_mapping_results" href="#" target="_blank" >Download Full Results</a>
+              <button class="btn btn-default export_mapping_results">Download Full Results</button>
               <br><br>
-              <button type="button" class="btn btn-default share-results" style="padding-bottom: 2px; padding-top: 2px;"><span class="glyphicon glyphicon-link"></span> Generate Link</button>
-              <br>
-              <input type="text" name="mappingLink" style="display:none;" size="75"></input>
+              <div class="input-group">
+                <input type="text" class="form-control" name="mappingLink" size="75"></input>
+                <div class="input-group-btn">
+                  <button class="btn btn-default share-results" type="button">Copy and Share</button>
+                </div>
+              </div>
           </div>
           <div id="gn1_map_options" class="col-xs-6" style="outline: 3px double #AAAAAA; padding: 10px; margin: 10px;">
             <div class="col-xs-8" style="padding: 0px;">
@@ -672,8 +675,11 @@
           $('#gn1_map_options').css("display", "block")
         })
 
+        hash = $('input[name=inputs_hash]').val();
+        mappingLink = window.location.origin + "/run_mapping?hash=" + hash;
+        $('input[name=mappingLink]').width(mappingLink.length*0.95 + "ch")
+        $('input[name=mappingLink]').val(mappingLink);
         $('.share-results').click(function() {
-            hash = $('input[name=inputs_hash]').val()
             $.ajax({
                 method: "POST",
                 url: "/cache_mapping_inputs",
@@ -681,7 +687,8 @@
                     inputs_hash: hash
                 },
                 success: function() {
-                  $('input[name=mappingLink]').val(window.location.origin + "/run_mapping?hash=" + hash).show();
+                  document.querySelector("input[name='mappingLink']").select();
+                  document.execCommand('copy');
                 }
             });
         })
