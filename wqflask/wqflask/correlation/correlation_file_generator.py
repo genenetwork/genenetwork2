@@ -146,8 +146,6 @@ def generate_csv_file(conn,db_name,txt_dir,file_name):
         raise e
 
 
-
-
 def array_to_bytes(x:np.ndarray) -> bytes:
     np_bytes = BytesIO()
 
@@ -162,37 +160,32 @@ def bytes_to_array(b: bytes) -> np.ndarray:
     return np.load(np_bytes, allow_pickle=True)
 
 
-def lmdb_file_generator(file_name,data:np.ndarray):
-
-    # create unique filename
-
-    # pass
-
-
-
 def lmdb_error_handler(func):
     @functools.wraps(func)
     def inner_function(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except lmdb.Error as error:
-            print(f"{func.__name__} >>>> error . {str(error)}")
+            print(f"{func.__name__} >>>> error . {error}")
             return None
     return inner_function
 
-
-def create_dataset(file_name, db_name, dataset: np.ndarray):
+@lmdb_error_handler
+def create_dataset(file_path, db_name,cols ,dataset: np.ndarray):
 
     # map size int(ie12)
     with lmdb.open(file_name, map_size=dataset.nbytes*10) as env:
         with env.begin(write=True) as txn:
+            txn.put(f"db_name:col".encode(), array_to_bytes(cols))
             txn.put(db_name.encode(), array_to_bytes(dataset))
             return (file_name, db_name)
 
-
 @lmdb_error_handler
-def read_dataset(file_name, db_name):
+def read_dataset(file_path, db_name):
     with lmdb.open(file_name, readonly=True, create=False) as env:
         with env.begin() as txn:
             results = txn.get(db_name.encode())
-            return bytes_to_array(results) if results else None
+            cols  =  txn.get(f"{db_name}:col".encode())
+            if  (cols and results):
+                return (bytes_to_array(cols),bytes_to_array(results))
+
