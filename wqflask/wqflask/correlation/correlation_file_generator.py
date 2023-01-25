@@ -154,8 +154,6 @@ def array_to_bytes(x:np.ndarray) -> bytes:
     return (np_bytes.getvalue())
 
 
-
-
 def bytes_to_array(b: bytes) -> np.ndarray:
     np_bytes = BytesIO(b)
     return np.load(np_bytes, allow_pickle=True)
@@ -175,11 +173,11 @@ def lmdb_error_handler(func):
 def create_dataset(file_path, db_name,cols ,dataset: np.ndarray):
 
     # map size int(ie12)
-    with lmdb.open(file_name, map_size=dataset.nbytes*10) as env:
+    with lmdb.open(file_path, map_size=dataset.nbytes*10) as env:
         with env.begin(write=True) as txn:
             txn.put(f"db_name:col".encode(), array_to_bytes(cols))
             txn.put(db_name.encode(), array_to_bytes(dataset))
-            return (file_name, db_name)
+            return (file_path, db_name)
 
 @lmdb_error_handler
 def read_dataset(file_path, db_name):
@@ -198,39 +196,52 @@ def generate_one(args,parser):
         raise e
 
 def generate_all(args, parser):
-    # db_connection
     try:
-        return fetch_probeset_data(database_connector(args.database) )
+        # move this to a single function
+        conn = database_connector(args.database)
+        for (_id, db_name,full_name) in  get_probesetfreezes(conn):
+            # monads maybe
+            print(f">>>>>>generating>>>>>>>{full_name} ::{db_name}")
+            (data,col_ids) = parse_dataset(fetch_datasets(conn,db_name))
+            if data:
+                return create_dataset(os.path.join("/tmp/",full_name),
+                    db_name, col_ids, np.array(list(data.values())))
     except Exception as error:
         raise error
 
-parser = argparse.ArgumentParser(prog="text_file generator")
-parser.add_argument(
-    "-a",
-    "--all",
-    dest="accumulate",
-    action="store_const",
-    const=generate_all,
-    help="generate  all textfiles.",
-)
+def on_change_handler(db_name):
+    # todo regenera
+    pass
+def ping_db(target):
+    # ping to see changes in db   #active function
+    pass
 
-
-parser.add_argument(
-    "-o",
-    "--one",
-    action = "store_const",
-    const = generate_one,
-    help = "generate spefic textfile"
+if __name__ = "__main__":    
+    parser = argparse.ArgumentParser(prog="text_file generator")
+    parser.add_argument(
+        "-a",
+        "--all",
+        dest="accumulate",
+        action="store_const",
+        const=generate_all,
+        help="generate  all textfiles.",
     )
 
-parser.add_argument(
-    "-d",
-    "--database",
-    metavar="DB",
-    type=str,
-    default="db_webqtl_s",
-    help="Use database (default db_webqtl_s)",
-)
+    parser.add_argument(
+        "-o",
+        "--one",
+        action = "store_const",
+        const = generate_one,
+        help = "generate spefic textfile"
+        )
 
-args = parser.parse_args()
-args.accumulate(args, parser)
+    parser.add_argument(
+        "-d",
+        "--database",
+        metavar="DB",
+        type=str,
+        default="db_webqtl_s",
+        help="Use database (default db_webqtl_s)",
+    )
+    args = parser.parse_args()
+    args.accumulate(args, parser)
