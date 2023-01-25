@@ -4,6 +4,7 @@ import os
 import csv
 import lmdb
 import os
+import argparse
 
 import functools
 import tempfile
@@ -189,3 +190,47 @@ def read_dataset(file_path, db_name):
             if  (cols and results):
                 return (bytes_to_array(cols),bytes_to_array(results))
 
+def generate_one(args,parser):
+    # we require the dataset name
+    try:
+        pass
+    except Exception as e:
+        raise e
+
+def generate_all(args, parser):
+    # db_connection
+    try:
+        return fetch_probeset_data(database_connector(args.database) )
+    except Exception as error:
+        raise error
+
+parser = argparse.ArgumentParser(prog="text_file generator")
+parser.add_argument(
+    "-a",
+    "--all",
+    dest="accumulate",
+    action="store_const",
+    const=generate_all,
+    help="generate  all textfiles.",
+)
+
+
+parser.add_argument(
+    "-o",
+    "--one",
+    action = "store_const",
+    const = generate_one,
+    help = "generate spefic textfile"
+    )
+
+parser.add_argument(
+    "-d",
+    "--database",
+    metavar="DB",
+    type=str,
+    default="db_webqtl_s",
+    help="Use database (default db_webqtl_s)",
+)
+
+args = parser.parse_args()
+args.accumulate(args, parser)
