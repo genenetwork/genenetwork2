@@ -1,0 +1,35 @@
+{%macro profile_nav(calling_page)%}
+
+<ul class="nav nav-pills">
+
+  <li role="presentation"
+      {%if calling_page == "dashboard"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.user_profile')}}">Dashboard</a>
+  </li>
+
+  <li role="presentation"
+      {%if calling_page == "group"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.user_group')}}">Group</a>
+  </li>
+
+  <li role="presentation"
+      {%if calling_page == "roles"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.user_roles')}}">Roles</a>
+  </li>
+
+  <li role="presentation"
+      {%if calling_page == "resources"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.user_resources')}}">Resources</a>
+  </li>
+
+</ul>
+
+{%endmacro%}

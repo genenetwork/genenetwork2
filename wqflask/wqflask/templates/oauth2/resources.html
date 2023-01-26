@@ -1,0 +1,31 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("dashboard")}}
+  <h3>Resources</h3>
+
+  {{flash_me()}}
+
+  {{resources}}
+
+  <div class="container-fluid">
+
+    <div class="row">
+      {%for resource in resources %}
+      {{role}}
+      {%else%}
+      <p>
+	<span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+	<span class="text-warning">
+	  The user has no access to any resource.
+	</span>
+      </p>
+      {%endfor%}
+    </div>
+
+  </div>
+
+</div>
+{%endblock%}

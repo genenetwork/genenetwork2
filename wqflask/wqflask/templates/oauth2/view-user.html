@@ -1,84 +1,38 @@
 {%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
 {%block title%}View User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
+  {{profile_nav("dashboard")}}
   <h3>View User</h3>
 
   {{flash_me()}}
 
   <div class="container-fluid">
     <div class="row">
-      <div class="panel panel-primary col-md-3">
-	<div class="panel-heading"><h3>User Details</h3></div>
-	<div class="panel-body">
-	  {%if user_details%}
-	  <p><strong>Name</strong>: {{user_details.name}}</p>
-	  <p><strong>E-Mail</strong>: {{user_details.email}}</p>
-	  {%if user_details.group%}
-	  <p><strong>Group</strong>:{{user_details.group.group_name}}</p>
-	  {%else%}
-	  <p>
-	    <span class="glyphicon glyphicon-warning-sign text-warning"></span>
-	    &nbsp;
-	    <span class="text-warning">User is not a member of a group.</span>
-	  </p>
+      {%if user_details%}
+      <p><strong>Name</strong>: {{user_details.name}}</p>
+      <p><strong>E-Mail</strong>: {{user_details.email}}</p>
+      {%if user_details.group%}
+      <p><strong>Group</strong>:{{user_details.group.group_name}}</p>
+      {%else%}
+      <p>
+	<span class="glyphicon glyphicon-warning-sign text-warning"></span>
+	&nbsp;
+	<span class="text-warning">User is not a member of a group.</span>
+      </p>
 
-	  <p><a href="{{url_for('oauth2.group_join_or_create')}}"
-		class="btn btn-primary"
-		title="Join an existing group, or create your own group">
-	      Join or Create group
-	  </a></p>
-	  {%endif%}
-	  {%else%}
-	  <p class="text-warning">No details found.</p>
-	  {%endif%}
-	</div>
-	<div class="panel-footer"></div>
-      </div>
+      <p><a href="{{url_for('oauth2.group_join_or_create')}}"
+	    class="btn btn-primary"
+	    title="Join an existing group, or create your own group">
+	  Join or Create group
+      </a></p>
+      {%endif%}
+      {%else%}
+      <p class="text-warning">No details found.</p>
+      {%endif%}
     </div>
-  </div>
 
-  <div class="container-fluid">
-    <div class="row">
-      <div class="panel panel-primary col-md-3">
-	<div class="panel-heading"><h3>Resources</h3></div>
-	<div class="panel-body">
-	  <p>The user has access to the following resources:</p>
-	  {%for resource in resources %}
-	  {{role}}
-	  {%else%}
-	  <p>
-	    <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-	    <span class="text-warning">
-	      The user has no access to any resource.
-	    </span>
-	  </p>
-	  {%endfor%}
-	</div>
-	<div class="panel-footer"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container-fluid">
-    <div class="row">
-      <div class="panel panel-primary col-md-3">
-	<div class="panel-heading">
-	  <h3>Other Roles</h3>
-	</div>
-	<div class="panel-body">
-	  {%for role in roles %}
-	  {{role}}
-	  {%else%}
-	  <p>
-	    <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-	    <span class="text-warning">No roles attached to this user</span>
-	  </p>
-	  {%endfor%}
-	</div>
-	<div class="panel-footer"></div>
-      </div>
-    </div>
   </div>
 
 </div>

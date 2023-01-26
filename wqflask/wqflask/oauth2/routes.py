@@ -55,7 +55,7 @@ def oauth2_get(uri_path: str) -> Either:
     if resp.status_code == 200:
         return Right(resp.json())
 
-    return Left(resp.json())
+    return Left(resp)
 
 def oauth2_post(uri_path: str, data: dict) -> Either:
     token = session.get("oauth2_token")
@@ -67,7 +67,11 @@ def oauth2_post(uri_path: str, data: dict) -> Either:
     if resp.status_code == 200:
         return Right(resp.json())
 
-    return Left(resp.json())
+    return Left(resp)
+
+def __request_error__(response):
+    app.logger.error(f"{response}: {response.url} [{response.status_code}]")
+    return render_template("oauth2/request_error.html", response=response)
 
 @oauth2.route("/login", methods=["GET", "POST"])
 def login():
@@ -166,10 +170,8 @@ def user_profile():
         scope = SCOPE, token=session.get("oauth2_token"))
 
     roles = oauth2_get("oauth2/user-roles").either(lambda x: "Error", lambda x: x)
-    resources = []
     return render_template(
-        "oauth2/view-user.html", user_details=user_details,
-        roles=roles, resources=resources)
+        "oauth2/view-user.html", user_details=user_details, roles=roles)
 
 @oauth2.route("/request-add-to-group", methods=["POST"])
 @require_oauth2
@@ -225,3 +227,27 @@ def group_join_or_create():
     groups = oauth2_get("oauth2/groups").either(
         lambda x: __raise_unimplemented__(), lambda x: x)
     return render_template("oauth2/group_join_or_create.html", groups=groups)
+
+@oauth2.route("/user-resources", methods=["GET"])
+def user_resources():
+    def __success__(resources):
+        return render_template("oauth2/resources.html", resources=resources)
+
+    return oauth2_get("oauth2/user-resources").either(
+        __request_error__, __success__)
+
+@oauth2.route("/user-roles", methods=["GET"])
+def user_roles():
+    def __success__(roles):
+        return render_template("oauth2/roles.html", roles=roles)
+
+    return oauth2_get("oauth2/user-roles").either(
+        __request_error__, __success__)
+
+@oauth2.route("/user-group", methods=["GET"])
+def user_group():
+    def __success__(group):
+        return render_template("oauth2/group.html", group=group)
+
+    return oauth2_get("oauth2/user-group").either(
+        __request_error__, __success__)
