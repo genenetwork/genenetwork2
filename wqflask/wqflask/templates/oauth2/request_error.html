@@ -8,8 +8,6 @@
 
   {{flash_me()}}
 
-  {{response}}
-
   <div class="container-fluid">
 
     <div class="row">
@@ -21,7 +19,12 @@
 	<dd>{{response.url}}</dd>
 
 	<dt>Content Type</dt>
-	<dd>{{response.content_type}}</dd>
+	<dd>{{response.content_type or "-"}}</dd>
+
+	{%if response.json()%}
+	<dt>{{response.json().get("error")}}</dt>
+	<dd>{{response.json().get("error_description")}}</dd>
+	{%endif%}
       </dl>
     </div>
 

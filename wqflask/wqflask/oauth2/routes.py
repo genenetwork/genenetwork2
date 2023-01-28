@@ -1,4 +1,5 @@
 """Routes for the OAuth2 auth system in GN3"""
+import uuid
 import requests
 from typing import Optional
 from urllib.parse import urljoin
@@ -239,7 +240,7 @@ def user_resources():
 @oauth2.route("/user-roles", methods=["GET"])
 def user_roles():
     def __success__(roles):
-        return render_template("oauth2/roles.html", roles=roles)
+        return render_template("oauth2/list_roles.html", roles=roles)
 
     return oauth2_get("oauth2/user-roles").either(
         __request_error__, __success__)
@@ -250,4 +251,12 @@ def user_group():
         return render_template("oauth2/group.html", group=group)
 
     return oauth2_get("oauth2/user-group").either(
+        __request_error__, __success__)
+
+@oauth2.route("/role/<uuid:role_id>", methods=["GET"])
+def role(role_id: uuid.UUID):
+    def __success__(the_role):
+        return render_template("oauth2/role.html", role=the_role)
+
+    return oauth2_get(f"oauth2/role/{role_id}").either(
         __request_error__, __success__)

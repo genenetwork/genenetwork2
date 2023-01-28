@@ -1,0 +1,48 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("roles")}}
+  <h3>Role: {{role.role_name}}</h3>
+
+  {{flash_me()}}
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="panel panel-info">
+	<div class="panel-heading">
+	  <strong>{{role.role_name}}</strong>
+	</div>
+	<div class="panel-body">
+	  <table class="table">
+	    <thead>
+	      <tr><th>privilege id</th><th>description</th></tr>
+	    </thead>
+	    <tbody>
+	      {%for privilege in role.privileges:%}
+	      <tr>
+		<td>{{privilege.privilege_id}}</td>
+		<td>{{privilege.privilege_description}}</td>
+	      </tr>
+	      {%else%}
+	      <tr>
+		<td>
+		  <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+		  &nbsp;
+		</td>
+		<td>
+		  <span class="text-warning">No privileges found for this role.</span>
+		</td>
+	      </tr>
+	      {%endfor%}
+	    </tbody>
+	  </table>
+	</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{%endblock%}
