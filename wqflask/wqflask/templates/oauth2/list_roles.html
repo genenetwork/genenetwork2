@@ -13,7 +13,7 @@
       <ul>
 	{%for role in roles %}
 	<li>
-	  <a href="{{url_for('oauth2.role', role_id=role.role_id)}}"
+	  <a href="{{url_for('oauth2.role.role', role_id=role.role_id)}}"
 	     title="Link to role {{role.role_name}}">{{role.role_name}}</a>
 	</li>
 	{%else%}

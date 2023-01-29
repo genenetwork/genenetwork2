@@ -21,10 +21,8 @@
 	<dt>Content Type</dt>
 	<dd>{{response.content_type or "-"}}</dd>
 
-	{%if response.json()%}
-	<dt>{{response.json().get("error")}}</dt>
-	<dd>{{response.json().get("error_description")}}</dd>
-	{%endif%}
+	<dt>{{response.content}}</dt>
+	<dd>{{response.content}}</dd>
       </dl>
     </div>
 
