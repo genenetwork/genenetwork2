@@ -1,6 +1,11 @@
 """Authentication endpoints."""
+import requests
+from urllib.parse import urljoin
 
-from flask import Blueprint
+from authlib.integrations.base_client.errors import OAuthError
+from flask import (
+    flash, request, session, Blueprint, url_for, redirect, render_template,
+    current_app as app)
 
 from .client import oauth2_client
 from .checks import require_oauth2, user_logged_in
@@ -15,6 +20,7 @@ def login():
     if request.method == "POST":
         form = request.form
         client = oauth2_client()
+        config = app.config
         try:
             token = client.fetch_token(
                 urljoin(config["GN_SERVER_URL"], "oauth2/token"),
@@ -79,10 +85,10 @@ def register_user():
             for msg in results.get("error_description").split("::"))
         for message in error_messages:
             flash(message, "alert-danger")
-        return redirect(url_for("oauth2.register_user"))
+        return redirect(url_for("oauth2.toplevel.register_user"))
 
     flash("Registration successful! Please login to continue.", "alert-success")
-    return redirect(url_for("oauth2.login"))
+    return redirect(url_for("oauth2.toplevel.login"))
 
 @toplevel.route("/register-client", methods=["GET", "POST"])
 @require_oauth2

@@ -29,7 +29,7 @@ def create_group():
 
 @groups.route("/join-or-create", methods=["GET"])
 @require_oauth2
-def group_join_or_create():
+def join_or_create():
     user_details = __user_details__()
     if bool(user_details["group"]):
         flash("You are already a member of a group.", "alert info.")
