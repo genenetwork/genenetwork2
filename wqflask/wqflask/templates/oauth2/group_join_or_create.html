@@ -22,7 +22,7 @@
     <p>You can only be a member of a single group.</p>
   </div>
 
-  <form action="{{url_for('oauth2.request_add_to_group')}}"
+  <form action="{{url_for('oauth2.user.request_add_to_group')}}"
 	method="POST">
     <legend>Request to be added to group</legend>
     <div class="form-group">
@@ -56,7 +56,7 @@
   <p>You can only be a member of a single group.</p>
   </div>
 
-  <form action="{{url_for('oauth2.create_group')}}"
+  <form action="{{url_for('oauth2.group.create_group')}}"
 	method="POST">
     <legend>Create a new group</legend>
     <div class="form-group mytooltip">

@@ -47,9 +47,7 @@ def logout():
     if user_logged_in():
         token = session.get("oauth2_token", False)
         config = app.config
-        client = OAuth2Session(
-            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-            scope = SCOPE, token=token)
+        client = oauth2_client()
         resp = client.revoke_token(urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
         keys = tuple(key for key in session.keys() if not key.startswith("_"))
         for key in keys:
@@ -60,7 +58,7 @@ def logout():
 @toplevel.route("/register-user", methods=["GET", "POST"])
 def register_user():
     if user_logged_in():
-        next_endpoint=request.args.get("next", url_for("/"))
+        next_endpoint=request.args.get("next", "/")
         flash(("You cannot register a new user while logged in. "
                "Please logout to register a new user."),
               "alert-danger")
