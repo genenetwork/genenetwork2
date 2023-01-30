@@ -3,7 +3,7 @@
 from flask import Blueprint
 
 from .client import oauth2_client
-from .checks import require_oauth2
+from .checks import require_oauth2, user_logged_in
 
 toplevel = Blueprint("toplevel", __name__)
 
