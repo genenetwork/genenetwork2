@@ -8,13 +8,17 @@
 
   {{flash_me()}}
 
-  {{resources}}
-
   <div class="container-fluid">
+    <div class="row">
+      <a href="{{url_for('oauth2.resource.create_resource')}}"
+	 class="btn btn-info" title="Create a new resource">
+	Create New Resource
+      </a>
+    </div>
 
     <div class="row">
       {%for resource in resources %}
-      {{role}}
+      {{resource.resource_name}} - {{resource.resource_category}} - {{resource.group}}
       {%else%}
       <p>
 	<span class="glyphicon glyphicon-warning-sign"></span>&nbsp;

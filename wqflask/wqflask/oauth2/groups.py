@@ -37,3 +37,20 @@ def group_join_or_create():
     groups = oauth2_get("oauth2/groups").either(
         lambda x: __raise_unimplemented__(), lambda x: x)
     return render_template("oauth2/group_join_or_create.html", groups=groups)
+
+@groups.route("/delete/<uuid:group_id>", methods=["GET", "POST"])
+@require_oauth2
+def delete_group(group_id):
+    """Delete the user's group."""
+    return "WOULD DELETE GROUP."
+
+@groups.route("/edit/<uuid:group_id>", methods=["GET", "POST"])
+@require_oauth2
+def edit_group(group_id):
+    """Edit the user's group."""
+    return "WOULD EDIT GROUP."
+
+@groups.route("/<uuid:group_id>/users/list", methods=["GET", "POST"])
+@require_oauth2
+def list_group_users(group_id):
+    return "WOULD LIST GROUP USERS."

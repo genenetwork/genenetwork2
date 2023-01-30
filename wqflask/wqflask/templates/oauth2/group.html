@@ -3,7 +3,7 @@
 {%block title%}View User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
-  {{profile_nav("dashboard")}}
+  {{profile_nav("group")}}
   <h3>User's Group</h3>
 
   {{flash_me()}}
@@ -20,6 +20,27 @@
 	{%endfor%}
       </dl>
     </div>
+
+    <div class="row">
+      <form action="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
+	    method="POST" style="display: inline">
+	<input type="hidden" name="group_id" value="{{group.group_id}}">
+	<input type="submit" class="btn btn-info" value="Edit" />
+      </form>
+
+      <form action="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
+	    method="POST" style="display: inline">
+	<input type="hidden" name="group_id" value="{{group.group_id}}">
+	<input type="submit" class="btn btn-danger" value="Delete" />
+      </form>
+    </div>
+
+    {%if group%}
+    <div class="row" style="padding-top: 0.5em;">
+      <a href="{{url_for('oauth2.group.list_group_users', group_id=group.group_id)}}"
+	 class="btn btn-info">Group Users</a>
+    </div>
+    {%endif%}
 
   </div>
 
