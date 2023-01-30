@@ -21,11 +21,3 @@ def user_profile():
 @require_oauth2
 def request_add_to_group():
     return "WOULD SEND MESSAGE TO HAVE YOU ADDED TO GROUP..."
-
-@users.route("/group", methods=["GET"])
-def user_group():
-    def __success__(group):
-        return render_template("oauth2/group.html", group=group)
-
-    return oauth2_get("oauth2/user-group").either(
-        __request_error__, __success__)
