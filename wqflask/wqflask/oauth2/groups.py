@@ -10,8 +10,23 @@ groups = Blueprint("group", __name__)
 
 @groups.route("/", methods=["GET"])
 def user_group():
+    """Get the user's group."""
+    def __process_error__(error):
+        if error.status_code == 404:
+            return {
+                "error": "NotFoundError",
+                "error_message": ("Requested endpoint was not found on the "
+                                  "API server.")
+            }
+        return error.json()
+
     def __success__(group):
-        return render_template("oauth2/group.html", group=group)
+        return oauth2_get(f"oauth2/group-users/{group['group_id']}").either(
+            lambda error: render_template(
+                "oauth2/group.html", group=group,
+                user_error=__process_error__(error)),
+            lambda users: render_template(
+                "oauth2/group.html", group=group, users=users))
 
     return oauth2_get("oauth2/user-group").either(
         request_error, __success__)
@@ -51,8 +66,3 @@ def delete_group(group_id):
 def edit_group(group_id):
     """Edit the user's group."""
     return "WOULD EDIT GROUP."
-
-@groups.route("/<uuid:group_id>/users/list", methods=["GET", "POST"])
-@require_oauth2
-def list_group_users(group_id):
-    return "WOULD LIST GROUP USERS."

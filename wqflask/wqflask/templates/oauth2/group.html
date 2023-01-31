@@ -4,43 +4,92 @@
 {%block content%}
 <div class="container" style="min-width: 1250px;">
   {{profile_nav("group")}}
-  <h3>User's Group</h3>
 
   {{flash_me()}}
 
   <div class="container-fluid">
     <div class="row">
-      <dl>
+      <table class="table">
+	<caption>Group Information</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th colspan="2" style="text-align: center;">Metadata</th>
+	    <th colspan="2" style="text-align: center;">Actions</th>
+	  </tr>
+	</thead>
 
-	<dt>Name</dt> <dd>{{group.group_name}}</dd>
+	<tbody>
+	  <tr>
+	    <td rowspan="{{group.group_metadata.items() | count + 1}}">
+	      {{group.group_name}}
+	    </td>
+	    <td><strong>Key</strong></td>
+	    <td><strong>Value</strong></td>
+	    <td rowspan="{{group.group_metadata.items() | count + 1}}"
+		style="text-align: center;">
+	      <a href="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
+		 class="btn btn-info" title="Edit group information">Edit</a>
+	    </td>
+	    <td rowspan="{{group.group_metadata.items() | count + 1}}"
+		style="text-align: center;">
+	      <a href="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
+		 class="btn btn-danger" title="Delete this group">Delete</a>
+	    </td>
+	  </tr>
 
-	{%for key,value in group.group_metadata.items()%}
-	<dt>{{key.split("_") | map('capitalize') | join(" ")}}</dt>
-	<dd>{{value}}</dd>
+	  {%for key,val in group.group_metadata.items()%}
+	  <tr>
+	    <td>{{key.split("_") | map("capitalize") | join(" ")}}</td>
+	    <td>{{val}}</td>
+	  </tr>
+	  {%endfor%}
+
+	</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+
+    <table class="table">
+      <caption>Group Users</caption>
+      <thead>
+	<tr>
+	  <th>Name</th>
+	  <th>Email</th>
+	  <th>Actions</th>
+	</tr>
+      </thead>
+
+      <tbody>
+	{%for user in users%}
+	<tr>
+	  <td>{{user.name}}</td>
+	  <td>{{user.email}}</td>
+	  <td>
+	    <a href="url_for('oauth2.group.remove_user', user_id=user.user_id)"
+	       title="Remove this user from being a member of this group."
+	       class="btn btn-danger">Remove</a>
+	  </td>
+	</tr>
+	{%else%}
+	<tr>
+	  <td colspan="3">
+	    {%if user_error is defined%}
+	    <span class="glyphicon glyphicon-exclamation-sign text-danger">
+	    </span>
+	    &nbsp;
+	    <strong class="text-danger">{{user_error.error}}</strong>
+	    {{user_error.error_message}}
+	    {%else%}
+	    No users found for this group
+	    {%endif%}
+	  </td>
+	</tr>
 	{%endfor%}
-      </dl>
-    </div>
-
-    <div class="row">
-      <form action="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
-	    method="POST" style="display: inline">
-	<input type="hidden" name="group_id" value="{{group.group_id}}">
-	<input type="submit" class="btn btn-info" value="Edit" />
-      </form>
-
-      <form action="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
-	    method="POST" style="display: inline">
-	<input type="hidden" name="group_id" value="{{group.group_id}}">
-	<input type="submit" class="btn btn-danger" value="Delete" />
-      </form>
-    </div>
-
-    {%if group%}
-    <div class="row" style="padding-top: 0.5em;">
-      <a href="{{url_for('oauth2.group.list_group_users', group_id=group.group_id)}}"
-	 class="btn btn-info">Group Users</a>
-    </div>
-    {%endif%}
+      </tbody>
+    </table>
 
   </div>
 
