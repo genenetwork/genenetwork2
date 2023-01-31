@@ -15,27 +15,6 @@ def oauth2_client():
         scope=SCOPE, token_endpoint_auth_method="client_secret_post",
         token=session.get("oauth2_token"))
 
-def get_endpoint(uri_path: str) -> Maybe:
-    token = session.get("oauth2_token", False)
-    if token and not bool(session.get("user_details", False)):
-        config = app.config
-        client = OAuth2Session(
-            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-            token=token)
-        resp = client.get(
-            urljoin(config["GN_SERVER_URL"], uri_path))
-        resp_json = resp.json()
-
-        if resp_json.get("error") == "invalid_token":
-            flash(resp_json["error_description"], "alert-danger")
-            flash("You are now logged out.", "alert-info")
-            session.pop("oauth2_token", None)
-            return Nothing
-
-        return Just(resp_json)
-
-    return Nothing
-
 def oauth2_get(uri_path: str) -> Either:
     token = session.get("oauth2_token")
     config = app.config
