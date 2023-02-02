@@ -70,7 +70,7 @@ def register_user():
     config = app.config
     form = request.form
     response = requests.post(
-        urljoin(config["GN_SERVER_URL"], "oauth2/register-user"),
+        urljoin(config["GN_SERVER_URL"], "oauth2/user/register"),
         data = {
             "user_name": form.get("user_name"),
             "email": form.get("email_address"),

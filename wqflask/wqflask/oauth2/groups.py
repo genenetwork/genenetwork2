@@ -4,7 +4,8 @@ from flask import (
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
-    user_details, handle_error, request_error, handle_success)
+    user_details, handle_error, request_error, handle_success,
+    raise_unimplemented)
 
 groups = Blueprint("group", __name__)
 
@@ -21,14 +22,14 @@ def user_group():
         return error.json()
 
     def __success__(group):
-        return oauth2_get(f"oauth2/group-users/{group['group_id']}").either(
+        return oauth2_get(f"oauth2/group/members/{group['group_id']}").either(
             lambda error: render_template(
                 "oauth2/group.html", group=group,
                 user_error=__process_error__(error)),
             lambda users: render_template(
                 "oauth2/group.html", group=group, users=users))
 
-    return oauth2_get("oauth2/user-group").either(
+    return oauth2_get("oauth2/user/group").either(
         request_error, __success__)
 
 @groups.route("/create", methods=["POST"])
@@ -37,7 +38,7 @@ def create_group():
     def __setup_group__(response):
         session["user_details"]["group"] = response
 
-    resp = oauth2_post("oauth2/create-group", data=dict(request.form))
+    resp = oauth2_post("oauth2/group/create", data=dict(request.form))
     return resp.either(
         handle_error("oauth2.group.join_or_create"),
         handle_success(
@@ -51,8 +52,8 @@ def join_or_create():
     if bool(usr_dets["group"]):
         flash("You are already a member of a group.", "alert-info")
         return redirect(url_for("oauth2.user.user_profile"))
-    groups = oauth2_get("oauth2/groups").either(
-        lambda x: __raise_unimplemented__(), lambda x: x)
+    groups = oauth2_get("oauth2/group/list").either(
+        lambda x: raise_unimplemented(), lambda x: x)
     return render_template("oauth2/group_join_or_create.html", groups=groups)
 
 @groups.route("/delete/<uuid:group_id>", methods=["GET", "POST"])

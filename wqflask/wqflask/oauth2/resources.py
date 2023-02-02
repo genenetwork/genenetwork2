@@ -15,7 +15,7 @@ def user_resources():
     def __success__(resources):
         return render_template("oauth2/resources.html", resources=resources)
 
-    return oauth2_get("oauth2/user-resources").either(
+    return oauth2_get("oauth2/user/resources").either(
         request_error, __success__)
 
 @resources.route("/create", methods=["GET"])

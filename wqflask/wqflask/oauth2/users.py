@@ -13,7 +13,7 @@ def user_profile():
     usr_dets = user_details()
     client = oauth2_client()
 
-    roles = oauth2_get("oauth2/user-roles").either(lambda x: "Error", lambda x: x)
+    roles = oauth2_get("oauth2/user/roles").either(lambda x: "Error", lambda x: x)
     return render_template(
         "oauth2/view-user.html", user_details=usr_dets, roles=roles)
 

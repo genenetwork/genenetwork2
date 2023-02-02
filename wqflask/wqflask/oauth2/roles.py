@@ -15,7 +15,7 @@ def user_roles():
     def __success__(roles):
         return render_template("oauth2/list_roles.html", roles=roles)
 
-    return oauth2_get("oauth2/user-roles").either(
+    return oauth2_get("oauth2/user/roles").either(
         request_error, __success__)
 
 @roles.route("/role/<uuid:role_id>", methods=["GET"])
@@ -24,5 +24,5 @@ def role(role_id: uuid.UUID):
     def __success__(the_role):
         return render_template("oauth2/role.html", role=the_role)
 
-    return oauth2_get(f"oauth2/role/{role_id}").either(
+    return oauth2_get(f"oauth2/role/view/{role_id}").either(
         request_error, __success__)
