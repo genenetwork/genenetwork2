@@ -1,0 +1,41 @@
+* Introduction
+
+This directory contains scripts that are used to instrument the performance of fetching a trait using the GN2 API vs using LMDB.  Assuming you have a script called ,runcmd:
+
+#+name: ,runcmd
+#+begin_src sh
+#!/bin/sh
+
+env GN2_PROFILE=$HOME/opt/genenetwork2 \
+    TMPDIR=$HOME/tmp SERVER_PORT=5004 \
+    WEBSERVER_MODE=DEV \
+    GENENETWORK_FILES=$HOME/data/genotype_files/ \
+    SPARQL_ENDPOINT=http://localhost:8892/sparql\
+    SQL_URI="mysql://root:root@localhost:3306/db_webqtl_s"\
+    GN_PROXY_URL=http://localhost:8080 \
+    GN_SERVER_URL=http://localhost:8083/api \
+    GN3_LOCAL_URL=http://localhost:8083 \
+    GN_LOCAL_URL=http://localhost:8083 \
+    $HOME/projects/oqo-genenetwork2/bin/genenetwork2 \
+    $HOME/projects/oqo-genenetwork2/etc/default_settings.py\
+    -cli $*
+#+end_src
+
+To run the script 10 times, execute:
+
+: ,runcmd testing python $HOME/projects/oqo-genenetwork2/testing/scripts/performance/timeit_gn2.py 10
+
+: ,runcmd testing python $HOME/projects/oqo-genenetwork2/testing/scripts/performance/timeit_lmdb.py 10
+
+Here are some rudimentary results:
+
+Assuming you have already dumped "HLCPublish/10001" - which contains 476 strains - somewhere in LMDB, the time it takes to fetch "HLCPublish/10001" N times is:
+
+| Number |      gn2 (seconds) |      lmdb (seconds) |  gn2/lmdb |
+|--------+--------------------+---------------------+-----------|
+|     10 | 0.5971280680023483 | 0.04270002100020065 | 13.984257 |
+|     50 | 3.6268229950001114 | 0.15371317300014198 | 23.594744 |
+|    100 |  5.885073402001581 |  0.3161755159999302 | 18.613312 |
+|  1_000 |   60.6393681030022 |   3.107457533998968 | 19.514142 |
+| 10_000 |  723.0237347940019 |  27.541215700002795 | 26.252426 |
+#+TBLFM: $4=$2/$3
