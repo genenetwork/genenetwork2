@@ -1,10 +1,10 @@
 import uuid
 
-from flask import Blueprint, render_template
+from flask import request, Blueprint, render_template
 
-from .client import oauth2_get
 from .checks import require_oauth2
-from .request_utils import request_error
+from .client import oauth2_get, oauth2_post
+from .request_utils import request_error, process_error
 
 resources = Blueprint("resource", __name__)
 
@@ -18,11 +18,32 @@ def user_resources():
     return oauth2_get("oauth2/user/resources").either(
         request_error, __success__)
 
-@resources.route("/create", methods=["GET"])
+@resources.route("/create", methods=["GET", "POST"])
 @require_oauth2
 def create_resource():
     """Create a new resource."""
-    return "WOULD CREATE A NEW RESOURCE."
+    def __render_template__(categories=[], error=None):
+        return render_template(
+            "oauth2/create-resource.html",
+            resource_categories=categories,
+            resource_category_error=error)
+
+    if request.method == "GET":
+        return oauth2_get("oauth2/resource/categories").either(
+            lambda error: __render_template__(error=process_error(
+                error, "Could not retrieve resource categories")),
+            lambda cats: __render_template__(categories=cats))
+
+    from flask import jsonify
+    def __perr__(error):
+        print(f"ERROR: {process_error(error)}")
+        return jsonify(process_error(error))
+    def __psuc__(succ):
+        print(f"SUCCESS: {succ.json()}")
+        return jsonify(succ.json())
+    return oauth2_post(
+        "oauth2/resource/create", data=request.form).either(
+            __perr__, __psuc__)
 
 @resources.route("/view/<uuid:resource_id>", methods=["GET"])
 @require_oauth2

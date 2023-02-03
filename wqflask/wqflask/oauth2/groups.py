@@ -4,7 +4,7 @@ from flask import (
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
-    user_details, handle_error, request_error, handle_success,
+    user_details, handle_error, request_error, process_error, handle_success,
     raise_unimplemented)
 
 groups = Blueprint("group", __name__)
@@ -12,20 +12,12 @@ groups = Blueprint("group", __name__)
 @groups.route("/", methods=["GET"])
 def user_group():
     """Get the user's group."""
-    def __process_error__(error):
-        if error.status_code == 404:
-            return {
-                "error": "NotFoundError",
-                "error_message": ("Requested endpoint was not found on the "
-                                  "API server.")
-            }
-        return error.json()
 
     def __success__(group):
         return oauth2_get(f"oauth2/group/members/{group['group_id']}").either(
             lambda error: render_template(
                 "oauth2/group.html", group=group,
-                user_error=__process_error__(error)),
+                user_error=process_error(error)),
             lambda users: render_template(
                 "oauth2/group.html", group=group, users=users))
 

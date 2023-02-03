@@ -2,7 +2,8 @@
 from typing import Optional
 
 from flask import (
-    flash, session, url_for, redirect, render_template, current_app as app)
+    flash, session, url_for, redirect, Response, render_template,
+    current_app as app)
 
 from .client import oauth2_get
 
@@ -13,6 +14,17 @@ def user_details():
     return oauth2_get("oauth2/user").either(
         handle_error("oauth2.login"),
         lambda usr_dets: usr_dets)
+
+def process_error(error: Response,
+                  message: str=("Requested endpoint was not found on the API "
+                                "server.")
+                  ) -> dict:
+    if error.status_code == 404:
+        return {
+            "error": "NotFoundError",
+            "error_message": message
+        }
+    return error.json()
 
 def request_error(response):
     app.logger.error(f"{response}: {response.url} [{response.status_code}]")

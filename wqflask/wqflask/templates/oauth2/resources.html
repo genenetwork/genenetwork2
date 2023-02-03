@@ -3,7 +3,7 @@
 {%block title%}View User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
-  {{profile_nav("dashboard")}}
+  {{profile_nav("resources")}}
   <h3>Resources</h3>
 
   {{flash_me()}}
@@ -17,16 +17,39 @@
     </div>
 
     <div class="row">
-      {%for resource in resources %}
-      {{resource.resource_name}} - {{resource.resource_category}} - {{resource.group}}
-      {%else%}
-      <p>
-	<span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-	<span class="text-warning">
-	  The user has no access to any resource.
-	</span>
-      </p>
-      {%endfor%}
+      <table class="table">
+	<caption>Resources</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Category</th>
+	    <th>Group</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {%for resource in resources %}
+	  <tr>
+	    <td>
+	      <a href="url_for('oauth2.resources.view', resource_id=resource.resource_id)"
+		 title="View resource {{resource.resource_name}}">
+		{{resource.resource_name}}
+	      </a>
+	    </td>
+	    <td>{{resource.resource_category.resource_category_key}}</td>
+	    <td>{{resource.group.group_name}}</td>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td colspan="3">
+	      <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+	      <span class="text-warning">
+		The user has no access to any resource.
+	      </span>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
     </div>
 
   </div>
