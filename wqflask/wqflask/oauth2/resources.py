@@ -1,6 +1,6 @@
 import uuid
 
-from flask import request, Blueprint, render_template
+from flask import flash, request, url_for, redirect, Blueprint, render_template
 
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
@@ -36,11 +36,13 @@ def create_resource():
 
     from flask import jsonify
     def __perr__(error):
-        print(f"ERROR: {process_error(error)}")
-        return jsonify(process_error(error))
+        err = process_error(error)
+        print(f"THE ERROR: {err}")
+        flash(f"{err['error']}: {err['error_message']}", "alert-danger")
+        return redirect(url_for("oauth2.resource.user_resources"))
     def __psuc__(succ):
-        print(f"SUCCESS: {succ.json()}")
-        return jsonify(succ.json())
+        flash("Resource created successfully", "alert-success")
+        return redirect(url_for("oauth2.resource.user_resources"))
     return oauth2_post(
         "oauth2/resource/create", data=request.form).either(
             __perr__, __psuc__)
@@ -52,7 +54,11 @@ def view_resource(resource_id: uuid.UUID):
     # Display the resource's details
     # Provide edit/delete options
     # Metadata edit maybe?
-    return "WOULD DISPLAY THE GIVEN RESOURCE'S DETAILS"
+    return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
+        lambda err: render_template("oauth2/view-resource.html",
+                                    resource=None, error=process_error(err)),
+        lambda resource: render_template(
+            "oauth2/view-resource.html", resource=resource, error=None))
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2

@@ -1,0 +1,47 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("resources")}}
+  <h3>Resources</h3>
+
+  {{flash_me()}}
+
+  <div class="container-fluid">
+
+    <div class="row">
+      {%if error %}
+      <span class="glyphicon glyphicon-exclamation-sign text-danger">
+      </span>
+      &nbsp;
+      <strong class="text-danger">{{error.error}}</strong>
+      {{error.error_description}}
+      {%else%}
+      <table class="table">
+	<caption>Resource: {{resource.resource_name}}</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Category</th>
+	    <th>Group</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  <tr>
+	    <td>{{resource.resource_name}}</td>
+	    <td>{{resource.resource_category.resource_category_description}}</td>
+	    <td>{{resource.group.group_name}}</td>
+	  </tr>
+	</tbody>
+      </table>
+
+      <p>List the resource's data here...</p>
+      {%endif%}
+    </div>
+
+  </div>
+
+</div>
+{%endblock%}

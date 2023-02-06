@@ -30,7 +30,9 @@
 	  {%for resource in resources %}
 	  <tr>
 	    <td>
-	      <a href="url_for('oauth2.resources.view', resource_id=resource.resource_id)"
+	      <a href="{{url_for(
+		       'oauth2.resource.view_resource',
+		       resource_id=resource.resource_id)}}"
 		 title="View resource {{resource.resource_name}}">
 		{{resource.resource_name}}
 	      </a>
