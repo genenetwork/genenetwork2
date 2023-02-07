@@ -27,7 +27,7 @@
     <legend>Request to be added to group</legend>
     <div class="form-group">
       <label class="control-label" for="group">Group</label>
-      <select class="form-control" id="group" required="required">
+      <select class="form-control" id="group" required="required" name="group">
 	<option value="">Select a group</option>
 	{%for group in groups%}
 	<option value="{{group.group_id}}">{{group.group_name}}</option>
