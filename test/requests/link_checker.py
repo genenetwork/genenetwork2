@@ -152,7 +152,9 @@ def check_packaged_js_files(args_obj, parser):
         "/js/fontawesome/js/all.min.js",
         "/js/uikit/js/uikit-icons.min.js",
         "/js/uikit/js/uikit.min.js",
-        "/css/uikit/css/uikit.min.css"
+        "/css/uikit/css/uikit.min.css",
+        "/css/xterm/xterm.min.css",
+        "/js/xterm/xterm.min.js"
 
     ]
 
