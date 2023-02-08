@@ -22,7 +22,8 @@ def process_error(error: Response,
     if error.status_code == 404:
         return {
             "error": "NotFoundError",
-            "error_message": message
+            "error_message": message,
+            "error_description": message
         }
     return error.json()
 
@@ -32,7 +33,7 @@ def request_error(response):
 
 def handle_error(redirect_uri: Optional[str] = None, **kwargs):
     def __handler__(error):
-        error_json = error.json()
+        error_json = process_error(error)# error.json()
         msg = error_json.get(
             "error_message", error_json.get(
                 "error_description", "undefined error"))

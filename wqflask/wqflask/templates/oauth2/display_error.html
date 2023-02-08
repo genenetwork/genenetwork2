@@ -1,0 +1,10 @@
+{%macro display_error(title, the_error)%}
+
+<strong>{{title}}</strong>:
+<span class="glyphicon glyphicon-exclamation-sign text-danger">
+</span>
+&nbsp;
+<strong class="text-danger">{{the_error.error}}:</strong>
+{{the_error.error_description}}
+
+{%endmacro%}

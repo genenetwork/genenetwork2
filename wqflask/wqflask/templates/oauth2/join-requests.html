@@ -1,0 +1,72 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("group")}}
+
+  {{flash_me()}}
+
+  <div class="container-fluid">
+    <div class="row">
+      <table class="table">
+	<caption>Join Requests</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Email</th>
+	    <th>Request Date/Time</th>
+	    <th>Status</th>
+	    <th>Message</th>
+	    <th colspan="2" style="text-align: center;">Actions</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  {%for request in requests%}
+	  <tr>
+	    <td>{{request.name}}</td>
+	    <td>{{request.email}}</td>
+	    <td>{{datetime_string(request.timestamp)}}</td>
+	    <td>{{request.status}}</td>
+	    <td>{{request.message}}</td>
+	    <td>
+	      <form method="POST"
+		    action="{{url_for('oauth2.group.accept_join_request')}}">
+		<input type="hidden" name="request_id"
+		       value="{{request.request_id}}" />
+		<input type="submit" class="btn btn-primary" value="Accept"
+		       {%if request.status != "PENDING"%}
+		       disabled="disabled"
+		       {%endif%} />
+	      </form>
+	    </td>
+	    <td>
+	      <form method="POST" action="#reject">
+		<input type="hidden" name="request_id"
+		       value="{{request.request_id}}" />
+		<input type="submit" class="btn btn-danger" value="Reject"
+		       {%if request.status != "PENDING"%}
+		       disabled="disabled"
+		       {%endif%} />
+	      </form>
+	    </td>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td colspan="3">
+	      {%if error is defined %}
+	      {{display_error("Join Requests", error)}}
+	      {%else%}
+	      No one has requested to join your group yet.
+	      {%endif%}
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{%endblock%}

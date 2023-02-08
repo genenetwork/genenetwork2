@@ -1,5 +1,6 @@
 {%extends "base.html"%}
 {%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
 {%block title%}View User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
@@ -8,6 +9,16 @@
   {{flash_me()}}
 
   <div class="container-fluid">
+    <div class="row">
+      {%if group_join_requests_error is defined %}
+      {{display_error("Join Requests", group_join_requests_error)}}
+      {%else%}
+      <a href="{{url_for('oauth2.group.list_join_requests')}}"
+	 class="btn btn-info">
+	Requests ({{group_join_requests | count}})
+      </a>
+      {%endif%}
+    </div>
     <div class="row">
       <table class="table">
 	<caption>Group Information</caption>
