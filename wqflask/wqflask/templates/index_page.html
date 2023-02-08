@@ -2,12 +2,9 @@
 {% block title %}GeneNetwork{% endblock %}
 {% block css %}
 <!-- UIkit CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='uikit/css/uikit.min.css') }}">
 <link rel="stylesheet" href="/static/new/css/index_page.css" />
 
-<!-- UIkit JS -->
-<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
 <style TYPE="text/css">
   p.interact { display: none; }
 
@@ -291,6 +288,10 @@
 {%endblock%}
 
 {% block js %}
+
+    <!-- UIkit JS -->
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='uikit/js/uikit.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='uikit/js/uikit-icons.min.js') }}"></script>
     <script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
 
     <script>
