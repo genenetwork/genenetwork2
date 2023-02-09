@@ -24,13 +24,15 @@ def user_profile():
             **kwargs)
 
     def __roles_success__(roles):
+        if bool(usr_dets.get("group")):
+            return __render__(usr_dets, roles)
         return oauth2_get("oauth2/user/group/join-request").either(
             lambda err: __render__(
                 user_details, group_join_error=process_error(err)),
-            lambda gjr: __render__(user_details, group_join_request=gjr))
+            lambda gjr: __render__(usr_dets, group_join_request=gjr))
 
     return oauth2_get("oauth2/user/roles").either(
-        lambda err: __render__(user_details, role_error=process_error(err)),
+        lambda err: __render__(usr_dets, role_error=process_error(err)),
         __roles_success__)
 
 @users.route("/request-add-to-group", methods=["POST"])
