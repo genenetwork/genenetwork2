@@ -29,6 +29,6 @@ def require_oauth2(func):
             session.pop("user_details", None)
 
         flash("You need to be logged in.", "alert-warning")
-        return redirect(url_for("oauth2.toplevel.login", next=request.endpoint))
+        return redirect(url_for("oauth2.user.login", next=request.endpoint))
 
     return __token_valid__

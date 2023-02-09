@@ -6,9 +6,9 @@
 
   <form class="form-horizontal"
 	{%if next_endpoint%}
-	action="{{url_for('oauth2.toplevel.login', next=next_endpoint)}}"
+	action="{{url_for('oauth2.user.login', next=next_endpoint)}}"
 	{%else%}
-	action="{{url_for('oauth2.toplevel.login')}}"
+	action="{{url_for('oauth2.user.login')}}"
 	{%endif%}
 	method="POST" id="oauth2-login-form">
     <fieldset>
