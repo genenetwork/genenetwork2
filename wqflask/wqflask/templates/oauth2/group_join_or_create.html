@@ -10,7 +10,7 @@
 
   {{flash_me()}}
 
-  {%if group_join_request is defined %}
+  {%if group_join_request is defined  and group_join_request.exists %}
   <p>
     <span class="glyphicon glyphicon-info-sign text-warning"></span>
     &nbsp;

@@ -115,3 +115,19 @@ def accept_join_request():
         data=request.form).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
+
+@groups.route("/reject-join-requests", methods=["POST"])
+@require_oauth2
+def reject_join_request():
+    def __fail__(error):
+        err=process_error()
+        flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+        return redirect(url_for("oauth2.group.list_join_requests"))
+    def __success__(requests):
+        flash("Request was rejected successfully.", "alert-success")
+        return redirect(url_for("oauth2.group.list_join_requests"))
+    return oauth2_post(
+        "oauth2/group/requests/join/reject",
+        data=request.form).either(
+            handle_error("oauth2.group.list_join_requests"),
+            __success__)

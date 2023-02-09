@@ -43,7 +43,8 @@
 	      </form>
 	    </td>
 	    <td>
-	      <form method="POST" action="#reject">
+	      <form method="POST"
+		    action="{{url_for('oauth2.group.reject_join_request')}}">
 		<input type="hidden" name="request_id"
 		       value="{{request.request_id}}" />
 		<input type="submit" class="btn btn-danger" value="Reject"
