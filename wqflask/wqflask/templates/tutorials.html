@@ -10,20 +10,18 @@
 <!--    <script src="uikit-3/js/uikit.min.js"></script>-->
 <!--    <script src="uikit-3/js/uikit-icons.min.js"></script>-->
     <!-- UIkit CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/css/uikit.min.css" />
+    <<script language="javascript" type="text/javascript" src="{{ url_for('css', filename='uikit/css/uikit.min.css') }}"></script>
 
     <!-- UIkit JS -->
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.4/dist/js/uikit-icons.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='uikit/js/uikit.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='uikit/js/uikit-icons.min.js') }}"></script>
 
     <!-- DataTables-->
     <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/cr-1.5.2/datatables.min.css"/> -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
-
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.min.css') }}" />
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/cr-1.5.2/datatables.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
- <script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
-
+ <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
 </head>
 <body>
 <div class="uk-margin-small uk-card uk-card-default uk-card-body">
