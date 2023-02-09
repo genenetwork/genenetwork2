@@ -22,11 +22,20 @@
 	<span class="text-warning">User is not a member of a group.</span>
       </p>
 
+      {%if group_join_request is defined %}
+      <p>
+	<span class="glyphicon glyphicon-info-sign text-warning"></span>
+	&nbsp;
+	<span class="text-info">You have an active join request to a group.</span>
+      </p>
+      {%else%}
       <p><a href="{{url_for('oauth2.group.join_or_create')}}"
 	    class="btn btn-primary"
 	    title="Join an existing group, or create your own group">
 	  Join or Create group
       </a></p>
+      {%endif%}
+
       {%endif%}
       {%else%}
       <p class="text-warning">No details found.</p>

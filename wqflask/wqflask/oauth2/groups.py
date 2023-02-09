@@ -54,9 +54,23 @@ def join_or_create():
     if bool(usr_dets["group"]):
         flash("You are already a member of a group.", "alert-info")
         return redirect(url_for("oauth2.user.user_profile"))
-    groups = oauth2_get("oauth2/group/list").either(
-        lambda x: raise_unimplemented(), lambda x: x)
-    return render_template("oauth2/group_join_or_create.html", groups=groups)
+    def __group_error__(err):
+        return render_template(
+            "oauth2/group_join_or_create.html", groups=[],
+            groups_error=process_error(err))
+    def __group_success__(groups):
+        return oauth2_get("oauth2/user/group/join-request").either(
+            __gjr_error__, partial(__gjr_success__, groups=groups))
+    def __gjr_error__(err):
+        return render_template(
+            "oauth2/group_join_or_create.html", groups=[],
+            gjr_error=process_error(err))
+    def __gjr_success__(gjr, groups):
+        return render_template(
+            "oauth2/group_join_or_create.html", groups=groups,
+            group_join_request=gjr)
+    return oauth2_get("oauth2/group/list").either(
+        __group_error__, __group_success__)
 
 @groups.route("/delete/<uuid:group_id>", methods=["GET", "POST"])
 @require_oauth2
