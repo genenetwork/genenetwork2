@@ -21,6 +21,9 @@ def user_profile():
     def __render__(usr_dets, roles=[], **kwargs):
         return render_template(
             "oauth2/view-user.html", user_details=usr_dets, roles=roles,
+            user_privileges = tuple(
+                privilege["privilege_id"] for role in roles
+                for privilege in role["privileges"]),
             **kwargs)
 
     def __roles_success__(roles):
@@ -29,7 +32,7 @@ def user_profile():
         return oauth2_get("oauth2/user/group/join-request").either(
             lambda err: __render__(
                 user_details, group_join_error=process_error(err)),
-            lambda gjr: __render__(usr_dets, group_join_request=gjr))
+            lambda gjr: __render__(usr_dets, roles=roles, group_join_request=gjr))
 
     return oauth2_get("oauth2/user/roles").either(
         lambda err: __render__(usr_dets, role_error=process_error(err)),

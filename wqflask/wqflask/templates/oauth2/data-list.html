@@ -1,0 +1,37 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("data")}}
+
+  {{flash_me()}}
+
+  <div class="container-fluid">
+    <div class="row">
+      <form method="POST" action="#/data/list/items">
+	<legend>Link Data to Group</legend>
+	<div class="form-group">
+	  <label class="form-label" for="sel-group-id">Group</label>
+	  <select id="sel-group-id" name="group_id" required="required"
+		  {%if groups | count == 0 or groups_error is defined %}
+		  disabled="disabled"
+		  {%endif%}>
+	    <option value="">Select Group</option>
+	    {%for group in groups %}
+	    <option value="{{group.group_id}}">{{group.group_name}}</option>
+	    {%endfor%}
+	  </select>
+	  {%if groups_error is defined%}
+	  {{display_error("Groups Error", groups_error)}}
+	  {%endif%}
+	</div>
+
+	<input type="submit" value="Next" class="btn btn-primary" />
+      </form>
+    </div>
+  </div>
+
+</div>
+{%endblock%}

@@ -1,4 +1,4 @@
-{%macro profile_nav(calling_page)%}
+{%macro profile_nav(calling_page, user_privileges=[])%}
 
 <ul class="nav nav-pills">
 
@@ -29,6 +29,15 @@
       {%endif%}>
     <a href="{{url_for('oauth2.resource.user_resources')}}">Resources</a>
   </li>
+
+  {%if "system:data:link-to-group" in user_privileges %}
+  <li role="presentation"
+      {%if calling_page == "data"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.data.list_data')}}">Link Data</a>
+  </li>
+  {%endif%}
 
 </ul>
 
