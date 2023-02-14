@@ -300,9 +300,13 @@ def jsonable(trait, dataset=None):
                                 dataset_type=trait.dataset.type,
                                 group_name=trait.dataset.group.name)
 
+
     trait_symbol = "N/A"
+    trait_mean = "N/A"
     if trait.symbol:
         trait_symbol = trait.symbol
+    if trait.mean:
+        trait_mean = trait.mean
 
     if dataset.type == "ProbeSet":
         return dict(name=trait.name,
@@ -313,7 +317,7 @@ def jsonable(trait, dataset=None):
                     dataset=dataset.name,
                     dataset_name=dataset.shortname,
                     description=trait.description_display,
-                    mean=trait.mean,
+                    mean=trait_mean,
                     location=trait.location_repr,
                     chr=trait.chr,
                     mb=trait.mb,
@@ -338,7 +342,7 @@ def jsonable(trait, dataset=None):
                         pubmed_id=trait.pubmed_id,
                         pubmed_text=trait.pubmed_text,
                         pubmed_link=trait.pubmed_link,
-                        mean=trait.mean,
+                        mean=trait_mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
                         lrs_chr=trait.locus_chr,
@@ -357,7 +361,7 @@ def jsonable(trait, dataset=None):
                         abbreviation=trait.abbreviation,
                         authors=trait.authors,
                         pubmed_text=trait.pubmed_text,
-                        mean=trait.mean,
+                        mean=trait_mean,
                         lrs_score=trait.LRS_score_repr,
                         lrs_location=trait.LRS_location_repr,
                         lrs_chr=trait.locus_chr,

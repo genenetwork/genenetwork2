@@ -239,7 +239,11 @@
                     'orderSequence': [ "desc", "asc"],
                     'render': function(data) {
                         if (Object.hasOwn(data, 'mean')){
-                            return data.mean.toFixed(3)
+                            if (data.mean != 'N/A'){
+                                return data.mean.toFixed(3)
+                            } else {
+                                return "N/A"
+                            }
                         } else {
                             return "N/A"
                         }
