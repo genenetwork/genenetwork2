@@ -507,6 +507,40 @@ def show_trait_page():
             **template_vars.__dict__)
 
 
+@app.route("/dataset/<dataset_name>/trait/<trait_name>")
+def show_traits(dataset_name, trait_name):
+    with database_connection() as conn, conn.cursor() as cursor:
+        user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+                   or g.user_session.record.get("user_id") or "")
+        template_vars = show_trait.ShowTrait(
+            cursor,
+            user_id=user_id,
+            kw={
+                "trait_id": trait_name,
+                "dataset": dataset_name,
+            })
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+        # Should there be any mis-configurations, things will still
+        # work.
+        metadata, trait_metadata = {}, {}
+        try:
+            trait_metadata = requests.get(
+                urljoin(
+                    GN3_LOCAL_URL,
+                    f"/api/metadata/dataset/{dataset_name}/trait/{trait_name}")
+            ).json()
+            breakpoint()
+        except:
+            pass
+        return render_template(
+            "traits.html",
+            trait_metadata=trait_metadata,
+            metadata = metadata,
+            **template_vars.__dict__)
+
+
 @app.route("/heatmap", methods=('POST',))
 def heatmap_page():
     start_vars = request.form
