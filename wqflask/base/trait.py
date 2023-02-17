@@ -487,12 +487,15 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 # phenotype traits, then display the pre-publication description instead
                 # of the post-publication description
                 trait.description_display = "N/A"
+                trait.abbreviation = "N/A"
                 if not trait.pubmed_id:
-                    trait.abbreviation = trait.pre_publication_abbreviation
+                    if trait.pre_publication_abbreviation:
+                        trait.abbreviation = trait.pre_publication_abbreviation
                     if trait.pre_publication_description:
                         trait.description_display = trait.pre_publication_description
                 else:
-                    trait.abbreviation = trait.post_publication_abbreviation
+                    if trait.post_publication_abbreviation:
+                        trait.abbreviation = trait.post_publication_abbreviation
                     if description:
                         trait.description_display = description.strip()
 
