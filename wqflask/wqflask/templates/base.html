@@ -145,13 +145,13 @@
                 <!--
                 <button id="btsearch" class="btn btn-primary" style="margin-left: 20px;"><span class="glyphicon glyphicon-search"></span> Search All</button>
 
-             This is a comment -->
+             use enter key to submit fomr -->
                 <select style="width: 160px; margin-top: 15px; margin-left: 10px;" name="type">
                     <option value="gene">Genes / Molecules</option>
                     <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                 </select>
 
-                <input id="term"  class="form-rounded" style="width: 40vw; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required placeholder="enter you search term here">
+                <input id="term"  class="form-rounded" style="width: 40vw; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required placeholder="enter you search term here" value="cytochrome+NOT+P450">
             </div>
         </form>
     </div>
