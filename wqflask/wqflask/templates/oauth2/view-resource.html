@@ -1,5 +1,6 @@
 {%extends "base.html"%}
 {%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
 {%block title%}View User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
@@ -36,9 +37,97 @@
 	  </tr>
 	</tbody>
       </table>
-
-      <p>List the resource's data here...</p>
       {%endif%}
+    </div>
+
+    <div class="row">
+      <table class="table">
+	<caption>Resource Data</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Full Name</th>
+	    <th>Actions</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  {%for data_item in resource.resource_data:%}
+	  <tr>
+	    <td>
+	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
+		 title="Link to information on dataset '{{data_item.dataset_fullname}}'">
+		{{data_item.dataset_name}}
+	      </a>
+	    </td>
+	    <td>{{data_item.dataset_fullname}}</td>
+	    <td>
+	      <form action="#" method="POST">
+		<input type="hidden" name="resource_id"
+		       value="{{resource.resource_id}}" />
+		<input type="hidden" name="data_id"
+		       value="{{data_item.dataset_or_trait_id}}" />
+		<input type="submit" value="Unlink" class="btn btn-danger" />
+	      </form>
+	    </td>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td colspan="2">
+	      <span class="glyphicon glyphicon-info-sign text-danger">
+	      </span>
+	      &nbsp;
+	      <strong class="text-info">No linked data.</strong>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+    </div>
+
+    <div class="row">
+      <table class="table">
+	<caption>Link Data</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Actions</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {%if unlinked_error is defined%}
+	  display_error("Unlinked Data Error", unlinked_error)
+	  {%else%}
+	  {%for data_item in unlinked_data:%}
+	  <tr>
+	    <td>
+	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
+		 title="Link to information on dataset '{{data_item.dataset_fullname}}'">
+		{{data_item.dataset_fullname}}
+	      </a>
+	    </td>
+	    <td>
+	      <form method="POST" action="#">
+		<input type="hidden" name="resource_id"
+		       value="{{resource.resource_id}}" />
+		<input type="hidden" name="data_id"
+		       value="{{data_item.dataset_or_trait_id}}" />
+		<input type="submit" value="Link" class="btn btn-info"
+		       {%if resource.resource_category.resource_category_description == "mRNA Dataset"%}
+		       disabled="disabled"
+		       {%endif%} />
+	      </form>
+	    </td>
+	  </tr>
+	  {%else%}
+	  <span class="glyphicon glyphicon-info-sign text-danger">
+	  </span>
+	  &nbsp;
+	  <strong class="text-info">No data to link.</strong>
+	  {%endfor%}
+	  {%endif%}
+	</tbody>
+      </table>
     </div>
 
   </div>

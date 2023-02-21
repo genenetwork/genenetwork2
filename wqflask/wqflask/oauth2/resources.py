@@ -54,11 +54,20 @@ def view_resource(resource_id: uuid.UUID):
     # Display the resource's details
     # Provide edit/delete options
     # Metadata edit maybe?
+    def __resource_success__(resource):
+        dataset_type = resource["resource_category"]["resource_category_key"]
+        return oauth2_get(f"oauth2/resource/{dataset_type}/unlinked-data").either(
+            lambda err: render_template(
+                "oauth2/view-resource.html", resource=resource,
+                unlinked_error=process_error(err)),
+            lambda unlinked: render_template(
+                "oauth2/view-resource.html", resource=resource, error=None,
+                unlinked_data=unlinked))
+
     return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
         lambda err: render_template("oauth2/view-resource.html",
                                     resource=None, error=process_error(err)),
-        lambda resource: render_template(
-            "oauth2/view-resource.html", resource=resource, error=None))
+        __resource_success__)
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
