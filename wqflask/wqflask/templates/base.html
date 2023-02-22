@@ -151,7 +151,7 @@
                     <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                 </select>
 
-                <input id="term"  class="form-rounded" style="width: 40vw; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required placeholder="enter you search term here" value="cytochrome+NOT+P450">
+                <input id="term"  class="form-rounded" style="width: 40vw; margin-top: 15px; margin-left: 10px;" type="text" name="terms" required placeholder="enter you search term here">
             </div>
         </form>
     </div>
@@ -272,14 +272,35 @@
 
 
     <script type="text/javascript">
-     
 
-     $("#term").keyup(function(event) {
-    if (event.keyCode === 13) {
-        event.preventDefault();
-        $('#searchform').attr('action', "/gsearch").submit();
+
+
+$(document).ready(function() {
+
+
+    const urlParams = new  URLSearchParams(window.location.search)
+
+   let term = "cytochrome NOT P450"
+
+   if (urlParams.get("search_terms_or")){
+    term =  urlParams.get("search_terms_or")
+   }
+
+   else if (urlParams.get("terms")){
+    term = urlParams.get("terms")
+   }
+
+    $("#term").val(term);
+    $("#term").keyup(function(event) {
+  if (event.keyCode === 13) {
+    event.preventDefault();
+    $('#searchform').attr('action', "/gsearch").submit();
     }
-    });   
+    });    
+
+
+});
+
 
     </script>
 
