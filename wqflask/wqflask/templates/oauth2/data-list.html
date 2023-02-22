@@ -3,35 +3,112 @@
 {%from "oauth2/display_error.html" import display_error%}
 {%block title%}View User{%endblock%}
 {%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("data")}}
+  <div class="container" style="min-width: 1250px;">
+    {{profile_nav("data", user_privileges)}}
 
-  {{flash_me()}}
+    {{flash_me()}}
 
-  <div class="container-fluid">
-    <div class="row">
-      <form method="POST" action="#/data/list/items">
-	<legend>Link Data to Group</legend>
-	<div class="form-group">
-	  <label class="form-label" for="sel-group-id">Group</label>
-	  <select id="sel-group-id" name="group_id" required="required"
-		  {%if groups | count == 0 or groups_error is defined %}
-		  disabled="disabled"
-		  {%endif%}>
-	    <option value="">Select Group</option>
-	    {%for group in groups %}
-	    <option value="{{group.group_id}}">{{group.group_name}}</option>
-	    {%endfor%}
-	  </select>
-	  {%if groups_error is defined%}
-	  {{display_error("Groups Error", groups_error)}}
-	  {%endif%}
-	</div>
+    <div class="container-fluid">
+      <div class="row">
+	<form method="POST" action="{{url_for('oauth2.data.list_data')}}">
+	  <legend>Dataset Type</legend>
+	  <div class="form-group">
+	    <input type="hidden" name="offset" value="0" />
+	    <label for="dataset_type" class="form-label">Dataset Type</label>
+	    <select name="dataset_type" required="required">
+	      <option value="">Select dataset type</option>
+	      <option value="mrna"
+		      {%if dataset_type=="mrna"%}
+			selected="selected"
+		      {%endif%}>mRNA Assay Datasets</option>
+		      <option value="genotype"
+			      {%if dataset_type=="genotype"%}
+				selected="selected"
+			      {%endif%}>Genotype Datasets</option>
+			      <option value="phenotype"
+				      {%if dataset_type=="phenotype"%}
+					selected="selected"
+				      {%endif%}>Phenotype/Publish Datasets</option>
+	    </select>
+	  </div>
+	  <input type="submit" value="Fetch Unlinked Data" class="btn btn-primary" />
+	</form>
+      </div>
 
-	<input type="submit" value="Next" class="btn btn-primary" />
-      </form>
+      {%if dataset_type is defined%}
+	{%if data_items_error is defined%}
+	  {{display_error("Data Error", data_items_error)}}
+	{%else%}
+	  <div class="row">
+	    <table class="table">
+	      <caption>Link Data to Group</caption>
+
+	      <thead>
+		<tr>
+		  <th>Dataset Name</th>
+		  <th>Dataset Full Name</th>
+		  <th>Group</th>
+		  <th>Link</th>
+		</tr>
+	      </thead>
+
+	      <tbody>
+		{%for data_item in data_items%}
+		  <tr>
+		    <form method="POST" action="#/link-data">
+		      <input type="hidden" name="dataset_id" value="{{data_item.Id}}" />
+		      <input type="hidden" name="dataset_type" value="{{dataset_type}}" />
+		      <td>
+			<a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.Name}}"
+			   title="Link to information on dataset '{{data_item.dataset_fullname}}'"
+			   target="_blank">
+			   {{data_item.Name}}
+			</a>
+		      </td>
+		      <td>{{data_item.FullName}}</td>
+		      <td>
+			<select name="group_id" required="required">
+			  <option value="">Select group</option>
+			  {%for group in groups%}
+			    <option value="{{group.group_id}}">{{group.group_name}}</option>
+			  {%endfor%}
+			</select>
+		      </td>
+		      <td>
+			<input type="submit" value="Link" class="btn btn-info" />
+		      </td>
+		    </form>
+		  </tr>
+		{%else%}
+		  <tr>
+		    <td colspan="4">
+		      <span class="glyphicon glyphicon-info-sign text-danger">
+		      </span>
+		      &nbsp;
+		      <strong class="text-info">No available data to link</strong>
+		    </td>
+		  </tr>
+		{%endfor%}
+	      </tbody>
+	    </table>
+
+	    <form method="POST" action="{{url_for('oauth2.data.list_data')}}">
+	      <input type="hidden" name="dataset_type" value="{{dataset_type}}" />
+	      <input type="hidden" name="offset" value="{{offset or 0}}" />
+	      <div class="form-group" style="margin: auto;width: 50%;">
+		{%if offset != 0%}
+		  <input type="submit" name="offset_submit" value="Previous" class="btn btn-warning" />
+		{%endif%}
+		{%if data_items | length == 100:%}
+		  <input type="submit" name="offset_submit" value="Next" class="btn btn-warning" />
+		{%endif%}
+	      </div>
+	    </form>
+	  </div>
+	{%endif%}
+      {%endif%}
+
     </div>
-  </div>
 
-</div>
+  </div>
 {%endblock%}
