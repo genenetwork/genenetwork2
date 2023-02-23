@@ -55,7 +55,8 @@
 	      <tbody>
 		{%for data_item in data_items%}
 		  <tr>
-		    <form method="POST" action="#/link-data">
+		    <form method="POST" action="{{url_for('oauth2.data.link_data')}}">
+		      <input type="hidden" name="offset" value="{{offset or 0}}" />
 		      <input type="hidden" name="dataset_id" value="{{data_item.Id}}" />
 		      <input type="hidden" name="dataset_type" value="{{dataset_type}}" />
 		      <td>
