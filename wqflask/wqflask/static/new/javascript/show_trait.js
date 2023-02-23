@@ -873,6 +873,10 @@ resetSamplesTable = function() {
   }
 };
 $('.reset').click(function() {
+  $('.selected').each(function() {
+    $(this).removeClass('selected');
+    $(this).find('.edit_sample_checkbox').prop("checked", false);
+  })
   resetSamplesTable();
   $('input[name="transform"]').val("");
   editDataChange();
