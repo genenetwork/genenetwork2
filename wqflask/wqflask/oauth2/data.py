@@ -41,7 +41,7 @@ def list_data():
         return __render__(**{**groups, **roles})
 
     data_items = oauth2_get(
-        f"oauth2/resource/{dataset_type}/ungrouped-data?offset={offset}").either(
+        f"oauth2/group/{dataset_type}/ungrouped-data?offset={offset}").either(
             lambda err: {"data_items_error": process_error(err)},
             lambda data: {"data_items": data})
     return __render__(**{
@@ -69,7 +69,7 @@ def link_data():
             "dataset_type": form["dataset_type"],
             "offset": form.get("offset", 0)}
         return oauth2_post(
-            "oauth2/resource/data/link",
+            "oauth2/group/data/link",
             data={
                 "dataset_type": form["dataset_type"],
                 "dataset_id": form["dataset_id"],

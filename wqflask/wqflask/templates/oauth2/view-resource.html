@@ -65,7 +65,7 @@
 	      <form action="#" method="POST">
 		<input type="hidden" name="resource_id"
 		       value="{{resource.resource_id}}" />
-		<input type="hidden" name="data_id"
+		<input type="hidden" name="dataset_id"
 		       value="{{data_item.dataset_or_trait_id}}" />
 		<input type="submit" value="Unlink" class="btn btn-danger" />
 	      </form>
@@ -96,7 +96,7 @@
 	</thead>
 	<tbody>
 	  {%if unlinked_error is defined%}
-	  display_error("Unlinked Data Error", unlinked_error)
+	  {{display_error("Unlinked Data Error", unlinked_error)}}
 	  {%else%}
 	  {%for data_item in unlinked_data:%}
 	  <tr>
@@ -107,13 +107,16 @@
 	      </a>
 	    </td>
 	    <td>
-	      <form method="POST" action="#">
+	      <form method="POST"
+		    action="{{url_for('oauth2.resource.link_data_to_resource')}}">
 		<input type="hidden" name="resource_id"
 		       value="{{resource.resource_id}}" />
-		<input type="hidden" name="data_id"
+		<input type="hidden" name="dataset_id"
 		       value="{{data_item.dataset_or_trait_id}}" />
+		<input type="hidden" name="dataset_type"
+		       value="{{data_item.dataset_type}}" />
 		<input type="submit" value="Link" class="btn btn-info"
-		       {%if resource.resource_category.resource_category_description == "mRNA Dataset"%}
+		       {%if resource.resource_category.resource_category_description == "mRNA Dataset" and resource.resource_data | count != 0%}
 		       disabled="disabled"
 		       {%endif%} />
 	      </form>

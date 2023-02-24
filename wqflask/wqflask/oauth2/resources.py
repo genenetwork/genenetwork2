@@ -56,7 +56,7 @@ def view_resource(resource_id: uuid.UUID):
     # Metadata edit maybe?
     def __resource_success__(resource):
         dataset_type = resource["resource_category"]["resource_category_key"]
-        return oauth2_get(f"oauth2/resource/{dataset_type}/unlinked-data").either(
+        return oauth2_get(f"oauth2/group/{dataset_type}/unlinked-data").either(
             lambda err: render_template(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_error=process_error(err)),
@@ -68,6 +68,37 @@ def view_resource(resource_id: uuid.UUID):
         lambda err: render_template("oauth2/view-resource.html",
                                     resource=None, error=process_error(err)),
         __resource_success__)
+
+@resources.route("/data/link", methods=["POST"])
+@require_oauth2
+def link_data_to_resource():
+    """Link group data to a resource"""
+    form = request.form
+    try:
+        assert "resource_id" in form, "Resource ID not provided."
+        assert "dataset_id" in form, "Dataset ID not provided."
+        assert "dataset_type" in form, "Dataset type not specified"
+        assert form["dataset_type"].lower() in (
+            "mrna", "genotype", "phenotype"), "Invalid dataset type provided."
+        resource_id = form["resource_id"]
+
+        def __error__(error):
+            err = process_error(error)
+            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        def __success__(success):
+            flash(f"Data linked to resource successfully", "alert-success")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+        return oauth2_post("oauth2/resource/data/link", data=dict(form)).either(
+            __error__,
+            __success__)
+    except AssertionError as aserr:
+        flash(aserr.args[0], "alert-danger")
+        return redirect(url_for(
+            "oauth2.resource.view_resource", resource_id=form["resource_id"]))
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
