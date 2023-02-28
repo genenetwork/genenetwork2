@@ -100,6 +100,34 @@ def link_data_to_resource():
         return redirect(url_for(
             "oauth2.resource.view_resource", resource_id=form["resource_id"]))
 
+@resources.route("/data/unlink", methods=["POST"])
+@require_oauth2
+def unlink_data_from_resource():
+    """Unlink group data from a resource"""
+    form = request.form
+    try:
+        assert "resource_id" in form, "Resource ID not provided."
+        assert "dataset_id" in form, "Dataset ID not provided."
+        resource_id = form["resource_id"]
+
+        def __error__(error):
+            err = process_error(error)
+            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        def __success__(success):
+            flash(f"Data unlinked from resource successfully", "alert-success")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+        return oauth2_post(
+            "oauth2/resource/data/unlink", data=dict(form)).either(
+            __error__, __success__)
+    except AssertionError as aserr:
+        flash(aserr.args[0], "alert-danger")
+        return redirect(url_for(
+            "oauth2.resource.view_resource", resource_id=form["resource_id"]))
+
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
 def edit_resource(resource_id: uuid.UUID):

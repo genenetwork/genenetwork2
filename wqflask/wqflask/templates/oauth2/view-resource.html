@@ -56,13 +56,15 @@
 	  <tr>
 	    <td>
 	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
-		 title="Link to information on dataset '{{data_item.dataset_fullname}}'">
+		 title="Link to information on dataset '{{data_item.dataset_fullname}}'"
+		 target="_blank">
 		{{data_item.dataset_name}}
 	      </a>
 	    </td>
 	    <td>{{data_item.dataset_fullname}}</td>
 	    <td>
-	      <form action="#" method="POST">
+	      <form action="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
+		    method="POST">
 		<input type="hidden" name="resource_id"
 		       value="{{resource.resource_id}}" />
 		<input type="hidden" name="dataset_id"
