@@ -1,0 +1,297 @@
+<<!DOCTYPE html>
+    <html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <link rel="stylesheet" href="">
+    </head>
+    <style type="text/css">
+    .autocomplete {
+        /*the container must be positioned relative:*/
+        position: relative;
+        display: inline-block;
+
+        /*width: 30vw; */
+    }
+
+    .search_box {
+
+        background: #Ececec;
+
+        width: 50vw;
+        /*padding:15px 20px; */
+        border-radius: 50%;
+        border: 1px solid grey;
+        /* text-align: center; */
+
+        font-size: 18px;
+
+        flex-grow: 2;
+        border: none;
+        border-radius: 50px;
+
+        height: 40px;
+
+        padding: 2px 5px;
+
+        padding-left: 40px;
+
+
+
+
+    }
+
+    .search_box:focus {
+        border: 1px solid grey;
+    }
+
+
+
+    .hint-items {
+
+        position: absolute;
+
+        border: 1px solid #d4d4d4;
+
+        z-index: 99;
+        /*position the autocomplete items to be the same width as the container:*/
+        top: 100%;
+        left: 0;
+        right: 0;
+
+        background: white;
+
+        padding: 10px;
+
+        border-radius: 40px;
+
+        padding: 10px 20px;
+
+        /*border-bottom: none; */
+
+
+    }
+
+    .search_box_hint {
+        position: absolute;
+
+        border: 1px solid #d4d4d4;
+        border-bottom: none;
+        border-top: none;
+        z-index: 99;
+        /*position the autocomplete items to be the same width as the container:*/
+        top: 100%;
+        left: 0;
+        right: 0;
+
+        background: red;
+
+        padding: 10px;
+
+        border-radius: 40px;
+
+
+    }
+
+
+    .hint_area {
+        height: px;
+
+        width: 50vw;
+
+        border-radius: 40px;
+        background: red;
+    }
+
+
+
+    .search_box_hint_input {
+        display: block;
+
+        color: white;
+
+        width: 100%;
+
+        padding: 10px 20px;
+
+        /*border-radius:20px;*/
+        border: none;
+
+        color: #000;
+
+        font-weight: bold;
+
+        font-size: 18px;
+
+    }
+
+    .search_box_hint_input {
+        border: none;
+        background-color: transparent;
+
+        text-align: inherit;
+
+        color: #101691;
+    }
+
+    .search_box_hint_input:focus,
+    .search_box_hint_input:active {
+        box-shadow: none !important;
+        -moz-box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .search_box_hint_input:hover {
+        background-color: #dedad9;
+    }
+    </style>
+
+    <body>
+        <div>
+            <div>
+                <h3>
+                    this is the title
+                </h3>
+            </div>
+            <form id="form_1">
+                <div class="autocomplete" id="autocompleteForm">
+                    <input class="search_box" id="search_box_input" type="text" name="" placeholder="search value" autocomplete="off" value="">
+                </div>
+            </form>
+        </div>
+        <script type="text/javascript">
+        let cache_countries;
+
+        const search = document.getElementById("search_box_input");
+
+        const form = document.getElementById("autocompleteForm");
+
+        search.addEventListener("focus", function(event) {
+
+            console.log("hello there")
+
+
+            a = document.createElement("DIV")
+
+            a.setAttribute("class", "hint-items");
+
+
+            this.parentNode.appendChild(a)
+
+            cache_countries = retrieveSearchHistory()
+
+
+            for (let i = 0; i < cache_countries.length; i++) {
+
+                console.log(i)
+                var textfieldSelector = document.createElement("input");
+
+                textfieldSelector.type = "button";
+
+                textfieldSelector.value = `${cache_countries[i]}`;
+
+                //textfieldSelector.classList.add("search_box_hint");
+
+                textfieldSelector.classList.add("search_box_hint_input");
+
+                textfieldSelector.addEventListener("click", function(event) {
+
+                    console.log("clicked this country")
+
+                    search.value = cache_countries[i] // remove child element
+
+                    let parent = document.getElementById("search_box_input").parentNode
+
+                    parent.removeChild(this.parentNode)
+
+
+                })
+
+                a.appendChild(textfieldSelector);
+            }
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.matches('#autocompleteForm, #autocompleteForm *')) {
+
+
+                    const collection = document.getElementsByClassName("hint-items");
+
+                    console.log(collection)
+
+                    if (collection.length > 0) {
+                        let parent = document.getElementById("search_box_input").parentNode
+
+                        parent.removeChild(collection[0])
+                    } else {
+
+                        //ju
+                    }
+
+                }
+            })
+
+        })
+
+        formElement = document.getElementById("form_1");
+
+        function setPlaceHolderValue() {
+            document.getElementById("search_box_input").
+        }
+
+        function onFocusHandler(event) {
+
+        }
+
+        function searchHistoryClick(event) {
+
+        }
+
+        function removeSearchHintOnclick(element) {
+
+            parentELement = document.createElement("DIV")
+            parentELement.setAttribute("class", "hint-items");
+            element.parentNode.appendChild(a)
+            searchHistory = retrieveSearchHistory()
+        }
+
+        function saveBeforeSubmit(form) {
+
+            form.addEventListener("keydown", (event) => {
+
+                if (event.keyCode === 13) {
+                    event.preventDefault()
+                    if (search.value) {
+                        dumpSearch(search.value)
+                        form.submit()
+                    }
+                    return;
+                }
+            })
+
+        }
+        saveBeforeSubmit(formElement)
+
+        function retrieveSearchHistory() {
+            let results = JSON.parse(localStorage.getItem("gn_search_history"))
+            return results ? results : []
+        }
+
+        function dumpSearch(search_item) {
+
+            let currentSearch = retrieveSearchHistory()
+            currentSearch.unshift(search_item)
+
+            console.log(currentSearch)
+
+            localStorage.setItem("gn_search_history", JSON.stringify(currentSearch.slice(0, 5)));
+
+            return currentSearch
+
+        }
+        </script>
+    </body>
+
+    </html>
