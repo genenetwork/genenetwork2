@@ -52,7 +52,7 @@
 	  <tr>
 	    <td>{{grole.role.role_name}}</td>
 	    <td>
-	      <a href="#/group/role/{{grole.group_role_id}}"
+	      <a href="{{url_for('oauth2.group.group_role', group_role_id=grole.group_role_id)}}"
 		 title="Link to role {{grole.role.role_name}}"
 		 class="btn btn-info">
 		View

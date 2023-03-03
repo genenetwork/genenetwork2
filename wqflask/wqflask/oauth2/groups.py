@@ -1,3 +1,4 @@
+import uuid
 import datetime
 from functools import partial
 
@@ -131,3 +132,19 @@ def reject_join_request():
         data=request.form).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
+
+@groups.route("/role/<uuid:group_role_id>", methods=["GET"])
+@require_oauth2
+def group_role(group_role_id: uuid.UUID):
+    """View the details of a particular role."""
+    def __role_error__(error):
+        return render_template(
+            "oauth2/view-group-role.html",
+            group_role_error=process_error(error))
+
+    def __role_success__(role):
+        return render_template(
+            "oauth2/view-group-role.html", group_role=role)
+
+    return oauth2_get(f"oauth2/group/role/{group_role_id}").either(
+        __role_error__, __role_success__)
