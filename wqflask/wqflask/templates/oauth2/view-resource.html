@@ -12,6 +12,7 @@
   <div class="container-fluid">
 
     <div class="row">
+      <h3>Resource Details</h3>
       {%if error %}
       <span class="glyphicon glyphicon-exclamation-sign text-danger">
       </span>
@@ -41,6 +42,7 @@
     </div>
 
     <div class="row">
+      <h3>Resource Data</h3>
       <table class="table">
 	<caption>Resource Data</caption>
 	<thead>
@@ -88,6 +90,7 @@
     </div>
 
     <div class="row">
+      <h3>Unlinked Data</h3>
       <table class="table">
 	<caption>Link Data</caption>
 	<thead>
@@ -125,7 +128,7 @@
 	    </td>
 	  </tr>
 	  {%else%}
-	  <span class="glyphicon glyphicon-info-sign text-danger">
+	  <span class="glyphicon glyphicon-info-sign text-info">
 	  </span>
 	  &nbsp;
 	  <strong class="text-info">No data to link.</strong>
@@ -133,6 +136,74 @@
 	  {%endif%}
 	</tbody>
       </table>
+    </div>
+
+    <div class="row">
+      <h3>User Roles</h3>
+      {%if users_n_roles_error is defined%}
+      {{display_error("Users and Roles", users_n_roles_error)}}
+      {%else%}
+      <table class="table">
+	<caption>User Roles</caption>
+	<thead>
+	  <tr>
+	    <th>User Email</th>
+	    <th>User Name</th>
+	    <th>User Group</th>
+	    <th colspan="2">Assigned Roles</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {%for user_row in users_n_roles%}
+	  <tr>
+	    <td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.email}}</td>
+	    <td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.name}}</td>
+	    <td rowspan="{{user_row.roles | length + 1}}">
+	      {{user_row.user_group.group_name}}</td>
+	    <th>Role</th>
+	    <th>Action</th>
+	  </tr>
+	  {%for grole in user_row.roles%}
+	  <tr>
+	    <td>
+	      <a href="{{url_for(
+		       'oauth2.group.group_role',
+		       group_role_id=grole.group_role_id)}}"
+		 title="Details for '{{grole.role.role_name}}' role">
+		{{grole.role.role_name}}
+	      </a>
+	    </td>
+	    <td>
+	      <form action="#/role/id/unassign/user" action="POST">
+		<input type="hidden" name="user_id"
+		       value="{{user_row.user.user_id}}" />
+		<input type="hidden" name="group_role_id"
+		       value="{{grole.group_role_id}}">
+		<input type="submit"
+		       value="Unassign"
+		       class="btn btn-danger"
+		       {%if user_row.user.user_id==this_user.user_id%}
+		       disabled="disabled"
+		       {%endif%}>
+	      </form>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	  {%else%}
+	  <tr>
+	    <td colspan="5">
+	      <span class="glyphicon glyphicon-info-sign text-info">
+	      </span>
+	      &nbsp;
+	      <span class="text-info">
+		There are no users assigned any role for this resource.
+	      </span>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+      {%endif%}
     </div>
 
   </div>

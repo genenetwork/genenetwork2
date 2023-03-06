@@ -51,18 +51,39 @@ def create_resource():
 @require_oauth2
 def view_resource(resource_id: uuid.UUID):
     """View the given resource."""
-    # Display the resource's details
-    # Provide edit/delete options
-    # Metadata edit maybe?
+    def __this_user_success__(resource, unlinked_data, users_n_roles, user):
+        return render_template(
+            "oauth2/view-resource.html", resource=resource,
+            unlinked_data=unlinked_data, users_n_roles=users_n_roles,
+            this_user=user)
+
+    def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
+        return oauth2_get("oauth2/user").either(
+            lambda err: render_template(
+                "oauth2/view-resources.html",
+                this_user_error=process_error(err)),
+            lambda usr_dets: __this_user_success__(
+                resource, unlinked_data, users_n_roles, usr_dets))
+
+    def __unlinked_success__(resource, unlinked_data):
+        return oauth2_get(f"oauth2/resource/{resource_id}/users").either(
+            lambda err: render_template(
+                "oauth2/view-resource.html", resource=resource,
+                unlinked_data=unlinked_data,
+                users_n_roles_error=process_error(err)),
+            lambda users_n_roles: __users_n_roles_success__(
+                resource, unlinked_data, users_n_roles))
+        return render_template(
+                "oauth2/view-resource.html", resource=resource, error=None,
+                unlinked_data=unlinked)
+
     def __resource_success__(resource):
         dataset_type = resource["resource_category"]["resource_category_key"]
         return oauth2_get(f"oauth2/group/{dataset_type}/unlinked-data").either(
             lambda err: render_template(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_error=process_error(err)),
-            lambda unlinked: render_template(
-                "oauth2/view-resource.html", resource=resource, error=None,
-                unlinked_data=unlinked))
+            lambda unlinked: __unlinked_success__(resource, unlinked))
 
     return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
         lambda err: render_template("oauth2/view-resource.html",
