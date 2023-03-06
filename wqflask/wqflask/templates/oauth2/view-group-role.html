@@ -1,0 +1,40 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("roles")}}
+  <h3>View Group Role</h3>
+
+  {{flash_me()}}
+
+  <div class="container-fluid">
+    <div class="row">
+      {%if group_role_error is defined%}
+      {{display_error("Group Role", group_role_error)}}
+      {%else%}
+      <table class="table">
+	<caption>Details for '{{group_role.role.role_name}}' Role</caption>
+	<thead>
+	  <tr>
+	    <th>Privilege</th>
+	    <th>Description</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {%for privilege in group_role.role.privileges%}
+	  <tr>
+	    <td>{{privilege.privilege_id}}</td>
+	    <td>{{privilege.privilege_description}}</td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+      {%endif%}
+    </div>
+
+  </div>
+
+</div>
+{%endblock%}
