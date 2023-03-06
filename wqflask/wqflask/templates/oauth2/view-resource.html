@@ -206,6 +206,52 @@
       {%endif%}
     </div>
 
+    <div class="row">
+      <h3>Assign</h3>
+      {%if group_roles_error is defined%}
+      {{display_error("Group Roles", group_roles_error)}}
+      {%elif users_error is defined%}
+      {{display_error("Users", users_error)}}
+      {%else%}
+      <form action="{{url_for(
+		    'oauth2.resource.assign_role',
+		    resource_id=resource.resource_id)}}"
+	    method="POST" autocomplete="off">
+	<input type="hidden" name="resource_id" value="{{resource_id}}" />
+	<div class="form-group">
+	  <label for="group_role_id" class="form-label">Role</label>
+	  <select class="form-control" name="group_role_id"
+		  id="group_role_id" required="required">
+	    <option value="">Select role</option>
+	    {%for grole in group_roles%}
+	    <option value="{{grole.group_role_id}}">
+	      {{grole.role.role_name}}
+	    </option>
+	    {%endfor%}
+	  </select>
+	</div>
+	<div class="form-group">
+	  <label for="user-email" class="form-label">User Email</label>
+	  <input list="users-list" name="user_email" class="form-control"
+		 {%if users | length == 0%}
+		 disabled="disabled"
+		 {%endif%}
+		 required="required" />
+	  <datalist id="users-list">
+	    {%for user in users%}
+	    <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
+	    {%endfor%}
+	  </datalist>
+	</div>
+
+	<input type="submit" class="btn btn-primary" value="Assign"
+	       {%if users | length == 0%}
+	       disabled="disabled"
+	       {%endif%} />
+      </form>
+      {%endif%}
+    </div>
+
   </div>
 
 </div>
