@@ -6,7 +6,7 @@ from pymonad.maybe import Just, Maybe, Nothing
 from pymonad.either import Left, Right, Either
 from authlib.integrations.requests_client import OAuth2Session
 
-SCOPE = "profile group role resource register-client"
+SCOPE = "profile group role resource register-client user"
 
 def oauth2_client():
     config = app.config

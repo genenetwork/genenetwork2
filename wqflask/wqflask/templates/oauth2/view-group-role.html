@@ -1,0 +1,96 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("roles")}}
+  <h3>View Group Role</h3>
+
+  {{flash_me()}}
+
+  <div class="container-fluid">
+    <div class="row">
+      <h3>Role Details</h3>
+      {%if group_role_error is defined%}
+      {{display_error("Group Role", group_role_error)}}
+      {%else%}
+      <table class="table">
+	<caption>Details for '{{group_role.role.role_name}}' Role</caption>
+	<thead>
+	  <tr>
+	    <th>Privilege</th>
+	    <th>Description</th>
+	    <th>Action</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {%for privilege in group_role.role.privileges%}
+	  <tr>
+	    <td>{{privilege.privilege_id}}</td>
+	    <td>{{privilege.privilege_description}}</td>
+	    <td>
+	      <form action="{{url_for(
+			    'oauth2.group.delete_privilege_from_role',
+			    group_role_id=group_role.group_role_id)}}"
+		    method="POST">
+		<input type="hidden" name="privilege_id"
+		       value="{{privilege.privilege_id}}" />
+		<input type="submit" class="btn btn-danger"
+		       value="Remove" />
+	      </form>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+      {%endif%}
+    </div>
+
+    <div class="row">
+      <h3>Other Privileges</h3>
+      <table class="table">
+	<caption>Other Privileges not Assigned to this Role</caption>
+	<thead>
+	  <tr>
+	    <th>Privilege</th>
+	    <th>Description</th>
+	    <th>Action</th>
+	  </tr>
+	</thead>
+
+	<tbody>
+	  {%for priv in group_privileges%}
+	  <tr>
+	    <td>{{priv.privilege_id}}</td>
+	    <td>{{priv.privilege_description}}</td>
+	    <td>
+	      <form action="{{url_for(
+			    'oauth2.group.add_privilege_to_role',
+			    group_role_id=group_role.group_role_id)}}"
+		    method="POST">
+		<input type="hidden" name="privilege_id"
+		       value="{{priv.privilege_id}}" />
+		<input type="submit" class="btn btn-warning"
+		       value="Add to Role" />
+	      </form>
+	    </td>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td colspan="3">
+	      <span class="glyphicon glyphicon-info-sign text-info">
+	      </span>
+	      &nbsp;
+	      <span class="text-info">All privileges assigned!</span>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+{%endblock%}

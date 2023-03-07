@@ -1,6 +1,7 @@
 import uuid
 
-from flask import flash, request, url_for, redirect, Blueprint, render_template
+from flask import (
+    flash, request, url_for, redirect, Response, Blueprint, render_template)
 
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
@@ -51,18 +52,62 @@ def create_resource():
 @require_oauth2
 def view_resource(resource_id: uuid.UUID):
     """View the given resource."""
-    # Display the resource's details
-    # Provide edit/delete options
-    # Metadata edit maybe?
+    def __users_success__(
+            resource, unlinked_data, users_n_roles, this_user, group_roles,
+            users):
+        return render_template(
+            "oauth2/view-resource.html", resource=resource,
+            unlinked_data=unlinked_data, users_n_roles=users_n_roles,
+            this_user=this_user, group_roles=group_roles, users=users)
+
+    def __group_roles_success__(
+            resource, unlinked_data, users_n_roles, this_user, group_roles):
+        return oauth2_get("oauth2/user/list").either(
+            lambda err: render_template(
+                "oauth2/view-resource.html", resource=resource,
+                unlinked_data=unlinked_data, users_n_roles=users_n_roles,
+                this_user=this_user, group_roles=group_roles,
+                users_error=process_error(err)),
+            lambda users: __users_success__(
+                resource, unlinked_data, users_n_roles, this_user, group_roles,
+                users))
+
+    def __this_user_success__(resource, unlinked_data, users_n_roles, this_user):
+        return oauth2_get("oauth2/group/roles").either(
+            lambda err: render_template(
+                "oauth2/view-resources.html", resource=resource,
+                unlinked_data=unlinked_data, users_n_roles=users_n_roles,
+                this_user=this_user, group_roles_error=process_error(err)),
+            lambda groles: __group_roles_success__(
+                resource, unlinked_data, users_n_roles, this_user, groles))
+
+    def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
+        return oauth2_get("oauth2/user").either(
+            lambda err: render_template(
+                "oauth2/view-resources.html",
+                this_user_error=process_error(err)),
+            lambda usr_dets: __this_user_success__(
+                resource, unlinked_data, users_n_roles, usr_dets))
+
+    def __unlinked_success__(resource, unlinked_data):
+        return oauth2_get(f"oauth2/resource/{resource_id}/user/list").either(
+            lambda err: render_template(
+                "oauth2/view-resource.html", resource=resource,
+                unlinked_data=unlinked_data,
+                users_n_roles_error=process_error(err)),
+            lambda users_n_roles: __users_n_roles_success__(
+                resource, unlinked_data, users_n_roles))
+        return render_template(
+                "oauth2/view-resource.html", resource=resource, error=None,
+                unlinked_data=unlinked)
+
     def __resource_success__(resource):
         dataset_type = resource["resource_category"]["resource_category_key"]
         return oauth2_get(f"oauth2/group/{dataset_type}/unlinked-data").either(
             lambda err: render_template(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_error=process_error(err)),
-            lambda unlinked: render_template(
-                "oauth2/view-resource.html", resource=resource, error=None,
-                unlinked_data=unlinked))
+            lambda unlinked: __unlinked_success__(resource, unlinked))
 
     return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
         lambda err: render_template("oauth2/view-resource.html",
@@ -127,6 +172,68 @@ def unlink_data_from_resource():
         flash(aserr.args[0], "alert-danger")
         return redirect(url_for(
             "oauth2.resource.view_resource", resource_id=form["resource_id"]))
+
+@resources.route("<uuid:resource_id>/user/assign", methods=["POST"])
+@require_oauth2
+def assign_role(resource_id: uuid.UUID) -> Response:
+    form = request.form
+    group_role_id = form.get("group_role_id", "")
+    user_email = form.get("user_email", "")
+    try:
+        assert bool(group_role_id), "The role must be provided."
+        assert bool(user_email), "The user email must be provided."
+
+        def __assign_error__(error):
+            err = process_error(error)
+            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        def __assign_success__(success):
+            flash(success["description"], "alert-success")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        return oauth2_post(
+            f"oauth2/resource/{resource_id}/user/assign",
+            data={
+                "group_role_id": group_role_id,
+                "user_email": user_email
+            }).either(__assign_error__, __assign_success__)
+    except AssertionError as aserr:
+        flash(aserr.args[0], "alert-danger")
+        return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
+
+@resources.route("<uuid:resource_id>/user/unassign", methods=["POST"])
+@require_oauth2
+def unassign_role(resource_id: uuid.UUID) -> Response:
+    form = request.form
+    group_role_id = form.get("group_role_id", "")
+    user_id = form.get("user_id", "")
+    try:
+        assert bool(group_role_id), "The role must be provided."
+        assert bool(user_id), "The user id must be provided."
+
+        def __unassign_error__(error):
+            err = process_error(error)
+            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        def __unassign_success__(success):
+            flash(success["description"], "alert-success")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        return oauth2_post(
+            f"oauth2/resource/{resource_id}/user/unassign",
+            data={
+                "group_role_id": group_role_id,
+                "user_id": user_id
+            }).either(__unassign_error__, __unassign_success__)
+    except AssertionError as aserr:
+        flash(aserr.args[0], "alert-danger")
+        return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
