@@ -137,14 +137,70 @@ def reject_join_request():
 @require_oauth2
 def group_role(group_role_id: uuid.UUID):
     """View the details of a particular role."""
-    def __role_error__(error):
+    def __render_error(**kwargs):
+        return render_template("oauth2/view-group-role.html", **kwargs)
+
+    def __gprivs_success__(role, group_privileges):
         return render_template(
-            "oauth2/view-group-role.html",
-            group_role_error=process_error(error))
+            "oauth2/view-group-role.html", group_role=role,
+            group_privileges=tuple(
+                priv for priv in group_privileges
+                if priv not in role["role"]["privileges"]))
 
     def __role_success__(role):
-        return render_template(
-            "oauth2/view-group-role.html", group_role=role)
+        return oauth2_get("oauth2/group/privileges").either(
+            lambda err: __render_error__(
+                group_role=group_role,
+                group_privileges_error=process_error(err)),
+            lambda privileges: __gprivs_success__(role, privileges))
 
     return oauth2_get(f"oauth2/group/role/{group_role_id}").either(
-        __role_error__, __role_success__)
+        lambda err: __render_error__(group_role_error=process_error(err)),
+        __role_success__)
+
+def add_delete_privilege_to_role(
+        group_role_id: uuid.UUID, direction: str) -> Response:
+    """Add/delete a privilege to/from a role depending on `direction`."""
+    assert direction in ("ADD", "DELETE")
+    def __render__():
+        return redirect(url_for(
+            "oauth2.group.group_role", group_role_id=group_role_id))
+
+    def __error__(error):
+        err = process_error(error)
+        flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+        return __render__()
+
+    def __success__(success):
+        flash(success["description"], "alert-success")
+        return __render__()
+    try:
+        form = request.form
+        privilege_id = form.get("privilege_id")
+        assert bool(privilege_id), "Privilege to add must be provided"
+        uris = {
+            "ADD": f"oauth2/group/role/{group_role_id}/privilege/add",
+            "DELETE": f"oauth2/group/role/{group_role_id}/privilege/delete"
+        }
+        return oauth2_post(
+            uris[direction],
+            data={
+                "group_role_id": group_role_id,
+                "privilege_id": privilege_id
+            }).either(__error__, __success__)
+    except AssertionError as aerr:
+        flash(aerr.args[0], "alert-danger")
+        return redirect(url_for(
+            "oauth2.group.group_role", group_role_id=group_role_id))
+
+@groups.route("/role/<uuid:group_role_id>/privilege/add", methods=["POST"])
+@require_oauth2
+def add_privilege_to_role(group_role_id: uuid.UUID):
+    """Add a privilege to a group role."""
+    return add_delete_privilege_to_role(group_role_id, "ADD")
+
+@groups.route("/role/<uuid:group_role_id>/privilege/delete", methods=["POST"])
+@require_oauth2
+def delete_privilege_from_role(group_role_id: uuid.UUID):
+    """Delete a privilege from a group role."""
+    return add_delete_privilege_to_role(group_role_id, "DELETE")
