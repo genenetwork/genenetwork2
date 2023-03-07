@@ -204,6 +204,37 @@ def assign_role(resource_id: uuid.UUID) -> Response:
         flash(aserr.args[0], "alert-danger")
         return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
 
+@resources.route("<uuid:resource_id>/user/unassign", methods=["POST"])
+@require_oauth2
+def unassign_role(resource_id: uuid.UUID) -> Response:
+    form = request.form
+    group_role_id = form.get("group_role_id", "")
+    user_id = form.get("user_id", "")
+    try:
+        assert bool(group_role_id), "The role must be provided."
+        assert bool(user_id), "The user id must be provided."
+
+        def __unassign_error__(error):
+            err = process_error(error)
+            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        def __unassign_success__(success):
+            flash(success["description"], "alert-success")
+            return redirect(url_for(
+                "oauth2.resource.view_resource", resource_id=resource_id))
+
+        return oauth2_post(
+            f"oauth2/resource/{resource_id}/user/unassign",
+            data={
+                "group_role_id": group_role_id,
+                "user_id": user_id
+            }).either(__unassign_error__, __unassign_success__)
+    except AssertionError as aserr:
+        flash(aserr.args[0], "alert-danger")
+        return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
+
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
 def edit_resource(resource_id: uuid.UUID):

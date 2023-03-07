@@ -174,7 +174,9 @@
 	      </a>
 	    </td>
 	    <td>
-	      <form action="#/role/id/unassign/user" action="POST">
+	      <form action="{{url_for('oauth2.resource.unassign_role',
+			    resource_id=resource.resource_id)}}"
+		    method="POST">
 		<input type="hidden" name="user_id"
 		       value="{{user_row.user.user_id}}" />
 		<input type="hidden" name="group_role_id"
