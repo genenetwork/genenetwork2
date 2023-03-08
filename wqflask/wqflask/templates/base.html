@@ -139,7 +139,7 @@
 
     <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative; background-color: #d5d5d5; height: 84px;">
 
-        <form method="get" action="/gsearch" id="searchform">
+        <form method="get" action="/gsearch" id="minisearchform">
             <div class="row" style="width: 100%; position: absolute; bottom: 0; top: 30px;">
 
                 <!--
@@ -275,6 +275,7 @@
 
 
 
+
 $(document).ready(function() {
 
 
@@ -291,10 +292,13 @@ $(document).ready(function() {
    }
 
     $("#term").val(term);
+
     $("#term").keyup(function(event) {
   if (event.keyCode === 13) {
-    event.preventDefault();
-    $('#searchform').attr('action', "/gsearch").submit();
+    if ($("#term").val().trim()!="") {
+        $( "#minisearchform")[0].submit();    
+    }
+       
     }
     });    
 
