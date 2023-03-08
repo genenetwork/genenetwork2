@@ -149,6 +149,6 @@
             let search = retrieveSearchHistory()
             search.unshift(new_search)
 
-            localStorage.setItem("gn_search_history", JSON.stringify([...new Set(search)]))
+            localStorage.setItem("gn_search_history", JSON.stringify([...new Set(search)].splice(0,8)))
 
         }
