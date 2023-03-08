@@ -136,8 +136,8 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="trait_table_container" style="{% if dataset.type == 'Geno' %}width: 450px;{% else %} min-width: 800px;{% endif %}">
-            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+          <div id="trait_table_container" style="{% if dataset.type == 'Geno' %}width: 450px;{% else %}min-width: 1250px;{% endif %}">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: 100%;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -157,7 +157,6 @@
 {% endblock %}
 
 {% block js %}
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/md5.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
@@ -236,10 +235,14 @@
               'data': null,
               'targets': 4,
               'render': function(data) {
+                description = data.description
+                if (data.description.length > 200) {
+                  description = data.description.slice(0, 200) + '...'
+                }
                 try {
-                  return decodeURIComponent(escape(data.description))
+                  return decodeURIComponent(escape(description))
                 } catch(err){
-                  return escape(data.description)
+                  return escape(description)
                 }
               }
             },
@@ -302,10 +305,14 @@
               'data': null,
               'targets': 3,
               'render': function(data) {
+                description = data.description
+                if (data.description.length > 200) {
+                  description = data.description.slice(0, 200) + '...'
+                }
                 try {
-                    return decodeURIComponent(escape(data.description))
+                  return decodeURIComponent(escape(description))
                 } catch(err){
-                    return data.description
+                  return escape(description)
                 }
               }
             },
@@ -431,6 +438,7 @@
                 {% endif %}
               },
               "order": [[1, "asc" ]],
+              "autoWidth": true,
               {% if traits_json|length > 10 %}
               "scrollY": "1000px",
               "scroller": true
