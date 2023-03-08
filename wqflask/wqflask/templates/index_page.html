@@ -117,7 +117,7 @@
                                     <label for="or_search" class="col-xs-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 65px !important;">Get Any:</label>
                                     <div class="col-xs-10 controls" style="padding-left: 20px;">
                                         <div class="col-8 autocomplete">
-                                          <textarea id="myInput" onkeydown="pressed(event)" name="search_terms_or" rows="1" class="form-control search-query" style="resize: vertical; max-width: 550px; width: 450px !important;" id="or_search"></textarea>
+                                          <textarea id="myInput" onkeyup="pressed(event)" name="search_terms_or" rows="1" class="form-control search-query" style="resize: vertical; max-width: 550px; width: 450px !important;" id="or_search"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -130,6 +130,9 @@
                                             Enter terms, genes, ID numbers in the <b>Search</b> field.<br>
                                             Use <b>*</b> or <b>?</b> wildcards (Cyp*a?, synap*).<br>
                                             Use <b>quotes</b> for terms such as <i>"tyrosine kinase"</i>.
+
+
+                                            <div><strong><a style="text-decoration: none;"  href="https://issues.genenetwork.org/topics/xapian-search-queries" target=”_blank”  >see more hints</a></strong></div>
                                         </div>
                                     </div>
                                 </div>
@@ -326,8 +329,11 @@ $(document).on('submit', '#searchform', function(event){
 
                 if( event.target.value.trim() != "" ) {
                     saveBeforeSubmit(event.target.value.trim())
-                    document.forms[1].submit();
+                    //document.forms[1].submit();
+                    $( "#searchform" )[0].submit();   
+                   
                 }
+                
             }
         }
 
