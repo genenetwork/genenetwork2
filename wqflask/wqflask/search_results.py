@@ -204,6 +204,10 @@ class SearchResultPage:
                     if key == "authors":
                         authors_string = ",".join(str(trait[key]).split(",")[:2]) + ", et al."
                         self.max_widths[key] = max(len(authors_string), self.max_widths[key]) if key in self.max_widths else len(str(authors_string))
+                    elif key == "symbol":
+                        self.max_widths[key] = len(trait[key])
+                        if len(trait[key]) > 20:
+                            self.max_widths[key] = 20
                     else:
                         self.max_widths[key] = max(len(str(trait[key])), self.max_widths[key]) if key in self.max_widths else len(str(trait[key]))
 
