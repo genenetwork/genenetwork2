@@ -1,4 +1,9 @@
         //replace with gn search hints
+
+
+   
+    
+
         function autocomplete(inp, arr) {
             /*the autocomplete function takes two arguments,
             the text field element and an array of possible autocompleted values:*/
@@ -6,6 +11,8 @@
             /*execute a function when someone writes in the text field:*/
 
             inp.addEventListener("focus", function(e) {
+
+
                 var a, b, i, val = this.value;
                 closeAllLists();
                 currentFocus = -1;
@@ -15,9 +22,10 @@
                 this.parentNode.appendChild(a);
                 let historySearch = retrieveSearchHistory().splice(0, 5)
                 let text_title = document.createElement("DIV")
-                text_title.innerHTML = "<strong>RECENT SEARCH</strong><input type='button' value='close_all'>";
+                text_title.innerHTML = "<strong>RECENT SEARCH</strong><input id='clear_all'  type='button' value='clear_all'>";
                 text_title.setAttribute("class", "recent-search-title")
                 text_title.setAttribute('disabled', true);
+
                 a.appendChild(text_title);
                 for (i = 0; i < historySearch.length; i++) {
                     b = document.createElement("DIV");
@@ -32,6 +40,12 @@
                     a.appendChild(b);
 
                 }
+                    document.getElementById("clear_all").addEventListener("click",(event)=>{
+                        
+
+                        deleteSearchHistory()
+                    })
+  
             });
 
 
@@ -136,8 +150,9 @@
         }
 
         function retrieveSearchHistory() {
-            let results = JSON.parse(localStorage.getItem("gn_search_history"))
-            return results ? results : []
+            let results = localStorage.getItem("gn_search_history")
+
+            return results ? JSON.parse(results) : []
         }
 
 
@@ -151,4 +166,8 @@
 
             localStorage.setItem("gn_search_history", JSON.stringify([...new Set(search)].splice(0,8)))
 
+        }
+
+        function deleteSearchHistory(){
+            localStorage.setItem("gn_search_history", [])
         }
