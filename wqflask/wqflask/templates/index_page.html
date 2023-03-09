@@ -296,19 +296,12 @@
 
 {% block js %}
 
-    
-    <script src="/static/new/javascript/search_autocomplete.js"></script>
     <script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
 
 
     <script type="text/javascript">
-        
-
-        let form  = document.getElementById("searchform")
-
-
+    
 $(document).on('submit', '#searchform', function(event){
-
     event.preventDefault()
      let  user_search = $("#myInput").val().trim();
      if (user_search!=""){
@@ -330,35 +323,12 @@ $(document).on('submit', '#searchform', function(event){
                 if( event.target.value.trim() != "" ) {
                     saveBeforeSubmit(event.target.value.trim())
                     //document.forms[1].submit();
-                    $( "#searchform" )[0].submit();   
+                    $("#searchform")[0].submit();   
                    
                 }
                 
             }
         }
-
-        let x = document.getElementById("myInput");
-
-        var hints = [
-            "cytochrome",
-            "cytochrome AND P450",
-            "cytochrome NEAR P450",
-            "cytochrome -P450",
-            "cytochrome NOT P450",
-            "species:human",
-            "group:BXD",
-            "Hs:chr4:9930021 species:mouse",
-            "Hs:chr4:9130000..9980000 species:mouse",
-            "mean:5..7",
-            "mean:7..",
-            "Hs:chr4:9930021",
-            "Hs:chr4:9930021 species:mouse",
-            "Hs:chr4:9130000..9980000 species:mouse",
-            "bx*",
-            "*",
-            ]
-
-        autocomplete(document.getElementById("myInput"), hints);
 
     </script>
 
