@@ -271,6 +271,13 @@
     <script type="text/javascript">
     $(document).ready(function() {
 
+    const urlParams = new  URLSearchParams(window.location.search)
+   let term = urlParams.get("terms")
+
+   term  =  term?term: "cytochrome AND P450"
+    $("#term").val(term);
+
+
         //should web scrap
         var global_search_hint = [
             "cytochrome",
