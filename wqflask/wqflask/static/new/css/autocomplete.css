@@ -2,6 +2,8 @@
     /*the container must be positioned relative:*/
     position: relative;
     display: inline-block;
+
+
 }
 
 input.autocomplete {
@@ -21,7 +23,6 @@ input[type=submit].autocomplete {
     color: #fff;
 }
 
-
 .autocomplete-items {
     position: absolute;
     border: 1px solid #d4d4d4;
@@ -32,13 +33,17 @@ input[type=submit].autocomplete {
     top: 100%;
     left: 0;
     right: 0;
+   border:1px solid black;
+   border-top:none;
+   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+
 }
 
 .autocomplete-items div {
     padding: 10px;
     cursor: pointer;
     background-color: #fff;
-    border-bottom: 1px solid #d4d4d4;
+    border-bottom: 1px dotted #d4d4d4;
 }
 
 .autocomplete-items div:hover {
