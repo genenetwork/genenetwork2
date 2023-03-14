@@ -10,7 +10,7 @@ import requests
 import simplejson as json
 
 from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, abort)
+                   redirect, flash, abort, current_app as app)
 
 from wqflask import app
 from wqflask import pbkdf2
@@ -236,7 +236,34 @@ def login():
                         url_for('index_page', import_collections=import_col, anon_id=anon_id)))
                     response.set_cookie(
                         UserSession.user_cookie_name, session_id_signed, max_age=None)
-                    return response
+                    ## BEGIN: Data migration from redis to auth's SQLite DB
+                    ## =====================================
+                    from wqflask.wqflask.oauth2.client import oauth2_get, oauth2_post
+                    from wqflask.wqflask.oauth2.request_utils import process_error
+                    def __user_dets_migrate_error(error):
+                        flash(f"Data Migration: {error['error']}: "
+                              f"{error['error_description']}",
+                              "alert-info")
+                        return response
+
+                    def __user_dets_migrate_success(msg):
+                        flash(f"Data Migration: {msg['description']}",
+                              "alert-success")
+                        return response
+
+                    return oauth2_post("oauth2/data/user/migrate", data={
+                        "email": ,
+                        "full_name": ,
+                        "password": submitted_password,
+                        "confirm_password": submitted_password,
+                        "client_id": app.config["OAUTH2_CLIENT_ID"],
+                        "client_secret": app.config["OAUTH2_CLIENT_SECRET"]
+                    }).either(
+                        lambda err: __user_dets_migrate_error__(process_error(err)),
+                        __user_dets_migrate_success)
+                    # return response
+                    ## =====================================
+                    ## END: Data migration from redis to auth's SQLite DB
                 else:
                     email_ob = send_verification_email(
                         user_details, template_name="email/user_verification.txt")

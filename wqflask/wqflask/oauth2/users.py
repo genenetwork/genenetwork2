@@ -26,6 +26,32 @@ def user_profile():
                 for privilege in role["privileges"]),
             **kwargs)
 
+    def __migrate_user_data_error__(
+            error, user_details, roles, group_join_request):
+        flash(f"Data Migration: {error['error']}: {error['error_description']}",
+              "alert-warning")
+        return __render__(
+            user_details, roles, group_join_request=group_join_request)
+
+    def __migrate_user_data_success__(
+            msg, user_details, roles, group_join_request):
+        flash(f"Data Migration: {msg['description']}",
+              "alert-success")
+        return __render__(
+            user_details, roles, group_join_request=group_join_request)
+
+    def __migrate_user_data__(user_details, roles, group_join_request):
+        return oauth2_post(
+            f"oauth2/data/user/{user_details['user_id']}/migrate",
+            data={
+                "user_id": user_details["user_id"]
+            }).either(
+                lambda err: __migrate_user_data_error__(
+                    process_error(err), user_details, roles,
+                    group_join_request),
+                lambda mig_suc_msg: __migrate_user_data_success__(
+                    mig_suc_msg, user_details, roles, group_join_request))
+
     def __roles_success__(roles):
         if bool(usr_dets.get("group")):
             return __render__(usr_dets, roles)
