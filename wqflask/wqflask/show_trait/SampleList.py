@@ -71,20 +71,19 @@ class SampleList:
 
                 # Add a url so RRID case attributes can be displayed as links
                 if '36' in sample.extra_attributes:
+                    rrid_string = str(sample.extra_attributes['36'])
                     if self.dataset.group.species == "mouse":
-                        if len(sample.extra_attributes['36'].split(":")) > 1:
-                            the_rrid = sample.extra_attributes['36'].split(":")[
-                                1]
+                        if len(rrid_string.split(":")) > 1:
+                            the_rrid = rrid_string.split(":")[1]
                             sample.extra_attributes['36'] = [
-                                sample.extra_attributes['36']]
+                                rrid_string]
                             sample.extra_attributes['36'].append(
                                 webqtlConfig.RRID_MOUSE_URL % the_rrid)
                     elif self.dataset.group.species == "rat":
-                        if len(str(sample.extra_attributes['36'])):
-                            the_rrid = sample.extra_attributes['36'].split("_")[
-                                1]
+                        if len(rrid_string):
+                            the_rrid = rrid_string.split("_")[1]
                             sample.extra_attributes['36'] = [
-                                sample.extra_attributes['36']]
+                                rrid_string]
                             sample.extra_attributes['36'].append(
                                 webqtlConfig.RRID_RAT_URL % the_rrid)
 
