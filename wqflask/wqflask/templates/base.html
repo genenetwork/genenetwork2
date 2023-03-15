@@ -21,6 +21,8 @@
     <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/broken_links.css" />
     <link rel="stylesheet" href="/static/new/css/autocomplete.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     {% block css %}
     {% endblock %}
     <style>
@@ -47,7 +49,41 @@
         .global_search_input:focus{
     outline: none;
 }
-    </style>
+
+
+.btn-stc {
+    padding:9px 8px;
+
+    border-left:none;
+
+    border-radius:0 40px 40px 0;
+
+    cursor: pointer;
+
+    height: 40px;
+    width: 64px;
+    margin:0;
+    border:1px solid #d3d3d3;
+    background-color: white;
+
+    position: absolute;
+
+    top:0;
+    left: 100%;
+
+    right: 0;
+
+    border-left: none;
+
+
+
+
+
+
+}
+
+
+</style>
 </head>
 
 <body style="width: 100%">
@@ -152,11 +188,22 @@
                         <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                     </select>
                     <div class="col-8  autocomplete" style="margin-left: 30px;margin-right: 10px;">
-                        <input autocomplete="off" class="global_search_input" id="term" style="width:45vw;" type="text" required placeholder="enter you search term here" name="terms">
+                        <input autocomplete="off" class="global_search_input" id="term" style="width:45vw" type="text" required placeholder="enter you search term here" name="terms">
+
+                  <button   type="submit" class="btn-stc" style="position: absolute;  background-color: #336699"><i class="fa fa-search" title="Search " style="color:white;"></i></button>
                     </div>
 
+  
+
                     <!-- todo fix text overlap for this;;responsiveness-->
-                    <span><a style="text-decoration: none;color: darkblue;" target="_blank" href="https://issues.genenetwork.org/topics/xapian-search-queries"><strong>click for more search hints</strong></a><span/>
+
+                    <span  style="padding: 5px;margin-left: 65px;" >
+                                <a style="text-decoration: none" target="_blank" href="https://issues.genenetwork.org/topics/xapian-search-queries">
+                                    <i  style="text-align: center;color:#336699;;" class="fa fa-question-circle fa-2x" title="see more search hints" aria-hidden="true"></i>
+                                </a>
+                
+                    </span>
+    
                 </div>
             </div>
         </form>
