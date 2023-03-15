@@ -63,7 +63,7 @@
                     <div class="page-header">
                         <h2>Select and Search</h2>
                     </div>
-                    <form method="get" action="/search" target="_blank" id="searchform" name="SEARCHFORM",
+                    <form method="get" action="/search" target="_blank" id="gsearchform" name="SEARCHFORM",
 			  data-gn_server_url="{{gn_server_url}}">
                         <fieldset>
                             <div style="padding-left: 20px; padding-right: 20px;" class="form-horizontal">
@@ -301,12 +301,12 @@
 
     <script type="text/javascript">
     
-$(document).on('submit', '#searchform', function(event){
+$(document).on('submit', '#gsearchform', function(event){
     event.preventDefault()
      let  user_search = $("#myInput").val().trim();
      if (user_search!=""){
      saveBeforeSubmit(user_search)
-     $( "#searchform" )[0].submit();   
+     $( "#gsearchform" )[0].submit();
      }
 
    });
