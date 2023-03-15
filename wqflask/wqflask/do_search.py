@@ -247,18 +247,18 @@ class PhenotypeSearch(DoSearch):
         # and comment here
 
         # if "'" not in self.search_term[0]:
-        search_term = "[[:<:]]" + \
-            self.handle_wildcard(self.search_term[0]) + "[[:>:]]"
+        search_term = "%" + \
+            self.handle_wildcard(self.search_term[0]) + "%"
         if "_" in self.search_term[0]:
             if len(self.search_term[0].split("_")[0]) == 3:
-                search_term = "[[:<:]]" + self.handle_wildcard(
-                    self.search_term[0].split("_")[1]) + "[[:>:]]"
+                search_term = "%" + self.handle_wildcard(
+                    self.search_term[0].split("_")[1]) + "%"
 
         # This adds a clause to the query that matches the search term
         # against each field in the search_fields tuple
         where_clause_list = []
         for field in self.search_fields:
-            where_clause_list.append('''%s REGEXP "%s"''' %
+            where_clause_list.append('''%s LIKE "%s"''' %
                                      (field, search_term))
         where_clause = "(%s) " % ' OR '.join(where_clause_list)
 
@@ -349,10 +349,10 @@ class GenotypeSearch(DoSearch):
         where_clause = []
 
         if "'" not in self.search_term[0]:
-            self.search_term = "[[:<:]]" + self.search_term[0] + "[[:>:]]"
+            self.search_term = "%" + self.search_term[0] + "%"
 
         for field in self.search_fields:
-            where_clause.append('''%s REGEXP "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
+            where_clause.append('''%s LIKE "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
                                                                                field),
                                                         self.search_term))
         where_clause = "(%s) " % ' OR '.join(where_clause)
@@ -426,9 +426,9 @@ class WikiSearch(MrnaAssaySearch):
     def get_where_clause(self):
         where_clause = """%s.symbol = GeneRIF.symbol
             and GeneRIF.versionId=0 and GeneRIF.display>0
-            and (GeneRIF.comment REGEXP '%s' or GeneRIF.initial = '%s')
+            and (GeneRIF.comment LIKE '%s' or GeneRIF.initial = '%s')
                 """ % (self.dataset.type,
-                       "[[:<:]]" + str(self.search_term[0]) + "[[:>:]]",
+                       "%" + str(self.search_term[0]) + "%",
                        str(self.search_term[0]))
         return where_clause
 
@@ -921,9 +921,9 @@ class AuthorSearch(PhenotypeSearch):
     DoSearch.search_types["Publish_NAME"] = "AuthorSearch"
 
     def run(self):
-
-        self.where_clause = """ Publication.Authors REGEXP "[[:<:]]%s[[:>:]]" and
-                                """ % (self.search_term[0])
+        search_term = "%" + self.search_term[0] + "%"
+        self.where_clause = """ Publication.Authors LIKE "%s" and
+                                """ % (search_term)
 
         self.query = self.compile_final_query(where_clause=self.where_clause)
 
