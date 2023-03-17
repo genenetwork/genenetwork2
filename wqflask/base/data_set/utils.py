@@ -1,5 +1,6 @@
 "data_set package utilities"
 
+import datetime
 import os
 import json
 import hashlib
@@ -33,6 +34,8 @@ def query_table_timestamp(dataset_type: str):
             f"WHERE TABLE_SCHEMA = '{fetch_db_name[3]}' "
             f"AND TABLE_NAME = '{dataset_type}Data'")
         date_time_obj = cursor.fetchone()[0]
+        if not date_time_obj:
+            date_time_obj = datetime.datetime.now()
         return date_time_obj.strftime("%Y-%m-%d %H:%M:%S")
 
 
