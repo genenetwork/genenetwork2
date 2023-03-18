@@ -28,6 +28,9 @@
 	<div class="form-group mytooltip">
 	  <label for="resource_name" class="form-label">Name</label>
 	  <input type="text" name="resource_name" class="form-control"
+		 {%if resource_name is defined and resource_name is not none%}
+		 value="{{resource_name}}"
+		 {%endif%}
 		 required="required" />
 	  <span class="mytooltiptext">
 	    The resource name, e.g. the experiment name.
@@ -38,10 +41,17 @@
 	<div class="form-group">
 	  {%for category in resource_categories%}
 	  <div class="radio mytooltip">
-	    <label for="resource_name" class="form-label"
+	    <label for="rdo:resource_category:{{category.resource_category_id}}"
+		   class="form-label"
 		   style="text-transform: capitalize;">
 	      <input type="radio" name="resource_category" required="required"
-		     value="{{category.resource_category_id}}" />
+		     id="rdo:resource_category:{{category.resource_category_id}}"
+		     value="{{category.resource_category_id}}"
+		     {%if resource_category is defined%}
+		     {%if category.resource_category_id == resource_category%}
+		     checked="checked"
+		     {%endif%}
+		     {%endif%} />
 	      {{category.resource_category_key}}
 	    </label>
 	    <span class="mytooltiptext">

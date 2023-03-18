@@ -27,7 +27,9 @@ def create_resource():
         return render_template(
             "oauth2/create-resource.html",
             resource_categories=categories,
-            resource_category_error=error)
+            resource_category_error=error,
+            resource_name=request.args.get("resource_name"),
+            resource_category=request.args.get("resource_category"))
 
     if request.method == "GET":
         return oauth2_get("oauth2/resource/categories").either(
@@ -38,9 +40,11 @@ def create_resource():
     from flask import jsonify
     def __perr__(error):
         err = process_error(error)
-        print(f"THE ERROR: {err}")
-        flash(f"{err['error']}: {err['error_message']}", "alert-danger")
-        return redirect(url_for("oauth2.resource.user_resources"))
+        flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+        return redirect(url_for(
+            "oauth2.resource.create_resource",
+            resource_name=request.form.get("resource_name"),
+            resource_category=request.form.get("resource_category")))
     def __psuc__(succ):
         flash("Resource created successfully", "alert-success")
         return redirect(url_for("oauth2.resource.user_resources"))
