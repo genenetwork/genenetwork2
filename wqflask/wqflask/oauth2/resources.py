@@ -5,7 +5,8 @@ from flask import (
 
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
-from .request_utils import request_error, process_error
+from .request_utils import (
+    flash_error, flash_success, request_error, process_error)
 
 resources = Blueprint("resource", __name__)
 
@@ -238,6 +239,25 @@ def unassign_role(resource_id: uuid.UUID) -> Response:
     except AssertionError as aserr:
         flash(aserr.args[0], "alert-danger")
         return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
+
+@resources.route("/toggle/<uuid:resource_id>", methods=["POST"])
+@require_oauth2
+def toggle_public(resource_id: uuid.UUID):
+    """Toggle the given resource's public status."""
+    def __handle_error__(err):
+        flash_error(process_error(err))
+        return redirect(url_for(
+            "oauth2.resource.view_resource", resource_id=resource_id))
+
+    def __handle_success__(success):
+        flash_success(success)
+        return redirect(url_for(
+            "oauth2.resource.view_resource", resource_id=resource_id))
+
+    return oauth2_post(
+        f"oauth2/resource/{resource_id}/toggle-public", data={}).either(
+            lambda err: __handle_error__(err),
+            lambda suc: __handle_success__(suc))
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2

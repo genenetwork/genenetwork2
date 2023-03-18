@@ -58,3 +58,9 @@ def handle_success(
             return redirect(url_for(redirect_uri, **kwargs))
 
     return __handler__
+
+def flash_error(error):
+    flash(f"{error['error']}: {error['error_description']}", "alert-danger")
+
+def flash_success(success):
+    flash(f"{success['description']}", "alert-success")

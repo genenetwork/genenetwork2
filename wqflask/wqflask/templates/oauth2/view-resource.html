@@ -27,6 +27,7 @@
 	    <th>Name</th>
 	    <th>Category</th>
 	    <th>Group</th>
+	    <th colspan="3" style="text-align: center;">Actions</th>
 	  </tr>
 	</thead>
 
@@ -35,6 +36,37 @@
 	    <td>{{resource.resource_name}}</td>
 	    <td>{{resource.resource_category.resource_category_description}}</td>
 	    <td>{{resource.group.group_name}}</td>
+	    <td>
+	      <form method="POST"
+		    action="{{url_for(
+			    'oauth2.resource.toggle_public',
+			    resource_id=resource.resource_id)}}">
+
+		<div class="input-group">
+		  {%if resource.public%}
+		  <input type="submit" value="Make Private"
+			 class="btn btn-success" />
+		  {%else%}
+		  <input type="submit" value="Make Public"
+			 class="btn btn-danger" />
+		  {%endif%}
+		</div>
+	      </form>
+	    </td>
+	    <td>
+	      <a href="{{url_for(
+		       'oauth2.resource.edit_resource',
+		       resource_id=resource.resource_id)}}"
+		 title="Edit resource"
+		 class="btn btn-warning">Edit</a>
+	    </td>
+	    <td>
+	      <a href="{{url_for(
+		       'oauth2.resource.delete_resource',
+		       resource_id=resource.resource_id)}}"
+		 title="Edit resource"
+		 class="btn btn-danger">Delete</a>
+	    </td>
 	  </tr>
 	</tbody>
       </table>
