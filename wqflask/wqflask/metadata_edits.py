@@ -23,7 +23,6 @@ from wqflask.database import database_connection
 from wqflask.decorators import edit_access_required
 from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
-from wqflask.decorators import case_attributes_edit_access
 
 from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
@@ -47,11 +46,6 @@ from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
 from gn3.db.sample_data import update_sample_data
-from gn3.db.case_attributes import get_case_attributes
-from gn3.db.case_attributes import get_unreviewed_diffs
-from gn3.db.case_attributes import insert_case_attribute_audit
-from gn3.db.case_attributes import reject_case_attribute
-from gn3.db.case_attributes import approve_case_attribute
 
 
 metadata_edit = Blueprint("metadata_edit", __name__)
@@ -146,7 +140,6 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             dataset_id=dataset_id,
             name=name,
             resource_id=request.args.get("resource-id"),
-            headers=get_case_attributes(conn),
             version=os.environ.get("GN_VERSION"),
         )
 
@@ -196,8 +189,7 @@ def update_phenotype(dataset_id: str, name: str):
         )
         diff_data = {}
         with database_connection() as conn:
-            headers = ["Strain Name", "Value", "SE", "Count"] + list(
-                map(lambda x: x[1], get_case_attributes(conn)))
+            headers = ["Strain Name", "Value", "SE", "Count"]
             diff_data = remove_insignificant_edits(
                 diff_data=csv_diff(
                     base_csv=(
@@ -706,106 +698,3 @@ def approve_data(resource_id: str, file_name: str):
             "warning",
         )
     return redirect(url_for("metadata_edit.list_diffs"))
-
-
-@metadata_edit.route("/case-attributes")
-@case_attributes_edit_access
-@login_required
-def show_case_attribute_columns():
-    diff_data = None
-    with database_connection() as conn:
-        diff_data = get_unreviewed_diffs(conn)
-    modifications, deletions, inserts = [], [], []
-    if diff_data:
-        for id_, author, diff in diff_data:
-            diff = json.loads(diff)
-            author = get_user_info_by_key(
-                key="user_id",
-                value=author,
-                conn=redis.from_url(
-                    current_app.config["REDIS_URL"], decode_responses=True
-                ),
-            ).get("full_name")
-            if m_ := diff.get("Modification"):
-                m_["author"] = author
-                m_["id"] = id_
-                if m_.get("description"):
-                    m_["description"]["Diff"] = "\n".join(
-                        difflib.ndiff(
-                            [m_.get("description")["Original"]],
-                            [m_.get("description")["Current"]],
-                        )
-                    )
-                if m_.get("name"):
-                    m_["name"]["Diff"] = "\n".join(
-                        difflib.ndiff(
-                            [m_.get("name")["Original"]],
-                            [m_.get("name")["Current"]],
-                        )
-                    )
-                if any([m_.get("description"), m_.get("name")]):
-                    modifications.append(m_)
-            if d_ := diff.get("Deletion"):
-                d_["author"] = author
-                d_["id"] = id_
-                deletions.append(d_)
-            if i_ := diff.get("Insert"):
-                i_["author"] = author
-                i_["id"] = id_
-                inserts.append(i_)
-    with database_connection() as cursor:
-        return render_template(
-            "case_attributes.html",
-            case_attributes=get_case_attributes(cursor),
-            modifications=modifications,
-            deletions=deletions,
-            inserts=inserts,
-        )
-
-
-@metadata_edit.route("/case-attributes", methods=("POST",))
-@case_attributes_edit_access
-@login_required
-def update_case_attributes():
-    data_ = request.form.to_dict().get("data")
-    if data_:
-        author = (
-            (g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-            or g.user_session.record.get("user_id")
-            or ""
-        )
-        with database_connection() as conn:
-            insert_case_attribute_audit(
-                conn=conn, status="review", author=author, data=data_
-            )
-    return redirect(url_for("metadata_edit.show_case_attribute_columns"))
-
-
-@metadata_edit.route(
-    "/case-attributes/reject",
-    methods=[
-        "POST",
-    ],
-)
-@case_attributes_edit_access
-@login_required
-def reject_case_attribute_data():
-    case_attr_id = request.form.to_dict().get("id")
-    with database_connection() as conn:
-        reject_case_attribute(conn=conn, case_attr_audit_id=int(case_attr_id))
-    return redirect(url_for("metadata_edit.show_case_attribute_columns"))
-
-
-@metadata_edit.route(
-    "/case-attributes/approve",
-    methods=[
-        "POST",
-    ],
-)
-@case_attributes_edit_access
-@login_required
-def approve_case_attribute_data():
-    case_attr_id = request.form.to_dict().get("id")
-    with database_connection() as conn:
-        approve_case_attribute(conn=conn, case_attr_audit_id=case_attr_id)
-    return redirect(url_for("metadata_edit.show_case_attribute_columns"))
