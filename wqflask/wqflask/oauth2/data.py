@@ -34,7 +34,9 @@ def list_data():
         return __render__(**{**groups, **roles})
 
     dataset_type = request.form["dataset_type"]
-    offset = int(request.form.get("offset", 0))
+    offset = int(request.form.get("offset", 0)) + (
+        0 if request.form.get("offset_submit") is None else(
+            100 if request.form["offset_submit"] == "Next" else -100))
     if dataset_type not in ("mrna", "genotype", "phenotype"):
         flash("InvalidDatasetType: An invalid dataset type was provided",
               "alert-danger")
@@ -46,7 +48,7 @@ def list_data():
             lambda data: {"data_items": data})
     return __render__(**{
         **groups, **roles, **data_items, "dataset_type": dataset_type,
-            "offset": (offset if offset >= 100 else 0)
+            "offset": offset
     })
 
 @data.route("/link", methods=["POST"])
