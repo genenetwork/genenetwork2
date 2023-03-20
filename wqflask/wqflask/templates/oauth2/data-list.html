@@ -45,6 +45,10 @@
 
 	      <thead>
 		<tr>
+		  {%if dataset_type == "phenotype"%}
+		  <th>Trait ID</th>
+		  <th>Data Group</th>
+		  {%endif%}
 		  <th>Dataset Name</th>
 		  <th>Dataset Full Name</th>
 		  <th>Group</th>
@@ -59,14 +63,23 @@
 		      <input type="hidden" name="offset" value="{{offset or 0}}" />
 		      <input type="hidden" name="dataset_id" value="{{data_item.Id}}" />
 		      <input type="hidden" name="dataset_type" value="{{dataset_type}}" />
+		      {%if dataset_type == "phenotype"%}
 		      <td>
-			<a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.Name}}"
-			   title="Link to information on dataset '{{data_item.dataset_fullname}}'"
-			   target="_blank">
-			   {{data_item.Name}}
+			<a href="/show_trait?trait_id={{data_item.Id}}&dataset={{data_item.dataset_name}}"
+			   title="Trait Page">
+			  {{data_item.Id}}
 			</a>
 		      </td>
-		      <td>{{data_item.FullName}}</td>
+		      <td>{{data_item.InbredSetName}}</td>
+		      {%endif%}
+		      <td>
+			<a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
+			   title="Link to information on dataset '{{data_item.dataset_fullname}}'"
+			   target="_blank">
+			   {{data_item.dataset_name}}
+			</a>
+		      </td>
+		      <td>{{data_item.dataset_fullname}}</td>
 		      <td>
 			<select name="group_id" required="required">
 			  <option value="">Select group</option>
