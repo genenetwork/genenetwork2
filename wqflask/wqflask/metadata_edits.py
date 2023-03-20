@@ -250,7 +250,9 @@ def update_phenotype(dataset_id: str, name: str):
                 }
             )
             f.write(json.dumps(diff_data))
-        flash("Sample-data has been successfully uploaded", "success")
+        url = url_for("metadata_edit.list_diffs")
+        flash(f"Sample-data has been successfully uploaded.  \
+View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     # Run updates:
     phenotype_ = {
         "pre_pub_description": data_.get("pre-pub-desc"),

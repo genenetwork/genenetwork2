@@ -6,7 +6,7 @@
 {% if messages %}
 {% for category, message in messages %}
 <div class="container-fluid bg-{{ category }}">
-    <p>{{ message }}</p>
+    <p>{{ message|safe }}</p>
 </div>
 {% endfor %}
 {% endif %}
