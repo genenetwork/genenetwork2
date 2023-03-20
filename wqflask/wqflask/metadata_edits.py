@@ -26,7 +26,6 @@ from wqflask.decorators import login_required
 
 from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
-from gn3.authentication import get_user_info_by_key
 from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
@@ -59,7 +58,7 @@ def _get_diffs(
         try:
             author = json.loads(redis_conn.hget("users", author)).get(
                "full_name"
-           )
+            )
         except (AttributeError, TypeError):
             author = author
         return {
@@ -439,7 +438,8 @@ def update_probeset(name: str):
                     json_data=json.dumps(diff_data),
                 ),
             )
-            edited_values = {k: v for (k, v) in diff_data['Probeset'].items() if k not in {"id_", "timestamp", "author"}}
+            edited_values = {k: v for (k, v) in diff_data['Probeset'].items()
+                             if k not in {"id_", "timestamp", "author"}}
             changes = []
             for k in edited_values.keys():
                 changes.append(f"<b><span data-message-id='{k}'></span></b>")
@@ -466,7 +466,8 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
             ),
             mimetype="text/csv",
             headers={
-                "Content-disposition": f"attachment; filename=sample-data-{dataset_id}.csv"
+                "Content-disposition": f"attachment; \
+filename=sample-data-{dataset_id}.csv"
             },
         )
 
