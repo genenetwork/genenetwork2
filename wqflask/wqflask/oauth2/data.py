@@ -23,15 +23,47 @@ def list_data():
             **{key:val for key,val in kwargs.items()
                if key not in ("groups", "data_items", "user_privileges")})
 
+    def __process_menus__(mns):
+        return {
+            species_id: {
+                "display_name": display_name,
+                "family": family,
+                "groups": {
+                    group_id: {
+                        "group_name": group_name,
+                        "family": family,
+                        "types": {
+                            type_id: {
+                                "menu_value": type_menu_value,
+                                "menu_heading": type_menu_heading,
+                                "datasets": tuple(
+                                    dict(zip(("accession_id", "dataset_id",
+                                              "dataset_fullname"),
+                                             dataset_row))
+                                    for dataset_row in mns["datasets"][
+                                            species_id][group_id][type_id])
+                            }
+                            for type_id, type_menu_value, type_menu_heading
+                            in mns["types"][species_id][group_id]
+                        }
+                    }
+                    for group_id, group_name, family in mns["groups"][species_id]
+                }
+            }
+            for species_id, display_name, family in mns["species"]}
+
     groups = oauth2_get("oauth2/group/list").either(
         lambda err: {"groups_error": process_error(err)},
         lambda grp: {"groups": grp})
     roles = oauth2_get("oauth2/user/roles").either(
         lambda err: {"roles_error": process_error(err)},
         lambda roles: {"roles": roles})
+    menus = oauth2_get("menu/generate/json").either(
+        lambda err: {"menus_error": process_error(err)},
+        lambda mns: {"menus": __process_menus__(mns)})
 
     if request.method == "GET":
-        return __render__(**{**groups, **roles})
+        return __render__(**{**groups, **roles, **menus})
 
     dataset_type = request.form["dataset_type"]
     offset = int(request.form.get("offset", 0)) + (
@@ -47,7 +79,7 @@ def list_data():
             lambda err: {"data_items_error": process_error(err)},
             lambda data: {"data_items": data})
     return __render__(**{
-        **groups, **roles, **data_items, "dataset_type": dataset_type,
+        **groups, **roles, **menus, **data_items, "dataset_type": dataset_type,
             "offset": offset
     })
 
