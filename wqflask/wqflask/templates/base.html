@@ -163,8 +163,8 @@
                     </li>
                     {% endif %}
                     <li class="">
-                        {% if g.user_session.logged_in or session.get("user_details") %}
-                        <a id="login_out" title="Signed in as {{ g.user_session.user_name or session['user_details']['name']}}" href="/n/logout">Sign out</a>
+                        {% if g.user_session.logged_in %}
+                        <a id="login_out" title="Signed in as {{ g.user_session.user_name }}" href="/n/logout">Sign out</a>
                         {% else %}
                         <a id="login_in" href="/n/login">Sign in</a>
                         {% endif %}
