@@ -245,7 +245,7 @@
                     <div class="page-header">
                         <h2>News</h2>
                     </div>
-                    <div id="tweets" style="height: 300px; overflow: scroll; overflow-x: hidden;"></div>
+                    <a class="twitter-timeline" height="300" href="https://twitter.com/GeneNetwork2?ref_src=twsrc%5Etfw">Tweets by GeneNetwork2</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
                     <div align="right">
                         <a href="https://twitter.com/GeneNetwork2">more news items...</a>
                     </div>
@@ -331,21 +331,4 @@ $(document).on('submit', '#gsearchform', function(event){
         }
 
     </script>
-
-    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='javascript-twitter-post-fetcher/js/twitterFetcher_min.js') }}"></script>
-
-    <script type="text/javascript">
-      var configProfile = {
-      "profile": {"screenName": 'GeneNetwork2'},
-      "domId": 'tweets',
-      "maxTweets": 5,
-      "enableLinks": true,
-      "showUser": false,
-      "showTime": true,
-      "showImages": true,
-      "lang": 'en'
-      };
-      twitterFetcher.fetch(configProfile);
-    </script>
-
 {% endblock %}
