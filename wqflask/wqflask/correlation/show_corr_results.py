@@ -242,7 +242,7 @@ def populate_table(dataset_metadata, target_dataset, this_dataset, corr_results,
                     results_dict['description'] = html.escape(
                         target_trait['description'].strip(), quote=True)
 
-                if target_trait["mean"]:
+                if target_trait["mean"] != "N/A":
                     results_dict['mean'] = f"{float(target_trait['mean']):.3f}"
 
                 results_dict['lrs_location'] = target_trait['lrs_location']
