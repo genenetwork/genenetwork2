@@ -66,10 +66,6 @@
         <p><b>The associated genes include:</b><br><br>{% for word in search_terms %}{{ word.search_term[0] }}{% endfor %}</p>
         {% endif %}
 
-        <!--<p>To study a record click on its ID below, and to view the whole description {% if dataset.type == "Publish" %}or list of authors {% endif %} hover over the table cell. Check records below and click Add button to add to selection.</p>-->
-
-        <!--<hr style="height: 1px; background-color: #A9A9A9;">-->
-
         </div>
         {% if too_many_results %}
         <p>Your search generated over 50000 results. Please modify your search to generate 50000 or fewer matches.</p>
@@ -136,7 +132,7 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="trait_table_container" style="{% if dataset.type == 'Geno' %}width: 450px;{% else %}min-width: 1250px;{% endif %}">
+          <div id="trait_table_container" style="{% if dataset.type == 'Geno' %}width: 450px;{% else %}width: 100%; min-width: 1250px;{% endif %}">
             <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: 100%;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -297,11 +293,6 @@
             {
               'title': "Description",
               'type': "natural",
-              {% if (max_widths.description * 7) < 500 %}
-              'width': "{{ max_widths.description * 7 }}px",
-              {% else %}
-              'width': "500px",
-              {% endif %}
               'data': null,
               'targets': 3,
               'render': function(data) {
@@ -439,7 +430,7 @@
               },
               "order": [[1, "asc" ]],
               "autoWidth": true,
-              {% if traits_json|length > 10 %}
+              {% if trait_list|length > 10 %}
               "scrollY": "1000px",
               "scroller": true
               {% else %}
