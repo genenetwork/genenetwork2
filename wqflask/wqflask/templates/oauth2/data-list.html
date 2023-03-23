@@ -3,156 +3,50 @@
 {%from "oauth2/display_error.html" import display_error%}
 {%block title%}View User{%endblock%}
 {%block content%}
-  <div class="container" style="min-width: 1250px;">
-    {{profile_nav("data", user_privileges)}}
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("data", user_privileges)}}
 
-    {{flash_me()}}
+  {{flash_me()}}
 
-    <div class="container-fluid">
-      <div class="row">
-	<form method="POST" action="{{url_for('oauth2.data.list_data')}}">
-	  <legend>Dataset Type</legend>
-	  <input type="hidden" name="offset" value="0" />
-	  <input type="hidden" name="menus" value="{{menus | tojson}}" />
-	  <div class="form-group">
-	    <label for="select-menu">Dataset</label>
-	    <select id="select-menu" name="dataset">
-	      {%for species_id, species_data in menus.items()%}
-	      <optgroup label="{{species_data.display_name}}">
-		{%for group_id, group_data in species_data["groups"].items()%}
-		<optgroup label=" {{group_data.group_name}}">
-		  {%for type_id, type_data in group_data["types"].items()%}
-		  <optgroup label="{{type_data.menu_heading}}">
-		    {%for dataset in type_data["datasets"]%}
-		    <option value="{{dataset.dataset_id}}">
-		      {{dataset.dataset_fullname}}
-		    </option>
-		    {%endfor%}
-		  </optgroup>
-		  {%endfor%}
-		</optgroup>
-		{%endfor%}
-	      </optgroup>
-	      {%endfor%}
-	    </select>
-	  </div>
-	  <div class="form-group">
-	    <label for="dataset_type" class="form-label">Dataset Type</label>
-	    <select name="dataset_type" required="required">
-	      <option value="">Select dataset type</option>
-	      <option value="mrna"
-		      {%if dataset_type=="mrna"%}
-		      selected="selected"
-		      {%endif%}>mRNA Assay Datasets</option>
-	      <option value="genotype"
-		      {%if dataset_type=="genotype"%}
-		      selected="selected"
-		      {%endif%}>Genotype Datasets</option>
-	      <option value="phenotype"
-		      {%if dataset_type=="phenotype"%}
-		      selected="selected"
-		      {%endif%}>Phenotype/Publish Datasets</option>
-	    </select>
-	  </div>
-	  <input type="submit" value="Fetch Unlinked Data" class="btn btn-primary" />
-	</form>
+  <div class="row">
+    <form id="frm-select-datatype"
+	  action="{{url_for('oauth2.data.list_data')}}"
+	  method="POST">
+      <legend>Search</legend>
+      {%if species_error is defined%}
+      {{display_error("Species", species_error)}}
+      {%elif species | length == 0%}
+      <span class="glyphicon glyphicon-info-sign text-danger">
+      </span>
+      &nbsp;
+      <strong class="text-danger">No list of species to select from</strong>
+      {%else%}
+      <div class="form-group">
+	<label for="select-species">Species</label>
+	<select id="select-species" name="species_name" required="required">
+	  <option value="">Select Species</option>
+	  {%for spc in species%}
+	  <option value="{{spc.Name}}">
+	    {{spc.MenuName}} ({{spc.FullName}})
+	  </option>
+	  {%endfor%}
+	</select>
       </div>
 
-      {%if dataset_type is defined%}
-	{%if data_items_error is defined%}
-	  {{display_error("Data Error", data_items_error)}}
-	{%else%}
-      <div class="row">
-	<form method="POST" action="{{url_for('oauth2.data.link_data')}}">
-	  <legend>Link Data to Group</legend>
-	  <input type="hidden" name="offset" value="{{offset or 0}}" />
-	  <input type="hidden" name="dataset_type" value="{{dataset_type}}" />
-
-	  <div class="form-group">
-	    <label for="select-group-id">Group</label>
-	    <select name="group_id" required="required">
-	      <option value="">Select group</option>
-	      {%for group in groups%}
-	      <option value="{{group.group_id}}">{{group.group_name}}</option>
-	      {%endfor%}
-	    </select>
-	  </div>
-
-	  <table class="table">
-	    <caption>Link Data to Group</caption>
-
-	    <thead>
-	      <tr>
-		<th>Select</th>
-		{%if dataset_type == "phenotype"%}
-		<th>Trait ID</th>
-		<th>Data Group</th>
-		{%endif%}
-		<th>Dataset Name</th>
-		<th>Dataset Full Name</th>
-		<th>Link</th>
-	      </tr>
-	    </thead>
-
-	    <tbody>
-	      {%for data_item in data_items%}
-	      <tr>
-		<td>
-		  <input type="checkbox" value="{{data_item.Id}}"
-			 name="dataset_ids" />
-		</td>
-		{%if dataset_type == "phenotype"%}
-		<td>
-		  <a href="/show_trait?trait_id={{data_item.Id}}&dataset={{data_item.dataset_name}}"
-		     title="Trait Page">
-		    {{data_item.Id}}
-		  </a>
-		</td>
-		<td>{{data_item.InbredSetName}}</td>
-		{%endif%}
-		<td>
-		  <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
-		     title="Link to information on dataset '{{data_item.dataset_fullname}}'"
-		     target="_blank">
-		    {{data_item.dataset_name}}
-		  </a>
-		</td>
-		<td>{{data_item.dataset_fullname}}</td>
-		<td>
-		  <input type="submit" value="Link" class="btn btn-info" />
-		</td>
-	      </tr>
-	      {%else%}
-	      <tr>
-		<td colspan="4">
-		  <span class="glyphicon glyphicon-info-sign text-danger">
-		  </span>
-		  &nbsp;
-		  <strong class="text-info">No available data to link</strong>
-		</td>
-	      </tr>
-	      {%endfor%}
-	    </tbody>
-	  </table>
-	</form>
-
-	<form method="POST" action="{{url_for('oauth2.data.list_data')}}">
-	  <input type="hidden" name="dataset_type" value="{{dataset_type}}" />
-	  <input type="hidden" name="offset" value="{{offset or 0}}" />
-	  <div class="form-group" style="margin: auto;width: 50%;">
-	    {%if offset != 0%}
-	    <input type="submit" name="offset_submit" value="Previous" class="btn btn-warning" />
-	    {%endif%}
-	    {%if data_items | length == 100:%}
-	    <input type="submit" name="offset_submit" value="Next" class="btn btn-warning" />
-	    {%endif%}
-	  </div>
-	</form>
+      <div class="form-group">
+	<label for="select-dataset-type">Dataset/Trait Type</label>
+	<select id="select-dataset-type" name="dataset_type"
+		required="required">
+	  <option value="">Select dataset type</option>
+	  <option value="mrna">mRNA Assay (ProbeSet) Dataset</option>
+	  <option value="genotype">Genotype Dataset</option>
+	  <option value="phenotype">Phenotype (Publish) Dataset</option>
+	</select>
       </div>
-      {%endif%}
-      {%endif%}
 
-    </div>
-
+      <input type="submit" class="btn btn-primary" value="Search" />
+      {%endif%}
+    </form>
   </div>
+</div>
 {%endblock%}

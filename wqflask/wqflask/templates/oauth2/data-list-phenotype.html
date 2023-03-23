@@ -1,0 +1,124 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+
+{%block title%}View User{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css"
+      href="/css/DataTables/css/jquery.dataTables.css" />
+<link rel="stylesheet" type="text/css"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+{%endblock%}
+
+{%block content%}
+
+<div class="container" style="min-width: 1250px;">
+  {{profile_nav("data", user_privileges)}}
+
+  {{flash_me()}}
+
+  <div class="row">
+    <noscript>This page needs javascript to work correctly</noscript>
+  </div>
+
+  <div class="row">
+    <form id="frm-select-datatype"
+	  action="#"
+	  method="POST">
+      {%if dataset_type == "mrna"%}
+      <legend>mRNA: Search</legend>
+      {%else%}
+      <legend style="text-transform: capitalize;">
+	{{dataset_type}}: Search
+      </legend>
+      {%endif%}
+      <input type="hidden" value="{{species_name}}" name="species" />
+      <input type="hidden" value="{{dataset_type}}" name="dataset_type" />
+      <input type="hidden" value="{{per_page}}" name="per_page" />
+
+      <div class="form-group">
+	<label for="txt-query">Search</label>
+	<div class="input-group">
+	  <span class="input-group-addon">species:{{species_name}}</span>
+	  <input type="text" id="txt-query" name="query" class="form-control"
+		 value="{{query}}"/>
+	</div>
+      </div>
+    </form>
+  </div>
+
+  <div class="row">
+    <table id="tbl-phenotypes" class="table-hover table-striped cell-border">
+      <tbody>
+	<tr>
+	  <td colspan="100%" align="center">
+	    <br><b><font size="15">Loading...</font></b><br>
+	  </td>
+	</tr>
+    </table>
+  </div>
+
+</div>
+
+{%endblock%}
+
+{%block js%}
+<script language="javascript" type="text/javascript"
+	src="/js/DataTables/js/jquery.dataTables.min.js"></script>
+
+<script language="javascript" type="text/javascript"
+	src="/js/DataTablesExtensions/plugins/sorting/natural.js"></script>
+
+<script language="javascript" type="text/javascript"
+	src="/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js">
+</script>
+
+<script language="javascript" type="text/javascript"
+	src="/js/DataTablesExtensions/colResize/dataTables.colResize.js">
+</script>
+
+<script language="javascript" type="text/javascript"
+	src="/static/new/javascript/create_datatable.js"></script>
+
+<script language="javascript" type="text/javascript">
+  var traits = {{traits | list | tojson}};
+  create_table(
+      tableId="tbl-phenotypes", tableData=traits,
+      columnDefs=[
+	  {"data": null, "render": function(data) {
+	      return (
+		  '<input type="checkbox" name="pheno_traits" ' +
+		      'class="checkbox" value="' +
+		      data.dataset + '::' + data.name +
+		      '" />');
+	  }},
+	  {"title": "Index", "data": "index"},
+	  {"title": "Dataset", "data": "dataset_fullname"},
+	  {"title": "Group", "data": "group"},
+	  {"title": "Record", "data": null, "render": function(data) {
+	      return (
+		  '<a target="_blank" href="/show_trait?trait_id=' +
+		      data.name + '&dataset=' + data.dataset +
+		      '">' + data.name + "</a>");
+	  }},
+	  {"title": "Description", "data": "description"},
+	  {"title": "Authors", "data": "authors"},
+	  {"title": "Year", "data": null, render: function(data) {
+	      return (
+		  '<a target="_blank" href="' + data.pubmed_link +
+		      '" >' + data.year + '</a>');
+	  }},
+	  {"title": "LRS", "data": null, "render": function(data) {
+	      console.debug(data);
+	      return data.lrs ? data.lrs.toFixed(4) : "N/A";
+	  }},
+	  {"title": "Peak Location", "data": null, "render": function(data) {
+	      return 'Chr' + data.geno_chr + ': ' + data.geno_mb;
+	  }},
+	  {"title": "Additive Effects", "data": null, "render": function(data) {
+	      return data.additive ? data.additive.toFixed(4) : "N/A";
+	  }}]);
+</script>
+{%endblock%}
