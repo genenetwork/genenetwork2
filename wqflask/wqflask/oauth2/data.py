@@ -1,6 +1,9 @@
 """Handle linking data to groups."""
+from urllib.parse import urljoin
+
 from flask import (
-    flash, request, url_for, redirect, Response, Blueprint, render_template)
+    flash, request, url_for, redirect, Response, Blueprint, render_template,
+    current_app as app)
 
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post
@@ -26,11 +29,13 @@ def list_data_by_species_and_dataset(
     roles = oauth2_get("oauth2/user/roles").either(
         lambda err: {"roles_error": process_error(err)},
         lambda roles: {"roles": roles})
+    query = request.args.get("query", "")
     per_page = int(request.args.get("per_page", 500))
-    traits = oauth2_get(
-        (f"search/?type={dataset_type}&per_page={per_page}&query="
-         f"species:{species_name}")).either(
-             lambda err: {"traits_error": process_error(er)},
+    search_uri = (f"search/?type={dataset_type}&per_page={per_page}&query="
+                  f"species:{species_name}") + (
+                      f" AND ({query})" if bool(query) else "")
+    traits = oauth2_get(search_uri).either(
+             lambda err: {"traits_error": process_error(err)},
              lambda trts: {"traits": tuple({
                  "index": idx, **trait
              } for idx, trait in enumerate(trts, start=1))})
@@ -38,7 +43,7 @@ def list_data_by_species_and_dataset(
     return __render_template__(
         templates[dataset_type], **roles, **traits, species_name=species_name,
         dataset_type=dataset_type, per_page=per_page,
-        query=request.args.get("query", ""))
+        query=query, search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"))
 
 @data.route("/list", methods=["GET", "POST"])
 def list_data():
