@@ -23,7 +23,8 @@
       {%else%}
       <div class="form-group">
 	<label for="select-species">Species</label>
-	<select id="select-species" name="species_name" required="required">
+	<select id="select-species" name="species_name" required="required"
+		class="form-control">
 	  <option value="">Select Species</option>
 	  {%for spc in species%}
 	  <option value="{{spc.Name}}">
@@ -36,7 +37,7 @@
       <div class="form-group">
 	<label for="select-dataset-type">Dataset/Trait Type</label>
 	<select id="select-dataset-type" name="dataset_type"
-		required="required">
+		required="required" class="form-control">
 	  <option value="">Select dataset type</option>
 	  <option value="mrna">mRNA Assay (ProbeSet) Dataset</option>
 	  <option value="genotype">Genotype Dataset</option>

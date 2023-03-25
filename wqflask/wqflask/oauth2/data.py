@@ -39,11 +39,17 @@ def list_data_by_species_and_dataset(
              lambda trts: {"traits": tuple({
                  "index": idx, **trait
              } for idx, trait in enumerate(trts, start=1))})
+    groups = oauth2_get("oauth2/group/list").either(
+        lambda err: {"groups_error": process_error(err)},
+        lambda grps: {"groups": grps})
+
+    selected_traits = request.form.getlist("selected_traits")
 
     return __render_template__(
-        templates[dataset_type], **roles, **traits, species_name=species_name,
-        dataset_type=dataset_type, per_page=per_page,
-        query=query, search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"))
+        templates[dataset_type], **roles, **traits, **groups,
+        species_name=species_name, dataset_type=dataset_type, per_page=per_page,
+        query=query, selected_traits=selected_traits,
+        search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"))
 
 @data.route("/list", methods=["GET", "POST"])
 def list_data():
