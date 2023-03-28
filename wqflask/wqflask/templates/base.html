@@ -188,7 +188,7 @@
                         <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
                     </select>
                     <div class="col-8  autocomplete" style="margin-left: 30px;margin-right: 10px;">
-                        <input autocomplete="off" class="global_search_input" id="term" style="width:45vw" type="text" required placeholder="enter you search term here" name="terms">
+                        <input autocomplete="off" class="global_search_input" id="term" style="width:45vw" type="text" required placeholder="Enter you search term here (ex: cytochrome AND P450)" name="terms">
 
                   <button   type="submit" class="btn-stc" style="position: absolute;  background-color: #336699"><i class="fa fa-search" title="Search " style="color:white;"></i></button>
                     </div>
@@ -322,10 +322,6 @@
 
     const urlParams = new  URLSearchParams(window.location.search)
    let term = urlParams.get("terms")
-
-   term  =  term?term: "cytochrome AND P450"
-    $("#term").val(term);
-
 
         //should web scrap
         var global_search_hint = [
