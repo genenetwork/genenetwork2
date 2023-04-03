@@ -358,6 +358,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                     json_data=json.dumps(diff_data),
                 ),
             )
+        conn.commit()
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(
         f"/datasets/{dataset_id}/traits/{name}"
@@ -440,6 +441,7 @@ def update_probeset(name: str):
                     json_data=json.dumps(diff_data),
                 ),
             )
+            conn.commit()
             edited_values = {k: v for (k, v) in diff_data['Probeset'].items()
                              if k not in {"id_", "timestamp", "author"}}
             changes = []
