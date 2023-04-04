@@ -15,14 +15,15 @@ def oauth2_client():
         scope=SCOPE, token_endpoint_auth_method="client_secret_post",
         token=session.get("oauth2_token"))
 
-def oauth2_get(uri_path: str) -> Either:
+def oauth2_get(uri_path: str, data: dict = {}) -> Either:
     token = session.get("oauth2_token")
     config = app.config
     client = OAuth2Session(
         config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
         token=token, scope=SCOPE)
     resp = client.get(
-            urljoin(config["GN_SERVER_URL"], uri_path))
+        urljoin(config["GN_SERVER_URL"], uri_path),
+        data=data)
     if resp.status_code == 200:
         return Right(resp.json())
 

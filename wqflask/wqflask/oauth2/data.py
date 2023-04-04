@@ -18,20 +18,28 @@ def __render_template__(templatepath, **kwargs):
     return render_template(
         templatepath, **kwargs, user_privileges=user_privileges)
 
-@data.route("/<string:species_name>/<string:dataset_type>/list",
-            methods=["GET", "POST"])
-def list_data_by_species_and_dataset(
-        species_name: str, dataset_type: str) -> Response:
-    templates = {
-        "mrna": "oauth2/data-list-mrna.html",
-        "genotype": "oauth2/data-list-genotype.html",
-        "phenotype": "oauth2/data-list-phenotype.html"}
-    roles = oauth2_get("oauth2/user/roles").either(
-        lambda err: {"roles_error": process_error(err)},
-        lambda roles: {"roles": roles})
-    query = request.args.get("query", "")
+def __search_mrna__(query, template, **kwargs):
+    return __render_template__(template, **kwargs)
+
+def __search_genotypes__(query, template, **kwargs):
+    species_name = kwargs["species_name"]
+    datasets = oauth2_get(
+        "oauth2/data/search",
+        data = {
+            "query": query,
+            "dataset_type": "genotype",
+            "species_name": species_name
+        }).either(
+            lambda err: {"datasets_error": process_error(err)},
+            lambda datasets: {"datasets": tuple({
+                "index": idx, **dataset
+            } for idx,dataset in enumerate(datasets, start=1))})
+    return __render_template__(template, **datasets, **kwargs)
+
+def __search_phenotypes__(query, template, **kwargs):
     per_page = int(request.args.get("per_page", 500))
-    search_uri = (f"search/?type={dataset_type}&per_page={per_page}&query="
+    species_name = kwargs["species_name"]
+    search_uri = (f"search/?type=phenotype&per_page={per_page}&query="
                   f"species:{species_name}") + (
                       f" AND ({query})" if bool(query) else "")
     traits = oauth2_get(search_uri).either(
@@ -39,17 +47,39 @@ def list_data_by_species_and_dataset(
              lambda trts: {"traits": tuple({
                  "index": idx, **trait
              } for idx, trait in enumerate(trts, start=1))})
-    groups = oauth2_get("oauth2/group/list").either(
-        lambda err: {"groups_error": process_error(err)},
-        lambda grps: {"groups": grps})
 
     selected_traits = request.form.getlist("selected_traits")
 
     return __render_template__(
-        templates[dataset_type], **roles, **traits, **groups,
-        species_name=species_name, dataset_type=dataset_type, per_page=per_page,
-        query=query, selected_traits=selected_traits,
-        search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"))
+        template, **traits, per_page=per_page, query=query,
+        selected_traits=selected_traits,
+        search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"),
+        **kwargs)
+
+@data.route("/<string:species_name>/<string:dataset_type>/list",
+            methods=["GET", "POST"])
+def list_data_by_species_and_dataset(
+        species_name: str, dataset_type: str) -> Response:
+    templates = {
+        "mrna": "oauth2/data-list-mrna.html",
+        "genotype": "oauth2/data-list-genotype.html",
+        "phenotype": "oauth2/data-list-phenotype.html"
+    }
+    search_fns = {
+        "mrna": __search_mrna__,
+        "genotype": __search_genotypes__,
+        "phenotype": __search_phenotypes__
+    }
+    roles = oauth2_get("oauth2/user/roles").either(
+        lambda err: {"roles_error": process_error(err)},
+        lambda roles: {"roles": roles})
+    groups = oauth2_get("oauth2/group/list").either(
+        lambda err: {"groups_error": process_error(err)},
+        lambda grps: {"groups": grps})
+    query = request.args.get("query", "")
+    return search_fns[dataset_type](
+        query, templates[dataset_type], **roles, **groups,
+        species_name=species_name, dataset_type=dataset_type)
 
 @data.route("/list", methods=["GET", "POST"])
 def list_data():
