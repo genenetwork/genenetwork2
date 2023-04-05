@@ -114,6 +114,9 @@
 </script>
 
 <script language="javascript" type="text/javascript"
+	src="/static/new/javascript/search_results.js"></script>
+
+<script language="javascript" type="text/javascript"
 	src="/static/new/javascript/create_datatable.js"></script>
 
 <script language="javascript" type="text/javascript">
@@ -125,17 +128,23 @@
       {"title": "Dataset ShortName", "data": "dataset_shortname"}
   ];
 
-  var search_column_definitions = [{"data": null, "render": function(data) {
-      return (
-	  '<input type="checkbox" name="geno_datasets" ' +
-	      'class="checkbox" value="' +
-	      JSON.stringify(data) + '" />');
+  var search_column_definitions = [{"data": null, "render": function(data, type, row, meta) {
+      new_check = $('<input type="checkbox" name="geno_datasets" ' +
+		    'class="checkbox search-checkbox" />');
+      /* =================== BUG ===================
+	 data changes with the multiple calls and is missing some key/value
+	 pairs, i.e. SpeciesId, InbredSetId, GenoFreezeId
+	 No idea why.
+       */
+      new_check.val(JSON.stringify(data));
+      // new_check.val(data.SpeciesId + ':' + data.InbredSetId + ':' + data.GenoFreezeId);
+      return new_check[0].outerHTML;
   }},].concat(common_column_definitions);
 
   var selected_column_definitions = [{"data": null, "render": function(data) {
       return (
 	  '<input type="checkbox" name="selected_datasets" ' +
-	      'class="checkbox" value="' +
+	      'class="checkbox selected-checkbox" value="' +
 	      data.name + ':' + data.dataset +
 	      '" />');
   }},].concat(common_column_definitions);
@@ -165,7 +174,23 @@
       });
       /* $("#txt-query").keyup(debounced_search()); */
       render_table("tbl-genotypes", "data-datasets");
-      render_table("tbl-link-genotypes", "data-selected-datasets")
+      render_table("tbl-link-genotypes", "data-selected-datasets");
+      $(".search-checkbox").change(function(event) {
+          if(this.checked) {
+              selected = JSON.parse(
+		  $("#tbl-link-genotypes").attr("data-selected-datasets"));
+	      this_item = JSON.parse(this.value);
+	      selected.push(this_item);
+	      $("#tbl-link-genotypes").attr(
+		  "data-selected-datasets", JSON.stringify(selected));
+	      /* Remove from source table */
+	      /* Re-render tables */
+	      console.debug("STARTING RE-RENDER ...");
+	      render_table("tbl-genotypes", "data-datasets");
+	      render_table("tbl-link-genotypes", "data-selected-datasets");
+	      console.debug("RE-RENDER COMPLETE ...");
+          }
+      });
   });
 </script>
 {%endblock%}
