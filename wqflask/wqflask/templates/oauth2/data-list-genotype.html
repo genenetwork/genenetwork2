@@ -13,7 +13,7 @@
 {%endblock%}
 
 {%block content%}
-<div class="container" style="min-width: 1250px;">
+<div class="container" style="width: 98%;">
   {{profile_nav("data", user_privileges)}}
 
   {{flash_me()}}
@@ -37,27 +37,52 @@
 	</select>
       </div>
 
-      <table id="tbl-link-genotypes" class="table-hover table-striped cell-border"
+      <div class="form-group">
+      <table id="tbl-link-genotypes"
+	     class="table-hover table-striped cell-border dataTable no-footer"
 	     data-selected-datasets='{{selected_datasets | list | tojson}}'>
-	<tbody>
+	<thead>
 	  <tr>
-	    <td colspan="100%" align="center" style="text-align: center;">
-	      <br/><b><font size="4">
+	    <th>Deselect</th>
+	    <th>Group</th>
+	    <th>Dataset Name</th>
+	    <th>Dataset FullName</th>
+	    <th>Dataset ShortName</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {%for dataset in selected_datasets%}
+	  <tr>
+	    <td>
+	      <input type="checkbox" class="checkbox checkbox-link"
+		     name="selected_datasets"
+		     value='{{dataset | tojson}}' />
+	    </td>
+	    <td>{{dataset.dataset_name}}</td>
+	    <td>{{dataset.dataset_fullname}}</td>
+	    <td>{{dataset.dataset_shortname}}</td>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td colspan="100%" align="center">
 	      <span class="glyphicon glyphicon-info-sign text-info"></span>
-	      &nbsp;
-	      There are no selected genotype datasets to link to the group.
-	      </font></b><br />
+	      &nbsp
+	      No datasets selected for linking.
 	    </td>
 	  </tr>
+	  {%endfor%}
 	</tbody>
       </table>
+      </div>
 
-      {%if groups | length > 0%}
-      <input type="submit" value="Link Selected" class="btn btn-primary" />
-      {%else%}
-      <input type="submit" value="No group to link to" class="btn btn-warning"
-	     disabled="disabled" />
-      {%endif%}
+      <div class="form-group text-center">
+	<input type="submit" value="Link Selected"
+	       class="btn btn-primary"
+	       style="border-top: 0.3em;"
+	       {%if groups | length <= 0 or selected_datasets | length <= 0%}
+	       disabled="disabled"
+	       {%endif%} />
+      </div>
     </form>
   </div>
 
@@ -83,14 +108,41 @@
   </div>
 
   <div class="row">
-    <table id="tbl-genotypes" class="table-hover table-striped cell-border"
+    <table id="tbl-genotypes"
+	   class="table-hover table-striped cell-border dataTable no-footer"
 	   data-datasets='{{datasets | list | tojson}}'>
+      <thead>
+	<tr>
+	  <th>Select</th>
+	  <th>Group</th>
+	  <th>Dataset Name</th>
+	  <th>Dataset FullName</th>
+	  <th>Dataset ShortName</th>
+	</tr>
+      </thead>
       <tbody>
+	{%for dataset in datasets:%}
+	<tr>
+	  <td>
+	    <input type="checkbox" class="checkbox checkbox-search"
+		   name="search_datasets"
+		   value='{{dataset | tojson}}' />
+	  </td>
+	  <td>{{dataset.InbredSetName}}</td>
+	  <td>{{dataset.dataset_name}}</td>
+	  <td>{{dataset.dataset_fullname}}</td>
+	  <td>{{dataset.dataset_shortname}}</td>
+	</tr>
+        {%else%}
 	<tr>
 	  <td colspan="100%" align="center">
-	    <br><b><font size="15">Loading...</font></b><br>
+	      <span class="glyphicon glyphicon-info-sign text-info"></span>
+	      &nbsp
+	      No datasets available for selection.
 	  </td>
 	</tr>
+	{%endfor%}
+      </tbody>
     </table>
   </div>
 
@@ -99,83 +151,14 @@
 {%endblock%}
 
 {%block js%}
-<script language="javascript" type="text/javascript"
-	src="/js/DataTables/js/jquery.dataTables.min.js"></script>
-
-<script language="javascript" type="text/javascript"
-	src="/js/DataTablesExtensions/plugins/sorting/natural.js"></script>
-
-<script language="javascript" type="text/javascript"
-	src="/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js">
-</script>
-
-<script language="javascript" type="text/javascript"
-	src="/js/DataTablesExtensions/colResize/dataTables.colResize.js">
-</script>
-
-<script language="javascript" type="text/javascript"
-	src="/static/new/javascript/search_results.js"></script>
-
-<script language="javascript" type="text/javascript"
-	src="/static/new/javascript/create_datatable.js"></script>
-
 <script language="javascript" type="text/javascript">
-  var common_column_definitions = [
-      {"title": "Index", "data": "index"},
-      {"title": "Group", "data": "InbredSetName"},
-      {"title": "Dataset", "data": "dataset_name"},
-      {"title": "Dataset FullName", "data": "dataset_fullname"},
-      {"title": "Dataset ShortName", "data": "dataset_shortname"}
-  ];
-
-  var search_column_definitions = [{"data": null, "render": function(data, type, row, meta) {
-      new_check = $('<input type="checkbox" name="geno_datasets" ' +
-		    'class="checkbox search-checkbox" />');
-      /* =================== BUG ===================
-	 data changes with the multiple calls and is missing some key/value
-	 pairs, i.e. SpeciesId, InbredSetId, GenoFreezeId
-	 No idea why.
-       */
-      new_check.val(JSON.stringify(data));
-      // new_check.val(data.SpeciesId + ':' + data.InbredSetId + ':' + data.GenoFreezeId);
-      return new_check[0].outerHTML;
-  }},].concat(common_column_definitions);
-
-  var selected_column_definitions = [{"data": null, "render": function(data) {
-      return (
-	  '<input type="checkbox" name="selected_datasets" ' +
-	      'class="checkbox selected-checkbox" value="' +
-	      data.name + ':' + data.dataset +
-	      '" />');
-  }},].concat(common_column_definitions);
-
-  var table_settings = {
-      "scrollY": "40vh",
-      "language": {
-	  "emptyTable": "No datasets to display!",
-	  "info": "Showing _START_ to _END_ of _TOTAL_ entries",
-	  "infoEmpty": "No entries to show",
-	  "loadingRecords": "Loading entries ..."
-      }
-  };
-
-  function render_table(table_id, data_attr_name) {
-      table_data = $("#" + table_id).attr(data_attr_name);
-      create_table(tableId="tbl-genotypes",
-		   tableData=JSON.parse(table_data),
-		   columnDefs=search_column_definitions,
-		  customSettings=table_settings);
-  }
-
   $(document).ready(function() {
       $("#frm-search-traits").submit(function(event) {
 	  event.preventDefault();
 	  return false;
       });
       /* $("#txt-query").keyup(debounced_search()); */
-      render_table("tbl-genotypes", "data-datasets");
-      render_table("tbl-link-genotypes", "data-selected-datasets");
-      $(".search-checkbox").change(function(event) {
+      $(".checkbox-search").change(function(event) {
           if(this.checked) {
               selected = JSON.parse(
 		  $("#tbl-link-genotypes").attr("data-selected-datasets"));
@@ -185,10 +168,6 @@
 		  "data-selected-datasets", JSON.stringify(selected));
 	      /* Remove from source table */
 	      /* Re-render tables */
-	      console.debug("STARTING RE-RENDER ...");
-	      render_table("tbl-genotypes", "data-datasets");
-	      render_table("tbl-link-genotypes", "data-selected-datasets");
-	      console.debug("RE-RENDER COMPLETE ...");
           }
       });
   });

@@ -31,9 +31,7 @@ def __search_genotypes__(query, template, **kwargs):
             "species_name": species_name
         }).either(
             lambda err: {"datasets_error": process_error(err)},
-            lambda datasets: {"datasets": tuple({
-                "index": idx, **dataset
-            } for idx,dataset in enumerate(datasets, start=1))})
+            lambda datasets: {"datasets": datasets})
     return __render_template__(template, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
