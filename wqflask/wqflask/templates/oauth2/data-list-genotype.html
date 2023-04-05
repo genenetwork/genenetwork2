@@ -37,7 +37,8 @@
 	</select>
       </div>
 
-      <table id="tbl-link-genotypes" class="table-hover table-striped cell-border">
+      <table id="tbl-link-genotypes" class="table-hover table-striped cell-border"
+	     data-selected-datasets='{{selected_datasets | list | tojson}}'>
 	<tbody>
 	  <tr>
 	    <td colspan="100%" align="center" style="text-align: center;">
@@ -82,7 +83,8 @@
   </div>
 
   <div class="row">
-    <table id="tbl-genotypes" class="table-hover table-striped cell-border">
+    <table id="tbl-genotypes" class="table-hover table-striped cell-border"
+	   data-datasets='{{datasets | list | tojson}}'>
       <tbody>
 	<tr>
 	  <td colspan="100%" align="center">
@@ -146,6 +148,14 @@
 	  "infoEmpty": "No entries to show",
 	  "loadingRecords": "Loading entries ..."
       }
+  };
+
+  function render_table(table_id, data_attr_name) {
+      table_data = $("#" + table_id).attr(data_attr_name);
+      create_table(tableId="tbl-genotypes",
+		   tableData=JSON.parse(table_data),
+		   columnDefs=search_column_definitions,
+		  customSettings=table_settings);
   }
 
   $(document).ready(function() {
@@ -154,14 +164,8 @@
 	  return false;
       });
       /* $("#txt-query").keyup(debounced_search()); */
-      create_table(tableId="tbl-genotypes",
-		   tableData={{datasets | list | tojson}},
-		   columnDefs=search_column_definitions,
-		  customSettings=table_settings);
-      create_table(tableId="tbl-link-genotypes",
-		   tableData={{selected_datasets | list | tojson}},
-		   columnDefs=selected_column_definitions,
-		   customSettings=table_settings);
+      render_table("tbl-genotypes", "data-datasets");
+      render_table("tbl-link-genotypes", "data-selected-datasets")
   });
 </script>
 {%endblock%}
