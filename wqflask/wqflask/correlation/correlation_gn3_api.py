@@ -3,7 +3,7 @@ import json
 import time
 from functools import wraps
 
-from flask import current_app
+from utility.tools import SQL_URI
 
 from wqflask.correlation import correlation_functions
 from wqflask.correlation.pre_computes import fetch_precompute_results
@@ -148,7 +148,7 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
     geneid_dict = {trait_name: geneid for (trait_name, geneid) in geneid_dict.items() if
                    trait_lists.get(trait_name)}
 
-    with database_connection(current_app.config["SQL_URI"]) as conn:
+    with database_connection(SQL_URI) as conn:
         correlation_results = compute_all_lit_correlation(
             conn=conn, trait_lists=list(geneid_dict.items()),
             species=species, gene_id=this_trait_geneid)
