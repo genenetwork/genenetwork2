@@ -902,10 +902,14 @@ def corr_compute_page():
 
         if jobs.completed_erroneously(job):
             try:
-                ## The "parseable" error report is actually in STDOUT
-                output = json.loads(job.get("stdout") or "{}")
+                error_output = {
+                    "error-type": "ComputeError",
+                    "error-message": "There was an error computing the correlations",
+                    **json.loads(job.get("stdout") or "{}"),
+                    "stderr-output": job.get("stderr", "").split("\n")
+                }
                 return render_template(
-                    "correlation_error_page.html", error=output)
+                    "correlation_error_page.html", error=error_output)
             except json.decoder.JSONDecodeError as jde:
                 raise Exception(f"STDOUT: {job.get('stdout')}") from jde
 
