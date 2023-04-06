@@ -3,6 +3,8 @@ import json
 import time
 from functools import wraps
 
+from flask import current_app
+
 from wqflask.correlation import correlation_functions
 from wqflask.correlation.pre_computes import fetch_precompute_results
 from wqflask.correlation.pre_computes import cache_compute_results
@@ -11,7 +13,7 @@ from base import data_set
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
 
-from gn3.db_utils import database_connector
+from gn3.db_utils import database_connection
 from gn3.commands import run_sample_corr_cmd
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation
@@ -146,7 +148,7 @@ def lit_for_trait_list(corr_results, this_dataset, this_trait):
     geneid_dict = {trait_name: geneid for (trait_name, geneid) in geneid_dict.items() if
                    trait_lists.get(trait_name)}
 
-    with database_connector() as conn:
+    with database_connection(current_app.config["SQL_URI"]) as conn:
         correlation_results = compute_all_lit_correlation(
             conn=conn, trait_lists=list(geneid_dict.items()),
             species=species, gene_id=this_trait_geneid)

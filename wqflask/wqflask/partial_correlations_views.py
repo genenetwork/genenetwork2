@@ -348,7 +348,7 @@ def process_pcorrs_command_output(result):
 @app.route("/partial_correlations/<command_id>", methods=["GET"])
 def poll_partial_correlation_results(command_id):
     response = requests.get(
-        url=urljoin(GN_SERVER_URL, "async_commands/state/{command_id}"))
+        url=urljoin(GN_SERVER_URL, f"async_commands/state/{command_id}"))
 
     if response.status_code == 200:
         data = response.json()
@@ -366,3 +366,7 @@ def poll_partial_correlation_results(command_id):
         return render_template(
             "partial_correlations/pcorrs_poll_results.html",
             command_id = command_id)
+    return render_error(
+        "We messed up, and the computation failed due to a system "
+        "error.",
+        command_id)
