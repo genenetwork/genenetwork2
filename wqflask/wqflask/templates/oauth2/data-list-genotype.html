@@ -152,6 +152,75 @@
 
 {%block js%}
 <script language="javascript" type="text/javascript">
+  function link_checkbox(dataset) {
+      cell = $("<td>");
+      check = $('<input type="checkbox" class="checkbox checkbox-selected" ' +
+		'name="selected_datasets" checked="checked">');
+      check.val(JSON.stringify(dataset));
+      cell.append(check);
+      return cell;
+  }
+
+  function table_cell(value) {
+      cell = $("<td>");
+      cell.html(value);
+      return cell;
+  }
+
+  function render_table(table_id, data_attr_name) {
+      $(table_id + " tbody tr").remove();
+      table_data = JSON.parse($(table_id).attr(data_attr_name));
+      if(table_data.length < 1) {
+	  row = $("<tr>")
+	  cell = $('<td colspan="100%" align="center">');
+	  cell.append(
+	      $('<span class="glyphicon glyphicon-info-sign text-info">'));
+	  cell.append("&nbsp;");
+	  cell.append("No genotype datasets remaining.");
+	  row.append(cell);
+	  $(table_id + " tbody").append(row);
+      }
+      table_data.forEach(function(dataset) {
+	  row = $("<tr>")
+	  row.append(link_checkbox(dataset));
+	  row.append(table_cell(dataset.InbredSetName));
+	  row.append(table_cell(dataset.dataset_name));
+	  row.append(table_cell(dataset.dataset_fullname));
+	  row.append(table_cell(dataset.dataset_shortname));
+	  $(table_id + " tbody").append(row);
+      });
+  }
+
+  function in_array(dataset, datasets) {
+      found = datasets.filter(function(dst) {
+	  return (dst.SpeciesId == dataset.SpeciesId &&
+		  dst.InbredSetId == dataset.InbredSetId &&
+		  dst.GenoFreezeId == dataset.GenoFreezeId);
+      });
+      return found.length > 0;
+  }
+
+  function remove_from_table_data(dataset, table_id, data_attr_name) {
+      without_dataset = JSON.parse($(table_id).attr(data_attr_name)).filter(
+	  function(dst) {
+	      return !(dst.SpeciesId == dataset.SpeciesId &&
+		       dst.InbredSetId == dataset.InbredSetId &&
+		       dst.GenoFreezeId == dataset.GenoFreezeId);
+	  });
+      $(table_id).attr(data_attr_name, JSON.stringify(without_dataset));
+  }
+
+  function toggle_link_button() {
+      num_groups = $("#frm-link-genotypes select option").length - 1;
+      num_selected = JSON.parse(
+	  $("#tbl-link-genotypes").attr("data-selected-datasets")).length;
+      if(num_groups > 0 && num_selected > 0) {
+	  $("#frm-link-genotypes input[type='submit']").prop("disabled", false);
+      } else {
+	  $("#frm-link-genotypes input[type='submit']").prop("disabled", true);
+      }
+  }
+
   $(document).ready(function() {
       $("#frm-search-traits").submit(function(event) {
 	  event.preventDefault();
@@ -163,11 +232,19 @@
               selected = JSON.parse(
 		  $("#tbl-link-genotypes").attr("data-selected-datasets"));
 	      this_item = JSON.parse(this.value);
-	      selected.push(this_item);
+	      if(!in_array(this_item, selected)) {
+		  selected.push(this_item);
+	      }
 	      $("#tbl-link-genotypes").attr(
-		  "data-selected-datasets", JSON.stringify(selected));
+		  "data-selected-datasets",
+		  JSON.stringify(Array.from(selected)));
 	      /* Remove from source table */
+	      remove_from_table_data(
+		  this_item, "#tbl-genotypes", "data-datasets");
 	      /* Re-render tables */
+	      render_table("#tbl-link-genotypes", "data-selected-datasets");
+	      render_table("#tbl-genotypes", "data-datasets");
+	      toggle_link_button();
           }
       });
   });
