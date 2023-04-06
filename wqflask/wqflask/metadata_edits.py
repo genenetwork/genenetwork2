@@ -274,6 +274,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
             data=Phenotype(**phenotype_),
             where=Phenotype(id_=data_.get("phenotype-id")),
         )
+        conn.commit()
     diff_data = {}
     if updated_phenotypes:
         diff_data.update(
@@ -322,6 +323,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                 data=Publication(**publication_),
                 where=Publication(id_=data_.get("old_id_")),
             )
+        conn.commit()
 
     if updated_publications:
         diff_data.update(
