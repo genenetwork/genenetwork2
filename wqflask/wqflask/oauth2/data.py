@@ -1,4 +1,5 @@
 """Handle linking data to groups."""
+import json
 from urllib.parse import urljoin
 
 from flask import (
@@ -154,3 +155,28 @@ def link_data():
     except AssertionError as aserr:
         flash("You must provide all the expected data.", "alert-danger")
         return redirect(url_for("oauth2.data.list_data"))
+
+@data.route("/link/genotype", methods=["POST"])
+def link_genotype_data():
+    """Link genotype data to a group."""
+    form = request.form
+    link_source_url = redirect(url_for("oauth2.data.list_data"))
+    if bool(form.get("species_name")):
+        link_source_url = redirect(url_for(
+            "oauth2.data.list_data_by_species_and_dataset",
+            species_name=form["species_name"], dataset_type="genotype"))
+
+    def __link_error__(err):
+        flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+        return link_source_url
+
+    def __link_success__(success):
+        flash(success["description"], "alert-success")
+        return link_source_url
+
+    return oauth2_post("oauth2/data/link/genotype", json={
+        "species_name": form.get("species_name"),
+        "group_id": form.get("group_id"),
+        "selected_datasets": tuple(json.loads(dataset) for dataset
+                                   in form.getlist("selected_datasets"))
+    }).either(lambda err: __link_error__(process_error(err)), __link_success__)

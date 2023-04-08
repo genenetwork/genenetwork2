@@ -23,8 +23,11 @@
   </div>
 
   <div class="row">
-    <form id="frm-link-genotypes">
+    <form id="frm-link-genotypes" method="POST"
+	  action="{{url_for('oauth2.data.link_genotype_data')}}">
       <legend>Link Genotype Traits to Group</legend>
+
+      <input type="hidden" name="species_name" value="{{species_name}}" />
 
       <div class="form-group">
 	<label for="select-group">Group</label>

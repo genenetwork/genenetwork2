@@ -1,4 +1,5 @@
 """Common oauth2 client utilities."""
+from typing import Optional
 from urllib.parse import urljoin
 
 from flask import session, current_app as app
@@ -29,13 +30,17 @@ def oauth2_get(uri_path: str, data: dict = {}) -> Either:
 
     return Left(resp)
 
-def oauth2_post(uri_path: str, data: dict) -> Either:
+def oauth2_post(
+        uri_path: str, data: Optional[dict] = None, json: Optional[dict] = None,
+        **kwargs) -> Either:
     token = session.get("oauth2_token")
     config = app.config
     client = OAuth2Session(
         config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
         token=token, scope=SCOPE)
-    resp = client.post(urljoin(config["GN_SERVER_URL"], uri_path), data=data)
+    resp = client.post(
+        urljoin(config["GN_SERVER_URL"], uri_path), data=data, json=json,
+        **kwargs)
     if resp.status_code == 200:
         return Right(resp.json())
 
