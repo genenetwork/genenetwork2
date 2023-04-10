@@ -58,7 +58,7 @@
 	  <tr>
 	    <td>
 	      <input type="checkbox" class="checkbox checkbox-selected"
-		     name="selected_datasets"
+		     name="selected"
 		     value='{{dataset | tojson}}' />
 	    </td>
 	    <td>{{dataset.dataset_name}}</td>
@@ -91,12 +91,12 @@
 
   <div class="row">
     <span id="search-messages" class="alert-danger" style="display:none"></span>
-    <form id="frm-search-traits"
-	  action="#"
+    <form id="frm-search"
+	  action="{{search_uri}}"
 	  method="POST">
       <legend>Search: Genotype</legend>
       <input type="hidden" value="{{species_name}}" name="species"
-	     id="txt-species" />
+	     id="txt-species-name" />
       <input type="hidden" value="{{dataset_type}}" name="dataset_type"
 	     id="txt-dataset-type"  />
       <input type="hidden" value="{{per_page}}" name="per_page"
@@ -111,6 +111,11 @@
   </div>
 
   <div class="row">
+    <div id="search-error" class="text-danger" style="display: none;">
+      <span class="glyphicon glyphicon-exclamation-sign"></span>
+      &nbsp
+      <span id="search-error-text"></span>
+    </div>
     <table id="tbl-genotypes"
 	   class="table-hover table-striped cell-border dataTable no-footer"
 	   data-datasets='{{datasets | list | tojson}}'>

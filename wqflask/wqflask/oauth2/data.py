@@ -3,8 +3,8 @@ import json
 from urllib.parse import urljoin
 
 from flask import (
-    flash, request, url_for, redirect, Response, Blueprint, render_template,
-    current_app as app)
+    flash, request, jsonify, url_for, redirect, Response, Blueprint,
+    render_template, current_app as app)
 
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post
@@ -22,18 +22,29 @@ def __render_template__(templatepath, **kwargs):
 def __search_mrna__(query, template, **kwargs):
     return __render_template__(template, **kwargs)
 
+def __selected_datasets__():
+    if bool(request.json):
+        return request.json.get(
+            "selected",
+            request.args.get("selected",
+                             request.form.get("selected", [])))
+    return request.args.get("selected",
+                            request.form.get("selected", []))
+
 def __search_genotypes__(query, template, **kwargs):
     species_name = kwargs["species_name"]
+    search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
     datasets = oauth2_get(
         "oauth2/data/search",
-        data = {
+        json = {
             "query": query,
             "dataset_type": "genotype",
-            "species_name": species_name
+            "species_name": species_name,
+            "selected": __selected_datasets__()
         }).either(
             lambda err: {"datasets_error": process_error(err)},
             lambda datasets: {"datasets": datasets})
-    return __render_template__(template, **datasets, **kwargs)
+    return __render_template__(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
     per_page = int(request.args.get("per_page", 500))
@@ -54,6 +65,28 @@ def __search_phenotypes__(query, template, **kwargs):
         selected_traits=selected_traits,
         search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"),
         **kwargs)
+
+@data.route("/genotype/search", methods=["POST"])
+def json_search_genotypes() -> Response:
+    def __handle_error__(err):
+        error = process_error(err)
+        print(f"THE ERROR: {error}")
+        return jsonify(error), error["status_code"]
+
+    print(f"===============================================")
+    print(request.json)
+    print(f"===============================================")
+    
+    return oauth2_get(
+        "oauth2/data/search",
+        json = {
+            "query": request.json["query"],
+            "dataset_type": "genotype",
+            "species_name": request.json["species_name"],
+            "selected": __selected_datasets__()
+        }).either(
+            __handle_error__,
+            lambda datasets: jsonify(datasets))
 
 @data.route("/<string:species_name>/<string:dataset_type>/list",
             methods=["GET", "POST"])
@@ -177,6 +210,6 @@ def link_genotype_data():
     return oauth2_post("oauth2/data/link/genotype", json={
         "species_name": form.get("species_name"),
         "group_id": form.get("group_id"),
-        "selected_datasets": tuple(json.loads(dataset) for dataset
-                                   in form.getlist("selected_datasets"))
+        "selected": tuple(json.loads(dataset) for dataset
+                                   in form.getlist("selected"))
     }).either(lambda err: __link_error__(process_error(err)), __link_success__)

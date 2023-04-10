@@ -23,9 +23,10 @@ def process_error(error: Response,
         return {
             "error": "NotFoundError",
             "error_message": message,
-            "error_description": message
+            "error_description": message,
+            "status_code": error.status_code
         }
-    return error.json()
+    return {**error.json(), "status_code": error.status_code}
 
 def request_error(response):
     app.logger.error(f"{response}: {response.url} [{response.status_code}]")
