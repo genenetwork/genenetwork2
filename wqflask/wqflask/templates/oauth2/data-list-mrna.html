@@ -23,9 +23,9 @@
   </div>
 
   <div class="row">
-    <form id="frm-link-genotypes" method="POST"
-	  action="{{url_for('oauth2.data.link_genotype_data')}}">
-      <legend>Link Genotype Datasets to Group</legend>
+    <form id="frm-link-mrna" method="POST"
+	  action="{{url_for('oauth2.data.link_mrna_data')}}">
+      <legend>Link mRNA Assay Datasets to Group</legend>
 
       <input type="hidden" name="species_name" value="{{species_name}}" />
 
@@ -41,7 +41,7 @@
       </div>
 
       <div class="form-group">
-      <table id="tbl-link-genotypes"
+      <table id="tbl-link-mrna"
 	     class="table-hover table-striped cell-border dataTable no-footer"
 	     data-selected-datasets='{{selected_datasets | list | tojson}}'>
 	<thead>
@@ -94,7 +94,7 @@
     <form id="frm-search"
 	  action="{{search_uri}}"
 	  method="POST">
-      <legend>Search: Genotype</legend>
+      <legend>Search: mRNA Assay</legend>
       <input type="hidden" value="{{species_name}}" name="species"
 	     id="txt-species-name" />
       <input type="hidden" value="{{dataset_type}}" name="dataset_type"
@@ -116,13 +116,14 @@
       &nbsp
       <span id="search-error-text"></span>
     </div>
-    <table id="tbl-genotypes"
+    <table id="tbl-search"
 	   class="table-hover table-striped cell-border dataTable no-footer"
 	   data-datasets='{{datasets | list | tojson}}'>
       <thead>
 	<tr>
 	  <th>Select</th>
 	  <th>Group</th>
+	  <th>Study Name</th>
 	  <th>Dataset Name</th>
 	  <th>Dataset FullName</th>
 	  <th>Dataset ShortName</th>
@@ -137,6 +138,7 @@
 		   value='{{dataset | tojson}}' />
 	  </td>
 	  <td>{{dataset.InbredSetName}}</td>
+	  <td>{{dataset.StudyName}}</td>
 	  <td>{{dataset.dataset_name}}</td>
 	  <td>{{dataset.dataset_fullname}}</td>
 	  <td>{{dataset.dataset_shortname}}</td>
@@ -159,6 +161,6 @@
 {%endblock%}
 
 {%block js%}
-<script src="/static/new/javascript/auth/search_genotypes.js"
+<script src="/static/new/javascript/auth/search_mrna.js"
 	language="javascript" type="text/javascript"></script>
 {%endblock%}

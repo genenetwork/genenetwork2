@@ -20,7 +20,20 @@ def __render_template__(templatepath, **kwargs):
         templatepath, **kwargs, user_privileges=user_privileges)
 
 def __search_mrna__(query, template, **kwargs):
-    return __render_template__(template, **kwargs)
+    species_name = kwargs["species_name"]
+    search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
+    print(f"SEARCHING FOR mrna")
+    datasets = oauth2_get(
+        "oauth2/data/search",
+        json = {
+            "query": query,
+            "dataset_type": "mrna",
+            "species_name": species_name,
+            "selected": __selected_datasets__()
+        }).either(
+            lambda err: {"datasets_error": process_error(err)},
+            lambda datasets: {"datasets": datasets})
+    return __render_template__(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __selected_datasets__():
     if bool(request.json):
@@ -70,12 +83,7 @@ def __search_phenotypes__(query, template, **kwargs):
 def json_search_genotypes() -> Response:
     def __handle_error__(err):
         error = process_error(err)
-        print(f"THE ERROR: {error}")
         return jsonify(error), error["status_code"]
-
-    print(f"===============================================")
-    print(request.json)
-    print(f"===============================================")
     
     return oauth2_get(
         "oauth2/data/search",
@@ -208,6 +216,32 @@ def link_genotype_data():
         return link_source_url
 
     return oauth2_post("oauth2/data/link/genotype", json={
+        "species_name": form.get("species_name"),
+        "group_id": form.get("group_id"),
+        "selected": tuple(json.loads(dataset) for dataset
+                                   in form.getlist("selected"))
+    }).either(lambda err: __link_error__(process_error(err)), __link_success__)
+
+
+@data.route("/link/mrna", methods=["POST"])
+def link_mrna_data():
+    """Link mrna data to a group."""
+    form = request.form
+    link_source_url = redirect(url_for("oauth2.data.list_data"))
+    if bool(form.get("species_name")):
+        link_source_url = redirect(url_for(
+            "oauth2.data.list_data_by_species_and_dataset",
+            species_name=form["species_name"], dataset_type="mrna"))
+
+    def __link_error__(err):
+        flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+        return link_source_url
+
+    def __link_success__(success):
+        flash(success["description"], "alert-success")
+        return link_source_url
+
+    return oauth2_post("oauth2/data/link/mrna", json={
         "species_name": form.get("species_name"),
         "group_id": form.get("group_id"),
         "selected": tuple(json.loads(dataset) for dataset
