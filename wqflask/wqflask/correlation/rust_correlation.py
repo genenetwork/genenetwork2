@@ -28,7 +28,7 @@ def query_probes_metadata(dataset, trait_list):
     if not bool(trait_list) or dataset.type!="ProbeSet":
         return []
 
-    with database_connection(SQL_URI) as conn:
+    with database_connection() as conn:
         with conn.cursor() as cursor:
 
             query = """
@@ -98,7 +98,7 @@ def chunk_dataset(dataset, steps, name):
                   ProbeSetXRef.ProbeSetId = ProbeSet.Id
     """.format(name)
 
-    with database_connection(SQL_URI) as conn:
+    with database_connection() as conn:
         with conn.cursor() as curr:
             curr.execute(query)
             traits_name_dict = dict(curr.fetchall())
@@ -122,7 +122,7 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
             sample_data=json.loads(samples_vals),
             dataset_samples=dataset.group.all_samples_ordered())
 
-        with database_connection(SQL_URI) as conn:
+        with database_connection() as conn:
             with conn.cursor() as curr:
                 curr.execute(
                     """
@@ -140,7 +140,7 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
     if len(trait_list) == 0:
         return {}
 
-    with database_connection(SQL_URI) as conn:
+    with database_connection() as conn:
         with conn.cursor() as curr:
             # fetching strain data in bulk
             query = (
@@ -176,7 +176,7 @@ def compute_top_n_lit(corr_results, target_dataset, this_trait) -> dict:
     geneid_dict = {trait_name: geneid for (trait_name, geneid)
                    in geneid_dict.items() if
                    corr_results.get(trait_name)}
-    with database_connection(SQL_URI) as conn:
+    with database_connection() as conn:
         return reduce(
             lambda acc, corr: {**acc, **corr},
             compute_all_lit_correlation(
@@ -251,7 +251,7 @@ def __compute_sample_corr__(
 
 
     if target_dataset.type == "ProbeSet" and start_vars.get("use_cache") == "true":
-        with database_connection(SQL_URI) as conn:
+        with database_connection() as conn:
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
                 (sample_vals, target_data) = read_text_file(
@@ -338,7 +338,7 @@ def __compute_lit_corr__(
     (this_trait_geneid, geneid_dict, species) = do_lit_correlation(
         this_trait, target_dataset)
 
-    with database_connection(SQL_URI) as conn:
+    with database_connection() as conn:
         return reduce(
             lambda acc, lit: {**acc, **lit},
             compute_all_lit_correlation(
