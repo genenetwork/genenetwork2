@@ -2,6 +2,10 @@ import csv
 import json
 import os
 import hashlib
+import datetime
+
+import lmdb
+import pickle
 from pathlib import Path
 
 from base.data_set import query_table_timestamp
@@ -9,6 +13,31 @@ from base.webqtlConfig import TEXTDIR
 from base.webqtlConfig import TMPDIR
 
 from json.decoder import JSONDecodeError
+
+def cache_trait_metadata(dataset_name, data):
+
+
+    try:
+        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),map_size=20971520) as env:
+            with  env.begin(write=True) as  txn:
+                data_bytes = pickle.dumps(data)
+                txn.put(f"{dataset_name}".encode(), data_bytes)
+                current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                txn.put(b"creation_date", current_date.encode())
+                return "success"
+
+    except lmdb.Error as  error:
+        pass
+
+def read_trait_metadata(dataset_name):
+    try:
+        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),
+            readonly=True, lock=False) as env:
+            with env.begin() as txn:
+                db_name = txn.get(dataset_name.encode())
+                return (pickle.loads(db_name) if db_name else {})
+    except lmdb.Error as error:
+        return {}
 
 
 def fetch_all_cached_metadata(dataset_name):
@@ -174,11 +203,10 @@ def get_datasets_data(base_dataset, target_dataset_data):
 def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
     """fetch textfiles with strain vals if exists"""
 
-
-    def __file_scanner__(text_dir,target_file):
-        for file  in os.listdir(text_dir):
+    def __file_scanner__(text_dir, target_file):
+        for file in os.listdir(text_dir):
             if file.startswith(f"ProbeSetFreezeId_{target_file}_"):
-                return os.path.join(text_dir,file)
+                return os.path.join(text_dir, file)
 
     with conn.cursor() as cursor:
         cursor.execute(
@@ -188,7 +216,7 @@ def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
         try:
             # checks first for recently generated textfiles if not use gn1 datamatrix
 
-            return __file_scanner__(text_dir,results[0]) or __file_scanner__(TEXTDIR,results[0])
+            return __file_scanner__(text_dir, results[0]) or __file_scanner__(TEXTDIR, results[0])
 
         except Exception:
             pass
