@@ -23,7 +23,7 @@
   </div>
 
   <div class="row">
-    <form id="frm-link-mrna" method="POST"
+    <form id="frm-link" method="POST"
 	  action="{{url_for('oauth2.data.link_mrna_data')}}">
       <legend>Link mRNA Assay Datasets to Group</legend>
 
@@ -41,9 +41,9 @@
       </div>
 
       <div class="form-group">
-      <table id="tbl-link-mrna"
+      <table id="tbl-link"
 	     class="table-hover table-striped cell-border dataTable no-footer"
-	     data-selected-datasets='{{selected_datasets | list | tojson}}'>
+	     data-datasets='{{selected_datasets | list | tojson}}'>
 	<thead>
 	  <tr>
 	    <th>Deselect</th>
@@ -161,6 +161,8 @@
 {%endblock%}
 
 {%block js%}
+<script src="/static/new/javascript/auth/search.js"
+	language="javascript" type="text/javascript"></script>
 <script src="/static/new/javascript/auth/search_mrna.js"
 	language="javascript" type="text/javascript"></script>
 {%endblock%}

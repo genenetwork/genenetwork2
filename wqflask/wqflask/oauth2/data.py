@@ -22,7 +22,6 @@ def __render_template__(templatepath, **kwargs):
 def __search_mrna__(query, template, **kwargs):
     species_name = kwargs["species_name"]
     search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
-    print(f"SEARCHING FOR mrna")
     datasets = oauth2_get(
         "oauth2/data/search",
         json = {
@@ -90,6 +89,23 @@ def json_search_genotypes() -> Response:
         json = {
             "query": request.json["query"],
             "dataset_type": "genotype",
+            "species_name": request.json["species_name"],
+            "selected": __selected_datasets__()
+        }).either(
+            __handle_error__,
+            lambda datasets: jsonify(datasets))
+
+@data.route("/mrna/search", methods=["POST"])
+def json_search_mrna() -> Response:
+    def __handle_error__(err):
+        error = process_error(err)
+        return jsonify(error), error["status_code"]
+
+    return oauth2_get(
+        "oauth2/data/search",
+        json = {
+            "query": request.json["query"],
+            "dataset_type": "mrna",
             "species_name": request.json["species_name"],
             "selected": __selected_datasets__()
         }).either(
