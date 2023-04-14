@@ -1048,3 +1048,19 @@ def display_diffs_users():
                        files)
     return render_template("display_files_user.html",
                            files=files)
+
+
+@app.route("/genewiki/<symbol>")
+def display_generif_page(symbol):
+    """Fetch GeneRIF metadata from GN3 and display it"""
+    entries = requests.get(
+        urljoin(
+            GN3_LOCAL_URL,
+            f"/api/metadata/genewiki/{symbol}"
+        )
+    ).json()
+    return render_template(
+        "generif.html",
+        symbol=symbol,
+        entries=entries
+    )
