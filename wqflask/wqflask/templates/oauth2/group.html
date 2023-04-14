@@ -8,6 +8,11 @@
 
   {{flash_me()}}
 
+  {%if group_error is defined%}
+  <div class="row" style="text-align:center;line-height:5em;">
+    {{display_error("Group", group_error)}}
+  </div>
+  {%else%}
   <div class="container-fluid">
     <div class="row">
       {%if group_join_requests_error is defined %}
@@ -103,6 +108,7 @@
     </table>
 
   </div>
+  {%endif%}
 
 </div>
 {%endblock%}
