@@ -1,11 +1,16 @@
 """Handle linking data to groups."""
+import sys
 import json
+import uuid
+from datetime import datetime
 from urllib.parse import urljoin
 
+from redis import Redis
 from flask import (
     flash, request, jsonify, url_for, redirect, Response, Blueprint,
     render_template, current_app as app)
 
+from jobs import jobs
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post
 
@@ -59,24 +64,31 @@ def __search_genotypes__(query, template, **kwargs):
     return __render_template__(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
+    page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 500))
-    species_name = kwargs["species_name"]
-    search_uri = (f"search/?type=phenotype&per_page={per_page}&query="
-                  f"species:{species_name}") + (
-                      f" AND ({query})" if bool(query) else "")
-    traits = oauth2_get(search_uri).either(
-             lambda err: {"traits_error": process_error(err)},
-             lambda trts: {"traits": tuple({
-                 "index": idx, **trait
-             } for idx, trait in enumerate(trts, start=1))})
-
     selected_traits = request.form.getlist("selected_traits")
-
-    return __render_template__(
-        template, **traits, per_page=per_page, query=query,
-        selected_traits=selected_traits,
-        search_endpoint=urljoin(app.config["GN_SERVER_URL"], "search/"),
-        **kwargs)
+    def __search_error__(error):
+        raise Exception(error)
+    def __search_success__(search_results):
+        job_id = uuid.UUID(search_results["job_id"])
+        return __render_template__(
+            template, traits=[], per_page=per_page, query=query,
+            selected_traits=selected_traits, search_results=search_results,
+            search_endpoint=urljoin(
+                app.config["GN_SERVER_URL"], "oauth2/data/search"),
+            results_endpoint=urljoin(
+                app.config["GN_SERVER_URL"],
+                f"oauth2/data/search/phenotype/{job_id}"),
+            **kwargs)
+    return oauth2_get("oauth2/data/search", json={
+        "dataset_type": "phenotype",
+        "species_name": kwargs["species_name"],
+        "per_page": per_page,
+        "page": page,
+        "gn3_server_uri": app.config["GN_SERVER_URL"]
+    }).either(
+        lambda err: __search_error__(process_error(err)),
+        __search_success__)
 
 @data.route("/genotype/search", methods=["POST"])
 def json_search_genotypes() -> Response:

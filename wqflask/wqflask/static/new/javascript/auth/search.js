@@ -134,30 +134,31 @@ function debounce(func, delay=500) {
 }
 
 /**
- * Build a checkbox: For internal use only
- * @param {Genotype Dataset object} A genotype dataset object
- * @param {String} A string to initialise the checkbox
+ * Build a checkbox
+ * @param {Dataset Object} A JSON.stringify-able object
+ * @param {String} The name to assign the checkbox
  */
-function __build_checkbox__(dataset, checkbox_str) {
+function build_checkbox(data_object, checkbox_name, checkbox_aux_classes="") {
     cell = $("<td>");
-    check = $(checkbox_str);
-    check.val(JSON.stringify(dataset));
+    check = $(
+	'<input type="checkbox" class="checkbox" ' +
+	    'name="' + checkbox_name + '" checked="checked">');
+    check.val(JSON.stringify(data_object));
+    auxilliary_classes = checkbox_aux_class.trim();
+    if(Boolean(auxilliary_classes)) {
+	check.attr("class",
+		   check.attr("class") + " " + auxilliary_classes.trim());
+    }
     cell.append(check);
     return cell;
 }
 
 function link_checkbox(dataset) {
-    return __build_checkbox__(
-	dataset,
-	'<input type="checkbox" class="checkbox checkbox-selected" ' +
-	    'name="selected" checked="checked">');
+    return build_checkbox(dataset, "selected", "checkbox-selected");
 }
 
 function search_checkbox(dataset) {
-    return __build_checkbox__(
-	dataset,
-	'<input type="checkbox" class="checkbox checkbox-search" ' +
-	    'name="search_datasets">');
+    return build_checkbox(dataset, "search_datasets", "checkbox-search");
 }
 
 function table_cell(value) {
