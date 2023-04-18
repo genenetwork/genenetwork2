@@ -13,6 +13,8 @@ from wqflask.correlation.correlation_gn3_api import do_lit_correlation
 from wqflask.correlation.pre_computes import fetch_text_file
 from wqflask.correlation.pre_computes import read_text_file
 from wqflask.correlation.pre_computes import write_db_to_textfile
+from wqflask.correlation.pre_computes import read_trait_metadata
+from wqflask.correlation.pre_computes import cache_trait_metadata
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
 from gn3.computations.rust_correlation import get_sample_corr_data
@@ -25,7 +27,7 @@ from wqflask.correlation.exceptions import WrongCorrelationType
 def query_probes_metadata(dataset, trait_list):
     """query traits metadata in bulk for probeset"""
 
-    if not bool(trait_list) or dataset.type!="ProbeSet":
+    if not bool(trait_list) or dataset.type != "ProbeSet":
         return []
 
     with database_connection(SQL_URI) as conn:
@@ -63,8 +65,11 @@ def get_metadata(dataset, traits):
         if probe_mb:
             return f"Chr{probe_chr}: {probe_mb:.6f}"
         return f"Chr{probe_chr}: ???"
-
-    return {trait_name: {
+    cached_metadata = read_trait_metadata(dataset.name)
+    to_fetch_metadata = list(
+        set(traits).difference(list(cached_metadata.keys())))
+    if to_fetch_metadata:
+        results = {**({trait_name: {
             "name": trait_name,
             "view": True,
             "symbol": symbol,
@@ -77,13 +82,16 @@ def get_metadata(dataset, traits):
             "location": __location__(probe_chr, probe_mb),
             "chr": probe_chr,
             "mb": probe_mb,
-            "lrs_location":f'Chr{chr_score}: {mb:{".6f" if mb  else ""}}',
+            "lrs_location": f'Chr{chr_score}: {mb:{".6f" if mb  else ""}}',
             "lrs_chr": chr_score,
             "lrs_mb": mb
 
-            } for trait_name, probe_chr, probe_mb, symbol, mean, description,
+        } for trait_name, probe_chr, probe_mb, symbol, mean, description,
             additive, lrs, chr_score, mb
-            in query_probes_metadata(dataset, traits)}
+            in query_probes_metadata(dataset, to_fetch_metadata)}), **cached_metadata}
+        cache_trait_metadata(dataset.name, results)
+        return results
+    return cached_metadata
 
 
 def chunk_dataset(dataset, steps, name):
@@ -235,20 +243,19 @@ def __compute_sample_corr__(
     """Compute the sample correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
 
-    if this_dataset.group.f1list !=None:
-        this_dataset.group.samplelist+= this_dataset.group.f1list
+    if this_dataset.group.f1list != None:
+        this_dataset.group.samplelist += this_dataset.group.f1list
 
-    if this_dataset.group.parlist!= None:
-        this_dataset.group.samplelist+= this_dataset.group.parlist
+    if this_dataset.group.parlist != None:
+        this_dataset.group.samplelist += this_dataset.group.parlist
 
     sample_data = get_sample_corr_data(
         sample_type=start_vars["corr_samples_group"],
-        sample_data= json.loads(start_vars["sample_vals"]),
+        sample_data=json.loads(start_vars["sample_vals"]),
         dataset_samples=this_dataset.group.all_samples_ordered())
 
     if not bool(sample_data):
         return {}
-
 
     if target_dataset.type == "ProbeSet" and start_vars.get("use_cache") == "true":
         with database_connection(SQL_URI) as conn:
@@ -257,10 +264,8 @@ def __compute_sample_corr__(
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
 
-        
                 return run_correlation(target_data, sample_vals,
                                        method, ",", corr_type, n_top)
-
 
             write_db_to_textfile(target_dataset.name, conn)
             file_path = fetch_text_file(target_dataset.name, conn)
@@ -268,11 +273,8 @@ def __compute_sample_corr__(
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
 
-
                 return run_correlation(target_data, sample_vals,
                                        method, ",", corr_type, n_top)
-
-
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
@@ -287,7 +289,6 @@ def __compute_sample_corr__(
 
     if len(target_data) == 0:
         return {}
-
 
     return run_correlation(
         target_data, list(sample_data.values()), method, ",", corr_type,
