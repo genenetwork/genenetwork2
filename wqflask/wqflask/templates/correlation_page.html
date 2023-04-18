@@ -411,7 +411,7 @@
               'data': null,
               'width': "80px",
               'render': function(data) {
-                if (data.pubmed_id != "N/A"){
+                if (data.pubmed_link != "N/A"){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
                 } else {
                   return data.pubmed_text

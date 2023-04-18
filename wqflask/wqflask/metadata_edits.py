@@ -360,7 +360,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                     json_data=json.dumps(diff_data),
                 ),
             )
-        conn.commit()
+            conn.commit()
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(
         f"/datasets/{dataset_id}/traits/{name}"

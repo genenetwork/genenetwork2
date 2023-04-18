@@ -20,12 +20,14 @@ def process_error(error: Response,
                                 "server.")
                   ) -> dict:
     if error.status_code == 404:
+        msg = error.json()["error_description"] if hasattr(error, "json") else message
         return {
             "error": "NotFoundError",
-            "error_message": message,
-            "error_description": message
+            "error_message": msg,
+            "error_description": msg,
+            "status_code": error.status_code
         }
-    return error.json()
+    return {**error.json(), "status_code": error.status_code}
 
 def request_error(response):
     app.logger.error(f"{response}: {response.url} [{response.status_code}]")

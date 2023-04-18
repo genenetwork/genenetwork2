@@ -9,7 +9,7 @@ from flask import (
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
-    user_details, handle_error, request_error, process_error, handle_success,
+    user_details, handle_error, process_error, handle_success,
     raise_unimplemented)
 
 groups = Blueprint("group", __name__)
@@ -32,8 +32,12 @@ def user_group():
                 user_error=process_error(error)),
             partial(__get_join_requests__, group))
 
+    def __group_error__(err):
+        return render_template(
+            "oauth2/group.html", group_error=process_error(err))
+
     return oauth2_get("oauth2/user/group").either(
-        request_error, __success__)
+        __group_error__, __success__)
 
 @groups.route("/create", methods=["POST"])
 @require_oauth2

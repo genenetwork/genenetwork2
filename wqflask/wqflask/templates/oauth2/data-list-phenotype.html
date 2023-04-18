@@ -40,7 +40,9 @@
 	</select>
       </div>
 
-      <table id="tbl-link-phenotypes" class="table-hover table-striped cell-border">
+      <table id="tbl-link-phenotypes"
+	     class="table-hover table-striped cell-border dataTable no-footer"
+	     data-traits="[]">
 	<tbody>
 	  <tr>
 	    <td colspan="100%" align="center" style="text-align: center;">
@@ -53,12 +55,14 @@
 	  </tr>
       </table>
 
-      {%if groups | length > 0%}
-      <input type="submit" value="Link Selected" class="btn btn-primary" />
-      {%else%}
-      <input type="submit" value="No group to link to" class="btn btn-warning"
-	     disabled="disabled" />
-      {%endif%}
+      <div class="form-group text-center">
+	<input type="submit" value="Link Selected"
+	       class="btn btn-primary"
+	       style="border-top: 0.3em;"
+	       {%if groups | length <= 0 or traits | length <= 0%}
+	       disabled="disabled"
+	       {%endif%} />
+      </div>
     </form>
   </div>
 
@@ -66,7 +70,8 @@
     <span id="search-messages" class="alert-danger" style="display:none"></span>
     <form id="frm-search-traits"
 	  action="#"
-	  method="POST">
+	  method="POST"
+	  data-search-results-endpoint="{{results_endpoint}}">
       {%if dataset_type == "mrna"%}
       <legend>mRNA: Search</legend>
       {%else%}
@@ -75,7 +80,7 @@
       </legend>
       {%endif%}
       <input type="hidden" value="{{species_name}}" name="species"
-	     id="txt-species" />
+	     id="txt-species-name" />
       <input type="hidden" value="{{dataset_type}}" name="dataset_type"
 	     id="txt-dataset-type"  />
       <input type="hidden" value="{{per_page}}" name="per_page"
@@ -84,23 +89,68 @@
       <div class="form-group">
 	<label for="txt-query">Search</label>
 	<div class="input-group">
-	  <span class="input-group-addon">species:{{species_name}} AND (</span>
+	  <span class="input-group-addon">species:{{species_name}} AND </span>
 	  <input type="text" id="txt-query" name="query" class="form-control"
 		 value="{{query}}"/>
-	  <span class="input-group-addon">)</span>
 	</div>
       </div>
     </form>
   </div>
 
   <div class="row">
-    <table id="tbl-phenotypes" class="table-hover table-striped cell-border">
-      <tbody>
+    <table id="tbl-phenotypes"
+	   class="table-hover table-striped cell-border dataTable no-footer"
+	   data-traits="{{traits | tojson}}"
+	   data-initial-job-id={{search_results.job_id}}
+	   data-initial-search-res={{search_results | tojson}}>
+      <thead>
 	<tr>
-	  <td colspan="100%" align="center">
-	    <br><b><font size="15">Loading...</font></b><br>
+	  <th>Select</th>
+	  <th>Name</th>
+	  <th>Group</th>
+	  <th>Dataset</th>
+	  <th>Dataset Fullname</th>
+	  <th>Description</th>
+	  <th>Authors</th>
+	  <th>Year</th>
+	  <th>Location</th>
+	  <th>LRS</th>
+	  <th>Additive</th>
+	</tr>
+      </thead>
+      <tbody>
+	{%for trait in traits%}
+	<tr>
+	  <th>
+	    <input type="checkbox" class="checkbox checkbox-search"
+		   name="search_traits" value="{{trait | tojson}}" />
+	  </th>
+	  <th>{{trait.name}}</th>
+	  <th>{{trait.group}}</th>
+	  <th>{{trait.dataset}}</th>
+	  <th>{{trait.dataset_fullname}}</th>
+	  <th>{{trait.description}}</th>
+	  <th>{{trait.authors | join(" ")}}</th>
+	  <th>
+	    <a href="{{trait.pubmed_linj}}" title="Pubmed link for trait">
+	      {{trait.year}}
+	    </a>
+	  </th>
+	  <th>CHR{{trait.geno_chr}}@{{trait.geno_mb}}</th>
+	  <th>{{trait.lrs}}</th>
+	  <th>{{trait.additive}}</th>
+	</tr>
+	{%else%}
+	<tr>
+	  <td colspan="100%" align="center" style="text-align: center;">
+	    <br/><b><font size="4">
+		<span class="glyphicon glyphicon-info-sign text-info"></span>
+		&nbsp;
+		There are no phenotype traits to select from.
+	    </font></b><br />
 	  </td>
 	</tr>
+	{%endfor%}
     </table>
   </div>
 
@@ -110,134 +160,7 @@
 
 {%block js%}
 <script language="javascript" type="text/javascript"
-	src="/js/DataTables/js/jquery.dataTables.min.js"></script>
-
+	src="/static/new/javascript/auth/search.js"></script>
 <script language="javascript" type="text/javascript"
-	src="/js/DataTablesExtensions/plugins/sorting/natural.js"></script>
-
-<script language="javascript" type="text/javascript"
-	src="/js/DataTablesExtensions/colReorder/js/dataTables.colReorder.js">
-</script>
-
-<script language="javascript" type="text/javascript"
-	src="/js/DataTablesExtensions/colResize/dataTables.colResize.js">
-</script>
-
-<script language="javascript" type="text/javascript"
-	src="/static/new/javascript/create_datatable.js"></script>
-
-<script language="javascript" type="text/javascript">
-  function init_table(table_id, traits) {
-      create_table(
-	  tableId=table_id, tableData=traits,
-	  columnDefs=[
-	      {"data": null, "render": function(data) {
-		  return (
-		      '<input type="checkbox" ' +
-			  (table_id == 'tbltbl-phenotypes' ?
-			   'name="pheno_traits" ': 'name="selected_traits" ') +
-			  'class="checkbox" value="' +
-			  data.name + ':' + data.dataset +
-			  '" />');
-	      }},
-	      {"title": "Index", "data": "index"},
-	      {"title": "Dataset", "data": "dataset_fullname"},
-	      {"title": "Group", "data": "group"},
-	      {"title": "Record", "data": null, "render": function(data) {
-		  return (
-		      '<a target="_blank" href="/show_trait?trait_id=' +
-			  data.name + '&dataset=' + data.dataset +
-			  '">' + data.name + "</a>");
-	      }},
-	      {"title": "Description", "data": "description"},
-	      {"title": "Authors", "data": "authors"},
-	      {"title": "Year", "data": null, render: function(data) {
-		  return (
-		      '<a target="_blank" href="' + data.pubmed_link +
-			  '" >' + data.year + '</a>');
-	      }},
-	      {"title": "LRS", "data": null, "render": function(data) {
-		  return data.lrs ? data.lrs.toFixed(4) : "N/A";
-	      }},
-	      {"title": "Peak Location", "data": null, "render": function(data) {
-		  return 'Chr' + data.geno_chr + ': ' + data.geno_mb;
-	      }},
-	      {"title": "Additive Effects", "data": null, "render": function(data) {
-		  return data.additive ? data.additive.toFixed(4) : "N/A";
-	      }}],
-	  customSettings = {
-	      "scrollY": "40vh",
-	      "language": {
-		  "emptyTable": "No traits to display!",
-		  "info": "Showing _START_ to _END_ of _TOTAL_ entries",
-		  "infoEmpty": "No entries to show",
-		  "loadingRecords": "Loading entries ..."
-	      }
-	  });
-  }
-
-  function add_index(item, index) {
-      return {"index": index, ...item};
-  }
-
-  function do_search() {
-      /*vent.preventDefault();*/
-      user_query = $("#txt-query").val();
-      dataset_type = $("#txt-dataset-type").val();
-      per_page = $("#txt-per-page").val();
-      species = $("#txt-species").val();
-      query = "species:" + species;
-      if (user_query.length > 2) {
-	  query = query + " AND (" + user_query + ")";
-      }
-      $("#search-messages").html("");
-      $("#search-messages").attr("style", "display:none;");
-      $.ajax(
-	  "{{search_endpoint}}",
-	  {
-	      "method": "GET",
-	      "data": {
-		  "type": dataset_type,
-		  "per_page": per_page,
-		  "query": query
-	      },
-	      "error": function(jqXHR, textStatus, errorThrown) {
-		  msg_elt = $("#search-messages")
-		  console.debug(jqXHR)
-		  $("#search-messages").html(
-		      "<strong>" + textStatus + "</strong>: Search for '" +
-		      user_query + "' failed! Try a different search.");
-		  $("#search-messages").attr("style", "display: block;");
-	      },
-	      "success": function (data, textStatus, jqXHR) {
-		  init_table("tbl-phenotypes", data.map(add_index));
-	      }
-	  });
-  }
-
-  function debounced_search() {
-      var timeout;
-      return function search(event) {
-	  clearTimeout(timeout);
-	  timeout = setTimeout(do_search, 500);
-      };
-  }
-
-  function sanitised_table_data(data) {
-      if(data && data.length > 0) {
-	  return data
-      }
-      return null
-  }
-
-  $(document).ready(function() {
-      $("#frm-search-traits").submit(function(event) {
-	  event.preventDefault();
-	  return false;
-      });
-      $("#txt-query").keyup(debounced_search())
-      init_table("tbl-phenotypes", {{traits | list | tojson}});
-      init_table("tbl-link-phenotypes", {{selected_traits | list | tojson}});
-  });
-</script>
+	src="/static/new/javascript/auth/search_phenotypes.js"></script>
 {%endblock%}
