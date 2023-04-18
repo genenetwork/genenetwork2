@@ -138,13 +138,14 @@ function debounce(func, delay=500) {
  * @param {Dataset Object} A JSON.stringify-able object
  * @param {String} The name to assign the checkbox
  */
-function build_checkbox(data_object, checkbox_name, checkbox_aux_classes="") {
+function build_checkbox(data_object, checkbox_name, checkbox_aux_classes="", checked=false) {
     cell = $("<td>");
     check = $(
 	'<input type="checkbox" class="checkbox" ' +
-	    'name="' + checkbox_name + '" checked="checked">');
+	    'name="' + checkbox_name + '">');
     check.val(JSON.stringify(data_object));
-    auxilliary_classes = checkbox_aux_class.trim();
+    check.prop("checked", checked);
+    auxilliary_classes = checkbox_aux_classes.trim();
     if(Boolean(auxilliary_classes)) {
 	check.attr("class",
 		   check.attr("class") + " " + auxilliary_classes.trim());
@@ -154,7 +155,7 @@ function build_checkbox(data_object, checkbox_name, checkbox_aux_classes="") {
 }
 
 function link_checkbox(dataset) {
-    return build_checkbox(dataset, "selected", "checkbox-selected");
+    return build_checkbox(dataset, "selected", "checkbox-selected", true);
 }
 
 function search_checkbox(dataset) {

@@ -2,11 +2,14 @@
  * Global variables: Bad idea - figure out how to pass them down a call stack.
  */
 search_table = new TableDataSource(
-    "#tbl-phenotypes", "data-traits",
-    function(trait) {build_checkbox(trait, "search_traits")});
+    "#tbl-phenotypes", "data-traits", (trait) => {
+	return build_checkbox(trait, "search_traits", "checkbox-search");
+    });
 link_table = new TableDataSource(
-    "#tbl-link-phenotypes", "data-traits",
-    function(trait) {build_checkbox(trait, "selected")});
+    "#tbl-link-phenotypes", "data-traits", (trait) => {
+	return build_checkbox(
+	    trait, "selected", "checkbox-selected", checked=true);
+    });
 
 /**
  * Toggle the state for the "Link Traits" button
@@ -14,7 +17,7 @@ link_table = new TableDataSource(
 function toggle_link_button() {
     num_groups = $("#frm-link-phenotypes select option").length - 1;
     num_selected = JSON.parse(
-	$("#tbl-link-phenotypes").attr("data-datasets")).length;
+	$("#tbl-link-phenotypes").attr("data-traits")).length;
     if(num_groups > 0 && num_selected > 0) {
 	$("#frm-link-phenotypes input[type='submit']").prop("disabled", false);
     } else {
@@ -31,10 +34,54 @@ function default_error_fn(jqXHR, textStatus, errorThrown) {
     console.debug("ERROR:", errorThrown);
 }
 
+function render_pheno_table(table_data_source) {
+    table_id = table_data_source.table_id.selector;
+    data_attr_name = table_data_source.data_attribute_name;
+    $(table_id + " tbody tr").remove();
+    table_data = JSON.parse($(table_id).attr(data_attr_name));
+    if(table_data.length < 1) {
+	row = $("<tr>")
+	cell = $('<td colspan="100%" align="center">');
+	cell.append(
+	    $('<span class="glyphicon glyphicon-info-sign text-info">'));
+	cell.append("&nbsp;");
+	cell.append("No phenotype traits to select from.");
+	row.append(cell);
+	$(table_id + " tbody").append(row);
+    }
+    table_data.forEach(function(trait) {
+	row = $("<tr>")
+	row.append(table_data_source.checkbox_creation_function(trait));
+	row.append(table_cell(trait.name));
+	row.append(table_cell(trait.group));
+	row.append(table_cell(trait.dataset));
+	row.append(table_cell(trait.dataset_fullname));
+	row.append(table_cell(trait.description));
+	row.append(table_cell(trait.authors.join(", ")));
+	row.append(table_cell(
+	    '<a href="' + trait.pubmed_link +
+		'" title="Pubmed link for trait ' + trait.name + '.">' +
+		trait.year + "</a>"));
+	row.append(table_cell("Chr:" + trait.geno_chr + "@" + trait.geno_mb));
+	row.append(table_cell(trait.lrs));
+	row.append(table_cell(trait.additive));
+	$(table_id + " tbody").append(row);
+    });
+}
+
 function display_search_results(data, textStatus, jqXHR) {
-    $("#tbl-phenotypes").attr(
-	"data-traits", JSON.stringify(data.search_results));
-    render_table(search_table);
+    if(data.status == "queued" || data.status == "started") {
+	setTimeout(() => {
+	    fetch_search_results(data.job_id, display_search_results);
+	}, 250);
+	return;
+    }
+    if(data.status == "completed") {
+	$("#tbl-phenotypes").attr(
+	    "data-traits", JSON.stringify(data.search_results));
+	render_pheno_table(search_table);
+    }
+    $("#txt-search").prop("disabled", false);
 }
 
 /**
@@ -43,6 +90,7 @@ function display_search_results(data, textStatus, jqXHR) {
  */
 function fetch_search_results(job_id, success, error=default_error_fn) {
     endpoint = $("#frm-search-traits").attr("data-search-results-endpoint");
+    $("#txt-search").prop("disabled", true);
     $.ajax(
 	endpoint,
 	{
@@ -104,11 +152,9 @@ $(document).ready(function() {
 	}
     });
 
-    setTimeout(
-	function() {
-	    fetch_search_results(
-		$("#tbl-phenotypes").attr("data-initial-job-id"),
-		display_search_results)
-	},
-	500);
+    setTimeout(() => {
+	fetch_search_results(
+	    $("#tbl-phenotypes").attr("data-initial-job-id"),
+	    display_search_results);
+    }, 500);
 });

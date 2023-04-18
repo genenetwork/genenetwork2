@@ -80,7 +80,7 @@
       </legend>
       {%endif%}
       <input type="hidden" value="{{species_name}}" name="species"
-	     id="txt-species" />
+	     id="txt-species-name" />
       <input type="hidden" value="{{dataset_type}}" name="dataset_type"
 	     id="txt-dataset-type"  />
       <input type="hidden" value="{{per_page}}" name="per_page"
@@ -100,14 +100,57 @@
   <div class="row">
     <table id="tbl-phenotypes"
 	   class="table-hover table-striped cell-border dataTable no-footer"
-	   data-traits="[]"
-	   data-initial-job-id={{search_results.job_id}}>
-      <tbody>
+	   data-traits="{{traits | tojson}}"
+	   data-initial-job-id={{search_results.job_id}}
+	   data-initial-search-res={{search_results | tojson}}>
+      <thead>
 	<tr>
-	  <td colspan="100%" align="center">
-	    <br><b><font size="15">Loading...</font></b><br>
+	  <th>Select</th>
+	  <th>Name</th>
+	  <th>Group</th>
+	  <th>Dataset</th>
+	  <th>Dataset Fullname</th>
+	  <th>Description</th>
+	  <th>Authors</th>
+	  <th>Year</th>
+	  <th>Location</th>
+	  <th>LRS</th>
+	  <th>Additive</th>
+	</tr>
+      </thead>
+      <tbody>
+	{%for trait in traits%}
+	<tr>
+	  <th>
+	    <input type="checkbox" class="checkbox checkbox-search"
+		   name="search_traits" value="{{trait | tojson}}" />
+	  </th>
+	  <th>{{trait.name}}</th>
+	  <th>{{trait.group}}</th>
+	  <th>{{trait.dataset}}</th>
+	  <th>{{trait.dataset_fullname}}</th>
+	  <th>{{trait.description}}</th>
+	  <th>{{trait.authors | join(" ")}}</th>
+	  <th>
+	    <a href="{{trait.pubmed_linj}}" title="Pubmed link for trait">
+	      {{trait.year}}
+	    </a>
+	  </th>
+	  <th>CHR{{trait.geno_chr}}@{{trait.geno_mb}}</th>
+	  <th>{{trait.lrs}}</th>
+	  <th>{{trait.additive}}</th>
+	</tr>
+	{%else%}
+	<tr>
+	  <td colspan="100%" align="center" style="text-align: center;">
+	    <br/><b><font size="4">
+		<span class="glyphicon glyphicon-info-sign text-info"></span>
+		&nbsp;
+		There are no phenotype traits to select from.
+	    </font></b><br />
 	  </td>
 	</tr>
+	{%endfor%}
     </table>
   </div>
 

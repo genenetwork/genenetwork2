@@ -65,7 +65,7 @@ def __search_genotypes__(query, template, **kwargs):
 
 def __search_phenotypes__(query, template, **kwargs):
     page = int(request.args.get("page", 1))
-    per_page = int(request.args.get("per_page", 500))
+    per_page = int(request.args.get("per_page", 50))
     selected_traits = request.form.getlist("selected_traits")
     def __search_error__(error):
         raise Exception(error)
