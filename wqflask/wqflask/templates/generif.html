@@ -45,7 +45,13 @@ GeneWiki Entry for {{ symbol }}
 	{% for entry in entries.gn_entries %}
 	<li class="list-group-item">
 	    <details>
-		<summary>{{ entry["entry"]["value"] }}</summary>
+		<summary>
+		    {{ entry["entry"]["value"] }}
+		    {% if entry.get("weburl") %}
+		    glyphicon glyphicon-open
+		    <sup><small><a href="{{ entry.weburl.value }}" target="_blank"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> web</a></small></sup>
+		    {% endif %}
+		</summary>
 		<dl class="dl-horizontal">
 		    <dt>Author:</dt>
 		    <dd>{{ entry["author"]["value"] }}</dd>
