@@ -6,8 +6,6 @@ from functools import wraps
 from utility.tools import SQL_URI
 
 from wqflask.correlation import correlation_functions
-from wqflask.correlation.pre_computes import fetch_precompute_results
-from wqflask.correlation.pre_computes import cache_compute_results
 from base import data_set
 
 from base.trait import create_trait
