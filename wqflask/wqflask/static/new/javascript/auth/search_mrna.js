@@ -1,18 +1,3 @@
-/**
- * Check whether `dataset` is in array of `datasets`.
- * @param {mRNADataset} A mrna dataset.
- * @param {Array} An array of mrna datasets.
- */
-function in_array(dataset, datasets) {
-    found = datasets.filter(function(dst) {
-	return (dst.SpeciesId == dataset.SpeciesId &&
-		dst.InbredSetId == dataset.InbredSetId &&
-		dst.ProbeFreezeId == dataset.ProbeFreezeId &&
-		dst.ProbeSetFreezeId == dataset.ProbeSetFreezeId);
-    });
-    return found.length > 0;
-}
-
 function toggle_link_button() {
     num_groups = $("#frm-link select option").length - 1;
     num_selected = JSON.parse(
@@ -65,6 +50,20 @@ function search_mrna() {
 	});
 }
 
+/**
+ * Make function to check whether `dataset` is in array of `datasets`.
+ * @param {mRNADataset} A mrna dataset.
+ * @param {Array} An array of mrna datasets.
+ */
+function make_filter(dataset) {
+    return (dst) => {
+	return (dst.SpeciesId == dataset.SpeciesId &&
+		dst.InbredSetId == dataset.InbredSetId &&
+		dst.ProbeFreezeId == dataset.ProbeFreezeId &&
+		dst.ProbeSetFreezeId == dataset.ProbeSetFreezeId);
+    };
+}
+
 $(document).ready(function() {
     let search_table = new TableDataSource(
 	"#tbl-search", "data-datasets", search_checkbox);
@@ -80,16 +79,18 @@ $(document).ready(function() {
 
     $("#tbl-search").on("change", ".checkbox-search", function(event) {
         if(this.checked) {
-	    select_deselect_dataset(
-		JSON.parse(this.value), search_table, link_table);
+	    dataset = JSON.parse(this.value);
+	    select_deselect(
+		dataset, search_table, link_table, make_filter(dataset));
 	    toggle_link_button();
         }
     });
 
     $("#tbl-link").on("change", ".checkbox-selected", function(event) {
 	if(!this.checked) {
-	    select_deselect_dataset(
-		JSON.parse(this.value), link_table, search_table);
+	    dataset = JSON.parse(this.value);
+	    select_deselect(
+		dataset, link_table, search_table, make_filter(dataset));
 	    toggle_link_button();
 	}
     });

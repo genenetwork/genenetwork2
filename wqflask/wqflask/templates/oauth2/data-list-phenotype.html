@@ -24,7 +24,7 @@
   </div>
 
   <div class="row">
-    <form id="frm-link-items">
+    <form id="frm-link-phenotypes">
       <legend style="text-transform: capitalize;">
 	{{dataset_type}}: Link Traits to Group
       </legend>
@@ -43,16 +43,55 @@
       <table id="tbl-link-phenotypes"
 	     class="table-hover table-striped cell-border dataTable no-footer"
 	     data-traits="[]">
-	<tbody>
-	  <tr>
-	    <td colspan="100%" align="center" style="text-align: center;">
-	      <br/><b><font size="4">
-	      <span class="glyphicon glyphicon-info-sign text-info"></span>
-	      &nbsp;
-	      There are no selected phenotypes to link to the group.
-	      </font></b><br />
-	    </td>
-	  </tr>
+	<thead>
+	<tr>
+	  <th>Link</th>
+	  <th>Name</th>
+	  <th>Group</th>
+	  <th>Dataset</th>
+	  <th>Dataset Fullname</th>
+	  <th>Description</th>
+	  <th>Authors</th>
+	  <th>Year</th>
+	  <th>Location</th>
+	  <th>LRS</th>
+	  <th>Additive</th>
+	</tr>
+      </thead>
+      <tbody>
+	{%for trait in selected%}
+	<tr>
+	  <th>
+	    <input type="checkbox" class="checkbox checkbox-search"
+		   name="search_traits" value="{{trait | tojson}}" />
+	  </th>
+	  <th>{{trait.name}}</th>
+	  <th>{{trait.group}}</th>
+	  <th>{{trait.dataset}}</th>
+	  <th>{{trait.dataset_fullname}}</th>
+	  <th>{{trait.description}}</th>
+	  <th>{{trait.authors | join(" ")}}</th>
+	  <th>
+	    <a href="{{trait.pubmed_linj}}" title="Pubmed link for trait">
+	      {{trait.year}}
+	    </a>
+	  </th>
+	  <th>CHR{{trait.geno_chr}}@{{trait.geno_mb}}</th>
+	  <th>{{trait.lrs}}</th>
+	  <th>{{trait.additive}}</th>
+	</tr>
+	{%else%}
+	<tr>
+	  <td colspan="100%" align="center" style="text-align: center;">
+	    <br/><b><font size="4">
+		<span class="glyphicon glyphicon-info-sign text-info"></span>
+		&nbsp;
+		There are no phenotype traits to link to the user group.
+	    </font></b><br />
+	  </td>
+	</tr>
+	{%endfor%}
+      </tbody>
       </table>
 
       <div class="form-group text-center">
@@ -101,8 +140,8 @@
     <table id="tbl-phenotypes"
 	   class="table-hover table-striped cell-border dataTable no-footer"
 	   data-traits="{{traits | tojson}}"
-	   data-initial-job-id={{search_results.job_id}}
-	   data-initial-search-res={{search_results | tojson}}>
+	   data-initial-job-id="{{search_results.job_id}}"
+	   data-initial-command-id="{{search_results.command_id}}">
       <thead>
 	<tr>
 	  <th>Select</th>
@@ -151,6 +190,7 @@
 	  </td>
 	</tr>
 	{%endfor%}
+      </tbody>
     </table>
   </div>
 

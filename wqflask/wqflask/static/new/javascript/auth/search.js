@@ -63,7 +63,10 @@ function render_table(table_data_source) {
     table_id = table_data_source.table_id.selector;
     data_attr_name = table_data_source.data_attribute_name;
     $(table_id + " tbody tr").remove();
-    table_data = JSON.parse($(table_id).attr(data_attr_name));
+    table_data = JSON.parse($(table_id).attr(data_attr_name)).sort((d1, d2) => {
+	return (d1.dataset_name > d2.dataset_name ? 1 : (
+	    d1.dataset_name < d2.dataset_name ? -1 : 0))
+    });
     if(table_data.length < 1) {
 	row = $("<tr>")
 	cell = $('<td colspan="100%" align="center">');
@@ -85,43 +88,43 @@ function render_table(table_data_source) {
     });
 }
 
-function remove_from_table_data(dataset, table_data_source) {
+function in_array(items, filter_fn) {
+    return items.filter(filter_fn).length > 0;
+}
+
+function remove_from_table_data(dataset, table_data_source, filter_fn) {
     let table_id = table_data_source.table_id.selector;
     let data_attr_name = table_data_source.data_attribute_name;
     without_dataset = JSON.parse($(table_id).attr(data_attr_name)).filter(
-	function(dst) {
-	    return !(dst.SpeciesId == dataset.SpeciesId &&
-		     dst.InbredSetId == dataset.InbredSetId &&
-		     dst.GenoFreezeId == dataset.GenoFreezeId);
-	});
+	filter_fn);
     $(table_id).attr(data_attr_name, JSON.stringify(without_dataset));
 }
 
-function add_to_table_data(dataset, table_data_source) {
+function add_to_table_data(dataset, table_data_source, filter_fn) {
     let table_id = table_data_source.table_id.selector;
     let data_attr_name = table_data_source.data_attribute_name;
     table_data = JSON.parse($(table_id).attr(data_attr_name));
-    if(!in_array(dataset, table_data)) {
+    if(!in_array(table_data, filter_fn)) {
 	table_data.push(dataset);
     }
     $(table_id).attr(data_attr_name, JSON.stringify(Array.from(table_data)));
 }
 
 /**
- * Switch the dataset from search table to selection table and vice versa
- * @param {Object} A genotype dataset
- * @param {TableDataSource} The table to switch the dataset from
- * @param {TableDataSource} The table to switch the dataset to
+ * Switch the dataset/trait from search table to selection table and vice versa
+ * @param {Object} A dataset/trait object
+ * @param {TableDataSource} The source table for the dataset/trait
+ * @param {TableDataSource} The destination table for the dataset/trait
  */
-function select_deselect_dataset(dataset, source, destination) {
+function select_deselect(item, source, destination, filter_fn, render_fn=render_table) {
     dest_selector = destination.table_id.selector
     dest_data = JSON.parse(
 	$(dest_selector).attr(destination.data_attribute_name));
-    add_to_table_data(dataset, destination); // Add to destination table
-    remove_from_table_data(dataset, source); // Remove from source table
+    add_to_table_data(item, destination, filter_fn); // Add to destination table
+    remove_from_table_data(item, source, (arg) => {return !filter_fn(arg)}); // Remove from source table
     /***** BEGIN: Re-render tables *****/
-    render_table(destination);
-    render_table(source);
+    render_fn(destination);
+    render_fn(source);
     /***** END: Re-render tables *****/
 }
 

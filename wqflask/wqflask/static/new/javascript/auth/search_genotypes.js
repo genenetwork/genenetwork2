@@ -1,17 +1,3 @@
-/**
- * Check whether `dataset` is in array of `datasets`.
- * @param {GenotypeDataset} A genotype dataset.
- * @param {Array} An array of genotype datasets.
- */
-function in_array(dataset, datasets) {
-    found = datasets.filter(function(dst) {
-	return (dst.SpeciesId == dataset.SpeciesId &&
-		dst.InbredSetId == dataset.InbredSetId &&
-		dst.GenoFreezeId == dataset.GenoFreezeId);
-    });
-    return found.length > 0;
-}
-
 function toggle_link_button() {
     num_groups = $("#frm-link-genotypes select option").length - 1;
     num_selected = JSON.parse(
@@ -63,6 +49,19 @@ function search_genotypes() {
 	});
 }
 
+/**
+ * Return function to check whether `dataset` is in array of `datasets`.
+ * @param {GenotypeDataset} A genotype dataset.
+ * @param {Array} An array of genotype datasets.
+ */
+function make_filter(trait) {
+    return (dst) => {
+	return (dst.SpeciesId == dataset.SpeciesId &&
+		dst.InbredSetId == dataset.InbredSetId &&
+		dst.GenoFreezeId == dataset.GenoFreezeId);
+    };
+}
+
 $(document).ready(function() {
     let search_table = new TableDataSource(
 	"#tbl-genotypes", "data-datasets", search_checkbox);
@@ -78,16 +77,18 @@ $(document).ready(function() {
 
     $("#tbl-genotypes").on("change", ".checkbox-search", function(event) {
         if(this.checked) {
-	    select_deselect_dataset(
-		JSON.parse(this.value), search_table, link_table);
+	    dataset = JSON.parse(this.value);
+	    select_deselect(
+		dataset, search_table, link_table, make_filter(dataset));
 	    toggle_link_button();
         }
     });
 
     $("#tbl-link-genotypes").on("change", ".checkbox-selected", function(event) {
 	if(!this.checked) {
-	    select_deselect_dataset(
-		JSON.parse(this.value), link_table, search_table);
+	    dataset = JSON.parse(this.value);
+	    select_deselect(
+		dataset, link_table, search_table, make_filter(dataset));
 	    toggle_link_button();
 	}
     });

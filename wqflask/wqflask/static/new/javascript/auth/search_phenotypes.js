@@ -34,11 +34,17 @@ function default_error_fn(jqXHR, textStatus, errorThrown) {
     console.debug("ERROR:", errorThrown);
 }
 
+/**
+ * Render the table(s) for the phenotype traits
+ * @param {TableDataSource} The table to render
+ */
 function render_pheno_table(table_data_source) {
     table_id = table_data_source.table_id.selector;
     data_attr_name = table_data_source.data_attribute_name;
     $(table_id + " tbody tr").remove();
-    table_data = JSON.parse($(table_id).attr(data_attr_name));
+    table_data = JSON.parse($(table_id).attr(data_attr_name)).sort((t1, t2) => {
+	return (t1.name > t2.name ? 1 : (t1.name < t2.name ? -1 : 0))
+    });
     if(table_data.length < 1) {
 	row = $("<tr>")
 	cell = $('<td colspan="100%" align="center">');
@@ -79,6 +85,7 @@ function display_search_results(data, textStatus, jqXHR) {
     if(data.status == "completed") {
 	$("#tbl-phenotypes").attr(
 	    "data-traits", JSON.stringify(data.search_results));
+	// Remove this reference to global variable
 	render_pheno_table(search_table);
     }
     $("#txt-search").prop("disabled", false);
@@ -130,6 +137,20 @@ function search_phenotypes() {
 	});
 }
 
+/**
+ * Return a function to check whether `trait` is in array of `traits`.
+ * @param {PhenotypeTrait} A phenotype trait.
+ * @param {Array} An array of phenotype traits.
+ */
+function make_filter(trait) {
+    return (trt) => {
+	return (trt.species == trait.species &&
+		trt.group == trait.group &&
+		trt.dataset == trait.dataset &&
+		trt.name == trait.name);
+    };
+}
+
 $(document).ready(function() {
     $("#frm-search-traits").submit(event => {
 	event.preventDefault();
@@ -138,16 +159,20 @@ $(document).ready(function() {
 
     $("#txt-query").keyup(debounce(search_phenotypes));
 
-    $("#tbl-phenotypes").on("change", ".checkbox-selected", function(event) {
-	if(this.checked) {
-	    select_deselect(JSON.parse(this.value), search_table, link_table);
+    $("#tbl-link-phenotypes").on("change", ".checkbox-selected", function(event) {
+	if(!this.checked) {
+	    trait = JSON.parse(this.value);
+	    select_deselect(trait, link_table, search_table,
+			    make_filter(trait), render_pheno_table);
 	    toggle_link_button();
 	}
     });
 
-    $("#tbl-link-phenotypes").on("change", ".checkbox-search", function(event) {
-	if(!this.checked) {
-	    select_deselect(JSON.parse(this.value), search_table, link_table);
+    $("#tbl-phenotypes").on("change", ".checkbox-search", function(event) {
+	if(this.checked) {
+	    trait = JSON.parse(this.value)
+	    select_deselect(trait, search_table, link_table,
+			    make_filter(trait), render_pheno_table);
 	    toggle_link_button();
 	}
     });
