@@ -135,7 +135,7 @@ function search_phenotypes() {
 	    }),
 	    "error": default_error_fn,
 	    "success": (data, textStatus, jqXHR) => {
-		fetch_search_results(data.job_id);
+		fetch_search_results(data.job_id, display_search_results);
 	    }
 	});
 }
