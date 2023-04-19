@@ -96,7 +96,8 @@ function display_search_results(data, textStatus, jqXHR) {
  * @param {UUID}: The job id to fetch data for
  */
 function fetch_search_results(job_id, success, error=default_error_fn) {
-    endpoint = $("#frm-search-traits").attr("data-search-results-endpoint");
+    host = $("#frm-search-traits").attr("data-gn-server-url");
+    endpoint = host + "oauth2/data/search/phenotype/" + job_id
     $("#txt-search").prop("disabled", true);
     $.ajax(
 	endpoint,
@@ -113,22 +114,24 @@ function fetch_search_results(job_id, success, error=default_error_fn) {
 function search_phenotypes() {
     query = document.getElementById("txt-query").value;
     selected = JSON.parse(document.getElementById(
-	"tbl-link-phenotypes").getAttribute("data-traitss"));
+	"tbl-link-phenotypes").getAttribute("data-traits"));
     species_name = document.getElementById("txt-species-name").value
     per_page = document.getElementById("txt-per-page").value
     search_table = new TableDataSource(
 	"#tbl-phenotypes", "data-traits", search_checkbox);
+    endpoint = "/oauth2/data/phenotype/search"
     $.ajax(
-	"/oauth2/data/search",
+	endpoint,
 	{
-	    "method": "GET",
+	    "method": "POST",
 	    "contentType": "application/json; charset=utf-8",
 	    "dataType": "json",
 	    "data": JSON.stringify({
 		"query": query,
 		"species_name": species_name,
 		"dataset_type": "phenotype",
-		"per_page": per_page
+		"per_page": per_page,
+		"selected_traits": selected
 	    }),
 	    "error": default_error_fn,
 	    "success": (data, textStatus, jqXHR) => {

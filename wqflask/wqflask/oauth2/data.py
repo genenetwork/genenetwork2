@@ -76,6 +76,7 @@ def __search_phenotypes__(query, template, **kwargs):
             selected_traits=selected_traits, search_results=search_results,
             search_endpoint=urljoin(
                 app.config["GN_SERVER_URL"], "oauth2/data/search"),
+            gn_server_url = app.config["GN_SERVER_URL"],
             results_endpoint=urljoin(
                 app.config["GN_SERVER_URL"],
                 f"oauth2/data/search/phenotype/{job_id}"),
@@ -123,6 +124,26 @@ def json_search_mrna() -> Response:
         }).either(
             __handle_error__,
             lambda datasets: jsonify(datasets))
+
+@data.route("/phenotype/search", methods=["POST"])
+def json_search_phenotypes() -> Response:
+    """Search for phenotypes."""
+    form = request.json
+    def __handle_error__(err):
+        error = process_error(err)
+        return jsonify(error), error["status_code"]
+
+    return oauth2_get(
+        "oauth2/data/search",
+        json={
+            "dataset_type": "phenotype",
+            "species_name": form["species_name"],
+            "query": form.get("query", ""),
+            "per_page": int(form.get("per_page", 50)),
+            "page": int(form.get("page", 1)),
+            "gn3_server_uri": app.config["GN_SERVER_URL"],
+            "selected_traits": form.get("selected_traits", [])
+        }).either(__handle_error__, jsonify)
 
 @data.route("/<string:species_name>/<string:dataset_type>/list",
             methods=["GET", "POST"])
