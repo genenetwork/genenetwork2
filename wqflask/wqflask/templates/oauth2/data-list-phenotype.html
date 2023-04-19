@@ -27,6 +27,7 @@
     <form id="frm-link-phenotypes"
 	  action="{{url_for('oauth2.data.link_phenotype_data')}}"
 	  method="POST">
+      <input type="hidden" value="{{species_name}}" name="species_name" />
       <legend style="text-transform: capitalize;">
 	{{dataset_type}}: Link Traits to Group
       </legend>
