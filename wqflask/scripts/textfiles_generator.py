@@ -1,4 +1,3 @@
-
 # database connection
 import contextlib
 import pickle
@@ -28,22 +27,31 @@ flags:
 # example  python3 
 
  python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" /tmp --textfile
+ python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" /tmp --metadata
 
+python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" /tmp --metadata  --textfile
 
 """
 
+
+#! add to this list or use get_probes_meta to populate
+
+
 DATASET_NAMES = [
     ("ProbeSet", "HC_M2_0606_P", "mouse"),
-    ("ProbeSet", "UMUTAffyExon_0209_RMA","mouse")
+    ("ProbeSet", "UMUTAffyExon_0209_RMA", "mouse")
 ]
 
 
-def get_probes_meta():
+def get_probes_meta(sql_uri):
 
     # if you need to generate for all probes use this note 1000+
-    query = "SELECT Id,NAME FROM ProbeSetFreeze"
-    cursor.execute(query)
-    return cursor.fetchall()
+
+    with database_connection(sql_uri) as conn:
+        with conn.cursor() as cursor:
+            query = "SELECT Id,NAME FROM ProbeSetFreeze"
+            cursor.execute(query)
+            return cursor.fetchall()
 
 
 def parse_db_url(sql_uri: str) -> Tuple:
@@ -135,22 +143,23 @@ def get_metadata(dataset_type, dataset_name, species, sql_uri):
         in query_probes_metadata(dataset_type, dataset_name, species, sql_uri)}
 
 
-def cache_trait_metadata(dataset_name, data):
+def cache_trait_metadata(dataset_name, dataset_type, data):
     if not data:
         return
     try:
-
-        path = os.path.join(TMPDIR, "metadata")
-        Path(path).mkdir(parents=True, exist_ok=True)
-        db_path =  os.path.join(path, f"metadata_{dataset_name}")
-        if not check_file_expiry(db_path):
-            return 
-        with lmdb.open(db_path, map_size=80971520) as env:
+        path = os.path.join(TMPDIR, f"metadata_{dataset_type}")
+        if not check_file_expiry(path, dataset_name):
+            return
+        with lmdb.open(path, map_size=500971520) as env:
             with env.begin(write=True) as txn:
-                data_bytes = pickle.dumps(data)
-                txn.put(f"{dataset_name}".encode(), data_bytes)
-                current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                txn.put(b"creation_date", current_date.encode())
+
+                metadata = {
+                    "data": data,
+                    "creation_date": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "dataset_name": dataset_name
+                }
+
+                txn.put(f"{dataset_name}".encode(), pickle.dumps(metadata))
     except lmdb.Error as error:
         raise error
 
@@ -159,9 +168,9 @@ def __sanitise_filename__(filename):
     ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
     return str.translate(filename, ttable)
 
-def __generate_file_name__(db_name,sql_uri):
-    # todo add expiry time and checker
 
+def __generate_file_name__(db_name, sql_uri):
+    # todo add expiry time and checker
 
     with database_connection(sql_uri) as conn:
         with conn.cursor() as cursor:
@@ -182,21 +191,20 @@ def write_strains_data(sql_uri, dataset_name: str, col_names: list[str], data):
     if not data:
         return
     try:
-        
-        db_path =  os.path.join(TMPDIR, __generate_file_name__(dataset_name,sql_uri))
-        breakpoint()
 
-        with lmdb.open(db_path, map_size=80971520) as env:
+        with lmdb.open(os.path.join(TMPDIR, "Probesets"), map_size=500971520) as env:
             with env.begin(write=True) as txn:
 
-                txn.put(f"strain_names".encode(), pickle.dumps(col_names))
+                meta = {
+                    "strain_names": col_names,
+                    "data": data,
+                    "creation_date": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                }
 
-                txn.put(f"data".encode(), pickle.dumps(data))
-                current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                txn.put(b"creation_date", current_date.encode())
+                txn.put(__generate_file_name__(dataset_name,
+                                               sql_uri).encode(), pickle.dumps(meta))
     except lmdb.Error as error:
         raise error
-
 
 
 def generate_probes_textfiles(db_name, db_type, sql_uri):
@@ -251,11 +259,12 @@ def argument_parser():
 
 def run_textfiles_generator(args):
     try:
-        for (d_type, dataset_name, _species) in DATASET_NAMES:
-            if not check_file_expiry(os.path.join(args.TMPDIR,__generate_file_name__(dataset_name,args.SQL_URI))):
-                return 
 
-            breakpoint()
+        for (d_type, dataset_name, _species) in DATASET_NAMES:
+            file_name = __generate_file_name__(dataset_name, args.SQL_URI)
+
+            if not check_file_expiry(os.path.join(args.TMPDIR, "Probesets"), file_name):
+                return
             write_strains_data(
                 args.SQL_URI, dataset_name, *generate_probes_textfiles(dataset_name, d_type, args.SQL_URI))
     except Exception as error:
@@ -265,15 +274,16 @@ def run_textfiles_generator(args):
 def run_metadata_files_generator(args):
     for (dataset_type, dataset_name, species) in DATASET_NAMES:
         try:
-            cache_trait_metadata(dataset_name, get_metadata(
+            cache_trait_metadata(dataset_name, dataset_type, get_metadata(
                 dataset_type, dataset_name, species, args.SQL_URI))
         except Exception as error:
             raise error
 
-def read_trait_metadata(dataset_name):
+
+def read_trait_metadata(dataset_name, dataset_type):
     try:
-        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),
-            readonly=True, lock=False) as env:
+        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_type}"),
+                       readonly=True, lock=False) as env:
             with env.begin() as txn:
                 db_name = txn.get(dataset_name.encode())
                 return (pickle.loads(db_name) if db_name else {})
@@ -281,17 +291,20 @@ def read_trait_metadata(dataset_name):
         return {}
 
 
+def check_file_expiry(target_file_path, dataset_name, max_days=20):
+    # return true if file has expired
 
-def check_file_expiry(target_file_path,max_days=20):
-
-    # return true if file has expired 
     try:
-        with lmdb.open(target_file_path,readonly=True, lock=False) as env:
+        with lmdb.open(target_file_path, readonly=True, lock=False) as env:
             with env.begin() as txn:
-
-                creation_date = datetime.datetime.strptime(txn.get(b"creation_date").decode(), '%Y-%m-%d %H:%M:%S') 
-                return  ((datetime.datetime.now() - creation_date).days > max_days)
-    except lmdb.Error as error:
+                dataset = txn.get(dataset_name.encode())
+                if dataset:
+                    meta = pickle.loads(dataset)
+                    creation_date = datetime.datetime.strptime(
+                        meta["creation_date"], '%Y-%m-%d %H:%M:%S')
+                    return ((datetime.datetime.now() - creation_date).days > max_days)
+                return True
+    except Exception:
         return True
 
 
