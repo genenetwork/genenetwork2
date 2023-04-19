@@ -1,6 +1,7 @@
 """General request utilities"""
 from typing import Optional
 
+import simplejson
 from flask import (
     flash, session, url_for, redirect, Response, render_template,
     current_app as app)
@@ -20,7 +21,10 @@ def process_error(error: Response,
                                 "server.")
                   ) -> dict:
     if error.status_code == 404:
-        msg = error.json()["error_description"] if hasattr(error, "json") else message
+        try:
+            msg = error.json()["error_description"]
+        except simplejson.errors.JSONDecodeError as _jde:
+            msg = message
         return {
             "error": "NotFoundError",
             "error_message": msg,
