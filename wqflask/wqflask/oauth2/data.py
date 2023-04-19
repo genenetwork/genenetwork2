@@ -283,6 +283,7 @@ def link_mrna_data():
             species_name=form["species_name"], dataset_type="mrna"))
 
     def __link_error__(err):
+        error = process_error(err)
         flash(f"{err['error']}: {err['error_description']}", "alert-danger")
         return link_source_url
 
@@ -296,3 +297,29 @@ def link_mrna_data():
         "selected": tuple(json.loads(dataset) for dataset
                                    in form.getlist("selected"))
     }).either(lambda err: __link_error__(process_error(err)), __link_success__)
+
+@data.route("/link/phenotype", methods=["POST"])
+def link_phenotype_data():
+    """Link phenotype data to a group."""
+    form = request.form
+    link_source_url = redirect(url_for("oauth2.data.list_data"))
+    if bool(form.get("species_name")):
+        link_source_url = redirect(url_for(
+            "oauth2.data.list_data_by_species_and_dataset",
+            species_name=form["species_name"], dataset_type="mrna"))
+
+    def __link_error__(err):
+        error = process_error(err)
+        flash(f"{error['error']}: {error['error_description']}", "alert-danger")
+        return link_source_url
+
+    def __link_success__(success):
+        flash(success["description"], "alert-success")
+        return link_source_url
+
+    return oauth2_post("oauth2/data/link/phenotype", json={
+        "species_name": form.get("species_name"),
+        "group_id": form.get("group_id"),
+        "selected": tuple(
+            json.loads(trait) for trait in form.getlist("selected"))}).either(
+                __link_error__, __link_success__)
