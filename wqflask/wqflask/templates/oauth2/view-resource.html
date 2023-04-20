@@ -79,7 +79,12 @@
 	<caption>Resource Data</caption>
 	<thead>
 	  <tr>
-	    <th>Name</th>
+	    {%if resource.resource_category.resource_category_key == "phenotype"%}
+	    <th>Trait</th>
+	    <th>Description</th>
+	    <th>Year</th>
+	    {%endif%}
+	    <th>Dataset Name</th>
 	    <th>Full Name</th>
 	    <th>Actions</th>
 	  </tr>
@@ -88,6 +93,26 @@
 	<tbody>
 	  {%for data_item in resource.resource_data:%}
 	  <tr>
+	    {%if resource.resource_category.resource_category_key == "phenotype"%}
+	    <td>
+	      <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
+		 title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
+		 target="_blank">
+		{{data_item.PublishXRefId}}
+	      </a>
+	    </td>
+	    <td>{{data_item.description}}</td>
+	    <td>
+	      {%if data_item.PubMed_ID%}
+	      <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
+		 title="{{data_item.Title}}" target="_blank">
+		{{data_item.Year}}
+	      </a>
+	      {%else%}
+	      {{data_item.Year}}
+	      {%endif%}
+	    </td>
+	    {%endif%}
 	    <td>
 	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
 		 title="Link to information on dataset '{{data_item.dataset_fullname}}'"
@@ -127,7 +152,12 @@
 	<caption>Link Data</caption>
 	<thead>
 	  <tr>
-	    <th>Name</th>
+	    {%if resource.resource_category.resource_category_key == "phenotype"%}
+	    <th>Trait</th>
+	    <th>Description</th>
+	    <th>Year</th>
+	    {%endif%}
+	    <th>Dataset Name</th>
 	    <th>Actions</th>
 	  </tr>
 	</thead>
@@ -137,9 +167,30 @@
 	  {%else%}
 	  {%for data_item in unlinked_data:%}
 	  <tr>
+	    {%if resource.resource_category.resource_category_key == "phenotype"%}
+	    <td>
+	      <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
+		 title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
+		 target="_blank">
+		{{data_item.PublishXRefId}}
+	      </a>
+	    </td>
+	    <td>{{data_item.description}}</td>
+	    <td>
+	      {%if data_item.PubMed_ID%}
+	      <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
+		 title="{{data_item.Title}}" target="_blank">
+		{{data_item.Year}}
+	      </a>
+	      {%else%}
+	      {{data_item.Year}}
+	      {%endif%}
+	    </td>
+	    {%endif%}
 	    <td>
 	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
-		 title="Link to information on dataset '{{data_item.dataset_fullname}}'">
+		 title="Dataset Group: {{data_item.dataset_name}}"
+		 target="_blank">
 		{{data_item.dataset_fullname}}
 	      </a>
 	    </td>
