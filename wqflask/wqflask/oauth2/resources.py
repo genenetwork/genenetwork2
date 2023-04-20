@@ -1,8 +1,8 @@
 import uuid
 
-from flask import (
-    flash, request, url_for, redirect, Response, Blueprint, render_template)
+from flask import flash, request, url_for, redirect, Response, Blueprint
 
+from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
@@ -15,7 +15,7 @@ resources = Blueprint("resource", __name__)
 def user_resources():
     """List the resources the user has access to."""
     def __success__(resources):
-        return render_template("oauth2/resources.html", resources=resources)
+        return render_ui("oauth2/resources.html", resources=resources)
 
     return oauth2_get("oauth2/user/resources").either(
         request_error, __success__)
@@ -25,7 +25,7 @@ def user_resources():
 def create_resource():
     """Create a new resource."""
     def __render_template__(categories=[], error=None):
-        return render_template(
+        return render_ui(
             "oauth2/create-resource.html",
             resource_categories=categories,
             resource_category_error=error,
@@ -60,7 +60,7 @@ def view_resource(resource_id: uuid.UUID):
     def __users_success__(
             resource, unlinked_data, users_n_roles, this_user, group_roles,
             users):
-        return render_template(
+        return render_ui(
             "oauth2/view-resource.html", resource=resource,
             unlinked_data=unlinked_data, users_n_roles=users_n_roles,
             this_user=this_user, group_roles=group_roles, users=users)
@@ -68,7 +68,7 @@ def view_resource(resource_id: uuid.UUID):
     def __group_roles_success__(
             resource, unlinked_data, users_n_roles, this_user, group_roles):
         return oauth2_get("oauth2/user/list").either(
-            lambda err: render_template(
+            lambda err: render_ui(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
                 this_user=this_user, group_roles=group_roles,
@@ -79,7 +79,7 @@ def view_resource(resource_id: uuid.UUID):
 
     def __this_user_success__(resource, unlinked_data, users_n_roles, this_user):
         return oauth2_get("oauth2/group/roles").either(
-            lambda err: render_template(
+            lambda err: render_ui(
                 "oauth2/view-resources.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
                 this_user=this_user, group_roles_error=process_error(err)),
@@ -88,7 +88,7 @@ def view_resource(resource_id: uuid.UUID):
 
     def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
         return oauth2_get("oauth2/user").either(
-            lambda err: render_template(
+            lambda err: render_ui(
                 "oauth2/view-resources.html",
                 this_user_error=process_error(err)),
             lambda usr_dets: __this_user_success__(
@@ -96,26 +96,26 @@ def view_resource(resource_id: uuid.UUID):
 
     def __unlinked_success__(resource, unlinked_data):
         return oauth2_get(f"oauth2/resource/{resource_id}/user/list").either(
-            lambda err: render_template(
+            lambda err: render_ui(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_data=unlinked_data,
                 users_n_roles_error=process_error(err)),
             lambda users_n_roles: __users_n_roles_success__(
                 resource, unlinked_data, users_n_roles))
-        return render_template(
+        return render_ui(
                 "oauth2/view-resource.html", resource=resource, error=None,
                 unlinked_data=unlinked)
 
     def __resource_success__(resource):
         dataset_type = resource["resource_category"]["resource_category_key"]
         return oauth2_get(f"oauth2/group/{dataset_type}/unlinked-data").either(
-            lambda err: render_template(
+            lambda err: render_ui(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_error=process_error(err)),
             lambda unlinked: __unlinked_success__(resource, unlinked))
 
     return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
-        lambda err: render_template("oauth2/view-resource.html",
+        lambda err: render_ui("oauth2/view-resource.html",
                                     resource=None, error=process_error(err)),
         __resource_success__)
 

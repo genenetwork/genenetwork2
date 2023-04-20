@@ -3,9 +3,9 @@ import datetime
 from functools import partial
 
 from flask import (
-    flash, session, request, url_for, redirect, Response, Blueprint,
-    render_template)
+    flash, session, request, url_for, redirect, Response, Blueprint)
 
+from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
@@ -19,21 +19,21 @@ def user_group():
     """Get the user's group."""
     def __get_join_requests__(group, users):
         return oauth2_get("oauth2/group/requests/join/list").either(
-            lambda error: render_template(
+            lambda error: render_ui(
                 "oauth2/group.html", group=group, users=users,
                 group_join_requests_error=process_error(error)),
-            lambda gjr: render_template(
+            lambda gjr: render_ui(
                 "oauth2/group.html", group=group, users=users,
                 group_join_requests=gjr))
     def __success__(group):
         return oauth2_get(f"oauth2/group/members/{group['group_id']}").either(
-            lambda error: render_template(
+            lambda error: render_ui(
                 "oauth2/group.html", group=group,
                 user_error=process_error(error)),
             partial(__get_join_requests__, group))
 
     def __group_error__(err):
-        return render_template(
+        return render_ui(
             "oauth2/group.html", group_error=process_error(err))
 
     return oauth2_get("oauth2/user/group").either(
@@ -60,18 +60,18 @@ def join_or_create():
         flash("You are already a member of a group.", "alert-info")
         return redirect(url_for("oauth2.user.user_profile"))
     def __group_error__(err):
-        return render_template(
+        return render_ui(
             "oauth2/group_join_or_create.html", groups=[],
             groups_error=process_error(err))
     def __group_success__(groups):
         return oauth2_get("oauth2/user/group/join-request").either(
             __gjr_error__, partial(__gjr_success__, groups=groups))
     def __gjr_error__(err):
-        return render_template(
+        return render_ui(
             "oauth2/group_join_or_create.html", groups=[],
             gjr_error=process_error(err))
     def __gjr_success__(gjr, groups):
-        return render_template(
+        return render_ui(
             "oauth2/group_join_or_create.html", groups=groups,
             group_join_request=gjr)
     return oauth2_get("oauth2/group/list").either(
@@ -95,11 +95,11 @@ def list_join_requests() -> Response:
     def __ts_to_dt_str__(timestamp):
         return datetime.datetime.fromtimestamp(timestamp).isoformat()
     def __fail__(error):
-        return render_template(
+        return render_ui(
             "oauth2/join-requests.html", error=process_error(error),
             requests=[])
     def __success__(requests):
-        return render_template(
+        return render_ui(
             "oauth2/join-requests.html", error=False, requests=requests,
             datetime_string=__ts_to_dt_str__)
     return oauth2_get("oauth2/group/requests/join/list").either(
@@ -142,10 +142,10 @@ def reject_join_request():
 def group_role(group_role_id: uuid.UUID):
     """View the details of a particular role."""
     def __render_error(**kwargs):
-        return render_template("oauth2/view-group-role.html", **kwargs)
+        return render_ui("oauth2/view-group-role.html", **kwargs)
 
     def __gprivs_success__(role, group_privileges):
-        return render_template(
+        return render_ui(
             "oauth2/view-group-role.html", group_role=role,
             group_privileges=tuple(
                 priv for priv in group_privileges

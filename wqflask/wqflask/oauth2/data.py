@@ -8,21 +8,14 @@ from urllib.parse import urljoin
 from redis import Redis
 from flask import (
     flash, request, jsonify, url_for, redirect, Response, Blueprint,
-    render_template, current_app as app)
+    current_app as app)
 
 from jobs import jobs
+from .ui import render_ui
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post
 
 data = Blueprint("data", __name__)
-
-def __render_template__(templatepath, **kwargs):
-    roles = kwargs.get("roles", tuple())
-    user_privileges = tuple(
-        privilege["privilege_id"] for role in roles
-        for privilege in role["privileges"])
-    return render_template(
-        templatepath, **kwargs, user_privileges=user_privileges)
 
 def __search_mrna__(query, template, **kwargs):
     species_name = kwargs["species_name"]
@@ -37,7 +30,7 @@ def __search_mrna__(query, template, **kwargs):
         }).either(
             lambda err: {"datasets_error": process_error(err)},
             lambda datasets: {"datasets": datasets})
-    return __render_template__(template, search_uri=search_uri, **datasets, **kwargs)
+    return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __selected_datasets__():
     if bool(request.json):
@@ -61,7 +54,7 @@ def __search_genotypes__(query, template, **kwargs):
         }).either(
             lambda err: {"datasets_error": process_error(err)},
             lambda datasets: {"datasets": datasets})
-    return __render_template__(template, search_uri=search_uri, **datasets, **kwargs)
+    return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
     page = int(request.args.get("page", 1))
@@ -71,7 +64,7 @@ def __search_phenotypes__(query, template, **kwargs):
         raise Exception(error)
     def __search_success__(search_results):
         job_id = uuid.UUID(search_results["job_id"])
-        return __render_template__(
+        return render_ui(
             template, traits=[], per_page=per_page, query=query,
             selected_traits=selected_traits, search_results=search_results,
             search_endpoint=urljoin(
@@ -178,7 +171,7 @@ def list_data():
         user_privileges = tuple(
                 privilege["privilege_id"] for role in roles
                 for privilege in role["privileges"])
-        return render_template(
+        return render_ui(
             "oauth2/data-list.html",
             groups=kwargs.get("groups", []),
             data_items=kwargs.get("data_items", []),

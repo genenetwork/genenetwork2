@@ -8,7 +8,7 @@
 
 {%block content%}
 <div class="container" style="min-width: 1250px;">
-  {{profile_nav("resources")}}
+  {{profile_nav("resources", logged_in, user_privileges)}}
 
   {{flash_me()}}
 

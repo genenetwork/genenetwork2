@@ -4,8 +4,9 @@ from urllib.parse import urljoin
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
     flash, request, session, url_for, redirect, Response, Blueprint,
-    render_template, current_app as app)
+    current_app as app)
 
+from .ui import render_ui
 from .checks import require_oauth2, user_logged_in
 from .client import oauth2_get, oauth2_post, oauth2_client
 from .request_utils import user_details, request_error, process_error
@@ -19,7 +20,7 @@ def user_profile():
     usr_dets = user_details()
     client = oauth2_client()
     def __render__(usr_dets, roles=[], **kwargs):
-        return render_template(
+        return render_ui(
             "oauth2/view-user.html", user_details=usr_dets, roles=roles,
             user_privileges = tuple(
                 privilege["privilege_id"] for role in roles
@@ -76,7 +77,7 @@ def login():
             session["oauth2_token"] = token
         except OAuthError as _oaerr:
             flash(_oaerr.args[0], "alert-danger")
-            return render_template(
+            return render_ui(
                 "oauth2/login.html", next_endpoint=next_endpoint,
                 email=form.get("email_address"))
 
@@ -85,7 +86,7 @@ def login():
             return redirect(url_for(next_endpoint))
         return redirect("/")
 
-    return render_template("oauth2/login.html", next_endpoint=next_endpoint)
+    return render_ui("oauth2/login.html", next_endpoint=next_endpoint)
 
 @users.route("/logout", methods=["GET", "POST"])
 def logout():
@@ -97,8 +98,9 @@ def logout():
         keys = tuple(key for key in session.keys() if not key.startswith("_"))
         for key in keys:
             session.pop(key, default=None)
+        flash("Successfully logged out.", "alert-success")
 
-    return redirect("/")
+    return redirect(url_for("oauth2.user.login"))
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
@@ -110,7 +112,7 @@ def register_user():
         return redirect(next_endpoint)
 
     if request.method == "GET":
-        return render_template("oauth2/register_user.html")
+        return render_ui("oauth2/register_user.html")
 
     config = app.config
     form = request.form

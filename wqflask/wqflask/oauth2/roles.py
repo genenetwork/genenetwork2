@@ -1,8 +1,9 @@
 """Handle role endpoints"""
 import uuid
 
-from flask import flash, request, url_for, redirect, Blueprint, render_template
+from flask import flash, request, url_for, redirect, Blueprint
 
+from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import request_error, process_error
@@ -13,13 +14,13 @@ roles = Blueprint("role", __name__)
 @require_oauth2
 def user_roles():
     def  __grerror__(roles, user_privileges, error):
-        return render_template(
+        return render_ui(
             "oauth2/list_roles.html", roles=roles,
             user_privileges=user_privileges,
             group_roles_error=process_error(error))
 
     def  __grsuccess__(roles, user_privileges, group_roles):
-        return render_template(
+        return render_ui(
             "oauth2/list_roles.html", roles=roles,
             user_privileges=user_privileges, group_roles=group_roles)
 
@@ -38,7 +39,7 @@ def user_roles():
 @require_oauth2
 def role(role_id: uuid.UUID):
     def __success__(the_role):
-        return render_template("oauth2/role.html", role=the_role)
+        return render_ui("oauth2/role.html", role=the_role)
 
     return oauth2_get(f"oauth2/role/view/{role_id}").either(
         request_error, __success__)
@@ -48,11 +49,11 @@ def role(role_id: uuid.UUID):
 def create_role():
     """Create a new role."""
     def __roles_error__(error):
-        return render_template(
+        return render_ui(
             "oauth2/create-role.html", roles_error=process_error(error))
 
     def __gprivs_error__(roles, error):
-        return render_template(
+        return render_ui(
             "oauth2/create-role.html", roles=roles,
             group_privileges_error=process_error(error))
 
@@ -60,7 +61,7 @@ def create_role():
         uprivs = tuple(
             privilege["privilege_id"] for role in roles
             for privilege in role["privileges"])
-        return render_template(
+        return render_ui(
             "oauth2/create-role.html", roles=roles, user_privileges=uprivs,
             group_privileges=gprivs,
             prev_role_name=request.args.get("role_name"))

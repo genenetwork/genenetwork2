@@ -1,4 +1,4 @@
-{%macro profile_nav(calling_page, user_privileges=[])%}
+{%macro profile_nav(calling_page, logged_in=false, user_privileges=[])%}
 
 <ul class="nav nav-pills">
 
@@ -38,6 +38,14 @@
     <a href="{{url_for('oauth2.data.list_data')}}">Link Data</a>
   </li>
   {%endif%}
+
+  <li role="presentation">
+    {%if logged_in:%}
+    <a href="{{url_for('oauth2.user.logout')}}">Logout</a>
+    {%else%}
+    <a href="{{url_for('oauth2.user.login')}}">Login</a>
+    {%endif%}
+  </li>
 
 </ul>
 
