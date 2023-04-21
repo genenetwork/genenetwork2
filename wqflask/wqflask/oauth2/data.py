@@ -299,7 +299,7 @@ def link_phenotype_data():
     if bool(form.get("species_name")):
         link_source_url = redirect(url_for(
             "oauth2.data.list_data_by_species_and_dataset",
-            species_name=form["species_name"], dataset_type="mrna"))
+            species_name=form["species_name"], dataset_type="phenotype"))
 
     def __link_error__(err):
         error = process_error(err)
