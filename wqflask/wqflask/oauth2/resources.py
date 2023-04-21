@@ -126,7 +126,7 @@ def link_data_to_resource():
     form = request.form
     try:
         assert "resource_id" in form, "Resource ID not provided."
-        assert "dataset_id" in form, "Dataset ID not provided."
+        assert "data_link_id" in form, "Data Link ID not provided."
         assert "dataset_type" in form, "Dataset type not specified"
         assert form["dataset_type"].lower() in (
             "mrna", "genotype", "phenotype"), "Invalid dataset type provided."
@@ -157,7 +157,7 @@ def unlink_data_from_resource():
     form = request.form
     try:
         assert "resource_id" in form, "Resource ID not provided."
-        assert "dataset_id" in form, "Dataset ID not provided."
+        assert "data_link_id" in form, "Data Link ID not provided."
         resource_id = form["resource_id"]
 
         def __error__(error):
