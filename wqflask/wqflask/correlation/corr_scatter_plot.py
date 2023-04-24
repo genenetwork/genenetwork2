@@ -1,9 +1,13 @@
+import json
 import math
+
+from redis import Redis
+Redis = Redis()
 
 from flask import g
 
 from base.trait import create_trait, retrieve_sample_data
-from base import data_set
+from base import data_set, webqtlCaseData
 from utility import corr_result_helpers
 from scipy import stats
 import numpy as np
@@ -39,13 +43,14 @@ class CorrScatterPlot:
         if self.dataset_1.group.f1list != None:
             primary_samples += self.dataset_1.group.f1list
 
-        self.trait_1 = retrieve_sample_data(
-            self.trait_1, self.dataset_1, primary_samples)
-        self.trait_2 = retrieve_sample_data(
-            self.trait_2, self.dataset_2, primary_samples)
-
-        samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
-            self.trait_1.data, self.trait_2.data)
+        if 'dataid' in params:
+            trait_data_dict = json.loads(Redis.get(params['dataid']))
+            trait_data = {key:webqtlCaseData.webqtlCaseData(key, float(trait_data_dict[key])) for (key, value) in trait_data_dict.items() if trait_data_dict[key] != "x"}
+            samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
+                self.trait_1.data, trait_data)
+        else:
+            samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
+                self.trait_1.data, self.trait_2.data)
 
         self.data = []
         self.indIDs = list(samples_1.keys())
