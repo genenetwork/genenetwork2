@@ -1,4 +1,5 @@
 """Common oauth2 client utilities."""
+import requests
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -45,4 +46,11 @@ def oauth2_post(
     if resp.status_code == 200:
         return Right(resp.json())
 
+    return Left(resp)
+
+def no_token_get(uri_path: str, **kwargs) -> Either:
+    config = app.config
+    resp = requests.get(urljoin(config["GN_SERVER_URL"], uri_path), **kwargs)
+    if resp.status_code == 200:
+        return Right(resp.json())
     return Left(resp)

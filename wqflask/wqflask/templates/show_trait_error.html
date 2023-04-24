@@ -1,0 +1,20 @@
+{%extends "base.html"%}
+{%block title%}Trait Data and Analysis{%endblock%}
+{%block css%}
+<link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='nouislider/nouislider.min.css') }}" />
+<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+{%endblock%}
+{%block content%} <!-- Start of body -->
+<div class="container">
+  {{flash_me()}}
+</div>
+{%endblock%} <!-- End of body -->

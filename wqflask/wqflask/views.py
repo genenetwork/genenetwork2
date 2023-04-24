@@ -38,6 +38,8 @@ from flask import send_from_directory
 from flask import redirect
 from flask import send_file
 from flask import url_for
+from flask import flash
+from flask import session
 
 # Some of these (like collect) might contain endpoints, so they're still used.
 # Blueprints should probably be used instead.
@@ -74,6 +76,9 @@ from wqflask.update_search_results import GSearch as UpdateGSearch
 from wqflask.docs import Docs, update_text
 from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
+
+from wqflask.oauth2.client import no_token_get
+from wqflask.oauth2.request_utils import process_error
 
 from utility import temp_data
 from utility.tools import TEMPDIR
@@ -482,30 +487,60 @@ def show_temp_trait_page():
 
 @app.route("/show_trait")
 def show_trait_page():
-    with database_connection() as conn, conn.cursor() as cursor:
-        user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-                   or g.user_session.record.get("user_id") or "")
-        template_vars = show_trait.ShowTrait(cursor,
-                                             user_id=user_id,
-                                             kw=request.args)
-        template_vars.js_data = json.dumps(template_vars.js_data,
-                                           default=json_default_handler,
-                                           indent="   ")
-        # Should there be any mis-configurations, things will still
-        # work.
-        metadata = {}
-        try:
-            metadata = requests.get(
-                urljoin(
-                    GN3_LOCAL_URL,
-                    f"/api/metadata/dataset/{request.args.get('dataset')}")
-            ).json()
-        except:
+    def __show_trait__():
+        with database_connection() as conn, conn.cursor() as cursor:
+
+            user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
+                       or g.user_session.record.get("user_id") or "")
+            template_vars = show_trait.ShowTrait(cursor,
+                                                 user_id=user_id,
+                                                 kw=request.args)
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                               default=json_default_handler,
+                                               indent="   ")
+            # Should there be any mis-configurations, things will still
+            # work.
             metadata = {}
-        return render_template(
-            "show_trait.html",
-            metadata=metadata,
-            **template_vars.__dict__)
+            try:
+                metadata = requests.get(
+                    urljoin(
+                        GN3_LOCAL_URL,
+                        f"/api/metadata/dataset/{request.args.get('dataset')}")
+                ).json()
+            except:
+                metadata = {}
+            return render_template(
+                "show_trait.html",
+                metadata=metadata,
+                **template_vars.__dict__)
+    dataset = request.args["dataset"]
+    trait_id = request.args["trait_id"]
+    def __failure__(err):
+        error = process_error(err)
+        flash(f"{error['error']}: {error['error_description']}", "alert-error")
+        return render_template("show_trait_error.html")
+
+    def __success__(auth_results):
+        trait_privileges = auth_results[0]["privileges"]
+        if ("group:resource:view-resource" in trait_privileges or
+            "system:resource:public-read" in trait_privileges):
+            return __show_trait__()
+        flash(
+            f"AuthorisationError: You do not have access to trait '{trait_id}' "
+            f"from the '{dataset}' dataset.",
+            "alert-danger")
+        return render_template("show_trait_error.html")
+
+    return no_token_get(
+        "oauth2/data/authorisation",
+        headers={
+            "Content-Type": "application/json",
+            **({"Authorization": f"Bearer {session['token']}"}
+               if bool(session.get("token")) else {})
+        },
+        json={
+            "traits": [f"{dataset}::{trait_id}"]
+        }).either(__failure__, __success__)
 
 
 @app.route("/heatmap", methods=('POST',))
