@@ -55,6 +55,7 @@ class RunMapping:
             self.group = self.dataset.group.name
 
         self.hash_of_inputs = start_vars['hash_of_inputs']
+        self.dataid = start_vars['dataid']
 
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']

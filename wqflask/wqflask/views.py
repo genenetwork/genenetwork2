@@ -754,7 +754,8 @@ def mapping_results_page():
         'temp_trait',
         'n_samples',
         'transform',
-        'hash_of_inputs'
+        'hash_of_inputs',
+        'dataid'
     )
     start_vars = {}
     for key, value in list(initial_start_vars.items()):
@@ -762,6 +763,13 @@ def mapping_results_page():
             start_vars[key] = value
 
     start_vars['hash_of_inputs'] = hash_of_inputs
+
+    # Store trait sample data in Redis, so additive effect scatterplots can include edited values
+    dhash = hashlib.md5()
+    dhash.update(start_vars['sample_vals'].encode())
+    samples_hash = dhash.hexdigest()
+    Redis.set(samples_hash, start_vars['sample_vals'], ex=7*24*60*60)
+    start_vars['dataid'] = samples_hash
 
     version = "v3"
     key = "mapping_results:{}:".format(
