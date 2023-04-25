@@ -37,7 +37,10 @@
 		<input type="hidden" name="privilege_id"
 		       value="{{privilege.privilege_id}}" />
 		<input type="submit" class="btn btn-danger"
-		       value="Remove" />
+		       value="Remove"
+		       {%if not group_role.role.user_editable%}
+		       disabled="disabled"
+		       {%endif%} />
 	      </form>
 	    </td>
 	  </tr>
@@ -72,7 +75,10 @@
 		<input type="hidden" name="privilege_id"
 		       value="{{priv.privilege_id}}" />
 		<input type="submit" class="btn btn-warning"
-		       value="Add to Role" />
+		       value="Add to Role"
+		       {%if not group_role.role.user_editable%}
+		       disabled="disabled"
+		       {%endif%} />
 	      </form>
 	    </td>
 	  </tr>
