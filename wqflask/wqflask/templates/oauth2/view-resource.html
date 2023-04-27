@@ -11,15 +11,11 @@
 
   <div class="container-fluid">
 
+    {%if resource_error is defined %}
+    {{display_error("Resource", resource_error)}}
+    {%else%}
     <div class="row">
       <h3>Resource Details</h3>
-      {%if error %}
-      <span class="glyphicon glyphicon-exclamation-sign text-danger">
-      </span>
-      &nbsp;
-      <strong class="text-danger">{{error.error}}</strong>
-      {{error.error_description}}
-      {%else%}
       <table class="table">
 	<caption>Resource: {{resource.resource_name}}</caption>
 	<thead>
@@ -70,7 +66,6 @@
 	  </tr>
 	</tbody>
       </table>
-      {%endif%}
     </div>
 
     <div class="row">
@@ -338,6 +333,7 @@
       </form>
       {%endif%}
     </div>
+    {%endif%}
 
   </div>
 

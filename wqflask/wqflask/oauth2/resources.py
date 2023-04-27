@@ -116,7 +116,7 @@ def view_resource(resource_id: uuid.UUID):
 
     return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
         lambda err: render_ui("oauth2/view-resource.html",
-                                    resource=None, error=process_error(err)),
+                              resource=None, resource_error=process_error(err)),
         __resource_success__)
 
 @resources.route("/data/link", methods=["POST"])
