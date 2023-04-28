@@ -18,6 +18,7 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
+import hashlib
 import html
 import json
 
@@ -26,6 +27,8 @@ from base.data_set import create_dataset
 
 from utility import hmac
 from utility.type_checking import get_float, get_int, get_string
+from utility.redis_tools import get_redis_conn
+Redis = get_redis_conn()
 
 def set_template_vars(start_vars, correlation_data):
     corr_type = start_vars['corr_type']
@@ -38,6 +41,13 @@ def set_template_vars(start_vars, correlation_data):
         this_dataset_ob = create_dataset(dataset_name=start_vars['dataset'])
     this_trait = create_trait(dataset=this_dataset_ob,
                               name=start_vars['trait_id'])
+
+    # Store trait sample data in Redis, so additive effect scatterplots can include edited values
+    dhash = hashlib.md5()
+    dhash.update(start_vars['sample_vals'].encode())
+    samples_hash = dhash.hexdigest()
+    Redis.set(samples_hash, start_vars['sample_vals'], ex=7*24*60*60)
+    correlation_data['dataid'] = samples_hash
 
     correlation_data['this_trait'] = jsonable(this_trait, this_dataset_ob)
     correlation_data['this_dataset'] = this_dataset_ob.as_monadic_dict().data
