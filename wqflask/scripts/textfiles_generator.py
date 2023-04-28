@@ -16,6 +16,10 @@ import os
 *manually commonly used datasets
 
 ** USage:
+load the guix packages refer to issue:
+
+ => https://issues.genenetwork.org/topics/guix-profiles
+
 python3 file_name  sql_uri_path tmp_path 
 flags:
 
@@ -147,12 +151,8 @@ def cache_trait_metadata(dataset_name, dataset_type, data):
     if not data:
         return
     try:
-        path = os.path.join(TMPDIR, f"metadata_{dataset_type}")
-        if not check_file_expiry(path, dataset_name):
-            return
-        with lmdb.open(path, map_size=500971520) as env:
+        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_type}"), map_size=500971520) as env:
             with env.begin(write=True) as txn:
-
                 metadata = {
                     "data": data,
                     "creation_date": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -182,27 +182,21 @@ def __generate_file_name__(db_name, sql_uri):
                     f"ProbeSetFreezeId_{results[0]}_{results[1]}")
 
 
-def write_strains_data(sql_uri, dataset_name: str, col_names: list[str], data):
+def write_strains_data(sql_uri, dataset_name: str, data, col_names):
 
-    def __sanitise_filename__(filename):
-        ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
-        return str.translate(filename, ttable)
-
-    if not data:
+    if data == {}:
         return
     try:
-
         with lmdb.open(os.path.join(TMPDIR, "Probesets"), map_size=500971520) as env:
             with env.begin(write=True) as txn:
-
                 meta = {
                     "strain_names": col_names,
                     "data": data,
                     "creation_date": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 }
-
                 txn.put(__generate_file_name__(dataset_name,
                                                sql_uri).encode(), pickle.dumps(meta))
+
     except lmdb.Error as error:
         raise error
 
@@ -262,8 +256,8 @@ def run_textfiles_generator(args):
 
         for (d_type, dataset_name, _species) in DATASET_NAMES:
             file_name = __generate_file_name__(dataset_name, args.SQL_URI)
-
-            if not check_file_expiry(os.path.join(args.TMPDIR, "Probesets"), file_name):
+            if not check_file_expiry(os.path.join(
+                    args.TMPDIR, "Probesets"), file_name):
                 return
             write_strains_data(
                 args.SQL_URI, dataset_name, *generate_probes_textfiles(dataset_name, d_type, args.SQL_URI))
@@ -274,6 +268,9 @@ def run_textfiles_generator(args):
 def run_metadata_files_generator(args):
     for (dataset_type, dataset_name, species) in DATASET_NAMES:
         try:
+            if not check_file_expiry(os.path.join(TMPDIR, f"metadata_{dataset_type}"), dataset_name):
+                return
+
             cache_trait_metadata(dataset_name, dataset_type, get_metadata(
                 dataset_type, dataset_name, species, args.SQL_URI))
         except Exception as error:
