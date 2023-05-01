@@ -1418,7 +1418,7 @@ root.histogram_data = [hist_trace];
 root.histogram_layout = {
   bargap: 0.05,
   title: {
-    xanchor: 'left',
+    xanchor: 'right',
     text: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
   },
   xaxis: {
