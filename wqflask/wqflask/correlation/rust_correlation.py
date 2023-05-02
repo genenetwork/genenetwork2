@@ -257,12 +257,11 @@ def __compute_sample_corr__(
     if not bool(sample_data):
         return {}
     if target_dataset.type == "ProbeSet" and start_vars.get("use_cache") == "true":
-        with database_connection() as conn:
-            results = read_lmdb_strain_files("ProbeSets",target_dataset.name)
-            if results:
-                (sample_vals,target_data) = parse_lmdb_dataset(results[0],sample_data,results[1])
-                return run_correlation(target_data, sample_vals,
-                                   method, ",", corr_type, n_top)
+        results = read_lmdb_strain_files("ProbeSets",target_dataset.name)
+        if results:
+            (sample_vals,target_data) = parse_lmdb_dataset(results[0],sample_data,results[1])
+            return run_correlation(target_data, sample_vals,
+                               method, ",", corr_type, n_top)
     target_dataset.get_trait_data(list(sample_data.keys()))
 
     def __merge_key_and_values__(rows, current):

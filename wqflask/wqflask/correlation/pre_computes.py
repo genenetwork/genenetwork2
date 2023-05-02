@@ -64,8 +64,6 @@ def read_lmdb_strain_files(dataset_type,dataset_name,sql_uri=SQL_URI):
         ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
         return str.translate(filename, ttable)
 
-
-
     def __generate_file_name__(db_name):     
         # todo add expiry time and checker
 
@@ -77,50 +75,18 @@ def read_lmdb_strain_files(dataset_type,dataset_name,sql_uri=SQL_URI):
                 if (results):
                     return __sanitise_filename__(
                         f"ProbeSetFreezeId_{results[0]}_{results[1]}")
-    """
-
-    def __fetch_id_positions__(all_ids, target_ids):
-        _vals = []
-        _posit = [0]  # alternative for parsing
-
-        for (idx, strain) in enumerate(all_ids, 1):
-            if strain in target_ids:
-                _vals.append(target_ids[strain])
-                _posit.append(idx)
-
-        return (_posit, _vals)
-
-    with open(file_path) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        _posit, sample_vals = __fetch_id_positions__(
-            next(csv_reader)[1:], sample_dict)
-        return (sample_vals, [[line[i] for i in _posit] for line in csv_reader])
-
-
-    """
-
-
     try:
-        with lmdb.open(os.path.join("/tmp","Probesets"),readonly=True,lock=False) as env:
+        # change this to tmpdir
+        with lmdb.open(os.path.join(TMPDIR,"Probesets"),readonly=True,lock=False) as env:
             with env.begin() as txn:
                 filename = __generate_file_name__ (dataset_name)
                 if filename:
-                    data = txn.get(filename.encode())
-  
-
-                    col_ids = pickle.loads(data)["data"]
-
-                    data = pickle.loads(data)["strain_names"]
-
-                    return (col_ids,data)
-
-                    # parse 
-               
+                    meta = pickle.loads(txn.get(filename.encode()))
+                    return  (meta["strain_names"],meta["data"])             
                 return {}
-
     except Exception as error:
-        breakpoint()
         return {}
+
 
 def fetch_all_cached_metadata(dataset_name):
     """in a gvein dataset fetch all the traits metadata"""
