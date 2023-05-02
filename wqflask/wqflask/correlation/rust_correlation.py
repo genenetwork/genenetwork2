@@ -64,12 +64,13 @@ def get_metadata(dataset, traits):
     def __location__(probe_chr, probe_mb):
         if probe_mb:
             return f"Chr{probe_chr}: {probe_mb:.6f}"
-        return f"Chr{probe_chr}: ???"
-    cached_metadata = read_trait_metadata(dataset.name)
-    to_fetch_metadata = list(
-        set(traits).difference(list(cached_metadata.keys())))
-    if to_fetch_metadata:
-        results = {**({trait_name: {
+        return f"Chr{probe_chr}: ???"  
+
+    cached_metadata = read_trait_metadata(dataset.name,"ProbeSet")
+    if cached_metadata:
+        return {trait:cached_metadata.get(trait) for trait in traits}
+    else:
+        return {**({trait_name: {
             "name": trait_name,
             "view": True,
             "symbol": symbol,
@@ -88,11 +89,7 @@ def get_metadata(dataset, traits):
 
         } for trait_name, probe_chr, probe_mb, symbol, mean, description,
             additive, lrs, chr_score, mb
-            in query_probes_metadata(dataset, to_fetch_metadata)}), **cached_metadata}
-        cache_trait_metadata(dataset.name, results)
-        return results
-    return cached_metadata
-
+            in query_probes_metadata(dataset, traits)})}
 
 def chunk_dataset(dataset, steps, name):
 

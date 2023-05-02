@@ -25,17 +25,16 @@ def cache_trait_metadata(dataset_name, data):
                 current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 txn.put(b"creation_date", current_date.encode())
                 return "success"
-
     except lmdb.Error as  error:
         pass
 
-def read_trait_metadata(dataset_name):
+def read_trait_metadata(dataset_name,dataset_type):
     try:
-        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),
+        with lmdb.open(os.path.join("/tmp/",f"metadata_{dataset_type}"),
             readonly=True, lock=False) as env:
             with env.begin() as txn:
-                db_name = txn.get(dataset_name.encode())
-                return (pickle.loads(db_name) if db_name else {})
+                metadata =  txn.get(dataset_name.encode())
+                return (pickle.loads(metadata)["data"] if metadata else {})
     except lmdb.Error as error:
         return {}
 
