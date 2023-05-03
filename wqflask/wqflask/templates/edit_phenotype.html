@@ -190,6 +190,34 @@
         </div>
         <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Submit Change">
     </div>
+
+    <div style="padding-top: 20px;">
+        <table style="width: 500px;" class="table table-hover table-striped table-bordered left-float">
+            <thead>
+                <th></th>
+                <th>ID</th>
+                <th>Sample</th>
+                <th>Value</th>
+                <th></th>
+                <th>SE</th>
+                <th>N</th>
+            </thead>
+            <tbody>
+                {% for sample in sample_list %}
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ sample }}</td>
+                    <td><input type="text" name="value:{{ sample }}" value="{% if sample_data.get(sample) %}{{ '%0.3f' | format(sample_data.get(sample).value | float) }}{% else %}x{% endif %}" size=4 maxlength=4></input></td>
+                    <td>±</td>
+                    <td><input type="text" name="error:{{ sample }}" step='0.001' value="{% if sample_data.get(sample).error %}{{ '%0.3f' | format(sample_data.get(sample).error | float) }}{% else %}x{% endif %}" size=4 maxlength=4></input></td>
+                    <td><input type="text" name="n_cases:{{ sample }}" value="{% if sample_data.get(sample).n_cases %}{{ sample_data.get(sample).n_cases }}{% else %}x{% endif %}" size=3 maxlength=3></input></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     </form>
 </div>
 
