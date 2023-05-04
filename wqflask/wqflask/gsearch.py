@@ -5,6 +5,7 @@ from pymonad.tools import curry
 import requests
 
 from gn3.monads import MonadicDict
+from utility.hmac import hmac_creation
 from utility.tools import GN3_LOCAL_URL
 from base import webqtlConfig
 
@@ -24,7 +25,7 @@ class GSearch:
         # search results.
         chr_mb = curry(2, lambda chr, mb: f"Chr{chr}: {mb:.6f}")
         format3f = lambda x: f"{x:.3f}"
-        hmac = curry(2, lambda dataset, dataset_fullname: f"{dataset_fullname}:{dataset}")
+        hmac = curry(3, lambda trait_name, dataset, data_hmac: f"{trait_name}:{dataset}:{data_hmac}")
         convert_lod = lambda x: x / 4.61
         self.trait_list = []
         for i, trait in enumerate(requests.get(
@@ -42,7 +43,7 @@ class GSearch:
                                      .to_arguments(trait.pop("geno_chr"), trait.pop("geno_mb")))
             if self.type == "gene":
                 trait["hmac"] = (Maybe.apply(hmac)
-                                 .to_arguments(trait["dataset"], trait["dataset_fullname"]))
+                                 .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait['name']}:{trait['dataset']}"))))
             elif self.type == "phenotype":
                 trait["display_name"] = trait["name"]
                 inbredsetcode = trait.pop("inbredsetcode")
@@ -50,8 +51,9 @@ class GSearch:
                     trait["display_name"] = (Maybe.apply(
                         curry(2, lambda inbredsetcode, name: f"{inbredsetcode}_{name}"))
                                              .to_arguments(inbredsetcode, trait["name"]))
+
                 trait["hmac"] = (Maybe.apply(hmac)
-                                 .to_arguments(trait.pop("dataset_fullname"), trait["name"]))
+                                 .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait['name']}:{trait['dataset']}"))))
                 trait["authors_display"] = (trait.pop("authors").map(
                     lambda authors:
                     ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors)))
