@@ -100,7 +100,7 @@ def logout():
             session.pop(key, default=None)
         flash("Successfully logged out.", "alert-success")
 
-    return redirect(url_for("oauth2.user.login"))
+    return redirect("/")
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():

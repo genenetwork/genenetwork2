@@ -1,6 +1,6 @@
 """Common oauth2 client utilities."""
 import requests
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 from flask import session, current_app as app
@@ -51,6 +51,19 @@ def oauth2_post(
 def no_token_get(uri_path: str, **kwargs) -> Either:
     config = app.config
     resp = requests.get(urljoin(config["GN_SERVER_URL"], uri_path), **kwargs)
+    if resp.status_code == 200:
+        return Right(resp.json())
+    return Left(resp)
+
+def no_token_post(uri_path: str, data: dict[str, Any]) -> Either:
+    config = app.config
+    request_data = {
+        **data,
+        "client_id": config["OAUTH2_CLIENT_ID"],
+        "client_secret": config["OAUTH2_CLIENT_SECRET"]
+    }
+    resp = requests.post(urljoin(config["GN_SERVER_URL"], uri_path),
+                         data=request_data, json=request_data)
     if resp.status_code == 200:
         return Right(resp.json())
     return Left(resp)
