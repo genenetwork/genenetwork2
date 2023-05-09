@@ -1,12 +1,22 @@
 """General request utilities"""
 from typing import Optional
+from urllib.parse import urljoin, urlparse
 
 import simplejson
 from flask import (
-    flash, session, url_for, redirect, Response, render_template,
+    flash, request, session, url_for, redirect, Response, render_template,
     current_app as app)
 
-from .client import oauth2_get
+from .client import SCOPE, oauth2_get
+
+def authserver_authorise_uri():
+    req_baseurl = urlparse(request.base_url)
+    host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
+    return urljoin(
+        app.config["GN_SERVER_URL"],
+        "oauth2/authorise?response_type=code"
+        f"&client_id={app.config['OAUTH2_CLIENT_ID']}"
+        f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
 def raise_unimplemented():
     raise Exception("NOT IMPLEMENTED")

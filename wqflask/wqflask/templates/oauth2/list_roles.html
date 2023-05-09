@@ -4,7 +4,7 @@
 {%block title%}View User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
-  {{profile_nav("roles", logged_in, user_privileges)}}
+  {{profile_nav("roles", user_privileges)}}
   <h3>Roles</h3>
 
   {{flash_me()}}

@@ -6,7 +6,7 @@ from .request_utils import process_error
 
 def render_ui(templatepath: str, **kwargs):
     """Handle repetitive UI rendering stuff."""
-    logged_in = ("oauth2_token" in session and bool(session["oauth2_token"]))
+    logged_in = lambda: ("oauth2_token" in session and bool(session["oauth2_token"]))
     roles = kwargs.get("roles", tuple()) # Get roles if already provided
     if logged_in and not bool(roles): # If not, try fetching them
         roles_results = oauth2_get("oauth2/user/roles").either(

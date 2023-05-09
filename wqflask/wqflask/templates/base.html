@@ -162,14 +162,37 @@
                         </ul>
                     </li>
                     {% endif %}
+                    <!-- <li class=""> -->
+                    <!--     {% if g.user_session.logged_in %} -->
+                    <!--     <a id="login_out" title="Signed in as {{ g.user_session.user_name }}" href="/n/logout">Sign out</a> -->
+                    <!--     {% else %} -->
+                    <!--     <a id="login_in" href="/n/login">Sign in</a> -->
+                    <!--     {% endif %} -->
+                    <!-- </li> -->
                     <li class="">
-                        {% if g.user_session.logged_in %}
-                        <a id="login_out" title="Signed in as {{ g.user_session.user_name }}" href="/n/logout">Sign out</a>
-                        {% else %}
-                        <a id="login_in" href="/n/login">Sign in</a>
-                        {% endif %}
+                      {%if logged_in()%}
+		      {%if user_details is mapping%}
+		      {%set user_dets = user_details%}
+		      {%else%}
+		      {%set user_dets = user_details()%}
+		      {%endif%}
+                      <a id="login_out"
+			   title="Signed in as {{user_dets.name}}({{user_dets.email}})"
+			   href="{{url_for('oauth2.user.logout')}}">Sign out</a>
+                        {%else%}
+                        <a id="login_in" href="{{authserver_authorise_uri()}}">Sign in</a>
+                        {%endif%}
                     </li>
                     {% endif %}
+
+		    {%if logged_in()%}
+		    <li class="">
+		      <a id="user:profile" title="User's profile page."
+			 href="{{url_for('oauth2.user.user_profile')}}">
+			Profile
+		      </a>
+		    </li>
+		    {%endif%}
                     <!--
                         <li style="margin-left: 20px;">
                             <a href="http://gn2-staging.genenetwork.org" style="font-weight: bold;" >Use Staging Branch</a>

@@ -4,14 +4,11 @@ from flask import (
     flash, request, session, Blueprint, url_for, redirect, render_template,
     current_app as app)
 
-from .client import no_token_post
+from .client import SCOPE, no_token_post
 from .request_utils import process_error
 from .checks import require_oauth2, user_logged_in
 
 toplevel = Blueprint("toplevel", __name__)
-
-
-
 
 @toplevel.route("/register-client", methods=["GET", "POST"])
 @require_oauth2
@@ -36,6 +33,7 @@ def authorisation_code():
         request_data = {
             "grant_type": "authorization_code",
             "code": code,
+            "scope": SCOPE,
             "redirect_uri": urljoin(
                 request.base_url,
                 url_for("oauth2.toplevel.authorisation_code")),
