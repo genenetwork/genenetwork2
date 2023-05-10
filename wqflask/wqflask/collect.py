@@ -22,6 +22,9 @@ from base.trait import retrieve_trait_info
 from base.trait import jsonable
 from base.data_set import create_dataset
 
+from wqflask.oauth2.client import oauth2_get
+from wqflask.oauth2.checks import user_logged_in
+
 
 Redis = get_redis_conn()
 
@@ -140,6 +143,14 @@ def create_new(collection_name):
 def list_collections():
     params = request.args
 
+    if user_logged_in():
+        return oauth2_get("oauth2/user/collections").either(
+            lambda err: __error__(process_error(err)),
+            lambda colls: render_template(
+                "collections/list.html", params=params, collections=colls))
+
+    # TODO: Provide GN3 endpoint to fetch collections for anonymous users
+    #       Maybe /oauth2/user/<uuid:anon_user_id>/collections/list
     user_collections = list(g.user_session.user_collections)
     return render_template("collections/list.html",
                            params=params,
