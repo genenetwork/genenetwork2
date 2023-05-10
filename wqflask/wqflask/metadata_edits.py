@@ -196,14 +196,17 @@ def update_phenotype(dataset_id: str, name: str):
         )
         diff_data = {}
         with database_connection() as conn:
+            group_name = retrieve_group_name(dataset_id, conn)
+            sample_list = retrieve_sample_list(group_name)
             headers = ["Strain Name", "Value", "SE", "Count"]
             base_csv = get_trait_csv_sample_data(
                     conn=conn,
                     trait_name=str(name),
                     phenotype_id=str(phenotype_id),
+                    sample_list=sample_list,
             )
             if not (file_) and data_.get('edited') == "true":
-                delta_csv = create_delta_csv(base_csv, data_)
+                delta_csv = create_delta_csv(base_csv, data_, sample_list)
                 diff_data = remove_insignificant_edits(
                     diff_data=csv_diff(
                         base_csv=base_csv,
@@ -725,7 +728,7 @@ def approve_data(resource_id: str, file_name: str):
         )
     return redirect(url_for("metadata_edit.list_diffs"))
 
-def create_delta_csv(base_csv, form_data):
+def create_delta_csv(base_csv, form_data, sample_list):
     base_csv_lines = base_csv.split("\n")
     delta_csv_lines = [base_csv_lines[0]]
 
@@ -737,9 +740,10 @@ def create_delta_csv(base_csv, form_data):
                 new_line_items = [sample['name']]
                 for field in ["value", "error", "n_cases"]:
                     if form_data.get(field + ":" + sample['name']):
-                        new_line_items.append(form_data.get(field + ":" + sample['name']))
-                    else:
-                        new_line_items.append(sample[field])
+                        if form_data.get(field + ":" + sample['name']).isnumeric():
+                            new_line_items.append(form_data.get(field + ":" + sample['name']))
+                            continue
+                    new_line_items.append(sample[field])
                 delta_csv_lines.append(",".join(new_line_items))
                 break
         else:
