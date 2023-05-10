@@ -35,6 +35,7 @@ from gn3.db import fetchall
 from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
+from gn3.db.datasets import retrieve_sample_list, retrieve_group_name, retrieve_trait_dataset
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
@@ -42,7 +43,7 @@ from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import probeset_mapping
 from gn3.db.sample_data import delete_sample_data
-from gn3.db.sample_data import get_trait_csv_sample_data
+from gn3.db.sample_data import get_trait_sample_data, get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
 from gn3.db.sample_data import update_sample_data
 
@@ -131,8 +132,15 @@ def edit_probeset(conn, name):
 def display_phenotype_metadata(dataset_id: str, name: str):
     with database_connection() as conn:
         _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
+
+        group_name = retrieve_group_name(dataset_id, conn)
+        sample_list = retrieve_sample_list(group_name)
+        sample_data = get_trait_sample_data(conn, name, _d.get("publish_xref").phenotype_id)
+
         return render_template(
             "edit_phenotype.html",
+            sample_list = sample_list,
+            sample_data = sample_data,
             publish_xref=_d.get("publish_xref"),
             phenotype=_d.get("phenotype"),
             publication=_d.get("publication"),
@@ -171,7 +179,7 @@ def update_phenotype(dataset_id: str, name: str):
         or ""
     )
     phenotype_id = str(data_.get("phenotype-id"))
-    if not (file_ := request.files.get("file")):
+    if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
         flash("No sample-data has been uploaded", "warning")
     else:
         create_dirs_if_not_exists(
@@ -189,20 +197,31 @@ def update_phenotype(dataset_id: str, name: str):
         diff_data = {}
         with database_connection() as conn:
             headers = ["Strain Name", "Value", "SE", "Count"]
-            diff_data = remove_insignificant_edits(
-                diff_data=csv_diff(
-                    base_csv=(
-                        base_csv := get_trait_csv_sample_data(
-                            conn=conn,
-                            trait_name=str(name),
-                            phenotype_id=str(phenotype_id),
-                        )
-                    ),
-                    delta_csv=(delta_csv := file_.read().decode()),
-                    tmp_dir=TMPDIR,
-                ),
-                epsilon=0.001,
+            base_csv = get_trait_csv_sample_data(
+                    conn=conn,
+                    trait_name=str(name),
+                    phenotype_id=str(phenotype_id),
             )
+            if not (file_) and data_.get('edited') == "true":
+                delta_csv = create_delta_csv(base_csv, data_)
+                diff_data = remove_insignificant_edits(
+                    diff_data=csv_diff(
+                        base_csv=base_csv,
+                        delta_csv=delta_csv,
+                        tmp_dir=TMPDIR,
+                    ),
+                    epsilon=0.001,
+                )
+            else:
+                diff_data = remove_insignificant_edits(
+                    diff_data=csv_diff(
+                        base_csv=base_csv,
+                        delta_csv=(delta_csv := file_.read().decode()),
+                        tmp_dir=TMPDIR,
+                    ),
+                    epsilon=0.001,
+                )
+
             invalid_headers = extract_invalid_csv_headers(
                 allowed_headers=headers, csv_text=delta_csv
             )
@@ -705,3 +724,25 @@ def approve_data(resource_id: str, file_name: str):
             "warning",
         )
     return redirect(url_for("metadata_edit.list_diffs"))
+
+def create_delta_csv(base_csv, form_data):
+    base_csv_lines = base_csv.split("\n")
+    delta_csv_lines = [base_csv_lines[0]]
+
+    for line in base_csv_lines[1:]:
+        sample = {}
+        sample['name'], sample['value'], sample['error'], sample['n_cases'] = line.split(",")
+        for key in form_data:
+            if sample['name'] in key:
+                new_line_items = [sample['name']]
+                for field in ["value", "error", "n_cases"]:
+                    if form_data.get(field + ":" + sample['name']):
+                        new_line_items.append(form_data.get(field + ":" + sample['name']))
+                    else:
+                        new_line_items.append(sample[field])
+                delta_csv_lines.append(",".join(new_line_items))
+                break
+        else:
+            delta_csv_lines.append(line)
+
+    return "\n".join(delta_csv_lines)
