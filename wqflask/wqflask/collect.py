@@ -10,6 +10,7 @@ from flask import url_for
 from flask import request
 from flask import redirect
 from flask import flash
+from flask import current_app
 
 from wqflask import app
 from utility import hmac
@@ -22,8 +23,10 @@ from base.trait import retrieve_trait_info
 from base.trait import jsonable
 from base.data_set import create_dataset
 
-from wqflask.oauth2.client import oauth2_get
+from wqflask.oauth2 import session
 from wqflask.oauth2.checks import user_logged_in
+from wqflask.oauth2.request_utils import process_error
+from wqflask.oauth2.client import oauth2_get, no_token_get
 
 
 Redis = get_redis_conn()
@@ -142,20 +145,22 @@ def create_new(collection_name):
 @app.route("/collections/list")
 def list_collections():
     params = request.args
+    anon_id = session.session_info()["anon_id"]
+    anon_collections = no_token_get(
+        f"oauth2/user/{anon_id}/collections/list").either(
+            lambda err: {"anon_collections_error": process_error(err)},
+            lambda colls: {"anon_collections": colls})
 
+    user_collections = {"collections": []}
     if user_logged_in():
-        return oauth2_get("oauth2/user/collections").either(
-            lambda err: __error__(process_error(err)),
-            lambda colls: render_template(
-                "collections/list.html", params=params, collections=colls))
+        user_collections = oauth2_get("oauth2/user/collections/list").either(
+            lambda err: {"user_collections_error": process_error(err)},
+            lambda colls: {"collections": colls})
 
-    # TODO: Provide GN3 endpoint to fetch collections for anonymous users
-    #       Maybe /oauth2/user/<uuid:anon_user_id>/collections/list
-    user_collections = list(g.user_session.user_collections)
     return render_template("collections/list.html",
                            params=params,
-                           collections=user_collections,
-                           )
+                           **user_collections,
+                           **anon_collections)
 
 
 @app.route("/collections/remove", methods=('POST',))

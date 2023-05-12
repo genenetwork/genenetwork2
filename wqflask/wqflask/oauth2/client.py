@@ -1,4 +1,5 @@
 """Common oauth2 client utilities."""
+import json
 import requests
 from typing import Any, Optional
 from urllib.parse import urljoin

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%from "oauth2/display_error.html" import display_error%}
 {% block title %}Your Collections{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
@@ -29,6 +30,40 @@
         </div>
         <br>
         <div id="collections_list" style="width:50%; margin-top: 10px; margin-bottom: 10px;">
+	  {%if anon_collections_error is defined%}
+	  {{display_error("Anonymous Collections", anon_collections_error)}}
+	  {%endif%}
+	  {%if anon_collections | length > 0%}
+	  <table class="table-hover table-striped cell-border" id='trait_table'
+		 style="float: left;">
+	    <caption>Anonymous Collections</caption>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Index</th>
+                <th>Name</th>
+                <th>Created</th>
+                <th>Last Changed</th>
+                <th># Records</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for uc in anon_collections %}
+              {% if uc.num_members > 0 %}
+              <tr class="collection_line">
+                <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+                <td align="right">{{ loop.index }}
+                <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
+                <td>{{ uc.created_timestamp }}</td>
+                <td>{{ uc.changed_timestamp }}</td>
+                <td align="right">{{ uc.num_members }}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+	  {%endif%}
         {% if collections|length > 0 %}
         <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
             <thead>
