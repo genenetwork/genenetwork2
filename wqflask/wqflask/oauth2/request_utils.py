@@ -23,7 +23,7 @@ def raise_unimplemented():
 
 def user_details():
     return oauth2_get("oauth2/user").either(
-        handle_error("oauth2.login"),
+        lambda err: {},
         lambda usr_dets: usr_dets)
 
 def process_error(error: Response,

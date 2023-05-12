@@ -1,12 +1,14 @@
 """Authentication endpoints."""
+from uuid import UUID
 from urllib.parse import urljoin
 from flask import (
-    flash, request, session, Blueprint, url_for, redirect, render_template,
+    flash, request, Blueprint, url_for, redirect, render_template,
     current_app as app)
 
+from . import session
 from .client import SCOPE, no_token_post
-from .request_utils import process_error
 from .checks import require_oauth2, user_logged_in
+from .request_utils import user_details, process_error
 
 toplevel = Blueprint("toplevel", __name__)
 
@@ -25,7 +27,14 @@ def authorisation_code():
         return redirect("/")
 
     def __success__(token):
-        session["oauth2_token"] = token
+        session.set_user_token(token)
+        udets = user_details()
+        session.set_user_details({
+            "user_id": UUID(udets["user_id"]),
+            "name": udets["name"],
+            "token": session.user_token(),
+            "logged_in": True
+        })
         return redirect(url_for("oauth2.user.user_profile"))
 
     code = request.args.get("code", "")

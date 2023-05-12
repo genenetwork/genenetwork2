@@ -1,11 +1,13 @@
 import requests
+from uuid import UUID
 from urllib.parse import urljoin
 
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
-    flash, request, session, url_for, redirect, Response, Blueprint,
+    flash, request, url_for, redirect, Response, Blueprint,
     current_app as app)
 
+from . import session
 from .ui import render_ui
 from .checks import require_oauth2, user_logged_in
 from .client import oauth2_get, oauth2_post, oauth2_client
@@ -18,7 +20,6 @@ users = Blueprint("user", __name__)
 def user_profile():
     __id__ = lambda the_val: the_val
     usr_dets = user_details()
-    client = oauth2_client()
     def __render__(usr_dets, roles=[], **kwargs):
         return render_ui(
             "oauth2/view-user.html", user_details=usr_dets, roles=roles,
@@ -74,7 +75,14 @@ def login():
                 username=form.get("email_address"),
                 password=form.get("password"),
                 grant_type="password")
-            session["oauth2_token"] = token
+            session.set_token(token)
+            udets = user_details()
+            session.set_user_details({
+                "user_id": UUID(udets["user_id"]),
+                "name": udets["name"],
+                "token": session.user_token(),
+                "logged_in": True
+            })
         except OAuthError as _oaerr:
             flash(_oaerr.args[0], "alert-danger")
             return render_ui(
@@ -91,13 +99,10 @@ def login():
 @users.route("/logout", methods=["GET", "POST"])
 def logout():
     if user_logged_in():
-        token = session.get("oauth2_token", False)
         config = app.config
-        client = oauth2_client()
-        resp = client.revoke_token(urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
-        keys = tuple(key for key in session.keys() if not key.startswith("_"))
-        for key in keys:
-            session.pop(key, default=None)
+        resp = oauth2_client().revoke_token(
+            urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
+        session.clear_session_info()
         flash("Successfully logged out.", "alert-success")
 
     return redirect("/")
