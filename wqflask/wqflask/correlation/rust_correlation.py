@@ -16,7 +16,7 @@ from wqflask.correlation.pre_computes import write_db_to_textfile
 from wqflask.correlation.pre_computes import read_trait_metadata
 from wqflask.correlation.pre_computes import cache_trait_metadata
 from wqflask.correlation.pre_computes import  parse_lmdb_dataset
-
+from wqflask.correlation.pre_computes import to_generate_datasets
 from wqflask.correlation.pre_computes import read_lmdb_strain_files
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
@@ -73,6 +73,7 @@ def get_metadata(dataset, traits):
     if cached_metadata:
         return {trait:cached_metadata.get(trait) for trait in traits}
     else:
+        to_generate_datasets(dataset.name, "ProbeSet", "metadata")
         return {**({trait_name: {
             "name": trait_name,
             "view": True,
@@ -262,6 +263,8 @@ def __compute_sample_corr__(
             (sample_vals,target_data) = parse_lmdb_dataset(results[0],sample_data,results[1])
             return run_correlation(target_data, sample_vals,
                                method, ",", corr_type, n_top)
+        else:
+            to_generate_datasets(target_dataset.name, "ProbeSet", "textfile", target_dataset.group.species)
     target_dataset.get_trait_data(list(sample_data.keys()))
 
     def __merge_key_and_values__(rows, current):
