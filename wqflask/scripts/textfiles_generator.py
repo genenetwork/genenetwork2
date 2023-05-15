@@ -11,6 +11,7 @@ import lmdb
 import os
 
 
+
 """
 *script generate both metadata and probeset textfiles 
 *manually commonly used datasets
@@ -28,12 +29,14 @@ flags:
     -- textfile to generate the probeset strain data
 
 
+# set the TMPDIR for example
+export TMPDIR = "/tmp/gn2"
 # example  python3 
 
- python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" /tmp --textfile
- python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" /tmp --metadata
+ python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" $TMPDIR  --textfile
+ python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" $TMPDIR --metadata
 
-python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" /tmp --metadata  --textfile
+python3 meta_data_script.py "mysql://kabui:1234@localhost/db_webqtl" $TMPDIR  --metadata  --textfile
 
 """
 
