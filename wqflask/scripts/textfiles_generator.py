@@ -253,8 +253,7 @@ def argument_parser():
 
 def run_textfiles_generator(args):
     try:
-
-        for (d_type, dataset_name, _species) in DATASET_NAMES:
+        for (d_type, dataset_name, _species) in fetch_to_generate_dataset("ProbeSet", "textfile"):
             file_name = __generate_file_name__(dataset_name, args.SQL_URI)
             if not check_file_expiry(os.path.join(
                     args.TMPDIR, "Probesets"), file_name):
@@ -266,7 +265,7 @@ def run_textfiles_generator(args):
 
 
 def run_metadata_files_generator(args):
-    for (dataset_type, dataset_name, species) in DATASET_NAMES:
+    for (dataset_type, dataset_name, species) in fetch_to_generate_dataset("ProbeSet", "metadata"):
         try:
             if not check_file_expiry(os.path.join(TMPDIR, f"metadata_{dataset_type}"), dataset_name):
                 return
@@ -303,6 +302,18 @@ def check_file_expiry(target_file_path, dataset_name, max_days=20):
                 return True
     except Exception:
         return True
+
+
+def fetch_to_generate_dataset(dataset_type, gen_type):
+    try:
+        with lmdb.open(os.path.join("/tmp", "todolist_generate"), readonly=True, lock=False) as env:
+            with env.begin() as txn:
+                data = txn.get(f"{gen_type}:{dataset_type}".encode())
+                if data:
+                    return [result for result in pickle.loads(data).values()]
+                return DATASET_NAMES
+    except Exception as err:
+        return DATASET_NAMES
 
 
 if __name__ == '__main__':
