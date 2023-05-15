@@ -190,7 +190,11 @@ $(function() {
     });
 
     return $.colorbox({
-      href: "/collections/add?hash=" + traits_hash
+	href: "/collections/add",
+	data: {
+	    "traits": traits.toString(),
+	    "hash": traits_hash
+	}
     });
 
   };

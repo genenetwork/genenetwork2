@@ -76,15 +76,25 @@ def no_token_get(uri_path: str, **kwargs) -> Either:
         return Right(resp.json())
     return Left(resp)
 
-def no_token_post(uri_path: str, data: dict[str, Any]) -> Either:
+def no_token_post(uri_path: str, **kwargs) -> Either:
     config = app.config
+    data = kwargs.get("data", {})
+    the_json = kwargs.get("json", {})
     request_data = {
         **data,
+        **the_json,
         "client_id": config["OAUTH2_CLIENT_ID"],
         "client_secret": config["OAUTH2_CLIENT_SECRET"]
     }
+    new_kwargs = {
+        **{
+            key: value for key, value in kwargs.items()
+            if key not in ("data", "json")
+        },
+        ("data" if bool(data) else "json"): request_data
+    }
     resp = requests.post(urljoin(config["GN_SERVER_URL"], uri_path),
-                         data=request_data, json=request_data)
+                         **new_kwargs)
     if resp.status_code == 200:
         return Right(resp.json())
     return Left(resp)

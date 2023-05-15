@@ -26,7 +26,7 @@ from base.data_set import create_dataset
 from wqflask.oauth2 import session
 from wqflask.oauth2.checks import user_logged_in
 from wqflask.oauth2.request_utils import process_error
-from wqflask.oauth2.client import oauth2_get, no_token_get
+from wqflask.oauth2.client import oauth2_get, no_token_get, no_token_post
 
 
 Redis = get_redis_conn()
@@ -45,7 +45,7 @@ def process_traits(unprocessed_traits):
             assert the_hmac == hmac.hmac_creation(data), "Data tampering?"
         traits.add(str(data))
 
-    return traits
+    return tuple(traits)
 
 
 def report_change(len_before, len_now):
@@ -67,28 +67,32 @@ def store_traits_list():
     return hash
 
 
-@app.route("/collections/add")
+@app.route("/collections/add", methods=["POST"])
 def collections_add():
-
+    traits = request.args.get("traits", request.form.get("traits"))
+    the_hash = request.args.get("hash", request.form.get("hash"))
     collections = g.user_session.user_collections
     if len(collections) < 1:
         collection_name = "Your Default Collection"
         uc_id = g.user_session.add_collection(collection_name, set())
         collections = g.user_session.user_collections
 
-    if 'traits' in request.args:
-        traits = request.args['traits']
+    if bool(traits):
         return render_template("collections/add.html",
                                traits=traits,
-                               collections=collections,
-                               )
+                               collections=collections)
     else:
-        hash = request.args['hash']
         return render_template("collections/add.html",
-                               hash=hash,
-                               collections=collections,
-                               )
+                               hash=the_hash,
+                               collections=collections)
 
+def __compute_traits__(params):
+    if "hash" in params:
+        unprocessed_traits = Redis.get(params['hash']) or ""
+        Redis.delete(params['hash'])
+    else:
+        unprocessed_traits = params['traits']
+    return process_traits(unprocessed_traits)
 
 @app.route("/collections/new")
 def collections_new():
@@ -97,10 +101,31 @@ def collections_new():
     if "sign_in" in params:
         return redirect(url_for('login'))
     if "create_new" in params:
-        collection_name = params['new_collection']
-        if collection_name.strip() == "":
-            collection_name = datetime.datetime.utcnow().strftime('Collection_%b_%d_%H:%M')
-        return create_new(collection_name)
+        collection_name = (
+            params.get("new_collection", "").strip() or
+            datetime.datetime.utcnow().strftime('Collection_%b_%d_%H:%M'))
+        from wqflask.oauth2.session import session_info
+        request_data = {
+            "uri_path": "oauth2/user/collections/new",
+            "json": {
+                "name": collection_name,
+                "anon_id": str(session_info()["anon_id"]),
+                "traits": __compute_traits__(params),
+                "hash": params.get("hash", False)
+            }}
+        if user_logged_in():
+            resp =  oauth2_post(**request_data)
+        else:
+            resp = no_token_post(**request_data)
+        #return create_new(collection_name)
+        def __error__(err):
+            error = process_error(err)
+            flash(f"{error['error']}: {error['error_description']}",
+                  "alert-danger")
+            return redirect("/")
+        def __view_collection__(collection):
+            return redirect(url_for("view_collection", uc_id=collection["id"]))
+        return resp.either(__error__, __view_collection__)
     elif "add_to_existing" in params:
         if 'existing_collection' not in params:
             collections = g.user_session.user_collections
@@ -147,7 +172,7 @@ def list_collections():
     params = request.args
     anon_id = session.session_info()["anon_id"]
     anon_collections = no_token_get(
-        f"oauth2/user/{anon_id}/collections/list").either(
+        f"oauth2/user/collections/{anon_id}/list").either(
             lambda err: {"anon_collections_error": process_error(err)},
             lambda colls: {"anon_collections": colls})
 
