@@ -17,9 +17,11 @@ from utility.tools import SQL_URI
 from json.decoder import JSONDecodeError
 
 
+
+
 def to_generate_datasets(dataset_name, dataset_type, gen_type, species="mouse"):
     try:
-        with lmdb.open(os.path.join("/tmp", "todolist_generate"), map_size=20971520) as env:
+        with lmdb.open(os.path.join(TMPDIR, "todolist_generate"), map_size=20971520) as env:
             with env.begin(write=True) as txn:
                 data = txn.get(f"{gen_type}:{dataset_type}".encode())
                 if data:
@@ -51,7 +53,7 @@ def cache_trait_metadata(dataset_name, data):
 
 def read_trait_metadata(dataset_name, dataset_type):
     try:
-        with lmdb.open(os.path.join("/tmp/", f"metadata_{dataset_type}"),            readonly=True, lock=False) as env:
+        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_type}"), readonly=True, lock=False) as env:
             with env.begin() as txn:
                 metadata = txn.get(dataset_name.encode())
                 return (pickle.loads(metadata)["data"] if metadata else {})
