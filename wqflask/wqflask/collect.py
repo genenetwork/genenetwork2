@@ -24,6 +24,7 @@ from base.trait import jsonable
 from base.data_set import create_dataset
 
 from wqflask.oauth2 import session
+from wqflask.oauth2.session import session_info
 from wqflask.oauth2.checks import user_logged_in
 from wqflask.oauth2.request_utils import process_error
 from wqflask.oauth2.client import oauth2_get, no_token_get, no_token_post
@@ -288,47 +289,62 @@ def view_collection():
     params = request.args
 
     uc_id = params['uc_id']
-    uc = next(
-        (collection for collection in g.user_session.user_collections if collection["id"] == uc_id))
-    traits = uc["members"]
-
-    trait_obs = []
-    json_version = []
-
-    for atrait in traits:
-        if ':' not in atrait:
-            continue
-        name, dataset_name = atrait.split(':')
-        if dataset_name == "Temp":
-            group = name.split("_")[2]
-            dataset = create_dataset(
-                dataset_name, dataset_type="Temp", group_name=group)
-            trait_ob = create_trait(name=name, dataset=dataset)
-        else:
-            dataset = create_dataset(dataset_name)
-            trait_ob = create_trait(name=name, dataset=dataset)
-            trait_ob = retrieve_trait_info(
-                trait_ob, dataset, get_qtl_info=True)
-        trait_obs.append(trait_ob)
-
-        trait_json = jsonable(trait_ob)
-        trait_json['trait_info_str'] = trait_info_str(trait_ob)
-
-        json_version.append(trait_json)
-
-    collection_info = dict(
-        trait_obs=trait_obs,
-        uc=uc,
-        heatmap_data_url=urljoin(GN_SERVER_URL, "heatmaps/clustered"))
-
-    if "json" in params:
-        return json.dumps(json_version)
+    request_data = {
+        "uri_path": f"oauth2/user/collections/{uc_id}/view",
+        "json": {"anon_id": str(session_info()["anon_id"])}
+    }
+    if user_logged_in():
+        coll = oauth2_post(**request_data)
     else:
-        return render_template(
-            "collections/view.html",
-            traits_json=json_version,
-            trait_info_str=trait_info_str,
-            **collection_info)
+        coll = no_token_post(**request_data)
+
+    def __view__(uc):
+        traits = uc["members"]
+
+        trait_obs = []
+        json_version = []
+
+        for atrait in traits:
+            if ':' not in atrait:
+                continue
+            name, dataset_name = atrait.split(':')
+            if dataset_name == "Temp":
+                group = name.split("_")[2]
+                dataset = create_dataset(
+                    dataset_name, dataset_type="Temp", group_name=group)
+                trait_ob = create_trait(name=name, dataset=dataset)
+            else:
+                dataset = create_dataset(dataset_name)
+                trait_ob = create_trait(name=name, dataset=dataset)
+                trait_ob = retrieve_trait_info(
+                    trait_ob, dataset, get_qtl_info=True)
+            trait_obs.append(trait_ob)
+
+            trait_json = jsonable(trait_ob)
+            trait_json['trait_info_str'] = trait_info_str(trait_ob)
+
+            json_version.append(trait_json)
+
+        collection_info = dict(
+            trait_obs=trait_obs,
+            uc=uc,
+            heatmap_data_url=urljoin(GN_SERVER_URL, "heatmaps/clustered"))
+
+        if "json" in params:
+            return json.dumps(json_version)
+        else:
+            return render_template(
+                "collections/view.html",
+                traits_json=json_version,
+                trait_info_str=trait_info_str,
+                **collection_info)
+
+    def __error__(err):
+        error = process_error(err)
+        flash(f"{error['error']}: {error['error_description']}", "alert-danger")
+        return redirect(url_for("list_collections"))
+
+    return coll.either(__error__, __view__)
 
 @app.route("/collections/change_name", methods=('POST',))
 def change_collection_name():
