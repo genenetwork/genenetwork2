@@ -154,7 +154,7 @@ def cache_trait_metadata(dataset_name, dataset_type, data):
     if not data:
         return
     try:
-        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_type}"), map_size=500971520) as env:
+        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_type}"), map_size=1048576000) as env:
             with env.begin(write=True) as txn:
                 metadata = {
                     "data": data,
@@ -190,7 +190,7 @@ def write_strains_data(sql_uri, dataset_name: str, data, col_names):
     if data == {}:
         return
     try:
-        with lmdb.open(os.path.join(TMPDIR, "Probesets"), map_size=500971520) as env:
+        with lmdb.open(os.path.join(TMPDIR, "Probesets"), map_size=5242880000) as env:
             with env.begin(write=True) as txn:
                 meta = {
                     "strain_names": col_names,
