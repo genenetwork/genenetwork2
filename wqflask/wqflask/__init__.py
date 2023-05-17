@@ -32,6 +32,7 @@ from wqflask.api.markdown import news_blueprint
 from wqflask.api.jobs import jobs as jobs_bp
 from wqflask.oauth2.routes import oauth2
 from wqflask.oauth2.checks import user_logged_in
+from wqflask.oauth2.collections import num_collections
 from wqflask.oauth2.request_utils import user_details, authserver_authorise_uri
 
 from wqflask.jupyter_notebooks import jupyter_notebooks
@@ -55,7 +56,8 @@ app.jinja_env.globals.update(
     numify=formatting.numify,
     logged_in=user_logged_in,
     authserver_authorise_uri=authserver_authorise_uri,
-    user_details=user_details)
+    user_details=user_details,
+    num_collections=num_collections)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
 

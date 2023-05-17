@@ -34,7 +34,7 @@
 	  {{display_error("Anonymous Collections", anon_collections_error)}}
 	  {%endif%}
 	  {%if anon_collections | length > 0%}
-	  <table class="table-hover table-striped cell-border" id='trait_table'
+	  <table class="table-hover table-striped cell-border" id='anon_trait_table'
 		 style="float: left;">
 	    <caption>Anonymous Collections</caption>
             <thead>
@@ -64,7 +64,10 @@
             </tbody>
           </table>
 	  {%endif%}
-        {% if collections|length > 0 %}
+	  {% if collections|length > 0 %}
+          {% if (anon_collections | length > 0)  and (collections | length > 0) %}
+	  <hr />
+	  {%endif%}
           <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
 	    <caption>User Collections</caption>
             <thead>
@@ -126,6 +129,7 @@
                 { "type": "natural", "width": "15%", "targets": 5}
             ];
 
+	    create_table("anon_trait_table", [], columnDefs)
             create_table(tableId, [], columnDefs)
 
             submit_special = function(url) {

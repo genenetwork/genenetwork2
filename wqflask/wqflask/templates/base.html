@@ -141,7 +141,7 @@
                     {% if g.user_session %}
                     <li class="">
                         <a href="/collections/list">Collections
-                            <span class="badge badge-info">{{ g.user_session.num_collections }}</span>
+                            <span class="badge badge-info">{{num_collections()}}</span>
                         </a>
                     </li>
                     <li class="">
