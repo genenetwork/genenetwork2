@@ -226,25 +226,28 @@ def remove_traits():
 
 @app.route("/collections/delete", methods=('POST',))
 def delete_collection():
-    params = request.form
-    uc_id = ""
+    def __error__(err):
+        error = process_error(err)
+        flash(f"{error['error']}: {error['error_description']}",
+              "alert-danger")
+        return redirect(url_for('list_collections'))
 
-    uc_id = params['uc_id']
-    if len(uc_id.split(":")) > 1:
-        for this_uc_id in uc_id.split(":"):
-            collection_name = g.user_session.delete_collection(this_uc_id)
-    else:
-        collection_name = g.user_session.delete_collection(uc_id)
+    def __success__(msg):
+        flash(msg["message"], "alert-success")
+        return redirect(url_for('list_collections'))
 
-    if uc_id != "":
-        if len(uc_id.split(":")) > 1:
-            flash("We've deleted the selected collections.", "alert-info")
-        else:
-            flash("We've deleted the selected collection.", "alert-info")
-    else:
-        flash("We've deleted the collection: {}.".format(
-            collection_name), "alert-info")
+    uc_ids = [item for item in request.form.get("uc_id", "").split(":")
+              if bool(item)]
+    if len(uc_ids) > 0:
+        return (oauth2_post if user_logged_in() else no_token_post)(
+            "oauth2/user/collections/delete",
+            json = {
+                "anon_id": str(session_info()["anon_id"]),
+                "collection_ids": uc_ids
+            }).either(
+                __error__, __success__)
 
+    flash("Nothing to delete.", "alert-info")
     return redirect(url_for('list_collections'))
 
 
