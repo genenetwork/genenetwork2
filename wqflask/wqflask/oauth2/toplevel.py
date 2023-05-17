@@ -35,7 +35,7 @@ def authorisation_code():
             "token": session.user_token(),
             "logged_in": True
         })
-        return redirect(url_for("oauth2.user.user_profile"))
+        return redirect("/")
 
     code = request.args.get("code", "")
     if bool(code):

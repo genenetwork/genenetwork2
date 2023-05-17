@@ -101,6 +101,8 @@ from wqflask.database import database_connection
 
 import jobs.jobs as jobs
 
+from wqflask.oauth2.session import session_info
+from wqflask.oauth2.checks import user_logged_in
 
 Redis = get_redis_conn()
 
@@ -147,13 +149,18 @@ def no_access_page():
 
 @app.route("/")
 def index_page():
-    params = request.args
-    if 'import_collections' in params:
-        import_collections = params['import_collections']
-        if import_collections == "true":
-            g.user_session.import_traits_to_user(params['anon_id'])
-    return render_template(
-        "index_page.html", version=GN_VERSION, gn_server_url=GN_SERVER_URL)
+    anon_id = session_info()["anon_id"]
+    def __render__(colls):
+        return render_template("index_page.html", version=GN_VERSION,
+                               gn_server_url=GN_SERVER_URL,
+                               anon_collections=(
+                                   colls if user_logged_in() else []),
+                               anon_id=anon_id)
+
+    return no_token_get(
+        f"oauth2/user/collections/{anon_id}/list").either(
+            lambda err: __render__([]),
+            __render__)
 
 
 @app.route("/tmp/<img_path>")

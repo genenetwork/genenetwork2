@@ -54,7 +54,42 @@
 <!-- Start of body -->
     <div class="container-fluid" style="min-width: 1210px;">
 
-        {{ flash_me() }}
+      {{ flash_me() }}
+
+      {%if anon_collections | length > 0%}
+      <div class="panel panel-warning">
+	<div class="panel-heading">
+	  <h3 class="panel-title">Import Anonymous Collections</h3>
+	</div>
+	<div class="panel-body">
+	  <p>
+	    There {%if anon_collections | length > 1%}are{%else%}is{%endif%}
+	    {{anon_collections | length}} anonymous
+	    collection{%if anon_collections | length > 1%}s{%endif%}
+	    associated with your current session. What do you wish to do?
+	  </p>
+	  <p class="text-danger" style="font-weight: bold;">
+	    <small>
+	      If you choose to ignore this, the anonymous collections will be
+	      eventually deleted and lost.
+	    </small>
+	  </p>
+	  <form action="{{url_for('handle_anonymous_collections')}}"
+		method="POST">
+	    <div class="form-group">
+	      <input type="radio" id="rdo-import" value="import"
+		     name="anon_choice" />
+	      <label for="rdo-import">Import</label>
+	      <input type="radio" id="rdo-delete" value="delete"
+		     name="anon_choice" />
+	      <label for="rdo-delete">Delete</label>
+	    </div>
+
+	    <input type="submit" class="btn btn-warning" value="Submit" />
+	  </form>
+	</div>
+      </div>
+      {%endif%}
 
         <div class="row" style="width: 100%;">
 

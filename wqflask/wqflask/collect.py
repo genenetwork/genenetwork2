@@ -27,7 +27,8 @@ from wqflask.oauth2 import session
 from wqflask.oauth2.session import session_info
 from wqflask.oauth2.checks import user_logged_in
 from wqflask.oauth2.request_utils import process_error
-from wqflask.oauth2.client import oauth2_get, no_token_get, no_token_post
+from wqflask.oauth2.client import (
+    oauth2_get, oauth2_post, no_token_get, no_token_post)
 
 
 Redis = get_redis_conn()
@@ -188,6 +189,26 @@ def list_collections():
                            **user_collections,
                            **anon_collections)
 
+@app.route("/collections/handle_anonymous", methods=["POST"])
+def handle_anonymous_collections():
+    """Handle any anonymous collection on logging in."""
+    choice = request.form.get("anon_choice")
+    if choice not in ("import", "delete"):
+        flash("Invalid choice!", "alert-danger")
+        return redirect("/")
+    def __impdel_error__(err):
+        error = process_error(err)
+        flash(f"{error['error']}: {error['error_description']}",
+              "alert-danger")
+        return redirect("/")
+    def __impdel_success__(msg):
+        flash(f"Success: {msg['message']}", "alert-success")
+        return redirect("/")
+    return oauth2_post(
+        f"oauth2/user/collections/anonymous/{choice}",
+        json={
+            "anon_id": str(session_info()["anon_id"])
+        }).either(__impdel_error__, __impdel_success__)
 
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
