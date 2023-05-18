@@ -1,5 +1,5 @@
 """General request utilities"""
-from typing import Optional
+from typing import Optional, Callable
 from urllib.parse import urljoin, urlparse
 
 import simplejson
@@ -80,3 +80,16 @@ def flash_error(error):
 
 def flash_success(success):
     flash(f"{success['description']}", "alert-success")
+
+def with_flash_error(response) -> Callable:
+    def __err__(err) -> Response:
+        error = process_error(err)
+        flash(f"{error['error']}: {error['error_description']}", "alert-danger")
+        return response
+    return __err__
+
+def with_flash_success(response) -> Callable:
+    def __succ__(msg) -> Response:
+        flash(f"Success: {msg['message']}", "alert-success")
+        return response
+    return __succ__

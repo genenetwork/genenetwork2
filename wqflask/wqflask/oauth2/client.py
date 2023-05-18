@@ -10,6 +10,7 @@ from pymonad.either import Left, Right, Either
 from authlib.integrations.requests_client import OAuth2Session
 
 from wqflask.oauth2 import session
+from wqflask.oauth2.checks import user_logged_in
 
 SCOPE = "profile group role resource register-client user introspect migrate-data"
 
@@ -98,3 +99,21 @@ def no_token_post(uri_path: str, **kwargs) -> Either:
     if resp.status_code == 200:
         return Right(resp.json())
     return Left(resp)
+
+def post(uri_path: str, **kwargs) -> Either:
+    """
+    Generic function to do POST requests, that checks whether or not the user is
+    logged in and selects the appropriate function/method to run.
+    """
+    if user_logged_in():
+        return oauth2_post(uri_path, **kwargs)
+    return no_token_post(uri_path, **kwargs)
+
+def get(uri_path: str, **kwargs) -> Either:
+    """
+    Generic function to do GET requests, that checks whether or not the user is
+    logged in and selects the appropriate function/method to run.
+    """
+    if user_logged_in():
+        return oauth2_get(uri_path, **kwargs)
+    return no_token_get(uri_path, **kwargs)

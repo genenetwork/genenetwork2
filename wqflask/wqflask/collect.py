@@ -1,6 +1,7 @@
+import os
+import uuid
 import hashlib
 import datetime
-import os
 import simplejson as json
 from urllib.parse import urljoin
 
@@ -23,10 +24,12 @@ from base.trait import retrieve_trait_info
 from base.trait import jsonable
 from base.data_set import create_dataset
 
+from wqflask.oauth2 import client
 from wqflask.oauth2 import session
 from wqflask.oauth2.session import session_info
 from wqflask.oauth2.checks import user_logged_in
-from wqflask.oauth2.request_utils import process_error
+from wqflask.oauth2.request_utils import (
+    process_error, with_flash_error, with_flash_success)
 from wqflask.oauth2.client import (
     oauth2_get, oauth2_post, no_token_get, no_token_post)
 
@@ -71,13 +74,22 @@ def store_traits_list():
 
 @app.route("/collections/add", methods=["POST"])
 def collections_add():
+    anon_id = session_info()["anon_id"]
     traits = request.args.get("traits", request.form.get("traits"))
     the_hash = request.args.get("hash", request.form.get("hash"))
     collections = g.user_session.user_collections
+    collections = oauth2_get("oauth2/user/collections/list").either(
+        lambda _err: tuple(), lambda colls: tuple(colls)) + no_token_get(
+            f"oauth2/user/collections/{anon_id}/list").either(
+                lambda _err: tuple(), lambda colls: tuple(colls))
     if len(collections) < 1:
-        collection_name = "Your Default Collection"
-        uc_id = g.user_session.add_collection(collection_name, set())
-        collections = g.user_session.user_collections
+        new_coll = client.post(
+            "oauth2/user/collections/new",
+            json={
+                "name": "Your Default Collection",
+                "traits": []
+            }).either(__create_new_coll_error__, lambda coll: coll)
+        collections = (new_coll,)
 
     if bool(traits):
         return render_template("collections/add.html",
@@ -99,6 +111,7 @@ def __compute_traits__(params):
 @app.route("/collections/new")
 def collections_new():
     params = request.args
+    anon_id = session_info()["anon_id"]
 
     if "sign_in" in params:
         return redirect(url_for('login'))
@@ -106,12 +119,11 @@ def collections_new():
         collection_name = (
             params.get("new_collection", "").strip() or
             datetime.datetime.utcnow().strftime('Collection_%b_%d_%H:%M'))
-        from wqflask.oauth2.session import session_info
         request_data = {
             "uri_path": "oauth2/user/collections/new",
             "json": {
                 "name": collection_name,
-                "anon_id": str(session_info()["anon_id"]),
+                "anon_id": str(anon_id),
                 "traits": __compute_traits__(params),
                 "hash": params.get("hash", False)
             }}
@@ -129,26 +141,18 @@ def collections_new():
             return redirect(url_for("view_collection", uc_id=collection["id"]))
         return resp.either(__error__, __view_collection__)
     elif "add_to_existing" in params:
-        if 'existing_collection' not in params:
-            collections = g.user_session.user_collections
-            for collection in collections:
-                if collection["name"] == "Your Default Collection":
-                    collection_id = collection["id"]
-                    collection_name = collection["name"]
-                    default_collection_exists = True
-            if not default_collection_exists:
-                return create_new("Your Default Collection")
-        else:
-            collection_id = params['existing_collection'].split(":")[0]
-            collection_name = params['existing_collection'].split(":")[1]
-
-        if "hash" in params:
-            unprocessed_traits = Redis.get(params['hash'])
-        else:
-            unprocessed_traits = params['traits']
-        traits = list(process_traits(unprocessed_traits))
-        g.user_session.add_traits_to_collection(collection_id, traits)
-        return redirect(url_for('view_collection', uc_id=collection_id))
+        traits = process_traits(params["traits"])
+        coll_id, *_coll_name = tuple(
+            part.strip() for part in params["existing_collection"].split(":"))
+        collection_id = uuid.UUID(coll_id)
+        resp = redirect(url_for('view_collection', uc_id=collection_id))
+        return client.post(
+            f"oauth2/user/collections/{collection_id}/traits/add",
+            json={
+                "anon_id": str(anon_id),
+                "traits": traits
+            }).either(
+                with_flash_error(resp), with_flash_success(resp))
     else:
         # CauseAnError
         pass
@@ -213,15 +217,15 @@ def handle_anonymous_collections():
 @app.route("/collections/remove", methods=('POST',))
 def remove_traits():
     params = request.form
-
     uc_id = params['uc_id']
-    traits_to_remove = params['trait_list']
-    traits_to_remove = process_traits(traits_to_remove)
-
-    members_now = g.user_session.remove_traits_from_collection(
-        uc_id, traits_to_remove)
-
-    return redirect(url_for("view_collection", uc_id=uc_id))
+    traits_to_remove = process_traits(params['trait_list'])
+    resp = redirect(url_for("view_collection", uc_id=uc_id))
+    return client.post(
+        f"oauth2/user/collections/{uc_id}/traits/remove",
+        json = {
+            "anon_id": str(session_info()["anon_id"]),
+            "traits": traits_to_remove
+        }).either(with_flash_error(resp), with_flash_success(resp))
 
 
 @app.route("/collections/delete", methods=('POST',))
