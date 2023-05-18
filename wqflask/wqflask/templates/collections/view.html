@@ -14,7 +14,17 @@
       {{flash_me()}}
         <h1>
             <span id="collection_name">{{ uc.name }}</span>
-            <input type="text" name="new_collection_name" style="font-size: 20px; display: none; width: 500px;" class="form-control" placeholder="{{ uc.name }}"> 
+            <form id="frm-change-collection-name"
+		  method="POST"
+		  action="{{url_for('change_collection_name')}}"
+		  style="display:inline;">
+	      <input type="hidden" name="collection_id" value="{{uc.id}}" />
+	      <input type="text"
+		     name="new_collection_name"
+		     style="font-size: 20px; display: none; width: 500px;"
+		     class="form-control"
+		     placeholder="{{ uc.name }}" />
+	    </form>
             <button class="btn btn-default" style="display: inline;" id="change_collection_name">Change Collection Name</button>
             <button class="btn btn-default" style="display: inline;" id="make_default">Make Default</button>
         </h1>
@@ -359,15 +369,9 @@
                     $('input[name=new_collection_name]').css('display', 'inline');
                     $('#collection_name').css('display', 'none');
                 } else {
-                    new_name = $('input[name=new_collection_name]').val()
-                    $.ajax({
-                        type: "POST",
-                        url: "/collections/change_name",
-                        data: {
-                            collection_id: $('input[name=uc_id]').val(),
-                            new_name: new_name
-                        }
-                    });
+		    new_name = $('input[name=new_collection_name]').val();
+		    $('#frm-change-collection-name').submit();
+		    console.debug("We really should not get here, but, whatever...");
                     $('input[name=new_collection_name]').css('display', 'none');
                     $('input[name=collection_name]').val(new_name);
                     $('#collection_name').text(new_name)

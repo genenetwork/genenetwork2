@@ -376,11 +376,11 @@ def view_collection():
 
 @app.route("/collections/change_name", methods=('POST',))
 def change_collection_name():
-    params = request.form
-
-    collection_id = params['collection_id']
-    new_name = params['new_name']
-
-    g.user_session.change_collection_name(collection_id, new_name)
-
-    return new_name
+    collection_id = request.form['collection_id']
+    resp = redirect(url_for("view_collection", uc_id=collection_id))
+    return client.post(
+        f"oauth2/user/collections/{collection_id}/rename",
+        json={
+            "anon_id": str(session_info()["anon_id"]),
+            "new_name": request.form["new_collection_name"]
+        }).either(with_flash_error(resp), with_flash_success(resp))
