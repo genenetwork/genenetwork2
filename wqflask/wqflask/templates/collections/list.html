@@ -9,7 +9,9 @@
 {% block content %}
 <!-- Start of body -->
     <div class="container">
-        {% if g.user_session.logged_in %}
+      {{flash_me()}}
+
+      {% if g.user_session.logged_in %}
         <h1>Collections owned by {% if g.user_session.user_name %}{{ g.user_session.user_name }}{% else %}{{ g.user_session.user_email }} {% endif %}</h1>
         {% else %}
         <h1>Your Collections</h1>
