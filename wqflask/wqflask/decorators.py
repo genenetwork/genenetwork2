@@ -1,15 +1,19 @@
 """This module contains gn2 decorators"""
-import redis
-
-from flask import current_app, g, redirect, request, url_for
-from typing import Dict
-from urllib.parse import urljoin
+import json
+import requests
 from functools import wraps
+from urllib.parse import urljoin
+from typing import Dict, Callable
+
+import redis
+from flask import g, flash, request, url_for, redirect, current_app
+
 from gn3.authentication import AdminRole
 from gn3.authentication import DataRole
 
-import json
-import requests
+from wqflask.oauth2 import client
+from wqflask.oauth2.session import session_info
+from wqflask.oauth2.request_utils import process_error
 
 
 def login_required(f):
@@ -78,3 +82,43 @@ def edit_admins_access_required(f):
             return redirect(url_for("no_access_page"))
         return f(*args, **kwargs)
     return wrap
+
+class AuthorisationError(Exception):
+    """Raise when there is an authorisation issue."""
+    def __init__(self, description, user):
+        self.description = description
+        self.user = user
+        super().__init__(self, description, user)
+
+def required_access(access_levels: tuple[str, ...],
+                    dataset_key: str = "dataset_name",
+                    trait_key: str = "name") -> Callable:
+    def __build_access_checker__(func: Callable):
+        @wraps(func)
+        def __checker__(*args, **kwargs):
+            def __error__(err):
+                error = process_error(err)
+                raise AuthorisationError(
+                    f"{error['error']}: {error['error_description']}",
+                    session_info()["user"])
+
+            def __success__(priv_info):
+                if all(priv in priv_info[0]["privileges"] for priv in access_levels):
+                    return func(*args, **kwargs)
+                missing = tuple(f"'{priv}'" for priv in access_levels
+                                if priv not in priv_info[0]["privileges"])
+                raise AuthorisationError(
+                    f"Missing privileges: {', '.join(missing)}",
+                    session_info()["user"])
+            dataset_name = kwargs.get(
+                dataset_key,
+                request.args.get(dataset_key, request.form.get(dataset_key, "")))
+            trait_name = kwargs.get(
+                trait_key,
+                request.args.get(trait_key, request.form.get(trait_key, "")))
+            return client.post(
+                "oauth2/data/authorisation",
+                json={"traits": [f"{dataset_name}::{trait_name}"]}).either(
+                    __error__, __success__)
+        return __checker__
+    return __build_access_checker__

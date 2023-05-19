@@ -20,9 +20,9 @@ from flask import request
 from flask import url_for
 
 from wqflask.database import database_connection
-from wqflask.decorators import edit_access_required
-from wqflask.decorators import edit_admins_access_required
 from wqflask.decorators import login_required
+from wqflask.decorators import required_access
+from wqflask.decorators import edit_admins_access_required
 
 from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
@@ -126,8 +126,8 @@ def edit_probeset(conn, name):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
-@edit_access_required
-@login_required
+@required_access(
+    ("group:resource:view-resource", "group:resource:edit-resource"))
 def display_phenotype_metadata(dataset_id: str, name: str):
     with database_connection() as conn:
         _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
@@ -144,8 +144,8 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
 
 @metadata_edit.route("/traits/<name>")
-@edit_access_required
-@login_required
+@required_access(
+    ("group:resource:view-resource", "group:resource:edit-resource"))
 def display_probeset_metadata(name: str):
     with database_connection() as conn:
         _d = edit_probeset(conn=conn, name=name)
@@ -160,8 +160,8 @@ def display_probeset_metadata(name: str):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
-@edit_access_required
-@login_required
+@required_access(
+    ("group:resource:view-resource", "group:resource:edit-resource"))
 def update_phenotype(dataset_id: str, name: str):
     data_ = request.form.to_dict()
     TMPDIR = current_app.config.get("TMPDIR")
@@ -369,8 +369,9 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
 
 
 @metadata_edit.route("/traits/<name>", methods=("POST",))
-@edit_access_required
-@login_required
+@required_access(
+    ("group:resource:view-resource", "group:resource:edit-resource"),
+    dataset_key="dataset_id", trait_key="name")
 def update_probeset(name: str):
     with database_connection() as conn:
         data_ = request.form.to_dict()
