@@ -1,33 +1,38 @@
 {% extends "base.html" %}
+{%from "oauth2/display_error.html" import display_error%}
+
 {% block title %}Trait Data and Analysis{% endblock %}
+
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='nouislider/nouislider.min.css') }}" />
-    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
-    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+  <link rel="stylesheet" type="text/css" href="/static/new/css/bar_chart.css" />
+  <link rel="stylesheet" type="text/css" href="/static/new/css/box_plot.css" />
+  <link rel="stylesheet" type="text/css" href="/static/new/css/prob_plot.css" />
+  <link rel="stylesheet" type="text/css" href="/static/new/css/scatter-matrix.css" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3-tip/d3-tip.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='nouislider/nouislider.min.css') }}" />
+  <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
+  <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 {% endblock %}
+
 {% block content %} <!-- Start of body -->
 
+  {{flash_me()}}
+  {%if "group:resource:view-resource" in trait_privileges%}
     <div class="container">
-        <h2>Trait Data and Analysis for <b>{{ this_trait.display_name }}</b></h2>
-        {% if this_trait.dataset.type != 'Publish' %}
-        <h3>{{ this_trait.description_fmt[0]|upper }}{{ this_trait.description_fmt[1:]|safe }}</h3>
-        {% endif %}
-    </div>
+      <h2>Trait Data and Analysis for <b>{{ this_trait.display_name }}</b></h2>
+      {% if this_trait.dataset.type != 'Publish' %}
+	<h3>{{ this_trait.description_fmt[0]|upper }}{{ this_trait.description_fmt[1:]|safe }}</h3>
+      {% endif %}
 
-    <form method="post" action="" target="_blank" name="trait_page" id="trait_data_form" class="form-horizontal">
-        <div id="hidden_inputs">
-        <input type="hidden" name="trait_hmac" value="{{ data_hmac('{}:{}'.format(this_trait.name, dataset.name)) }}">
-        {% for key in hddn %}
+      <form method="post" action="" target="_blank" name="trait_page" id="trait_data_form" class="form-horizontal">
+	<div id="hidden_inputs">
+          <input type="hidden" name="trait_hmac" value="{{ data_hmac('{}:{}'.format(this_trait.name, dataset.name)) }}">
+          {% for key in hddn %}
             <input type="hidden" name="{{ key }}" value="{{ hddn[key] }}">
-        {% endfor %}
+          {% endfor %}
         </div>
 
         <input type="hidden" name="temp_uuid" id="temp_uuid" value="{{ temp_uuid }}">
@@ -40,100 +45,105 @@
         <input type="hidden" name="sample_vals" value="">
 
         <div class="container showtrait-main-div">
-            <div class="panel-group" id="accordion">
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true">
-                        <h3 class="panel-title">
-                             <span class="glyphicon glyphicon-chevron-down"></span> Details and Links
-                        </h3>
-                    </div>
-                    <div id="collapseOne" class="panel-collapse collapse" aria-expanded="true">
-                        <div class="panel-body">
-                            {% include 'show_trait_details.html' %}
-                        </div>
-		    </div>
-		    {% if metadata %}
-		    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseMeta">
-                        <h3 class="panel-title">
-                            <span class="glyphicon glyphicon-chevron-down"></span> Data Set Group: {{  dataset.fullname }}
-                        </h3>
-                    </div>
-                    <div id="collapseMeta" class="panel-collapse collapse in">
-                        <div class="panel-body">
-			    {% include 'show_metadata_details.html' %}
-                        </div>
-		    </div>
-		    {% endif %}
+          <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseOne" aria-expanded="true">
+                <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-chevron-down"></span> Details and Links
+                </h3>
+              </div>
+              <div id="collapseOne" class="panel-collapse collapse" aria-expanded="true">
+                <div class="panel-body">
+                  {% include 'show_trait_details.html' %}
                 </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading stats_panel" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
-                        <h3 class="panel-title">
-                             <span class="glyphicon glyphicon-chevron-down"></span> Statistics
-                        </h3>
-                    </div>
-                    <div id="collapseTwo" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            {% include 'show_trait_statistics.html' %}
-                        </div>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
-                        <h3 class="panel-title">
-                             <span class="glyphicon glyphicon-chevron-down"></span> Transform and Filter Data
-                        </h3>
-                    </div>
-                    <div id="collapseThree" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            {% include 'show_trait_transform_and_filter.html' %}
-                        </div>
-                        <div id="transform_alert_placeholder"><div id="transform_alert" style="display: none;"class="alert alert-success outlier-alert"><a href="#" class="close" data-dismiss="alert">�</a><span>Because there are some values between 0 and 1, log2 and log10 transforms will add 1 to each value.</span></div></div>
-                    </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour">
-                        <h3 class="panel-title">
-                             <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
-                        </h3>
-                    </div>
-                    <div id="collapseFour" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            {% include 'show_trait_calculate_correlations.html' %}
-                        </div>
-                    </div>
-                </div>                
-                <div class="panel panel-default">
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive">
-                        <h3 class="panel-title">
-                             <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
-                        </h3>
-                    </div>
-                    <div id="collapseFive" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            {% include 'show_trait_mapping_tools.html' %}
-                        </div>
-                        <div id="outlier_alert_placeholder"></div>
-                    </div>
-                </div>                
-                <div class="panel panel-default" {% if (trait_table_width|int > 1100) %}style="min-width: {{ trait_table_width|int + 30 }}px;"{% endif %}>
-                    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseSix" aria-expanded="true">
-                        <h3 class="panel-title">
-                             <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
-                        </h3>
-                    </div>
-                    <div id="collapseSix" class="panel-collapse collapse" aria-expanded="true">
-                        <div class="panel-body">
-                            {% include 'show_trait_edit_data.html' %}
-                        </div>
-                    </div>
-                </div>
+	      </div>
+	      {% if metadata %}
+		<div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseMeta">
+                  <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-chevron-down"></span> Data Set Group: {{  dataset.fullname }}
+                  </h3>
+		</div>
+		<div id="collapseMeta" class="panel-collapse collapse in">
+                  <div class="panel-body">
+		    {% include 'show_metadata_details.html' %}
+                  </div>
+		</div>
+	      {% endif %}
             </div>
-            {% include 'show_trait_progress_bar.html' %}
- 
+            <div class="panel panel-default">
+              <div class="panel-heading stats_panel" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
+                <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-chevron-down"></span> Statistics
+                </h3>
+              </div>
+              <div id="collapseTwo" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  {% include 'show_trait_statistics.html' %}
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseThree">
+                <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-chevron-down"></span> Transform and Filter Data
+                </h3>
+              </div>
+              <div id="collapseThree" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  {% include 'show_trait_transform_and_filter.html' %}
+                </div>
+                <div id="transform_alert_placeholder"><div id="transform_alert" style="display: none;"class="alert alert-success outlier-alert"><a href="#" class="close" data-dismiss="alert">�</a><span>Because there are some values between 0 and 1, log2 and log10 transforms will add 1 to each value.</span></div></div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFour">
+                <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-chevron-down"></span> Calculate Correlations
+                </h3>
+              </div>
+              <div id="collapseFour" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  {% include 'show_trait_calculate_correlations.html' %}
+                </div>
+              </div>
+            </div>                
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseFive">
+                <h3 class="panel-title">
+                  <span class="glyphicon glyphicon-chevron-down"></span> Mapping Tools
+                </h3>
+              </div>
+              <div id="collapseFive" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  {% include 'show_trait_mapping_tools.html' %}
+                </div>
+                <div id="outlier_alert_placeholder"></div>
+              </div>
+            </div>
+	    {%if "group:resource:edit-resource" in trait_privileges%}
+              <div class="panel panel-default" {%if (trait_table_width|int > 1100)%}style="min-width: {{trait_table_width|int + 30}}px;"{% endif %}>
+		<div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseSix" aria-expanded="true">
+                  <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-chevron-up"></span> Review and Edit Data
+                  </h3>
+		</div>
+		<div id="collapseSix" class="panel-collapse collapse" aria-expanded="true">
+                  <div class="panel-body">
+                    {% include 'show_trait_edit_data.html' %}
+                  </div>
+		</div>
+              </div>
+	    {%endif%}
+          </div>
+          {% include 'show_trait_progress_bar.html' %}
         </div>
-    </form>
+      </form>
+    </div>
+  {%else%}
+    {{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "No read access for user '" + user.name + "'."})}}
+  {%endif%}
 
-    <!-- End of body -->
+  <!-- End of body -->
 
 {% endblock %}
 

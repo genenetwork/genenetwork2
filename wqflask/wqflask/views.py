@@ -77,6 +77,7 @@ from wqflask.docs import Docs, update_text
 from wqflask.decorators import edit_access_required
 from wqflask.db_info import InfoPage
 
+from wqflask.oauth2 import client
 from wqflask.oauth2.client import no_token_get
 from wqflask.oauth2.request_utils import process_error
 
@@ -494,7 +495,10 @@ def show_temp_trait_page():
 
 @app.route("/show_trait")
 def show_trait_page():
-    def __show_trait__():
+    def __show_trait__(privileges_data):
+        assert len(privileges_data) == 1
+        privileges_data = privileges_data[0]
+        trait_privileges = tuple(item for item in privileges_data["privileges"])
         with database_connection() as conn, conn.cursor() as cursor:
 
             user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
@@ -519,7 +523,12 @@ def show_trait_page():
             return render_template(
                 "show_trait.html",
                 metadata=metadata,
-                **template_vars.__dict__)
+                **{
+                    **template_vars.__dict__,
+                    "user": privileges_data["user"],
+                    "trait_privileges": trait_privileges,
+                    "resource_id": privileges_data["resource_id"]
+                })
     dataset = request.args["dataset"]
     trait_id = request.args["trait_id"]
     def __failure__(err):
@@ -527,27 +536,11 @@ def show_trait_page():
         flash(f"{error['error']}: {error['error_description']}", "alert-error")
         return render_template("show_trait_error.html")
 
-    def __success__(auth_results):
-        trait_privileges = auth_results[0]["privileges"]
-        if ("group:resource:view-resource" in trait_privileges or
-            "system:resource:public-read" in trait_privileges):
-            return __show_trait__()
-        flash(
-            f"AuthorisationError: You do not have access to trait '{trait_id}' "
-            f"from the '{dataset}' dataset.",
-            "alert-danger")
-        return render_template("show_trait_error.html")
-
-    return no_token_get(
+    return client.post(
         "oauth2/data/authorisation",
-        headers={
-            "Content-Type": "application/json",
-            **({"Authorization": f"Bearer {session['token']}"}
-               if bool(session.get("token")) else {})
-        },
         json={
             "traits": [f"{dataset}::{trait_id}"]
-        }).either(__failure__, __success__)
+        }).either(__failure__, __show_trait__)
 
 
 @app.route("/heatmap", methods=('POST',))
