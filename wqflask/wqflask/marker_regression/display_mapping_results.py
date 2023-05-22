@@ -1473,6 +1473,8 @@ class DisplayMappingResults:
         for gIndex, theGO in enumerate(self.geneCol):
             geneNCBILink = 'http://www.ncbi.nlm.nih.gov/gene?term=%s'
             if self.dataset.group.species == "mouse":
+                exonStarts = []
+                exonEnds = []
                 txStart = theGO["TxStart"]
                 txEnd = theGO["TxEnd"]
                 geneLength = (txEnd - txStart) * 1000.0
