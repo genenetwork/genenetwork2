@@ -221,6 +221,18 @@ fi
 # Overrides for packages that are not yet public (currently r-auwerx)
 # export R_LIBS_SITE=$R_LIBS_SITE:$HOME/.Rlibs/das1i1pm54dj6lbdcsw5w0sdwhccyj1a-r-3.3.2/lib/R/lib
 
+
+
+if [ "$1" = "--with-pdb" ] ; then
+    cd "${GN2_BASE_DIR}/wqflask"
+    cmd=$2
+    echo PYTHONPATH="${PYTHONPATH}"
+    shift ; shift
+    echo "RUNNING COMMAND python3 -m runserver.py"
+    python3 -m pdb runserver.py
+    exit $?
+fi
+
 # Start the flask server running GN2
 cd "${GN2_BASE_DIR}/wqflask"
 echo "Starting with $settings"

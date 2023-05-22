@@ -78,6 +78,28 @@ startup script [./bin/genenetwork2](https://github.com/genenetwork/genenetwork2/
 Also mariadb and redis need to be running, see
 [INSTALL](./doc/README.org).
 
+## Debugging
+
+To run the application under the pdb debugger, you can add the `--with-pdb`
+option when launching the application, for example:
+
+```sh
+env GN2_PROFILE=~/opt/gn-latest SERVER_PORT=5300 \
+    GENENETWORK_FILES=~/data/gn2_data/ \
+    GN_PROXY_URL="http://localhost:8080"\
+    GN3_LOCAL_URL="http://localhost:8081"\
+	SPARQL_ENDPOINT=http://localhost:8892/sparql\
+    ./bin/genenetwork2 ./etc/default_settings.py --with-pdb
+```
+
+**NOTE**: This should only ever be run in development.
+**NOTE 2**: You will probably need to tell pdb to continue at least once before
+the system begins serving the pages.
+
+Now, you can add the `breakpoint()` call wherever you need to debug and the
+terminal where you started the application with `--with-pdb` will allow you to
+issue commands to pdb to debug your application.
+
 ## Development
 
 It may be useful to pull in the GN3 python modules locally. For this
