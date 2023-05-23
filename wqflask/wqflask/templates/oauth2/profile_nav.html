@@ -39,6 +39,18 @@
   </li>
   {%endif%}
 
+  {%if "system:user:masquerade" in user_privileges %}
+  <li role="presentation"
+      {%if calling_page == "masquerade"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.user.masquerade')}}"
+       title="Masquerade as another user">
+      Masquerade As
+    </a>
+  </li>
+  {%endif%}
+
   <li role="presentation">
     {%if logged_in():%}
     <a href="{{url_for('oauth2.user.logout')}}">Logout</a>

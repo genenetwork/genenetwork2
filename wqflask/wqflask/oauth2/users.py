@@ -7,11 +7,13 @@ from flask import (
     flash, request, url_for, redirect, Response, Blueprint,
     current_app as app)
 
+from . import client
 from . import session
 from .ui import render_ui
 from .checks import require_oauth2, user_logged_in
 from .client import oauth2_get, oauth2_post, oauth2_client
-from .request_utils import user_details, request_error, process_error
+from .request_utils import (
+    user_details, request_error, process_error, with_flash_error)
 
 users = Blueprint("user", __name__)
 
@@ -80,6 +82,7 @@ def login():
             session.set_user_details({
                 "user_id": UUID(udets["user_id"]),
                 "name": udets["name"],
+                "email": udets["email"],
                 "token": session.user_token(),
                 "logged_in": True
             })
@@ -102,10 +105,22 @@ def logout():
         config = app.config
         resp = oauth2_client().revoke_token(
             urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
-        session.clear_session_info()
-        flash("Successfully logged out.", "alert-success")
-
-    return redirect("/")
+        the_session = session.session_info()
+        if not bool(the_session["masquerading"]):
+            # Normal session - clear and go back.
+            session.clear_session_info()
+            flash("Successfully logged out.", "alert-success")
+            return redirect("/")
+        # Restore masquerading session
+        session.unset_masquerading()
+        flash(
+            "Successfully logged out as user "
+            f"{the_session['user']['name']} ({the_session['user']['email']}) "
+            "and restored session for user "
+            f"{the_session['masquerading']['name']} "
+            f"({the_session['masquerading']['email']})",
+            "alert-success")
+        return redirect("/")
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
@@ -139,3 +154,37 @@ def register_user():
 
     flash("Registration successful! Please login to continue.", "alert-success")
     return redirect(url_for("oauth2.user.login"))
+
+@users.route("/masquerade", methods=["GET", "POST"])
+def masquerade():
+    """Masquerade as a particular user."""
+    if request.method == "GET":
+        this_user = session.session_info()["user"]
+        return client.get("oauth2/user/list").either(
+            lambda err: render_ui(
+                "oauth2/masquerade.html", users_error=process_error(err)),
+            lambda usrs: render_ui(
+                "oauth2/masquerade.html", users=tuple(
+                    usr for usr in usrs
+                    if UUID(usr["user_id"]) != this_user["user_id"])))
+
+    def __masq_success__(masq_details):
+        session.set_masquerading(masq_details)
+        flash(
+            f"User {masq_details['original']['user']['name']} "
+            f"({masq_details['original']['user']['email']}) is now "
+            "successfully masquerading as the user "
+            f"User {masq_details['masquerade_as']['user']['name']} "
+            f"({masq_details['masquerade_as']['user']['email']}) is now ",
+            "alert-success")
+        return redirect("/")
+    form = request.form
+    masquerade_as = form.get("masquerade_as").strip()
+    if not(bool(masquerade_as)):
+        flash("You must provide a user to masquerade as.", "alert-danger")
+        return redirect(url_for("oauth2.user.masquerade"))
+    return client.post(
+        "oauth2/user/masquerade/",
+        json={"masquerade_as": request.form.get("masquerade_as")}).either(
+            with_flash_error(redirect(url_for("oauth2.user.masquerade"))),
+            __masq_success__)

@@ -12,7 +12,8 @@ from authlib.integrations.requests_client import OAuth2Session
 from wqflask.oauth2 import session
 from wqflask.oauth2.checks import user_logged_in
 
-SCOPE = "profile group role resource register-client user introspect migrate-data"
+SCOPE = ("profile group role resource register-client user masquerade "
+         "introspect migrate-data")
 
 def oauth2_client():
     config = app.config

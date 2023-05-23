@@ -1,6 +1,6 @@
 """Deal with user sessions"""
 from uuid import UUID, uuid4
-from typing import Any, TypedDict
+from typing import Any, Optional, TypedDict
 
 from flask import request, session
 from pymonad.either import Left, Right, Either
@@ -9,6 +9,7 @@ class UserDetails(TypedDict):
     """Session information relating specifically to the user."""
     user_id: UUID
     name: str
+    email: str
     token: Either
     logged_in: bool
 
@@ -19,6 +20,7 @@ class SessionInfo(TypedDict):
     anon_id: UUID
     user_agent: str
     ip_addr: str
+    masquerade: Optional[UserDetails]
 
 __SESSION_KEY__ = "session_info" # Do not use this outside this module!!
 
@@ -49,14 +51,16 @@ def session_info() -> SessionInfo:
             "session_id": uuid4(),
             "user": {
                 "user_id": anon_id,
-                "name": "Anonymous User",     
+                "name": "Anonymous User",
+                "email": "anon@ymous.user",
                 "token": Left("INVALID-TOKEN"),
                 "logged_in": False
             },
             "anon_id": anon_id,
             "user_agent": request.headers.get("User-Agent"),
             "ip_addr": request.environ.get("HTTP_X_FORWARDED_FOR",
-                                           request.remote_addr)
+                                           request.remote_addr),
+            "masquerading": None
         }))
 
 def set_user_token(token: str) -> SessionInfo:
@@ -72,3 +76,27 @@ def set_user_details(userdets: UserDetails) -> SessionInfo:
 def user_token() -> Either:
     """Retrieve the user token."""
     return session_info()["user"]["token"]
+
+def set_masquerading(masq_info):
+    """Save the masquerading user information."""
+    orig_user = session_info()["user"]
+    return save_session_info({
+        **session_info(),
+        "user": {
+            "user_id": UUID(masq_info["masquerade_as"]["user"]["user_id"]),
+            "name": masq_info["masquerade_as"]["user"]["name"],
+            "email": masq_info["masquerade_as"]["user"]["email"],
+            "token": Right(masq_info["masquerade_as"]["token"]),
+            "logged_in": True
+        },
+        "masquerading": orig_user
+    })
+
+def unset_masquerading():
+    """Restore the original session."""
+    the_session = session_info()
+    return save_session_info({
+        **the_session,
+        "user": the_session["masquerading"],
+        "masquerading": None
+    })
