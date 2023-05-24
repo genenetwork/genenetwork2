@@ -185,6 +185,15 @@
                     </li>
                     {% endif %}
 
+		    {%if not logged_in()%}
+		    <li class="">
+		      <a id="user:register" title="Register a new user account."
+			 href="{{url_for('oauth2.user.register_user')}}">
+			Register
+		      </a>
+		    </li>
+		    {%endif%}
+
 		    {%if logged_in()%}
 		    <li class="">
 		      <a id="user:profile" title="User's profile page."
