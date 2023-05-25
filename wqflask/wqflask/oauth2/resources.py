@@ -1,6 +1,7 @@
 import uuid
 
-from flask import flash, request, url_for, redirect, Response, Blueprint
+from flask import (
+    flash, request, jsonify, url_for, redirect, Response, Blueprint)
 
 from .ui import render_ui
 from .checks import require_oauth2
@@ -38,7 +39,6 @@ def create_resource():
                 error, "Could not retrieve resource categories")),
             lambda cats: __render_template__(categories=cats))
 
-    from flask import jsonify
     def __perr__(error):
         err = process_error(error)
         flash(f"{err['error']}: {err['error_description']}", "alert-danger")
