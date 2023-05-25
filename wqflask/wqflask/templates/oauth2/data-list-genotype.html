@@ -43,7 +43,7 @@
       <div class="form-group">
       <table id="tbl-link-genotypes"
 	     class="table-hover table-striped cell-border dataTable no-footer"
-	     data-selected-datasets='{{selected_datasets | list | tojson}}'>
+	     data-traits="[]">
 	<thead>
 	  <tr>
 	    <th>Deselect</th>
@@ -92,8 +92,9 @@
   <div class="row">
     <span id="search-messages" class="alert-danger" style="display:none"></span>
     <form id="frm-search"
-	  action="{{search_uri}}"
-	  method="POST">
+	  action="#"
+	  method="POST"
+	  data-gn-server-url="{{gn_server_url}}">
       <legend>Search: Genotype</legend>
       <input type="hidden" value="{{species_name}}" name="species"
 	     id="txt-species-name" />
@@ -103,9 +104,12 @@
 	     id="txt-per-page"  />
 
       <div class="form-group">
-	<label for="txt-query">Dataset Search String</label>
-	<input type="text" id="txt-query" name="query" class="form-control"
-	       value="{{query}}"/>
+	<label for="txt-query">Search</label>
+	<div class="input-group">
+	  <span class="input-group-addon">species:{{species_name}} AND </span>
+	  <input type="text" id="txt-query" name="query" class="form-control"
+		 value="{{query}}"/>
+	</div>
       </div>
     </form>
   </div>
@@ -118,7 +122,9 @@
     </div>
     <table id="tbl-genotypes"
 	   class="table-hover table-striped cell-border dataTable no-footer"
-	   data-datasets='{{datasets | list | tojson}}'>
+	   data-traits='{{traits | list | tojson}}'
+	   data-initial-job-id="{{search_results.job_id}}"
+	   data-initial-command-id="{{search_results.command_id}}">
       <thead>
 	<tr>
 	  <th>Select</th>

@@ -11,6 +11,8 @@ from flask import (
     current_app as app)
 
 from jobs import jobs
+
+from . import client
 from .ui import render_ui
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post
@@ -20,7 +22,7 @@ data = Blueprint("data", __name__)
 def __search_mrna__(query, template, **kwargs):
     species_name = kwargs["species_name"]
     search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
-    datasets = oauth2_get(
+    datasets = client.post(
         "oauth2/data/search",
         json = {
             "query": query,
@@ -41,22 +43,23 @@ def __selected_datasets__():
     return request.args.get("selected",
                             request.form.get("selected", []))
 
-def __search_genotypes__(query, template, **kwargs):
-    species_name = kwargs["species_name"]
-    search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
-    datasets = oauth2_get(
-        "oauth2/data/search",
-        json = {
-            "query": query,
-            "dataset_type": "genotype",
-            "species_name": species_name,
-            "selected": __selected_datasets__()
-        }).either(
-            lambda err: {"datasets_error": process_error(err)},
-            lambda datasets: {"datasets": datasets})
-    return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
+# def __search_genotypes__(query, template, **kwargs):
+#     species_name = kwargs["species_name"]
+#     search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
+#     datasets = oauth2_get(
+#         "oauth2/data/search",
+#         json = {
+#             "query": query,
+#             "dataset_type": "genotype",
+#             "species_name": species_name,
+#             "selected": __selected_datasets__()
+#         }).either(
+#             lambda err: {"datasets_error": process_error(err)},
+#             lambda datasets: {"datasets": datasets})
+#     return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
-def __search_phenotypes__(query, template, **kwargs):
+def __search_data_xapian__(query, template, dataset_type, **kwargs):
+    """Search data using xapian search."""
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 50))
     selected_traits = request.form.getlist("selected_traits")
@@ -72,10 +75,10 @@ def __search_phenotypes__(query, template, **kwargs):
             gn_server_url = app.config["GN_SERVER_URL"],
             results_endpoint=urljoin(
                 app.config["GN_SERVER_URL"],
-                f"oauth2/data/search/phenotype/{job_id}"),
+                f"oauth2/data/search/results/{job_id}"),
             **kwargs)
-    return oauth2_get("oauth2/data/search", json={
-        "dataset_type": "phenotype",
+    return client.post("oauth2/data/search", json={
+        "dataset_type": dataset_type,
         "species_name": kwargs["species_name"],
         "per_page": per_page,
         "page": page,
@@ -84,19 +87,37 @@ def __search_phenotypes__(query, template, **kwargs):
         lambda err: __search_error__(process_error(err)),
         __search_success__)
 
+def __search_genotypes__(query, template, **kwargs):
+    return __search_data_xapian__(
+        query, template, "genotype", **{
+            key: value for key, value in kwargs.items()
+            if key not in ("dataset_type",)
+        })
+
+def __search_phenotypes__(query, template, **kwargs):
+    return __search_data_xapian__(
+        query, template, "phenotype", **{
+            key: value for key, value in kwargs.items()
+            if key not in ("dataset_type",)
+        })
+
 @data.route("/genotype/search", methods=["POST"])
 def json_search_genotypes() -> Response:
+    form = request.json
     def __handle_error__(err):
         error = process_error(err)
         return jsonify(error), error["status_code"]
-    
-    return oauth2_get(
+
+    return client.post(
         "oauth2/data/search",
         json = {
-            "query": request.json["query"],
+            "query": form.get("query", ""),
             "dataset_type": "genotype",
-            "species_name": request.json["species_name"],
-            "selected": __selected_datasets__()
+            "species_name": form["species_name"],
+            "selected_traits": form.get("selected_traits", []),
+            "per_page": int(form.get("per_page", 50)),
+            "page": int(form.get("page", 1)),
+            "gn3_server_uri": app.config["GN_SERVER_URL"]
         }).either(
             __handle_error__,
             lambda datasets: jsonify(datasets))

@@ -170,3 +170,12 @@ function table_cell(value) {
     cell.html(value);
     return cell;
 }
+
+/**
+ * Default error function: print out debug messages
+ */
+function default_error_fn(jqXHR, textStatus, errorThrown) {
+    console.debug("XHR:", jqXHR);
+    console.debug("STATUS:", textStatus);
+    console.debug("ERROR:", errorThrown);
+}

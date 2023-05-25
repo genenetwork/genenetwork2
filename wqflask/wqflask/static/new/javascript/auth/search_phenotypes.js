@@ -26,15 +26,6 @@ function toggle_link_button() {
 }
 
 /**
- * Default error function: print out debug messages
- */
-function default_error_fn(jqXHR, textStatus, errorThrown) {
-    console.debug("XHR:", jqXHR);
-    console.debug("STATUS:", textStatus);
-    console.debug("ERROR:", errorThrown);
-}
-
-/**
  * Render the table(s) for the phenotype traits
  * @param {TableDataSource} The table to render
  */
@@ -97,7 +88,7 @@ function display_search_results(data, textStatus, jqXHR) {
  */
 function fetch_search_results(job_id, success, error=default_error_fn) {
     host = $("#frm-search-traits").attr("data-gn-server-url");
-    endpoint = host + "oauth2/data/search/phenotype/" + job_id
+    endpoint = host + "oauth2/data/search/results/" + job_id
     $("#txt-search").prop("disabled", true);
     $.ajax(
 	endpoint,
