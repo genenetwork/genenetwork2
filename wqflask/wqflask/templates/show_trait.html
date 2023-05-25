@@ -20,7 +20,7 @@
 {% block content %} <!-- Start of body -->
 
   {{flash_me()}}
-  {%if "group:resource:view-resource" in trait_privileges%}
+  {%if "group:resource:view-resource" in trait_privileges or "system:resource:public-read" in trait_privileges%}
     <div class="container">
       <h2>Trait Data and Analysis for <b>{{ this_trait.display_name }}</b></h2>
       {% if this_trait.dataset.type != 'Publish' %}
