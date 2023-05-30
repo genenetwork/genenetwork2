@@ -53,7 +53,7 @@ class TestCollect(unittest.TestCase):
             b'1452447_at:HC_M2_0606_P:eeece8fceb67072debea,'
             b'1451401_a_at:HC_M2_0606_P:a043d23b3b3906d8318e,'
             b'1429252_at:HC_M2_0606_P:6fa378b349bc9180e8f5'),
-            set(['1429252_at:HC_M2_0606_P',
+            tuple(['1429252_at:HC_M2_0606_P',
                  '1451401_a_at:HC_M2_0606_P',
                  '1452447_at:HC_M2_0606_P',
                  '1452452_at:HC_M2_0606_P']))
