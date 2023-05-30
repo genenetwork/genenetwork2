@@ -48,12 +48,12 @@ class TestCollect(unittest.TestCase):
         Test that the correct traits are returned when the user is logged
         out and bytes are used.
         """
-        self.assertEqual(process_traits(
+        self.assertEqual(sorted(process_traits(
             b'1452452_at:HC_M2_0606_P:163d04f7db7c9e110de6,'
             b'1452447_at:HC_M2_0606_P:eeece8fceb67072debea,'
             b'1451401_a_at:HC_M2_0606_P:a043d23b3b3906d8318e,'
-            b'1429252_at:HC_M2_0606_P:6fa378b349bc9180e8f5'),
-            tuple(['1429252_at:HC_M2_0606_P',
+            b'1429252_at:HC_M2_0606_P:6fa378b349bc9180e8f5')),
+            sorted(['1429252_at:HC_M2_0606_P',
                  '1451401_a_at:HC_M2_0606_P',
                  '1452447_at:HC_M2_0606_P',
                  '1452452_at:HC_M2_0606_P']))
@@ -64,12 +64,12 @@ class TestCollect(unittest.TestCase):
         Test that the correct traits are returned when the user is logged
         out and a normal string is used.
         """
-        self.assertEqual(process_traits(
+        self.assertEqual(sorted(process_traits(
             '1452452_at:HC_M2_0606_P:163d04f7db7c9e110de6,'
             '1452447_at:HC_M2_0606_P:eeece8fceb67072debea,'
             '1451401_a_at:HC_M2_0606_P:a043d23b3b3906d8318e,'
-            '1429252_at:HC_M2_0606_P:6fa378b349bc9180e8f5'),
-            tuple(['1429252_at:HC_M2_0606_P',
+            '1429252_at:HC_M2_0606_P:6fa378b349bc9180e8f5')),
+            sorted(['1429252_at:HC_M2_0606_P',
                  '1451401_a_at:HC_M2_0606_P',
                  '1452447_at:HC_M2_0606_P',
                  '1452452_at:HC_M2_0606_P']))
