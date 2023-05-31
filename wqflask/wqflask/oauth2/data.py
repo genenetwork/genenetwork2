@@ -18,8 +18,9 @@ from .client import oauth2_get, oauth2_post
 data = Blueprint("data", __name__)
 
 def __search_mrna__(query, template, **kwargs):
+    from utility.tools import GN_SERVER_URL
     species_name = kwargs["species_name"]
-    search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
+    search_uri = urljoin(GN_SERVER_URL, "oauth2/data/search")
     datasets = oauth2_get(
         "oauth2/data/search",
         json = {
@@ -42,8 +43,9 @@ def __selected_datasets__():
                             request.form.get("selected", []))
 
 def __search_genotypes__(query, template, **kwargs):
+    from utility.tools import GN_SERVER_URL
     species_name = kwargs["species_name"]
-    search_uri = urljoin(app.config["GN_SERVER_URL"], "oauth2/data/search")
+    search_uri = urljoin(GN_SERVER_URL, "oauth2/data/search")
     datasets = oauth2_get(
         "oauth2/data/search",
         json = {
@@ -57,6 +59,7 @@ def __search_genotypes__(query, template, **kwargs):
     return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
+    from utility.tools import GN_SERVER_URL
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 50))
     selected_traits = request.form.getlist("selected_traits")
@@ -68,10 +71,10 @@ def __search_phenotypes__(query, template, **kwargs):
             template, traits=[], per_page=per_page, query=query,
             selected_traits=selected_traits, search_results=search_results,
             search_endpoint=urljoin(
-                app.config["GN_SERVER_URL"], "oauth2/data/search"),
-            gn_server_url = app.config["GN_SERVER_URL"],
+                GN_SERVER_URL, "oauth2/data/search"),
+            gn_server_url = GN_SERVER_URL,
             results_endpoint=urljoin(
-                app.config["GN_SERVER_URL"],
+                GN_SERVER_URL,
                 f"oauth2/data/search/phenotype/{job_id}"),
             **kwargs)
     return oauth2_get("oauth2/data/search", json={
@@ -79,7 +82,7 @@ def __search_phenotypes__(query, template, **kwargs):
         "species_name": kwargs["species_name"],
         "per_page": per_page,
         "page": page,
-        "gn3_server_uri": app.config["GN_SERVER_URL"]
+        "gn3_server_uri": GN_SERVER_URL
     }).either(
         lambda err: __search_error__(process_error(err)),
         __search_success__)
@@ -121,6 +124,7 @@ def json_search_mrna() -> Response:
 @data.route("/phenotype/search", methods=["POST"])
 def json_search_phenotypes() -> Response:
     """Search for phenotypes."""
+    from utility.tools import GN_SERVER_URL
     form = request.json
     def __handle_error__(err):
         error = process_error(err)
@@ -134,7 +138,7 @@ def json_search_phenotypes() -> Response:
             "query": form.get("query", ""),
             "per_page": int(form.get("per_page", 50)),
             "page": int(form.get("page", 1)),
-            "gn3_server_uri": app.config["GN_SERVER_URL"],
+            "gn3_server_uri": GN_SERVER_URL,
             "selected_traits": form.get("selected_traits", [])
         }).either(__handle_error__, jsonify)
 

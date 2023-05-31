@@ -27,11 +27,12 @@ def require_oauth2(func):
             return redirect("/")
 
         def __with_token__(token):
+            from utility.tools import (
+                GN_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
             client = OAuth2Session(
-                config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-                token=token)
+                OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, token=token)
             resp = client.get(
-                urljoin(config["GN_SERVER_URL"], "oauth2/user"))
+                urljoin(GN_SERVER_URL, "oauth2/user"))
             user_details = resp.json()
             if not user_details.get("error", False):
                 return func(*args, **kwargs)

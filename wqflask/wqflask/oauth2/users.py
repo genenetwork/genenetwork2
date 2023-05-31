@@ -65,19 +65,19 @@ def request_add_to_group() -> Response:
 @users.route("/login", methods=["GET", "POST"])
 def login():
     """Route to allow users to sign up."""
+    from utility.tools import GN_SERVER_URL
     next_endpoint=request.args.get("next", False)
 
     if request.method == "POST":
         form = request.form
         client = oauth2_client()
-        config = app.config
         try:
             token = client.fetch_token(
-                urljoin(config["GN_SERVER_URL"], "oauth2/token"),
+                urljoin(GN_SERVER_URL, "oauth2/token"),
                 username=form.get("email_address"),
                 password=form.get("password"),
                 grant_type="password")
-            session.set_token(token)
+            session.set_user_token(token)
             udets = user_details()
             session.set_user_details({
                 "user_id": UUID(udets["user_id"]),
@@ -101,10 +101,10 @@ def login():
 
 @users.route("/logout", methods=["GET", "POST"])
 def logout():
+    from utility.tools import GN_SERVER_URL
     if user_logged_in():
-        config = app.config
         resp = oauth2_client().revoke_token(
-            urljoin(config["GN_SERVER_URL"], "oauth2/revoke"))
+            urljoin(GN_SERVER_URL, "oauth2/revoke"))
         the_session = session.session_info()
         if not bool(the_session["masquerading"]):
             # Normal session - clear and go back.
@@ -124,6 +124,7 @@ def logout():
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
+    from utility.tools import GN_SERVER_URL
     if user_logged_in():
         next_endpoint=request.args.get("next", "/")
         flash(("You cannot register a new user while logged in. "
@@ -134,10 +135,9 @@ def register_user():
     if request.method == "GET":
         return render_ui("oauth2/register_user.html")
 
-    config = app.config
     form = request.form
     response = requests.post(
-        urljoin(config["GN_SERVER_URL"], "oauth2/user/register"),
+        urljoin(GN_SERVER_URL, "oauth2/user/register"),
         data = {
             "user_name": form.get("user_name"),
             "email": form.get("email_address"),

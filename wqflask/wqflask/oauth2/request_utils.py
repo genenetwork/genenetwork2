@@ -10,12 +10,13 @@ from flask import (
 from .client import SCOPE, oauth2_get
 
 def authserver_authorise_uri():
+    from utility.tools import GN_SERVER_URL, OAUTH2_CLIENT_ID
     req_baseurl = urlparse(request.base_url)
     host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
     return urljoin(
-        app.config["GN_SERVER_URL"],
+        GN_SERVER_URL,
         "oauth2/authorise?response_type=code"
-        f"&client_id={app.config['OAUTH2_CLIENT_ID']}"
+        f"&client_id={OAUTH2_CLIENT_ID}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
 def raise_unimplemented():
@@ -30,13 +31,14 @@ def process_error(error: Response,
                   message: str=("Requested endpoint was not found on the API "
                                 "server.")
                   ) -> dict:
-    if error.status_code == 404:
+    if error.status_code in (401, 404):
         try:
-            msg = error.json()["error_description"]
+            err = error.json()
+            msg = err.get("error_description", f"{error.reason}")
         except simplejson.errors.JSONDecodeError as _jde:
             msg = message
         return {
-            "error": "NotFoundError",
+            "error": error.reason,
             "error_message": msg,
             "error_description": msg,
             "status_code": error.status_code
