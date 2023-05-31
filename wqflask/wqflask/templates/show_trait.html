@@ -57,18 +57,6 @@
                   {% include 'show_trait_details.html' %}
                 </div>
 	      </div>
-	      {% if metadata %}
-		<div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseMeta">
-                  <h3 class="panel-title">
-                    <span class="glyphicon glyphicon-chevron-down"></span> Data Set Group: {{  dataset.fullname }}
-                  </h3>
-		</div>
-		<div id="collapseMeta" class="panel-collapse collapse in">
-                  <div class="panel-body">
-		    {% include 'show_metadata_details.html' %}
-                  </div>
-		</div>
-	      {% endif %}
             </div>
             <div class="panel panel-default">
               <div class="panel-heading stats_panel" data-toggle="collapse" data-parent="#accordion" data-target="#collapseTwo">
