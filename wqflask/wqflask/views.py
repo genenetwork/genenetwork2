@@ -509,20 +509,8 @@ def show_trait_page():
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                default=json_default_handler,
                                                indent="   ")
-            # Should there be any mis-configurations, things will still
-            # work.
-            metadata = {}
-            try:
-                metadata = requests.get(
-                    urljoin(
-                        GN3_LOCAL_URL,
-                        f"/api/metadata/dataset/{request.args.get('dataset')}")
-                ).json()
-            except:
-                metadata = {}
             return render_template(
                 "show_trait.html",
-                metadata=metadata,
                 **{
                     **template_vars.__dict__,
                     "user": privileges_data["user"],
