@@ -30,15 +30,19 @@ DS_NAME_MAP = {
     "ProbeSet": "MrnaAssayDataSet"
 }
 
+def __dataset_type__(dataset_name):
+    """Get dataset type."""
+    if "Temp" in dataset_name:
+        return "Temp"
+    if "Geno" in dataset_name:
+        return "Geno"
+    if "Publish" in dataset_name:
+        return "Publish"
+    return "ProbeSet"
+
 def create_dataset(dataset_name, dataset_type=None,
                    get_samplelist=True, group_name=None, redis_conn=Redis()):
-    if dataset_name == "Temp":
-        dataset_type = "Temp"
-
-    if not dataset_type:
-        with database_connection() as db_conn, db_conn.cursor() as cursor:
-            dataset_type = DatasetType(redis_conn)(
-                dataset_name, redis_conn, cursor)
+    dataset_type = dataset_type or __dataset_type__(dataset_name)
 
     dataset_ob = DS_NAME_MAP[dataset_type]
     dataset_class = globals()[dataset_ob]
