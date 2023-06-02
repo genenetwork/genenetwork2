@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+ .page-header {
+     text-underline-offset: 0.9em;
+     padding: 1em;
+ }
+ .panel-about {
+     background: #F8F8F8;
+     max-width: 35em;
+     margin: 10px;
+ }
+ .panel-metadata {
+     display: inline-block;
+     width: fit-content;
+     height: fit-content;
+     padding: 0;
+ }
+
+ .panel-metadata dt {
+     color: green;
+ }
+
+ .panel-metadata dt::after {
+     content: ":";
+ }
+
+</style>
+{% endblock %}
+
+{% block title %}Dataset: {{ name }}{% endblock %}
+
+{% block content %}
+
+<header class="page-header text-justify">
+    <h1><u>
+        {% if metadata.title %}
+        {{ metadata.title }}
+        {% else %}
+        {{ name }}
+        {% endif %}
+    </u></h1>
+</header>
+
+<div class="container">
+    {% if metadata == {} %}
+    <p class="lead">We appreciate your interest, but unfortunately, we don't have any additional information available for: <strong>{{ name }}</strong>. If you have any other questions or need assistance with something else, please feel free to reach out to us.</p>
+    {% else %}
+    <div class="panel-about panel panel-info panel-metadata text-muted{{ float_p }}">
+        <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
+        <div class="panel-body">
+            <dl class="dl-horizontal">
+                {% if metadata.name %} <dt>Name</dt> <dd>{{ metadata.name}}</dd> {% endif %}
+                {% if metadata.specifics %} <dt>Specifics</dt> <dd>{{ metadata.specifics}}</dd> {% endif %}
+                {% if metadata.created %} <dt>Created</dt> <dd>{{ metadata.created }}</dd> {% endif %}
+                {% if metadata.accessionId %} <dt>Accession Id</dt> <dd>{{ metadata.accessionId }}</dd> {% endif %}
+                {% if metadata.geoSeries %} <dt>Geo Series</dt> <dd>{{ metadata.geoSeries }}</dd> {% endif %}
+                {% if metadata.normalization %} <dt>Normalization</dt> <dd>{{ metadata.normalization }}</dd> {% endif %}
+                {% if metadata.datasetGroup %} <dt>Group</dt> <dd>{{ metadata.datasetGroup }}</dd> {% endif %}
+                {% if metadata.investigatorName %}
+                <dt>Investigator</dt>
+                <dd>
+                    <a href="{{ metadata.investigatorWebUrl }}" target="_blank">{{ metadata.investigatorName }}</a>
+                </dd>
+                {% endif %}
+                {% if metadata.contributors %} <dt>Contributors</dt> <dd>{{ metadata.contributors|safe }}</dd> {% endif %}
+                {% if metadata.citation|trim %} <dt>Citation</dt> <dd>{{ metadata.citation|safe}}</dd> {% endif %}
+                {% if metadata.acknowledgment|trim %} <dt>Acknowledgment</dt> <dd>{{ metadata.acknowledgment|safe}}</dd> {% endif %}
+            </dl>
+        </div>
+    </div>
+
+    <div class="container">
+        {% if metadata.summary %}
+        <h3><strong>Summary</strong></h3>
+        <div>{{ metadata.summary|safe }}</div>
+        {% endif %}
+
+        {% if metadata.experimentDesign %}
+        <h3><strong>Experiment Design</strong></h3>
+        <div>{{ metadata.experimentDesign|safe }}</div>
+        {% endif %}
+
+        {% if metadata.aboutCases %}
+        <h3><strong>About Cases</strong></h3>
+        <div>{{ metadata.aboutCases|safe }}</div>
+        {% endif %}
+
+        {% if metadata.aboutTissue %}
+        <h3><strong>About Tissue</strong></h3>
+        <div>{{ metadata.aboutTissue|safe }}</div>
+        {% endif %}
+
+        {% if metadata.aboutPlatform %}
+        <h3><strong>About Platform</strong></h3>
+        <div>{{ metadata.aboutPlatform|safe }}</div>
+        {% endif %}
+
+        {% if metadata.aboutDataProcessing %}
+        <h3><strong>About Data Processing</strong></h3>
+        <div>{{ metadata.aboutDataProcessing|safe }}</div>
+        {% endif %}
+
+        {% if metadata.notes %}
+        <h3><strong>GeneNetwork Notes</strong></h3>
+        <div>{{ metadata.notes|safe }}</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

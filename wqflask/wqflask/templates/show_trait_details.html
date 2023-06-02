@@ -62,6 +62,10 @@
             <a href="http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" target="_blank">
                 {{ dataset.fullname }}
             </a>
+	    <br/>
+	    <a href="{{ url_for('get_dataset', name=dataset.name) }}" target="_blank">
+                GN2 Link: {{ dataset.fullname }}
+            </a>
         </td>
     </tr>
     {% if this_trait.probe_set_specificity %}
