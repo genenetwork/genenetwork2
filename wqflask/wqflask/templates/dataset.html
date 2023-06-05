@@ -37,7 +37,7 @@
     <h1>
 	{% if metadata.publicationTitle %}
 	<u>{{ metadata.publicationTitle}}</u>
-	<small>({{ metadata.title }})</small>
+	<small>({{ metadata.title or metadata.name}})</small>
         {% else %}
         {{ name }}
         {% endif %}
