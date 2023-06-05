@@ -69,7 +69,12 @@
 		{% if metadata.platformName %}
 		<dt>Platforms</dt>
 		<dd>
-		    [<a href="{{ metadata.geoPlatform }} target=_blank">{{ metadata.geoPlatform.split("=")[-1] }}</a>] {{ metadata.platformName }}</dd> {% endif %}
+		    {% if metadata.geoPlatformUrl %}
+		    [<a href="{{ metadata.geoPlatformUrl }}" target="_blank">{{ metadata.geoPlatformUrl.split("=")[-1] }}</a>]
+		    {% endif %}
+                    {{ metadata.platformName }}
+		</dd>
+		{% endif %}
                 {% if metadata.normalization %} <dt>Normalization</dt> <dd>{{ metadata.normalization }}</dd> {% endif %}
                 {% if metadata.investigatorName %}
                 <dt>Investigator</dt>
