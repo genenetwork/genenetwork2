@@ -3,7 +3,7 @@
 {% block css %}
 <style type="text/css">
  .page-header {
-     text-underline-offset: 0.9em;
+     text-underline-offset: 0.5rem;
      padding: 1em;
  }
  .panel-about {
@@ -34,13 +34,14 @@
 {% block content %}
 
 <header class="page-header text-justify">
-    <h1><u>
-        {% if metadata.title %}
-        {{ metadata.title }}
+    <h1>
+	{% if metadata.publicationTitle %}
+	<u>{{ metadata.publicationTitle}}</u>
+	<small>({{ metadata.title }})</small>
         {% else %}
         {{ name }}
         {% endif %}
-    </u></h1>
+    </h1>
 </header>
 
 <div class="container">
@@ -51,13 +52,25 @@
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
         <div class="panel-body">
             <dl class="dl-horizontal">
-                {% if metadata.name %} <dt>Name</dt> <dd>{{ metadata.name}}</dd> {% endif %}
-                {% if metadata.specifics %} <dt>Specifics</dt> <dd>{{ metadata.specifics}}</dd> {% endif %}
                 {% if metadata.created %} <dt>Created</dt> <dd>{{ metadata.created }}</dd> {% endif %}
+                {% if metadata.datasetGroup %} <dt>Data Set Group</dt> <dd>{{ metadata.datasetGroup }}</dd> {% endif %}
                 {% if metadata.accessionId %} <dt>Accession Id</dt> <dd>{{ metadata.accessionId }}</dd> {% endif %}
-                {% if metadata.geoSeries %} <dt>Geo Series</dt> <dd>{{ metadata.geoSeries }}</dd> {% endif %}
+                {% if metadata.geoSeries %} <dt>GEO Series</dt> <dd>{{ metadata.geoSeries }}</dd> {% endif %}
+                {% if metadata.title %} <dt>Name</dt> <dd>{{ metadata.title }}</dd> {% endif %}
+		{% if metadata.organism %}
+		<dt>Organism</dt>
+		<dd>
+		    <a href="{{ metadata.organismUrl}}" target="_blank">{{ metadata.organism }}</a>
+		</dd>
+		{% endif %}
+		{% if metadata.inbredSetName %} <dt>Group</dt> <dd>{{ metadata.inbredSetName}}</dd> {% endif %}
+                {% if metadata.tissueName %} <dt>Tissue</dt> <dd>{{ metadata.tissueName}}</dd> {% endif %}
+		{% if metadata.datasetStatusName %} <dt>Dataset Status</dt> <dd>{{ metadata.datasetStatusName }}</dd> {% endif %}
+		{% if metadata.platformName %}
+		<dt>Platforms</dt>
+		<dd>
+		    [<a href="{{ metadata.geoPlatform }} target=_blank">{{ metadata.geoPlatform.split("=")[-1] }}</a>] {{ metadata.platformName }}</dd> {% endif %}
                 {% if metadata.normalization %} <dt>Normalization</dt> <dd>{{ metadata.normalization }}</dd> {% endif %}
-                {% if metadata.datasetGroup %} <dt>Group</dt> <dd>{{ metadata.datasetGroup }}</dd> {% endif %}
                 {% if metadata.investigatorName %}
                 <dt>Investigator</dt>
                 <dd>
@@ -65,46 +78,60 @@
                 </dd>
                 {% endif %}
                 {% if metadata.contributors %} <dt>Contributors</dt> <dd>{{ metadata.contributors|safe }}</dd> {% endif %}
-                {% if metadata.citation|trim %} <dt>Citation</dt> <dd>{{ metadata.citation|safe}}</dd> {% endif %}
-                {% if metadata.acknowledgment|trim %} <dt>Acknowledgment</dt> <dd>{{ metadata.acknowledgment|safe}}</dd> {% endif %}
+		{% if metadata.datasetOfOrganization %} <dt>Organization</dt> <dd>{{ metadata.datasetOfOrganization }}</dd> {% endif %}
             </dl>
         </div>
     </div>
 
     <div class="container">
+	{% if metadata.specifics %}
+	<h3><strong>Specifics of this Data Set:</strong></h3>
+	<div>{{ metadata.specifics}}</div>
+	{% endif %}
+
         {% if metadata.summary %}
-        <h3><strong>Summary</strong></h3>
+        <h3><strong>Summary:</strong></h3>
         <div>{{ metadata.summary|safe }}</div>
         {% endif %}
 
-        {% if metadata.experimentDesign %}
+	{% if metadata.experimentDesign %}
         <h3><strong>Experiment Design</strong></h3>
         <div>{{ metadata.experimentDesign|safe }}</div>
         {% endif %}
 
-        {% if metadata.aboutCases %}
-        <h3><strong>About Cases</strong></h3>
+	{% if metadata.aboutCases %}
+        <h3><strong>About the cases used to generate this set of data:</strong></h3>
         <div>{{ metadata.aboutCases|safe }}</div>
         {% endif %}
 
-        {% if metadata.aboutTissue %}
-        <h3><strong>About Tissue</strong></h3>
+	{% if metadata.aboutTissue %}
+        <h3><strong>About the tissue used to generate this set of data:</strong></h3>
         <div>{{ metadata.aboutTissue|safe }}</div>
         {% endif %}
 
         {% if metadata.aboutPlatform %}
-        <h3><strong>About Platform</strong></h3>
+        <h3><strong>About the array platform:</strong></h3>
         <div>{{ metadata.aboutPlatform|safe }}</div>
         {% endif %}
 
         {% if metadata.aboutDataProcessing %}
-        <h3><strong>About Data Processing</strong></h3>
+        <h3><strong>About data values and data processing:</strong></h3>
         <div>{{ metadata.aboutDataProcessing|safe }}</div>
         {% endif %}
 
-        {% if metadata.notes %}
-        <h3><strong>GeneNetwork Notes</strong></h3>
+	{% if metadata.notes %}
+        <h3><strong>GeneNotes:</strong></h3>
         <div>{{ metadata.notes|safe }}</div>
+        {% endif %}
+
+	{% if metadata.citation|trim %}
+        <h3><strong>Citation:</strong></h3>
+        <div>{{ metadata.citation|safe}}</div>
+        {% endif %}
+
+	{% if metadata.acknowledgment|trim %}
+        <h3><strong>Acknowledgment:</strong></h3>
+        <div>{{ metadata.acknowledgment|safe}}</div>
         {% endif %}
     </div>
     {% endif %}
