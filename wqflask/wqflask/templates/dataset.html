@@ -56,7 +56,12 @@
                 {% if metadata.created %} <dt>Created</dt> <dd>{{ metadata.created }}</dd> {% endif %}
                 {% if metadata.datasetGroup %} <dt>Data Set Group</dt> <dd>{{ metadata.datasetGroup }}</dd> {% endif %}
                 {% if metadata.accessionId %} <dt>Accession Id</dt> <dd>{{ metadata.accessionId }}</dd> {% endif %}
-                {% if metadata.geoSeries %} <dt>GEO Series</dt> <dd>{{ metadata.geoSeries }}</dd> {% endif %}
+                {% if metadata.geoSeries %}
+		<dt>GEO Series</dt>
+		<dd>
+		    <a href="{{ metadata.geoSeries }}" target="_blank">{{ metadata.geoSeries.split("=")[-1] }}</a>
+		</dd>
+		{% endif %}
                 {% if metadata.title %} <dt>Name</dt> <dd>{{ metadata.title }}</dd> {% endif %}
 		{% if metadata.organism %}
 		<dt>Organism</dt>
