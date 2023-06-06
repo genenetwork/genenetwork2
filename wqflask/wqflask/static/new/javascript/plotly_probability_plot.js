@@ -171,7 +171,10 @@
     }
 
     var layout = {
-        title: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+        title: {
+            xanchor: 'right',
+            text: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+        },
         margin: {
             l: 100,
             r: 30,
