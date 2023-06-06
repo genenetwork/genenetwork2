@@ -2403,7 +2403,7 @@ class DisplayMappingResults:
                         pass
             else:
                 LRS_LOD_Max = max([result['lod_score']
-                                   for result in self.qtlresults])
+                                   for result in self.qtlresults]) + 1
                 if self.LRS_LOD == "LRS":
                     LRS_LOD_Max = LRS_LOD_Max * self.LODFACTOR
                     if self.permChecked and self.nperm > 0 and not self.multipleInterval:
