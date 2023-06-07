@@ -1118,3 +1118,16 @@ def get_dataset(name):
         metadata=metadata,
         float_p=float_p
     )
+
+
+@app.route("/publication/<name>", methods=('GET',))
+def get_publication(name):
+    metadata = requests.get(
+        urljoin(
+            GN3_LOCAL_URL,
+            f"/api/metadata/publication/{name}")
+    ).json()
+    return render_template(
+        "publication.html",
+        metadata=metadata,
+    )
