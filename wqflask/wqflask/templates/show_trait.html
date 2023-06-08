@@ -108,7 +108,6 @@
                 <div id="outlier_alert_placeholder"></div>
               </div>
             </div>
-	    {%if "group:resource:edit-resource" in trait_privileges%}
               <div class="panel panel-default" {%if (trait_table_width|int > 1100)%}style="min-width: {{trait_table_width|int + 30}}px;"{% endif %}>
 		<div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseSix" aria-expanded="true">
                   <h3 class="panel-title">
@@ -121,7 +120,6 @@
                   </div>
 		</div>
               </div>
-	    {%endif%}
           </div>
           {% include 'show_trait_progress_bar.html' %}
         </div>
