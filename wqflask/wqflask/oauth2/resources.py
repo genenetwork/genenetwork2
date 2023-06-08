@@ -87,7 +87,7 @@ def view_resource(resource_id: uuid.UUID):
                 resource, unlinked_data, users_n_roles, this_user, groles))
 
     def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
-        return oauth2_get("oauth2/user").either(
+        return oauth2_get("oauth2/user/").either(
             lambda err: render_ui(
                 "oauth2/view-resources.html",
                 this_user_error=process_error(err)),

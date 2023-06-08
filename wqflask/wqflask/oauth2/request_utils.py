@@ -23,7 +23,7 @@ def raise_unimplemented():
     raise Exception("NOT IMPLEMENTED")
 
 def user_details():
-    return oauth2_get("oauth2/user").either(
+    return oauth2_get("oauth2/user/").either(
         lambda err: {},
         lambda usr_dets: usr_dets)
 

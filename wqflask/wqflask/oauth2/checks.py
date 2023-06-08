@@ -32,7 +32,7 @@ def require_oauth2(func):
             client = OAuth2Session(
                 OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, token=token)
             resp = client.get(
-                urljoin(GN_SERVER_URL, "oauth2/user"))
+                urljoin(GN_SERVER_URL, "oauth2/user/"))
             user_details = resp.json()
             if not user_details.get("error", False):
                 return func(*args, **kwargs)
