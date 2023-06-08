@@ -82,10 +82,17 @@ def collections_add():
         lambda _err: tuple(), lambda colls: tuple(colls)) + no_token_get(
             f"oauth2/user/collections/{anon_id}/list").either(
                 lambda _err: tuple(), lambda colls: tuple(colls))
+
+    def __create_new_coll_error__(error):
+        err = process_error(error)
+        flash(f"{err['error']}:{err['error_description']}", "alert-danger")
+        return redirect("/")
+
     if len(collections) < 1:
         new_coll = client.post(
             "oauth2/user/collections/new",
             json={
+                "anon_id": str(anon_id),
                 "name": "Your Default Collection",
                 "traits": []
             }).either(__create_new_coll_error__, lambda coll: coll)
