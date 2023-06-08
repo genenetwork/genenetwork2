@@ -135,7 +135,7 @@ def collections_new():
                 "hash": params.get("hash", False)
             }}
         if user_logged_in():
-            resp =  oauth2_post(**request_data)
+            resp = oauth2_post(**request_data)
         else:
             resp = no_token_post(**request_data)
         #return create_new(collection_name)
