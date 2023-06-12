@@ -1131,3 +1131,16 @@ def get_publication(name):
         "publication.html",
         metadata=metadata,
     )
+
+
+@app.route("/phenotype/<name>", methods=('GET',))
+def get_phenotype(name):
+    metadata = requests.get(
+        urljoin(
+            GN3_LOCAL_URL,
+            f"/api/metadata/phenotype/{name}")
+    ).json()
+    return render_template(
+        "phenotype.html",
+        metadata=metadata,
+    )

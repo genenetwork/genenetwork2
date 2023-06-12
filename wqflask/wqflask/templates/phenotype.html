@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+ .page-header {
+     text-underline-offset: 0.5rem;
+     padding: 1em;
+ }
+</style>
+{% endblock %}
+
+{% block title %}Phenotype: {{ name }}{% endblock %}
+
+{% block content %}
+
+<h1 class="page-header">
+    {% if metadata.name %}
+    <u>Phenotype: {{ metadata.name }}</u>
+    {% else %}
+    {{ name }}
+    {% endif %}
+</h1>
+
+<div class="container">
+    <table class="table">
+        {% if metadata.inbredSetName %}
+        <tr>
+            <td><b>Group</b></td>
+            <td>{{ metadata.inbredSetName }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.speciesName %}
+        <tr>
+            <td><b>Species</b></td>
+            <td>{{ metadata.speciesName }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.publicationDescription %}
+        <tr>
+            <td><b>Phenotype</b></td>
+            <td>{{ metadata.publicationDescription }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.author %}
+        <tr>
+            <td><b>Authors</b></td>
+            <td>
+                {% if metadata.author is iterable %}
+                {{ metadata.author |join(", ") }}
+                {% for author in metadata.author %}
+                {{ author }}
+                {% endfor %}
+                {% else %}
+                metadata.author
+                {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+
+        {% if metadata.title %}
+        <tr>
+            <td><b>Title</b></td>
+            <td>{{ metadata.title }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.title %}
+        <tr>
+            <td><b>Title</b></td>
+            <td>{{ metadata.title }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.journal %}
+        <tr>
+            <td><b>Journal</b></td>
+            <td>
+                {{ metadata.journal }}
+                {% if metadata.year %}
+                (
+                <a href="{{ metadata.pubMedId if metadata.pubMedId else '#' }}" target="_blank">
+                    {{ metadata.year }}
+                </a>
+                )
+                {% endif %}
+            </td>
+        </tr>
+
+
+        {% endif %}
+    </table>
+</div>
+
+
+{% endblock %}
