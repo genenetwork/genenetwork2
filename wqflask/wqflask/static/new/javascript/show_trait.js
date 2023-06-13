@@ -1279,7 +1279,7 @@ root.modebar_options = {
   }],
   showEditInChartStudio: true,
   plotlyServerURL: "https://chart-studio.plotly.com",
-  modeBarButtonsToRemove:['toImage', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines', 'resetScale2d'],
+  modeBarButtonsToRemove:['zoom2d', 'pan2d', 'toImage', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines', 'resetScale2d'],
   displaylogo: false
   //modeBarButtons:['toImage2', 'zoom2d', 'pan2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'],
 }
@@ -1396,7 +1396,8 @@ if (js_data.num_values < 256) {
         r: 30,
         t: 100,
         b: bottomMargin
-    }
+    },
+    dragmode: false
   };
 
   $('.bar_chart_tab').click(function() {
@@ -1418,15 +1419,17 @@ root.histogram_data = [hist_trace];
 root.histogram_layout = {
   bargap: 0.05,
   title: {
-    xanchor: 'right',
-    text: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
+    x: 0,
+    y: 10,
+    xanchor: 'left',
+    text: "<b> Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
   },
   xaxis: {
            autorange: true,
            title: js_data.unit_type,
            titlefont: {
              family: "arial",
-             size: 20
+             size: 16
            },
            ticklen: 4,
            tickfont: {
@@ -1435,10 +1438,10 @@ root.histogram_layout = {
          },
   yaxis: {
            autorange: true,
-           title: "<b>Count</b>",
+           title: "<b>count</b>",
            titlefont: {
              family: "arial",
-             size: 20
+             size: 16
            },
            showline: true,
            ticklen: 4,
@@ -1451,7 +1454,7 @@ root.histogram_layout = {
   width: 500,
   height: 600,
   margin: {
-      l: 70,
+      l: 100,
       r: 30,
       t: 100,
       b: 50
@@ -1477,26 +1480,23 @@ root.violin_layout = {
       showline: true,
       titlefont: {
         family: "arial",
-        size: 20
+        size: 16
       },
       tickfont: {
+        family: "arial",
         size: 16
       }
   },
   yaxis: {
       title: {
-        text: "<b>"+js_data.unit_type+"</b>",
-        font: {
-          family: 'arial',
-          size: 20
-        }
+        text: "<b>"+js_data.unit_type+"</b>"
+      },
+      titlefont: {
+        family: "arial",
+        size: 16
       },
       autorange: true,
       showline: true,
-      titlefont: {
-        family: "arial",
-        size: 20
-      },
       ticklen: 4,
       tickfont: {
         size: 16
@@ -1506,11 +1506,13 @@ root.violin_layout = {
       automargin: true
   },
   margin: {
-        l: 90,
+        l: 100,
         r: 30,
         t: 100,
         b: 80
-  }
+  },
+  dragmode: false,
+  showlegend: false
 };
 
 if (fullSampleLists.length > 1) {
@@ -1529,8 +1531,8 @@ if (fullSampleLists.length > 1) {
         meanline: {
           visible: true
         },
-        name: sampleGroupList[2],
-        x0: sampleGroupList[2]
+        name: "<b>" + sampleGroupList[2] + "</b>",
+        x0: "<b>" + sampleGroupList[2] + "</b>"
     }
     var trace2 = {
         y: getSampleVals(fullSampleLists[1]),
@@ -1545,8 +1547,8 @@ if (fullSampleLists.length > 1) {
         meanline: {
           visible: true
         },
-        name: sampleGroupList[1],
-        x0: sampleGroupList[1]
+        name: "<b>" + sampleGroupList[1] + "</b>",
+        x0: "<b>" + sampleGroupList[1] + "</b>"
     }
     var trace3 = {
         y: getSampleVals(fullSampleLists[0]),
@@ -1561,12 +1563,12 @@ if (fullSampleLists.length > 1) {
         meanline: {
           visible: true
         },
-        name: sampleGroupList[0],
-        x0: sampleGroupList[0]
+        name: "<b>" + sampleGroupList[0] + "</b>",
+        x0: "<b>" + sampleGroupList[0] + "</b>"
     }
     root.violin_data = [trace1, trace2, trace3]
 } else {
-    root.violin_layout['width'] = 400;
+    root.violin_layout['width'] = 320;
     root.violin_layout['height'] = 400;
     root.violin_data = [
       {
@@ -1580,7 +1582,7 @@ if (fullSampleLists.length > 1) {
           visible: true
         },
         name: "<b>Trait " + js_data.trait_id + "</b>",
-        x0: "<b>Density</br>"
+        x0: "<b>density</b>"
       }
     ]
 }
