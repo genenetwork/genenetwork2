@@ -172,10 +172,21 @@ div.normalize-div {
 }
 
 div.mapping-main {
-  min-width: 1400px;
+  display: block;
 }
+
 div.mapping-options {
-  min-width: 700px;
+  float: left;
+  width: 600px;
+  padding-top: 0px;
+}
+
+div.mapping-descriptions {
+  float: left;
+  width: 500px;
+  min-width: 20%;
+  margin-bottom: 0px;
+  padding-left: 15px;
 }
 
 div.covar-options {
