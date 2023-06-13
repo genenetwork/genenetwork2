@@ -677,7 +677,7 @@ def get_trait_units(this_trait):
                     inside_brackets = True
 
     if unit_type == "":
-        unit_type = "Value"
+        unit_type = "value"
 
     return unit_type
 
