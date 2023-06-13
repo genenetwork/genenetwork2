@@ -25,7 +25,7 @@
         <label for="exclude_column">Block samples by group:</label>
         <select id="exclude_column" size=1>
           {% for attribute in sample_groups[0].attributes %}
-          {% if sample_groups[0].attributes[attribute].distinct_values|length <= 10 and sample_groups[0].attributes[attribute].distinct_values|length > 1 %}
+          {% if sample_groups[0].attributes[attribute].distinct_values|length <= 500 and sample_groups[0].attributes[attribute].distinct_values|length > 1 %}
           <option value="{{ loop.index }}">
               {{ sample_groups[0].attributes[attribute].name }}
           </option>
