@@ -25,7 +25,7 @@
 
   redraw_prob_plot = function(samples, sample_group) {
     var container, h, margin, totalh, totalw, w;
-    h = 370;
+    h = 550;
     w = 600;
     margin = {
       left: 60,
@@ -172,17 +172,24 @@
 
     var layout = {
         title: {
-            xanchor: 'right',
+            x: 0,
+            y: 10,
+            xanchor: 'left',
             text: "<b>Trait " + js_data.trait_id + ": " + js_data.short_description + "</b>",
         },
         margin: {
             l: 100,
             r: 30,
-            t: 80,
+            t: 100,
             b: 60
         },
+        legend: {
+          x: 0.05,
+          y: 0.9,
+          xanchor: 'left'
+        },
         xaxis: {
-            title: "<b>Normal Theoretical Quantiles</b>",
+            title: "<b>normal quantiles</b>",
             range: [first_x, last_x],
             zeroline: false,
             visible: true,
@@ -190,7 +197,7 @@
             linewidth: 1,
             titlefont: {
               family: "arial",
-              size: 20
+              size: 16
             },
             ticklen: 4,
             tickfont: {
@@ -202,9 +209,10 @@
             visible: true,
             linecolor: 'black',
             linewidth: 1,
+            title: "<b>" + js_data.unit_type + "</b>",
             titlefont: {
               family: "arial",
-              size: 20
+              size: 16
             },
             ticklen: 4,
             tickfont: {
@@ -213,7 +221,10 @@
             tickformat: tick_digits,
             automargin: true
         },
-        hovermode: "closest"
+        width: 600,
+        height: 600,
+        hovermode: "closest",
+        dragmode: false
     }
 
     var primary_trace = {
