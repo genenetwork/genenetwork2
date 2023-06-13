@@ -22,7 +22,7 @@ class SessionInfo(TypedDict):
     ip_addr: str
     masquerade: Optional[UserDetails]
 
-__SESSION_KEY__ = "session_info" # Do not use this outside this module!!
+__SESSION_KEY__ = "GN::2::session_info" # Do not use this outside this module!!
 
 def clear_session_info():
     """Clears the session."""
