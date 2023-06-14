@@ -141,7 +141,7 @@ class TestTraits(unittest.TestCase):
         results = get_trait_units(trait)
         results_no_unit = get_trait_units(trait_no_unit_type)
         self.assertEqual(results, "this is a descriptionN/A")
-        self.assertEqual(results_no_unit, "Value")
+        self.assertEqual(results_no_unit, "value")
 
     @mock.patch("wqflask.show_trait.show_trait.database_connection")
     def test_get_nearest_marker(self, mock_db):
