@@ -98,7 +98,7 @@
                     <div class="page-header">
                         <h2>Select and Search</h2>
                     </div>
-                    <form method="get" action="/search" target="_blank" id="gsearchform" name="SEARCHFORM",
+                    <form method="get" action="/search" target="_blank" id="searchform" name="SEARCHFORM",
 			  data-gn_server_url="{{gn_server_url}}">
                         <fieldset>
                             <div style="padding-left: 20px; padding-right: 20px;" class="form-horizontal">
@@ -175,8 +175,8 @@
                                 <div class="form-group">
                                     <label for="and_search" class="col-xs-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 65px !important;">Combined:</label>
                                     <div class="col-xs-10 controls" style="padding-left: 20px;">
-                                        <div class="col-8">
-                                          <textarea onkeydown="pressed(event)" name="search_terms_and" rows="1" class="form-control search-query" style="resize: vertical; max-width: 550px; width: 450px !important;" id="and_search"></textarea>
+                                        <div class="col-8 autocomplete">
+                                          <textarea id="myInput" onkeyup="pressed(event)" name="search_terms_and" rows="1" class="form-control search-query" style="resize: vertical; max-width: 550px; width: 450px !important;" id="and_search"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -336,15 +336,23 @@
 
     <script type="text/javascript">
     
-$(document).on('submit', '#gsearchform', function(event){
-    event.preventDefault()
-     let  user_search = $("#myInput").val().trim();
-     if (user_search!=""){
-     saveBeforeSubmit(user_search)
-     $( "#gsearchform" )[0].submit();
-     }
+$(document).on('submit', '#searchform', function(event){
 
-   });
+    event.preventDefault()
+    let user_searches = [];
+    $(".search-query").each(function() {
+        this_search = $(this).val().trim();
+        if (this_search != ""){
+            user_searches.push(this_search);
+        }
+    });
+
+    for (i=0; i<user_searches.length; ++i){
+        saveBeforeSubmit(user_searches[i])
+    }
+    $( "#searchform" )[0].submit();
+
+});
     </script>
 
     <script>
@@ -357,7 +365,6 @@ $(document).on('submit', '#gsearchform', function(event){
 
                 if( event.target.value.trim() != "" ) {
                     saveBeforeSubmit(event.target.value.trim())
-                    //document.forms[1].submit();
                     $("#searchform")[0].submit();   
                    
                 }
