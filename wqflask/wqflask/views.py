@@ -703,7 +703,7 @@ def loading_page():
 
 @app.route("/run_mapping", methods=('POST','GET'))
 def mapping_results_page():
-    if request.method == "GET":
+    if request.method == "GET" and (hash_of_inputs := request.args.get("hash")):
         hash_of_inputs = request.args.get("hash")
         initial_start_vars = json.loads(Redis.get(hash_of_inputs))
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
