@@ -108,41 +108,6 @@ from wqflask.oauth2.checks import user_logged_in
 Redis = get_redis_conn()
 
 
-@app.errorhandler(Exception)
-def handle_generic_exceptions(e):
-    import werkzeug
-    err_msg = str(e)
-    now = datetime.datetime.utcnow()
-    time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
-    # get the stack trace and send it to the logger
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    formatted_lines = (f"{request.url} ({time_str}) \n"
-                       f"{traceback.format_exc()}")
-    _message_templates = {
-        werkzeug.exceptions.NotFound: ("404: Not Found: "
-                                       f"{time_str}: {request.url}"),
-        werkzeug.exceptions.BadRequest: ("400: Bad Request: "
-                                         f"{time_str}: {request.url}"),
-        werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
-                                             f"{time_str}: {request.url}")}
-    # Default to the lengthy stack trace!
-    app.logger.error(_message_templates.get(exc_type,
-                                            formatted_lines))
-    # Handle random animations
-    # Use a cookie to have one animation on refresh
-    animation = request.cookies.get(err_msg[:32])
-    if not animation:
-        animation = random.choice([fn for fn in os.listdir(
-            "./wqflask/static/gif/error") if fn.endswith(".gif")])
-
-    resp = make_response(render_template("error.html", message=err_msg,
-                                         stack={formatted_lines},
-                                         error_image=animation,
-                                         version=GN_VERSION))
-    resp.set_cookie(err_msg[:32], animation)
-    return resp
-
-
 @app.route("/authentication_needed")
 def no_access_page():
     return render_template("new_security/not_authenticated.html")
