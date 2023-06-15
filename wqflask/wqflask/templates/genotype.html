@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+ .page-header {
+     text-underline-offset: 0.5rem;
+     padding: 1em;
+ }
+</style>
+{% endblock %}
+
+{% block title %}Genotype: {{ name }}{% endblock %}
+
+{% block content %}
+
+<h1 class="page-header">
+    {% if metadata.name %}
+    <u>Genotype: {{ metadata.name }}</u>
+    {% else %}
+    {{ name }}
+    {% endif %}
+</h1>
+
+<div class="container">
+    <table class="table">
+	{% if metadata.datasetName %}
+        <tr>
+            <td><b>Dataset: </b></td>
+            <td>
+		<a href="{{ metadata.genotypeOfDataset }}" target="_blank">{{ metadata.datasetName }}</a>
+	    </td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.inbredSetName %}
+        <tr>
+            <td><b>Group</b></td>
+            <td>{{ metadata.inbredSetName }}</td>
+        </tr>
+        {% endif %}
+
+	{% if metadata.speciesName %}
+        <tr>
+            <td><b>Species</b></td>
+            <td>{{ metadata.speciesName }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.cM %}
+        <tr>
+            <td><b>cM</b></td>
+            <td>{{ metadata.cM }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.mb %}
+        <tr>
+            <td><b>mb</b></td>
+            <td>{{ metadata.mb }}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.sequence %}
+        <tr>
+	    <td><b>Sequence</b></td>
+	    <td>metadata.sequence</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.source %}
+        <tr>
+            <td><b>Source</b></td>
+            <td>{{ metadata.source}}</td>
+        </tr>
+        {% endif %}
+
+        {% if metadata.markerName %}
+        <tr>
+            <td><b>Marker Name</b></td>
+            <td>{{ metadata.markerName}}</td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+
+{% endblock %}
