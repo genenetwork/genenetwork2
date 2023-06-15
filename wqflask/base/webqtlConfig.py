@@ -8,7 +8,14 @@
 #
 #########################################
 import os
-from utility.tools import valid_path, mk_dir, assert_dir, assert_writable_dir, flat_files, TEMPDIR
+from functools import partial
+
+from utility.configuration import (
+    mk_dir,
+    valid_path,
+    flat_files,
+    assert_dir,
+    assert_writable_dir)
 
 # Debug Level
 # 1 for debug, mod python will reload import each time
@@ -69,39 +76,48 @@ PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&gen
 RRID_MOUSE_URL = "https://www.jax.org/strain/%s"
 RRID_RAT_URL = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id=%s"
 
-# Temporary storage (note that this TMPDIR can be set as an
-# environment variable - use utility.tools.TEMPDIR when you
-# want to reach this base dir
-assert_writable_dir(TEMPDIR)
+def mkdir_with_assert_writable(parent_dir, child_dir):
+    """
+    Make a directory `child_dir` as a child of `parent_dir` asserting that they
+    are both writable."""
+    return assert_writable_dir(mk_dir(
+        assert_writable_dir(parent_dir) + child_dir))
 
-TMPDIR = mk_dir(TEMPDIR + '/gn2/')
-assert_writable_dir(TMPDIR)
+def init_app(app):
+    """Initialise the application with configurations for webqtl."""
+    # Temporary storage (note that this TMPDIR can be set as an
+    # environment variable - use utility.tools.TEMPDIR when you
+    # want to reach this base dir)
+    TEMPDIR = app.config["TEMPDIR"]
+    mkdir_with_temp_dir = lambda child: mkdir_with_assert_writable(
+        TEMPDIR, child)
+    WEBQTL_TMPDIR = mkdir_with_temp_dir("/gn2/")
+    app.config["WEBQTL_TMPDIR"] = WEBQTL_TMPDIR
+    app.config["WEBQTL_CACHEDIR"] = mkdir_with_temp_dir(
+        f"{WEBQTL_TMPDIR}cache/")
 
-CACHEDIR = mk_dir(TMPDIR + '/cache/')
-# We can no longer write into the git tree:
-GENERATED_IMAGE_DIR = mk_dir(TMPDIR + 'generated/')
-GENERATED_TEXT_DIR = mk_dir(TMPDIR + 'generated_text/')
+    # We can no longer write into the git tree:
+    app.config["WEBQTL_GENERATED_IMAGE_DIR"] = mkdir_with_temp_dir(
+        f"{WEBQTL_TMPDIR}generated/")
+    app.config["WEBQTL_GENERATED_TEXT_DIR"] = mkdir_with_temp_dir(
+        f"{WEBQTL_TMPDIR}generated_text/")
 
-# Make sure we have permissions to access these
-assert_writable_dir(CACHEDIR)
-assert_writable_dir(GENERATED_IMAGE_DIR)
-assert_writable_dir(GENERATED_TEXT_DIR)
+    # Flat file directories
+    app.config["WEBQTL_GENODIR"] = flat_files(app, 'genotype/')
 
-# Flat file directories
-GENODIR = flat_files('genotype') + '/'
-assert_dir(GENODIR)
-# assert_dir(GENODIR+'bimbam') # for gemma
-
-# JSON genotypes are OBSOLETE
-JSON_GENODIR = flat_files('genotype/json') + '/'
-if not valid_path(JSON_GENODIR):
-    # fall back on old location (move the dir, FIXME)
-    JSON_GENODIR = flat_files('json')
+    # JSON genotypes are OBSOLETE
+    WEBQTL_JSON_GENODIR = flat_files(app, 'genotype/json/')
+    if not valid_path(WEBQTL_JSON_GENODIR):
+        # fall back on old location (move the dir, FIXME)
+        WEBQTL_JSON_GENODIR = flat_files('json')
+    app.config["WEBQTL_JSON_GENODIR"] = WEBQTL_JSON_GENODIR
 
 
-TEXTDIR = os.path.join(os.environ.get(
-    "GNSHARE", "/gnshare/gn/"), "web/ProbeSetFreeze_DataMatrix")
-# Are we using the following...?
-PORTADDR = "http://50.16.251.170"
-INFOPAGEHREF = '/dbdoc/%s.html'
-CGIDIR = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
+    app.config["WEBQTL_TEXTDIR"] = os.path.join(
+        app.config.get("GNSHARE", "/gnshare/gn/"),
+        "web/ProbeSetFreeze_DataMatrix")
+    # Are we using the following...?
+    app.config["WEBQTL_PORTADDR"] = "http://50.16.251.170"
+    app.config["WEBQTL_INFOPAGEHREF"] = '/dbdoc/%s.html'
+    app.config["WEBQTL_CGIDIR"] = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
+    return app

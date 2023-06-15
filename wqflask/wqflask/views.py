@@ -25,10 +25,8 @@ from uuid import UUID
 
 from urllib.parse import urljoin
 
-from wqflask import app
-
 from gn3.computations.gemma import generate_hash_of_string
-from flask import current_app
+from flask import current_app as app
 from flask import g
 from flask import Response
 from flask import request
@@ -40,10 +38,10 @@ from flask import send_file
 from flask import url_for
 from flask import flash
 from flask import session
+from flask import Blueprint
 
 # Some of these (like collect) might contain endpoints, so they're still used.
 # Blueprints should probably be used instead.
-from wqflask import collect
 from wqflask import search_results
 from wqflask import server_side
 from base.data_set import create_dataset  # Used by YAML in marker_regression
@@ -95,9 +93,6 @@ from utility.redis_tools import get_redis_conn
 
 import utility.hmac as hmac
 
-from base.webqtlConfig import TMPDIR
-from base.webqtlConfig import GENERATED_IMAGE_DIR
-
 from wqflask.database import database_connection
 
 import jobs.jobs as jobs
@@ -107,13 +102,15 @@ from wqflask.oauth2.checks import user_logged_in
 
 Redis = get_redis_conn()
 
+main_views = Blueprint("main_views", __name__)
 
-@app.route("/authentication_needed")
+
+@main_views.route("/authentication_needed")
 def no_access_page():
     return render_template("new_security/not_authenticated.html")
 
 
-@app.route("/")
+@main_views.route("/")
 def index_page():
     anon_id = session_info()["anon_id"]
     def __render__(colls):
@@ -129,10 +126,10 @@ def index_page():
             __render__)
 
 
-@app.route("/tmp/<img_path>")
+@main_views.route("/tmp/<img_path>")
 def tmp_page(img_path):
     initial_start_vars = request.form
-    imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
+    imgfile = open(get_setting(app, "WEBQTL_GENERATED_IMAGE_DIR") + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = base64.b64encode(imgdata)
     bytesarray = array.array('B', imgB64)
@@ -140,7 +137,7 @@ def tmp_page(img_path):
                            img_base64=bytesarray)
 
 
-@app.route("/js/<path:filename>")
+@main_views.route("/js/<path:filename>")
 def js(filename):
     js_path = JS_GUIX_PATH
     name = filename
@@ -150,7 +147,7 @@ def js(filename):
     return send_from_directory(js_path, name)
 
 
-@app.route("/css/<path:filename>")
+@main_views.route("/css/<path:filename>")
 def css(filename):
     js_path = JS_GUIX_PATH
     name = filename
@@ -160,12 +157,12 @@ def css(filename):
     return send_from_directory(js_path, name)
 
 
-@app.route("/twitter/<path:filename>")
+@main_views.route("/twitter/<path:filename>")
 def twitter(filename):
     return send_from_directory(JS_TWITTER_POST_FETCHER_PATH, filename)
 
 
-@app.route("/search", methods=('GET',))
+@main_views.route("/search", methods=('GET',))
 def search_page():
     result = None
     if USE_REDIS:
@@ -186,7 +183,7 @@ def search_page():
         return render_template("search_error.html")
 
 
-@app.route("/search_table", methods=('GET',))
+@main_views.route("/search_table", methods=('GET',))
 def search_page_table():
     the_search = search_results.SearchResultPage(request.args)
     current_page = server_side.ServerSideTable(
@@ -199,7 +196,7 @@ def search_page_table():
     return flask.jsonify(current_page)
 
 
-@app.route("/gsearch", methods=('GET',))
+@main_views.route("/gsearch", methods=('GET',))
 def gsearchact():
     result = GSearch(request.args).__dict__
     type = request.args['type']
@@ -209,7 +206,7 @@ def gsearchact():
         return render_template("gsearch_pheno.html", **result)
 
 
-@app.route("/gsearch_table", methods=('GET',))
+@main_views.route("/gsearch_table", methods=('GET',))
 def gsearchtable():
     gsearch_table_data = GSearch(request.args)
     current_page = server_side.ServerSideTable(
@@ -222,13 +219,13 @@ def gsearchtable():
     return flask.jsonify(current_page)
 
 
-@app.route("/gsearch_updating", methods=('POST',))
+@main_views.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
     result = UpdateGSearch(request.args).__dict__
     return result['results']
 
 
-@app.route("/docedit")
+@main_views.route("/docedit")
 def docedit():
     try:
         if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
@@ -240,45 +237,45 @@ def docedit():
         return "You shouldn't be here!"
 
 
-@app.route('/generated/<filename>')
+@main_views.route('/generated/<filename>')
 def generated_file(filename):
-    return send_from_directory(GENERATED_IMAGE_DIR, filename)
+    return send_from_directory(get_setting(app, "WEBQTL_GENERATED_IMAGE_DIR"), filename)
 
 
-@app.route("/help")
+@main_views.route("/help")
 def help():
     doc = Docs("help", request.args)
     return render_template("docs.html", **doc.__dict__)
 
 
-@app.route("/wgcna_setup", methods=('POST',))
+@main_views.route("/wgcna_setup", methods=('POST',))
 def wcgna_setup():
     # We are going to get additional user input for the analysis
     # Display them using the template
     return render_template("wgcna_setup.html", **request.form)
 
 
-@app.route("/wgcna_results", methods=('POST',))
+@main_views.route("/wgcna_results", methods=('POST',))
 def wcgna_results():
     """call the gn3 api to get wgcna response data"""
     results = run_wgcna(dict(request.form))
     return render_template("gn3_wgcna_results.html", **results)
 
 
-@app.route("/ctl_setup", methods=('POST',))
+@main_views.route("/ctl_setup", methods=('POST',))
 def ctl_setup():
     # We are going to get additional user input for the analysis
     # Display them using the template
     return render_template("ctl_setup.html", **request.form)
 
 
-@app.route("/ctl_results", methods=["POST"])
+@main_views.route("/ctl_results", methods=["POST"])
 def ctl_results():
     ctl_results = run_ctl(request.form)
     return render_template("gn3_ctl_results.html", **ctl_results)
 
 
-@app.route("/ctl_network_files/<file_name>/<file_type>")
+@main_views.route("/ctl_network_files/<file_name>/<file_type>")
 def fetch_network_files(file_name, file_type):
     file_path = f"{file_name}.{file_type}"
 
@@ -287,30 +284,30 @@ def fetch_network_files(file_name, file_type):
     return send_file(file_path)
 
 
-@app.route("/intro")
+@main_views.route("/intro")
 def intro():
     doc = Docs("intro", request.args)
     return render_template("docs.html", **doc.__dict__)
 
 
-@app.route("/tutorials")
+@main_views.route("/tutorials")
 def tutorials():
     return render_template("tutorials.html")
 
 
-@app.route("/credits")
+@main_views.route("/credits")
 def credits():
     return render_template("credits.html")
 
 
-@app.route("/update_text", methods=('POST',))
+@main_views.route("/update_text", methods=('POST',))
 def update_page():
     update_text(request.form)
     doc = Docs(request.form['entry_type'], request.form)
     return render_template("docs.html", **doc.__dict__)
 
 
-@app.route("/submit_trait")
+@main_views.route("/submit_trait")
 def submit_trait_form():
     species_and_groups = get_species_groups()
     return render_template(
@@ -320,13 +317,13 @@ def submit_trait_form():
         version=GN_VERSION)
 
 
-@app.route("/create_temp_trait", methods=('POST',))
+@main_views.route("/create_temp_trait", methods=('POST',))
 def create_temp_trait():
     doc = Docs("links")
     return render_template("links.html", **doc.__dict__)
 
 
-@app.route('/export_trait_excel', methods=('POST',))
+@main_views.route('/export_trait_excel', methods=('POST',))
 def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     trait_name, sample_data = export_trait_data.export_sample_table(
@@ -347,7 +344,7 @@ def export_trait_excel():
                     headers={"Content-Disposition": "attachment;filename=" + trait_name + ".xlsx"})
 
 
-@app.route('/export_trait_csv', methods=('POST',))
+@main_views.route('/export_trait_csv', methods=('POST',))
 def export_trait_csv():
     """CSV file consisting of the sample data from the trait data and analysis page"""
     trait_name, sample_data = export_trait_data.export_sample_table(
@@ -365,7 +362,7 @@ def export_trait_csv():
                     headers={"Content-Disposition": "attachment;filename=" + trait_name + ".csv"})
 
 
-@app.route('/export_traits_csv', methods=('POST',))
+@main_views.route('/export_traits_csv', methods=('POST',))
 def export_traits_csv():
     """CSV file consisting of the traits from the search result page"""
     file_list = export_traits(request.form, "metadata")
@@ -388,7 +385,7 @@ def export_traits_csv():
                         headers={"Content-Disposition": "attachment;filename=" + file_list[0][0]})
 
 
-@app.route('/export_collection', methods=('POST',))
+@main_views.route('/export_collection', methods=('POST',))
 def export_collection_csv():
     """CSV file consisting of trait list so collections can be exported/shared"""
     out_file = export_traits(request.form, "collection")
@@ -397,7 +394,7 @@ def export_collection_csv():
                     headers={"Content-Disposition": "attachment;filename=" + out_file[0] + ".csv"})
 
 
-@app.route('/export_perm_data', methods=('POST',))
+@main_views.route('/export_perm_data', methods=('POST',))
 def export_perm_data():
     """CSV file consisting of the permutation data for the mapping results"""
     perm_info = json.loads(request.form['perm_info'])
@@ -444,7 +441,7 @@ def export_perm_data():
                     headers={"Content-Disposition": "attachment;filename=" + file_name + ".csv"})
 
 
-@app.route("/show_temp_trait", methods=('POST',))
+@main_views.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
     with database_connection() as conn, conn.cursor() as cursor:
         user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
@@ -458,7 +455,7 @@ def show_temp_trait_page():
         return render_template("show_trait.html", **template_vars.__dict__)
 
 
-@app.route("/show_trait")
+@main_views.route("/show_trait")
 def show_trait_page():
     def __show_trait__(privileges_data):
         assert len(privileges_data) == 1
@@ -496,7 +493,7 @@ def show_trait_page():
         }).either(__failure__, __show_trait__)
 
 
-@app.route("/heatmap", methods=('POST',))
+@main_views.route("/heatmap", methods=('POST',))
 def heatmap_page():
     start_vars = request.form
     temp_uuid = uuid.uuid4()
@@ -532,7 +529,7 @@ def heatmap_page():
     return rendered_template
 
 
-@app.route("/bnw_page", methods=('POST',))
+@main_views.route("/bnw_page", methods=('POST',))
 def bnw_page():
     start_vars = request.form
 
@@ -549,7 +546,7 @@ def bnw_page():
     return rendered_template
 
 
-@app.route("/webgestalt_page", methods=('POST',))
+@main_views.route("/webgestalt_page", methods=('POST',))
 def webgestalt_page():
     start_vars = request.form
 
@@ -566,7 +563,7 @@ def webgestalt_page():
     return rendered_template
 
 
-@app.route("/geneweaver_page", methods=('POST',))
+@main_views.route("/geneweaver_page", methods=('POST',))
 def geneweaver_page():
     start_vars = request.form
 
@@ -583,7 +580,7 @@ def geneweaver_page():
     return rendered_template
 
 
-@app.route("/comparison_bar_chart", methods=('POST',))
+@main_views.route("/comparison_bar_chart", methods=('POST',))
 def comp_bar_chart_page():
     start_vars = request.form
 
@@ -604,12 +601,12 @@ def comp_bar_chart_page():
     return rendered_template
 
 
-@app.route("/mapping_results_container")
+@main_views.route("/mapping_results_container")
 def mapping_results_container_page():
     return render_template("mapping_results_container.html")
 
 
-@app.route("/loading", methods=('POST',))
+@main_views.route("/loading", methods=('POST',))
 def loading_page():
     initial_start_vars = request.form
     start_vars_container = {}
@@ -666,7 +663,7 @@ def loading_page():
     return rendered_template
 
 
-@app.route("/run_mapping", methods=('POST','GET'))
+@main_views.route("/run_mapping", methods=('POST','GET'))
 def mapping_results_page():
     if request.method == "GET" and (hash_of_inputs := request.args.get("hash")):
         hash_of_inputs = request.args.get("hash")
@@ -791,7 +788,7 @@ def mapping_results_page():
 
     return rendered_template
 
-@app.route("/cache_mapping_inputs", methods=('POST',))
+@main_views.route("/cache_mapping_inputs", methods=('POST',))
 def cache_mapping_inputs():
     ONE_MONTH = 60 * 60 * 24 * 30
     cache_id = request.form.get("inputs_hash")
@@ -800,7 +797,7 @@ def cache_mapping_inputs():
 
     return "Success"
 
-@app.route("/export_mapping_results", methods=('POST',))
+@main_views.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
     file_path = request.form.get("results_path")
     results_csv = open(file_path, "r").read()
@@ -811,7 +808,7 @@ def export_mapping_results():
     return response
 
 
-@app.route("/export_corr_matrix", methods=('POST',))
+@main_views.route("/export_corr_matrix", methods=('POST',))
 def export_corr_matrix():
     file_path = request.form.get("export_filepath")
     file_name = request.form.get("export_filename")
@@ -823,7 +820,7 @@ def export_corr_matrix():
     return response
 
 
-@app.route("/export", methods=('POST',))
+@main_views.route("/export", methods=('POST',))
 def export():
     svg_xml = request.form.get("data", "Invalid data")
     filename = request.form.get("filename", "manhattan_plot_snp")
@@ -832,7 +829,7 @@ def export():
     return response
 
 
-@app.route("/export_pdf", methods=('POST',))
+@main_views.route("/export_pdf", methods=('POST',))
 def export_pdf():
     import cairosvg
     svg_xml = request.form.get("data", "Invalid data")
@@ -843,7 +840,7 @@ def export_pdf():
     return response
 
 
-@app.route("/network_graph", methods=('POST',))
+@main_views.route("/network_graph", methods=('POST',))
 def network_graph_page():
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -867,13 +864,13 @@ def __handle_correlation_error__(exc):
             "error-message": exc.args[0]
         })
 
-@app.route("/corr_compute", methods=('POST', 'GET'))
+@main_views.route("/corr_compute", methods=('POST', 'GET'))
 def corr_compute_page():
     with Redis.from_url(REDIS_URL, decode_responses=True) as rconn:
         if request.method == "POST":
             request_received = datetime.datetime.utcnow()
             filename=hmac.hmac_creation(f"request_form_{request_received.isoformat()}")
-            filepath = f"{TMPDIR}{filename}"
+            filepath = f"{get_setting(app, 'TMPDIR')}{filename}"
             with open(filepath, "wb") as pfile:
                 pickle.dump(request.form, pfile, protocol=pickle.HIGHEST_PROTOCOL)
                 job_id = jobs.queue(
@@ -912,7 +909,7 @@ def corr_compute_page():
         return render_template("loading_corrs.html")
 
 
-@app.route("/corr_matrix", methods=('POST',))
+@main_views.route("/corr_matrix", methods=('POST',))
 def corr_matrix_page():
     start_vars = request.form
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
@@ -927,7 +924,7 @@ def corr_matrix_page():
         return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
 
 
-@app.route("/corr_scatter_plot")
+@main_views.route("/corr_scatter_plot")
 def corr_scatter_plot_page():
     template_vars = corr_scatter_plot.CorrScatterPlot(request.args)
     template_vars.js_data = json.dumps(template_vars.js_data,
@@ -936,21 +933,21 @@ def corr_scatter_plot_page():
     return render_template("corr_scatterplot.html", **template_vars.__dict__)
 
 
-@app.route("/snp_browser", methods=('GET',))
+@main_views.route("/snp_browser", methods=('GET',))
 def snp_browser_page():
     with database_connection() as conn, conn.cursor() as cursor:
         template_vars = snp_browser.SnpBrowser(cursor, request.args)
         return render_template("snp_browser.html", **template_vars.__dict__)
 
 
-@app.route("/db_info", methods=('GET',))
+@main_views.route("/db_info", methods=('GET',))
 def db_info_page():
     template_vars = InfoPage(request.args)
 
     return render_template("info_page.html", **template_vars.__dict__)
 
 
-@app.route("/snp_browser_table", methods=('GET',))
+@main_views.route("/snp_browser_table", methods=('GET',))
 def snp_browser_table():
     with database_connection() as conn, conn.cursor() as cursor:
         snp_table_data = snp_browser.SnpBrowser(cursor, request.args)
@@ -964,32 +961,32 @@ def snp_browser_table():
         return flask.jsonify(current_page)
 
 
-@app.route("/tutorial/WebQTLTour", methods=('GET',))
+@main_views.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():
     # ZS: Currently just links to GN1
     return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
 
 
-@app.route("/tutorial/security", methods=('GET',))
+@main_views.route("/tutorial/security", methods=('GET',))
 def security_tutorial_page():
     # ZS: Currently just links to GN1
     return render_template("admin/security_help.html")
 
 
-@app.route("/submit_bnw", methods=('POST',))
+@main_views.route("/submit_bnw", methods=('POST',))
 def submit_bnw():
     return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
 
 # Take this out or secure it before putting into production
 
 
-@app.route("/get_temp_data")
+@main_views.route("/get_temp_data")
 def get_temp_data():
     temp_uuid = request.args['key']
     return flask.jsonify(temp_data.TempData(temp_uuid).get_all())
 
 
-@app.route("/browser_input", methods=('GET',))
+@main_views.route("/browser_input", methods=('GET',))
 def browser_inputs():
     """  Returns JSON from tmp directory for the purescript genome browser"""
 
@@ -1017,10 +1014,10 @@ def json_default_handler(obj):
             type(obj), repr(obj)))
 
 
-@app.route("/admin/data-sample/diffs/")
+@main_views.route("/admin/data-sample/diffs/")
 @edit_access_required
 def display_diffs_admin():
-    TMPDIR = current_app.config.get("TMPDIR")
+    TMPDIR = app.config.get("TMPDIR")
     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
     files = []
     if os.path.exists(DIFF_DIR):
@@ -1031,9 +1028,9 @@ def display_diffs_admin():
                            files=files)
 
 
-@app.route("/user/data-sample/diffs/")
+@main_views.route("/user/data-sample/diffs/")
 def display_diffs_users():
-    TMPDIR = current_app.config.get("TMPDIR")
+    TMPDIR = app.config.get("TMPDIR")
     DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
     files = []
     author = g.user_session.record.get(b'user_name').decode("utf-8")
@@ -1046,7 +1043,7 @@ def display_diffs_users():
                            files=files)
 
 
-@app.route("/genewiki/<symbol>")
+@main_views.route("/genewiki/<symbol>")
 def display_generif_page(symbol):
     """Fetch GeneRIF metadata from GN3 and display it"""
     entries = requests.get(
@@ -1062,7 +1059,7 @@ def display_generif_page(symbol):
     )
 
 
-@app.route("/dataset/<name>", methods=('GET',))
+@main_views.route("/dataset/<name>", methods=('GET',))
 def get_dataset(name):
     metadata = requests.get(
         urljoin(
@@ -1085,7 +1082,7 @@ def get_dataset(name):
     )
 
 
-@app.route("/publication/<name>", methods=('GET',))
+@main_views.route("/publication/<name>", methods=('GET',))
 def get_publication(name):
     metadata = requests.get(
         urljoin(
@@ -1098,7 +1095,7 @@ def get_publication(name):
     )
 
 
-@app.route("/phenotype/<name>", methods=('GET',))
+@main_views.route("/phenotype/<name>", methods=('GET',))
 def get_phenotype(name):
     metadata = requests.get(
         urljoin(

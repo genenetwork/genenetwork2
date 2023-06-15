@@ -2,16 +2,18 @@
 
 import math
 
-from utility.tools import locate, flat_files
+from flask import current_app as app
+
+from utility.configuration import locate, flat_files
 
 class Markers:
     """Todo: Build in cacheing so it saves us reading the same file more than once"""
 
     def __init__(self, name):
-        json_data_fh = open(locate(name + ".json", 'genotype/json'))
+        json_data_fh = open(locate(app, name + ".json", 'genotype/json'))
 
         markers = []
-        with open("%s/%s_snps.txt" % (flat_files('genotype/bimbam'), name), 'r') as bimbam_fh:
+        with open("%s/%s_snps.txt" % (flat_files(app, 'genotype/bimbam'), name), 'r') as bimbam_fh:
             if len(bimbam_fh.readline().split(", ")) > 2:
                 delimiter = ", "
             elif len(bimbam_fh.readline().split(",")) > 2:
@@ -73,7 +75,7 @@ class HumanMarkers(Markers):
     "Markers for humans ..."
 
     def __init__(self, name, specified_markers=[]):
-        marker_data_fh = open(flat_files('mapping') + '/' + name + '.bim')
+        marker_data_fh = open(flat_files(app, 'mapping') + '/' + name + '.bim')
         self.markers = []
         for line in marker_data_fh:
             splat = line.strip().split()

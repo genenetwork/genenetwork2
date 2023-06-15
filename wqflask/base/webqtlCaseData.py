@@ -21,11 +21,6 @@
 # Created by GeneNetwork Core Team 2010/08/10
 
 
-import utility.tools
-
-utility.tools.show_settings()
-
-
 class webqtlCaseData:
     """one case data in one trait"""
 

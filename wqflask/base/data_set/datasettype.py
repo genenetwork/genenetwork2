@@ -4,11 +4,10 @@ import json
 import requests
 from typing import Optional, Dict
 
-
 from redis import Redis
+from flask import current_app as app
 
-
-from utility.tools import GN2_BASE_URL
+from utility.configuration import get_setting
 from wqflask.database import database_connection
 
 
@@ -41,7 +40,7 @@ class DatasetType:
             # emptied
             try:
                 data = json.loads(requests.get(
-                    GN2_BASE_URL + "/api/v_pre1/gen_dropdown",
+                    get_setting(app, "GN2_BASE_URL") + "/api/v_pre1/gen_dropdown",
                     timeout=5).content)
                 for _species in data['datasets']:
                     for group in data['datasets'][_species]:

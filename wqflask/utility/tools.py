@@ -7,6 +7,16 @@ import json
 
 from wqflask import app
 
+from .configuration import (
+    mk_dir,
+    valid_bin,
+    valid_file,
+    valid_path,
+    assert_bin,
+    assert_dir,
+    assert_file,
+    assert_writable_dir)
+
 # Use the standard logger here to avoid a circular dependency
 import logging
 logger = logging.getLogger(__name__)
@@ -86,24 +96,6 @@ def get_setting_int(id):
     return v
 
 
-def valid_bin(bin):
-    if os.path.islink(bin) or valid_file(bin):
-        return bin
-    return None
-
-
-def valid_file(fn):
-    if os.path.isfile(fn):
-        return fn
-    return None
-
-
-def valid_path(dir):
-    if os.path.isdir(dir):
-        return dir
-    return None
-
-
 def js_path(module=None):
     """
     Find the JS module in the two paths
@@ -144,42 +136,6 @@ def flat_files(subdir=None):
     if subdir:
         return assert_dir(base + "/" + subdir)
     return assert_dir(base)
-
-
-def assert_bin(fn):
-    if not valid_bin(fn):
-        raise Exception("ERROR: can not find binary " + fn)
-    return fn
-
-
-def assert_dir(the_dir):
-    if not valid_path(the_dir):
-        raise FileNotFoundError(f"ERROR: can not find directory '{the_dir}'")
-    return the_dir
-
-
-def assert_writable_dir(dir):
-    try:
-        fn = dir + "/test.txt"
-        fh = open(fn, 'w')
-        fh.write("I am writing this text to the file\n")
-        fh.close()
-        os.remove(fn)
-    except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir)
-    return dir
-
-
-def assert_file(fn):
-    if not valid_file(fn):
-        raise FileNotFoundError(f"Unable to find file '{fn}'")
-    return fn
-
-
-def mk_dir(dir):
-    if not valid_path(dir):
-        os.makedirs(dir)
-    return assert_dir(dir)
 
 
 def locate(name, subdir=None):
@@ -228,35 +184,6 @@ def tempdir():
     Get UNIX TMPDIR by default
     """
     return valid_path(get_setting("TMPDIR", "/tmp"))
-
-
-BLUE = '\033[94m'
-GREEN = '\033[92m'
-BOLD = '\033[1m'
-ENDC = '\033[0m'
-
-
-def show_settings():
-    from utility.tools import LOG_LEVEL
-
-    print(("Set global log level to " + BLUE + LOG_LEVEL + ENDC),
-          file=sys.stderr)
-    log_level = getattr(logging, LOG_LEVEL.upper())
-    logging.basicConfig(level=log_level)
-
-    logger.info(OVERRIDES)
-    logger.info(BLUE + "Mr. Mojo Risin 2" + ENDC)
-    keylist = list(app.config.keys())
-    print("runserver.py: ****** Webserver configuration - k,v pairs from app.config ******",
-          file=sys.stderr)
-    keylist.sort()
-    for k in keylist:
-        try:
-            print(("%s: %s%s%s%s" % (k, BLUE, BOLD, get_setting(k), ENDC)),
-                  file=sys.stderr)
-        except:
-            print(("%s: %s%s%s%s" % (k, GREEN, BOLD, app.config[k], ENDC)),
-                  file=sys.stderr)
 
 
 # Cached values

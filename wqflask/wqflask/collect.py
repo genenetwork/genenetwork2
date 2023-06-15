@@ -11,12 +11,11 @@ from flask import url_for
 from flask import request
 from flask import redirect
 from flask import flash
+from flask import Blueprint
 from flask import current_app
 
-from wqflask import app
 from utility import hmac
 from utility.formatting import numify
-from utility.tools import GN_SERVER_URL, TEMPDIR
 from utility.redis_tools import get_redis_conn
 
 from base.trait import create_trait
@@ -35,7 +34,7 @@ from wqflask.oauth2.client import (
 
 
 Redis = get_redis_conn()
-
+collections_bp = Blueprint("collections", __name__)
 
 def process_traits(unprocessed_traits):
     if isinstance(unprocessed_traits, bytes):
@@ -60,7 +59,7 @@ def report_change(len_before, len_now):
             numify(new_length, 'new trait', 'new traits')))
 
 
-@app.route("/collections/store_trait_list", methods=('POST',))
+@collections_bp.route("/collections/store_trait_list", methods=('POST',))
 def store_traits_list():
     params = request.form
 
@@ -72,7 +71,7 @@ def store_traits_list():
     return hash
 
 
-@app.route("/collections/add", methods=["POST"])
+@collections_bp.route("/collections/add", methods=["POST"])
 def collections_add():
     anon_id = session_info()["anon_id"]
     traits = request.args.get("traits", request.form.get("traits"))
@@ -115,7 +114,7 @@ def __compute_traits__(params):
         unprocessed_traits = params['traits']
     return process_traits(unprocessed_traits)
 
-@app.route("/collections/new")
+@collections_bp.route("/collections/new")
 def collections_new():
     params = request.args
     anon_id = session_info()["anon_id"]
@@ -180,7 +179,7 @@ def create_new(collection_name):
     return redirect(url_for('view_collection', uc_id=uc_id))
 
 
-@app.route("/collections/list")
+@collections_bp.route("/collections/list")
 def list_collections():
     params = request.args
     anon_id = session.session_info()["anon_id"]
@@ -200,7 +199,7 @@ def list_collections():
                            **user_collections,
                            **anon_collections)
 
-@app.route("/collections/handle_anonymous", methods=["POST"])
+@collections_bp.route("/collections/handle_anonymous", methods=["POST"])
 def handle_anonymous_collections():
     """Handle any anonymous collection on logging in."""
     choice = request.form.get("anon_choice")
@@ -221,7 +220,7 @@ def handle_anonymous_collections():
             "anon_id": str(session_info()["anon_id"])
         }).either(__impdel_error__, __impdel_success__)
 
-@app.route("/collections/remove", methods=('POST',))
+@collections_bp.route("/collections/remove", methods=('POST',))
 def remove_traits():
     params = request.form
     uc_id = params['uc_id']
@@ -235,7 +234,7 @@ def remove_traits():
         }).either(with_flash_error(resp), with_flash_success(resp))
 
 
-@app.route("/collections/delete", methods=('POST',))
+@collections_bp.route("/collections/delete", methods=('POST',))
 def delete_collection():
     def __error__(err):
         error = process_error(err)
@@ -304,11 +303,12 @@ def trait_info_str(trait):
         trait.name, trait.dataset.name, __trait_desc(trait), __symbol(trait),
         __location(trait), __mean(trait), __lrs(trait), __lrs_location(trait))
 
-@app.route("/collections/import", methods=('POST',))
+@collections_bp.route("/collections/import", methods=('POST',))
 def import_collection():
     import_file = request.files['import_file']
     if import_file.filename != '':
-        file_path = os.path.join(TEMPDIR, import_file.filename)
+        file_path = os.path.join(
+            current_app.config["TEMPDIR"], import_file.filename)
         import_file.save(file_path)
         collection_csv = open(file_path, "r")
         traits = [row.strip() for row in collection_csv if row[0] != "#"]
@@ -319,7 +319,7 @@ def import_collection():
         return render_template(
             "collections/list.html")
 
-@app.route("/collections/view")
+@collections_bp.route("/collections/view")
 def view_collection():
     params = request.args
 
@@ -363,7 +363,8 @@ def view_collection():
         collection_info = dict(
             trait_obs=trait_obs,
             uc=uc,
-            heatmap_data_url=urljoin(GN_SERVER_URL, "heatmaps/clustered"))
+            heatmap_data_url=urljoin(
+                current_app.config["GN_SERVER_URL"], "heatmaps/clustered"))
 
         if "json" in params:
             return json.dumps(json_version)
@@ -381,7 +382,7 @@ def view_collection():
 
     return coll.either(__error__, __view__)
 
-@app.route("/collections/change_name", methods=('POST',))
+@collections_bp.route("/collections/change_name", methods=('POST',))
 def change_collection_name():
     collection_id = request.form['collection_id']
     resp = redirect(url_for("view_collection", uc_id=collection_id))

@@ -11,8 +11,10 @@ from flask_session import Session
 from authlib.integrations.requests_client import OAuth2Session
 from flask import g, Flask, flash, session, url_for, redirect, current_app
 
-
+from base import webqtlConfig
 from utility import formatting
+from utility.hmac import data_hmac, url_for_hmac
+from utility.configuration import tempdir, override_from_envvars
 
 from gn3.authentication import DataRole, AdminRole
 
@@ -22,6 +24,7 @@ from wqflask.group_manager import group_management
 from wqflask.resource_manager import resource_management
 from wqflask.metadata_edits import metadata_edit
 
+from wqflask.top_level_routes import toplevel
 from wqflask.api.markdown import glossary_blueprint
 from wqflask.api.markdown import references_blueprint
 from wqflask.api.markdown import links_blueprint
@@ -58,11 +61,19 @@ app.jinja_env.globals.update(
     logged_in=user_logged_in,
     authserver_authorise_uri=authserver_authorise_uri,
     user_details=user_details,
-    num_collections=num_collections)
+    num_collections=num_collections,
+    url_for_hmac=url_for_hmac,
+    data_hmac=data_hmac)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
 
+# Override settings
+app = override_from_envvars(app)
+app.config["TEMPDIR"] = tempdir(app)
+app = webqtlConfig.init_app(app)
+
 # Registering blueprints
+app.register_blueprint(toplevel)
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
 app.register_blueprint(references_blueprint, url_prefix="/references")
 app.register_blueprint(links_blueprint, url_prefix="/links")

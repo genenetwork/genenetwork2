@@ -3,14 +3,14 @@ import json
 import os
 import hashlib
 import datetime
+from pathlib import Path
 
 import lmdb
 import pickle
-from pathlib import Path
+from flask import current_app as app
 
 from base.data_set import query_table_timestamp
-from base.webqtlConfig import TEXTDIR
-from base.webqtlConfig import TMPDIR
+from utility.configuration import get_setting
 
 from json.decoder import JSONDecodeError
 
@@ -18,7 +18,7 @@ def cache_trait_metadata(dataset_name, data):
 
 
     try:
-        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),map_size=20971520) as env:
+        with lmdb.open(os.path.join(get_setting(app, "TMPDIR"),f"metadata_{dataset_name}"),map_size=20971520) as env:
             with  env.begin(write=True) as  txn:
                 data_bytes = pickle.dumps(data)
                 txn.put(f"{dataset_name}".encode(), data_bytes)
@@ -31,7 +31,7 @@ def cache_trait_metadata(dataset_name, data):
 
 def read_trait_metadata(dataset_name):
     try:
-        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),
+        with lmdb.open(os.path.join(get_setting(app, "TMPDIR"),f"metadata_{dataset_name}"),
             readonly=True, lock=False) as env:
             with env.begin() as txn:
                 db_name = txn.get(dataset_name.encode())
@@ -44,7 +44,7 @@ def fetch_all_cached_metadata(dataset_name):
     """in a gvein dataset fetch all the traits metadata"""
     file_name = generate_filename(dataset_name, suffix="metadata")
 
-    file_path = Path(TMPDIR, file_name)
+    file_path = Path(get_setting(app, "TMPDIR"), file_name)
 
     try:
         with open(file_path, "r+") as file_handler:
@@ -84,8 +84,9 @@ def generate_filename(*args, suffix="", file_ext="json"):
 
 
 
-def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
+def fetch_text_file(dataset_name, conn, text_dir=None):
     """fetch textfiles with strain vals if exists"""
+    text_dir = text_dir or get_setting(app, "TMPDIR")
 
     def __file_scanner__(text_dir, target_file):
         for file in os.listdir(text_dir):
@@ -100,7 +101,8 @@ def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
         try:
             # checks first for recently generated textfiles if not use gn1 datamatrix
 
-            return __file_scanner__(text_dir, results[0]) or __file_scanner__(TEXTDIR, results[0])
+            return __file_scanner__(text_dir, results[0]) or __file_scanner__(
+                get_setting(app, "WEBQTL_TEXTDIR"), results[0])
 
         except Exception:
             pass
@@ -126,7 +128,8 @@ def read_text_file(sample_dict, file_path):
         return (sample_vals, [[line[i] for i in _posit] for line in csv_reader])
 
 
-def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
+def write_db_to_textfile(db_name, conn, text_dir=None):
+    text_dir = text_dir or get_setting(app, "TMPDIR")
 
     def __sanitise_filename__(filename):
         ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})

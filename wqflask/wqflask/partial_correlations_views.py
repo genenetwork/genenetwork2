@@ -10,13 +10,15 @@ from flask import (
     request,
     url_for,
     redirect,
+    Blueprint,
     current_app,
     render_template)
 
-from wqflask import app
-from utility.tools import GN_SERVER_URL
+from utility.configuration import get_setting
 from wqflask.database import database_connection
 from gn3.db.partial_correlations import traits_info
+
+pcorrs_bp = Blueprint("partial_correlations", __name__)
 
 def publish_target_databases(conn, groups, threshold):
     query = (
@@ -266,7 +268,7 @@ def handle_response(response):
             message = response_error_message(response))
     return handle_200_response(response.json())
 
-@app.route("/partial_correlations", methods=["POST"])
+@pcorrs_bp.route("/partial_correlations", methods=["POST"])
 def partial_correlations():
     form = request.form
     traits = tuple(
@@ -288,7 +290,8 @@ def partial_correlations():
                 "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
-                url=urljoin(GN_SERVER_URL, "correlation/partial"),
+                url=urljoin(get_setting(current_app, "GN_SERVER_URL"),
+                            "correlation/partial"),
                 json=post_data))
 
         for error in args["errors"]:
@@ -303,7 +306,8 @@ def partial_correlations():
                 "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
-                url=urljoin(GN_SERVER_URL, "correlation/partial"),
+                url=urljoin(get_setting(current_app, "GN_SERVER_URL"),
+                            "correlation/partial"),
                 json=post_data))
 
         for error in args["errors"]:
@@ -345,10 +349,11 @@ def process_pcorrs_command_output(result):
         return render_error(
             f"({result['error_type']}: {result['message']})")
 
-@app.route("/partial_correlations/<command_id>", methods=["GET"])
+@pcorrs_bp.route("/partial_correlations/<command_id>", methods=["GET"])
 def poll_partial_correlation_results(command_id):
     response = requests.get(
-        url=urljoin(GN_SERVER_URL, f"async_commands/state/{command_id}"))
+        url=urljoin(get_setting(current_app, "GN_SERVER_URL"),
+                    f"async_commands/state/{command_id}"))
 
     if response.status_code == 200:
         data = response.json()

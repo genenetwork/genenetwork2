@@ -18,7 +18,7 @@ GREEN = '\033[92m'
 BOLD = '\033[1m'
 ENDC = '\033[0m'
 
-app_config()
+app_config(app)
 
 werkzeug_logger = logging.getLogger('werkzeug')
 

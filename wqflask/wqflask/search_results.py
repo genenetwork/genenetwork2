@@ -6,7 +6,7 @@ import re
 
 import json
 
-from flask import g
+from flask import g, current_app
 
 from base.data_set import create_dataset
 from base.webqtlConfig import PUBMEDLINK_URL
@@ -17,7 +17,6 @@ from wqflask.database import database_connection
 
 from utility import hmac
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
 from utility.type_checking import is_str
 
 
@@ -411,7 +410,8 @@ def get_alias_terms(symbol, species):
 
     filtered_aliases = []
     response = requests.get(
-        GN2_BASE_URL + "/gn3/gene/aliases/" + symbol_string)
+        current_app.config["GN2_BASE_URL"] + "/gn3/gene/aliases/" +
+        symbol_string)
     if response:
         alias_list = json.loads(response.content)
 

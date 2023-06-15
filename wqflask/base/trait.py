@@ -1,22 +1,21 @@
 import requests
 import simplejson as json
-from wqflask import app
+
+from flask import g, request, url_for, Blueprint, current_app as app
 
 import utility.hmac as hmac
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
+from utility.configuration import get_setting
 from utility.redis_tools import get_redis_conn, get_resource_id
-
-from flask import g, request, url_for
 
 from wqflask.database import database_connection
 
 
 Redis = get_redis_conn()
-
+trait_bp = Blueprint("trait", __name__)
 
 def create_trait(**kw):
     assert bool(kw.get('dataset')) != bool(
@@ -173,11 +172,14 @@ class GeneralTrait:
         alias = 'Not available'
         if self.symbol:
             human_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.upper())
+                get_setting("GN2_BASE_URL") + "gn3/gene/aliases/" +
+                self.symbol.upper())
             mouse_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.capitalize())
+                get_setting("GN2_BASE_URL") + "gn3/gene/aliases/" +
+                self.symbol.capitalize())
             other_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.lower())
+                get_setting("GN2_BASE_URL") + "gn3/gene/aliases/" +
+                self.symbol.lower())
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(
@@ -254,7 +256,7 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
     return trait
 
 
-@app.route("/trait/get_sample_data")
+@trait_bp.route("/trait/get_sample_data")
 def get_sample_data():
     params = request.args
     trait = params['trait']
