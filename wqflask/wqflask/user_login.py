@@ -7,23 +7,33 @@ import hmac
 import base64
 import requests
 
+from smtplib import SMTP
 import simplejson as json
+from flask import (
+    g,
+    Flask,
+    flash,
+    abort,
+    url_for,
+    request,
+    redirect,
+    Blueprint,
+    make_response,
+    render_template,
+    current_app as app)
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, abort)
-
-from wqflask import app
 from wqflask import pbkdf2
 from wqflask.user_session import UserSession
 
 from utility import hmac
+from utility.configuration import get_setting
 from utility.redis_tools import is_redis_available, get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
+
 Redis = get_redis_conn()
 
-from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY, GN2_BRANCH_URL
-
 THREE_DAYS = 60 * 60 * 24 * 3
+
+ulogin_bp = Blueprint("user_login", __name__)
 
 
 def timestamp():
@@ -116,13 +126,14 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
     'UNKNOWN' TLS is used
 
     """
-    if SMTP_USERNAME == 'UNKNOWN':
-        server = SMTP(SMTP_CONNECT)
+    if get_setting(app, "SMTP_USERNAME") == 'UNKNOWN':
+        server = SMTP(get_setting(app, "SMTP_CONNECT"))
         server.sendmail(fromaddr, toaddr, msg)
     else:
-        server = SMTP(SMTP_CONNECT)
+        server = SMTP(get_setting(app, "SMTP_CONNECT"))
         server.starttls()
-        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.login(get_setting(app, "SMTP_USERNAME"),
+                     get_setting(app, "SMTP_PASSWORD"))
         server.sendmail(fromaddr, toaddr, msg)
         server.quit()
 
@@ -149,7 +160,7 @@ def send_invitation_email(user_email, temp_password, template_name="email/user_i
     return {"recipient": recipient, "subject": subject, "body": body}
 
 
-@app.route("/manage/verify_email")
+@ulogin_bp.route("/manage/verify_email")
 def verify_email():
     if 'code' in request.args:
         user_details = check_verification_code(request.args['code'])
@@ -169,7 +180,7 @@ def verify_email():
                 "Invalid code: Password reset code does not exist or might have expired!", "error")
 
 
-@app.route("/n/login", methods=('GET', 'POST'))
+@ulogin_bp.route("/n/login", methods=('GET', 'POST'))
 def login():
     params = request.form if request.form else request.args
     if not params:  # ZS: If coming to page for first time
@@ -249,7 +260,7 @@ def login():
                 return response
 
 
-@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+@ulogin_bp.route("/n/login/github_oauth2", methods=('GET', 'POST'))
 def github_oauth2():
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_AUTH_URL
     code = request.args.get("code")
@@ -292,7 +303,7 @@ def get_github_user_details(access_token):
     return json.loads(result)
 
 
-@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+@ulogin_bp.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
 def orcid_oauth2():
     from uuid import uuid4
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
@@ -304,7 +315,7 @@ def orcid_oauth2():
             "client_id": ORCID_CLIENT_ID,
             "client_secret": ORCID_CLIENT_SECRET,
             "grant_type": "authorization_code",
-            "redirect_uri": GN2_BRANCH_URL + "n/login/orcid_oauth2",
+            "redirect_uri": get_setting(app, "GN2_BRANCH_URL") + "n/login/orcid_oauth2",
             "code": code
         }
 
@@ -339,7 +350,7 @@ def get_github_user_details(access_token):
     return json.loads(result)
 
 
-@app.route("/n/logout")
+@ulogin_bp.route("/n/logout")
 def logout():
     UserSession().delete_session()
     flash("You are now logged out. We hope you come back soon!")
@@ -349,7 +360,7 @@ def logout():
     return response
 
 
-@app.route("/n/forgot_password", methods=['GET'])
+@ulogin_bp.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
     print("ARGS: ", request.args)
@@ -391,7 +402,7 @@ def send_forgot_password_email(verification_email):
     return subject
 
 
-@app.route("/n/forgot_password_submit", methods=('POST',))
+@ulogin_bp.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
@@ -415,7 +426,7 @@ def forgot_password_submit():
         return redirect(url_for("forgot_password"))
 
 
-@app.route("/n/password_reset", methods=['GET'])
+@ulogin_bp.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
     verification_code = request.args.get('code')
@@ -434,7 +445,7 @@ def password_reset():
         return redirect(url_for("login"))
 
 
-@app.route("/n/password_reset_step2", methods=('POST',))
+@ulogin_bp.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
     errors = []
@@ -496,7 +507,7 @@ def register_user(params):
     return errors
 
 
-@app.route("/n/register", methods=('GET', 'POST'))
+@ulogin_bp.route("/n/register", methods=('GET', 'POST'))
 def register():
     errors = []
 
@@ -514,6 +525,6 @@ def register():
     return render_template("new_security/register_user.html", values=params, errors=errors)
 
 
-@app.errorhandler(401)
+@ulogin_bp.errorhandler(401)
 def unauthorized(error):
     return redirect(url_for('login'))

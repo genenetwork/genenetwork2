@@ -4,10 +4,19 @@ import uuid
 
 import simplejson as json
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, abort)
+from flask import (
+    g,
+    Flask,
+    flash,
+    abort,
+    url_for,
+    request,
+    redirect,
+    Blueprint,
+    make_response,
+    render_template,
+    current_app as app)
 
-from wqflask import app
 from utility import hmac
 
 from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
@@ -17,26 +26,7 @@ Redis = get_redis_conn()
 THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
-
-@app.before_request
-def get_user_session():
-    g.user_session = UserSession()
-    # I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
-    if not g.user_session:
-        response = make_response(redirect(url_for('login')))
-        response.set_cookie('session_id_v2', '', expires=0)
-        return response
-
-
-@app.after_request
-def set_user_session(response):
-    if hasattr(g, 'user_session'):
-        if not request.cookies.get(g.user_session.cookie_name):
-            response.set_cookie(g.user_session.cookie_name,
-                                g.user_session.cookie)
-    else:
-        response.set_cookie('session_id_v2', '', expires=0)
-    return response
+usession_bp = Blueprint("user_session", __name__)
 
 
 def verify_cookie(cookie):
@@ -55,7 +45,7 @@ def create_signed_cookie():
     return the_uuid, uuid_signed
 
 
-@app.route("/user/manage", methods=('GET', 'POST'))
+@usession_bp.route("/user/manage", methods=('GET', 'POST'))
 def manage_user():
     params = request.form if request.form else request.args
     if 'new_full_name' in params:
