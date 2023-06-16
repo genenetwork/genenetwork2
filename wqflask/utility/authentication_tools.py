@@ -37,7 +37,7 @@ def check_resource_availability(dataset, user_id, trait_id=None):
         return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
-    the_url = f"{get_setting('GN_PROXY_URL')}available?resource={resource_id}&user={user_id}"
+    the_url = f"{get_setting(app, 'GN_PROXY_URL')}available?resource={resource_id}&user={user_id}"
     try:
         response = json.loads(requests.get(the_url).content)
     except:
@@ -94,7 +94,7 @@ def get_group_code(dataset):
 
 def check_admin(resource_id=None):
     the_url = (
-        f"{get_setting('GN_PROXY_URL')}available?resource={resource_id}"
+        f"{get_setting(app, 'GN_PROXY_URL')}available?resource={resource_id}"
         f"&user={g.user_session.user_id}")
     try:
         response = json.loads(requests.get(the_url).content)['admin']

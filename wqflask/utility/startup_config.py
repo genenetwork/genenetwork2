@@ -1,6 +1,4 @@
-
-from wqflask import app
-
+"""Utility to print out some startup messages."""
 from utility.configuration import show_settings
 from utility.configuration import get_setting_int
 from utility.configuration import get_setting

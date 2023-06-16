@@ -1,9 +1,12 @@
 """Handle errors at the application's top-level"""
+import os
+import sys
+import random
 import datetime
 import traceback
 
 import werkzeug
-from flask import request, render_template, current_app as app
+from flask import request, make_response, render_template, current_app as app
 
 from wqflask.decorators import AuthorisationError
 

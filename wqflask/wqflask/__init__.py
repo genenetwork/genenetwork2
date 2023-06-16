@@ -17,8 +17,6 @@ from utility.tools import set_mandatory_settings
 from utility.hmac import data_hmac, url_for_hmac
 from utility.configuration import tempdir, override_from_envvars
 
-from gn3.authentication import DataRole, AdminRole
-
 from wqflask.database import parse_db_url
 from wqflask.user_session import UserSession
 from wqflask.group_manager import group_management
@@ -42,115 +40,6 @@ from wqflask.oauth2.request_utils import user_details, authserver_authorise_uri
 
 from wqflask.jupyter_notebooks import jupyter_notebooks
 
-app = Flask(__name__)
-
-
-# See http://flask.pocoo.org/docs/config/#configuring-from-files
-# Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
-app.config.from_envvar('GN2_SETTINGS')
-
-DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT = parse_db_url(app.config.get('SQL_URI'))
-app.config["DB_HOST"] = DB_HOST
-app.config["DB_USER"] = DB_USER
-app.config["DB_PASS"] = DB_PASS
-app.config["DB_NAME"] = DB_NAME
-app.config["DB_PORT"] = DB_PORT
-
-app.jinja_env.globals.update(
-    undefined=jinja2.StrictUndefined,
-    numify=formatting.numify,
-    logged_in=user_logged_in,
-    authserver_authorise_uri=authserver_authorise_uri,
-    user_details=user_details,
-    num_collections=num_collections,
-    url_for_hmac=url_for_hmac,
-    data_hmac=data_hmac)
-
-app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
-
-# Override settings
-app = override_from_envvars(app)
-app = set_mandatory_settings(app)
-app = webqtlConfig.init_app(app)
-
-# Registering blueprints
-app.register_blueprint(toplevel)
-app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
-app.register_blueprint(references_blueprint, url_prefix="/references")
-app.register_blueprint(links_blueprint, url_prefix="/links")
-app.register_blueprint(policies_blueprint, url_prefix="/policies")
-app.register_blueprint(environments_blueprint, url_prefix="/environments")
-app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
-app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
-app.register_blueprint(news_blueprint, url_prefix="/news")
-app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
-
-app.register_blueprint(resource_management, url_prefix="/resource-management")
-app.register_blueprint(metadata_edit, url_prefix="/datasets/")
-app.register_blueprint(group_management, url_prefix="/group-management")
-app.register_blueprint(jobs_bp, url_prefix="/jobs")
-app.register_blueprint(oauth2, url_prefix="/oauth2")
-
-from wqflask.decorators import AuthorisationError
-from wqflask.app_errors import (
-    handle_generic_exceptions, handle_authorisation_error)
-app.register_error_handler(Exception, handle_generic_exceptions)
-app.register_error_handler(AuthorisationError, handle_authorisation_error)
-
-server_session = Session(app)
-
-@app.before_request
-def before_request():
-    g.request_start_time = time.time()
-    g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
-
-    token = session.get("oauth2_token", False)
-    if token and not bool(session.get("user_details", False)):
-        config = current_app.config
-        client = OAuth2Session(
-            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-            token=token)
-        resp = client.get(
-            urljoin(config["GN_SERVER_URL"], "oauth2/user"))
-        user_details = resp.json()
-        session["user_details"] = user_details
-
-        if user_details.get("error") == "invalid_token":
-            flash(user_details["error_description"], "alert-danger")
-            flash("You are now logged out.", "alert-info")
-            session.pop("user_details", None)
-            session.pop("oauth2_token", None)
-
-@app.context_processor
-def include_admin_role_class():
-    return {'AdminRole': AdminRole}
-
-
-@app.context_processor
-def include_data_role_class():
-    return {'DataRole': DataRole}
-
-@app.before_request
-def get_user_session():
-    g.user_session = UserSession()
-    # I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
-    if not g.user_session:
-        response = make_response(redirect(url_for('login')))
-        response.set_cookie('session_id_v2', '', expires=0)
-        return response
-
-
-@app.after_request
-def set_user_session(response):
-    if hasattr(g, 'user_session'):
-        if not request.cookies.get(g.user_session.cookie_name):
-            response.set_cookie(g.user_session.cookie_name,
-                                g.user_session.cookie)
-    else:
-        response.set_cookie('session_id_v2', '', expires=0)
-    return response
-
-
 from wqflask import group_manager
 from wqflask import resource_manager
 from wqflask import search_results
@@ -160,5 +49,62 @@ from wqflask import update_search_results
 from wqflask import docs
 from wqflask import db_info
 
-import wqflask.views
-import wqflask.partial_correlations_views
+def create_app():
+    """Create the application object."""
+    app = Flask(__name__)
+
+
+    # See http://flask.pocoo.org/docs/config/#configuring-from-files
+    # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
+    app.config.from_envvar('GN2_SETTINGS')
+
+    DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT = parse_db_url(app.config.get('SQL_URI'))
+    app.config["DB_HOST"] = DB_HOST
+    app.config["DB_USER"] = DB_USER
+    app.config["DB_PASS"] = DB_PASS
+    app.config["DB_NAME"] = DB_NAME
+    app.config["DB_PORT"] = DB_PORT
+
+    app.jinja_env.globals.update(
+        undefined=jinja2.StrictUndefined,
+        numify=formatting.numify,
+        logged_in=user_logged_in,
+        authserver_authorise_uri=authserver_authorise_uri,
+        user_details=user_details,
+        num_collections=num_collections,
+        url_for_hmac=url_for_hmac,
+        data_hmac=data_hmac)
+
+    app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+
+    # Override settings
+    app = override_from_envvars(app)
+    app = set_mandatory_settings(app)
+    app = webqtlConfig.init_app(app)
+
+    # Registering blueprints
+    app.register_blueprint(toplevel)
+    app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
+    app.register_blueprint(references_blueprint, url_prefix="/references")
+    app.register_blueprint(links_blueprint, url_prefix="/links")
+    app.register_blueprint(policies_blueprint, url_prefix="/policies")
+    app.register_blueprint(environments_blueprint, url_prefix="/environments")
+    app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
+    app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
+    app.register_blueprint(news_blueprint, url_prefix="/news")
+    app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
+
+    app.register_blueprint(resource_management, url_prefix="/resource-management")
+    app.register_blueprint(metadata_edit, url_prefix="/datasets/")
+    app.register_blueprint(group_management, url_prefix="/group-management")
+    app.register_blueprint(jobs_bp, url_prefix="/jobs")
+    app.register_blueprint(oauth2, url_prefix="/oauth2")
+
+    from wqflask.decorators import AuthorisationError
+    from wqflask.app_errors import (
+        handle_generic_exceptions, handle_authorisation_error)
+    app.register_error_handler(Exception, handle_generic_exceptions)
+    app.register_error_handler(AuthorisationError, handle_authorisation_error)
+
+    server_session = Session(app)
+    return app

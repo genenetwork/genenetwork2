@@ -7,7 +7,7 @@
 #
 # /sbin/iptables -A INPUT -p tcp -i eth0 -s ! 71.236.239.43 --dport 5003 -j DROP
 
-from wqflask import app
+from gn2_main import app
 from utility.startup_config import app_config
 from utility.configuration import get_setting, get_setting_int
 

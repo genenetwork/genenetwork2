@@ -30,7 +30,6 @@ from flask import current_app as app
 from flask import g
 from flask import Response
 from flask import request
-from flask import make_response
 from flask import render_template
 from flask import send_from_directory
 from flask import redirect

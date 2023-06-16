@@ -115,7 +115,7 @@ def datasets(group_name, this_group=None, redis_conn=Redis()):
                 dataset_menu.append(dict(tissue=tissue_name,
                                          datasets=[(dataset, dataset_short)]))
 
-    if get_setting_bool("USE_REDIS"):
+    if get_setting_bool(app, "USE_REDIS"):
         redis_conn.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
         redis_conn.expire(key, 60 * 5)
 
