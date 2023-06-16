@@ -1,13 +1,15 @@
-import string
 import os
+import string
 import random
+
+from redis import Redis
+from flask import g, Flask, current_app as app
+
 from base import species
 from base import webqtlConfig
 from utility import helper_functions
 
-from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
-from redis import Redis
-from flask import Flask, g
+from utility.configuration import flat_files, get_setting
 
 from wqflask.database import database_connection
 
@@ -119,9 +121,9 @@ class Heatmap:
                 ''.join(random.choice(string.ascii_uppercase + string.digits)
                         for _ in range(6))
 
-            reaper_command = REAPER_COMMAND + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt -n 1000 -o {4}{5}.txt'.format(flat_files('genotype'),
+            reaper_command = get_setting(app, "REAPER_COMMAND") + ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt -n 1000 -o {4}{5}.txt'.format(flat_files(app, 'genotype'),
                                                                                                                            genofile_name,
-                                                                                                                           TEMPDIR,
+                                                                                                                           get_setting(app, "TEMPDIR"),
                                                                                                                            trait_filename,
                                                                                                                            webqtlConfig.GENERATED_IMAGE_DIR,
                                                                                                                            output_filename)
@@ -145,7 +147,7 @@ class Heatmap:
 def gen_pheno_txt_file(samples, vals, filename):
     """Generates phenotype file for GEMMA"""
 
-    with open("{0}/gn2/{1}.txt".format(TEMPDIR, filename), "w") as outfile:
+    with open("{0}/gn2/{1}.txt".format(get_setting(app, "TEMPDIR"), filename), "w") as outfile:
         outfile.write("Trait\t")
 
         filtered_sample_list = []

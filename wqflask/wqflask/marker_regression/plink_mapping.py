@@ -5,7 +5,6 @@ from flask import current_app as app
 
 from utility import webqtlUtil
 from utility.configuration import flat_files, get_setting
-from utility.tools import PLINK_COMMAND
 
 
 def run_plink(this_trait, dataset, species, vals, maf):

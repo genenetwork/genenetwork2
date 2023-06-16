@@ -5,10 +5,12 @@ import random
 import json
 import re
 
+from flask import current_app as app
+
 from base import webqtlConfig
 from base.trait import GeneralTrait
 from base.data_set import create_dataset
-from utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
+from utility.configuration import flat_files
 
 
 def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
@@ -54,16 +56,16 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
         if manhattan_plot != True:
             opt_list.append("--interval 1")
 
-        reaper_command = (REAPER_COMMAND +
-                          ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
-
-                                                                                                   genofile_name,
-                                                                                                   TEMPDIR,
-                                                                                                   trait_filename,
-                                                                                                   " ".join(
-                              opt_list),
-                              webqtlConfig.GENERATED_IMAGE_DIR,
-                              output_filename))
+        reaper_command = (
+            get_setting(app, REAPER_COMMAND) +
+            ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(
+                flat_files(app, 'genotype'),
+                genofile_name,
+                get_setting(app, 'TEMPDIR'),
+                trait_filename,
+                " ".join(opt_list),
+                webqtlConfig.GENERATED_IMAGE_DIR,
+                output_filename))
         os.system(reaper_command)
     else:
         output_filename, permu_filename, bootstrap_filename = output_files
@@ -84,7 +86,7 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
 def gen_pheno_txt_file(samples, vals, trait_filename):
     """Generates phenotype file for GEMMA"""
 
-    with open(f"{TEMPDIR}/gn2/{trait_filename}.txt", "w") as outfile:
+    with open(f"{get_setting(app, 'TEMPDIR')}/gn2/{trait_filename}.txt", "w") as outfile:
         outfile.write("Trait\t")
 
         filtered_sample_list = []

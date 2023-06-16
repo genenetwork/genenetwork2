@@ -1,12 +1,13 @@
 import string
+from flask import current_app as app
 
 from wqflask.database import database_connection
 
-from utility.tools import flat_files
+from utility.configuration import flat_files
 
 def load_homology(chr_name, start_mb, end_mb, source_file):
     homology_list = []
-    with open(flat_files("homology/") + source_file) as h_file:
+    with open(flat_files(app, "homology/") + source_file) as h_file:
         current_chr = 0
         for line in h_file:
             line_items = line.split()

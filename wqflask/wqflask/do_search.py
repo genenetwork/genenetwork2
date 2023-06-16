@@ -11,7 +11,6 @@ from pprint import pformat as pf
 import sys
 
 from db import webqtlDatabaseFunction
-from utility.tools import GN2_BASE_URL
 
 
 class DoSearch:

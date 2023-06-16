@@ -4,9 +4,10 @@ and process data to be rendered by datatables
 
 import requests
 from types import SimpleNamespace
+from flask import current_app as app
 
 from utility.helper_functions import get_trait_db_obs
-from utility.tools import GN3_LOCAL_URL
+from utility.configuration import get_setting
 
 
 def fetch_trait_data(requestform):
@@ -74,7 +75,7 @@ def process_image(response):
 def run_wgcna(form_data):
     """function to run wgcna"""
 
-    wgcna_api = f"{GN3_LOCAL_URL}/api/wgcna/run_wgcna"
+    wgcna_api = f"{get_setting(app, 'GN3_LOCAL_URL')}/api/wgcna/run_wgcna"
 
     trait_dataset = fetch_trait_data(form_data)
     form_data["minModuleSize"] = int(form_data["MinModuleSize"])
