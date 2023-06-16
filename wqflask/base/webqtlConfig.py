@@ -93,6 +93,7 @@ def init_app(app):
         TEMPDIR, child)
     WEBQTL_TMPDIR = mkdir_with_temp_dir("/gn2/")
     app.config["WEBQTL_TMPDIR"] = WEBQTL_TMPDIR
+    app.config["TMPDIR"] = WEBQTL_TMPDIR
     app.config["WEBQTL_CACHEDIR"] = mkdir_with_temp_dir(
         f"{WEBQTL_TMPDIR}cache/")
 

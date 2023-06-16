@@ -63,7 +63,7 @@
                 {{ dataset.fullname }}
             </a>
 	    <br/>
-	    <a href="{{ url_for('get_dataset', name=dataset.name) }}" target="_blank">
+	    <a href="{{ url_for('toplevel.main_views.get_dataset', name=dataset.name) }}" target="_blank">
                 GN2 Link: {{ dataset.fullname }}
             </a>
         </td>
@@ -229,7 +229,7 @@
         {% endif %}
         {% if this_trait.symbol != None %}
 	<button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}', '_blank')">(GN1) GeneWiki</button>
-        <button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('{{ url_for('display_generif_page', symbol=this_trait.symbol) }}', '_blank')">(GN2) GeneWiki</button>
+        <button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('{{ url_for('toplevel.main_views.display_generif_page', symbol=this_trait.symbol) }}', '_blank')">(GN2) GeneWiki</button>
         {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
         <button type="button" class="btn btn-default" title="View SNPs and Indels" onclick="window.open('/snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on', '_blank')">SNPs</button>
         {% endif %}

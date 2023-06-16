@@ -27,7 +27,7 @@ def query_table_timestamp(dataset_type: str):
 
     # computation data and actions
     with database_connection() as conn, conn.cursor() as cursor:
-        fetch_db_name = parse_db_url(get_setting("SQL_URI"))
+        fetch_db_name = parse_db_url(get_setting(app, "SQL_URI"))
         cursor.execute(
             "SELECT UPDATE_TIME FROM "
             "information_schema.tables "

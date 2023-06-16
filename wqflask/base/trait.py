@@ -172,13 +172,13 @@ class GeneralTrait:
         alias = 'Not available'
         if self.symbol:
             human_response = requests.get(
-                get_setting("GN2_BASE_URL") + "gn3/gene/aliases/" +
+                get_setting(app, "GN2_BASE_URL") + "gn3/gene/aliases/" +
                 self.symbol.upper())
             mouse_response = requests.get(
-                get_setting("GN2_BASE_URL") + "gn3/gene/aliases/" +
+                get_setting(app, "GN2_BASE_URL") + "gn3/gene/aliases/" +
                 self.symbol.capitalize())
             other_response = requests.get(
-                get_setting("GN2_BASE_URL") + "gn3/gene/aliases/" +
+                get_setting(app, "GN2_BASE_URL") + "gn3/gene/aliases/" +
                 self.symbol.lower())
 
             if human_response and mouse_response and other_response:

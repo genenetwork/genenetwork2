@@ -8,7 +8,8 @@ import datetime
 
 from flask import g
 
-from wqflask import app
+from gn2_main import app
+
 from wqflask.user_session import UserSession
 from wqflask.correlation.show_corr_results import set_template_vars
 from wqflask.correlation.correlation_gn3_api import compute_correlation
