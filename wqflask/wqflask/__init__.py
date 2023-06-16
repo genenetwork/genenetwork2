@@ -130,7 +130,6 @@ def include_data_role_class():
     return {'DataRole': DataRole}
 
 
-from wqflask.api import router
 from wqflask import group_manager
 from wqflask import resource_manager
 from wqflask import search_results

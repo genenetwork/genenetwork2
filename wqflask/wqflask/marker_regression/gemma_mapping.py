@@ -4,22 +4,23 @@ import string
 import random
 import json
 
+from flask import current_app as app
+
+from gn3.computations.gemma import generate_hash_of_string
+
 from base import webqtlConfig
 from base.trait import create_trait
 from base.data_set import create_dataset
 from utility.redis_tools import get_redis_conn
-from utility.tools import flat_files, assert_file
-from utility.tools import GEMMA_WRAPPER_COMMAND
-from utility.tools import TEMPDIR
-from utility.tools import WEBSERVER_MODE
+from utility.configuration import flat_files, assert_file, get_setting
 from wqflask.database import database_connection
-from gn3.computations.gemma import generate_hash_of_string
 
 
-GEMMAOPTS = "-debug"
-if WEBSERVER_MODE == 'PROD':
-    GEMMAOPTS = "-no-check"
-
+def gemma_options():
+    GEMMAOPTS = "-debug"
+    if get_setting(app, "WEBSERVER_MODE") == 'PROD':
+        GEMMAOPTS = "-no-check"
+    return GEMMAOPTS
 
 def generate_random_n_string(n):
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -59,66 +60,66 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
         if covariates != "":
             covar_filename = gen_covariates_file(this_dataset, covariates, samples)
         if str(use_loco).lower() == "true":
-            bimbam_dir = flat_files('genotype/bimbam')
+            bimbam_dir = flat_files(app, 'genotype/bimbam')
             geno_filepath = assert_file(
                 f"{bimbam_dir}/{genofile_name}_geno.txt")
-            pheno_filepath = f"{TEMPDIR}/gn2/{pheno_filename}.txt"
+            pheno_filepath = f"{get_setting(app, 'TEMPDIR')}/gn2/{pheno_filename}.txt"
             snps_filepath = assert_file(
                 f"{bimbam_dir}/{genofile_name}_snps.txt")
-            k_json_output_filepath = f"{TEMPDIR}/gn2/{k_output_filename}.json"
-            generate_k_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
-                                  f"{chr_list_string} -- {GEMMAOPTS} "
+            k_json_output_filepath = f"{get_setting(app, 'TEMPDIR')}/gn2/{k_output_filename}.json"
+            generate_k_command = (f"{get_setting(app, 'GEMMA_WRAPPER_COMMAND')} --json --loco "
+                                  f"{chr_list_string} -- {gemma_options()} "
                                   f"-g {geno_filepath} -p "
                                   f"{pheno_filepath} -a "
                                   f"{snps_filepath} -gk > "
                                   f"{k_json_output_filepath}")
             os.system(generate_k_command)
 
-            gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
+            gemma_command = (f"{get_setting(app, 'GEMMA_WRAPPER_COMMAND')} --json --loco "
                              f"--input {k_json_output_filepath} "
-                             f"-- {GEMMAOPTS} "
+                             f"-- {gemma_options()} "
                              f"-g {geno_filepath} "
                              f"-p {pheno_filepath} ")
             if covariates != "":
-                gemma_command += (f"-c {flat_files('mapping')}/"
+                gemma_command += (f"-c {flat_files(app, 'mapping')}/"
                                   f"{covar_filename}.txt "
-                                  f"-a {flat_files('genotype/bimbam')}/"
+                                  f"-a {flat_files(app, 'genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt "
-                                  f"-lmm 9 -maf {maf} > {TEMPDIR}/gn2/"
+                                  f"-lmm 9 -maf {maf} > {get_setting(app, 'TEMPDIR')}/gn2/"
                                   f"{gwa_output_filename}.json")
             else:
-                gemma_command += (f"-a {flat_files('genotype/bimbam')}/"
+                gemma_command += (f"-a {flat_files(app, 'genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt -lmm 9 -maf "
                                   f"{maf} > "
-                                  f"{TEMPDIR}/gn2/{gwa_output_filename}.json")
+                                  f"{get_setting(app, 'TEMPDIR')}/gn2/{gwa_output_filename}.json")
 
         else:
-            generate_k_command = (f"{GEMMA_WRAPPER_COMMAND} --json -- "
-                                  f"{GEMMAOPTS} "
-                                  f" -g {flat_files('genotype/bimbam')}/"
+            generate_k_command = (f"{get_setting(app, 'GEMMA_WRAPPER_COMMAND')} --json -- "
+                                  f"{gemma_options()} "
+                                  f" -g {flat_files(app, 'genotype/bimbam')}/"
                                   f"{genofile_name}_geno.txt -p "
-                                  f"{TEMPDIR}/gn2/{pheno_filename}.txt -a "
-                                  f"{flat_files('genotype/bimbam')}/"
+                                  f"{get_setting(app, 'TEMPDIR')}/gn2/{pheno_filename}.txt -a "
+                                  f"{flat_files(app, 'genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt -gk > "
-                                  f"{TEMPDIR}/gn2/{k_output_filename}.json")
+                                  f"{get_setting(app, 'TEMPDIR')}/gn2/{k_output_filename}.json")
 
             os.system(generate_k_command)
 
-            gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --input "
-                             f"{TEMPDIR}/gn2/{k_output_filename}.json -- "
-                             f"{GEMMAOPTS} "
-                             f"-a {flat_files('genotype/bimbam')}/"
+            gemma_command = (f"{get_setting(app, 'GEMMA_WRAPPER_COMMAND')} --json --input "
+                             f"{get_setting(app, 'TEMPDIR')}/gn2/{k_output_filename}.json -- "
+                             f"{gemma_options()} "
+                             f"-a {flat_files(app, 'genotype/bimbam')}/"
                              f"{genofile_name}_snps.txt "
-                             f"-lmm 9 -g {flat_files('genotype/bimbam')}/"
+                             f"-lmm 9 -g {flat_files(app, 'genotype/bimbam')}/"
                              f"{genofile_name}_geno.txt -p "
-                             f"{TEMPDIR}/gn2/{pheno_filename}.txt ")
+                             f"{get_setting(app, 'TEMPDIR')}/gn2/{pheno_filename}.txt ")
 
             if covariates != "":
-                gemma_command += (f" -c {flat_files('mapping')}/"
+                gemma_command += (f" -c {flat_files(app, 'mapping')}/"
                                   f"{covar_filename}.txt > "
-                                  f"{TEMPDIR}/gn2/{gwa_output_filename}.json")
+                                  f"{get_setting(app, 'TEMPDIR')}/gn2/{gwa_output_filename}.json")
             else:
-                gemma_command += f" > {TEMPDIR}/gn2/{gwa_output_filename}.json"
+                gemma_command += f" > {get_setting(app, 'TEMPDIR')}/gn2/{gwa_output_filename}.json"
 
         os.system(gemma_command)
     else:
@@ -138,7 +139,7 @@ def gen_pheno_txt_file(this_dataset, genofile_name, vals):
 
     filename = "PHENO_" + generate_hash_of_string(this_dataset.name + str(vals)).replace("/", "_")
 
-    with open(f"{TEMPDIR}/gn2/{filename}.txt", "w") as outfile:
+    with open(f"{get_setting(app, 'TEMPDIR')}/gn2/{filename}.txt", "w") as outfile:
         for value in vals:
             if value == "x":
                 outfile.write("NA\n")
@@ -178,7 +179,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
 
     filename = "COVAR_" + generate_hash_of_string(this_dataset.name + str(covariate_data_object)).replace("/", "_")
 
-    with open((f"{flat_files('mapping')}/"
+    with open((f"{flat_files(app, 'mapping')}/"
                f"{filename}.txt"),
               "w") as outfile:
         for i in range(len(covariate_data_object[0])):
@@ -191,7 +192,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
 
 def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
 
-    output_filename = f"{TEMPDIR}/gn2/{gwa_output_filename}.json"
+    output_filename = f"{get_setting(app, 'TEMPDIR')}/gn2/{gwa_output_filename}.json"
     if os.stat(output_filename).st_size == 0:
         return {}
 
