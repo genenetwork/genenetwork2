@@ -9,7 +9,7 @@
 
 from wqflask import app
 from utility.startup_config import app_config
-from utility.tools import WEBSERVER_MODE, SERVER_PORT
+from utility.configuration import get_setting, get_setting_int
 
 import logging
 
@@ -22,19 +22,19 @@ app_config(app)
 
 werkzeug_logger = logging.getLogger('werkzeug')
 
-if WEBSERVER_MODE == 'DEBUG':
+if get_setting(app, "WEBSERVER_MODE") == 'DEBUG':
     app.debug = True
     app.run(host='0.0.0.0',
-            port=SERVER_PORT,
+            port=get_setting_int(app, "SERVER_PORT"),
             debug=True,
             use_debugger=False,
             threaded=False,
             processes=0,
             use_reloader=True)
-elif WEBSERVER_MODE == 'DEV':
+elif get_setting(app, "WEBSERVER_MODE") == 'DEV':
     werkzeug_logger.setLevel(logging.WARNING)
     app.run(host='0.0.0.0',
-            port=SERVER_PORT,
+            port=get_setting_int(app, "SERVER_PORT"),
             debug=False,
             use_debugger=False,
             threaded=False,
@@ -42,7 +42,7 @@ elif WEBSERVER_MODE == 'DEV':
             use_reloader=True)
 else:  # staging/production modes
     app.run(host='0.0.0.0',
-            port=SERVER_PORT,
+            port=get_setting_int(app, "SERVER_PORT"),
             debug=False,
             use_debugger=False,
             threaded=True,

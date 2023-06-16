@@ -1,267 +1,145 @@
 # Tools/paths finder resolves external paths from settings and/or environment
 # variables
-
 import os
-import sys
-import json
-
-from wqflask import app
 
 from .configuration import (
     mk_dir,
+    tempdir,
     valid_bin,
     valid_file,
     valid_path,
     assert_bin,
     assert_dir,
     assert_file,
+    get_setting,
+    get_setting_int,
+    get_setting_bool,
     assert_writable_dir)
 
-# Use the standard logger here to avoid a circular dependency
-import logging
-logger = logging.getLogger(__name__)
-
-OVERRIDES = {}
-
-
-def app_set(command_id, value):
-    """Set application wide value"""
-    app.config.setdefault(command_id, value)
-    return value
-
-
-def get_setting(command_id, guess=None):
-    """Resolve a setting from the environment or the global settings in
-    app.config, with valid_path is a function checking whether the
-    path points to an expected directory and returns the full path to
-    the binary command
-
-      guess = os.environ.get('HOME')+'/pylmm'
-      valid_path(get_setting('PYLMM_PATH',guess))
-
-    first tries the environment variable in +id+, next gets the Flask
-    app setting for the same +id+ and finally does an educated
-    +guess+.
-
-    In all, the environment overrides the others, next is the flask
-    setting, then the guess. A valid path to the binary command is
-    returned. If none is resolved an exception is thrown.
-
-    Note that we do not use the system path. This is on purpose
-    because it will mess up controlled (reproducible) deployment. The
-    proper way is to either use the GNU Guix defaults as listed in
-    etc/default_settings.py or override them yourself by creating a
-    different settings.py file (or setting the environment).
-
-    """
-    def value(command):
-        if command:
-            # sys.stderr.write("Found "+command+"\n")
-            app_set(command_id, command)
-            return command
-        else:
-            return app.config.get(command_id)
-
-    # ---- Check whether environment exists
-    # print("Looking for "+command_id+"\n")
-    command = value(os.environ.get(command_id))
-    if command is None or command == "":
-        command = OVERRIDES.get(command_id)  # currently not in use
-        if command is None:
-            # ---- Check whether setting exists in app
-            command = value(app.config.get(command_id))
-            if command is None:
-                command = value(guess)
-                if command is None or command == "":
-                    # print command
-                    raise Exception(
-                        command_id + ' setting unknown or faulty (update default_settings.py?).')
-    # print("Set "+command_id+"="+str(command))
-    return command
-
-
-def get_setting_bool(id):
-    v = get_setting(id)
-    if v not in [0, False, 'False', 'FALSE', None]:
-        return True
-    return False
-
-
-def get_setting_int(id):
-    v = get_setting(id)
-    if isinstance(v, str):
-        return int(v)
-    if v is None:
-        return 0
-    return v
-
-
-def js_path(module=None):
+def js_path(app, module=None):
     """
     Find the JS module in the two paths
     """
-    try_gn = get_setting("JS_GN_PATH") + "/" + module
+    try_gn = get_setting(app, "JS_GN_PATH") + "/" + module
     if valid_path(try_gn):
         return try_gn
-    try_guix = get_setting("JS_GUIX_PATH") + "/" + module
+    try_guix = get_setting(app, "JS_GUIX_PATH") + "/" + module
     if valid_path(try_guix):
         return try_guix
     raise "No JS path found for " + module + \
         " (if not in Guix check JS_GN_PATH)"
 
+def reaper_command(app, guess=None):
+    return get_setting(app, "REAPER_COMMAND", guess)
 
-def reaper_command(guess=None):
-    return get_setting("REAPER_COMMAND", guess)
+def gemma_command(app, guess=None):
+    return assert_bin(get_setting(app, "GEMMA_COMMAND", guess))
 
+def gemma_wrapper_command(app, guess=None):
+    return assert_bin(get_setting(app, "GEMMA_WRAPPER_COMMAND", guess))
 
-def gemma_command(guess=None):
-    return assert_bin(get_setting("GEMMA_COMMAND", guess))
+def plink_command(app, guess=None):
+    return assert_bin(get_setting(app, "PLINK_COMMAND", guess))
 
+def set_mandatory_settings(app):
+    """Set up the mandatory settings."""
+    ## Setup profile dependent settings: Remove these eventually ##
+    GN2_PROFILE = get_setting(app, "GN2_PROFILE", os.environ.get("GN2_PROFILE"))
+    app.config["GN2_PROFILE"] = GN2_PROFILE
+    app.config["JS_GUIX_PATH"] = get_setting(
+        app,
+        "JS_GUIX_PATH",
+        f"{GN2_PROFILE}/share/genenetwork2/javascript")
+    app.config["REAPER_COMMAND"] = reaper_command(app)
+    app.config["GEMMA_COMMAND"] = gemma_command(app, f"{GN2_PROFILE}/bin/gemma")
+    assert(app.config["GEMMA_COMMAND"] is not None)
+    app.config["PLINK_COMMAND"] = plink_command(
+        app, f"{GN2_PROFILE}/bin/plink2")
+    app.config["GEMMA_WRAPPER_COMMAND"] = gemma_wrapper_command(
+        app, f"{GN2_PROFILE}/bin/gemma-wrapper")
+    app.config["GUIX_GENENETWORK_FILES"] = get_setting(
+        app,
+        "GUIX_GENENETWORK_FILES",
+        f"{GN2_PROFILE}/share/genenetwork2")
+    assert_dir(app.config["JS_GUIX_PATH"])
+    ## END: Setup profile dependent settings: Remove these eventually ##
 
-def gemma_wrapper_command(guess=None):
-    return assert_bin(get_setting("GEMMA_WRAPPER_COMMAND", guess))
+    # Cached values
+    app.config["GN_VERSION"] = get_setting(app, 'GN_VERSION')
+    app.config["HOME"] = get_setting(app, 'HOME')
+    app.config["SERVER_PORT"] = get_setting_int(app, 'SERVER_PORT')
+    app.config["WEBSERVER_MODE"] = get_setting(app, 'WEBSERVER_MODE')
+    app.config["GN2_BASE_URL"] = get_setting(app, 'GN2_BASE_URL')
+    app.config["GN2_BRANCH_URL"] = get_setting(app, 'GN2_BRANCH_URL')
+    app.config["GN_SERVER_URL"] = get_setting(app, 'GN_SERVER_URL')
+    app.config["GN_PROXY_URL"] = get_setting(app, 'GN_PROXY_URL')
+    app.config["GN3_LOCAL_URL"] = get_setting(app, 'GN3_LOCAL_URL')
+    app.config["SQL_URI"] = get_setting(app, 'SQL_URI')
+    app.config["LOG_LEVEL"] = get_setting(app, 'LOG_LEVEL')
+    app.config["LOG_LEVEL_DEBUG"] = get_setting_int(app, 'LOG_LEVEL_DEBUG')
+    app.config["LOG_SQL"] = get_setting_bool(app, 'LOG_SQL')
+    app.config["LOG_SQL_ALCHEMY"] = get_setting_bool(app, 'LOG_SQL_ALCHEMY')
+    app.config["LOG_BENCH"] = get_setting_bool(app, 'LOG_BENCH')
+    app.config["LOG_FORMAT"] = "%(message)s"    # not yet in use
+    app.config["USE_REDIS"] = get_setting_bool(app, 'USE_REDIS')
+    app.config["REDIS_URL"] = get_setting(app, 'REDIS_URL')
+    app.config["USE_GN_SERVER"] = get_setting_bool(app, 'USE_GN_SERVER')
 
+    app.config["GENENETWORK_FILES"] = get_setting(app, 'GENENETWORK_FILES')
+    app.config["JS_GN_PATH"] = get_setting(app, 'JS_GN_PATH')
+    # assert_dir(JS_GN_PATH)
 
-def plink_command(guess=None):
-    return assert_bin(get_setting("PLINK_COMMAND", guess))
+    app.config["GITHUB_CLIENT_ID"] = get_setting(app, 'GITHUB_CLIENT_ID')
+    app.config["GITHUB_CLIENT_SECRET"] = get_setting(app, 'GITHUB_CLIENT_SECRET')
+    app.config["GITHUB_AUTH_URL"] = get_setting(app, "GITHUB_AUTH_URL")
+    if app.config["GITHUB_CLIENT_ID"] != 'UNKNOWN' and app.config["GITHUB_CLIENT_SECRET"]:
+        app.config["GITHUB_AUTH_URL"] = (
+            "https://github.com/login/oauth/authorize?"
+            f"client_id={GITHUB_CLIENT_ID}"
+            f"&client_secret={GITHUB_CLIENT_SECRET}")
+        app.config["GITHUB_API_URL"] = get_setting(app, 'GITHUB_API_URL')
 
-
-def flat_file_exists(subdir):
-    base = get_setting("GENENETWORK_FILES")
-    return valid_path(base + "/" + subdir)
-
-
-def flat_files(subdir=None):
-    base = get_setting("GENENETWORK_FILES")
-    if subdir:
-        return assert_dir(base + "/" + subdir)
-    return assert_dir(base)
-
-
-def locate(name, subdir=None):
-    """
-    Locate a static flat file in the GENENETWORK_FILES environment.
-
-    This function throws an error when the file is not found.
-    """
-    base = get_setting("GENENETWORK_FILES")
-    if subdir:
-        base = base + "/" + subdir
-    if valid_path(base):
-        lookfor = base + "/" + name
-        if valid_file(lookfor):
-            return lookfor
-        else:
-            raise Exception("Can not locate " + lookfor)
-    if subdir:
-        sys.stderr.write(subdir)
-    raise Exception("Can not locate " + name + " in " + base)
-
-
-def locate_phewas(name, subdir=None):
-    return locate(name, '/phewas/' + subdir)
-
-
-def locate_ignore_error(name, subdir=None):
-    """
-    Locate a static flat file in the GENENETWORK_FILES environment.
-
-    This function does not throw an error when the file is not found
-    but returns None.
-    """
-    base = get_setting("GENENETWORK_FILES")
-    if subdir:
-        base = base + "/" + subdir
-    if valid_path(base):
-        lookfor = base + "/" + name
-        if valid_file(lookfor):
-            return lookfor
-    return None
-
-
-def tempdir():
-    """
-    Get UNIX TMPDIR by default
-    """
-    return valid_path(get_setting("TMPDIR", "/tmp"))
-
-
-# Cached values
-GN_VERSION = get_setting('GN_VERSION')
-HOME = get_setting('HOME')
-SERVER_PORT = get_setting('SERVER_PORT')
-WEBSERVER_MODE = get_setting('WEBSERVER_MODE')
-GN2_BASE_URL = get_setting('GN2_BASE_URL')
-GN2_BRANCH_URL = get_setting('GN2_BRANCH_URL')
-GN_SERVER_URL = get_setting('GN_SERVER_URL')
-GN_PROXY_URL = get_setting('GN_PROXY_URL')
-GN3_LOCAL_URL = get_setting('GN3_LOCAL_URL')
-SERVER_PORT = get_setting_int('SERVER_PORT')
-SQL_URI = get_setting('SQL_URI')
-LOG_LEVEL = get_setting('LOG_LEVEL')
-LOG_LEVEL_DEBUG = get_setting_int('LOG_LEVEL_DEBUG')
-LOG_SQL = get_setting_bool('LOG_SQL')
-LOG_SQL_ALCHEMY = get_setting_bool('LOG_SQL_ALCHEMY')
-LOG_BENCH = get_setting_bool('LOG_BENCH')
-LOG_FORMAT = "%(message)s"    # not yet in use
-USE_REDIS = get_setting_bool('USE_REDIS')
-REDIS_URL = get_setting('REDIS_URL')
-USE_GN_SERVER = get_setting_bool('USE_GN_SERVER')
-
-GENENETWORK_FILES = get_setting('GENENETWORK_FILES')
-JS_GUIX_PATH = get_setting('JS_GUIX_PATH')
-assert_dir(JS_GUIX_PATH)
-JS_GN_PATH = get_setting('JS_GN_PATH')
-# assert_dir(JS_GN_PATH)
-
-GITHUB_CLIENT_ID = get_setting('GITHUB_CLIENT_ID')
-GITHUB_CLIENT_SECRET = get_setting('GITHUB_CLIENT_SECRET')
-GITHUB_AUTH_URL = ""
-if GITHUB_CLIENT_ID != 'UNKNOWN' and GITHUB_CLIENT_SECRET:
-    GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize?client_id=" + \
-                      GITHUB_CLIENT_ID + "&client_secret=" + GITHUB_CLIENT_SECRET
-    GITHUB_API_URL = get_setting('GITHUB_API_URL')
-
-ORCID_CLIENT_ID = get_setting('ORCID_CLIENT_ID')
-ORCID_CLIENT_SECRET = get_setting('ORCID_CLIENT_SECRET')
-ORCID_AUTH_URL = None
-if ORCID_CLIENT_ID != 'UNKNOWN' and ORCID_CLIENT_SECRET:
-    ORCID_AUTH_URL = "https://orcid.org/oauth/authorize?response_type=code&scope=/authenticate&show_login=true&client_id=" + \
-        ORCID_CLIENT_ID + "&client_secret=" + ORCID_CLIENT_SECRET + \
-        "&redirect_uri=" + GN2_BRANCH_URL + "n/login/orcid_oauth2"
-    ORCID_TOKEN_URL = get_setting('ORCID_TOKEN_URL')
+    app.config["ORCID_CLIENT_ID"] = get_setting(app, 'ORCID_CLIENT_ID')
+    app.config["ORCID_CLIENT_SECRET"] = get_setting(app, 'ORCID_CLIENT_SECRET')
+    app.config["ORCID_AUTH_URL"] = get_setting(app, "ORCID_AUTH_URL")
+    if app.config["ORCID_CLIENT_ID"] != 'UNKNOWN' and app.config["ORCID_CLIENT_SECRET"]:
+        app.config["ORCID_AUTH_URL"] = (
+            "https://orcid.org/oauth/authorize?response_type=code"
+            f"&scope=/authenticate&show_login=true&client_id={ORCID_CLIENT_ID}"
+            f"&client_secret={ORCID_CLIENT_SECRET}"
+            f"&redirect_uri={GN2_BRANCH_URL}n/login/orcid_oauth2")
+        app.config["ORCID_TOKEN_URL"] = get_setting(app, 'ORCID_TOKEN_URL')
 
 
-SMTP_CONNECT = get_setting('SMTP_CONNECT')
-SMTP_USERNAME = get_setting('SMTP_USERNAME')
-SMTP_PASSWORD = get_setting('SMTP_PASSWORD')
+    app.config["SMTP_CONNECT"] = get_setting(app, 'SMTP_CONNECT')
+    app.config["SMTP_USERNAME"] = get_setting(app, 'SMTP_USERNAME')
+    app.config["SMTP_PASSWORD"] = get_setting(app, 'SMTP_PASSWORD')
 
-REAPER_COMMAND = app_set("REAPER_COMMAND", reaper_command())
-GEMMA_COMMAND = app_set("GEMMA_COMMAND", gemma_command())
-assert(GEMMA_COMMAND is not None)
-PLINK_COMMAND = app_set("PLINK_COMMAND", plink_command())
-GEMMA_WRAPPER_COMMAND = gemma_wrapper_command()
-TEMPDIR = tempdir()  # defaults to UNIX TMPDIR
-assert_dir(TEMPDIR)
+    app.config["TEMPDIR"] = tempdir(app)  # defaults to UNIX TMPDIR
+    assert_dir(app.config["TEMPDIR"])
 
-# ---- Handle specific JS modules
-JS_GUIX_PATH = get_setting("JS_GUIX_PATH")
-assert_dir(JS_GUIX_PATH)
-assert_dir(JS_GUIX_PATH + '/cytoscape-panzoom')
+    # ---- Handle specific JS modules
+    app.config["JS_GUIX_PATH"] = get_setting(app, "JS_GUIX_PATH")
+    assert_dir(app.config["JS_GUIX_PATH"])
+    assert_dir(app.config["JS_GUIX_PATH"] + '/cytoscape-panzoom')
 
-CSS_PATH = JS_GUIX_PATH  # The CSS is bundled together with the JS
-# assert_dir(JS_PATH)
+    app.config["CSS_PATH"] = get_setting(app, "JS_GUIX_PATH")  # The CSS is bundled together with the JS
+    # assert_dir(JS_PATH)
 
-JS_TWITTER_POST_FETCHER_PATH = get_setting(
-    "JS_TWITTER_POST_FETCHER_PATH", js_path("javascript-twitter-post-fetcher"))
-assert_dir(JS_TWITTER_POST_FETCHER_PATH)
-assert_file(JS_TWITTER_POST_FETCHER_PATH + "/js/twitterFetcher_min.js")
+    app.config["JS_TWITTER_POST_FETCHER_PATH"] = get_setting(
+        app,
+        "JS_TWITTER_POST_FETCHER_PATH",
+        js_path(app, "javascript-twitter-post-fetcher"))
+    assert_dir(app.config["JS_TWITTER_POST_FETCHER_PATH"])
+    assert_file(app.config["JS_TWITTER_POST_FETCHER_PATH"] + "/js/twitterFetcher_min.js")
 
-JS_CYTOSCAPE_PATH = get_setting("JS_CYTOSCAPE_PATH", js_path("cytoscape"))
-assert_dir(JS_CYTOSCAPE_PATH)
-assert_file(JS_CYTOSCAPE_PATH + '/cytoscape.min.js')
+    app.config["JS_CYTOSCAPE_PATH"] = get_setting(
+        app, "JS_CYTOSCAPE_PATH", js_path(app, "cytoscape"))
+    assert_dir(app.config["JS_CYTOSCAPE_PATH"])
+    assert_file(app.config["JS_CYTOSCAPE_PATH"] + '/cytoscape.min.js')
 
-# assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
+    # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
 
-OAUTH2_CLIENT_ID = get_setting('OAUTH2_CLIENT_ID')
-OAUTH2_CLIENT_SECRET = get_setting('OAUTH2_CLIENT_SECRET')
+    app.config["OAUTH2_CLIENT_ID"] = get_setting(app, 'OAUTH2_CLIENT_ID')
+    app.config["OAUTH2_CLIENT_SECRET"] = get_setting(app, 'OAUTH2_CLIENT_SECRET')
+    return app

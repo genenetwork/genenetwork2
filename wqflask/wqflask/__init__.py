@@ -13,6 +13,7 @@ from flask import g, Flask, flash, session, url_for, redirect, current_app
 
 from base import webqtlConfig
 from utility import formatting
+from utility.tools import set_mandatory_settings
 from utility.hmac import data_hmac, url_for_hmac
 from utility.configuration import tempdir, override_from_envvars
 
@@ -69,7 +70,7 @@ app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
 
 # Override settings
 app = override_from_envvars(app)
-app.config["TEMPDIR"] = tempdir(app)
+app = set_mandatory_settings(app)
 app = webqtlConfig.init_app(app)
 
 # Registering blueprints
