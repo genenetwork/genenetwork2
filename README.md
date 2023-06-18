@@ -5,12 +5,7 @@ badge](https://ci.genenetwork.org/badge/genenetwork2.svg)](https://ci.genenetwor
 
 # GeneNetwork
 
-This repository contains the current source code for GeneNetwork (GN2)
-https://genenetwork.org/ (version 2). GN2 is a Web
-2.0-style framework that includes data and computational tools for online genetics and genomic analysis of
-many different populations and many types of molecular, cellular, and physiological data.
-The system is used by scientists and clinicians in the field of precision health care and systems genetics.
-GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL (https://genenetwork.org/references/).
+This repository contains the current source code for GeneNetwork (GN2) https://genenetwork.org/ (version 2). GN2 is a Web 2.0-style framework that includes data and computational tools for online genetics and genomic analysis of many different populations and many types of molecular, cellular, and physiological data. The system is used by scientists and clinicians in the field of precision health care and systems genetics. GN and its predecessors have been in operation since Jan 1994, making it one of the longest-lived web services in biomedical research (https://en.wikipedia.org/wiki/GeneNetwork, and see a partial list of publications using GN and its predecessor, WebQTL https://genenetwork.org/references/).
 
 ## Install
 
@@ -19,19 +14,17 @@ The recommended installation is with GNU Guix which allows you to deploy GN2 and
 ## Documentation
 
 User documentation can be found [here](https://genenetwork.org/help).  The architecture of the software stack is described [here](./doc/Architecture.org).  The database schema is (still) shared with GN1 and currently described [here](http://www.genenetwork.org/webqtl/main.py?FormID=schemaShowPage). Software documentation is being expanded in the [source code repository](https://github.com/genenetwork/genenetwork2/tree/master/doc).
+
 ## Contributing
 
 Issues can be raised through
-[github](https://github.com/genenetwork/genenetwork2/issues).
+[github](https://issues.genenetwork.org/).
 
 Contribute to GN2 source code by forking the
 [github repository](https://github.com/genenetwork/genenetwork2/) with
 git and sending us pull requests.
 
-For development GN2 has a [mailing
-list](http://listserv.uthsc.edu/mailman/listinfo/genenetwork-dev) and
-an active IRC channel #genenetwork on freenode.net with a [web
-interface](http://webchat.freenode.net/).
+For development GN2 has a room on matrix. Ask us for an invitation.
 
 ## License
 
@@ -41,7 +34,7 @@ Public License 3 (AGPLv3). See [LICENSE.txt](LICENSE.txt).
 
 ## More information
 
-For more information visit http://www.genenetwork.org/
+For more information visit https://genenetwork.org/
 
 ## Cite
 
@@ -49,13 +42,8 @@ For more information visit http://www.genenetwork.org/
 
 GeneNetwork was published in the Journal of Open Source Software as 'GeneNetwork: framework for web-based genetics' by Zachary Sloan, Danny Arends, Karl W. Broman, Arthur Centeno, Nicholas Furlotte, Harm Nijveen, Lei Yan, Xiang Zhou, Robert W. WIlliams and Pjotr Prins
 
-You may also cite the software using
-
-[![DOI](https://zenodo.org/badge/5591/genenetwork/genenetwork2.svg)](https://zenodo.org/badge/latestdoi/5591/genenetwork/genenetwork2).
-
 ## Contact
 
-IRC on #genenetwork on irc.freenode.net.
+E-mail: pjotr.public729@thebird.nl
 
-Code and primary web service managed by Dr. Robert W. Williams and the
-University of Tennessee Health Science Center, Memphis TN, USA.
+Code and primary web service managed by Drs. Robert W. Williams and Pjotr Prins at the University of Tennessee Health Science Center, Memphis TN, USA.
