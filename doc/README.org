@@ -62,21 +62,16 @@ may support
 
 * Creating a GNU Guix profile
 
-We run a GNU Guix channel with packages at [[https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics][guix-bioinformatics]]. The
-README has instructions for hosting a channel, but typically we use
-the GUIX_PACKAGE_PATH instead. First upgrade to a recent guix with
+We run a GNU Guix channel with packages at [[https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics][guix-bioinformatics]]. The README has instructions for hosting a channel, but typically we use the GUIX_PACKAGE_PATH instead. First upgrade to a recent guix with
 
 : mkdir ~/opt
 : guix pull -p ~/opt/guix-pull
 
-It should upgrade (ignore the locales warnings).  You can optionally
-specify the specific git checkout of guix with
+It should upgrade (ignore the locales warnings).  You can optionally specify the specific git checkout of guix with
 
 : guix pull -p ~/opt/guix-pull --commit=f04883d
 
-which is useful when you ned to roll back to an earlier version
-(sometimes our channel goes out of sync). Next, we install
-GeneNetwork2 with
+which is useful when you need to roll back to an earlier version (sometimes our channel goes out of sync). Next, we install GeneNetwork2 with
 
 : source ~/opt/guix-pull/etc/profile
 : git clone https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics.git ~/guix-bioinformatics
@@ -264,10 +259,9 @@ cd $HOME/genotype_files
 
 * GN2 Dependency Graph
 
-Graph of all runtime dependencies as installed by GNU Guix.
+List of all runtime dependencies for GN2 as installed by GNU Guix.
 
-#+ATTR_HTML: :title GN2_graph
-http://biogems.info/contrib/genenetwork/gn2.svg
+https://genenetwork.org/environments/
 
 * Working with the GN2 source code
 
