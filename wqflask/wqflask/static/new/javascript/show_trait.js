@@ -1072,7 +1072,7 @@ switchQNormData = function() {
 };
 $('#qnorm').click(switchQNormData);
 
-getSampleTableData = function(tableName, attributesAsList) {
+getSampleTableData = function(tableName, attributesAsList, includeNAs=false) {
   var samples = [];
 
   if ($('#' + tableName).length){
@@ -1110,38 +1110,41 @@ getSampleTableData = function(tableName, attributesAsList) {
       sampleName = $.trim(nameNodes[_j].childNodes[0].textContent)
       if (isNumber(sampleVal) && sampleVal !== "") {
         sampleVal = parseFloat(sampleVal);
-        if (typeof varNodes == 'undefined'){
-          sampleVar = null;
+      } else {
+        sampleVal = 'x'
+      }
+      if (typeof varNodes == 'undefined'){
+        sampleVar = null;
+      } else {
+        sampleVar = varNodes[_j].childNodes[0].value;
+        if (isNumber(sampleVar)) {
+          sampleVar = parseFloat(sampleVar);
         } else {
-          sampleVar = varNodes[_j].childNodes[0].value;
-          if (isNumber(sampleVar)) {
-            sampleVar = parseFloat(sampleVar);
-          } else {
-            sampleVar = null;
-          }
+          sampleVar = 'x';
         }
-        if (typeof nNodes == 'undefined'){
-          sampleN = null;
+      }
+      if (typeof nNodes == 'undefined'){
+        sampleN = null;
+      } else {
+        sampleN = nNodes[_j].childNodes[0].value;
+        if (isNumber(sampleN)) {
+          sampleN = parseInt(sampleN);
         } else {
-          sampleN = nNodes[_j].childNodes[0].value;
-          if (isNumber(sampleN)) {
-            sampleN = parseInt(sampleN);
-          } else {
-            sampleN = null;
-          }
+          sampleN = 'x';
         }
+      }
 
-        rowDict = {
-          name: sampleName,
-          value: sampleVal,
-          se: sampleVar,
-          num_cases: sampleN
-        }
+      rowDict = {
+        name: sampleName,
+        value: sampleVal,
+        se: sampleVar,
+        num_cases: sampleN
+      }
 
-        for (_k = 0; _k < attributeNodes.length; _k++){
-          rowDict[attributesAsList[_k]] = attributeNodes[_k][_j].textContent;
-        }
-
+      for (_k = 0; _k < attributeNodes.length; _k++){
+        rowDict[attributesAsList[_k]] = attributeNodes[_k][_j].textContent;
+      }
+      if (includeNAs || sampleVal != 'x') {
         samples.push(rowDict)
       }
     }
@@ -1157,8 +1160,8 @@ exportSampleTableData = function() {
   });
 
   sample_data = {};
-  sample_data.primary_samples = getSampleTableData('samples_primary', attributesAsList);
-  sample_data.other_samples = getSampleTableData('samples_other', attributesAsList);
+  sample_data.primary_samples = getSampleTableData('samples_primary', attributesAsList, true);
+  sample_data.other_samples = getSampleTableData('samples_other', attributesAsList, true);
   sample_data.attributes = attributesAsList;
   json_sample_data = JSON.stringify(sample_data);
   $('input[name=export_data]').val(json_sample_data);
