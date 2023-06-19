@@ -23,7 +23,14 @@ from wqflask.group_manager import group_management
 from wqflask.resource_manager import resource_management
 from wqflask.metadata_edits import metadata_edit
 
-from wqflask.top_level_routes import toplevel
+from base.trait import trait_bp
+from wqflask.api import api_bp
+from wqflask.views import main_views
+from wqflask.user_login import ulogin_bp
+from wqflask.user_session import usession_bp
+from wqflask.collect import collections_bp
+from wqflask.partial_correlations_views import pcorrs_bp
+
 from wqflask.api.markdown import glossary_blueprint
 from wqflask.api.markdown import references_blueprint
 from wqflask.api.markdown import links_blueprint
@@ -83,7 +90,14 @@ def create_app():
     app = webqtlConfig.init_app(app)
 
     # Registering blueprints
-    app.register_blueprint(toplevel)
+    app.register_blueprint(trait_bp)
+    app.register_blueprint(pcorrs_bp)
+    app.register_blueprint(ulogin_bp)
+    app.register_blueprint(main_views)
+    app.register_blueprint(usession_bp)
+    app.register_blueprint(collections_bp)
+    app.register_blueprint(api_bp, url_prefix="/api")
+
     app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
     app.register_blueprint(references_blueprint, url_prefix="/references")
     app.register_blueprint(links_blueprint, url_prefix="/links")

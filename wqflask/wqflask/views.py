@@ -876,7 +876,7 @@ def corr_compute_page():
                     })
                 jobs.run(job_id, get_setting(app, "REDIS_URL"))
 
-            return redirect(url_for("toplevel.main_views.corr_compute_page", job_id=str(job_id)))
+            return redirect(url_for("main_views.corr_compute_page", job_id=str(job_id)))
 
         job = jobs.job(
             rconn, UUID(request.args.get("job_id"))).maybe(
