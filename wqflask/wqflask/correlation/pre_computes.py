@@ -14,25 +14,26 @@ from base.webqtlConfig import TMPDIR
 
 from json.decoder import JSONDecodeError
 
+
 def cache_trait_metadata(dataset_name, data):
 
-
     try:
-        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),map_size=20971520) as env:
-            with  env.begin(write=True) as  txn:
+        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_name}"), map_size=20971520) as env:
+            with env.begin(write=True) as txn:
                 data_bytes = pickle.dumps(data)
                 txn.put(f"{dataset_name}".encode(), data_bytes)
                 current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 txn.put(b"creation_date", current_date.encode())
                 return "success"
 
-    except lmdb.Error as  error:
+    except lmdb.Error as error:
         pass
+
 
 def read_trait_metadata(dataset_name):
     try:
-        with lmdb.open(os.path.join(TMPDIR,f"metadata_{dataset_name}"),
-            readonly=True, lock=False) as env:
+        with lmdb.open(os.path.join(TMPDIR, f"metadata_{dataset_name}"),
+                       readonly=True, lock=False) as env:
             with env.begin() as txn:
                 db_name = txn.get(dataset_name.encode())
                 return (pickle.loads(db_name) if db_name else {})
@@ -80,8 +81,6 @@ def generate_filename(*args, suffix="", file_ext="json"):
 
     string_unicode = f"{*args,}".encode()
     return f"{hashlib.md5(string_unicode).hexdigest()}_{suffix}.{file_ext}"
-
-
 
 
 def fetch_text_file(dataset_name, conn, text_dir=TMPDIR):
@@ -176,3 +175,44 @@ def write_db_to_textfile(db_name, conn, text_dir=TMPDIR):
         if (results and file_name):
             __write_to_file__(os.path.join(text_dir, file_name),
                               *__parse_to_dict__(results))
+
+
+# check for file path
+# I need the lmdb path # tmpdir
+def __generate_target_name__(db_name):
+    # todo add expiry time and checker
+    with conn.cursor() as cursor:
+        cursor.execute(
+            'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s', (db_name,))
+        results = cursor.fetchone()
+        if (results):
+            return __sanitise_filename__(
+                f"ProbeSetFreezeId_{results[0]}_{results[1]}")
+
+
+def fetch_csv_info(textfile_path: str, db_target_name: str):
+    """
+    alternative for processing csv textfiles with rust
+    !.currently expiremental
+    """
+    raise ValueError
+
+
+def fetch_lmdb_info(db_path: str, db_target_name: str):
+    """
+    check for if lmdb db exist and also the target db 
+    e.g  ProbeSets: ProbestFreeze__112_
+    """
+    # open db_read if results return none write the file write the file target
+    with lmdb.open(target_file_path, readonly=True, lock=False) as env:
+        with env.begin() as txn:
+            target_key = __generate_file_name__(db_target_name)
+            dataset = txn.get(target_key.encode())
+            if dataset:
+                return {
+                    "lmdb_target_path": f"{db_path}data.mdb",
+                    "lmdb_target_key": target_key,
+                    "file_type": "lmdb",
+                }
+
+            return {}
