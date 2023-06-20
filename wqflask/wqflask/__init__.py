@@ -114,19 +114,3 @@ def include_admin_role_class():
 @app.context_processor
 def include_data_role_class():
     return {'DataRole': DataRole}
-
-
-from wqflask.api import router
-from wqflask import group_manager
-from wqflask import resource_manager
-from wqflask import search_results
-from wqflask import export_traits
-from wqflask import gsearch
-from wqflask import update_search_results
-from wqflask import docs
-from wqflask import db_info
-from wqflask import user_login
-from wqflask import user_session
-
-import wqflask.views
-import wqflask.partial_correlations_views
