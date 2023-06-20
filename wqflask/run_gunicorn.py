@@ -9,7 +9,7 @@
 
 print("===> Starting up Gunicorn process")
 
-from wqflask import app
+from gn2_main import app
 from utility.startup_config import app_config
 
 app_config()
