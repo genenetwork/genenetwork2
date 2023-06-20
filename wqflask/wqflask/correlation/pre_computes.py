@@ -210,15 +210,30 @@ def fetch_lmdb_info(db_path: str, db_target_name: str):
     e.g  ProbeSets: ProbestFreeze__112_
     """
     # open db_read if results return none write the file write the file target
-    with lmdb.open(target_file_path, readonly=True, lock=False) as env:
-        with env.begin() as txn:
-            target_key = __generate_file_name__(db_target_name)
-            dataset = txn.get(target_key.encode())
-            if dataset:
-                return {
-                    "lmdb_target_path": f"{db_path}data.mdb",
-                    "lmdb_target_key": target_key,
-                    "file_type": "lmdb",
-                }
+    try:
+        with lmdb.open(target_file_path, readonly=True, lock=False) as env:
+            with env.begin() as txn:
+                target_key = __generate_file_name__(db_target_name)
+                dataset = txn.get(target_key.encode())
+                if dataset:
+                    return {
+                        "lmdb_target_path": f"{db_path}data.mdb",
+                        "lmdb_target_key": target_key,
+                        "file_type": "lmdb",
+                    }
+    except Exception:
+        return {}
 
-            return {}
+
+def generate_general_info(trait_name, sample_names,
+                          strains_vals, file_type_info):
+    if not file_type_info:
+        #! code should not be reached at this point
+        pass
+    # implement fetch code
+    return {
+        "trait_name": target_name,
+        "primary_sample_names": primary_sample_names,
+        "primary_strains_vals": strain_vals,
+        **file_type_info
+    }
