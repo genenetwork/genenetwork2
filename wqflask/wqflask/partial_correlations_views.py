@@ -14,11 +14,10 @@ from flask import (
     current_app,
     render_template)
 
+from wqflask import app
 from utility.configuration import get_setting
 from wqflask.database import database_connection
 from gn3.db.partial_correlations import traits_info
-
-pcorrs_bp = Blueprint("partial_correlations", __name__)
 
 def publish_target_databases(conn, groups, threshold):
     query = (
@@ -268,7 +267,7 @@ def handle_response(response):
             message = response_error_message(response))
     return handle_200_response(response.json())
 
-@pcorrs_bp.route("/partial_correlations", methods=["POST"])
+@app.route("/partial_correlations", methods=["POST"])
 def partial_correlations():
     form = request.form
     traits = tuple(
@@ -349,7 +348,7 @@ def process_pcorrs_command_output(result):
         return render_error(
             f"({result['error_type']}: {result['message']})")
 
-@pcorrs_bp.route("/partial_correlations/<command_id>", methods=["GET"])
+@app.route("/partial_correlations/<command_id>", methods=["GET"])
 def poll_partial_correlation_results(command_id):
     response = requests.get(
         url=urljoin(get_setting(current_app, "GN_SERVER_URL"),

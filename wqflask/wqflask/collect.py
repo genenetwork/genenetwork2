@@ -11,7 +11,6 @@ from flask import url_for
 from flask import request
 from flask import redirect
 from flask import flash
-from flask import Blueprint
 from flask import current_app
 
 from utility import hmac
@@ -23,6 +22,7 @@ from base.trait import retrieve_trait_info
 from base.trait import jsonable
 from base.data_set import create_dataset
 
+from wqflask import app
 from wqflask.oauth2 import client
 from wqflask.oauth2 import session
 from wqflask.oauth2.session import session_info
@@ -34,7 +34,6 @@ from wqflask.oauth2.client import (
 
 
 Redis = get_redis_conn()
-collections_bp = Blueprint("collections", __name__)
 
 def process_traits(unprocessed_traits):
     if isinstance(unprocessed_traits, bytes):
@@ -59,7 +58,7 @@ def report_change(len_before, len_now):
             numify(new_length, 'new trait', 'new traits')))
 
 
-@collections_bp.route("/collections/store_trait_list", methods=('POST',))
+@app.route("/collections/store_trait_list", methods=('POST',))
 def store_traits_list():
     params = request.form
 
@@ -71,7 +70,7 @@ def store_traits_list():
     return hash
 
 
-@collections_bp.route("/collections/add", methods=["POST"])
+@app.route("/collections/add", methods=["POST"])
 def collections_add():
     anon_id = session_info()["anon_id"]
     traits = request.args.get("traits", request.form.get("traits"))
@@ -114,7 +113,7 @@ def __compute_traits__(params):
         unprocessed_traits = params['traits']
     return process_traits(unprocessed_traits)
 
-@collections_bp.route("/collections/new")
+@app.route("/collections/new")
 def collections_new():
     params = request.args
     anon_id = session_info()["anon_id"]
@@ -179,7 +178,7 @@ def create_new(collection_name):
     return redirect(url_for('view_collection', uc_id=uc_id))
 
 
-@collections_bp.route("/collections/list")
+@app.route("/collections/list")
 def list_collections():
     params = request.args
     anon_id = session.session_info()["anon_id"]
@@ -199,7 +198,7 @@ def list_collections():
                            **user_collections,
                            **anon_collections)
 
-@collections_bp.route("/collections/handle_anonymous", methods=["POST"])
+@app.route("/collections/handle_anonymous", methods=["POST"])
 def handle_anonymous_collections():
     """Handle any anonymous collection on logging in."""
     choice = request.form.get("anon_choice")
@@ -220,7 +219,7 @@ def handle_anonymous_collections():
             "anon_id": str(session_info()["anon_id"])
         }).either(__impdel_error__, __impdel_success__)
 
-@collections_bp.route("/collections/remove", methods=('POST',))
+@app.route("/collections/remove", methods=('POST',))
 def remove_traits():
     params = request.form
     uc_id = params['uc_id']
@@ -234,7 +233,7 @@ def remove_traits():
         }).either(with_flash_error(resp), with_flash_success(resp))
 
 
-@collections_bp.route("/collections/delete", methods=('POST',))
+@app.route("/collections/delete", methods=('POST',))
 def delete_collection():
     def __error__(err):
         error = process_error(err)
@@ -303,7 +302,7 @@ def trait_info_str(trait):
         trait.name, trait.dataset.name, __trait_desc(trait), __symbol(trait),
         __location(trait), __mean(trait), __lrs(trait), __lrs_location(trait))
 
-@collections_bp.route("/collections/import", methods=('POST',))
+@app.route("/collections/import", methods=('POST',))
 def import_collection():
     import_file = request.files['import_file']
     if import_file.filename != '':
@@ -319,7 +318,7 @@ def import_collection():
         return render_template(
             "collections/list.html")
 
-@collections_bp.route("/collections/view")
+@app.route("/collections/view")
 def view_collection():
     params = request.args
 
@@ -382,7 +381,7 @@ def view_collection():
 
     return coll.either(__error__, __view__)
 
-@collections_bp.route("/collections/change_name", methods=('POST',))
+@app.route("/collections/change_name", methods=('POST',))
 def change_collection_name():
     collection_id = request.form['collection_id']
     resp = redirect(url_for("view_collection", uc_id=collection_id))

@@ -17,11 +17,10 @@ from flask import (
     url_for,
     request,
     redirect,
-    Blueprint,
     make_response,
-    render_template,
-    current_app as app)
+    render_template)
 
+from wqflask import app
 from wqflask import pbkdf2
 from wqflask.user_session import UserSession
 
@@ -32,8 +31,6 @@ from utility.redis_tools import is_redis_available, get_redis_conn, get_user_id,
 Redis = get_redis_conn()
 
 THREE_DAYS = 60 * 60 * 24 * 3
-
-ulogin_bp = Blueprint("user_login", __name__)
 
 
 def timestamp():
@@ -160,7 +157,7 @@ def send_invitation_email(user_email, temp_password, template_name="email/user_i
     return {"recipient": recipient, "subject": subject, "body": body}
 
 
-@ulogin_bp.route("/manage/verify_email")
+@app.route("/manage/verify_email")
 def verify_email():
     if 'code' in request.args:
         user_details = check_verification_code(request.args['code'])
@@ -180,7 +177,7 @@ def verify_email():
                 "Invalid code: Password reset code does not exist or might have expired!", "error")
 
 
-@ulogin_bp.route("/n/login", methods=('GET', 'POST'))
+@app.route("/n/login", methods=('GET', 'POST'))
 def login():
     params = request.form if request.form else request.args
     if not params:  # ZS: If coming to page for first time
@@ -260,7 +257,7 @@ def login():
                 return response
 
 
-@ulogin_bp.route("/n/login/github_oauth2", methods=('GET', 'POST'))
+@app.route("/n/login/github_oauth2", methods=('GET', 'POST'))
 def github_oauth2():
     from utility.tools import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_AUTH_URL
     code = request.args.get("code")
@@ -303,7 +300,7 @@ def get_github_user_details(access_token):
     return json.loads(result)
 
 
-@ulogin_bp.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
+@app.route("/n/login/orcid_oauth2", methods=('GET', 'POST'))
 def orcid_oauth2():
     from uuid import uuid4
     from utility.tools import ORCID_CLIENT_ID, ORCID_CLIENT_SECRET, ORCID_TOKEN_URL, ORCID_AUTH_URL
@@ -350,7 +347,7 @@ def get_github_user_details(access_token):
     return json.loads(result)
 
 
-@ulogin_bp.route("/n/logout")
+@app.route("/n/logout")
 def logout():
     UserSession().delete_session()
     flash("You are now logged out. We hope you come back soon!")
@@ -360,7 +357,7 @@ def logout():
     return response
 
 
-@ulogin_bp.route("/n/forgot_password", methods=['GET'])
+@app.route("/n/forgot_password", methods=['GET'])
 def forgot_password():
     """Entry point for forgotten password"""
     print("ARGS: ", request.args)
@@ -402,7 +399,7 @@ def send_forgot_password_email(verification_email):
     return subject
 
 
-@ulogin_bp.route("/n/forgot_password_submit", methods=('POST',))
+@app.route("/n/forgot_password_submit", methods=('POST',))
 def forgot_password_submit():
     """When a forgotten password form is submitted we get here"""
     params = request.form
@@ -426,7 +423,7 @@ def forgot_password_submit():
         return redirect(url_for("forgot_password"))
 
 
-@ulogin_bp.route("/n/password_reset", methods=['GET'])
+@app.route("/n/password_reset", methods=['GET'])
 def password_reset():
     """Entry point after user clicks link in E-mail"""
     verification_code = request.args.get('code')
@@ -445,7 +442,7 @@ def password_reset():
         return redirect(url_for("login"))
 
 
-@ulogin_bp.route("/n/password_reset_step2", methods=('POST',))
+@app.route("/n/password_reset_step2", methods=('POST',))
 def password_reset_step2():
     """Handle confirmation E-mail for password reset"""
     errors = []
@@ -507,7 +504,7 @@ def register_user(params):
     return errors
 
 
-@ulogin_bp.route("/n/register", methods=('GET', 'POST'))
+@app.route("/n/register", methods=('GET', 'POST'))
 def register():
     errors = []
 
@@ -525,6 +522,6 @@ def register():
     return render_template("new_security/register_user.html", values=params, errors=errors)
 
 
-@ulogin_bp.errorhandler(401)
+@app.errorhandler(401)
 def unauthorized(error):
     return redirect(url_for('login'))

@@ -12,11 +12,10 @@ from flask import (
     url_for,
     request,
     redirect,
-    Blueprint,
     make_response,
-    render_template,
-    current_app as app)
+    render_template)
 
+from wqflask import app
 from utility import hmac
 
 from utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
@@ -25,8 +24,6 @@ Redis = get_redis_conn()
 
 THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
-
-usession_bp = Blueprint("user_session", __name__)
 
 
 def verify_cookie(cookie):
@@ -45,7 +42,7 @@ def create_signed_cookie():
     return the_uuid, uuid_signed
 
 
-@usession_bp.route("/user/manage", methods=('GET', 'POST'))
+@app.route("/user/manage", methods=('GET', 'POST'))
 def manage_user():
     params = request.form if request.form else request.args
     if 'new_full_name' in params:

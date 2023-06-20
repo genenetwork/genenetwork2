@@ -12,26 +12,24 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 import flask
 from flask import request
-from flask import Blueprint
 from flask import send_file
 from flask import make_response
-from flask import current_app as app
 
 from utility.configuration import flat_files
 
+from wqflask import app
 from wqflask.database import database_connection
 from wqflask.api import correlation, mapping, gen_menu
 
 
 version = "pre1"
-pre1_router = Blueprint("pre1_router", __name__)
 
-@pre1_router.route("/v_{}/".format(version))
+@app.route("/v_{}/".format(version))
 def hello_world():
     return flask.jsonify({"hello": "world"})
 
 
-@pre1_router.route("/v_{}/species".format(version))
+@app.route("/v_{}/species".format(version))
 def get_species_list():
     species_list = []
     with database_connection() as conn, conn.cursor() as cursor:
@@ -49,8 +47,8 @@ def get_species_list():
     return flask.jsonify(species_list)
 
 
-@pre1_router.route("/v_{}/species/<path:species_name>".format(version))
-@pre1_router.route("/v_{}/species/<path:species_name>.<path:file_format>".format(version))
+@app.route("/v_{}/species/<path:species_name>".format(version))
+@app.route("/v_{}/species/<path:species_name>.<path:file_format>".format(version))
 def get_species_info(species_name, file_format="json"):
     with database_connection() as conn, conn.cursor() as cursor:
         cursor.execute(
@@ -68,8 +66,8 @@ def get_species_info(species_name, file_format="json"):
         return flask.jsonify(species_dict)
 
 
-@pre1_router.route("/v_{}/groups".format(version))
-@pre1_router.route("/v_{}/groups/<path:species_name>".format(version))
+@app.route("/v_{}/groups".format(version))
+@app.route("/v_{}/groups/<path:species_name>".format(version))
 def get_groups_list(species_name=None):
     _groups = ()
     with database_connection() as conn, conn.cursor() as cursor:
@@ -114,10 +112,10 @@ def get_groups_list(species_name=None):
     return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/group/<path:group_name>".format(version))
-@pre1_router.route("/v_{}/group/<path:group_name>.<path:file_format>".format(version))
-@pre1_router.route("/v_{}/group/<path:species_name>/<path:group_name>".format(version))
-@pre1_router.route("/v_{}/group/<path:species_name>/<path:group_name>.<path:file_format>".format(version))
+@app.route("/v_{}/group/<path:group_name>".format(version))
+@app.route("/v_{}/group/<path:group_name>.<path:file_format>".format(version))
+@app.route("/v_{}/group/<path:species_name>/<path:group_name>".format(version))
+@app.route("/v_{}/group/<path:species_name>/<path:group_name>.<path:file_format>".format(version))
 def get_group_info(group_name, species_name=None, file_format="json"):
     group = ()
     with database_connection() as conn, conn.cursor() as cursor:
@@ -169,8 +167,8 @@ def get_group_info(group_name, species_name=None, file_format="json"):
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/datasets/<path:group_name>".format(version))
-@pre1_router.route("/v_{}/datasets/<path:species_name>/<path:group_name>".format(version))
+@app.route("/v_{}/datasets/<path:group_name>".format(version))
+@app.route("/v_{}/datasets/<path:species_name>/<path:group_name>".format(version))
 def get_datasets_for_group(group_name, species_name=None):
     _datasets = ()
     with database_connection() as conn, conn.cursor() as cursor:
@@ -234,10 +232,10 @@ def get_datasets_for_group(group_name, species_name=None):
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/dataset/<path:dataset_name>".format(version))
-@pre1_router.route("/v_{}/dataset/<path:dataset_name>.<path:file_format>".format(version))
-@pre1_router.route("/v_{}/dataset/<path:group_name>/<path:dataset_name>".format(version))
-@pre1_router.route("/v_{}/dataset/<path:group_name>/<path:dataset_name>.<path:file_format>".format(version))
+@app.route("/v_{}/dataset/<path:dataset_name>".format(version))
+@app.route("/v_{}/dataset/<path:dataset_name>.<path:file_format>".format(version))
+@app.route("/v_{}/dataset/<path:group_name>/<path:dataset_name>".format(version))
+@app.route("/v_{}/dataset/<path:group_name>/<path:dataset_name>.<path:file_format>".format(version))
 def get_dataset_info(dataset_name, group_name=None, file_format="json"):
     # ZS: First get ProbeSet (mRNA expression) datasets and then get Phenotype datasets
 
@@ -340,8 +338,8 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
-@pre1_router.route("/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
+@app.route("/v_{}/traits/<path:dataset_name>".format(version), methods=("GET",))
+@app.route("/v_{}/traits/<path:dataset_name>.<path:file_format>".format(version), methods=("GET",))
 def fetch_traits(dataset_name, file_format="json"):
     trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(
         dataset_name, request.args)
@@ -489,8 +487,8 @@ def fetch_traits(dataset_name, file_format="json"):
                 details="")
 
 
-@pre1_router.route("/v_{}/sample_data/<path:dataset_name>".format(version))
-@pre1_router.route("/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
+@app.route("/v_{}/sample_data/<path:dataset_name>".format(version))
+@app.route("/v_{}/sample_data/<path:dataset_name>.<path:file_format>".format(version))
 def all_sample_data(dataset_name, file_format="csv"):
     trait_ids, trait_names, data_type, dataset_id = get_dataset_trait_ids(
         dataset_name, request.args)
@@ -598,8 +596,8 @@ def all_sample_data(dataset_name, file_format="csv"):
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
-@pre1_router.route("/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
+@app.route("/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
+@app.route("/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 def trait_sample_data(dataset_name, trait_name, file_format="json"):
     with database_connection() as conn, conn.cursor() as cursor:
         cursor.execute(
@@ -685,10 +683,10 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
                 return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/trait/<path:dataset_name>/<path:trait_name>".format(version))
-@pre1_router.route("/v_{}/trait/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
-@pre1_router.route("/v_{}/trait_info/<path:dataset_name>/<path:trait_name>".format(version))
-@pre1_router.route("/v_{}/trait_info/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
+@app.route("/v_{}/trait/<path:dataset_name>/<path:trait_name>".format(version))
+@app.route("/v_{}/trait/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
+@app.route("/v_{}/trait_info/<path:dataset_name>/<path:trait_name>".format(version))
+@app.route("/v_{}/trait_info/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 def get_trait_info(dataset_name, trait_name, file_format="json"):
     with database_connection() as conn, conn.cursor() as cursor:
         cursor.execute(
@@ -750,7 +748,7 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
                 return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/correlation".format(version), methods=("GET",))
+@app.route("/v_{}/correlation".format(version), methods=("GET",))
 def get_corr_results():
     results = correlation.do_correlation(request.args)
 
@@ -761,7 +759,7 @@ def get_corr_results():
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/mapping".format(version), methods=("GET",))
+@app.route("/v_{}/mapping".format(version), methods=("GET",))
 def get_mapping_results():
     results, format = mapping.do_mapping_for_api(request.args)
 
@@ -785,18 +783,18 @@ def get_mapping_results():
         return return_error(code=204, source=request.url_rule.rule, title="No Results", details="")
 
 
-@pre1_router.route("/v_{}/genotypes/view/<string:group_name>".format(version))
+@app.route("/v_{}/genotypes/view/<string:group_name>".format(version))
 def view_genotype_files(group_name):
     if os.path.isfile("{0}/{1}.json".format(flat_files(app, "genotype"), group_name)):
         with open("{0}/{1}.json".format(flat_files(app, "genotype"), group_name)) as geno_json:
             return flask.jsonify(json.load(geno_json))
 
 
-@pre1_router.route("/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>.zip".format(version))
-@pre1_router.route("/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>".format(version))
-@pre1_router.route("/v_{}/genotypes/<string:file_format>/<string:group_name>.zip".format(version))
-@pre1_router.route("/v_{}/genotypes/<string:file_format>/<string:group_name>".format(version))
-@pre1_router.route("/v_{}/genotypes/<string:group_name>.<string:file_format>".format(version))
+@app.route("/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>.zip".format(version))
+@app.route("/v_{}/genotypes/<string:file_format>/<string:group_name>/<string:dataset_name>".format(version))
+@app.route("/v_{}/genotypes/<string:file_format>/<string:group_name>.zip".format(version))
+@app.route("/v_{}/genotypes/<string:file_format>/<string:group_name>".format(version))
+@app.route("/v_{}/genotypes/<string:group_name>.<string:file_format>".format(version))
 def get_genotypes(group_name, file_format="csv", dataset_name=None):
     limit_num = None
     if 'limit_to' in request.args:
@@ -887,7 +885,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
     return output
 
 
-@pre1_router.route("/v_{}/gen_dropdown".format(version), methods=("GET",))
+@app.route("/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
     with database_connection() as conn:
         results = gen_menu.gen_dropdown_json(conn)

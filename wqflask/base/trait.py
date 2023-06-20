@@ -1,8 +1,9 @@
 import requests
 import simplejson as json
 
-from flask import g, request, url_for, Blueprint, current_app as app
+from flask import g, request, url_for
 
+from wqflask import app
 import utility.hmac as hmac
 from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
@@ -15,7 +16,6 @@ from wqflask.database import database_connection
 
 
 Redis = get_redis_conn()
-trait_bp = Blueprint("trait", __name__)
 
 def create_trait(**kw):
     assert bool(kw.get('dataset')) != bool(
@@ -256,7 +256,7 @@ def retrieve_sample_data(trait, dataset, samplelist=None):
     return trait
 
 
-@trait_bp.route("/trait/get_sample_data")
+@app.route("/trait/get_sample_data")
 def get_sample_data():
     params = request.args
     trait = params['trait']
