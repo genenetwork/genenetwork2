@@ -90,7 +90,7 @@ def write_covarstruct_file(cofactors: str) -> str:
         writer.writerow([cofactor_name, datatype])
 
     hash_of_file = get_hash_of_textio(covar_struct_file)
-    file_path = get_setting(app, "WEBQTL_TMPDIR") + hash_of_file + ".csv"
+    file_path = get_setting(app, "TMPDIR") + hash_of_file + ".csv"
 
     with open(file_path, "w") as fd:
         covar_struct_file.seek(0)
@@ -133,7 +133,7 @@ def write_phenotype_file(trait_name: str,
         writer.writerow(this_row)
 
     hash_of_file = get_hash_of_textio(pheno_file)
-    file_path = get_setting(app, "WEBQTL_TMPDIR") + hash_of_file + ".csv"
+    file_path = get_setting(app, "TMPDIR") + hash_of_file + ".csv"
 
     with open(file_path, "w") as fd:
         pheno_file.seek(0)

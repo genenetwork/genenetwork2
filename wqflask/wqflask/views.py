@@ -118,7 +118,7 @@ def index_page():
 @app.route("/tmp/<img_path>")
 def tmp_page(img_path):
     initial_start_vars = request.form
-    imgfile = open(get_setting(app, "WEBQTL_GENERATED_IMAGE_DIR") + img_path, 'rb')
+    imgfile = open(get_setting(app, "GENERATED_IMAGE_DIR") + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = base64.b64encode(imgdata)
     bytesarray = array.array('B', imgB64)
@@ -229,7 +229,7 @@ def docedit():
 
 @app.route('/generated/<filename>')
 def generated_file(filename):
-    return send_from_directory(get_setting(app, "WEBQTL_GENERATED_IMAGE_DIR"), filename)
+    return send_from_directory(get_setting(app, "GENERATED_IMAGE_DIR"), filename)
 
 
 @app.route("/help")

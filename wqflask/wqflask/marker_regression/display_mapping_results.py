@@ -608,7 +608,7 @@ class DisplayMappingResults:
         self.filename = webqtlUtil.genRandStr("Itvl_")
         intCanvas.save(
             "{}.png".format(
-                os.path.join(get_setting(app, "WEBQTL_GENERATED_IMAGE_DIR"), self.filename)),
+                os.path.join(get_setting(app, "GENERATED_IMAGE_DIR"), self.filename)),
             format='png')
         intImg = HtmlGenWrapper.create_image_tag(
             src="/image/{}.png".format(self.filename),
@@ -623,7 +623,7 @@ class DisplayMappingResults:
                 intCanvasX2, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm, zoom=2)
             intCanvasX2.save(
                 "{}.png".format(
-                    os.path.join(get_setting(app, "WEBQTL_GENERATED_IMAGE_DIR"),
+                    os.path.join(get_setting(app, "GENERATED_IMAGE_DIR"),
                                  self.filename + "X2")),
                 format='png')
 

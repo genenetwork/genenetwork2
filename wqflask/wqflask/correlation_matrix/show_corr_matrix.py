@@ -225,7 +225,7 @@ def export_corr_matrix(corr_results):
         ''.join(random.choice(string.ascii_uppercase + string.digits)
                 for _ in range(6))
     matrix_export_path = "{}{}.csv".format(
-        get_setting(app, "WEBQTL_GENERATED_TEXT_DIR"), corr_matrix_filename)
+        get_setting(app, "GENERATED_TEXT_DIR"), corr_matrix_filename)
     with open(matrix_export_path, "w+") as output_file:
         output_file.write(
             "Time/Date: " + datetime.datetime.now().strftime("%x / %X") + "\n")

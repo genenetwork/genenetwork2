@@ -102,7 +102,7 @@ def fetch_text_file(dataset_name, conn, text_dir=None):
             # checks first for recently generated textfiles if not use gn1 datamatrix
 
             return __file_scanner__(text_dir, results[0]) or __file_scanner__(
-                get_setting(app, "WEBQTL_TEXTDIR"), results[0])
+                get_setting(app, "TEXTDIR"), results[0])
 
         except Exception:
             pass

@@ -57,7 +57,7 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, samplelist: List
     samplelist_as_str = ",".join(samplelist)
 
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp, samplelist_as_str)
-    file_path = os.path.join(app.config["WEBQTL_TMPDIR"], f"{file_name}.json")
+    file_path = os.path.join(app.config["TMPDIR"], f"{file_name}.json")
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
@@ -70,7 +70,7 @@ def fetch_cached_results(dataset_name: str, dataset_type: str, samplelist: List)
     samplelist_as_str = ",".join(samplelist)
 
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp, samplelist_as_str)
-    file_path = os.path.join(app.config["WEBQTL_TMPDIR"], f"{file_name}.json")
+    file_path = os.path.join(app.config["TMPDIR"], f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
 

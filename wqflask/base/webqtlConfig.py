@@ -91,34 +91,33 @@ def init_app(app):
     TEMPDIR = app.config["TEMPDIR"]
     mkdir_with_temp_dir = lambda child: mkdir_with_assert_writable(
         TEMPDIR, child)
-    WEBQTL_TMPDIR = mkdir_with_temp_dir("/gn2/")
-    app.config["WEBQTL_TMPDIR"] = WEBQTL_TMPDIR
-    app.config["TMPDIR"] = WEBQTL_TMPDIR
-    app.config["WEBQTL_CACHEDIR"] = mkdir_with_temp_dir(
-        f"{WEBQTL_TMPDIR}cache/")
+    TMPDIR = mkdir_with_temp_dir("/gn2/")
+    app.config["TMPDIR"] = TMPDIR
+    app.config["CACHEDIR"] = mkdir_with_temp_dir(
+        f"{TMPDIR}cache/")
 
     # We can no longer write into the git tree:
-    app.config["WEBQTL_GENERATED_IMAGE_DIR"] = mkdir_with_temp_dir(
-        f"{WEBQTL_TMPDIR}generated/")
-    app.config["WEBQTL_GENERATED_TEXT_DIR"] = mkdir_with_temp_dir(
-        f"{WEBQTL_TMPDIR}generated_text/")
+    app.config["GENERATED_IMAGE_DIR"] = mkdir_with_temp_dir(
+        f"{TMPDIR}generated/")
+    app.config["GENERATED_TEXT_DIR"] = mkdir_with_temp_dir(
+        f"{TMPDIR}generated_text/")
 
     # Flat file directories
-    app.config["WEBQTL_GENODIR"] = flat_files(app, 'genotype/')
+    app.config["GENODIR"] = flat_files(app, 'genotype/')
 
     # JSON genotypes are OBSOLETE
-    WEBQTL_JSON_GENODIR = flat_files(app, 'genotype/json/')
-    if not valid_path(WEBQTL_JSON_GENODIR):
+    JSON_GENODIR = flat_files(app, 'genotype/json/')
+    if not valid_path(JSON_GENODIR):
         # fall back on old location (move the dir, FIXME)
-        WEBQTL_JSON_GENODIR = flat_files('json')
-    app.config["WEBQTL_JSON_GENODIR"] = WEBQTL_JSON_GENODIR
+        JSON_GENODIR = flat_files('json')
+    app.config["JSON_GENODIR"] = JSON_GENODIR
 
 
-    app.config["WEBQTL_TEXTDIR"] = os.path.join(
+    app.config["TEXTDIR"] = os.path.join(
         app.config.get("GNSHARE", "/gnshare/gn/"),
         "web/ProbeSetFreeze_DataMatrix")
     # Are we using the following...?
-    app.config["WEBQTL_PORTADDR"] = "http://50.16.251.170"
-    app.config["WEBQTL_INFOPAGEHREF"] = '/dbdoc/%s.html'
-    app.config["WEBQTL_CGIDIR"] = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
+    app.config["PORTADDR"] = "http://50.16.251.170"
+    app.config["INFOPAGEHREF"] = '/dbdoc/%s.html'
+    app.config["CGIDIR"] = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
     return app

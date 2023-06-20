@@ -465,7 +465,7 @@ class RunMapping:
             self.this_trait, self.dataset, self.vals, pheno_filename=output_filename)
 
         rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (
-            self.dataset.group.name, self.dataset.group.name, get_setting(app, "WEBQTL_TMPDIR"), plink_output_filename, self.this_trait.name, self.maf, get_setting(app, "WEBQTL_TMPDIR"), plink_output_filename)
+            self.dataset.group.name, self.dataset.group.name, get_setting(app, "TMPDIR"), plink_output_filename, self.this_trait.name, self.maf, get_setting(app, "TMPDIR"), plink_output_filename)
 
         os.system(rqtl_command)
 
