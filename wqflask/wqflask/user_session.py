@@ -26,6 +26,25 @@ THREE_DAYS = 60 * 60 * 24 * 3
 THIRTY_DAYS = 60 * 60 * 24 * 30
 
 
+@app.before_request
+def get_user_session():
+    g.user_session = UserSession()
+    # I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
+    if not g.user_session:
+        response = make_response(redirect(url_for('login')))
+        response.set_cookie('session_id_v2', '', expires=0)
+        return response
+
+@app.after_request
+def set_user_session(response):
+    if hasattr(g, 'user_session'):
+        if not request.cookies.get(g.user_session.cookie_name):
+            response.set_cookie(g.user_session.cookie_name,
+                                g.user_session.cookie)
+    else:
+        response.set_cookie('session_id_v2', '', expires=0)
+    return response
+
 def verify_cookie(cookie):
     the_uuid, separator, the_signature = cookie.partition(':')
     assert len(the_uuid) == 36, "Is session_id a uuid?"

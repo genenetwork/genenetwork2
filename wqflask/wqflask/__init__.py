@@ -129,29 +129,6 @@ def include_admin_role_class():
 def include_data_role_class():
     return {'DataRole': DataRole}
 
-@app.before_request
-def get_user_session():
-    # import here to prevent circular import issues
-    from wqflask.user_session import UserSession
-    g.user_session = UserSession()
-    # I think this should solve the issue of deleting the cookie and redirecting to the home page when a user's session has expired
-    if not g.user_session:
-        response = make_response(redirect(url_for('login')))
-        response.set_cookie('session_id_v2', '', expires=0)
-        return response
-
-@app.after_request
-def set_user_session(response):
-    if hasattr(g, 'user_session'):
-        if not request.cookies.get(g.user_session.cookie_name):
-            response.set_cookie(g.user_session.cookie_name,
-                                g.user_session.cookie)
-    else:
-        response.set_cookie('session_id_v2', '', expires=0)
-    return response
-
-
-
 
 from wqflask import group_manager
 from wqflask import resource_manager
