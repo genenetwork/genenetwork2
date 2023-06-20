@@ -190,12 +190,18 @@ def __generate_target_name__(db_name):
                 f"ProbeSetFreezeId_{results[0]}_{results[1]}")
 
 
-def fetch_csv_info(textfile_path: str, db_target_name: str):
+def fetch_csv_info(db_target_name: str, conn):
     """
     alternative for processing csv textfiles with rust
     !.currently expiremental
     """
-    raise ValueError
+    csv_file_path = fetch_text_file(dataset_name, conn)
+    if csv_file_path:
+        return {
+            "file_type": "csv",
+            "lmdb_target_path": "csv_file_path",
+            "lmdb_target_path": "",
+        }
 
 
 def fetch_lmdb_info(db_path: str, db_target_name: str):
