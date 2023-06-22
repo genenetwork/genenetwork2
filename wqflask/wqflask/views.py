@@ -82,6 +82,7 @@ from wqflask.oauth2.client import no_token_get
 from wqflask.oauth2.request_utils import process_error
 
 from utility import temp_data
+from utility.tools import get_setting
 from utility.tools import TEMPDIR
 from utility.tools import USE_REDIS
 from utility.tools import REDIS_URL
@@ -481,7 +482,7 @@ def export_perm_data():
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
                    or g.user_session.record.get("user_id") or "")
         template_vars = show_trait.ShowTrait(cursor,
@@ -499,7 +500,7 @@ def show_trait_page():
         assert len(privileges_data) == 1
         privileges_data = privileges_data[0]
         trait_privileges = tuple(item for item in privileges_data["privileges"])
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
 
             user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
                        or g.user_session.record.get("user_id") or "")
@@ -537,7 +538,7 @@ def heatmap_page():
     temp_uuid = uuid.uuid4()
 
     traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if traits[0] != "":
             version = "v5"
             key = "heatmap:{}:".format(
@@ -973,7 +974,7 @@ def corr_scatter_plot_page():
 
 @app.route("/snp_browser", methods=('GET',))
 def snp_browser_page():
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         template_vars = snp_browser.SnpBrowser(cursor, request.args)
         return render_template("snp_browser.html", **template_vars.__dict__)
 
@@ -987,7 +988,7 @@ def db_info_page():
 
 @app.route("/snp_browser_table", methods=('GET',))
 def snp_browser_table():
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         snp_table_data = snp_browser.SnpBrowser(cursor, request.args)
         current_page = server_side.ServerSideTable(
             snp_table_data.rows_count,

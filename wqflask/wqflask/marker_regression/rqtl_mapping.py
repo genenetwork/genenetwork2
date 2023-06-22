@@ -14,7 +14,7 @@ import numpy as np
 from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
 from utility.redis_tools import get_redis_conn
-from utility.tools import locate, GN3_LOCAL_URL
+from utility.tools import locate, get_setting, GN3_LOCAL_URL
 from wqflask.database import database_connection
 
 
@@ -78,7 +78,7 @@ def write_covarstruct_file(cofactors: str) -> str:
     and the second column indicates whether they're numerical or categorical
     """
     trait_datatype_json = None
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute("SELECT value FROM TraitMetadata WHERE type='trait_data_type'")
         trait_datatype_json = json.loads(cursor.fetchone()[0])
 

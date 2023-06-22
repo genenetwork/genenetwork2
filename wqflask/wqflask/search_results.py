@@ -17,7 +17,7 @@ from wqflask.database import database_connection
 
 from utility import hmac
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
+from utility.tools import get_setting, GN2_BASE_URL
 from utility.type_checking import is_str
 
 
@@ -381,7 +381,7 @@ def trait_info_str(trait, dataset_type):
 
 def get_GO_symbols(a_search):
     gene_list = None
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute("SELECT genes FROM GORef WHERE goterm=%s",
                        (f"{a_search['key']}:{a_search['search_term'][0]}",))
         gene_list = cursor.fetchone()[0].strip().split()

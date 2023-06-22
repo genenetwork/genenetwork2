@@ -40,6 +40,7 @@ from base import webqtlConfig
 from base.GeneralObject import GeneralObject
 from utility import webqtlUtil
 from utility import Plot
+from utility.tools import get_setting
 from wqflask.interval_analyst import GeneUtil
 from base.webqtlConfig import GENERATED_IMAGE_DIR
 from utility.pillow_utils import draw_rotated_text, draw_open_polygon
@@ -464,7 +465,7 @@ class DisplayMappingResults:
             elif self.dataset.group.species == "rat" and indChr.name == "21":
                 self.ChrList.append(("X", i))
             self.ChrList.append((indChr.name, i))
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute("SELECT Length FROM Chr_Length, InbredSet "
                            "WHERE Chr_Length.SpeciesId = InbredSet.SpeciesId "
                            "AND InbredSet.Name = %s AND Chr_Length.Name IN "
@@ -515,7 +516,7 @@ class DisplayMappingResults:
             self.diffCol = []
 
         for i, strain in enumerate(self.diffCol):
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 cursor.execute("SELECT Id FROM Strain WHERE Symbol = %s",
                                (strain,))
                 if result := cursor.fetchone():
@@ -1033,7 +1034,7 @@ class DisplayMappingResults:
         SNPCounts = []
 
         while startMb < endMb:
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 # snp count
                 cursor.execute("SELECT COUNT(*) FROM BXDSnpPosition "
                                "WHERE Chr = %s AND Mb >= %s AND Mb < %s AND "

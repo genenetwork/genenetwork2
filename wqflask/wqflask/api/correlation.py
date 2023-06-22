@@ -4,6 +4,7 @@ import scipy
 from base import data_set
 from base.trait import create_trait, retrieve_sample_data
 from utility import corr_result_helpers
+from utility.tools import get_setting
 from wqflask.correlation import correlation_functions
 from wqflask.database import database_connection
 
@@ -127,7 +128,7 @@ def do_literature_correlation_for_all_traits(this_trait, target_dataset, trait_g
 
         if mouse_gene_id and str(mouse_gene_id).find(";") == -1:
             result = ""
-            with database_connection() as conn:
+            with database_connection(get_setting("SQL_URI")) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
                         ("SELECT value FROM LCorrRamin3 "
@@ -198,7 +199,7 @@ def convert_to_mouse_gene_id(species=None, gene_id=None):
         return None
 
     mouse_gene_id = None
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             if species == 'mouse':
                 mouse_gene_id = gene_id

@@ -7,12 +7,12 @@ import hashlib
 from typing import List
 
 
-from utility.tools import SQL_URI
+from utility.tools import get_setting, SQL_URI
 from base.webqtlConfig import TMPDIR
 from wqflask.database import parse_db_url, database_connection
 
 def geno_mrna_confidentiality(ob):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT confidentiality, "
             f"AuthorisedUsers FROM {ob.type}Freeze WHERE Name = %s",
@@ -26,7 +26,7 @@ def query_table_timestamp(dataset_type: str):
     """function to query the update timestamp of a given dataset_type"""
 
     # computation data and actions
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         fetch_db_name = parse_db_url(SQL_URI)
         cursor.execute(
             "SELECT UPDATE_TIME FROM "

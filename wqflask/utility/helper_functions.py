@@ -3,6 +3,7 @@ from base.trait import create_trait
 from base.species import TheSpecies
 
 from utility import hmac
+from utility.tools import get_setting
 
 from wqflask.database import database_connection
 
@@ -51,7 +52,7 @@ def get_species_groups():
     """Group each species into a group"""
     _menu = {}
     species, group_name = None, None
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT s.MenuName, i.InbredSetName FROM InbredSet i "
             "INNER JOIN Species s ON s.SpeciesId = i.SpeciesId "

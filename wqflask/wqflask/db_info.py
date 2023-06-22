@@ -5,6 +5,7 @@ import re
 
 from MySQLdb.cursors import DictCursor
 from wqflask.database import database_connection
+from utility.tools import get_setting
 
 
 class InfoPage:
@@ -74,7 +75,7 @@ class InfoPage:
             raise ValueError('No correct parameter found')
 
         results = {}
-        with database_connection() as conn, conn.cursor(DictCursor) as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor(DictCursor) as cursor:
             if self.gn_accession_id:
                 cursor.execute(f"{query_base}GN_AccesionId = %s",
                                (self.gn_accession_id,))

@@ -12,6 +12,7 @@ from base import webqtlConfig
 
 from pprint import pformat as pf
 
+from utility.tools import get_setting
 from wqflask.database import database_connection
 
 
@@ -107,7 +108,7 @@ def main():
         "(Oct08)_RankInv_Beta.txt")
     dataset_name = "Eye_AXBXA_1008_RankInv"
 
-    with database_connection as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             strains = get_strains(cursor)
             print("Getting probset_vals")

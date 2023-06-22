@@ -7,6 +7,7 @@ from pprint import pformat as pf
 
 from utility import Plot
 from utility import Bunch
+from utility.tools import get_setting
 
 class SampleList:
     def __init__(self,
@@ -122,7 +123,7 @@ class SampleList:
         """Finds which extra attributes apply to this dataset"""
 
         # Get attribute names and distinct values for each attribute
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT DISTINCT CaseAttribute.Id, "
                 "CaseAttribute.Name, CaseAttribute.Description, "
@@ -161,7 +162,7 @@ class SampleList:
 
     def get_extra_attribute_values(self):
         if self.attributes:
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT Strain.Name AS SampleName, "
                     "CaseAttributeId AS Id, "

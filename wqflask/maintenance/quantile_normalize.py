@@ -9,21 +9,7 @@ from flask import Flask, g, request
 
 from wqflask import app
 from wqflask.database import database_connection
-
-
-def parse_db_uri():
-    """Converts a database URI to the db name, host name, user name, and password"""
-
-    parsed_uri = urllib.parse.urlparse(SQL_URI)
-
-    db_conn_info = dict(
-        db=parsed_uri.path[1:],
-        host=parsed_uri.hostname,
-        user=parsed_uri.username,
-        passwd=parsed_uri.password)
-
-    print(db_conn_info)
-    return db_conn_info
+from utility.tools import get_setting
 
 
 def create_dataframe(input_file):
@@ -99,7 +85,7 @@ def set_data(cursor, dataset_name):
 
 
 if __name__ == '__main__':
-    with database_connection as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             success, _ = bulk(es, set_data(cursor, sys.argv[1]))
 

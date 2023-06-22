@@ -22,6 +22,7 @@ from wqflask.database import database_connection
 
 from base.trait import retrieve_trait_info
 from utility import helper_functions
+from utility.tools import get_setting
 
 
 class SendToWebGestalt:
@@ -68,7 +69,7 @@ class SendToWebGestalt:
 
 def test_chip(trait_list):
     final_chip_name = ""
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         for trait_db in trait_list:
             dataset = trait_db[1]
             cursor.execute(

@@ -9,7 +9,7 @@ from utility.redis_tools import (get_redis_conn,
                                  get_resource_info,
                                  get_resource_id,
                                  add_resource)
-from utility.tools import GN_PROXY_URL
+from utility.tools import get_setting, GN_PROXY_URL
 
 Redis = get_redis_conn()
 
@@ -82,7 +82,7 @@ def add_new_resource(dataset, trait_id=None):
 
 
 def get_group_code(dataset):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT InbredSetCode FROM InbredSet WHERE Name=%s",
             (dataset.group.name,)

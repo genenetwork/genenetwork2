@@ -6,6 +6,7 @@ import codecs
 from .dataset import DataSet
 from .utils import geno_mrna_confidentiality
 from wqflask.database import database_connection
+from utility.tools import get_setting
 
 class MrnaAssayDataSet(DataSet):
     '''
@@ -73,7 +74,7 @@ ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND ProbeSetFreeze.Name = %s"""
         #  Note: setting trait_list to [] is probably not a great idea.
         if not trait_list:
             trait_list = []
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             for this_trait in trait_list:
 
                 if not this_trait.haveinfo:
@@ -144,7 +145,7 @@ ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND ProbeSetFreeze.Name = %s"""
         return trait_list
 
     def retrieve_sample_data(self, trait):
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT Strain.Name, ProbeSetData.value, "
                 "ProbeSetSE.error, NStrain.count, "
@@ -168,7 +169,7 @@ ProbeFreeze.Id = ProbeSetFreeze.ProbeFreezeId AND ProbeSetFreeze.Name = %s"""
             return cursor.fetchall()
 
     def retrieve_genes(self, column_name):
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 f"SELECT ProbeSet.Name, ProbeSet.{column_name} "
                 "FROM ProbeSet,ProbeSetXRef WHERE "

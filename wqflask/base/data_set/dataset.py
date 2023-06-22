@@ -7,6 +7,7 @@ from redis import Redis
 
 from base import species
 from utility import chunks
+from utility.tools import get_setting
 from gn3.monads import MonadicDict, query_sql
 from pymonad.maybe import Maybe, Nothing
 from .datasetgroup import DatasetGroup
@@ -64,7 +65,7 @@ class DataSet:
         """Get the accession_id of this dataset depending on the
         dataset type."""
         __query = ""
-        with database_connection() as conn:
+        with database_connection(get_setting("SQL_URI")) as conn:
             if self.type == "Publish":
                 __query = (
                     "SELECT InfoFiles.GN_AccesionId AS accession_id FROM "
@@ -115,7 +116,7 @@ class DataSet:
         all is passed.
 
         """
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             try:
                 if self.type == "ProbeSet":
                     cursor.execute(
@@ -148,7 +149,7 @@ class DataSet:
 
         results = {}
         traits_name_dict = ()
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT ProbeSetXRef.DataId,ProbeSet.Name "
                 "FROM ProbeSet, ProbeSetXRef, ProbeSetFreeze "
@@ -179,7 +180,7 @@ class DataSet:
         if self.group.parlist != None and self.group.f1list != None:
             if (self.group.parlist + self.group.f1list) in self.samplelist:
                 self.samplelist += self.group.parlist + self.group.f1list
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT Strain.Name, Strain.Id FROM "
                 "Strain, Species WHERE Strain.Name IN "
@@ -219,7 +220,7 @@ class DataSet:
             if (self.group.parlist + self.group.f1list) in self.samplelist:
                 self.samplelist += self.group.parlist + self.group.f1list
 
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT Strain.Name, Strain.Id FROM Strain, Species "
                 f"WHERE Strain.Name IN {create_in_clause(self.samplelist)} "

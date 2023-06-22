@@ -22,12 +22,14 @@
 
 from wqflask.database import database_connection
 
+from utility.tools import get_setting
+
 
 def retrieve_species(group):
     """Get the species of a group (e.g. returns string "mouse" on "BXD"
 
     """
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT Species.Name FROM Species, InbredSet WHERE InbredSet.Name = %s AND InbredSet.SpeciesId = Species.Id",
             (group,))
@@ -37,7 +39,7 @@ def retrieve_species(group):
 
 
 def retrieve_species_id(group):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute("SELECT SpeciesId FROM InbredSet WHERE Name = %s",
                        (group,))
         return cursor.fetchone()[0]

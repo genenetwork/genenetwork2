@@ -26,28 +26,13 @@ sys.path.insert(0, './')
 from wqflask import app
 
 from utility import hmac
-from utility.tools import SQL_URI
+from utility.tools import get_setting
 from utility.redis_tools import get_redis_conn, get_user_id, add_resource, get_resources, get_resource_info
 Redis = get_redis_conn()
 
 import urllib.parse
 
 from wqflask.database import database_connection
-
-
-def parse_db_uri():
-    """Converts a database URI to the db name, host name, user name, and password"""
-
-    parsed_uri = urllib.parse.urlparse(SQL_URI)
-
-    db_conn_info = dict(
-        db=parsed_uri.path[1:],
-        host=parsed_uri.hostname,
-        user=parsed_uri.username,
-        passwd=parsed_uri.password)
-
-    print(db_conn_info)
-    return db_conn_info
 
 
 def insert_probeset_resources(cursor, default_owner_id):
@@ -163,6 +148,6 @@ def main(cursor):
 
 
 if __name__ == '__main__':
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             main(cursor)

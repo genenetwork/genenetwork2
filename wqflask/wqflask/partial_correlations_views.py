@@ -14,7 +14,7 @@ from flask import (
     render_template)
 
 from wqflask import app
-from utility.tools import GN_SERVER_URL
+from utility.tools import get_setting, GN_SERVER_URL
 from wqflask.database import database_connection
 from gn3.db.partial_correlations import traits_info
 
@@ -309,7 +309,7 @@ def partial_correlations():
         for error in args["errors"]:
             flash(error, "alert-danger")
 
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         target_dbs = target_databases(conn, traits, threshold=0)
         return render_template(
             "partial_correlations/pcorrs_select_operations.html",
