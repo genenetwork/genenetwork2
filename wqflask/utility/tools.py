@@ -11,8 +11,6 @@ from wqflask import app
 import logging
 logger = logging.getLogger(__name__)
 
-OVERRIDES = {}
-
 
 def app_set(command_id, value):
     """Set application wide value"""
@@ -56,16 +54,14 @@ def get_setting(command_id, guess=None):
     # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
-        command = OVERRIDES.get(command_id)  # currently not in use
+        # ---- Check whether setting exists in app
+        command = value(app.config.get(command_id))
         if command is None:
-            # ---- Check whether setting exists in app
-            command = value(app.config.get(command_id))
-            if command is None:
-                command = value(guess)
-                if command is None or command == "":
-                    # print command
-                    raise Exception(
-                        command_id + ' setting unknown or faulty (update default_settings.py?).')
+            command = value(guess)
+            if command is None or command == "":
+                # print command
+                raise Exception(
+                    command_id + ' setting unknown or faulty (update default_settings.py?).')
     # print("Set "+command_id+"="+str(command))
     return command
 
