@@ -8,7 +8,8 @@
 #
 #########################################
 import os
-from utility.tools import valid_path, mk_dir, assert_dir, assert_writable_dir, flat_files, TEMPDIR
+from flask import Flask
+from utility.tools import valid_path, mk_dir, assert_dir, get_setting, assert_writable_dir, flat_files
 
 # Debug Level
 # 1 for debug, mod python will reload import each time
@@ -69,39 +70,36 @@ PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&gen
 RRID_MOUSE_URL = "https://www.jax.org/strain/%s"
 RRID_RAT_URL = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id=%s"
 
-# Temporary storage (note that this TMPDIR can be set as an
-# environment variable - use utility.tools.TEMPDIR when you
-# want to reach this base dir
-assert_writable_dir(TEMPDIR)
+def update_settings(app: Flask) -> Flask:
+    # Temporary storage (note that this TMPDIR can be set as an
+    # environment variable - use utility.tools.TEMPDIR when you
+    # want to reach this base dir
+    TEMPDIR = assert_writable_dir(get_setting(app, "TEMPDIR"))
 
-TMPDIR = mk_dir(TEMPDIR + '/gn2/')
-assert_writable_dir(TMPDIR)
+    TMPDIR = assert_writable_dir(mk_dir(TEMPDIR + '/gn2/'))
+    app.config["TMPDIR"] = TMPDIR
 
-CACHEDIR = mk_dir(TMPDIR + '/cache/')
-# We can no longer write into the git tree:
-GENERATED_IMAGE_DIR = mk_dir(TMPDIR + 'generated/')
-GENERATED_TEXT_DIR = mk_dir(TMPDIR + 'generated_text/')
+    app.config["CACHEDIR"] = assert_writable_dir(mk_dir(TMPDIR + '/cache/'))
+    # We can no longer write into the git tree:
+    app.config["GENERATED_IMAGE_DIR"] = assert_writable_dir(mk_dir(TMPDIR + 'generated/'))
+    app.config["GENERATED_TEXT_DIR"] = assert_writable_dir(mk_dir(TMPDIR + 'generated_text/'))
 
-# Make sure we have permissions to access these
-assert_writable_dir(CACHEDIR)
-assert_writable_dir(GENERATED_IMAGE_DIR)
-assert_writable_dir(GENERATED_TEXT_DIR)
+    # Flat file directories
+    app.config["GENODIR"] = assert_dir(flat_files(app, 'genotype') + '/')
+    # assert_dir(GENODIR+'bimbam') # for gemma
 
-# Flat file directories
-GENODIR = flat_files('genotype') + '/'
-assert_dir(GENODIR)
-# assert_dir(GENODIR+'bimbam') # for gemma
-
-# JSON genotypes are OBSOLETE
-JSON_GENODIR = flat_files('genotype/json') + '/'
-if not valid_path(JSON_GENODIR):
-    # fall back on old location (move the dir, FIXME)
-    JSON_GENODIR = flat_files('json')
+    # JSON genotypes are OBSOLETE
+    JSON_GENODIR = flat_files(app, 'genotype/json') + '/'
+    app.config["JSON_GENODIR"] = JSON_GENODIR
+    if not valid_path(JSON_GENODIR):
+        # fall back on old location (move the dir, FIXME)
+        app.config["JSON_GENODIR"] = flat_files(app, 'json')
 
 
-TEXTDIR = os.path.join(os.environ.get(
-    "GNSHARE", "/gnshare/gn/"), "web/ProbeSetFreeze_DataMatrix")
-# Are we using the following...?
-PORTADDR = "http://50.16.251.170"
-INFOPAGEHREF = '/dbdoc/%s.html'
-CGIDIR = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
+    app.config["TEXTDIR"] = os.path.join(os.environ.get(
+        "GNSHARE", "/gnshare/gn/"), "web/ProbeSetFreeze_DataMatrix")
+    # Are we using the following...?
+    app.config["PORTADDR"] = "http://50.16.251.170"
+    app.config["INFOPAGEHREF"] = '/dbdoc/%s.html'
+    app.config["CGIDIR"] = '/webqtl/'  # XZ: The variable name 'CGIDIR' should be changed to 'PYTHONDIR'
+    return app

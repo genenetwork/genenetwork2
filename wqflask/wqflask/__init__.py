@@ -37,6 +37,9 @@ from wqflask.oauth2.request_utils import user_details, authserver_authorise_uri
 
 from wqflask.jupyter_notebooks import jupyter_notebooks
 
+from base.webqtlConfig import update_settings
+from utility.tools import set_mandatory_settings
+
 app = Flask(__name__)
 
 
@@ -60,6 +63,7 @@ app.jinja_env.globals.update(
     num_collections=num_collections)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+app = update_settings(set_mandatory_settings(app))
 
 # Registering blueprints
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
