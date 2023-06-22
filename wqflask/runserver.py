@@ -9,7 +9,7 @@
 
 from wqflask import app
 from utility.startup_config import app_config
-from utility.tools import WEBSERVER_MODE, SERVER_PORT
+from utility.tools import get_setting, get_setting_int
 
 import logging
 
@@ -18,10 +18,12 @@ GREEN = '\033[92m'
 BOLD = '\033[1m'
 ENDC = '\033[0m'
 
-app_config()
+app_config(app)
 
 werkzeug_logger = logging.getLogger('werkzeug')
 
+WEBSERVER_MODE = get_setting(app, "WEBSERVER_MODE")
+SERVER_PORT = get_setting_int(app, "SERVER_PORT")
 if WEBSERVER_MODE == 'DEBUG':
     app.debug = True
     app.run(host='0.0.0.0',

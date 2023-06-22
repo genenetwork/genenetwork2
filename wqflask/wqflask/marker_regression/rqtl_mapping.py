@@ -10,11 +10,11 @@ from typing import Optional
 from typing import TextIO
 
 import numpy as np
+from flask import current_app as app
 
-from base.webqtlConfig import TMPDIR
 from base.trait import create_trait
 from utility.redis_tools import get_redis_conn
-from utility.tools import locate, GN3_LOCAL_URL
+from utility.tools import locate
 from wqflask.database import database_connection
 
 
@@ -23,9 +23,9 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
     if dataset.group.genofile:
-        geno_file = locate(dataset.group.genofile, "genotype")
+        geno_file = locate(app, dataset.group.genofile, "genotype")
     else:
-        geno_file = locate(dataset.group.name + ".geno", "genotype")
+        geno_file = locate(app, dataset.group.name + ".geno", "genotype")
 
     post_data = {
         "pheno_file": pheno_file,
@@ -54,7 +54,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
     if perm_strata_list:
         post_data["pstrata"] = True
 
-    rqtl_output = requests.post(GN3_LOCAL_URL + "api/rqtl/compute", data=post_data).json()
+    rqtl_output = requests.post(get_setting(app, "GN3_LOCAL_URL") + "api/rqtl/compute", data=post_data).json()
     if num_perm > 0:
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
@@ -90,7 +90,7 @@ def write_covarstruct_file(cofactors: str) -> str:
         writer.writerow([cofactor_name, datatype])
 
     hash_of_file = get_hash_of_textio(covar_struct_file)
-    file_path = TMPDIR + hash_of_file + ".csv"
+    file_path = get_setting(app, 'TMPDIR') + hash_of_file + ".csv"
 
     with open(file_path, "w") as fd:
         covar_struct_file.seek(0)
@@ -133,7 +133,7 @@ def write_phenotype_file(trait_name: str,
         writer.writerow(this_row)
 
     hash_of_file = get_hash_of_textio(pheno_file)
-    file_path = TMPDIR + hash_of_file + ".csv"
+    file_path = get_setting(app, 'TMPDIR') + hash_of_file + ".csv"
 
     with open(file_path, "w") as fd:
         pheno_file.seek(0)

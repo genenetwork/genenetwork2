@@ -12,7 +12,7 @@ print("===> Starting up Gunicorn process")
 from wqflask import app
 from utility.startup_config import app_config
 
-app_config()
+app_config(app)
 
 
 @app.route("/gunicorn")

@@ -20,12 +20,13 @@
 
 import scipy
 import simplejson as json
+from flask import current_app as app
 
 from base.trait import create_trait
 from base import data_set
 from utility import helper_functions
 from utility import corr_result_helpers
-from utility.tools import GN2_BRANCH_URL
+from utility.tools import get_setting
 
 
 class NetworkGraph:
@@ -173,7 +174,7 @@ class NetworkGraph:
             self.nodes_list.append(node_dict)
 
         self.elements = json.dumps(self.nodes_list + self.edges_list)
-        self.gn2_url = GN2_BRANCH_URL
+        self.gn2_url = get_setting(app, "GN2_BRANCH_URL")
 
         groups = []
         for sample in self.all_sample_list:

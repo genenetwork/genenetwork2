@@ -14,7 +14,7 @@ from flask import (
     render_template)
 
 from wqflask import app
-from utility.tools import GN_SERVER_URL
+from utility.tools import get_setting
 from wqflask.database import database_connection
 from gn3.db.partial_correlations import traits_info
 
@@ -288,7 +288,7 @@ def partial_correlations():
                 "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
-                url=urljoin(GN_SERVER_URL, "correlation/partial"),
+                url=urljoin(get_setting(current_app, 'GN_SERVER_URL'), "correlation/partial"),
                 json=post_data))
 
         for error in args["errors"]:
@@ -303,7 +303,7 @@ def partial_correlations():
                 "with_target_db": args["with_target_db"]
             }
             return handle_response(requests.post(
-                url=urljoin(GN_SERVER_URL, "correlation/partial"),
+                url=urljoin(get_setting(current_app, 'GN_SERVER_URL'), "correlation/partial"),
                 json=post_data))
 
         for error in args["errors"]:
@@ -348,7 +348,7 @@ def process_pcorrs_command_output(result):
 @app.route("/partial_correlations/<command_id>", methods=["GET"])
 def poll_partial_correlation_results(command_id):
     response = requests.get(
-        url=urljoin(GN_SERVER_URL, f"async_commands/state/{command_id}"))
+        url=urljoin(get_setting(current_app, 'GN_SERVER_URL'), f"async_commands/state/{command_id}"))
 
     if response.status_code == 200:
         data = response.json()

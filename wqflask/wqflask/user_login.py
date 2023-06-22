@@ -21,7 +21,7 @@ from utility.redis_tools import is_redis_available, get_redis_conn, get_user_id,
 Redis = get_redis_conn()
 
 from smtplib import SMTP
-from utility.tools import SMTP_CONNECT, SMTP_USERNAME, SMTP_PASSWORD, LOG_SQL_ALCHEMY, GN2_BRANCH_URL
+from utility.tools import get_setting, get_setting_bool
 
 THREE_DAYS = 60 * 60 * 24 * 3
 
@@ -116,13 +116,13 @@ def send_email(toaddr, msg, fromaddr="no-reply@genenetwork.org"):
     'UNKNOWN' TLS is used
 
     """
-    if SMTP_USERNAME == 'UNKNOWN':
-        server = SMTP(SMTP_CONNECT)
+    if get_setting(app, "SMTP_USERNAME") == 'UNKNOWN':
+        server = SMTP(get_setting(app, "SMTP_CONNECT"))
         server.sendmail(fromaddr, toaddr, msg)
     else:
-        server = SMTP(SMTP_CONNECT)
+        server = SMTP(get_setting(app, "SMTP_CONNECT"))
         server.starttls()
-        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.login(get_setting(app, "SMTP_USERNAME"), get_setting(app, "SMTP_PASSWORD"))
         server.sendmail(fromaddr, toaddr, msg)
         server.quit()
 
@@ -304,7 +304,7 @@ def orcid_oauth2():
             "client_id": ORCID_CLIENT_ID,
             "client_secret": ORCID_CLIENT_SECRET,
             "grant_type": "authorization_code",
-            "redirect_uri": GN2_BRANCH_URL + "n/login/orcid_oauth2",
+            "redirect_uri": get_setting(app, "GN2_BRANCH_URL") + "n/login/orcid_oauth2",
             "code": code
         }
 

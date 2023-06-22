@@ -6,11 +6,12 @@ import pickle as pickle
 
 # 3rd-party imports
 from redis import Redis
+from flask import current_app as app
 
 # local imports
 from .dataset import DataSet
 from base import webqtlConfig
-from utility.tools import USE_REDIS
+from utility.tools import get_setting_bool
 from .datasettype import DatasetType
 from .tempdataset import TempDataSet
 from .datasetgroup import DatasetGroup
@@ -113,7 +114,7 @@ def datasets(group_name, this_group=None, redis_conn=Redis()):
                 dataset_menu.append(dict(tissue=tissue_name,
                                          datasets=[(dataset, dataset_short)]))
 
-    if USE_REDIS:
+    if get_setting_bool(app, "USE_REDIS"):
         redis_conn.set(key, pickle.dumps(dataset_menu, pickle.HIGHEST_PROTOCOL))
         redis_conn.expire(key, 60 * 5)
 

@@ -6,9 +6,10 @@ import json
 import hashlib
 from typing import List
 
+from flask import current_app as app
 
-from utility.tools import SQL_URI
-from base.webqtlConfig import TMPDIR
+
+from utility.tools import get_setting
 from wqflask.database import parse_db_url, database_connection
 
 def geno_mrna_confidentiality(ob):
@@ -27,7 +28,7 @@ def query_table_timestamp(dataset_type: str):
 
     # computation data and actions
     with database_connection() as conn, conn.cursor() as cursor:
-        fetch_db_name = parse_db_url(SQL_URI)
+        fetch_db_name = parse_db_url(get_setting(app, "SQL_URI"))
         cursor.execute(
             "SELECT UPDATE_TIME FROM "
             "information_schema.tables "
@@ -57,7 +58,7 @@ def cache_dataset_results(dataset_name: str, dataset_type: str, samplelist: List
     samplelist_as_str = ",".join(samplelist)
 
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp, samplelist_as_str)
-    file_path = os.path.join(TMPDIR, f"{file_name}.json")
+    file_path = os.path.join(get_setting(app, "TMPDIR"), f"{file_name}.json")
 
     with open(file_path, "w") as file_handler:
         json.dump(query_results, file_handler)
@@ -70,7 +71,7 @@ def fetch_cached_results(dataset_name: str, dataset_type: str, samplelist: List)
     samplelist_as_str = ",".join(samplelist)
 
     file_name = generate_hash_file(dataset_name, dataset_type, table_timestamp, samplelist_as_str)
-    file_path = os.path.join(TMPDIR, f"{file_name}.json")
+    file_path = os.path.join(get_setting(app, "TMPDIR"), f"{file_name}.json")
     try:
         with open(file_path, "r") as file_handler:
 

@@ -7,7 +7,7 @@ from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
+from utility.tools import get_setting
 from utility.redis_tools import get_redis_conn, get_resource_id
 
 from flask import g, request, url_for
@@ -173,11 +173,11 @@ class GeneralTrait:
         alias = 'Not available'
         if self.symbol:
             human_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.upper())
+                get_setting(app, "GN2_BASE_URL") + "gn3/gene/aliases/" + self.symbol.upper())
             mouse_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.capitalize())
+                get_setting(app, "GN2_BASE_URL") + "gn3/gene/aliases/" + self.symbol.capitalize())
             other_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.lower())
+                get_setting(app, "GN2_BASE_URL") + "gn3/gene/aliases/" + self.symbol.lower())
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(

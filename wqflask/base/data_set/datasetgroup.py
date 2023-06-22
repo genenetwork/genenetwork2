@@ -3,6 +3,8 @@
 import os
 import json
 
+from flask import current_app as app
+
 
 from base import webqtlConfig
 from .markers import Markers, HumanMarkers
@@ -13,9 +15,10 @@ from maintenance import get_group_samplelists
 from wqflask.database import database_connection
 from utility.tools import (
     locate,
-    USE_REDIS,
     flat_files,
+    get_setting,
     flat_file_exists,
+    get_setting_bool,
     locate_ignore_error)
 
 class DatasetGroup:
@@ -87,8 +90,8 @@ class DatasetGroup:
 
     def get_markers(self):
         def check_plink_gemma():
-            if flat_file_exists("mapping"):
-                MAPPING_PATH = flat_files("mapping") + "/"
+            if flat_file_exists(app, "mapping"):
+                MAPPING_PATH = flat_files(app, "mapping") + "/"
                 if os.path.isfile(MAPPING_PATH + self.name + ".bed"):
                     return True
             return False
@@ -117,7 +120,7 @@ class DatasetGroup:
 
     def get_study_samplelists(self):
         study_sample_file = locate_ignore_error(
-            self.name + ".json", 'study_sample_lists')
+            app, self.name + ".json", 'study_sample_lists')
         try:
             f = open(study_sample_file)
         except:
@@ -126,7 +129,7 @@ class DatasetGroup:
         return study_samples
 
     def get_genofiles(self):
-        jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
+        jsonfile = "%s/%s.json" % (get_setting(app, 'GENODIR'), self.name)
         try:
             f = open(jsonfile)
         except:
@@ -137,20 +140,20 @@ class DatasetGroup:
     def get_samplelist(self, redis_conn):
         result = None
         key = "samplelist:v3:" + self.name
-        if USE_REDIS:
+        if get_setting_bool(app, "USE_REDIS"):
             result = redis_conn.get(key)
 
         if result is not None:
             self.samplelist = json.loads(result)
         else:
-            genotype_fn = locate_ignore_error(self.name + ".geno", 'genotype')
+            genotype_fn = locate_ignore_error(app, self.name + ".geno", 'genotype')
             if genotype_fn:
                 self.samplelist = get_group_samplelists.get_samplelist(
                     "geno", genotype_fn)
             else:
                 self.samplelist = None
 
-            if USE_REDIS:
+            if get_setting_bool(app, "USE_REDIS"):
                 redis_conn.set(key, json.dumps(self.samplelist))
                 redis_conn.expire(key, 60 * 5)
 
@@ -169,11 +172,11 @@ class DatasetGroup:
         if self.genofile:
             if "RData" in self.genofile:  # ZS: This is a temporary fix; I need to change the way the JSON files that point to multiple genotype files are structured to point to other file types like RData
                 full_filename = str(
-                    locate(self.genofile.split(".")[0] + ".geno", 'genotype'))
+                    locate(app, self.genofile.split(".")[0] + ".geno", 'genotype'))
             else:
-                full_filename = str(locate(self.genofile, 'genotype'))
+                full_filename = str(locate(app, self.genofile, 'genotype'))
         else:
-            full_filename = str(locate(self.name + '.geno', 'genotype'))
+            full_filename = str(locate(app, self.name + '.geno', 'genotype'))
         genotype_1 = gen_geno_ob.genotype(full_filename)
 
         if genotype_1.type == "group" and self.parlist:

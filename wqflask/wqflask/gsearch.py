@@ -3,10 +3,11 @@ from urllib.parse import urlencode, urljoin
 from pymonad.maybe import Just, Maybe
 from pymonad.tools import curry
 import requests
+from flask import current_app as app
 
 from gn3.monads import MonadicDict
 from utility.hmac import hmac_creation
-from utility.tools import GN3_LOCAL_URL
+from utility.tools import get_setting
 from base import webqtlConfig
 
 # KLUDGE: Due to the lack of pagination, we hard-limit the maximum
@@ -29,7 +30,7 @@ class GSearch:
         convert_lod = lambda x: x / 4.61
         self.trait_list = []
         for i, trait in enumerate(requests.get(
-                urljoin(GN3_LOCAL_URL, "/api/search?" + urlencode({"query": self.terms,
+                urljoin(get_setting(app, "GN3_LOCAL_URL"), "/api/search?" + urlencode({"query": self.terms,
                                                                    "type": self.type,
                                                                    "per_page": MAX_SEARCH_RESULTS}))).json()):
             trait = MonadicDict(trait)

@@ -16,7 +16,7 @@ from flask import current_app
 from wqflask import app
 from utility import hmac
 from utility.formatting import numify
-from utility.tools import GN_SERVER_URL, TEMPDIR
+from utility.tools import get_setting
 from utility.redis_tools import get_redis_conn
 
 from base.trait import create_trait
@@ -308,7 +308,7 @@ def trait_info_str(trait):
 def import_collection():
     import_file = request.files['import_file']
     if import_file.filename != '':
-        file_path = os.path.join(TEMPDIR, import_file.filename)
+        file_path = os.path.join(get_setting(app, "TEMPDIR"), import_file.filename)
         import_file.save(file_path)
         collection_csv = open(file_path, "r")
         traits = [row.strip() for row in collection_csv if row[0] != "#"]
@@ -363,7 +363,7 @@ def view_collection():
         collection_info = dict(
             trait_obs=trait_obs,
             uc=uc,
-            heatmap_data_url=urljoin(GN_SERVER_URL, "heatmaps/clustered"))
+            heatmap_data_url=urljoin(get_setting(app, "GN_SERVER_URL"), "heatmaps/clustered"))
 
         if "json" in params:
             return json.dumps(json_version)

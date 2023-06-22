@@ -23,7 +23,7 @@ import simplejson as json
 from redis import Redis
 Redis = Redis()
 
-from flask import Flask, g
+from flask import Flask, g, current_app as app
 
 from base.trait import GeneralTrait
 from base import data_set
@@ -35,9 +35,8 @@ from wqflask.database import database_connection
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from wqflask.show_trait.SampleList import SampleList
 
-from utility.tools import locate, locate_ignore_error, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
+from utility.tools import get_setting
 from utility.external import shell
-from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
 Redis = get_redis_conn()
 
@@ -467,7 +466,7 @@ class RunMapping:
             self.this_trait, self.dataset, self.vals, pheno_filename=output_filename)
 
         rqtl_command = './plink --noweb --ped %s.ped --no-fid --no-parents --no-sex --no-pheno --map %s.map --pheno %s/%s.txt --pheno-name %s --maf %s --missing-phenotype -9999 --out %s%s --assoc ' % (
-            self.dataset.group.name, self.dataset.group.name, TMPDIR, plink_output_filename, self.this_trait.name, self.maf, TMPDIR, plink_output_filename)
+            self.dataset.group.name, self.dataset.group.name, get_setting(app, 'TMPDIR'), plink_output_filename, self.this_trait.name, self.maf, get_setting(app, 'TMPDIR'), plink_output_filename)
 
         os.system(rqtl_command)
 
@@ -646,8 +645,8 @@ def write_input_for_browser(this_dataset, gwas_results, annotations):
                 for _ in range(6))
     gwas_filename = file_base + "_GWAS"
     annot_filename = file_base + "_ANNOT"
-    gwas_path = "{}/gn2/".format(TEMPDIR) + gwas_filename
-    annot_path = "{}/gn2/".format(TEMPDIR) + annot_filename
+    gwas_path = "{}/gn2/".format(get_setting(app, 'TEMPDIR')) + gwas_filename
+    annot_path = "{}/gn2/".format(get_setting(app, 'TEMPDIR')) + annot_filename
 
     with open(gwas_path + ".json", "w") as gwas_file, open(annot_path + ".json", "w") as annot_file:
         gwas_file.write(json.dumps(gwas_results))

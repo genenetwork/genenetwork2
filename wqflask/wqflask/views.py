@@ -82,21 +82,11 @@ from wqflask.oauth2.client import no_token_get
 from wqflask.oauth2.request_utils import process_error
 
 from utility import temp_data
-from utility.tools import TEMPDIR
-from utility.tools import USE_REDIS
-from utility.tools import REDIS_URL
-from utility.tools import GN_SERVER_URL
-from utility.tools import GN3_LOCAL_URL
-from utility.tools import GN_VERSION
-from utility.tools import JS_TWITTER_POST_FETCHER_PATH
-from utility.tools import JS_GUIX_PATH
+from utility.tools import get_setting, get_setting_bool
 from utility.helper_functions import get_species_groups
 from utility.redis_tools import get_redis_conn
 
 import utility.hmac as hmac
-
-from base.webqtlConfig import TMPDIR
-from base.webqtlConfig import GENERATED_IMAGE_DIR
 
 from wqflask.database import database_connection
 
@@ -138,7 +128,7 @@ def handle_generic_exceptions(e):
     resp = make_response(render_template("error.html", message=err_msg,
                                          stack={formatted_lines},
                                          error_image=animation,
-                                         version=GN_VERSION))
+                                         version=get_setting(app, 'GN_VERSION')))
     resp.set_cookie(err_msg[:32], animation)
     return resp
 
@@ -152,8 +142,8 @@ def no_access_page():
 def index_page():
     anon_id = session_info()["anon_id"]
     def __render__(colls):
-        return render_template("index_page.html", version=GN_VERSION,
-                               gn_server_url=GN_SERVER_URL,
+        return render_template("index_page.html", version=get_setting(app, 'GN_VERSION'),
+                               gn_server_url=get_setting(app, 'GN_SERVER_URL'),
                                anon_collections=(
                                    colls if user_logged_in() else []),
                                anon_id=anon_id)
@@ -167,7 +157,7 @@ def index_page():
 @app.route("/tmp/<img_path>")
 def tmp_page(img_path):
     initial_start_vars = request.form
-    imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
+    imgfile = open(get_setting(app, 'GENERATED_IMAGE_DIR') + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = base64.b64encode(imgdata)
     bytesarray = array.array('B', imgB64)
@@ -177,7 +167,7 @@ def tmp_page(img_path):
 
 @app.route("/js/<path:filename>")
 def js(filename):
-    js_path = JS_GUIX_PATH
+    js_path = get_setting(app, 'JS_GUIX_PATH')
     name = filename
     if 'js_alt/' in filename:
         js_path = js_path.replace('genenetwork2/javascript', 'javascript')
@@ -187,7 +177,7 @@ def js(filename):
 
 @app.route("/css/<path:filename>")
 def css(filename):
-    js_path = JS_GUIX_PATH
+    js_path = get_setting(app, 'JS_GUIX_PATH')
     name = filename
     if 'js_alt/' in filename:
         js_path = js_path.replace('genenetwork2/javascript', 'javascript')
@@ -197,13 +187,13 @@ def css(filename):
 
 @app.route("/twitter/<path:filename>")
 def twitter(filename):
-    return send_from_directory(JS_TWITTER_POST_FETCHER_PATH, filename)
+    return send_from_directory(get_setting(app, 'JS_TWITTER_POST_FETCHER_PATH'), filename)
 
 
 @app.route("/search", methods=('GET',))
 def search_page():
     result = None
-    if USE_REDIS:
+    if get_setting_bool(app, 'USE_REDIS'):
         key = "search_results:v1:" + \
             json.dumps(request.args, sort_keys=True)
         result = Redis.get(key)
@@ -211,7 +201,7 @@ def search_page():
             result = pickle.loads(result)
     result = SearchResultPage(request.args).__dict__
     valid_search = result['search_term_exists']
-    if USE_REDIS and valid_search:
+    if get_setting_bool(app, 'USE_REDIS') and valid_search:
         # Redis.set(key, pickle.dumps(result, pickle.HIGHEST_PROTOCOL))
         Redis.expire(key, 60 * 60)
 
@@ -277,7 +267,7 @@ def docedit():
 
 @app.route('/generated/<filename>')
 def generated_file(filename):
-    return send_from_directory(GENERATED_IMAGE_DIR, filename)
+    return send_from_directory(get_setting(app, 'GENERATED_IMAGE_DIR'), filename)
 
 
 @app.route("/help")
@@ -351,8 +341,8 @@ def submit_trait_form():
     return render_template(
         "submit_trait.html",
         species_and_groups=species_and_groups,
-        gn_server_url=GN_SERVER_URL,
-        version=GN_VERSION)
+        gn_server_url=get_setting(app, 'GN_SERVER_URL'),
+        version=get_setting(app, 'GN_VERSION'))
 
 
 @app.route("/create_temp_trait", methods=('POST',))
@@ -904,11 +894,11 @@ def __handle_correlation_error__(exc):
 
 @app.route("/corr_compute", methods=('POST', 'GET'))
 def corr_compute_page():
-    with Redis.from_url(REDIS_URL, decode_responses=True) as rconn:
+    with Redis.from_url(get_setting(app, 'REDIS_URL'), decode_responses=True) as rconn:
         if request.method == "POST":
             request_received = datetime.datetime.utcnow()
             filename=hmac.hmac_creation(f"request_form_{request_received.isoformat()}")
-            filepath = f"{TMPDIR}{filename}"
+            filepath = f"{get_setting(app, 'TMPDIR')}{filename}"
             with open(filepath, "wb") as pfile:
                 pickle.dump(request.form, pfile, protocol=pickle.HIGHEST_PROTOCOL)
                 job_id = jobs.queue(
@@ -919,7 +909,7 @@ def corr_compute_page():
                         "request_received_time": request_received.isoformat(),
                         "status": "queued"
                     })
-                jobs.run(job_id, REDIS_URL)
+                jobs.run(job_id, get_setting(app, 'REDIS_URL'))
 
             return redirect(url_for("corr_compute_page", job_id=str(job_id)))
 
@@ -1030,7 +1020,7 @@ def browser_inputs():
 
     filename = request.args['filename']
 
-    with open("{}/gn2/".format(TEMPDIR) + filename + ".json", "r") as the_file:
+    with open("{}/gn2/".format(get_setting(app, 'TEMPDIR')) + filename + ".json", "r") as the_file:
         file_contents = json.load(the_file)
 
     return flask.jsonify(file_contents)
@@ -1086,7 +1076,7 @@ def display_generif_page(symbol):
     """Fetch GeneRIF metadata from GN3 and display it"""
     entries = requests.get(
         urljoin(
-            GN3_LOCAL_URL,
+            get_setting(app, 'GN3_LOCAL_URL'),
             f"/api/metadata/genewiki/{symbol}"
         )
     ).json()
@@ -1101,7 +1091,7 @@ def display_generif_page(symbol):
 def get_dataset(name):
     metadata = requests.get(
         urljoin(
-            GN3_LOCAL_URL,
+            get_setting(app, 'GN3_LOCAL_URL'),
             f"/api/metadata/dataset/{name}")
     ).json()
     float_p = ""
@@ -1124,7 +1114,7 @@ def get_dataset(name):
 def get_publication(name):
     metadata = requests.get(
         urljoin(
-            GN3_LOCAL_URL,
+            get_setting(app, 'GN3_LOCAL_URL'),
             f"/api/metadata/publication/{name}")
     ).json()
     return render_template(
@@ -1137,7 +1127,7 @@ def get_publication(name):
 def get_phenotype(name):
     metadata = requests.get(
         urljoin(
-            GN3_LOCAL_URL,
+            get_setting(app, 'GN3_LOCAL_URL'),
             f"/api/metadata/phenotype/{name}")
     ).json()
     return render_template(
@@ -1150,7 +1140,7 @@ def get_phenotype(name):
 def get_genotype(name):
     metadata = requests.get(
         urljoin(
-            GN3_LOCAL_URL,
+            get_setting(app, 'GN3_LOCAL_URL'),
             f"/api/metadata/genotype/{name}")
     ).json()
     return render_template(

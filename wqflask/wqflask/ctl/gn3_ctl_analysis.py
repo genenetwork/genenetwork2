@@ -1,9 +1,10 @@
 import requests
 import itertools
 
+from flask import current_app
+
 from utility import genofile_parser
-from utility.tools import GN3_LOCAL_URL
-from utility.tools import locate
+from utility.tools import locate, get_setting
 
 from base.trait import create_trait
 from base.trait import retrieve_sample_data
@@ -33,7 +34,7 @@ def parse_geno_data(dataset_group_name) -> dict:
 
     @returns : dict with keys genotypes,markernames & individuals
     """
-    genofile_location = locate(dataset_group_name + ".geno", "genotype")
+    genofile_location = locate(app, dataset_group_name + ".geno", "genotype")
     parser = genofile_parser.ConvertGenoFile(genofile_location)
     parser.process_csv()
     markers = []
@@ -100,7 +101,7 @@ def parse_form_data(form_data: dict):
 def run_ctl(requestform):
     """function to make an api call
     to gn3 and run ctl"""
-    ctl_api = f"{GN3_LOCAL_URL}/api/ctl/run_ctl"
+    ctl_api = f"{get_setting(app, 'GN3_LOCAL_URL')}/api/ctl/run_ctl"
 
     form_data = parse_form_data(requestform.to_dict())
     trait_db_list = form_data["trait_db_list"]

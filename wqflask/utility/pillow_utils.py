@@ -1,6 +1,7 @@
+from flask import current_app as app
 from PIL import Image, ImageColor, ImageDraw, ImageFont
 
-from utility.tools import TEMPDIR
+from utility.tools import get_setting
 
 BLACK = ImageColor.getrgb("black")
 WHITE = ImageColor.getrgb("white")
@@ -15,7 +16,7 @@ def draw_rotated_text(canvas, text, font, xy, fill=BLACK, angle=-90):
     draw_text = ImageDraw.Draw(tmp_img)
     draw_text.text(text=text, xy=(0, 0), font=font, fill=fill)
     tmp_img2 = tmp_img.rotate(angle, expand=1)
-    tmp_img2.save("/{0}/{1}.png".format(TEMPDIR, text), format="png")
+    tmp_img2.save("/{0}/{1}.png".format(get_setting(app, 'TEMPDIR'), text), format="png")
     canvas.paste(im=tmp_img2, box=tuple([int(i) for i in xy]))
 
 # def draw_open_polygon(canvas: Image, xy: tuple, fill: ImageColor=WHITE, outline: ImageColor=BLACK):

@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 import numpy as np
 import scipy.stats as ss
+from flask import current_app as app
 
 from wqflask.database import database_connection
 
@@ -19,7 +20,6 @@ from base.trait import create_trait
 from base import data_set
 from utility import helper_functions
 from utility.tools import locate_ignore_error
-from utility.tools import GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
 
 from gn3.authentication import get_highest_user_access_role
@@ -753,7 +753,7 @@ def get_genotype_scales(genofiles):
 
 
 def get_scales_from_genofile(file_location):
-    geno_path = locate_ignore_error(file_location, 'genotype')
+    geno_path = locate_ignore_error(app, file_location, 'genotype')
     # ZS: This is just to allow the code to run when
     if not geno_path:
         return [["physic", "Mb"]]

@@ -1,7 +1,7 @@
 import json
 import requests
 
-from flask import g
+from flask import g, current_app as app
 from wqflask.database import database_connection
 from base import webqtlConfig
 
@@ -9,7 +9,7 @@ from utility.redis_tools import (get_redis_conn,
                                  get_resource_info,
                                  get_resource_id,
                                  add_resource)
-from utility.tools import GN_PROXY_URL
+from utility.tools import get_setting
 
 Redis = get_redis_conn()
 
@@ -37,7 +37,7 @@ def check_resource_availability(dataset, user_id, trait_id=None):
         return webqtlConfig.SUPER_PRIVILEGES
 
     response = None
-    the_url = f"{GN_PROXY_URL}available?resource={resource_id}&user={user_id}"
+    the_url = f"{get_setting(app, 'GN_PROXY_URL')}available?resource={resource_id}&user={user_id}"
     try:
         response = json.loads(requests.get(the_url).content)
     except:
@@ -93,7 +93,7 @@ def get_group_code(dataset):
 
 
 def check_admin(resource_id=None):
-    the_url = GN_PROXY_URL + "available?resource={}&user={}".format(
+    the_url = get_setting('GN_PROXY_URL') + "available?resource={}&user={}".format(
         resource_id, g.user_session.user_id)
     try:
         response = json.loads(requests.get(the_url).content)['admin']

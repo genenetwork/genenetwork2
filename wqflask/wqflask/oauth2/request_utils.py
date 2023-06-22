@@ -7,16 +7,17 @@ from flask import (
     flash, request, session, url_for, redirect, Response, render_template,
     current_app as app)
 
+from utility.tools import get_setting
+
 from .client import SCOPE, oauth2_get
 
 def authserver_authorise_uri():
-    from utility.tools import GN_SERVER_URL, OAUTH2_CLIENT_ID
     req_baseurl = urlparse(request.base_url)
     host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
     return urljoin(
-        GN_SERVER_URL,
+        get_setting(app, "GN_SERVER_URL"),
         "oauth2/authorise?response_type=code"
-        f"&client_id={OAUTH2_CLIENT_ID}"
+        f"&client_id={get_setting(app, 'OAUTH2_CLIENT_ID')}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
 def raise_unimplemented():

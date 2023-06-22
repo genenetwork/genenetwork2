@@ -5,8 +5,6 @@ import cProfile
 
 from flask import g, request
 
-from utility.startup_config import app_config
-
 from wqflask import app
 from wqflask.user_session import UserSession
 from wqflask.correlation.correlation_gn3_api import compute_correlation
@@ -60,7 +58,6 @@ if __name__ == "__main__":
         "Entry point for profiler script"
         return dump_stats(profile_corrs())
 
-    app_config()
     with app.app_context():
         with app.test_request_context("/corr_compute", data=simulated_form()):
             g.user_session = UserSession()
