@@ -4,6 +4,7 @@ from base.data_set import create_dataset
 from base.trait import GeneralTrait
 from db import webqtlDatabaseFunction
 from wqflask.database import database_connection
+from utility.tools import get_setting
 
 
 class GSearch:
@@ -14,7 +15,7 @@ class GSearch:
         #self.row_range = kw['row_range']
         if self.type == "gene":
             results = None
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 cursor.execute("""
 SELECT Species.`Name` AS species_name, InbredSet.`Name` AS inbredset_name,
 Tissue.`Name` AS tissue_name, ProbeSetFreeze.Name AS probesetfreeze_name,
@@ -42,7 +43,7 @@ probesetfreeze_name, probeset_name LIMIT 6000""",
                 self.trait_list.append(this_trait)
 
         elif self.type == "phenotype":
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 results = None
                 cursor.execute("""
 SELECT Species.`Name`, InbredSet.`Name`, PublishFreeze.`Name`, PublishXRef.`Id`,

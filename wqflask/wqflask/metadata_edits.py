@@ -130,7 +130,8 @@ def edit_probeset(conn, name):
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
 def display_phenotype_metadata(dataset_id: str, name: str):
-    with database_connection() as conn:
+    from utility.tools import get_setting
+    with database_connection(get_setting("SQL_URI")) as conn:
         _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
 
         group_name = retrieve_group_name(dataset_id, conn)
@@ -155,7 +156,8 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
 def display_probeset_metadata(name: str):
-    with database_connection() as conn:
+    from utility.tools import get_setting
+    with database_connection(get_setting("SQL_URI")) as conn:
         _d = edit_probeset(conn=conn, name=name)
         return render_template(
             "edit_probeset.html",
@@ -171,6 +173,7 @@ def display_probeset_metadata(name: str):
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
 def update_phenotype(dataset_id: str, name: str):
+    from utility.tools import get_setting
     data_ = request.form.to_dict()
     TMPDIR = current_app.config.get("TMPDIR")
     author = (
@@ -195,7 +198,7 @@ def update_phenotype(dataset_id: str, name: str):
             f"{author}.{request.args.get('resource-id')}." f"{current_time}"
         )
         diff_data = {}
-        with database_connection() as conn:
+        with database_connection(get_setting("SQL_URI")) as conn:
             group_name = retrieve_group_name(dataset_id, conn)
             sample_list = retrieve_sample_list(group_name)
             headers = ["Strain Name", "Value", "SE", "Count"]
@@ -289,7 +292,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
         "authorized_users": data_.get("authorized-users"),
     }
     updated_phenotypes = ""
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         updated_phenotypes = update(
             conn,
             "Phenotype",
@@ -323,7 +326,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
         "year": data_.get("year"),
     }
     updated_publications = ""
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
 
         existing_publication = fetchone(
             conn=conn,
@@ -372,7 +375,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                 ),
             }
         )
-        with database_connection() as conn:
+        with database_connection(get_setting("SQL_URI")) as conn:
             insert(
                 conn,
                 table="metadata_audit",
@@ -395,7 +398,8 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     ("group:resource:view-resource", "group:resource:edit-resource"),
     dataset_key="dataset_id", trait_key="name")
 def update_probeset(name: str):
-    with database_connection() as conn:
+    from utility.tools import get_setting
+    with database_connection(get_setting("SQL_URI")) as conn:
         data_ = request.form.to_dict()
         probeset_ = {
             "id_": data_.get("id"),
@@ -486,7 +490,8 @@ def update_probeset(name: str):
 @metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
 @login_required
 def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
-    with database_connection() as conn:
+    from utility.tools import get_setting
+    with database_connection(get_setting("SQL_URI")) as conn:
         return Response(
             get_trait_csv_sample_data(
                 conn=conn,
@@ -554,8 +559,9 @@ def show_diff(name):
 @metadata_edit.route("/<dataset_id>/traits/<name>/history")
 @metadata_edit.route("/probeset/<name>")
 def show_history(dataset_id: str = "", name: str = ""):
+    from utility.tools import get_setting
     diff_data_ = None
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         json_data = None
         if dataset_id:  # This is a published phenotype
             json_data = fetchall(
@@ -630,13 +636,14 @@ def reject_data(resource_id: str, file_name: str):
 @edit_admins_access_required
 @login_required
 def approve_data(resource_id: str, file_name: str):
+    from utility.tools import get_setting
     sample_data = {file_name: str}
     TMPDIR = current_app.config.get("TMPDIR")
     with open(
         os.path.join(f"{TMPDIR}/sample-data/diffs", file_name), "r"
     ) as myfile:
         sample_data = json.load(myfile)
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         for modification in (
             modifications := [d for d in sample_data.get("Modifications")]
         ):
@@ -653,7 +660,7 @@ def approve_data(resource_id: str, file_name: str):
                 )
 
     n_deletions = 0
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         for data in [d for d in sample_data.get("Deletions")]:
             __deletions = delete_sample_data(
                 conn=conn,
@@ -671,7 +678,7 @@ def approve_data(resource_id: str, file_name: str):
                 sample_data.get("Deletions").remove(data)
 
     n_insertions = 0
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         for data in [d for d in sample_data.get("Additions")]:
             if insert_sample_data(
                 conn=conn,
@@ -690,7 +697,7 @@ def approve_data(resource_id: str, file_name: str):
             sample_data.get("Deletions"),
         ]
     ):
-        with database_connection() as conn:
+        with database_connection(get_setting("SQL_URI")) as conn:
             insert(
                 conn,
                 table="metadata_audit",

@@ -2,6 +2,7 @@
 
 from .dataset import DataSet
 from utility import webqtlUtil
+from utility.tools import get_setting
 from db import webqtlDatabaseFunction
 from .utils import geno_mrna_confidentiality
 from wqflask.database import database_connection
@@ -46,7 +47,7 @@ GenoFreeze.Name = %s"""
 
     def retrieve_sample_data(self, trait):
         results = []
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT Strain.Name, GenoData.value, "
                 "GenoSE.error, 'N/A', Strain.Name2 "

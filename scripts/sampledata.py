@@ -17,6 +17,8 @@ from wqflask.show_trait import show_trait
 from wqflask.database import database_connection
 from wqflask.search_results import SearchResultPage
 
+from utility.tools import get_setting
+
 
 class UserSessionSimulator():
     def __init__(self, user_id):
@@ -35,7 +37,7 @@ def camel_case(string):
 def dump_sample_data(dataset_name, trait_id):
     """Given a DATASET_NAME e.g. 'BXDPublish' and a TRAIT_ID
     e.g. '10007', dump the sample data as json object"""
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         sample_data = {"headers": ["Name", "Value", "SE"], "data": []}
 
         with app.app_context():
@@ -76,7 +78,7 @@ def fetch_all_traits(species, group, type_, dataset):
 
 
 def get_trait_metadata(dataset_name, trait_id):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         with app.app_context():
             g.user_session = UserSessionSimulator(None)
             data = show_trait.ShowTrait(
@@ -138,7 +140,7 @@ Dumping {dataset_name} into {sys.argv[1]}:
 
 def main():
     # Dump all sampledata into a given directory
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         for species, group in gen_dropdown_json(conn).get("datasets").items():
             for group_name, type_ in group.items():
                 for dataset_type, datasets in type_.items():

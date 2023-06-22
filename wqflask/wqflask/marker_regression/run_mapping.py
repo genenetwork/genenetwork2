@@ -35,7 +35,7 @@ from wqflask.database import database_connection
 from wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from wqflask.show_trait.SampleList import SampleList
 
-from utility.tools import locate, locate_ignore_error, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
+from utility.tools import locate, get_setting, locate_ignore_error, GEMMA_COMMAND, PLINK_COMMAND, TEMPDIR
 from utility.external import shell
 from base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
@@ -669,7 +669,7 @@ def geno_db_exists(this_dataset):
 def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
     chr_lengths = []
     if mapping_scale == "physic":
-        with database_connection() as conn, conn.cursor() as db_cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as db_cursor:
             for i, the_chr in enumerate(dataset.species.chromosomes.chromosomes(db_cursor)):
                 this_chr = {
                     "chr": dataset.species.chromosomes.chromosomes(db_cursor)[the_chr].name,

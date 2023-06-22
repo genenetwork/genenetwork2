@@ -6,6 +6,8 @@ from base import webqtlConfig
 
 from wqflask.database import database_connection
 
+from utility.tools import get_setting
+
 
 class SnpBrowser:
 
@@ -152,7 +154,7 @@ class SnpBrowser:
         self.snp_list = None
         __query = ""
         __vars = None
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             if self.gene_name != "":
                 if self.species_id != 0:
                     __query = ("SELECT geneSymbol, chromosome, txStart, "
@@ -665,7 +667,7 @@ def get_browser_sample_lists(species_id=1):
     strain_lists = {}
     mouse_strain_list = []
     rat_strain_list = []
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             cursor.execute("SHOW COLUMNS FROM SnpPattern")
             _mouse_snp_pattern = cursor.fetchall()
@@ -885,7 +887,7 @@ def get_gene_id(species_id, gene_name):
     query = ("SELECT geneId FROM GeneList WHERE "
              "SpeciesId = %s AND geneSymbol = %s")
 
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             cursor.execute(query, (species_id, gene_name))
             if (result := cursor.fetchone()):
@@ -900,7 +902,7 @@ def get_gene_id_name_dict(species_id, gene_name_list):
     query = ("SELECT geneId, geneSymbol FROM "
              "GeneList WHERE SpeciesId = %s AND "
              f"geneSymbol in ({', '.join(['%s'] * len(gene_name_list))})")
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             cursor.execute(query, (species_id, *gene_name_list))
             results = cursor.fetchall()
@@ -911,7 +913,7 @@ def get_gene_id_name_dict(species_id, gene_name_list):
 
 
 def check_if_in_gene(species_id, chr_, mb):
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             if species_id != 0:  # ZS: Check if this is necessary
                 cursor.execute(

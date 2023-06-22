@@ -2,6 +2,7 @@
 
 from .dataset import DataSet
 from base import webqtlConfig
+from utility.tools import get_setting
 from wqflask.database import database_connection
 
 class PhenotypeDataSet(DataSet):
@@ -96,7 +97,7 @@ SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetC
             this_trait.LRS_location_repr = "N/A"
 
             if this_trait.lrs:
-                with database_connection() as conn, conn.cursor() as cursor:
+                with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                     cursor.execute(
                         "SELECT Geno.Chr, Geno.Mb FROM "
                         "Geno, Species WHERE "
@@ -113,7 +114,7 @@ SELECT InbredSet.Name, InbredSet.Id, InbredSet.GeneticType, InbredSet.InbredSetC
                                 LRS_Chr, float(LRS_Mb))
 
     def retrieve_sample_data(self, trait):
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
             "SELECT Strain.Name, PublishData.value, "
                 "PublishSE.error, NStrain.count, "

@@ -10,7 +10,7 @@ from redis import Redis
 # local imports
 from .dataset import DataSet
 from base import webqtlConfig
-from utility.tools import USE_REDIS
+from utility.tools import get_setting, USE_REDIS
 from .datasettype import DatasetType
 from .tempdataset import TempDataSet
 from .datasetgroup import DatasetGroup
@@ -54,7 +54,7 @@ def create_dataset(dataset_name, dataset_type=None,
 def datasets(group_name, this_group=None, redis_conn=Redis()):
     key = "group_dataset_menu:v2:" + group_name
     dataset_menu = []
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute('''
             (SELECT '#PublishFreeze',PublishFreeze.FullName,PublishFreeze.Name
             FROM PublishFreeze,InbredSet

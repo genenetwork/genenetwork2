@@ -10,6 +10,7 @@ from redis import Redis
 from flask import Flask, g
 
 from wqflask.database import database_connection
+from utility.tools import get_setting
 
 Redis = Redis()
 
@@ -33,7 +34,7 @@ class Heatmap:
         chrnames = []
         self.species = species.TheSpecies(dataset=self.trait_list[0][1])
 
-        with database_connection() as conn, conn.cursor() as db_cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as db_cursor:
             for this_chr in self.species.chromosomes.chromosomes(db_cursor):
                 chrnames.append([self.species.chromosomes.chromosomes(db_cursor)[this_chr].name,
                                 self.species.chromosomes.chromosomes(db_cursor)[this_chr].mb_length])

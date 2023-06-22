@@ -19,6 +19,7 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 from wqflask.database import database_connection
 from utility import helper_functions
+from utility.tools import get_setting
 
 
 class SendToGeneWeaver:
@@ -62,7 +63,7 @@ def get_trait_name_list(trait_list):
 
 def test_chip(trait_list):
     final_chip_name = ""
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         for trait_db in trait_list:
             dataset = trait_db[1]
             cursor.execute(

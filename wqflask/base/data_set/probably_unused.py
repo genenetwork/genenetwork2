@@ -3,6 +3,7 @@
 import pickle as pickle
 
 from wqflask.database import database_connection
+from utility.tools import get_setting
 
 def create_datasets_list():
     if USE_REDIS:
@@ -19,7 +20,7 @@ def create_datasets_list():
                      'Geno': 'GenoFreeze'}
 
         for dataset_type in type_dict:
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 cursor.execute("SELECT Name FROM %s",
                                (type_dict[dataset_type],))
                 results = cursor.fetchall(query)

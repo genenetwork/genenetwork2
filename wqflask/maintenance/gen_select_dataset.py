@@ -37,7 +37,7 @@ sys.path.insert(0, './')
 # NEW: import app to avoid a circular dependency on utility.tools
 from wqflask import app
 
-from utility.tools import locate, locate_ignore_error, TEMPDIR, SQL_URI
+from utility.tools import get_setting
 
 import simplejson as json
 import urllib.parse
@@ -46,21 +46,6 @@ import urllib.parse
 from pprint import pformat as pf
 
 from wqflask.database import database_connection
-
-
-def parse_db_uri():
-    """Converts a database URI to the db name, host name, user name, and password"""
-
-    parsed_uri = urllib.parse.urlparse(SQL_URI)
-
-    db_conn_info = dict(
-        db=parsed_uri.path[1:],
-        host=parsed_uri.hostname,
-        user=parsed_uri.username,
-        passwd=parsed_uri.password)
-
-    print(db_conn_info)
-    return db_conn_info
 
 
 def get_species(cursor):
@@ -268,8 +253,6 @@ def build_datasets(species, group, type_name):
 def main(cursor):
     """Generates and outputs (as json file) the data for the main dropdown menus on the home page"""
 
-    parse_db_uri()
-
     species = get_species(cursor)
     groups = get_groups(cursor, species)
     types = get_types(groups)
@@ -308,6 +291,6 @@ def _test_it():
 
 
 if __name__ == '__main__':
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         with conn.cursor() as cursor:
             main(cursor)

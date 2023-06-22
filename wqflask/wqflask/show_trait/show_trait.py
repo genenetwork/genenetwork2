@@ -18,7 +18,7 @@ from wqflask.show_trait.SampleList import SampleList
 from base.trait import create_trait
 from base import data_set
 from utility import helper_functions
-from utility.tools import locate_ignore_error
+from utility.tools import get_setting, locate_ignore_error
 from utility.tools import GN_PROXY_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
 
@@ -392,7 +392,7 @@ class ShowTrait:
                 if self.dataset.group.species == "mouse":
                     self.aba_link = webqtlConfig.ABA_URL % self.this_trait.symbol
                     results = ()
-                    with database_connection() as conn, conn.cursor() as cursor:
+                    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                         cursor.execute(
                             "SELECT chromosome, txStart, txEnd FROM "
                             "GeneList WHERE geneSymbol = %s",
@@ -419,7 +419,7 @@ class ShowTrait:
                     "rattus-norvegicus", self.this_trait.symbol)
 
                 results = ()
-                with database_connection() as conn, conn.cursor() as cursor:
+                with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                     cursor.execute(
                         "SELECT kgID, chromosome, txStart, txEnd "
                         "FROM GeneList_rn33 WHERE geneSymbol = %s",
@@ -621,7 +621,7 @@ def get_nearest_marker(this_trait, this_db):
     this_mb = this_trait.locus_mb
     # One option is to take flanking markers, another is to take the
     # two (or one) closest
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT Geno.Name FROM Geno, GenoXRef, "
             "GenoFreeze WHERE Geno.Chr = %s AND "

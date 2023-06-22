@@ -15,6 +15,7 @@ from utility.tools import (
     locate,
     USE_REDIS,
     flat_files,
+    get_setting,
     flat_file_exists,
     locate_ignore_error)
 
@@ -29,7 +30,7 @@ class DatasetGroup:
 
     def __init__(self, dataset, name=None):
         """This sets self.group and self.group_id"""
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             if not name:
                 cursor.execute(dataset.query_for_group,
                                (dataset.name,))
@@ -64,7 +65,7 @@ class DatasetGroup:
 
     def get_mapping_methods(self):
         mapping_id = ()
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
                 "SELECT MappingMethodId FROM "
                 "InbredSet WHERE Name= %s",

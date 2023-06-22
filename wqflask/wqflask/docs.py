@@ -2,12 +2,13 @@ import codecs
 
 from flask import g
 from wqflask.database import database_connection
+from utility.tools import get_setting
 
 class Docs:
 
     def __init__(self, entry, start_vars={}):
         results = None
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute("SELECT Docs.title, CAST(Docs.content AS BINARY) "
                            "FROM Docs WHERE Docs.entry LIKE %s", (str(entry),))
             result = cursor.fetchone()
@@ -33,7 +34,7 @@ def update_text(start_vars):
         '"', '\\"').replace("'", "\\'")
     try:
         if g.user_session.record.get('user_email_address') in ["zachary.a.sloan@gmail.com", "labwilliams@gmail.com"]:
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 # Disable updates fully - all docs should be in markdown - please move them there, just like the Environments doc
                 cursor.execute("UPDATEX Docs SET content=%s WHERE entry=%s",
                                (content, start_vars.get("entry_type"),))

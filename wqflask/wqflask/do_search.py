@@ -11,7 +11,7 @@ from pprint import pformat as pf
 import sys
 
 from db import webqtlDatabaseFunction
-from utility.tools import GN2_BASE_URL
+from utility.tools import get_setting, GN2_BASE_URL
 
 
 class DoSearch:
@@ -37,7 +37,7 @@ class DoSearch:
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
-        with database_connection() as conn, conn.cursor() as cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(query)
             return cursor.fetchall()
 
@@ -950,7 +950,7 @@ if __name__ == "__main__":
 
     from wqflask.database import database_connection
 
-    with database_connection() as db_conn:
+    with database_connection(get_setting("SQL_URI")) as db_conn:
         with db_conn.cursor() as cursor:
             dataset_name = "HC_M2_0606_P"
             dataset = create_dataset(db_conn, dataset_name)

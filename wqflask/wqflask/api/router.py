@@ -21,7 +21,7 @@ from wqflask import app
 
 from wqflask.api import correlation, mapping, gen_menu
 
-from utility.tools import flat_files
+from utility.tools import flat_files, get_setting
 
 from wqflask.database import database_connection
 
@@ -37,7 +37,7 @@ def hello_world():
 @app.route("/api/v_{}/species".format(version))
 def get_species_list():
     species_list = []
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT SpeciesId, Name, FullName, TaxonomyId FROM Species"
         )
@@ -55,7 +55,7 @@ def get_species_list():
 @app.route("/api/v_{}/species/<path:species_name>".format(version))
 @app.route("/api/v_{}/species/<path:species_name>.<path:file_format>".format(version))
 def get_species_info(species_name, file_format="json"):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT SpeciesId, Name, FullName, TaxonomyId "
             "FROM Species WHERE (Name=%s OR FullName=%s "
@@ -75,7 +75,7 @@ def get_species_info(species_name, file_format="json"):
 @app.route("/api/v_{}/groups/<path:species_name>".format(version))
 def get_groups_list(species_name=None):
     _groups = ()
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if species_name:
             cursor.execute(
                 "SELECT InbredSet.InbredSetId, "
@@ -123,7 +123,7 @@ def get_groups_list(species_name=None):
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>.<path:file_format>".format(version))
 def get_group_info(group_name, species_name=None, file_format="json"):
     group = ()
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if species_name:
             cursor.execute(
                 "SELECT InbredSet.InbredSetId, InbredSet.SpeciesId, "
@@ -176,7 +176,7 @@ def get_group_info(group_name, species_name=None, file_format="json"):
 @app.route("/api/v_{}/datasets/<path:species_name>/<path:group_name>".format(version))
 def get_datasets_for_group(group_name, species_name=None):
     _datasets = ()
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if species_name:
             cursor.execute(
                 "SELECT ProbeSetFreeze.Id, ProbeSetFreeze.ProbeFreezeId, "
@@ -270,7 +270,7 @@ def get_dataset_info(dataset_name, group_name=None, file_format="json"):
                               (ProbeSetFreeze.Name = "{0}" OR ProbeSetFreeze.Name2 = "{0}" OR
                               ProbeSetFreeze.FullName = "{0}" OR ProbeSetFreeze.ShortName = "{0}")
                            """.format(dataset_name)
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(f"{probeset_query}{where_statement}")
 
         if dataset := cursor.fetchone():
@@ -447,7 +447,7 @@ def fetch_traits(dataset_name, file_format="json"):
             if 'limit_to' in request.args:
                 limit_number = request.args['limit_to']
                 query += "LIMIT " + str(limit_number)
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 if file_format == "json":
                     filename = dataset_name + "_traits.json"
                     cursor.execute(query.format(dataset_id))
@@ -570,7 +570,7 @@ def all_sample_data(dataset_name, file_format="csv"):
             header_list.append("id")
             header_list += sample_list
             results_list.append(header_list)
-            with database_connection() as conn, conn.cursor() as cursor:
+            with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 for i, trait_id in enumerate(trait_ids):
                     line_list = []
                     line_list.append(str(trait_names[i]))
@@ -604,7 +604,7 @@ def all_sample_data(dataset_name, file_format="csv"):
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/sample_data/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 def trait_sample_data(dataset_name, trait_name, file_format="json"):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT Strain.Name, Strain.Name2, "
             "ProbeSetData.value, ProbeSetData.Id, "
@@ -693,7 +693,7 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>".format(version))
 @app.route("/api/v_{}/trait_info/<path:dataset_name>/<path:trait_name>.<path:file_format>".format(version))
 def get_trait_info(dataset_name, trait_name, file_format="json"):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT ProbeSet.Id, ProbeSet.Name, ProbeSet.Symbol, "
             "ProbeSet.description, ProbeSet.Chr, ProbeSet.Mb, "
@@ -892,7 +892,7 @@ def get_genotypes(group_name, file_format="csv", dataset_name=None):
 
 @app.route("/api/v_{}/gen_dropdown".format(version), methods=("GET",))
 def gen_dropdown_menu():
-    with database_connection() as conn:
+    with database_connection(get_setting("SQL_URI")) as conn:
         results = gen_menu.gen_dropdown_json(conn)
 
     if len(results) > 0:
@@ -920,7 +920,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
         limit_string = "LIMIT " + str(start_vars['limit_to'])
     else:
         limit_string = ""
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if "Geno" in dataset_name:
             data_type = "Geno"  # ZS: Need to pass back the dataset type
             cursor.execute(
@@ -981,7 +981,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
 
 def get_samplelist(dataset_name):
     group_id = get_group_id_from_dataset(dataset_name)
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT Strain.Name FROM Strain, StrainXRef "
             "WHERE StrainXRef.StrainId = Strain.Id AND "
@@ -994,7 +994,7 @@ def get_samplelist(dataset_name):
 
 def get_group_id_from_dataset(dataset_name):
     result = ()
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if "Publish" in dataset_name:
             cursor.execute(
                 "SELECT InbredSet.Id FROM "
@@ -1027,7 +1027,7 @@ def get_group_id_from_dataset(dataset_name):
 
 
 def get_group_id(group_name):
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT InbredSet.Id FROM InbredSet "
             "WHERE InbredSet.Name = %s",

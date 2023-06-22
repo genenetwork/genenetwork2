@@ -7,7 +7,7 @@ from base import webqtlConfig
 from base.webqtlCaseData import webqtlCaseData
 from base.data_set import create_dataset
 from utility.authentication_tools import check_resource_availability
-from utility.tools import GN2_BASE_URL
+from utility.tools import get_setting, GN2_BASE_URL
 from utility.redis_tools import get_redis_conn, get_resource_id
 
 from flask import g, request, url_for
@@ -394,7 +394,7 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
     if not dataset:
         raise ValueError("Dataset doesn't exist")
 
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         trait_info = ()
         if dataset.type == 'Publish':
             cursor.execute(

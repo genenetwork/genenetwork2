@@ -2,7 +2,7 @@ import string
 
 from wqflask.database import database_connection
 
-from utility.tools import flat_files
+from utility.tools import flat_files, get_setting
 
 def load_homology(chr_name, start_mb, end_mb, source_file):
     homology_list = []
@@ -52,7 +52,7 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
     # List All Species in the Gene Table
     speciesDict = {}
     results = []
-    with database_connection() as conn, conn.cursor() as cursor:
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         cursor.execute("SELECT Species.Name, GeneList081722.SpeciesId "
                        "FROM Species, GeneList081722 WHERE "
                        "GeneList081722.SpeciesId = Species.Id "

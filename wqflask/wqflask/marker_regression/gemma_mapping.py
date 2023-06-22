@@ -12,6 +12,7 @@ from utility.tools import flat_files, assert_file
 from utility.tools import GEMMA_WRAPPER_COMMAND
 from utility.tools import TEMPDIR
 from utility.tools import WEBSERVER_MODE
+from utility.tools import get_setting
 from wqflask.database import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 
@@ -51,7 +52,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
 
 
         this_chromosomes_name = []
-        with database_connection() as conn, conn.cursor() as db_cursor:
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as db_cursor:
             for this_chr in this_dataset.species.chromosomes.chromosomes(db_cursor):
                 this_chromosomes_name.append(this_dataset.species.chromosomes.chromosomes(db_cursor)[this_chr].name)
 
