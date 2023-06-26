@@ -149,7 +149,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             name=name,
             resource_id=request.args.get("resource-id"),
             version=os.environ.get("GN_VERSION"),
-        )
+            dataset_name=request.args["dataset_name"])
 
 
 @metadata_edit.route("/traits/<name>")
@@ -242,6 +242,7 @@ def update_phenotype(dataset_id: str, name: str):
                 return redirect(
                     f"/datasets/{dataset_id}/traits/{name}"
                     f"?resource-id={request.args.get('resource-id')}"
+                    f"&dataset_name={request.args['dataset_name']}"
                 )
         # Edge case where the csv file has not been edited!
         if not any(diff_data.values()):
@@ -251,6 +252,7 @@ def update_phenotype(dataset_id: str, name: str):
             return redirect(
                 f"/datasets/{dataset_id}/traits/{name}"
                 f"?resource-id={request.args.get('resource-id')}"
+                f"&dataset_name={request.args['dataset_name']}"
             )
 
         with open(
@@ -391,6 +393,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     return redirect(
         f"/datasets/{dataset_id}/traits/{name}"
         f"?resource-id={request.args.get('resource-id')}"
+        f"&dataset_name={request.args['dataset_name']}"
     )
 
 

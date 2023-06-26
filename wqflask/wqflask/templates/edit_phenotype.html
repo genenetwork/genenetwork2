@@ -17,7 +17,7 @@
         <small><a href="{{url_for('metadata_edit.show_history', dataset_id=dataset_id, name=name)}}" target="_blank">[View History]</a></small>
     </div>
 
-    <form id="edit-form" class="form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{ publish_xref.id_ }}?resource-id={{ resource_id }}" enctype='multipart/form-data'>
+    <form id="edit-form" class="form-horizontal" method="post" action="/datasets/{{dataset_id}}/traits/{{publish_xref.id_}}?resource-id={{resource_id}}&dataset_name={{dataset_name}}" enctype='multipart/form-data'>
 	<div class="form-group">
 	    <div class="controls left-block col-sm-8 col-lg-8" style="width: max-content;">
             <input name="inbred-set-id" class="changed" type="hidden" value="{{ publish_xref.inbred_set_id }}"/>
