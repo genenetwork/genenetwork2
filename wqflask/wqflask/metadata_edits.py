@@ -166,6 +166,7 @@ def display_probeset_metadata(name: str):
             name=name,
             resource_id=request.args.get("resource-id"),
             version=os.environ.get("GN_VERSION"),
+            dataset_name=request.args["dataset_name"]
         )
 
 
@@ -484,6 +485,7 @@ def update_probeset(name: str):
         return redirect(
             f"/datasets/traits/{name}"
             f"?resource-id={request.args.get('resource-id')}"
+            f"&dataset_name={request.args['dataset_id']}"
         )
 
 

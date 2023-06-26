@@ -113,9 +113,19 @@ def required_access(access_levels: tuple[str, ...],
             dataset_name = kwargs.get(
                 dataset_key,
                 request.args.get(dataset_key, request.form.get(dataset_key, "")))
+            if not bool(dataset_name):
+                raise AuthorisationError(
+                    "DeveloperError: Dataset name not provided. It is needed "
+                    "for the authorisation checks.",
+                    session_info()["user"])
             trait_name = kwargs.get(
                 trait_key,
                 request.args.get(trait_key, request.form.get(trait_key, "")))
+            if not bool(trait_name):
+                raise AuthorisationError(
+                    "DeveloperError: Trait name not provided. It is needed for "
+                    "the authorisation checks.",
+                    session_info()["user"])
             return client.post(
                 "oauth2/data/authorisation",
                 json={"traits": [f"{dataset_name}::{trait_name}"]}).either(

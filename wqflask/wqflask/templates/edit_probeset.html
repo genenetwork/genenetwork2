@@ -32,9 +32,9 @@
 	<h1>Probeset Editing Form: {{ probeset.name }}</h1>
 	<small><a href="{{url_for('metadata_edit.show_history', name=name)}}" target="_blank">[View History]</a></small>
     </div>
-    <form id="edit-form" class="container form-horizontal" method="post" action="/datasets/traits/{{ name }}?resource-id={{ resource_id }}" enctype='multipart/form-data'>
+    <form id="edit-form" class="container form-horizontal" method="post" action="/datasets/traits/{{name}}?resource-id={{resource_id}}&dataset_id={{dataset_name}}" enctype='multipart/form-data'>
 	<div class="form-group">
-	    <div class="controls left-block col-sm-8 col-lg-8" style="width: max-content;">
+	  <div class="controls left-block col-sm-8 col-lg-8" style="width: max-content;">
 		<input name="id" class="changed" type="hidden" value="{{ probeset.id_ }}"/>
 		<input name="old_id_" class="changed" type="hidden" value="{{ probeset.id_ }}"/>
 		<input name="probeset_name" class="changed" type="hidden" value="{{ probeset.name }}"/>
