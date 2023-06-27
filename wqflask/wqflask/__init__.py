@@ -15,8 +15,6 @@ from utility import formatting
 
 from gn3.authentication import DataRole, AdminRole
 
-from wqflask.database import parse_db_url
-
 from wqflask.group_manager import group_management
 from wqflask.resource_manager import resource_management
 from wqflask.metadata_edits import metadata_edit
@@ -43,13 +41,6 @@ app = Flask(__name__)
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
 app.config.from_envvar('GN2_SETTINGS')
-
-DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT = parse_db_url(app.config.get('SQL_URI'))
-app.config["DB_HOST"] = DB_HOST
-app.config["DB_USER"] = DB_USER
-app.config["DB_PASS"] = DB_PASS
-app.config["DB_NAME"] = DB_NAME
-app.config["DB_PORT"] = DB_PORT
 
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
