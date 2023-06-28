@@ -26,6 +26,23 @@ git and sending us pull requests.
 
 For development GN2 has a room on matrix. Ask us for an invitation.
 
+## Installing development snapshots with Guix
+
+The Genenetwork repository can be used as a Guix “channel”.  To do that, change
+~/.config/guix/channels.scm along these lines:
+
+  (append (list (channel
+                 (name 'genenetwork2)
+                 (url "https://github.com/genenetwork/genenetwork2.git")))
+   %default-channels)
+
+  Once that is done, run ‘guix pull’.  This will give you additional ‘genenetwork2’
+  packages with higher version numbers:
+
+    guix package -A genenetwork2
+
+    You can then install it with ‘guix install genenetwork2’ or similar.
+
 ## License
 
 The GeneNetwork2 source code is released under the Affero General
