@@ -1,6 +1,6 @@
 """Authentication endpoints."""
 from uuid import UUID
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, urlunparse
 from flask import (
     flash, request, Blueprint, url_for, redirect, render_template,
     current_app as app)
@@ -40,12 +40,13 @@ def authorisation_code():
 
     code = request.args.get("code", "")
     if bool(code):
+        base_url = urlparse(request.base_url, scheme=request.scheme)
         request_data = {
             "grant_type": "authorization_code",
             "code": code,
             "scope": SCOPE,
             "redirect_uri": urljoin(
-                request.base_url,
+                urlunparse(base_url),
                 url_for("oauth2.toplevel.authorisation_code")),
             "client_id": app.config["OAUTH2_CLIENT_ID"]
         }

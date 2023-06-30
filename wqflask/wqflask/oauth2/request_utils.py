@@ -11,7 +11,7 @@ from .client import SCOPE, oauth2_get
 
 def authserver_authorise_uri():
     from utility.tools import GN_SERVER_URL, OAUTH2_CLIENT_ID
-    req_baseurl = urlparse(request.base_url)
+    req_baseurl = urlparse(request.base_url, scheme=request.scheme)
     host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
     return urljoin(
         GN_SERVER_URL,
