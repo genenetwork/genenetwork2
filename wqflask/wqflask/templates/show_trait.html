@@ -126,7 +126,11 @@
       </form>
     </div>
   {%else%}
-    {{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "No read access for user '" + user.name + "'."})}}
+    {%if user.name == "Anonymous User"%}
+    {{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "This trait is not accessible for the general public yet. Please log in."})}}
+    {%else%}
+    {{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "The user '" + user.name + "', does not currently possess the appropriate privileges to view this trait. If you know the owner of this trait, please request that they grant you access, or wait until it is made public."})}}
+    {%endif%}
   {%endif%}
 
   <!-- End of body -->
