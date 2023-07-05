@@ -4,7 +4,7 @@ from urllib.parse import urljoin, urlparse
 
 import simplejson
 from flask import (
-    flash, request, session, url_for, redirect, Response, render_template,
+    flash, request, url_for, redirect, Response, render_template,
     current_app as app)
 
 from .client import SCOPE, oauth2_get
