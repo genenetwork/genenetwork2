@@ -64,16 +64,11 @@ GUIX_SITE=$GN2_BASE_DIR/lib/python3.8/site-packages
 if [ -d "${GUIX_SITE}" ]; then
     echo INFO: GN2 is running from GNU Guix
     GN2_BASE_DIR=$GUIX_SITE
-    GN_VERSION="${GN2_ID}:$(cat "${GN2_BASE_DIR}"/etc/VERSION)"
-    export GN_VERSION
 else
     echo INFO: GN2 is running from a source tree
     GIT_HASH=$(git rev-parse HEAD)
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    GN_VERSION="${GN2_ID}:$(cat "${GN2_BASE_DIR}"/etc/VERSION)-${GIT_BRANCH}-$(echo "${GIT_HASH}" | cut -c1-9)"
-    export GN_VERSION
 fi
-echo GN_VERSION="${GN_VERSION}"
 
 if [ "$1" = "-c" -o "$1" = "-gunicorn" ]; then
     echo "Can not use $1 switch without default settings file"

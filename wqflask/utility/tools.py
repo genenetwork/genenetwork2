@@ -4,6 +4,8 @@
 import os
 import sys
 import json
+import socket
+from pathlib import Path
 
 from wqflask import app
 
@@ -255,9 +257,27 @@ def show_settings():
             print(("%s: %s%s%s%s" % (k, GREEN, BOLD, app.config[k], ENDC)),
                   file=sys.stderr)
 
+def gn_version_repo_info(root_dir):
+    """retrieve the branch name and abbreviated commit hash."""
+    try:
+        from git import Repo
+        repo = Repo(root_dir)
+        return f"{repo.head.ref.name}-{repo.head.commit.hexsha[0:9]}"
+    except:
+        return ""
+
+def gn_version():
+    """Compute and return the version of the application."""
+    hostname = socket.gethostname()
+    basedir = Path(__file__).absolute().parent.parent.parent
+    with open(Path(basedir, "etc", "VERSION"), encoding="utf8") as version_file:
+        version_contents = version_file.read().strip()
+    base_version = f"{hostname}:{basedir.name}:{version_contents}"
+    repo_info = gn_version_repo_info(basedir)
+    return f"{base_version}-{repo_info}" if bool(repo_info) else base_version
 
 # Cached values
-GN_VERSION = get_setting('GN_VERSION')
+GN_VERSION = gn_version()
 HOME = get_setting('HOME')
 SERVER_PORT = get_setting('SERVER_PORT')
 WEBSERVER_MODE = get_setting('WEBSERVER_MODE')
