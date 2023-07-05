@@ -103,7 +103,7 @@ def export_traitlist(targs):
     file_list = []
     for group in traits_by_group:
         group_traits = traits_by_group[group]
-        samplelist = group_traits[0].dataset.group.samplelist
+        samplelist = group_traits[0].dataset.group.all_samples_ordered()
         if not samplelist:
             continue
 
