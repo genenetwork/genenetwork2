@@ -56,16 +56,14 @@ def get_setting(command_id, guess=None):
     # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
-        command = OVERRIDES.get(command_id)  # currently not in use
+        # ---- Check whether setting exists in app
+        command = value(app.config.get(command_id))
         if command is None:
-            # ---- Check whether setting exists in app
-            command = value(app.config.get(command_id))
-            if command is None:
-                command = value(guess)
-                if command is None or command == "":
-                    # print command
-                    raise Exception(
-                        command_id + ' setting unknown or faulty (update default_settings.py?).')
+            command = value(guess)
+            if command is None or command == "":
+                # print command
+                raise Exception(
+                    command_id + ' setting unknown or faulty (update default_settings.py?).')
     # print("Set "+command_id+"="+str(command))
     return command
 
@@ -244,7 +242,6 @@ def show_settings():
     log_level = getattr(logging, LOG_LEVEL.upper())
     logging.basicConfig(level=log_level)
 
-    logger.info(OVERRIDES)
     logger.info(BLUE + "Mr. Mojo Risin 2" + ENDC)
     keylist = list(app.config.keys())
     print("runserver.py: ****** Webserver configuration - k,v pairs from app.config ******",
