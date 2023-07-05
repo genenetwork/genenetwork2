@@ -148,7 +148,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             dataset_id=dataset_id,
             name=name,
             resource_id=request.args.get("resource-id"),
-            version=os.environ.get("GN_VERSION"),
+            version=get_setting("GN_VERSION"),
             dataset_name=request.args["dataset_name"])
 
 
@@ -165,7 +165,7 @@ def display_probeset_metadata(name: str):
             probeset=_d.get("probeset"),
             name=name,
             resource_id=request.args.get("resource-id"),
-            version=os.environ.get("GN_VERSION"),
+            version=get_setting("GN_VERSION"),
             dataset_name=request.args["dataset_name"]
         )
 
@@ -620,7 +620,7 @@ def show_history(dataset_id: str = "", name: str = ""):
     return render_template(
         "edit_history.html",
         diff=diff_data_,
-        version=os.environ.get("GN_VERSION"),
+        version=get_setting("GN_VERSION"),
     )
 
 
