@@ -702,10 +702,10 @@ def loading_page():
     return rendered_template
 
 
-@app.route("/run_mapping", methods=('POST','GET'))
-def mapping_results_page():
-    if request.method == "GET" and (hash_of_inputs := request.args.get("hash")):
-        hash_of_inputs = request.args.get("hash")
+@app.route("/run_mapping", methods=('POST',))
+@app.route("/run_mapping/<path:hash_of_inputs>")
+def mapping_results_page(hash_of_inputs=None):
+    if hash_of_inputs:
         initial_start_vars = json.loads(Redis.get(hash_of_inputs))
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
     else:

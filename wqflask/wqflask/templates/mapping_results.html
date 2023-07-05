@@ -676,7 +676,7 @@
         })
 
         hash = $('input[name=inputs_hash]').val();
-        mappingLink = window.location.origin + "/run_mapping?hash=" + hash;
+        mappingLink = window.location.origin + "/run_mapping/"+ hash;
         $('input[name=mappingLink]').width(mappingLink.length*0.95 + "ch")
         $('input[name=mappingLink]').val(mappingLink);
         $('.share-results').click(function() {
