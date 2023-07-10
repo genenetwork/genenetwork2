@@ -267,7 +267,10 @@ def trait_info_str(trait):
     def __trait_desc(trt):
         if trait.dataset.type == "Geno":
             return f"Marker: {trt.name}"
-        return trt.description_display or "N/A"
+        if hasattr(trt, "description_display"):
+            return trt.description_display
+        else:
+            return "N/A"
 
     def __symbol(trt):
         return (trt.symbol or trt.abbreviation or "N/A")[:20]
