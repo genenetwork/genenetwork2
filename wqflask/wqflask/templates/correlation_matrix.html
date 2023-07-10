@@ -79,7 +79,7 @@
 
 <h2>PCA Traits</h2>
 <div style="margin-bottom: 20px; overflow:hidden; width: 450px;">
-<table id="pca_table" class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+<table class="table-hover table-striped cell-border pca_table" id='trait_table' style="float: left;">
   <colgroup>
     <col span="1" style="width: 30px;">
     <col span="1" style="width: 50px;">
@@ -111,7 +111,7 @@
 <h2>Factor Loadings Plot</h2>
 <div id="loadings_plot" style="margin-top: 20px; margin-bottom: 20px; width: 980px; border-style: solid; border-width: 1px;"></div>
 <h2>Factor Loadings Table</h2>
-<table id="loadings_table" class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+<table class="table-hover table-striped cell-border loadings_table" id='trait_table' style="float: left;">
   <thead>
     <tr>
       <th>Trait</th>
@@ -161,7 +161,7 @@
     <script type="text/javascript" src="/static/new/javascript/search_results.js"></script>
 
     <script>
-       $('#pca_table').dataTable( {
+       $('.pca_table').dataTable( {
         "columnDefs": [ {
             "targets": 0,
             "orderable": false
@@ -176,7 +176,7 @@
         "orderClasses": true
       } );
 
-      $('#loadings_table').dataTable( {
+      $('.loadings_table').dataTable( {
         "columnDefs": [ {
             "targets": 0,
             "orderable": false
