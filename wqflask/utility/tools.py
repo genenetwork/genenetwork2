@@ -13,8 +13,6 @@ from wqflask import app
 import logging
 logger = logging.getLogger(__name__)
 
-OVERRIDES = {}
-
 
 def app_set(command_id, value):
     """Set application wide value"""
