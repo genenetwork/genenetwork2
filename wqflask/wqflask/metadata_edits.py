@@ -2,6 +2,9 @@ import datetime
 import json
 import os
 
+from pathlib import Path
+from functools import reduce
+
 from collections import namedtuple
 from itertools import groupby
 from typing import Dict
@@ -23,6 +26,9 @@ from wqflask.database import database_connection
 from wqflask.decorators import login_required
 from wqflask.decorators import required_access
 from wqflask.decorators import edit_admins_access_required
+
+from wqflask.oauth2 import client
+from wqflask.oauth2.request_utils import flash_error, process_error
 
 from gn3.authentication import AdminRole
 from gn3.authentication import get_highest_user_access_role
@@ -50,10 +56,8 @@ from gn3.db.sample_data import update_sample_data
 
 metadata_edit = Blueprint("metadata_edit", __name__)
 
-
-def _get_diffs(
-    diff_dir: str, user_id: str, redis_conn: redis.Redis, gn_proxy_url: str
-):
+def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
+    """Get all the diff details."""
     def __get_file_metadata(file_name: str) -> Dict:
         author, resource_id, time_stamp, *_ = file_name.split(".")
         try:
@@ -66,31 +70,19 @@ def _get_diffs(
             "resource_id": resource_id,
             "file_name": file_name,
             "author": author,
-            "time_stamp": time_stamp,
-            "roles": get_highest_user_access_role(
-                resource_id=resource_id,
-                user_id=user_id,
-                gn_proxy_url=gn_proxy_url,
-            ),
+            "time_stamp": time_stamp
         }
 
-    approved, rejected, waiting = [], [], []
-    if os.path.exists(diff_dir):
-        for name in os.listdir(diff_dir):
-            file_metadata = __get_file_metadata(file_name=name)
-            admin_status = file_metadata["roles"].get("admin")
-            append_p = user_id in name or admin_status > AdminRole.EDIT_ACCESS
-            if name.endswith(".rejected") and append_p:
-                rejected.append(__get_file_metadata(file_name=name))
-            elif name.endswith(".approved") and append_p:
-                approved.append(__get_file_metadata(file_name=name))
-            elif append_p:  # Normal file
-                waiting.append(__get_file_metadata(file_name=name))
-    return {
-        "approved": approved,
-        "rejected": rejected,
-        "waiting": waiting,
-    }
+    def __get_diff__(diff_dir: str, diff_file_name: str) -> dict:
+        """Get the contents of the diff at `filepath`."""
+        with open(Path(diff_dir, diff_file_name), encoding="utf8") as dfile:
+            return json.loads(dfile.read().strip())
+
+    return tuple({
+        "filepath": Path(diff_dir, dname).absolute(),
+        "meta": __get_file_metadata(file_name=dname),
+        "diff": __get_diff__(diff_dir, dname)
+    } for dname in os.listdir(diff_dir))
 
 
 def edit_phenotype(conn, name, dataset_id):
@@ -270,6 +262,7 @@ def update_phenotype(dataset_id: str, name: str):
                     "trait_name": str(name),
                     "phenotype_id": str(phenotype_id),
                     "dataset_id": name,
+                    "dataset_name": request.args["dataset_name"],
                     "resource_id": request.args.get("resource-id"),
                     "author": author,
                     "timestamp": (
@@ -512,38 +505,71 @@ filename=sample-data-{dataset_id}.csv"
 
 
 @metadata_edit.route("/diffs")
-@login_required
+# @login_required
 def list_diffs():
     files = _get_diffs(
         diff_dir=f"{current_app.config.get('TMPDIR')}/sample-data/diffs",
-        user_id=(
-            (g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-            or g.user_session.record.get("user_id")
-            or ""
-        ),
-        redis_conn=redis.from_url(
-            current_app.config["REDIS_URL"], decode_responses=True
-        ),
-        gn_proxy_url=current_app.config.get("GN2_PROXY"),
-    )
-    return render_template(
-        "display_files.html",
-        approved=sorted(
-            files.get("approved"),
-            reverse=True,
-            key=lambda d: d.get("time_stamp"),
-        ),
-        rejected=sorted(
-            files.get("rejected"),
-            reverse=True,
-            key=lambda d: d.get("time_stamp"),
-        ),
-        waiting=sorted(
-            files.get("waiting"),
-            reverse=True,
-            key=lambda d: d.get("time_stamp"),
-        ),
-    )
+        redis_conn=redis.from_url(current_app.config["REDIS_URL"],
+                                  decode_responses=True))
+
+    def __filter_authorised__(diffs, auth_details):
+        """Retain only those diffs that the current user has edit access to."""
+        return [
+            diff for diff in diffs
+            for auth in auth_details
+            if (diff["diff"]["dataset_name"] == auth["dataset_name"]
+                and
+                diff["diff"]["trait_name"] == auth["trait_name"]) ]
+
+    def __organise_diffs__(acc, item):
+        if item["filepath"].name.endswith(".rejected"):
+            return {**acc, "rejected": acc["rejected"]  + [item]}
+        if item["filepath"].name.endswith(".approved"):
+            return {**acc, "approved": acc["approved"]  + [item]}
+        return {**acc, "waiting": acc["waiting"] + [item]}
+
+    accessible_diffs = client.post(
+        "oauth2/data/authorisation",
+        json={
+            "traits": [
+                f"{meta['diff']['dataset_name']}::{meta['diff']['trait_name']}"
+                for meta in files
+            ]
+        }
+    ).map(
+        lambda lst: [
+            auth_item for auth_item in lst
+            if (("group:resource:edit-resource" in auth_item["privileges"])
+                or
+                ("system:resources:edit-all" in auth_item["privileges"]))]
+    ).map(
+        lambda alst: __filter_authorised__(files, alst)
+    ).map(lambda diffs: reduce(__organise_diffs__,
+                               diffs,
+                               {"approved": [], "rejected": [], "waiting": []}))
+
+    def __handle_error__(error):
+        flash_error(process_error(error))
+        return render_template(
+            "display_files.html", approved=[], rejected=[], waiting=[])
+
+    def __success__(org_diffs):
+        return render_template(
+            "display_files.html",
+            approved=sorted(
+                org_diffs.get("approved"),
+                reverse=True,
+                key=lambda d: d.get("time_stamp")),
+            rejected=sorted(
+                org_diffs.get("rejected"),
+                reverse=True,
+                key=lambda d: d.get("time_stamp")),
+            waiting=sorted(
+                org_diffs.get("waiting"),
+                reverse=True,
+                key=lambda d: d.get("time_stamp")))
+
+    return accessible_diffs.either(__handle_error__, __success__)
 
 
 @metadata_edit.route("/diffs/<name>")

@@ -9,11 +9,11 @@
 <!-- Start of body -->
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-{% for category, message in messages %}
 <div class="container-fluid bg-{{ category }}">
-    <p>{{ message }}</p>
+  {% for category, message in messages %}
+  <div class="alert {{category}}" role="alert">{{ message }}</div>
+  {% endfor %}
 </div>
-{% endfor %}
 {% endif %}
 {% endwith %}
 
@@ -33,13 +33,12 @@
                 <tbody>
                     {% for data in waiting %}
                     <tr>
-                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
-                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
-                        <td>{{ data.get("author")}}</td>
-                        <td>{{ data.get("time_stamp")}}</td>
-                        {% if data.get("roles").get("admin") > AdminRole.EDIT_ACCESS %}
-                        {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.get('resource_id'), file_name=data.get('file_name')) %}
-                        {% set approve_url = url_for('metadata_edit.approve_data', resource_id=data.get('resource_id'), file_name=data.get('file_name')) %}
+                      {% set file_url = url_for('metadata_edit.show_diff', name=data.filepath.name) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.meta.get("resource_id") }}</a></td>
+                        <td>{{ data.meta.get("author")}}</td>
+                        <td>{{ data.meta.get("time_stamp")}}</td>
+                        {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name) %}
+                        {% set approve_url = url_for('metadata_edit.approve_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name) %}
                         <td>
                             <button type="button"
                                     class="btn btn-secondary btn-sm">
@@ -52,7 +51,6 @@
                                 <a href="{{ approve_url }}">Approve</a>
                             </button>
                         </td>
-                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -74,10 +72,10 @@
                 <tbody>
                     {% for data in approved %}
                     <tr>
-                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
-                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
-                        <td>{{ data.get("author")}}</td>
-                        <td>{{ data.get("time_stamp")}}</td>
+                        {% set file_url = url_for('metadata_edit.show_diff', name=data.filepath.name) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.meta.get("resource_id") }}</a></td>
+                        <td>{{ data.meta.get("author")}}</td>
+                        <td>{{ data.meta.get("time_stamp")}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -99,10 +97,10 @@
                 <tbody>
                     {% for data in rejected %}
                     <tr>
-                        {% set file_url = url_for('metadata_edit.show_diff', name=data.get('file_name')) %}
-                        <td><a href="{{ file_url }}" target="_blank">{{ data.get("resource_id") }}</a></td>
-                        <td>{{ data.get("author")}}</td>
-                        <td>{{ data.get("time_stamp")}}</td>
+                        {% set file_url = url_for('metadata_edit.show_diff', name=data.filepath.name) %}
+                        <td><a href="{{ file_url }}" target="_blank">{{ data.meta.get("resource_id") }}</a></td>
+                        <td>{{ data.meta.get("author")}}</td>
+                        <td>{{ data.meta.get("time_stamp")}}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
