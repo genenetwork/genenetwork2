@@ -31,7 +31,7 @@ def process_error(error: Response,
                   message: str=("Requested endpoint was not found on the API "
                                 "server.")
                   ) -> dict:
-    if error.status_code in (401, 404):
+    if error.status_code in range(400, 500):
         try:
             err = error.json()
             msg = err.get("error_description", f"{error.reason}")
