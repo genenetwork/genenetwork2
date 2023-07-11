@@ -659,7 +659,7 @@ def reject_data(resource_id: str, file_name: str):
         os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
         os.path.join(f"{TMPDIR}/sample-data/diffs", f"{file_name}.rejected"),
     )
-    flash(f"{file_name} has been rejected!", "success")
+    flash(f"{file_name} has been rejected!", "alert-success")
     return redirect(url_for("metadata_edit.list_diffs"))
 
 
