@@ -88,10 +88,14 @@ add = function() {
   var trait;
   trait = $("input[name=trait_hmac]").val();
   return $.colorbox({
-    href: "/collections/add?traits=" + trait
+    href: "/collections/add",
+    data: {
+      "traits": trait
+    }
   });
 };
 $('#add_to_collection').click(add);
+
 sampleLists = js_data.sample_lists;
 sampleGroupTypes = js_data.sample_group_types;
 
