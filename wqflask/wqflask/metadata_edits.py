@@ -557,17 +557,17 @@ def list_diffs():
         return render_template(
             "display_files.html",
             approved=sorted(
-                org_diffs.get("approved"),
+                org_diffs["approved"],
                 reverse=True,
-                key=lambda d: d.get("time_stamp")),
+                key=lambda d: d["meta"]["time_stamp"]),
             rejected=sorted(
-                org_diffs.get("rejected"),
+                org_diffs["rejected"],
                 reverse=True,
-                key=lambda d: d.get("time_stamp")),
+                key=lambda d: d["meta"]["time_stamp"]),
             waiting=sorted(
-                org_diffs.get("waiting"),
+                org_diffs["waiting"],
                 reverse=True,
-                key=lambda d: d.get("time_stamp")))
+                key=lambda d: d["meta"]["time_stamp"]))
 
     return accessible_diffs.either(__handle_error__, __success__)
 
