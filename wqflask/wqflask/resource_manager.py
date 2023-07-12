@@ -72,7 +72,7 @@ unique identifiers so they aren't human readable names.
 
 
 @resource_management.route("/resources/<resource_id>")
-@login_required
+@login_required()
 def view_resource(resource_id: str):
     user_id = (g.user_session.record.get(b"user_id",
                                          b"").decode("utf-8") or
@@ -99,7 +99,7 @@ def view_resource(resource_id: str):
 @resource_management.route("/resources/<resource_id>/make-public",
                            methods=('POST',))
 @edit_access_required
-@login_required
+@login_required()
 def update_resource_publicity(resource_id: str):
     redis_conn = redis.from_url(
         current_app.config["REDIS_URL"],
@@ -128,7 +128,7 @@ def update_resource_publicity(resource_id: str):
 
 @resource_management.route("/resources/<resource_id>/change-owner")
 @edit_admins_access_required
-@login_required
+@login_required()
 def view_resource_owner(resource_id: str):
     return render_template(
         "admin/change_resource_owner.html",
@@ -138,7 +138,7 @@ def view_resource_owner(resource_id: str):
 @resource_management.route("/resources/<resource_id>/change-owner",
                            methods=('POST',))
 @edit_admins_access_required
-@login_required
+@login_required()
 def change_owner(resource_id: str):
     if user_id := request.form.get("new_owner"):
         redis_conn = redis.from_url(
@@ -154,7 +154,7 @@ def change_owner(resource_id: str):
 
 @resource_management.route("<resource_id>/users/search", methods=('POST',))
 @edit_admins_access_required
-@login_required
+@login_required()
 def search_user(resource_id: str):
     results = {}
     for user in (users := redis.from_url(

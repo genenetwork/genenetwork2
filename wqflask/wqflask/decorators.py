@@ -13,22 +13,25 @@ from gn3.authentication import DataRole
 
 from wqflask.oauth2 import client
 from wqflask.oauth2.session import session_info
+from wqflask.oauth2.checks import user_logged_in
 from wqflask.oauth2.request_utils import process_error
 
 
-def login_required(f):
+def login_required(pagename: str = ""):
     """Use this for endpoints where login is required"""
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        user_id = ((g.user_session.record.get(b"user_id") or
-                    b"").decode("utf-8")
-                   or g.user_session.record.get("user_id") or "")
-        redis_conn = redis.from_url(current_app.config["REDIS_URL"],
-                                    decode_responses=True)
-        if not redis_conn.hget("users", user_id):
-            return "You need to be logged in!", 401
-        return f(*args, **kwargs)
-    return wrap
+    def __build_wrap__(func):
+        @wraps(func)
+        def wrap(*args, **kwargs):
+            if not user_logged_in():
+                msg = ("You need to be logged in to access that page."
+                       if not bool(pagename) else
+                       ("You need to be logged in to access the "
+                        f"'{pagename.title()}' page."))
+                flash(msg, "alert-warning")
+                return redirect("/")
+            return func(*args, **kwargs)
+        return wrap
+    return __build_wrap__
 
 
 def edit_access_required(f):

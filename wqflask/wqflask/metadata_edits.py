@@ -486,7 +486,7 @@ def update_probeset(name: str):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
-@login_required
+@login_required()
 def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
@@ -505,7 +505,7 @@ filename=sample-data-{dataset_id}.csv"
 
 
 @metadata_edit.route("/diffs")
-# @login_required
+@login_required(pagename="Sample Data Diffs")
 def list_diffs():
     files = _get_diffs(
         diff_dir=f"{current_app.config.get('TMPDIR')}/sample-data/diffs",
@@ -573,6 +573,7 @@ def list_diffs():
 
 
 @metadata_edit.route("/diffs/<name>")
+@login_required(pagename="diff display")
 def show_diff(name):
     TMPDIR = current_app.config.get("TMPDIR")
     with open(
@@ -651,8 +652,7 @@ def show_history(dataset_id: str = "", name: str = ""):
 
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
-@edit_admins_access_required
-@login_required
+@login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
     TMPDIR = current_app.config.get("TMPDIR")
     os.rename(
@@ -664,8 +664,7 @@ def reject_data(resource_id: str, file_name: str):
 
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
-@edit_admins_access_required
-@login_required
+@login_required(pagename="Sample Data Approval")
 def approve_data(resource_id: str, file_name: str):
     from utility.tools import get_setting
     sample_data = {file_name: str}
