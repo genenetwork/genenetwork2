@@ -499,6 +499,8 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
                 conn=conn,
                 trait_name=str(dataset_id),
                 phenotype_id=str(phenotype_id),
+                sample_list=retrieve_sample_list(retrieve_group_name(
+                    dataset_id, conn))
             ),
             mimetype="text/csv",
             headers={
