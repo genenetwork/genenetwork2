@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 
+import logging
 from pathlib import Path
 from functools import reduce
 
@@ -54,6 +55,7 @@ from gn3.db.sample_data import insert_sample_data
 from gn3.db.sample_data import update_sample_data
 
 
+logger = logging.getLogger(__name__)
 metadata_edit = Blueprint("metadata_edit", __name__)
 
 def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
@@ -650,18 +652,54 @@ def show_history(dataset_id: str = "", name: str = ""):
         version=get_setting("GN_VERSION"),
     )
 
+def __authorised_p__(dataset_name, trait_name):
+    """Check whether the user is authorised to edit the trait."""
+    def __error__(error):
+        flash_error(process_error(error))
+        return False
+
+    def __success__(auth_details):
+        key = f"{dataset_name}::{trait_name}"
+        dets = auth_details.get(key)
+        if not bool(dets):
+            return False
+        return (("group:resource:edit-resource" in dets["privileges"])
+                or
+                ("system:resources:edit-all" in dets["privileges"]))
+
+    return client.post(
+        "oauth2/data/authorisation",
+        json={"traits": [f"{dataset_name}::{trait_name}"]}
+    ).map(
+        lambda adets: {
+            f"{dets['dataset_name']}::{dets['trait_name']}": dets
+            for dets in adets
+        }
+    ).either(__error__, __success__)
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
 @login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
+    diffs_page = redirect(url_for("metadata_edit.list_diffs"))
     TMPDIR = current_app.config.get("TMPDIR")
-    os.rename(
-        os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
-        os.path.join(f"{TMPDIR}/sample-data/diffs", f"{file_name}.rejected"),
-    )
-    flash(f"{file_name} has been rejected!", "alert-success")
-    return redirect(url_for("metadata_edit.list_diffs"))
+    sampledir = Path(TMPDIR, "sample-data/diffs")
+    samplefile = Path(sampledir, file_name)
 
+    if not samplefile.exists():
+        flash("No such diffs file!", "alert-danger")
+        return diffs_page
+
+    with open(samplefile, "r") as sfile:
+        sample_data = json.loads(sfile.read())
+        if not __authorised_p__(sample_data["dataset_name"],
+                                sample_data["trait_name"]):
+            flash("You are not authorised to edit that trait."
+                  "alert-danger")
+            return diffs_page
+
+    samplefile.rename(Path(sampledir, f"{file_name}.rejected"))
+    flash(f"{file_name} has been rejected!", "alert-success")
+    return diffs_page
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
 @login_required(pagename="Sample Data Approval")
@@ -669,14 +707,25 @@ def approve_data(resource_id: str, file_name: str):
     from utility.tools import get_setting
     sample_data = {file_name: str}
     TMPDIR = current_app.config.get("TMPDIR")
-    with open(
-        os.path.join(f"{TMPDIR}/sample-data/diffs", file_name), "r"
-    ) as myfile:
+    diffpath = Path(TMPDIR, "sample-data/diffs", file_name)
+    if not diffpath.exists():
+        flash(f"Could not find diff with the name '{diffpath.name}'",
+              "alert-danger")
+        return redirect(url_for("metadata_edit.list_diffs"))
+
+    n_deletions = 0
+    n_insertions = 0
+    with (open(diffpath, "r") as myfile,
+          database_connection(get_setting("SQL_URI")) as conn):
         sample_data = json.load(myfile)
-    with database_connection(get_setting("SQL_URI")) as conn:
+
+        if not __authorised_p__(sample_data["dataset_name"],
+                                sample_data["trait_name"]):
+            flash("You are not authorised to edit that trait.", "alert-danger")
+            return redirect(url_for("metadata_edit.list_diffs"))
+
         for modification in (
-            modifications := [d for d in sample_data.get("Modifications")]
-        ):
+                modifications := [d for d in sample_data.get("Modifications")]):
             if modification.get("Current"):
                 update_sample_data(
                     conn=conn,
@@ -689,8 +738,7 @@ def approve_data(resource_id: str, file_name: str):
                     phenotype_id=int(sample_data.get("phenotype_id")),
                 )
 
-    n_deletions = 0
-    with database_connection(get_setting("SQL_URI")) as conn:
+        # Deletions
         for data in [d for d in sample_data.get("Deletions")]:
             __deletions = delete_sample_data(
                 conn=conn,
@@ -707,8 +755,7 @@ def approve_data(resource_id: str, file_name: str):
             else:
                 sample_data.get("Deletions").remove(data)
 
-    n_insertions = 0
-    with database_connection(get_setting("SQL_URI")) as conn:
+        ## Insertions
         for data in [d for d in sample_data.get("Additions")]:
             if insert_sample_data(
                 conn=conn,
