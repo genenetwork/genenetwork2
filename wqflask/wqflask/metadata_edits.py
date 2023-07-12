@@ -23,12 +23,15 @@ from flask import render_template
 from flask import request
 from flask import url_for
 
+from utility.json import CustomJSONEncoder
+
 from wqflask.database import database_connection
 from wqflask.decorators import login_required
 from wqflask.decorators import required_access
 from wqflask.decorators import edit_admins_access_required
 
 from wqflask.oauth2 import client
+from wqflask.oauth2 import session
 from wqflask.oauth2.request_utils import flash_error, process_error
 
 from gn3.authentication import AdminRole
@@ -123,6 +126,7 @@ def edit_probeset(conn, name):
 @metadata_edit.route("/<dataset_id>/traits/<name>")
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
+@login_required(pagename="phenotype edit")
 def display_phenotype_metadata(dataset_id: str, name: str):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
@@ -167,15 +171,12 @@ def display_probeset_metadata(name: str):
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
+@login_required(pagename="phenotype update")
 def update_phenotype(dataset_id: str, name: str):
     from utility.tools import get_setting
     data_ = request.form.to_dict()
     TMPDIR = current_app.config.get("TMPDIR")
-    author = (
-        (g.user_session.record.get(b"user_id") or b"").decode("utf-8")
-        or g.user_session.record.get("user_id")
-        or ""
-    )
+    author = session.session_info()["user"]["user_id"]
     phenotype_id = str(data_.get("phenotype-id"))
     if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
         flash("No sample-data has been uploaded", "warning")
@@ -272,7 +273,7 @@ def update_phenotype(dataset_id: str, name: str):
                     ),
                 }
             )
-            f.write(json.dumps(diff_data))
+            f.write(json.dumps(diff_data, cls=CustomJSONEncoder))
         url = url_for("metadata_edit.list_diffs")
         flash(f"Sample-data has been successfully uploaded.  \
 View the diffs <a href='{url}' target='_blank'>here</a>", "success")
