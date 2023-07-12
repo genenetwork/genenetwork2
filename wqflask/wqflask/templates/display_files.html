@@ -18,6 +18,12 @@
 {% endwith %}
 
 <div class="container">
+  {%if (not waiting) and (not approved) and (not rejected)%}
+  <div class="row" style="text-align: left; padding: 5em 0 0 5em;">
+    <span class="glyphicon glyphicon-info-sign text-info"></span>
+    <strong>There are no diffs to act on.</strong>
+  </div>
+  {%endif%}
     {% if waiting %}
     <h2>Files for approval:</h2>
     <div class="row">
