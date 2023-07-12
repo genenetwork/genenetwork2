@@ -1,3 +1,4 @@
+import re
 import datetime
 import json
 import os
@@ -814,6 +815,10 @@ def approve_data(resource_id: str, file_name: str):
         )
     return redirect(url_for("metadata_edit.list_diffs"))
 
+def is_a_number(value: str):
+    """Check whether the string is a number"""
+    return bool(re.search(r"^[0-9]+\.*[0-9]*$", value))
+
 def create_delta_csv(base_csv, form_data, sample_list):
     base_csv_lines = base_csv.split("\n")
     delta_csv_lines = [base_csv_lines[0]]
@@ -825,9 +830,10 @@ def create_delta_csv(base_csv, form_data, sample_list):
             if sample['name'] in key:
                 new_line_items = [sample['name']]
                 for field in ["value", "error", "n_cases"]:
-                    if form_data.get(field + ":" + sample['name']):
-                        if form_data.get(field + ":" + sample['name']).isnumeric():
-                            new_line_items.append(form_data.get(field + ":" + sample['name']))
+                    the_value = form_data.get(f"{field}:{sample['name']}")
+                    if the_value:
+                        if is_a_number(the_value):
+                            new_line_items.append(the_value)
                             continue
                     new_line_items.append(sample[field])
                 delta_csv_lines.append(",".join(new_line_items))
