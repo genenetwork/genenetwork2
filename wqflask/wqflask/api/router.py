@@ -122,7 +122,7 @@ def get_groups_list(species_name=None):
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>".format(version))
 @app.route("/api/v_{}/group/<path:species_name>/<path:group_name>.<path:file_format>".format(version))
 def get_group_info(group_name, species_name=None, file_format="json"):
-    group = ()
+    group = tuple()
     with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if species_name:
             cursor.execute(
@@ -152,9 +152,8 @@ def get_group_info(group_name, species_name=None, file_format="json"):
                 "InbredSet.FullName = %s)",
                 ((group_name,)*3)
             )
-        results = cursor.fetchone()
+        group = cursor.fetchone()
 
-    group = results.fetchone()
     if group:
         group_dict = {
             "Id": group[0],
