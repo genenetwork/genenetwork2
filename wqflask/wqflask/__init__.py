@@ -1,6 +1,7 @@
 """Entry point for flask app"""
 # pylint: disable=C0413,E0611
 import time
+import datetime
 from typing import Tuple
 from urllib.parse import urljoin, urlparse
 
@@ -48,7 +49,8 @@ app.jinja_env.globals.update(
     logged_in=user_logged_in,
     authserver_authorise_uri=authserver_authorise_uri,
     user_details=user_details,
-    num_collections=num_collections)
+    num_collections=num_collections,
+    datetime=datetime)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
 
