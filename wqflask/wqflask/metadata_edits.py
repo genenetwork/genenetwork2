@@ -382,7 +382,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                 data=MetadataAudit(
                     dataset_id=name,
                     editor=author,
-                    json_data=json.dumps(diff_data),
+                    json_data=json.dumps(diff_data, cls=CustomJSONEncoder),
                 ),
             )
             conn.commit()
@@ -468,7 +468,7 @@ def update_probeset(name: str):
                 data=MetadataAudit(
                     dataset_id=data_.get("id"),
                     editor=author,
-                    json_data=json.dumps(diff_data),
+                    json_data=json.dumps(diff_data, cls=CustomJSONEncoder),
                 ),
             )
             conn.commit()
@@ -785,7 +785,7 @@ def approve_data(resource_id: str, file_name: str):
                 data=MetadataAudit(
                     dataset_id=sample_data.get("trait_name"),
                     editor=sample_data.get("author"),
-                    json_data=json.dumps(sample_data),
+                    json_data=json.dumps(sample_data, cls=CustomJSONEncoder),
                 ),
             )
         # Once data is approved, rename it!
