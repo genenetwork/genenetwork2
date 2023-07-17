@@ -834,7 +834,7 @@ def create_delta_csv(base_csv, form_data, sample_list):
                 for field in ["value", "error", "n_cases"]:
                     the_value = form_data.get(f"{field}:{sample['name']}")
                     if the_value:
-                        if is_a_number(the_value):
+                        if is_a_number(the_value) or the_value.lower() == "x":
                             new_line_items.append(the_value)
                             continue
                     new_line_items.append(sample[field])
