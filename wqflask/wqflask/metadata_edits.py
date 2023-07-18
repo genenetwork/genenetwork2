@@ -52,6 +52,7 @@ from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
+from gn3.db.phenotypes import fetch_trait, fetch_metadata, fetch_publication
 from gn3.db.phenotypes import probeset_mapping
 from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import get_trait_sample_data, get_trait_csv_sample_data
@@ -92,23 +93,11 @@ def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
 
 
 def edit_phenotype(conn, name, dataset_id):
-    publish_xref = fetchone(
-        conn=conn,
-        table="PublishXRef",
-        where=PublishXRef(id_=name, inbred_set_id=dataset_id),
-    )
+    publish_xref = fetch_trait(conn, dataset_id=dataset_id, trait_name=name)
     return {
         "publish_xref": publish_xref,
-        "phenotype": fetchone(
-            conn=conn,
-            table="Phenotype",
-            where=Phenotype(id_=publish_xref.phenotype_id),
-        ),
-        "publication": fetchone(
-            conn=conn,
-            table="Publication",
-            where=Publication(id_=publish_xref.publication_id),
-        ),
+        "phenotype": fetch_metadata(conn, publish_xref["phenotype_id"]),
+        "publication": fetch_publication(conn, publish_xref["publication_id"])
     }
 
 
@@ -135,7 +124,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
         group_name = retrieve_phenotype_group_name(conn, dataset_id)
         sample_list = retrieve_sample_list(group_name)
-        sample_data = get_trait_sample_data(conn, name, _d.get("publish_xref").phenotype_id)
+        sample_data = get_trait_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
 
         return render_template(
             "edit_phenotype.html",
