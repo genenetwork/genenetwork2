@@ -46,7 +46,7 @@ from gn3.db import fetchall
 from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
-from gn3.db.datasets import retrieve_sample_list, retrieve_group_name, retrieve_trait_dataset
+from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name, retrieve_trait_dataset
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
@@ -133,7 +133,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
     with database_connection(get_setting("SQL_URI")) as conn:
         _d = edit_phenotype(conn=conn, name=name, dataset_id=dataset_id)
 
-        group_name = retrieve_group_name(dataset_id, conn)
+        group_name = retrieve_phenotype_group_name(conn, dataset_id)
         sample_list = retrieve_sample_list(group_name)
         sample_data = get_trait_sample_data(conn, name, _d.get("publish_xref").phenotype_id)
 
@@ -196,7 +196,7 @@ def update_phenotype(dataset_id: str, name: str):
         )
         diff_data = {}
         with database_connection(get_setting("SQL_URI")) as conn:
-            group_name = retrieve_group_name(dataset_id, conn)
+            group_name = retrieve_phenotype_group_name(conn, dataset_id)
             sample_list = retrieve_sample_list(group_name)
             headers = ["Strain Name", "Value", "SE", "Count"]
             base_csv = get_trait_csv_sample_data(
@@ -499,8 +499,8 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
                 conn=conn,
                 trait_name=str(dataset_id),
                 phenotype_id=str(phenotype_id),
-                sample_list=retrieve_sample_list(retrieve_group_name(
-                    dataset_id, conn))
+                sample_list=retrieve_sample_list(
+                    retrieve_phenotype_group_name(conn, dataset_id))
             ),
             mimetype="text/csv",
             headers={
