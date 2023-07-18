@@ -46,7 +46,7 @@ from gn3.db import fetchall
 from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
-from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name, retrieve_trait_dataset
+from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.phenotypes import Probeset
