@@ -161,7 +161,7 @@ def export_traitlist(targs):
                 getattr(trait, "mean", "N/A")
             ]
 
-            for sample in trait.dataset.group.samplelist:
+            for sample in samplelist:
                 if sample in trait.data:
                     row_contents += [trait.data[sample].value,
                                      trait.data[sample].variance]
