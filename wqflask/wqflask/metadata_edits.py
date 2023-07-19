@@ -49,11 +49,10 @@ from gn3.db import update
 from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
 from gn3.db.metadata_audit import MetadataAudit
 from gn3.db.phenotypes import Phenotype
-from gn3.db.phenotypes import Probeset
+from gn3.db.probesets import Probeset, probeset_mapping, fetch_probeset_metadata_by_name
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
 from gn3.db.phenotypes import fetch_trait, fetch_metadata, fetch_publication
-from gn3.db.phenotypes import probeset_mapping
 from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import get_trait_sample_data, get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
@@ -101,18 +100,6 @@ def edit_phenotype(conn, name, dataset_id):
     }
 
 
-def edit_probeset(conn, name):
-    probeset_ = fetchone(
-        conn=conn,
-        table="ProbeSet",
-        columns=list(probeset_mapping.values()),
-        where=Probeset(name=name),
-    )
-    return {
-        "probeset": probeset_,
-    }
-
-
 @metadata_edit.route("/<dataset_id>/traits/<name>")
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
@@ -146,7 +133,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 def display_probeset_metadata(name: str):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
-        _d = edit_probeset(conn=conn, name=name)
+        _d = {"probeset": fetch_probeset_metadata_by_name(conn, name)}
         return render_template(
             "edit_probeset.html",
             diff=_d.get("diff"),
