@@ -52,14 +52,18 @@ from gn3.db.phenotypes import Phenotype
 from gn3.db.probesets import Probeset, probeset_mapping, fetch_probeset_metadata_by_name
 from gn3.db.phenotypes import Publication
 from gn3.db.phenotypes import PublishXRef
-from gn3.db.phenotypes import fetch_trait, fetch_metadata, fetch_publication
+from gn3.db.phenotypes import (
+    fetch_trait,
+    fetch_metadata,
+    update_publication,
+    fetch_publication_by_id,
+    fetch_publication_by_pubmed_id)
 from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import get_trait_sample_data, get_trait_csv_sample_data
 from gn3.db.sample_data import insert_sample_data
 from gn3.db.sample_data import update_sample_data
 
 
-logger = logging.getLogger(__name__)
 metadata_edit = Blueprint("metadata_edit", __name__)
 
 def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
@@ -96,7 +100,7 @@ def edit_phenotype(conn, name, dataset_id):
     return {
         "publish_xref": publish_xref,
         "phenotype": fetch_metadata(conn, publish_xref["phenotype_id"]),
-        "publication": fetch_publication(conn, publish_xref["publication_id"])
+        "publication": fetch_publication_by_id(conn, publish_xref["publication_id"])
     }
 
 
@@ -303,12 +307,9 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     }
     updated_publications = ""
     with database_connection(get_setting("SQL_URI")) as conn:
-
-        existing_publication = fetchone(
-            conn=conn,
-            table="Publication",
-            where=Publication(pubmed_id=data_.get("pubmed-id"))
-        )
+        existing_publication = (# fetch publication
+            data_.get("pubmed-id") and # only if `pubmed-id` exists
+            fetch_publication_by_pubmed_id(conn, data_["pubmed-id"]))
 
         if existing_publication:
             update(
@@ -318,12 +319,8 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                 where=PublishXRef(id_=name, inbred_set_id=dataset_id)
             )
         else:
-            updated_publications = update(
-                conn,
-                "Publication",
-                data=Publication(**publication_),
-                where=Publication(id_=data_.get("old_id_")),
-            )
+            updated_publications = update_publication(
+                conn, {"id_": data_["old_id_"], **publication_})
         conn.commit()
 
     if updated_publications:
