@@ -105,9 +105,9 @@ def edit_phenotype(conn, name, dataset_id):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
+@login_required(pagename="phenotype edit")
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
-@login_required(pagename="phenotype edit")
 def display_phenotype_metadata(dataset_id: str, name: str):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
@@ -150,9 +150,9 @@ def display_probeset_metadata(name: str):
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
+@login_required(pagename="phenotype update")
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
-@login_required(pagename="phenotype update")
 def update_phenotype(dataset_id: str, name: str):
     from utility.tools import get_setting
     data_ = request.form.to_dict()
@@ -655,10 +655,10 @@ def __authorised_p__(dataset_name, trait_name):
     ).either(__error__, __success__)
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
+@login_required(pagename="sample data rejection")
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"),
     trait_key="trait_name")
-@login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
     diffs_page = redirect(url_for("metadata_edit.list_diffs"))
     TMPDIR = current_app.config.get("TMPDIR")
@@ -682,10 +682,10 @@ def reject_data(resource_id: str, file_name: str):
     return diffs_page
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
+@login_required(pagename="Sample Data Approval")
 @required_access(
     ("group:resource:view-resource", "group:resource:edit-resource"),
     trait_key="trait_name")
-@login_required(pagename="Sample Data Approval")
 def approve_data(resource_id: str, file_name: str):
     from utility.tools import get_setting
     sample_data = {file_name: str}
