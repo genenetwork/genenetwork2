@@ -166,7 +166,7 @@
                 <label for="month" class="col-sm-3 col-lg-2 control-label text-left">Month</label>
                 <div class="col-sm-7 col-lg-8">
 		  <select id="month" name="month" class="form-control">
-		    {%set selected_month =(publication.month or datetime.datetime.strftime("%b"))%}
+		    {%set selected_month =(publication.month or datetime.datetime.now().strftime("%b"))%}
 		    {%for smonth, lmonth in (("Jan", "January"),("Feb", "February"),("Mar", "March"),("Apr", "April"),("May", "May"),("Jun", "Jun"),("Jul", "July"),("Aug", "August"),("Sep", "September"),("Oct", "October"),("Nov", "November"),("Dec", "December"))%}
 		    <option value="{{smonth}}"
 			    {%if smonth == selected_month%}

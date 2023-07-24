@@ -297,13 +297,13 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     publication_ = {
         "pubmed_id": data_.get("pubmed-id"),
         "abstract": data_.get("abstract"),
-        "authors": data_.get("authors"),
+        "authors": data_.get("authors", ""),
         "title": data_.get("title"),
         "journal": data_.get("journal"),
         "volume": data_.get("volume"),
         "pages": data_.get("pages"),
         "month": data_.get("month"),
-        "year": data_.get("year"),
+        "year": data_.get("year", 0),
     }
     updated_publications = ""
     with database_connection(get_setting("SQL_URI")) as conn:
