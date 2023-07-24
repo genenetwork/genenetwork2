@@ -655,6 +655,9 @@ def __authorised_p__(dataset_name, trait_name):
     ).either(__error__, __success__)
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
+@required_access(
+    ("group:resource:view-resource", "group:resource:edit-resource"),
+    trait_key="trait_name")
 @login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
     diffs_page = redirect(url_for("metadata_edit.list_diffs"))
@@ -679,6 +682,9 @@ def reject_data(resource_id: str, file_name: str):
     return diffs_page
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
+@required_access(
+    ("group:resource:view-resource", "group:resource:edit-resource"),
+    trait_key="trait_name")
 @login_required(pagename="Sample Data Approval")
 def approve_data(resource_id: str, file_name: str):
     from utility.tools import get_setting

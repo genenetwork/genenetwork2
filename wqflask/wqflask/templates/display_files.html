@@ -43,8 +43,8 @@
                         <td><a href="{{ file_url }}" target="_blank">{{ data.meta.get("resource_id") }}</a></td>
                         <td>{{ data.meta.get("author")}}</td>
                         <td>{{ data.meta.get("time_stamp")}}</td>
-                        {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name) %}
-                        {% set approve_url = url_for('metadata_edit.approve_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name) %}
+                        {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name, dataset_name=data.diff.dataset_name, trait_name=data.diff.trait_name) %}
+                        {% set approve_url = url_for('metadata_edit.approve_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name, dataset_name=data.diff.dataset_name, trait_name=data.diff.trait_name) %}
                         <td>
                             <button type="button"
                                     class="btn btn-secondary btn-sm">
