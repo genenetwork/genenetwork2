@@ -40,5 +40,9 @@ def database_connection(sql_uri: str) -> Iterator[Connection]:
     )
     try:
         yield connection
+        connection.commit()
+    except Exception as _exc:
+        connection.rollback()
+        raise _exc
     finally:
         connection.close()
