@@ -47,7 +47,10 @@ from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
 from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
-from gn3.db.metadata_audit import create_metadata_audit
+from gn3.db.metadata_audit import (
+    create_metadata_audit,
+    fetch_probeset_metadata_audit_by_trait_name,
+    fetch_phenotype_metadata_audit_by_dataset_id)
 from gn3.db.phenotypes import Phenotype
 from gn3.db.probesets import Probeset, probeset_mapping, fetch_probeset_metadata_by_name
 from gn3.db.phenotypes import Publication
@@ -555,7 +558,6 @@ def show_diff(name):
         )
     return render_template("display_diffs.html", diff=content)
 
-
 @metadata_edit.route("/<dataset_id>/traits/<name>/history")
 @metadata_edit.route("/probeset/<name>")
 def show_history(dataset_id: str = "", name: str = ""):
@@ -564,30 +566,16 @@ def show_history(dataset_id: str = "", name: str = ""):
     with database_connection(get_setting("SQL_URI")) as conn:
         json_data = None
         if dataset_id:  # This is a published phenotype
-            json_data = fetchall(
-                conn,
-                "metadata_audit",
-                where=MetadataAudit(dataset_id=fetchone(
-                    conn=conn,
-                    table="PublishXRef",
-                    where=PublishXRef(id_=name, inbred_set_id=dataset_id),
-                ).id_),
-            )
+            json_data = fetch_phenotype_metadata_audit_by_dataset_id(
+                conn, dataset_id)
         else:  # This is a probeset
-            json_data = fetchall(
-                conn, "metadata_audit",
-                where=MetadataAudit(dataset_id=fetchone(
-                    conn=conn,
-                    table="ProbeSet",
-                    columns=list(probeset_mapping.values()),
-                    where=Probeset(name=name),
-                ).id_)
-            )
+            json_data = fetch_probeset_metadata_audit_by_trait_name(
+                conn, name)
         Edit = namedtuple("Edit", ["field", "old", "new", "diff"])
         Diff = namedtuple("Diff", ["author", "diff", "timestamp"])
         diff_data = []
         for data in json_data:
-            json_ = json.loads(data.json_data)
+            json_ = data["json_data"]
             timestamp = json_.get("timestamp")
             author = json_.get("author")
             for key, value in json_.items():
