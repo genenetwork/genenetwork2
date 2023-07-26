@@ -586,20 +586,20 @@ def show_history(dataset_id: str = "", name: str = ""):
                                 author=author,
                                 diff=Edit(
                                     field,
-                                    data_.get("old"),
-                                    data_.get("new"),
-                                    "\n".join(
-                                        difflib.ndiff(
-                                            [data_.get("old") or ""],
-                                            [data_.get("new")],
-                                        )
-                                    ),
-                                ),
-                                timestamp=timestamp,
-                            )
-                        )
-        if len(diff_data) > 0:
-            diff_data_ = groupby(diff_data, lambda x: x.timestamp)
+                                    data_.get("old") or "",
+                                    data_.get("new") or "",
+                                    "\n".join(difflib.ndiff(
+                                        [str(data_.get("old")) or ""],
+                                        [str(data_.get("new")) or ""],
+                                    ))),
+                                timestamp=timestamp))
+
+    if len(diff_data) > 0:
+        diff_data_ = groupby(
+            (diff for diff in diff_data if (
+                diff.diff.diff.startswith("-") or
+                diff.diff.diff.startswith("+"))),
+            lambda x: x.timestamp)
     return render_template(
         "edit_history.html",
         diff=diff_data_,
