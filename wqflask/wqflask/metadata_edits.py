@@ -47,7 +47,7 @@ from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
 from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
-from gn3.db.metadata_audit import MetadataAudit
+from gn3.db.metadata_audit import create_metadata_audit
 from gn3.db.phenotypes import Phenotype
 from gn3.db.probesets import Probeset, probeset_mapping, fetch_probeset_metadata_by_name
 from gn3.db.phenotypes import Publication
@@ -350,16 +350,10 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
             }
         )
         with database_connection(get_setting("SQL_URI")) as conn:
-            insert(
-                conn,
-                table="metadata_audit",
-                data=MetadataAudit(
-                    dataset_id=name,
-                    editor=author,
-                    json_data=json.dumps(diff_data, cls=CustomJSONEncoder),
-                ),
-            )
-            conn.commit()
+            create_metadata_audit(conn, {
+                "dataset_id": dataset_id,
+                "editor": author,
+                "json_data": json.dumps(diff_data, cls=CustomJSONEncoder)})
         flash(f"Diff-data: \n{diff_data}\nhas been uploaded", "success")
     return redirect(
         f"/datasets/{dataset_id}/traits/{name}"
@@ -436,16 +430,10 @@ def update_probeset(name: str):
                     )
                 }
             )
-            insert(
-                conn,
-                table="metadata_audit",
-                data=MetadataAudit(
-                    dataset_id=data_.get("id"),
-                    editor=author,
-                    json_data=json.dumps(diff_data, cls=CustomJSONEncoder),
-                ),
-            )
-            conn.commit()
+            create_metadata_audit(conn, {
+                "dataset_id": data_["id"],
+                "editor": author,
+                "json_data": json.dumps(diff_data, cls=CustomJSONEncoder)})
             edited_values = {k: v for (k, v) in diff_data['Probeset'].items()
                              if k not in {"id_", "timestamp", "author"}}
             changes = []
@@ -759,15 +747,11 @@ def approve_data(resource_id: str, file_name: str):
         ]
     ):
         with database_connection(get_setting("SQL_URI")) as conn:
-            insert(
-                conn,
-                table="metadata_audit",
-                data=MetadataAudit(
-                    dataset_id=sample_data.get("trait_name"),
-                    editor=sample_data.get("author"),
-                    json_data=json.dumps(sample_data, cls=CustomJSONEncoder),
-                ),
-            )
+            create_metadata_audit(conn, {
+                "dataset_id": sample_data.get("dataset_id"),
+                "editor": sample_data.get("author"),
+                "json_data": json.dumps(sample_data, cls=CustomJSONEncoder)
+            })
         # Once data is approved, rename it!
         os.rename(
             os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
