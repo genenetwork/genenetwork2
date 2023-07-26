@@ -245,7 +245,7 @@ def update_phenotype(dataset_id: str, name: str):
                 {
                     "trait_name": str(name),
                     "phenotype_id": str(phenotype_id),
-                    "dataset_id": name,
+                    "dataset_id": dataset_id,
                     "dataset_name": request.args["dataset_name"],
                     "resource_id": request.args.get("resource-id"),
                     "author": author,
@@ -340,7 +340,8 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
         diff_data.update(
             {
                 "phenotype_id": str(phenotype_id),
-                "dataset_id": name,
+                "dataset_id": dataset_id,
+                "trait_name": name,
                 "resource_id": request.args.get("resource-id"),
                 "author": author,
                 "timestamp": (
