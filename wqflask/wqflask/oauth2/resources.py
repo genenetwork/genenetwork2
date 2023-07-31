@@ -3,6 +3,7 @@ import uuid
 from flask import (
     flash, request, jsonify, url_for, redirect, Response, Blueprint)
 
+from . import client
 from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
@@ -53,17 +54,26 @@ def create_resource():
         "oauth2/resource/create", data=request.form).either(
             __perr__, __psuc__)
 
+def __compute_page__(submit, current_page):
+    if submit == "next":
+        return current_page + 1
+    return (current_page - 1) or 1
+
 @resources.route("/view/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
 def view_resource(resource_id: uuid.UUID):
     """View the given resource."""
+    page = __compute_page__(request.args.get("submit"),
+                            int(request.args.get("page", "1"), base=10))
+    count_per_page = int(request.args.get("count_per_page", "100"), base=10)
     def __users_success__(
             resource, unlinked_data, users_n_roles, this_user, group_roles,
             users):
         return render_ui(
             "oauth2/view-resource.html", resource=resource,
             unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-            this_user=this_user, group_roles=group_roles, users=users)
+            this_user=this_user, group_roles=group_roles, users=users,
+            page=page, count_per_page=count_per_page)
 
     def __group_roles_success__(
             resource, unlinked_data, users_n_roles, this_user, group_roles):
@@ -97,14 +107,14 @@ def view_resource(resource_id: uuid.UUID):
     def __unlinked_success__(resource, unlinked_data):
         return oauth2_get(f"oauth2/resource/{resource_id}/user/list").either(
             lambda err: render_ui(
-                "oauth2/view-resource.html", resource=resource,
+                "oauth2/view-resource.html",
+                resource=resource,
                 unlinked_data=unlinked_data,
-                users_n_roles_error=process_error(err)),
+                users_n_roles_error=process_error(err),
+                page=page,
+                count_per_page=count_per_page),
             lambda users_n_roles: __users_n_roles_success__(
                 resource, unlinked_data, users_n_roles))
-        return render_ui(
-                "oauth2/view-resource.html", resource=resource, error=None,
-                unlinked_data=unlinked)
 
     def __resource_success__(resource):
         dataset_type = resource["resource_category"]["resource_category_key"]
@@ -114,10 +124,22 @@ def view_resource(resource_id: uuid.UUID):
                 unlinked_error=process_error(err)),
             lambda unlinked: __unlinked_success__(resource, unlinked))
 
-    return oauth2_get(f"oauth2/resource/view/{resource_id}").either(
-        lambda err: render_ui("oauth2/view-resource.html",
-                              resource=None, resource_error=process_error(err)),
-        __resource_success__)
+    def __fetch_resource_data__(resource):
+        """Fetch the resource's data."""
+        return client.get(
+            f"oauth2/resource/view/{resource['resource_id']}/data?page={page}"
+            f"&count_per_page={count_per_page}").either(
+                lambda err: {
+                    **resource, "resource_data_error": process_error(err)
+                },
+                lambda resdata: {**resource, "resource_data": resdata})
+
+    return oauth2_get(f"oauth2/resource/view/{resource_id}").map(
+        __fetch_resource_data__).either(
+            lambda err: render_ui(
+                "oauth2/view-resource.html",
+                resource=None, resource_error=process_error(err)),
+            __resource_success__)
 
 @resources.route("/data/link", methods=["POST"])
 @require_oauth2

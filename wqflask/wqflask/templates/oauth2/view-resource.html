@@ -139,6 +139,19 @@
 	  {%endfor%}
 	</tbody>
       </table>
+      <form action="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}"
+	    method="GET"
+	    style="width:100%;text-align:center;">
+	<input type="hidden" name="page" value="{{page}}" />
+	<input type="hidden" name="count_per_page" value="{{count_per_page}}" />
+
+	<input type="submit" name="submit" value="prev" class="btn btn-info"
+	       {%if page == 1 %}disabled="disabled"{%endif%} />
+	<input type="submit" name="submit" value="next" class="btn btn-info"
+	       {%if resource.resource_data | length < count_per_page %}
+	       disabled="disabled"
+	       {%endif%} />
+      </form>
     </div>
 
     <div class="row">
