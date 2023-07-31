@@ -522,13 +522,12 @@ class LrsSearch(DoSearch):
                                                                 max(lrs_min, lrs_max))
 
             if len(self.search_term) > 2:
-                # If the user typed, for example "Chr4", the "Chr" substring needs to be removed so that all search elements can be converted to floats
-                chr_num = self.search_term[2]
-                chr_str = re.match("(^c|^C)[a-z]*", chr_num)
+                try:
+                    chr_num = int(float(self.search_term[2]))
+                except:
+                    chr_num = self.search_term[2].lower().replace('chr', '')
+                self.search_term[2] = chr_num
 
-                if chr_str:
-                    chr_num = self.search_term[2].replace(chr_str.group(0), "")
-                    self.search_term[2] = chr_num
                 where_clause += """ and Geno.Chr = '%s' """ % (chr_num)
                 if len(self.search_term) == 5:
                     mb_low, mb_high = self.search_term[3:]
@@ -843,11 +842,9 @@ class PositionSearch(DoSearch):
 
     def get_chr(self):
         try:
-            self.chr = int(self.chr)
+            self.chr = int(float(self.chr))
         except:
-            chr_str = re.match("(^c|^C)[a-z]*", self.chr)
-            if chr_str:
-                self.chr = self.chr.replace(chr_str.group(0), '')
+            self.chr = self.chr.lower().replace('chr', '')
 
     def run(self):
 
