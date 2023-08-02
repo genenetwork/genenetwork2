@@ -42,8 +42,6 @@ from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
 from gn3.csvcmp import remove_insignificant_edits
 from gn3.db import diff_from_dict
-from gn3.db import fetchall
-from gn3.db import fetchone
 from gn3.db import insert
 from gn3.db import update
 from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
