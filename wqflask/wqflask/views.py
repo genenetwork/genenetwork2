@@ -491,7 +491,7 @@ def show_temp_trait_page():
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
-        return render_template("show_trait.html", **template_vars.__dict__)
+        return redirect(url_for("show_trait_page", dataset=template_vars.dataset.name, trait_id=template_vars.trait_id))
 
 
 @app.route("/show_trait")
