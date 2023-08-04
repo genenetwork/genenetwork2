@@ -42,26 +42,27 @@ from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
 from gn3.csvcmp import remove_insignificant_edits
 from gn3.db import diff_from_dict
-from gn3.db import update
 from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
 from gn3.db.metadata_audit import (
     create_metadata_audit,
     fetch_probeset_metadata_audit_by_trait_name,
     fetch_phenotype_metadata_audit_by_dataset_id)
-from gn3.db.phenotypes import Phenotype
-from gn3.db.probesets import Probeset, probeset_mapping, fetch_probeset_metadata_by_name
-from gn3.db.phenotypes import Publication
-from gn3.db.phenotypes import PublishXRef
+from gn3.db.probesets import (
+    update_probeset,
+    fetch_probeset_metadata_by_name)
 from gn3.db.phenotypes import (
     fetch_trait,
     fetch_metadata,
     update_publication,
     fetch_publication_by_id,
-    fetch_publication_by_pubmed_id)
-from gn3.db.sample_data import delete_sample_data
-from gn3.db.sample_data import get_trait_sample_data, get_trait_csv_sample_data
-from gn3.db.sample_data import insert_sample_data
-from gn3.db.sample_data import update_sample_data
+    fetch_publication_by_pubmed_id,
+    update_phenotype as _update_phenotype)
+from gn3.db.sample_data import (
+    delete_sample_data,
+    insert_sample_data,
+    update_sample_data,
+    get_trait_sample_data,
+    get_trait_csv_sample_data)
 
 
 metadata_edit = Blueprint("metadata_edit", __name__)
@@ -273,13 +274,10 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     }
     updated_phenotypes = ""
     with database_connection(get_setting("SQL_URI")) as conn:
-        updated_phenotypes = update(
-            conn,
-            "Phenotype",
-            data=Phenotype(**phenotype_),
-            where=Phenotype(id_=data_.get("phenotype-id")),
-        )
-        conn.commit()
+        updated_phenotypes = _update_phenotype(
+            conn, {"id_": data_["phenotype-id"], **{
+                key: value for key,value in phenotype_.items()
+                if value is not None}})
     diff_data = {}
     if updated_phenotypes:
         diff_data.update(
@@ -294,19 +292,19 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                 )
             }
         )
-        publication_ = {
-            key: val for key, val in {
-                "pubmed_id": data_.get("pubmed-id"),
-                "abstract": data_.get("abstract"),
-                "authors": data_.get("authors"),
-                "title": data_.get("title"),
-                "journal": data_.get("journal"),
-                "volume": data_.get("volume"),
-                "pages": data_.get("pages"),
-                "month": data_.get("month"),
-                "year": data_.get("year"),
-            }.items() if val is not None
-        }
+    publication_ = {
+        key: val for key, val in {
+            "pubmed_id": data_.get("pubmed-id"),
+            "abstract": data_.get("abstract"),
+            "authors": data_.get("authors"),
+            "title": data_.get("title"),
+            "journal": data_.get("journal"),
+            "volume": data_.get("volume"),
+            "pages": data_.get("pages"),
+            "month": data_.get("month"),
+            "year": data_.get("year"),
+        }.items() if val is not None
+    }
     updated_publications = ""
     with database_connection(get_setting("SQL_URI")) as conn:
         existing_publication = (# fetch publication
@@ -314,12 +312,10 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
             fetch_publication_by_pubmed_id(conn, data_["pubmed-id"]))
 
         if existing_publication:
-            update(
-                conn,
-                "PublishXRef",
-                data=PublishXRef(publication_id=existing_publication.id_),
-                where=PublishXRef(id_=name, inbred_set_id=dataset_id)
-            )
+            update_cross_reference(conn,
+                                   dataset_id,
+                                   name,
+                                   {"publication_id": existing_publication.id_})
         else:
             updated_publications = update_publication(
                 conn, {"id_": data_["old_id_"], **publication_})
@@ -403,12 +399,7 @@ def update_probeset(name: str):
             or g.user_session.record.get("user_id")
             or ""
         )
-        if update(
-            conn,
-            "ProbeSet",
-            data=Probeset(**probeset_),
-            where=Probeset(id_=data_.get("id")),
-        ):
+        if update_probeset(conn, data["id"], probeset_):
             diff_data.update(
                 {
                     "Probeset": diff_from_dict(
