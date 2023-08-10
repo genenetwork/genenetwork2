@@ -3,6 +3,7 @@
 import time
 import datetime
 from typing import Tuple
+from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
 import redis
@@ -36,11 +37,19 @@ from wqflask.oauth2.request_utils import user_details, authserver_authorise_uri
 
 from wqflask.jupyter_notebooks import jupyter_notebooks
 
+from wqflask.startup import (
+    StartupError,
+    startup_errors,
+    check_mandatory_configs)
+
 app = Flask(__name__)
 
 
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
+default_settings_file = Path(Path(__file__).parent.parent.parent,
+                             "etc/default_settings.py")
+app.config.from_pyfile(default_settings_file)
 app.config.from_envvar('GN2_SETTINGS')
 
 app.jinja_env.globals.update(
@@ -53,6 +62,7 @@ app.jinja_env.globals.update(
     datetime=datetime)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+
 
 # Registering blueprints
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
@@ -74,6 +84,11 @@ app.register_blueprint(oauth2, url_prefix="/oauth2")
 from wqflask.decorators import AuthorisationError
 from wqflask.app_errors import handle_authorisation_error
 app.register_error_handler(AuthorisationError, handle_authorisation_error)
+try:
+    check_mandatory_configs(app)
+except StartupError as serr:
+    app.startup_error = serr
+    app.register_blueprint(startup_errors, url_prefix="/")
 
 server_session = Session(app)
 

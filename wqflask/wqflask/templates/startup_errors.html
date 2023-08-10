@@ -1,0 +1,20 @@
+{%extends "base.html"%}
+{%block title%}Startup Error{%endblock%}
+{%block content %}
+{%if error_type == "MissingConfigurationError"%}
+
+<div class="container">
+  <h1>Startup Error</h1>
+
+  <p>
+    The application could not start due to the missing configuration settings
+    below:
+    <ul>
+      {%for setting in error_value.missing%}
+      <li class="text-danger"><strong>{{setting}}</strong></li>
+      {%endfor%}
+    </ul>
+  </p>
+</div>
+{%endif%}
+{%endblock%}
