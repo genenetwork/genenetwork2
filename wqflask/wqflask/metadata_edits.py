@@ -9,7 +9,7 @@ from functools import reduce
 
 from collections import namedtuple
 from itertools import groupby
-from typing import Dict
+from typing import Dict, Optional
 
 import difflib
 import redis
@@ -292,9 +292,18 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                 )
             }
         )
+    def __parse_int__(val) -> Optional[int]:
+        """Safe parser for integers"""
+        try:
+            return int(val, base=10)
+        except ValueError as _verr:
+            return None
+        except TypeError as _terr:
+            # trying to convert None
+            return None
     publication_ = {
         key: val for key, val in {
-            "pubmed_id": data_.get("pubmed-id"),
+            "pubmed_id": __parse_int__(data_.get("pubmed-id")),
             "abstract": data_.get("abstract"),
             "authors": data_.get("authors"),
             "title": data_.get("title"),
