@@ -38,7 +38,9 @@
 		<input name="id" class="changed" type="hidden" value="{{ probeset.id_ }}"/>
 		<input name="old_id_" class="changed" type="hidden" value="{{ probeset.id_ }}"/>
 		<input name="probeset_name" class="changed" type="hidden" value="{{ probeset.name }}"/>
-	    </div>
+		<input name="dataset_name" class="changed" type="hidden" value="{{ dataset_name }}"/>
+		<input name="edited" class="changed" type="hidden" value="false"/>
+	  </div>
 	</div>
     <div>
         <h2>Edit Sample Data</h2>
@@ -198,7 +200,7 @@
 		<div class="form-group">
 				<label for="probe_set_blat_mb_end" class="col-sm-3 col-lg-2 control-label text-left">Probeset Blat Mb End</label>
 				<div class="col-sm-8">
-			<textarea name="probe_set_blat_mb_end" class="form-control" rows="6">{{ probeset.probe_set_blat_mb_end |default('', true) }}</textarea>
+			<textarea name="probe_set_blat_mb_end" class="form-control" rows="1">{{ probeset.probe_set_blat_mb_end |default('', true) }}</textarea>
 			<input name="old_probe_set_blat_mb_end" class="changed" type="hidden" value="{{ probeset.probe_set_blat_mb_end |default('', true) }}"/>
 				</div>
 		</div>
@@ -270,5 +272,11 @@
  $("input[type=submit]").click(function(){
      $(":input:not(.changed)").attr("disabled", "disabled");
  });
+
+  // This is an awkward way to detect changes to table data, so it doesn't process it otherwise
+  $(".table_input").change(function(){
+    $("input[name=edited]").val("true");
+ });
+
 </script>
 {% endblock %}
