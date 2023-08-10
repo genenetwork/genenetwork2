@@ -9,46 +9,35 @@
 <!-- Start of body -->
 <div class="container">
 
-    <h1>History</h1>
+  <h1>History</h1>
     {% if diff %}
     <div class="row">
-	<table id="history" class="table-responsive table-hover table-striped cell-border">
-            <tbody>
-		<tr>
-                    <th>Timestamp</th>
-                    <th>Editor</th>
-                    <th>Field</th>
-                    <th>Diff</th>
-		</tr>
-		{% set ns = namespace(display_cell=True) %}
-
-		{% for timestamp, group in diff %}
-		{% set ns.display_cell = True %}
-		{% for i in group %}
-		<tr>
-                    {% if ns.display_cell and i.timestamp == timestamp %}
-
-                    {% set author = i.author %}
-                    {% set timestamp_ = i.timestamp %}
-
-                    {% else %}
-
-                    {% set author = "" %}
-                    {% set timestamp_ = "" %}
-
-                    {% endif %}
-                    <td>{{ timestamp_ }}</td>
-		    <td>{{ author }}</td>
-		    <td>{{ i.diff.field }}</td>
-		    <td><pre>{{ i.diff.diff }}</pre></td>
-		    {% set ns.display_cell = False %}
-		</tr>
-		{% endfor %}
-		{% endfor %}
-	    </tbody>
-	</table>
+      <table id="history" class="table-responsive table-hover table-striped cell-border">
+	<thead>
+          <th>Timestamp</th>
+          <th>Editor</th>
+          <th>Field</th>
+          <th>Diff</th>
+	</thead>
+	<tbody>
+	  {%set ns = namespace(display_ts=True)%}
+	  {%for ts, item in diff.items()%}
+	  {%set ns.display_ts = True%}
+	  {%for the_diff in item%}
+	  <tr>
+	    {%if ns.display_ts%}
+	    <td rowspan={{item | length}}>{{ts}}</td>
+	    {%set ns.display_ts = False%}
+	    {%endif%}
+	    <td>{{the_diff.author}}</td>
+	    <td>{{the_diff.diff.field}}</td>
+	    <td><pre>{{the_diff.diff.diff}}</pre></td>
+	  </tr>
+	  {%endfor%}
+	  {%endfor%}
+	</tbody>
+      </table>
     </div>
-
     {% endif %}
 
 </div>

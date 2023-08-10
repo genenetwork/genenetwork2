@@ -601,7 +601,7 @@ def show_history(dataset_id: str = "", name: str = ""):
             lambda x: x.timestamp)
     return render_template(
         "edit_history.html",
-        diff=diff_data_,
+        diff={key: set(val) for key,val in diff_data_},
         version=get_setting("GN_VERSION"),
     )
 
