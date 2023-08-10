@@ -42,13 +42,16 @@ from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
 from gn3.csvcmp import remove_insignificant_edits
 from gn3.db import diff_from_dict
-from gn3.db.datasets import retrieve_sample_list, retrieve_phenotype_group_name
+from gn3.db.datasets import (
+    retrieve_sample_list,
+    retrieve_mrna_group_name,
+    retrieve_phenotype_group_name)
 from gn3.db.metadata_audit import (
     create_metadata_audit,
     fetch_probeset_metadata_audit_by_trait_name,
     fetch_phenotype_metadata_audit_by_dataset_id)
 from gn3.db.probesets import (
-    update_probeset,
+    update_probeset as _update_probeset,
     fetch_probeset_metadata_by_name)
 from gn3.db.phenotypes import (
     fetch_trait,
@@ -57,12 +60,15 @@ from gn3.db.phenotypes import (
     fetch_publication_by_id,
     fetch_publication_by_pubmed_id,
     update_phenotype as _update_phenotype)
+from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import (
     delete_sample_data,
     insert_sample_data,
     update_sample_data,
-    get_trait_sample_data,
-    get_trait_csv_sample_data)
+    get_pheno_sample_data,
+    get_pheno_csv_sample_data,
+    get_mrna_sample_data,
+    get_mrna_csv_sample_data)
 
 
 metadata_edit = Blueprint("metadata_edit", __name__)
@@ -116,7 +122,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
         group_name = retrieve_phenotype_group_name(conn, dataset_id)
         sample_list = retrieve_sample_list(group_name)
-        sample_data = get_trait_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
+        sample_data = get_pheno_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
 
         return render_template(
             "edit_phenotype.html",
@@ -139,14 +145,23 @@ def display_probeset_metadata(name: str):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
         _d = {"probeset": fetch_probeset_metadata_by_name(conn, name)}
+
+        dataset_name=request.args["dataset_name"]
+        group_name = retrieve_mrna_group_name(conn, _d["probeset"]["id_"])
+        sample_list = retrieve_sample_list(group_name)
+        sample_data = get_mrna_sample_data(conn, _d["probeset"]["id_"], dataset_name)
+
         return render_template(
             "edit_probeset.html",
             diff=_d.get("diff"),
             probeset=_d.get("probeset"),
+            probeset_id=_d["probeset"]["id_"],
             name=name,
             resource_id=request.args.get("resource-id"),
             version=get_setting("GN_VERSION"),
-            dataset_name=request.args["dataset_name"]
+            dataset_name=request.args["dataset_name"],
+            sample_list=sample_list,
+            sample_data=sample_data
         )
 
 
@@ -180,7 +195,7 @@ def update_phenotype(dataset_id: str, name: str):
             group_name = retrieve_phenotype_group_name(conn, dataset_id)
             sample_list = retrieve_sample_list(group_name)
             headers = ["Strain Name", "Value", "SE", "Count"]
-            base_csv = get_trait_csv_sample_data(
+            base_csv = get_pheno_csv_sample_data(
                     conn=conn,
                     trait_name=str(name),
                     phenotype_id=str(phenotype_id),
@@ -366,6 +381,114 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
     dataset_key="dataset_id", trait_key="name")
 def update_probeset(name: str):
     from utility.tools import get_setting
+    data_ = request.form.to_dict()
+    TMPDIR = current_app.config.get("TMPDIR")
+    author = session.session_info()["user"]["user_id"]
+    probeset_id=str(data_.get("id"))
+    trait_name = str(data_.get("probeset_name"))
+    dataset_name = str(data_.get("dataset_name"))
+
+    if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
+        flash("No sample-data has been uploaded", "warning")
+    else:
+        create_dirs_if_not_exists(
+            [
+                SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data"),
+                DIFF_DATADIR := os.path.join(SAMPLE_DATADIR, "diffs"),
+                UPLOAD_DATADIR := os.path.join(SAMPLE_DATADIR, "updated"),
+            ]
+        )
+
+        current_time = str(datetime.datetime.now().isoformat())
+        _file_name = (
+            f"{author}.{request.args.get('resource-id')}." f"{current_time}"
+        )
+        diff_data = {}
+        with database_connection(get_setting("SQL_URI")) as conn:
+            group_name = retrieve_mrna_group_name(conn, str(data_.get("id")))
+            sample_list = retrieve_sample_list(group_name)
+            headers = ["Strain Name", "Value", "SE", "Count"]
+
+            base_csv = get_mrna_csv_sample_data(
+                conn=conn,
+                probeset_id=probeset_id,
+                dataset_name=dataset_name,
+                sample_list=retrieve_sample_list(
+                    retrieve_mrna_group_name(conn, probeset_id))
+            )
+            if not (file_) and data_.get('edited') == "true":
+                delta_csv = create_delta_csv(base_csv, data_, sample_list)
+                diff_data = remove_insignificant_edits(
+                    diff_data=csv_diff(
+                        base_csv=base_csv,
+                        delta_csv=delta_csv,
+                        tmp_dir=TMPDIR,
+                    ),
+                    epsilon=0.001,
+                )
+            else:
+                diff_data = remove_insignificant_edits(
+                    diff_data=csv_diff(
+                        base_csv=base_csv,
+                        delta_csv=(delta_csv := file_.read().decode()),
+                        tmp_dir=TMPDIR,
+                    ),
+                    epsilon=0.001,
+                )
+
+            invalid_headers = extract_invalid_csv_headers(
+                allowed_headers=headers, csv_text=delta_csv
+            )
+            if invalid_headers:
+                flash(
+                    "You have invalid headers: "
+                    f"""{', '.join(invalid_headers)}.  Valid headers """
+                    f"""are: {', '.join(headers)}""",
+                    "warning",
+                )
+                return redirect(
+                    f"/datasets/{dataset_id}/traits/{name}"
+                    f"?resource-id={request.args.get('resource-id')}"
+                    f"&dataset_name={request.args['dataset_name']}"
+                )
+        # Edge case where the csv file has not been edited!
+        if not any(diff_data.values()):
+            flash(
+                "You have not modified the csv file you downloaded!", "warning"
+            )
+            return redirect(
+                f"/datasets/{dataset_id}/traits/{name}"
+                f"?resource-id={request.args.get('resource-id')}"
+                f"&dataset_name={request.args['dataset_name']}"
+            )
+
+        with open(
+            os.path.join(UPLOAD_DATADIR, f"{_file_name}.csv"), "w"
+        ) as f_:
+            f_.write(base_csv)
+        with open(
+            os.path.join(UPLOAD_DATADIR, f"{_file_name}.delta.csv"), "w"
+        ) as f_:
+            f_.write(delta_csv)
+
+        with open(os.path.join(DIFF_DATADIR, f"{_file_name}.json"), "w") as f:
+            diff_data.update(
+                {
+                    "trait_name": str(trait_name),
+                    "probeset_id": str(probeset_id),
+                    "dataset_name": dataset_name,
+                    "resource_id": request.args.get("resource-id"),
+                    "author": author,
+                    "timestamp": (
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    ),
+                }
+            )
+            f.write(json.dumps(diff_data, cls=CustomJSONEncoder))
+        url = url_for("metadata_edit.list_diffs")
+        flash(f"Sample-data has been successfully uploaded.  \
+View the diffs <a href='{url}' target='_blank'>here</a>", "success")
+
     with database_connection(get_setting("SQL_URI")) as conn:
         data_ = request.form.to_dict()
         probeset_ = {
@@ -399,7 +522,14 @@ def update_probeset(name: str):
             or g.user_session.record.get("user_id")
             or ""
         )
-        if update_probeset(conn, data["id"], probeset_):
+
+        updated_probesets = ""
+        updated_probesets = _update_probeset(
+            conn, probeset_id, {"id_": data_["id"], **{
+                key: value for key,value in probeset_.items()
+                if value is not None}})
+
+        if updated_probesets:
             diff_data.update(
                 {
                     "Probeset": diff_from_dict(
@@ -444,13 +574,13 @@ def update_probeset(name: str):
         )
 
 
-@metadata_edit.route("/<dataset_id>/traits/<phenotype_id>/csv")
+@metadata_edit.route("/pheno/<dataset_id>/traits/<phenotype_id>/csv")
 @login_required()
-def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
+def get_pheno_sample_data_as_csv(dataset_id: str, phenotype_id: int):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
         return Response(
-            get_trait_csv_sample_data(
+            get_pheno_csv_sample_data(
                 conn=conn,
                 trait_name=str(dataset_id),
                 phenotype_id=str(phenotype_id),
@@ -461,6 +591,34 @@ def get_sample_data_as_csv(dataset_id: str, phenotype_id: int):
             headers={
                 "Content-disposition": f"attachment; \
 filename=sample-data-{dataset_id}.csv"
+            },
+        )
+
+@metadata_edit.route("/mrna/<probeset_id>/dataset/<dataset_name>/csv")
+@login_required()
+def get_mrna_sample_data_as_csv(probeset_id: int, dataset_name: str):
+    from utility.tools import get_setting
+
+    with database_connection(get_setting("SQL_URI")) as conn:
+        csv_data = get_mrna_csv_sample_data(
+                conn=conn,
+                probeset_id=str(probeset_id),
+                dataset_name=str(dataset_name),
+                sample_list=retrieve_sample_list(
+                    retrieve_mrna_group_name(conn, probeset_id))
+            )
+        return Response(
+            get_mrna_csv_sample_data(
+                conn=conn,
+                probeset_id=str(probeset_id),
+                dataset_name=str(dataset_name),
+                sample_list=retrieve_sample_list(
+                    retrieve_mrna_group_name(conn, probeset_id))
+            ),
+            mimetype="text/csv",
+            headers={
+                "Content-disposition": f"attachment; \
+filename=sample-data-{probeset_id}.csv"
             },
         )
 
