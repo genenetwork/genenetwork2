@@ -60,11 +60,13 @@ from gn3.db.phenotypes import (
     fetch_publication_by_id,
     fetch_publication_by_pubmed_id,
     update_phenotype as _update_phenotype)
-from gn3.db.sample_data import delete_sample_data
 from gn3.db.sample_data import (
-    delete_sample_data,
-    insert_sample_data,
-    update_sample_data,
+    delete_mrna_sample_data,
+    delete_pheno_sample_data,
+    insert_mrna_sample_data,
+    insert_pheno_sample_data,
+    update_mrna_sample_data,
+    update_pheno_sample_data,
     get_pheno_sample_data,
     get_pheno_csv_sample_data,
     get_mrna_sample_data,
@@ -488,7 +490,6 @@ def update_probeset(name: str):
         url = url_for("metadata_edit.list_diffs")
         flash(f"Sample-data has been successfully uploaded.  \
 View the diffs <a href='{url}' target='_blank'>here</a>", "success")
-
     with database_connection(get_setting("SQL_URI")) as conn:
         data_ = request.form.to_dict()
         probeset_ = {
@@ -835,28 +836,51 @@ def approve_data(resource_id: str, file_name: str):
         for modification in (
                 modifications := [d for d in sample_data.get("Modifications")]):
             if modification.get("Current"):
-                update_sample_data(
+                if sample_data.get("probeset_id"): # if trait is ProbeSet
+                    update_mrna_sample_data(
+                        conn=conn,
+                        original_data=modification.get("Original"),
+                        updated_data=modification.get("Current"),
+                        csv_header=sample_data.get(
+                            "Columns", "Strain Name,Value,SE,Count"
+                        ),
+                        probeset_id=int(sample_data.get("probeset_id")),
+                        dataset_name=sample_data.get("dataset_name")
+                    )
+                else:
+                    update_pheno_sample_data(
+                        conn=conn,
+                        trait_name=sample_data.get("trait_name"),
+                        original_data=modification.get("Original"),
+                        updated_data=modification.get("Current"),
+                        csv_header=sample_data.get(
+                            "Columns", "Strain Name,Value,SE,Count"
+                        ),
+                        phenotype_id=int(sample_data.get("phenotype_id")),
+                    )
+
+        # Deletions
+        for data in [d for d in sample_data.get("Deletions")]:
+            if sample_data.get("probeset_id"): # if trait is ProbeSet
+                __deletions = delete_mrna_sample_data(
+                    conn=conn,
+                    data=data,
+                    csv_header=sample_data.get(
+                        "Columns", "Strain Name,Value,SE,Count"
+                    ),
+                    probeset_id=int(sample_data.get("probeset_id")),
+                    dataset_name=sample_data.get("dataset_name")
+                )
+            else:
+                __deletions = delete_mrna_sample_data(
                     conn=conn,
                     trait_name=sample_data.get("trait_name"),
-                    original_data=modification.get("Original"),
-                    updated_data=modification.get("Current"),
+                    data=data,
                     csv_header=sample_data.get(
                         "Columns", "Strain Name,Value,SE,Count"
                     ),
                     phenotype_id=int(sample_data.get("phenotype_id")),
                 )
-
-        # Deletions
-        for data in [d for d in sample_data.get("Deletions")]:
-            __deletions = delete_sample_data(
-                conn=conn,
-                trait_name=sample_data.get("trait_name"),
-                data=data,
-                csv_header=sample_data.get(
-                    "Columns", "Strain Name,Value,SE,Count"
-                ),
-                phenotype_id=int(sample_data.get("phenotype_id")),
-            )
             if __deletions:
                 n_deletions += 1
             # Remove any data that already exists from sample_data deletes
@@ -865,16 +889,30 @@ def approve_data(resource_id: str, file_name: str):
 
         ## Insertions
         for data in [d for d in sample_data.get("Additions")]:
-            if insert_sample_data(
-                conn=conn,
-                trait_name=sample_data.get("trait_name"),
-                data=data,
-                csv_header=sample_data.get(
-                    "Columns", "Strain Name,Value,SE,Count"
-                ),
-                phenotype_id=int(sample_data.get("phenotype_id")),
-            ):
+            if sample_data.get("probeset_id"): # if trait is ProbeSet
+                __insertions = insert_mrna_sample_data(
+                    conn=conn,
+                    data=data,
+                    csv_header=sample_data.get(
+                        "Columns", "Strain Name,Value,SE,Count"
+                    ),
+                    probeset_id=int(sample_data.get("probeset_id")),
+                    dataset_name=sample_data.get("dataset_name")
+                )
+            else:
+                __insertions = insert_pheno_sample_data(
+                    conn=conn,
+                    trait_name=sample_data.get("trait_name"),
+                    data=data,
+                    csv_header=sample_data.get(
+                        "Columns", "Strain Name,Value,SE,Count"
+                    ),
+                    phenotype_id=int(sample_data.get("phenotype_id")),
+                )
+            if __insertions:
                 n_insertions += 1
+            else:
+                sample_data.get("Additions").remove(data)
     if any(
         [
             sample_data.get("Additions"),
@@ -883,11 +921,18 @@ def approve_data(resource_id: str, file_name: str):
         ]
     ):
         with database_connection(get_setting("SQL_URI")) as conn:
-            create_metadata_audit(conn, {
-                "dataset_id": sample_data.get("dataset_id"),
-                "editor": sample_data.get("author"),
-                "json_data": json.dumps(sample_data, cls=CustomJSONEncoder)
-            })
+            if sample_data.get("dataset_id"): # if phenotype
+                create_metadata_audit(conn, {
+                    "dataset_id": sample_data.get("dataset_id"),
+                    "editor": sample_data.get("author"),
+                    "json_data": json.dumps(sample_data, cls=CustomJSONEncoder)
+                })
+            else:
+                create_metadata_audit(conn, {
+                    "dataset_id": sample_data.get("probeset_id"),
+                    "editor": sample_data.get("author"),
+                    "json_data": json.dumps(sample_data, cls=CustomJSONEncoder)
+                })
         # Once data is approved, rename it!
         os.rename(
             os.path.join(f"{TMPDIR}/sample-data/diffs", file_name),
@@ -898,7 +943,7 @@ def approve_data(resource_id: str, file_name: str):
         if n_deletions:
             flash(f"# Deletions: {n_deletions}", "success")
         if n_insertions:
-            flash(f"# Additions: {len(modifications)}", "success")
+            flash(f"# Additions: {len(n_insertions)}", "success")
         if len(modifications):
             flash(f"# Modifications: {len(modifications)}", "success")
     else:  # Edge case where you need to automatically reject the file
