@@ -81,7 +81,7 @@
               {% endif %}
               <b>Current Date/Time:</b> {{ current_datetime }}<br>
               <br>
-              <button class="btn btn-default export_mapping_results">Download Full Results</button>
+              <button class="btn btn-default export_mapping_results"><span class="glyphicon glyphicon-download-alt"></span>Map Data</button>
               <br><br>
               <div class="input-group">
                 <input type="text" class="form-control" name="mappingLink" size="75"></input>
@@ -119,7 +119,7 @@
                     <label class="radio-inline">
                       <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}checked{% endif %}>{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}
                     </label>
-                    <a href="http://genenetwork.org/glossary.html#LOD" target="_blank">
+                    <a href="https://genenetwork.org/glossary.html#LOD" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   </td>
@@ -186,12 +186,12 @@
                     </a>
                     <span style="color:red;">*</span>
                   <br>
-                  <input type="checkbox" name="showHomology" class="checkbox" style="display: inline; margin-top: 0px;" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Homology Track </span><br>
                   <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
                   {% if plotScale != "morgan" %}
-                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Analyst </span> <span style="color:red;">*</span><br>
+                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Tracks </span> <span style="color:red;">*</span><br>
                   {% endif %}
-                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span>
+                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span><br>
+                  <input type="checkbox" name="showHomology" class="checkbox" style="display: inline; margin-top: 0px;" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Human Chromosomes <a href="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/liftOver/"><sup style="color:#f00" title="Human Syntenic Chromosomes taken from HG38 (Human Genome 38)"> ?</sup></a></span>
             </div>
             <div class="col-xs-12" align="center" style="padding: 5px;">
               <span style="color:red;">*</span> <span style="font-size: 12px;">only apply to single chromosome physical mapping</span>
@@ -500,7 +500,7 @@
                     { "type": "natural" , "orderDataType": "dom-inner-text" },
                     { "type": "natural" , "orderDataType": "dom-inner-text" },
                     { "type": "natural" , "orderDataType": "dom-inner-text" },
-                    { "type": "natural" },
+                    { "type": "natural" , "orderDataType": "dom-inner-text" },
                     { "type": "natural" },
                     { "type": "natural-minus-na" },
                     { "type": "natural-minus-na" },
