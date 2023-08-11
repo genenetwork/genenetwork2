@@ -340,8 +340,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
                         if v is not None
                     },
                     new=publication_,
-                ),
-                "status": "approved"
+                )
             }
         )
     if diff_data:
