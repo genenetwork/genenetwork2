@@ -243,9 +243,9 @@
                     <td><input type="checkbox"></td>
                     <td>{{ loop.index }}</td>
                     <td>{{ sample }}</td>
-                    <td><input type="text" name="value:{{ sample }}" class="table_input" value="{% if sample_data.get(sample) %}{{ '%0.3f' | format(sample_data.get(sample).value | float) }}{% else %}x{% endif %}" size=4 maxlength=4></input></td>
+                    <td><input type="text" name="value:{{ sample }}" class="table_input" value="{% if sample_data.get(sample) %}{{ '%0.3f' | format(sample_data.get(sample).value | float) }}{% else %}x{% endif %}" size=4 maxlength=6></input></td>
                     <td>±</td>
-                    <td><input type="text" name="error:{{ sample }}" class="table_input" value="{% if sample_data.get(sample).error %}{{ '%0.3f' | format(sample_data.get(sample).error | float) }}{% else %}x{% endif %}" size=4 maxlength=4></input></td>
+                    <td><input type="text" name="error:{{ sample }}" class="table_input" value="{% if sample_data.get(sample).error %}{{ '%0.3f' | format(sample_data.get(sample).error | float) }}{% else %}x{% endif %}" size=4 maxlength=5></input></td>
                     <td><input type="text" name="n_cases:{{ sample }}" class="table_input" value="{% if sample_data.get(sample).n_cases %}{{ sample_data.get(sample).n_cases }}{% else %}x{% endif %}" size=3 maxlength=3></input></td>
                 </tr>
                 {% endfor %}
