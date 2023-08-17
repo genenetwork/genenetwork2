@@ -2,8 +2,6 @@ import re
 import datetime
 import json
 import os
-
-import logging
 from pathlib import Path
 from functools import reduce
 
@@ -61,12 +59,9 @@ from gn3.db.phenotypes import (
     fetch_publication_by_pubmed_id,
     update_phenotype as _update_phenotype)
 from gn3.db.sample_data import (
-    delete_mrna_sample_data,
-    delete_pheno_sample_data,
-    insert_mrna_sample_data,
-    insert_pheno_sample_data,
-    update_mrna_sample_data,
-    update_pheno_sample_data,
+    delete_sample_data,
+    insert_sample_data,
+    update_sample_data,
     get_pheno_sample_data,
     get_pheno_csv_sample_data,
     get_mrna_sample_data,
@@ -149,7 +144,7 @@ def display_probeset_metadata(name: str):
         _d = {"probeset": fetch_probeset_metadata_by_name(conn, name)}
 
         dataset_name=request.args["dataset_name"]
-        group_name = retrieve_mrna_group_name(conn, _d["probeset"]["id_"])
+        group_name = retrieve_mrna_group_name(conn, _d["probeset"]["id_"], dataset_name)
         sample_list = retrieve_sample_list(group_name)
         sample_data = get_mrna_sample_data(conn, _d["probeset"]["id_"], dataset_name)
 
@@ -416,7 +411,7 @@ def update_probeset(name: str):
         )
         diff_data = {}
         with database_connection(get_setting("SQL_URI")) as conn:
-            group_name = retrieve_mrna_group_name(conn, str(data_.get("id")))
+            group_name = retrieve_mrna_group_name(conn, probeset_id, dataset_name)
             sample_list = retrieve_sample_list(group_name)
             headers = ["Strain Name", "Value", "SE", "Count"]
 
@@ -424,8 +419,7 @@ def update_probeset(name: str):
                 conn=conn,
                 probeset_id=probeset_id,
                 dataset_name=dataset_name,
-                sample_list=retrieve_sample_list(
-                    retrieve_mrna_group_name(conn, probeset_id))
+                sample_list=retrieve_sample_list(group_name)
             )
             if not (file_) and data_.get('edited') == "true":
                 delta_csv = create_delta_csv(base_csv, data_, sample_list)
@@ -615,7 +609,7 @@ def get_mrna_sample_data_as_csv(probeset_id: int, dataset_name: str):
                 probeset_id=str(probeset_id),
                 dataset_name=str(dataset_name),
                 sample_list=retrieve_sample_list(
-                    retrieve_mrna_group_name(conn, probeset_id))
+                    retrieve_mrna_group_name(conn, probeset_id, dataset_name))
             )
         return Response(
             get_mrna_csv_sample_data(
@@ -623,7 +617,7 @@ def get_mrna_sample_data_as_csv(probeset_id: int, dataset_name: str):
                 probeset_id=str(probeset_id),
                 dataset_name=str(dataset_name),
                 sample_list=retrieve_sample_list(
-                    retrieve_mrna_group_name(conn, probeset_id))
+                    retrieve_mrna_group_name(conn, probeset_id, dataset_name))
             ),
             mimetype="text/csv",
             headers={
@@ -842,54 +836,41 @@ def approve_data(resource_id: str, file_name: str):
             flash("You are not authorised to edit that trait.", "alert-danger")
             return redirect(url_for("metadata_edit.list_diffs"))
 
+        # Define the trait_info that is passed into the update functions, by data type
+        if sample_data.get("probeset_id"): # if trait is ProbeSet
+            trait_info = {
+                'probeset_id': int(sample_data.get("probeset_id")),
+                'dataset_name': sample_data.get("dataset_name")
+            }
+        else: # if trait is Publish
+            trait_info = {
+                'trait_name': sample_data.get("trait_name"),
+                'phenotype_id': int(sample_data.get("phenotype_id"))
+            }
+
         for modification in (
                 modifications := [d for d in sample_data.get("Modifications")]):
             if modification.get("Current"):
-                if sample_data.get("probeset_id"): # if trait is ProbeSet
-                    update_mrna_sample_data(
-                        conn=conn,
-                        original_data=modification.get("Original"),
-                        updated_data=modification.get("Current"),
-                        csv_header=sample_data.get(
-                            "Columns", "Strain Name,Value,SE,Count"
-                        ),
-                        probeset_id=int(sample_data.get("probeset_id")),
-                        dataset_name=sample_data.get("dataset_name")
-                    )
-                else:
-                    update_pheno_sample_data(
-                        conn=conn,
-                        trait_name=sample_data.get("trait_name"),
-                        original_data=modification.get("Original"),
-                        updated_data=modification.get("Current"),
-                        csv_header=sample_data.get(
-                            "Columns", "Strain Name,Value,SE,Count"
-                        ),
-                        phenotype_id=int(sample_data.get("phenotype_id")),
-                    )
+                update_sample_data(
+                    conn=conn,
+                    original_data=modification.get("Original"),
+                    updated_data=modification.get("Current"),
+                    csv_header=sample_data.get(
+                        "Columns", "Strain Name,Value,SE,Count"
+                    ),
+                    trait_info=trait_info
+                )
 
         # Deletions
         for data in [d for d in sample_data.get("Deletions")]:
-            if sample_data.get("probeset_id"): # if trait is ProbeSet
-                __deletions = delete_mrna_sample_data(
-                    conn=conn,
-                    data=data,
-                    csv_header=sample_data.get(
-                        "Columns", "Strain Name,Value,SE,Count"
-                    ),
-                    probeset_id=int(sample_data.get("probeset_id")),
-                    dataset_name=sample_data.get("dataset_name")
-                )
-            else:
-                __deletions = delete_mrna_sample_data(
-                    conn=conn,
-                    trait_name=sample_data.get("trait_name"),
-                    data=data,
-                    csv_header=sample_data.get(
-                        "Columns", "Strain Name,Value,SE,Count"
-                    ),
-                    phenotype_id=int(sample_data.get("phenotype_id")),
-                )
+            __deletions = delete_sample_data(
+                conn=conn,
+                data=data,
+                csv_header=sample_data.get(
+                    "Columns", "Strain Name,Value,SE,Count"
+                ),
+                trait_info=trait_info
+            )
             if __deletions:
                 n_deletions += 1
             # Remove any data that already exists from sample_data deletes
@@ -898,26 +879,15 @@ def approve_data(resource_id: str, file_name: str):
 
         ## Insertions
         for data in [d for d in sample_data.get("Additions")]:
-            if sample_data.get("probeset_id"): # if trait is ProbeSet
-                __insertions = insert_mrna_sample_data(
-                    conn=conn,
-                    data=data,
-                    csv_header=sample_data.get(
-                        "Columns", "Strain Name,Value,SE,Count"
-                    ),
-                    probeset_id=int(sample_data.get("probeset_id")),
-                    dataset_name=sample_data.get("dataset_name")
-                )
-            else:
-                __insertions = insert_pheno_sample_data(
-                    conn=conn,
-                    trait_name=sample_data.get("trait_name"),
-                    data=data,
-                    csv_header=sample_data.get(
-                        "Columns", "Strain Name,Value,SE,Count"
-                    ),
-                    phenotype_id=int(sample_data.get("phenotype_id")),
-                )
+
+            __insertions = insert_sample_data(
+                conn=conn,
+                data=data,
+                csv_header=sample_data.get(
+                    "Columns", "Strain Name,Value,SE,Count"
+                ),
+                trait_info=trait_info
+            )
             if __insertions:
                 n_insertions += 1
             else:
