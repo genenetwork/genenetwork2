@@ -32,7 +32,7 @@
             Download a spreadsheet of sample values to edit in Excel (or a similar program) and then upload the edited file
         </p>
         <div>
-            <a href="/datasets/pheno/{{ publish_xref.id_ }}/traits/{{ dataset_name }}/csv?resource-id={{ resource_id }}" class="btn btn-link">
+            <a href="/datasets/pheno/{{ name }}/group/{{ dataset_id }}/csv?resource-id={{ resource_id }}" class="btn btn-link">
                 Click to Download Sample Data
             </a>
         </div>
@@ -222,7 +222,7 @@
         </div>
         <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Submit Change">
     </div>
-
+    {% if sample_list|length < 2000 %}
     <div style="padding-top: 20px;">
       <p class="text-info" style="padding-left: 5em;">
 	<strong>Type "x" to delete a value.</strong>
@@ -252,6 +252,7 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
 
     </form>
 </div>
