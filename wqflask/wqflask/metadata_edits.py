@@ -119,7 +119,9 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
         group_name = retrieve_phenotype_group_name(conn, dataset_id)
         sample_list = retrieve_sample_list(group_name)
-        sample_data = get_pheno_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
+        sample_data = []
+        if len(sample_list) < 2000:
+            sample_data = get_pheno_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
 
         return render_template(
             "edit_phenotype.html",
@@ -194,8 +196,8 @@ def update_phenotype(dataset_id: str, name: str):
             headers = ["Strain Name", "Value", "SE", "Count"]
             base_csv = get_pheno_csv_sample_data(
                     conn=conn,
-                    trait_name=str(name),
-                    phenotype_id=str(phenotype_id),
+                    trait_name=name,
+                    group_id=dataset_id,
                     sample_list=sample_list,
             )
             if not (file_) and data_.get('edited') == "true":
@@ -578,23 +580,23 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
         )
 
 
-@metadata_edit.route("/pheno/<dataset_id>/traits/<phenotype_id>/csv")
+@metadata_edit.route("/pheno/<name>/group/<group_id>/csv")
 @login_required()
-def get_pheno_sample_data_as_csv(dataset_id: str, phenotype_id: int):
+def get_pheno_sample_data_as_csv(name: int, group_id: int):
     from utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
+        group_name = retrieve_phenotype_group_name(conn, group_id)
         return Response(
             get_pheno_csv_sample_data(
                 conn=conn,
-                trait_name=str(dataset_id),
-                phenotype_id=str(phenotype_id),
-                sample_list=retrieve_sample_list(
-                    retrieve_phenotype_group_name(conn, dataset_id))
+                trait_name=name,
+                group_id=group_id,
+                sample_list=retrieve_sample_list(group_name)
             ),
             mimetype="text/csv",
             headers={
                 "Content-disposition": f"attachment; \
-filename=sample-data-{dataset_id}.csv"
+filename=sample-data-{group_name}-{name}.csv"
             },
         )
 
