@@ -18,6 +18,8 @@ import traceback
 import uuid
 import xlsxwriter
 
+from functools import reduce
+
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
 
@@ -1155,12 +1157,42 @@ def get_genotype(name):
         metadata=metadata,
     )
 
-@app.route("/case-attribute/<int:inbredset_id>/edit")
+@app.route("/case-attribute/<int:inbredset_id>/edit", methods=["GET", "POST"])
 def edit_case_attributes(inbredset_id: int) -> Response:
     """
     Edit the case-attributes for InbredSet group identified by `inbredset_id`.
     """
-    from wqflask.oauth2 import client
+    if request.method == "POST":
+        form = request.form
+        def __process_data__(acc, item):
+            _new, strain, calabel = tuple(val.strip() for val in item[0].split(":"))
+            old_row = acc.get(strain, {})
+            return {
+                **acc,
+                strain: {
+                    **old_row, "case-attributes": {
+                        **old_row.get("case-attributes", {}),
+                        calabel: item[1]
+                    }
+                }
+            }
+
+        def __edit_fail__(error):
+            err = process_error(error)
+            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
+            return redirect(url_for(
+                "edit_case_attributes", inbredset_id=inbredset_id))
+
+        def __edit_success__(result):
+            flash({result["message"]}, "alert-success")
+            return redirect(url_for(
+                "edit_case_attributes", inbredset_id=inbredset_id))
+        return client.post(
+            f"case-attribute/{inbredset_id}/edit",
+            json={
+                "edit-data": reduce(__process_data__, form.items(), {})
+            }).either(
+                __edit_fail__, __edit_success__)
 
     def __fetch_strains__(inbredset_group):
         return client.get(f"case-attribute/{inbredset_id}/strains").then(
@@ -1180,4 +1212,5 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             __fetch_strains__).then(__fetch_names__).then(
                 __fetch_values__).either(
         lambda err: err, ## TODO: Handle error better
-        lambda values: render_template("edit_case_attributes.html", **values))
+        lambda values: render_template(
+            "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
