@@ -1,0 +1,98 @@
+{%extends "base.html"%}
+{%block title%}Edit Case Attributes{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css"
+      href="/css/DataTables/css/jquery.dataTables.css" />
+<link rel="stylesheet" type="text/css"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+<style>
+  .table-fixed-head {overflow-y: auto; height: 32em;}
+  .table-fixed-head thead th {position: sticky; top: 0;}
+</style>
+{%endblock%}
+
+{%block content%}
+<div class="container">
+  <h1>{{inbredset_group.InbredSetName}}: Edit Case-Attributes</h1>
+
+  <h3>Instructions</h3>
+  <ul>
+    <li>
+      The table is scrollable. Scroll to find the strain(s) you want to edit.
+    </li>
+    <li>Change value(s) to edit them in the database.</li>
+    <li>Delete value(s) to delete them from the database.</li>
+    <li>Click "Submit" to submit all the changes you have made</li>
+    <li>
+      Click "Reset" to undo <strong>ALL</strong> the changes you have made and
+      start over.
+    </li>
+  </ul>
+
+  <form method="POST" action="#">
+    <div class="form-group" style="text-align: center; padding: 1em 0 0 0;">
+      <input type="submit" value="Submit" class="btn btn-primary" />
+      <input type="reset" value="Reset" class="btn btn-warning" />
+    </div>
+
+    <div class="table-fixed-head">
+      <table class="table-hover table-striped cell-border dataTable no-footer">
+	<thead>
+	  <tr>
+	    <th>Sample/Strain</th>
+	    {%for caname in case_attribute_names%}
+	    <th>{{caname.Name}}</th>
+	    {%endfor%}
+	  </tr>
+	</thead>
+	<tbody>
+	  {%for strain in strains%}
+	  <tr>
+	    <div class="form-group">
+	      <td>{{strain.Name}}</td>
+	      {%for attr in case_attribute_names%}
+	      {%if case_attribute_values.get(strain.Name)%}
+	      <td>
+		<input type="text"
+		       value="{{case_attribute_values[strain.Name]['case-attributes'].get(attr.Name, '')}}"
+		       name="new:{{strain.Name}}:{{attr.Name}}"
+		       class="form-control" />
+	      </td>
+	      {%else%}
+	      <td>
+		<input type="text"
+		       value=""
+		       name="new:{{strain.Name}}:{{attr.Name}}"
+		       class="form-control" />
+	      </td>
+	      {%endif%}
+	      {%endfor%}
+	    </div>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td colspan="{{case_attribute_names | length + 1}}">
+	      No samples/strains for this InbredSet group.
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+    </div>
+
+    <div class="form-group" style="text-align: center; padding: 1em 0 0 0;">
+      <input type="submit" value="Submit" class="btn btn-primary" />
+      <input type="reset" value="Reset" class="btn btn-warning" />
+    </div>
+  </form>
+</div>
+{%endblock%}
+
+{%block js%}
+<script language="javascript"
+	type="text/javascript"
+	src="{{url_for('js', filename='DataTables/js/jquery.js')}}"></script>
+{%endblock%}
