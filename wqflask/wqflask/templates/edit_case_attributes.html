@@ -18,6 +18,8 @@
 <div class="container">
   <h1>{{inbredset_group.InbredSetName}}: Edit Case-Attributes</h1>
 
+  {{flash_me()}}
+
   <h3>Instructions</h3>
   <ul>
     <li>
@@ -32,7 +34,7 @@
     </li>
   </ul>
 
-  <form method="POST" action="#">
+  <form method="POST" action="{{url_for('edit_case_attributes', inbredset_id=inbredset_id)}}">
     <div class="form-group" style="text-align: center; padding: 1em 0 0 0;">
       <input type="submit" value="Submit" class="btn btn-primary" />
       <input type="reset" value="Reset" class="btn btn-warning" />
