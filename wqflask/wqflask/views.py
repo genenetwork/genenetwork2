@@ -1154,3 +1154,30 @@ def get_genotype(name):
         "genotype.html",
         metadata=metadata,
     )
+
+@app.route("/case-attribute/<int:inbredset_id>/edit")
+def edit_case_attributes(inbredset_id: int) -> Response:
+    """
+    Edit the case-attributes for InbredSet group identified by `inbredset_id`.
+    """
+    from wqflask.oauth2 import client
+
+    def __fetch_strains__(inbredset_group):
+        return client.get(f"case-attribute/{inbredset_id}/strains").then(
+            lambda strains: {**inbredset_group, "strains": strains})
+
+    def __fetch_names__(strains):
+        return client.get(f"case-attribute/{inbredset_id}/names").then(
+            lambda canames: {**strains, "case_attribute_names": canames})
+
+    def __fetch_values__(canames):
+        return client.get(f"case-attribute/{inbredset_id}/values").then(
+            lambda cavalues: {**canames, "case_attribute_values": {
+                value["StrainName"]: value for value in cavalues}})
+
+    return client.get(f"case-attribute/{inbredset_id}").then(
+        lambda iset_group: {"inbredset_group": iset_group}).then(
+            __fetch_strains__).then(__fetch_names__).then(
+                __fetch_values__).either(
+        lambda err: err, ## TODO: Handle error better
+        lambda values: render_template("edit_case_attributes.html", **values))
