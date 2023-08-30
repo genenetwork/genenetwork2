@@ -86,7 +86,9 @@ def flash_success(success):
 def with_flash_error(response) -> Callable:
     def __err__(err) -> Response:
         error = process_error(err)
-        flash(f"{error['error']}: {error['error_description']}", "alert-danger")
+        flash(f"{error['status_code']} {error['error']}: "
+              f"{error['error_description']}",
+              "alert-danger")
         return response
     return __err__
 

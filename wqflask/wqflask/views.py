@@ -81,7 +81,7 @@ from wqflask.db_info import InfoPage
 
 from wqflask.oauth2 import client
 from wqflask.oauth2.client import no_token_get
-from wqflask.oauth2.request_utils import with_flash_error
+from wqflask.oauth2.request_utils import with_flash_error, with_flash_success
 
 from utility import temp_data
 from utility.tools import get_setting
@@ -1178,22 +1178,15 @@ def edit_case_attributes(inbredset_id: int) -> Response:
                 }
             }
 
-        def __edit_fail__(error):
-            err = process_error(error)
-            flash(f"{err['error']}: {err['error_description']}", "alert-danger")
-            return redirect(url_for(
-                "edit_case_attributes", inbredset_id=inbredset_id))
-
-        def __edit_success__(result):
-            flash({result["message"]}, "alert-success")
-            return redirect(url_for(
-                "edit_case_attributes", inbredset_id=inbredset_id))
+        edit_case_attributes_page = redirect(url_for(
+            "edit_case_attributes", inbredset_id=inbredset_id))
         return client.post(
             f"case-attribute/{inbredset_id}/edit",
             json={
                 "edit-data": reduce(__process_data__, form.items(), {})
             }).either(
-                __edit_fail__, __edit_success__)
+                with_flash_error(edit_case_attributes_page),
+                with_flash_success(edit_case_attributes_page))
 
     def __fetch_strains__(inbredset_group):
         return client.get(f"case-attribute/{inbredset_id}/strains").then(
