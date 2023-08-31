@@ -79,7 +79,7 @@ from wqflask.db_info import InfoPage
 
 from wqflask.oauth2 import client
 from wqflask.oauth2.client import no_token_get
-from wqflask.oauth2.request_utils import process_error
+from wqflask.oauth2.request_utils import with_flash_error
 
 from utility import temp_data
 from utility.tools import get_setting
@@ -520,16 +520,13 @@ def show_trait_page():
                 })
     dataset = request.args["dataset"]
     trait_id = request.args["trait_id"]
-    def __failure__(err):
-        error = process_error(err)
-        flash(f"{error['error']}: {error['error_description']}", "alert-error")
-        return render_template("show_trait_error.html")
 
     return client.post(
         "oauth2/data/authorisation",
         json={
             "traits": [f"{dataset}::{trait_id}"]
-        }).either(__failure__, __show_trait__)
+        }).either(with_flash_error(render_template("show_trait_error.html")),
+                  __show_trait__)
 
 
 @app.route("/heatmap", methods=('POST',))
