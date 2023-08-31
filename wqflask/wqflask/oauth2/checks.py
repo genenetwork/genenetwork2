@@ -11,7 +11,12 @@ from . import session
 def user_logged_in():
     """Check whether the user has logged in."""
     suser = session.session_info()["user"]
-    return suser["token"].is_right() and suser["logged_in"]
+    if suser["logged_in"]:
+        if session.expired():
+            session.clear_session_info()
+            return False
+        return suser["token"].is_right()
+    return False
 
 def require_oauth2(func):
     """Decorator for ensuring user is logged in."""

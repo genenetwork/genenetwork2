@@ -1,5 +1,6 @@
 """Deal with user sessions"""
 from uuid import UUID, uuid4
+from datetime import datetime
 from typing import Any, Optional, TypedDict
 
 from flask import request, session
@@ -62,6 +63,14 @@ def session_info() -> SessionInfo:
                                            request.remote_addr),
             "masquerading": None
         }))
+
+def expired():
+    the_session = session_info()
+    def __expired__(token):
+        return datetime.now() > datetime.fromtimestamp(token["expires_at"])
+    return the_session["user"]["token"].either(
+        lambda left: False,
+        __expired__)
 
 def set_user_token(token: str) -> SessionInfo:
     """Set the user's token."""
