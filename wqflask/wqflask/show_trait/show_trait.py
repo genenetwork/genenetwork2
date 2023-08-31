@@ -27,6 +27,7 @@ from gn3.authentication import get_highest_user_access_role
 Redis = get_redis_conn()
 ONE_YEAR = 60 * 60 * 24 * 365
 
+
 ###############################################
 #
 # Todo: Put in security to ensure that user has permission to access
@@ -174,7 +175,7 @@ class ShowTrait:
         for sample_type in self.sample_groups:
             trait_vals_by_group.append(get_trait_vals(sample_type.sample_list))
 
-        self.max_digits_by_group = get_max_digits(trait_vals_by_group)
+        self.max_digits_by_group, self.no_decimal_place = get_max_digits(trait_vals_by_group)
 
         self.qnorm_vals = quantile_normalize_vals(self.sample_groups, trait_vals_by_group)
         self.z_scores = get_z_scores(self.sample_groups, trait_vals_by_group)
@@ -326,6 +327,7 @@ class ShowTrait:
         js_data = dict(trait_id=self.trait_id,
                        trait_symbol=trait_symbol,
                        max_digits = self.max_digits_by_group,
+                       no_decimal_place = self.no_decimal_place,
                        short_description=short_description,
                        unit_type=trait_units,
                        dataset_type=self.dataset.type,
@@ -564,7 +566,7 @@ def get_max_digits(trait_vals):
             return None
         return len(str(max(these_vals))) - 1
 
-    return [__max_digits__(val) for val in trait_vals]
+    return [__max_digits__(val) for val in trait_vals], all([val.is_integer() for val in sum(trait_vals, [])])
 
 def normf(trait_vals):
     ranked_vals = ss.rankdata(trait_vals)

@@ -50,7 +50,11 @@ buildColumns = function() {
         if (data.value == null) {
             return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
         } else {
+          if (js_data.no_decimal_place == false) {
             return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=' + js_data.max_digits[0] + '>'
+          } else {
+            return '<input type="text" data-value="' + data.value + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value + '" size=' + js_data.max_digits[0] + '>'
+          }
         }
       }
     }
