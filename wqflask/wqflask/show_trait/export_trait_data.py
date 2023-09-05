@@ -6,6 +6,7 @@ from functools import cmp_to_key
 from base.trait import create_trait
 from base import data_set
 
+
 def export_sample_table(targs):
 
     sample_data = json.loads(targs['export_data'])
@@ -41,9 +42,9 @@ def export_sample_table(targs):
 
 def get_export_metadata(trait_metadata):
 
-    trait_id, display_name, dataset_name = trait_metadata['trait_id'], trait_metadata['trait_display_name'], trait_metadata['dataset']
+    trait_id, display_name, dataset_name, group_name = trait_metadata['trait_id'], trait_metadata['trait_display_name'], trait_metadata['dataset'], trait_metadata['group']
 
-    dataset = data_set.create_dataset(dataset_name)
+    dataset = data_set.create_dataset(dataset_name, group_name=group_name)
     this_trait = create_trait(dataset=dataset,
                               name=trait_id,
                               cellid=None,
