@@ -112,7 +112,7 @@ if [ -z "${GN2_PROFILE}" ]; then
     read -p "PRESS [ENTER] TO CONTINUE..."
 else
     export PATH=$GN2_PROFILE/bin:$PATH
-    export PYTHONPATH="$GN2_PROFILE/lib/python3.9/site-packages" # never inject another PYTHONPATH!!
+    # export PYTHONPATH="$GN2_PROFILE/lib/python3.9/site-packages" # never inject another PYTHONPATH!!
     export R_LIBS_SITE=$GN2_PROFILE/site-library
     export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
     export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
