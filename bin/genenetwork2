@@ -112,7 +112,7 @@ if [ -z "${GN2_PROFILE}" ]; then
     read -p "PRESS [ENTER] TO CONTINUE..."
 else
     export PATH=$GN2_PROFILE/bin:$PATH
-    # export PYTHONPATH="$GN2_PROFILE/lib/python3.9/site-packages" # never inject another PYTHONPATH!!
+    export PYTHONPATH="$GN2_PROFILE/lib/python3.10/site-packages" # never inject another PYTHONPATH!!
     export R_LIBS_SITE=$GN2_PROFILE/site-library
     export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
     export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
@@ -133,10 +133,10 @@ else
     done <<< "$PYTHONPATH"
     if [ ! -d "${R_LIBS_SITE}" ] ; then echo "R_LIBS_SITE not valid ${R_LIBS_SITE}" ; exit 1 ; fi
 fi
-# if [ -z "${PYTHONPATH}" ] ; then
-#     echo "ERROR PYTHONPATH has not been set - use GN2_PROFILE!"
-#     exit 1
-# fi
+if [ -z "${PYTHONPATH}" ] ; then
+    echo "ERROR PYTHONPATH has not been set - use GN2_PROFILE!"
+    exit 1
+fi
 if [ ! -d "${R_LIBS_SITE}" ] ; then
     echo "ERROR R_LIBS_SITE has not been set correctly (we only allow one path) - use GN2_PROFILE!"
     echo "Paste into your shell the output of (for example)"
