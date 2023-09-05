@@ -35,8 +35,8 @@ class TestMarkdownRoutesFunctions(unittest.TestCase):
             "/genenetwork/gn-docs/"
             "master/general/"
             "glossary/glossary.md")
-        self.assertRegexpMatches(markdown_content,
-                                 "Content for general/glossary/glossary.md not available.")
+        self.assertRegex(markdown_content,
+                         "Content for general/glossary/glossary.md not available.")
 
     @mock.patch('wqflask.api.markdown.requests.get')
     def test_render_markdown_when_fetching_remotely(self, requests_mock):
