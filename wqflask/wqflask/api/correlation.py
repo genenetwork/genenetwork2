@@ -1,5 +1,6 @@
 import collections
 import scipy
+import numpy
 
 from base import data_set
 from base.trait import create_trait, retrieve_sample_data
@@ -183,7 +184,7 @@ def get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_data
             this_trait_vals, shared_target_vals)
 
     if num_overlap > 5:
-        if scipy.isnan(sample_r):
+        if numpy.isnan(sample_r):
             return None
         else:
             return [sample_r, sample_p, num_overlap]
