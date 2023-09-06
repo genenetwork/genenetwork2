@@ -6,7 +6,6 @@ import string
 from wqflask.database import database_connection
 
 from utility.db_tools import escape
-from pprint import pformat as pf
 
 import sys
 
