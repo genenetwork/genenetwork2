@@ -6,6 +6,7 @@ import string
 from wqflask.database import database_connection
 
 from utility.db_tools import escape
+from wqflask.database import database_connection
 
 import sys
 
@@ -49,7 +50,10 @@ class DoSearch:
 
     def mescape(self, *items):
         """Multiple escape"""
-        escaped = [escape(str(item)) for item in items]
+        from utility.tools import get_setting
+        escaped = []
+        with database_connection(get_setting("SQL_URI")) as conn:
+            escaped = [conn.escape_string(str(item)).decode() for item in items]
         return tuple(escaped)
 
     def normalize_spaces(self, stringy):
