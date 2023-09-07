@@ -81,9 +81,9 @@ app.register_blueprint(group_management, url_prefix="/group-management")
 app.register_blueprint(jobs_bp, url_prefix="/jobs")
 app.register_blueprint(oauth2, url_prefix="/oauth2")
 
-from wqflask.decorators import AuthorisationError
-from wqflask.app_errors import handle_authorisation_error
-app.register_error_handler(AuthorisationError, handle_authorisation_error)
+from wqflask.app_errors import register_error_handlers
+register_error_handlers(app)
+
 try:
     check_mandatory_configs(app)
 except StartupError as serr:
