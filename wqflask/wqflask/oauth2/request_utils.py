@@ -15,7 +15,7 @@ def authserver_authorise_uri():
     host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
     return urljoin(
         AUTH_SERVER_URL,
-        "/auth/authorise?response_type=code"
+        "auth/authorise?response_type=code"
         f"&client_id={OAUTH2_CLIENT_ID}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
