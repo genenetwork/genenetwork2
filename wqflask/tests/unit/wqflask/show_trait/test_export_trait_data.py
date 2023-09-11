@@ -45,7 +45,8 @@ class TestExportTraits(unittest.TestCase):
         results = get_export_metadata({
             "trait_id": "1460303_at",
             "trait_display_name": "1460303_at",
-            "dataset": "HC_M2_0606_P"
+            "dataset": "HC_M2_0606_P",
+            "group": "BXD",
         })
 
         expected = [["Phenotype ID:", "1460303_at"],
