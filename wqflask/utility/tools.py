@@ -158,7 +158,7 @@ def assert_dir(the_dir):
 
 def assert_writable_dir(dir):
     try:
-        fn = dir + "/test.txt"
+        fn = os.path.join(dir, "test.txt")
         fh = open(fn, 'w')
         fh.write("I am writing this text to the file\n")
         fh.close()
