@@ -1,4 +1,10 @@
-from MySQLdb import escape_string as escape_
+from utility.tools import get_setting
+from wqflask.database import database_connection
+
+
+def escape_(string):
+    with database_connection(get_setting("SQL_URI")) as conn:
+        return conn.escape_string(str(string))
 
 
 def create_in_clause(items):
