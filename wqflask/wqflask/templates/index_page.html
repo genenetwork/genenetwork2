@@ -9,13 +9,13 @@
 <!-- UIkit JS -->
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
+<script type="module" src="https://esm.sh/emfed"></script>
+<link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/gh/sampsyo/emfed@1/toots.css">
+
 <style TYPE="text/css">
   p.interact { display: none; }
 
-  .tweet  {
-   padding:5px;
-   color:#000;
-  }
 
   .media {
     padding-bottom:10px;
@@ -31,14 +31,14 @@
     border:1px solid #c8ccc9;
   }
 
-  div#tweets {
+  .toots {
     margin:0 auto;
-    width: 590px;
+    max-width: 500px;
     height: 160px;
-    background: white;
     position: relative;
     border-radius:10px;
     background-color: #F9F9F9;
+
   }
 
   h2 {
@@ -47,6 +47,13 @@
 
   ul {
       margin-top: 0px;
+  }
+
+  .toot {
+    padding-top:8px;
+    background:#f9f9f9;
+    color:#000;
+ 
   }
 </style>
 {% endblock %}
@@ -276,6 +283,22 @@
                         </div>
                     </div>
                 </section>
+                <section id="news-section">
+                    <div class="page-header">
+                        <h2>News</h2>
+                    </div>
+                    <div id="mastadon" style="height: 405px; overflow: scroll; overflow-x: hidden;">
+                    	<a class="mastodon-feed" target="_blank"
+   href="https://genomic.social/@genenetwork"
+   data-toot-limit="5"
+   >Genenetwork mastadon</a>
+                    	
+                    </div>
+                    <div align="right">
+
+                        <a href="https://genomic.social/@genenetwork">more news items...</a>
+                    </div>
+		        </section>
                 <section id="websites">
                     <div class="page-header">
                         <h2>Links</h2>
