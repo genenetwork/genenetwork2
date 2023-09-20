@@ -16,7 +16,6 @@ class MissingConfigurationError(StartupError):
 
 startup_errors = Blueprint("app_check_errors", __name__)
 __MANDATORY_CONFIGURATIONS__ = (
-    "SECRET_KEY",
     "REDIS_URL", # URI to Redis server
     "SQL_URI", # URI to MariaDB server
     "GN_SERVER_URL", # REST API Server
