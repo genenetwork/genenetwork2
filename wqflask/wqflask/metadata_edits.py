@@ -339,7 +339,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
             update_cross_reference(conn,
                                    dataset_id,
                                    name,
-                                   {"publication_id": existing_publication.id_})
+                                   {"publication_id": existing_publication['id_']})
         else:
             updated_publications = update_publication(
                 conn, {"id_": data_["old_id_"], **publication_})
