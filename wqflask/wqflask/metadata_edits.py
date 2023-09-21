@@ -55,6 +55,7 @@ from gn3.db.phenotypes import (
     fetch_trait,
     fetch_metadata,
     update_publication,
+    update_cross_reference,
     fetch_publication_by_id,
     fetch_publication_by_pubmed_id,
     update_phenotype as _update_phenotype)
