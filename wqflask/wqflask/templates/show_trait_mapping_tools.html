@@ -73,9 +73,6 @@
                         <div class="mapping_method_fields form-group">
                             <label class="col-xs-3 control-label">Covariates<br><span class="covar-text">Select covariate(s) from a collection</span></label>
                             <div class="col-xs-8 covar-options">
-                              {% if g.user_session.num_collections < 1 %}
-                              No collections available. Please add traits to a collection to use them as covariates.
-                              {% else %}
                               <div class="select-covar-div">
                                 <button type="button" class="btn btn-success select-covar-button select_covariates">Select</button>
                                 <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
@@ -84,7 +81,6 @@
                               <select size="2" name="selected_covariates_gemma" class="form-control selected-covariates" multiple>
                                   <option value="">No covariates selected</option>
                               </select>
-                              {% endif %}
                             </div>
                         </div>
                         <div class="mapping_method_fields form-group">
@@ -306,9 +302,6 @@
                         <div class="mapping_method_fields form-group">
                           <label class="col-xs-3 control-label">Covariates<br><span class="covar-text">Select covariate(s) from a collection</span></label>
                           <div class="col-xs-8 covar-options">
-                            {% if g.user_session.num_collections < 1 %}
-                            No collections available. Please add traits to a collection to use them as covariates.
-                            {% else %}
                             <div class="select-covar-div">
                               <button type="button" class="btn btn-success select-covar-button select_covariates">Select</button>
                               <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
@@ -317,7 +310,6 @@
                             <select size="2" name="selected_covariates_rqtl" class="form-control selected-covariates" multiple>
                                 <option value="">No covariates selected</option>
                             </select>
-                            {% endif %}
                           </div>
                         </div>
                         <div class="mapping_method_fields form-group">
@@ -392,15 +384,11 @@
                         <div class="mapping_method_fields form-group">
                           <label class="col-xs-3 control-label">Covariates<br><span class="covar-text">Select covariate(s) from a collection</span></label>
                           <div class="col-xs-8 covar-options">
-                            {% if g.user_session.num_collections < 1 %}
-                            No collections available. Please add traits to a collection to use them as covariates.
-                            {% else %}
                             <div class="select-covar-div">
                               <button type="button" class="btn btn-default select-covar-button select_covariates">Select</button>
                               <button type="button" class="btn btn-default select-covar-button remove_covariates">Remove</button>
                             </div>
                             <textarea rows="3" cols="50" readonly placeholder="No covariates selected" class="selected-covariates"></textarea>
-                            {% endif %}
                           </div>
                         </div>
                         <div class="mapping_method_fields form-group">
