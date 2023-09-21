@@ -42,6 +42,14 @@ from wqflask.startup import (
     startup_errors,
     check_mandatory_configs)
 
+def __show_file__(path_envvar):
+    import os
+    import sys
+    from pathlib import Path
+    settings_file = Path(os.environ.get(path_envvar))
+    print(f"{path_envvar}: {settings_file}")
+    print(f"{path_envvar} exists?: {settings_file.exists()}")
+
 app = Flask(__name__)
 
 
@@ -51,6 +59,7 @@ default_settings_file = Path(Path(__file__).parent.parent.parent,
                              "etc/default_settings.py")
 app.config.from_pyfile(default_settings_file)
 app.config.from_envvar('GN2_SETTINGS')
+__show_file__("GN2_SETTINGS")
 
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
