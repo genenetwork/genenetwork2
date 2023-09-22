@@ -33,11 +33,11 @@ def require_oauth2(func):
 
         def __with_token__(token):
             from utility.tools import (
-                GN_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
+                AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
             client = OAuth2Session(
                 OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, token=token)
             resp = client.get(
-                urljoin(GN_SERVER_URL, "oauth2/user/"))
+                urljoin(AUTH_SERVER_URL, "auth/user/"))
             user_details = resp.json()
             if not user_details.get("error", False):
                 return func(*args, **kwargs)

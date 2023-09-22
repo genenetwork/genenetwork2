@@ -10,12 +10,12 @@ from flask import (
 from .client import SCOPE, oauth2_get
 
 def authserver_authorise_uri():
-    from utility.tools import GN_SERVER_URL, OAUTH2_CLIENT_ID
+    from utility.tools import AUTH_SERVER_URL, OAUTH2_CLIENT_ID
     req_baseurl = urlparse(request.base_url, scheme=request.scheme)
     host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
     return urljoin(
-        GN_SERVER_URL,
-        "oauth2/authorise?response_type=code"
+        AUTH_SERVER_URL,
+        "/auth/authorise?response_type=code"
         f"&client_id={OAUTH2_CLIENT_ID}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
@@ -23,7 +23,7 @@ def raise_unimplemented():
     raise Exception("NOT IMPLEMENTED")
 
 def user_details():
-    return oauth2_get("oauth2/user/").either(
+    return oauth2_get("auth/user/").either(
         lambda err: {},
         lambda usr_dets: usr_dets)
 

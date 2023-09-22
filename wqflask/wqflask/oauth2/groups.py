@@ -18,7 +18,7 @@ groups = Blueprint("group", __name__)
 def user_group():
     """Get the user's group."""
     def __get_join_requests__(group, users):
-        return oauth2_get("oauth2/group/requests/join/list").either(
+        return oauth2_get("auth/group/requests/join/list").either(
             lambda error: render_ui(
                 "oauth2/group.html", group=group, users=users,
                 group_join_requests_error=process_error(error)),
@@ -26,7 +26,7 @@ def user_group():
                 "oauth2/group.html", group=group, users=users,
                 group_join_requests=gjr))
     def __success__(group):
-        return oauth2_get(f"oauth2/group/members/{group['group_id']}").either(
+        return oauth2_get(f"auth/group/members/{group['group_id']}").either(
             lambda error: render_ui(
                 "oauth2/group.html", group=group,
                 user_error=process_error(error)),
@@ -36,7 +36,7 @@ def user_group():
         return render_ui(
             "oauth2/group.html", group_error=process_error(err))
 
-    return oauth2_get("oauth2/user/group").either(
+    return oauth2_get("auth/user/group").either(
         __group_error__, __success__)
 
 @groups.route("/create", methods=["POST"])
@@ -45,7 +45,7 @@ def create_group():
     def __setup_group__(response):
         session["user_details"]["group"] = response
 
-    resp = oauth2_post("oauth2/group/create", data=dict(request.form))
+    resp = oauth2_post("auth/group/create", data=dict(request.form))
     return resp.either(
         handle_error("oauth2.group.join_or_create"),
         handle_success(
@@ -64,7 +64,7 @@ def join_or_create():
             "oauth2/group_join_or_create.html", groups=[],
             groups_error=process_error(err))
     def __group_success__(groups):
-        return oauth2_get("oauth2/user/group/join-request").either(
+        return oauth2_get("auth/user/group/join-request").either(
             __gjr_error__, partial(__gjr_success__, groups=groups))
     def __gjr_error__(err):
         return render_ui(
@@ -74,7 +74,7 @@ def join_or_create():
         return render_ui(
             "oauth2/group_join_or_create.html", groups=groups,
             group_join_request=gjr)
-    return oauth2_get("oauth2/group/list").either(
+    return oauth2_get("auth/group/list").either(
         __group_error__, __group_success__)
 
 @groups.route("/delete/<uuid:group_id>", methods=["GET", "POST"])
@@ -102,7 +102,7 @@ def list_join_requests() -> Response:
         return render_ui(
             "oauth2/join-requests.html", error=False, requests=requests,
             datetime_string=__ts_to_dt_str__)
-    return oauth2_get("oauth2/group/requests/join/list").either(
+    return oauth2_get("auth/group/requests/join/list").either(
         __fail__, __success__)
 
 @groups.route("/accept-join-requests", methods=["POST"])
@@ -116,7 +116,7 @@ def accept_join_request():
         flash("Request was accepted successfully.", "alert-success")
         return redirect(url_for("oauth2.group.list_join_requests"))
     return oauth2_post(
-        "oauth2/group/requests/join/accept",
+        "auth/group/requests/join/accept",
         data=request.form).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
@@ -132,7 +132,7 @@ def reject_join_request():
         flash("Request was rejected successfully.", "alert-success")
         return redirect(url_for("oauth2.group.list_join_requests"))
     return oauth2_post(
-        "oauth2/group/requests/join/reject",
+        "auth/group/requests/join/reject",
         data=request.form).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
@@ -152,13 +152,13 @@ def group_role(group_role_id: uuid.UUID):
                 if priv not in role["role"]["privileges"]))
 
     def __role_success__(role):
-        return oauth2_get("oauth2/group/privileges").either(
+        return oauth2_get("auth/group/privileges").either(
             lambda err: __render_error__(
                 group_role=group_role,
                 group_privileges_error=process_error(err)),
             lambda privileges: __gprivs_success__(role, privileges))
 
-    return oauth2_get(f"oauth2/group/role/{group_role_id}").either(
+    return oauth2_get(f"auth/group/role/{group_role_id}").either(
         lambda err: __render_error__(group_role_error=process_error(err)),
         __role_success__)
 
@@ -183,8 +183,8 @@ def add_delete_privilege_to_role(
         privilege_id = form.get("privilege_id")
         assert bool(privilege_id), "Privilege to add must be provided"
         uris = {
-            "ADD": f"oauth2/group/role/{group_role_id}/privilege/add",
-            "DELETE": f"oauth2/group/role/{group_role_id}/privilege/delete"
+            "ADD": f"auth/group/role/{group_role_id}/privilege/add",
+            "DELETE": f"auth/group/role/{group_role_id}/privilege/delete"
         }
         return oauth2_post(
             uris[direction],

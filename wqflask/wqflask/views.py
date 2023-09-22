@@ -160,7 +160,7 @@ def index_page():
                                anon_id=anon_id)
 
     return no_token_get(
-        f"oauth2/user/collections/{anon_id}/list").either(
+        f"auth/user/collections/{anon_id}/list").either(
             lambda err: __render__([]),
             __render__)
 
@@ -522,7 +522,7 @@ def show_trait_page():
     trait_id = request.args["trait_id"]
 
     return client.post(
-        "oauth2/data/authorisation",
+        "auth/data/authorisation",
         json={
             "traits": [f"{dataset}::{trait_id}"]
         }).either(with_flash_error(render_template("show_trait_error.html")),

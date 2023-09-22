@@ -19,7 +19,7 @@ def user_resources():
     def __success__(resources):
         return render_ui("oauth2/resources.html", resources=resources)
 
-    return oauth2_get("oauth2/user/resources").either(
+    return oauth2_get("auth/user/resources").either(
         request_error, __success__)
 
 @resources.route("/create", methods=["GET", "POST"])
@@ -35,7 +35,7 @@ def create_resource():
             resource_category=request.args.get("resource_category"))
 
     if request.method == "GET":
-        return oauth2_get("oauth2/resource/categories").either(
+        return oauth2_get("auth/resource/categories").either(
             lambda error: __render_template__(error=process_error(
                 error, "Could not retrieve resource categories")),
             lambda cats: __render_template__(categories=cats))
@@ -51,7 +51,7 @@ def create_resource():
         flash("Resource created successfully", "alert-success")
         return redirect(url_for("oauth2.resource.user_resources"))
     return oauth2_post(
-        "oauth2/resource/create", data=request.form).either(
+        "auth/resource/create", data=request.form).either(
             __perr__, __psuc__)
 
 def __compute_page__(submit, current_page):
@@ -77,7 +77,7 @@ def view_resource(resource_id: uuid.UUID):
 
     def __group_roles_success__(
             resource, unlinked_data, users_n_roles, this_user, group_roles):
-        return oauth2_get("oauth2/user/list").either(
+        return oauth2_get("auth/user/list").either(
             lambda err: render_ui(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
@@ -88,7 +88,7 @@ def view_resource(resource_id: uuid.UUID):
                 users))
 
     def __this_user_success__(resource, unlinked_data, users_n_roles, this_user):
-        return oauth2_get("oauth2/group/roles").either(
+        return oauth2_get("auth/group/roles").either(
             lambda err: render_ui(
                 "oauth2/view-resources.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
@@ -97,7 +97,7 @@ def view_resource(resource_id: uuid.UUID):
                 resource, unlinked_data, users_n_roles, this_user, groles))
 
     def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
-        return oauth2_get("oauth2/user/").either(
+        return oauth2_get("auth/user/").either(
             lambda err: render_ui(
                 "oauth2/view-resources.html",
                 this_user_error=process_error(err)),
@@ -105,7 +105,7 @@ def view_resource(resource_id: uuid.UUID):
                 resource, unlinked_data, users_n_roles, usr_dets))
 
     def __unlinked_success__(resource, unlinked_data):
-        return oauth2_get(f"oauth2/resource/{resource_id}/user/list").either(
+        return oauth2_get(f"auth/resource/{resource_id}/user/list").either(
             lambda err: render_ui(
                 "oauth2/view-resource.html",
                 resource=resource,
@@ -118,7 +118,7 @@ def view_resource(resource_id: uuid.UUID):
 
     def __resource_success__(resource):
         dataset_type = resource["resource_category"]["resource_category_key"]
-        return oauth2_get(f"oauth2/group/{dataset_type}/unlinked-data").either(
+        return oauth2_get(f"auth/group/{dataset_type}/unlinked-data").either(
             lambda err: render_ui(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_error=process_error(err)),
@@ -127,14 +127,14 @@ def view_resource(resource_id: uuid.UUID):
     def __fetch_resource_data__(resource):
         """Fetch the resource's data."""
         return client.get(
-            f"oauth2/resource/view/{resource['resource_id']}/data?page={page}"
+            f"auth/resource/view/{resource['resource_id']}/data?page={page}"
             f"&count_per_page={count_per_page}").either(
                 lambda err: {
                     **resource, "resource_data_error": process_error(err)
                 },
                 lambda resdata: {**resource, "resource_data": resdata})
 
-    return oauth2_get(f"oauth2/resource/view/{resource_id}").map(
+    return oauth2_get(f"auth/resource/view/{resource_id}").map(
         __fetch_resource_data__).either(
             lambda err: render_ui(
                 "oauth2/view-resource.html",
@@ -164,7 +164,7 @@ def link_data_to_resource():
             flash(f"Data linked to resource successfully", "alert-success")
             return redirect(url_for(
                 "oauth2.resource.view_resource", resource_id=resource_id))
-        return oauth2_post("oauth2/resource/data/link", data=dict(form)).either(
+        return oauth2_post("auth/resource/data/link", data=dict(form)).either(
             __error__,
             __success__)
     except AssertionError as aserr:
@@ -193,7 +193,7 @@ def unlink_data_from_resource():
             return redirect(url_for(
                 "oauth2.resource.view_resource", resource_id=resource_id))
         return oauth2_post(
-            "oauth2/resource/data/unlink", data=dict(form)).either(
+            "auth/resource/data/unlink", data=dict(form)).either(
             __error__, __success__)
     except AssertionError as aserr:
         flash(aserr.args[0], "alert-danger")
@@ -222,7 +222,7 @@ def assign_role(resource_id: uuid.UUID) -> Response:
                 "oauth2.resource.view_resource", resource_id=resource_id))
 
         return oauth2_post(
-            f"oauth2/resource/{resource_id}/user/assign",
+            f"auth/resource/{resource_id}/user/assign",
             data={
                 "group_role_id": group_role_id,
                 "user_email": user_email
@@ -253,7 +253,7 @@ def unassign_role(resource_id: uuid.UUID) -> Response:
                 "oauth2.resource.view_resource", resource_id=resource_id))
 
         return oauth2_post(
-            f"oauth2/resource/{resource_id}/user/unassign",
+            f"auth/resource/{resource_id}/user/unassign",
             data={
                 "group_role_id": group_role_id,
                 "user_id": user_id
@@ -277,7 +277,7 @@ def toggle_public(resource_id: uuid.UUID):
             "oauth2.resource.view_resource", resource_id=resource_id))
 
     return oauth2_post(
-        f"oauth2/resource/{resource_id}/toggle-public", data={}).either(
+        f"auth/resource/{resource_id}/toggle-public", data={}).either(
             lambda err: __handle_error__(err),
             lambda suc: __handle_success__(suc))
 

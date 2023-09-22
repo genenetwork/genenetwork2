@@ -655,7 +655,7 @@ def list_diffs():
         return {**acc, "waiting": acc["waiting"] + [item]}
 
     accessible_diffs = client.post(
-        "oauth2/data/authorisation",
+        "auth/data/authorisation",
         json={
             "traits": [
                 f"{meta['diff']['dataset_name']}::{meta['diff']['trait_name']}"
@@ -777,7 +777,7 @@ def __authorised_p__(dataset_name, trait_name):
                 ("system:resources:edit-all" in dets["privileges"]))
 
     return client.post(
-        "oauth2/data/authorisation",
+        "auth/data/authorisation",
         json={"traits": [f"{dataset_name}::{trait_name}"]}
     ).map(
         lambda adets: {

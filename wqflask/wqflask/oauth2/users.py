@@ -33,12 +33,12 @@ def user_profile():
     def __roles_success__(roles):
         if bool(usr_dets.get("group")):
             return __render__(usr_dets, roles)
-        return oauth2_get("oauth2/user/group/join-request").either(
+        return oauth2_get("auth/user/group/join-request").either(
             lambda err: __render__(
                 user_details, group_join_error=process_error(err)),
             lambda gjr: __render__(usr_dets, roles=roles, group_join_request=gjr))
 
-    return oauth2_get("oauth2/user/roles").either(
+    return oauth2_get("auth/user/roles").either(
         lambda err: __render__(usr_dets, role_error=process_error(err)),
         __roles_success__)
 
@@ -59,13 +59,13 @@ def request_add_to_group() -> Response:
               "alert-success")
         return redirect(url_for("oauth2.user.user_profile"))
 
-    return oauth2_post(f"oauth2/group/requests/join/{group_id}",
+    return oauth2_post(f"auth/group/requests/join/{group_id}",
                        data=form).either(__error__, __success__)
 
 @users.route("/login", methods=["GET", "POST"])
 def login():
     """Route to allow users to sign up."""
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     next_endpoint=request.args.get("next", False)
 
     if request.method == "POST":
@@ -73,7 +73,7 @@ def login():
         client = oauth2_client()
         try:
             token = client.fetch_token(
-                urljoin(GN_SERVER_URL, "oauth2/token"),
+                urljoin(AUTH_SERVER_URL, "auth/token"),
                 username=form.get("email_address"),
                 password=form.get("password"),
                 grant_type="password")
@@ -101,10 +101,10 @@ def login():
 
 @users.route("/logout", methods=["GET", "POST"])
 def logout():
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     if user_logged_in():
         resp = oauth2_client().revoke_token(
-            urljoin(GN_SERVER_URL, "oauth2/revoke"))
+            urljoin(AUTH_SERVER_URL, "auth/revoke"))
         the_session = session.session_info()
         if not bool(the_session["masquerading"]):
             # Normal session - clear and go back.
@@ -124,7 +124,7 @@ def logout():
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     if user_logged_in():
         next_endpoint=request.args.get("next", "/")
         flash(("You cannot register a new user while logged in. "
@@ -137,7 +137,7 @@ def register_user():
 
     form = request.form
     response = requests.post(
-        urljoin(GN_SERVER_URL, "oauth2/user/register"),
+        urljoin(AUTH_SERVER_URL, "auth/user/register"),
         data = {
             "user_name": form.get("user_name"),
             "email": form.get("email_address"),
@@ -160,7 +160,7 @@ def masquerade():
     """Masquerade as a particular user."""
     if request.method == "GET":
         this_user = session.session_info()["user"]
-        return client.get("oauth2/user/list").either(
+        return client.get("auth/user/list").either(
             lambda err: render_ui(
                 "oauth2/masquerade.html", users_error=process_error(err)),
             lambda usrs: render_ui(
@@ -184,7 +184,7 @@ def masquerade():
         flash("You must provide a user to masquerade as.", "alert-danger")
         return redirect(url_for("oauth2.user.masquerade"))
     return client.post(
-        "oauth2/user/masquerade/",
+        "auth/user/masquerade/",
         json={"masquerade_as": request.form.get("masquerade_as")}).either(
             with_flash_error(redirect(url_for("oauth2.user.masquerade"))),
             __masq_success__)

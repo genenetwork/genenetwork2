@@ -351,5 +351,6 @@ assert_file(JS_CYTOSCAPE_PATH + '/cytoscape.min.js')
 
 # assert_file(PHEWAS_FILES+"/auwerx/PheWAS_pval_EMMA_norm.RData")
 
+AUTH_SERVER_URL = get_setting("AUTH_SERVER_URL")
 OAUTH2_CLIENT_ID = get_setting('OAUTH2_CLIENT_ID')
 OAUTH2_CLIENT_SECRET = get_setting('OAUTH2_CLIENT_SECRET')

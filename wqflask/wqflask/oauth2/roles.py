@@ -28,11 +28,11 @@ def user_roles():
         uprivs = tuple(
             privilege["privilege_id"] for role in roles
             for privilege in role["privileges"])
-        return oauth2_get("oauth2/group/roles").either(
+        return oauth2_get("auth/group/roles").either(
             lambda err: __grerror__(roles, uprivs, err),
             lambda groles: __grsuccess__(roles, uprivs, groles))
 
-    return oauth2_get("oauth2/user/roles").either(
+    return oauth2_get("auth/user/roles").either(
         request_error, __role_success__)
 
 @roles.route("/role/<uuid:role_id>", methods=["GET"])
@@ -41,7 +41,7 @@ def role(role_id: uuid.UUID):
     def __success__(the_role):
         return render_ui("oauth2/role.html", role=the_role)
 
-    return oauth2_get(f"oauth2/role/view/{role_id}").either(
+    return oauth2_get(f"auth/role/view/{role_id}").either(
         request_error, __success__)
 
 @roles.route("/create", methods=["GET", "POST"])
@@ -67,12 +67,12 @@ def create_role():
             prev_role_name=request.args.get("role_name"))
 
     def __fetch_gprivs__(roles):
-        return oauth2_get("oauth2/group/privileges").either(
+        return oauth2_get("auth/group/privileges").either(
             lambda err: __gprivs_error__(roles, err),
             lambda gprivs: __success__(roles, gprivs))
 
     if request.method == "GET":
-        return oauth2_get("oauth2/user/roles").either(
+        return oauth2_get("auth/user/roles").either(
             __roles_error__, __fetch_gprivs__)
 
     form = request.form
@@ -92,6 +92,6 @@ def create_role():
         flash("Role created successfully.", "alert-success")
         return redirect(url_for("oauth2.role.user_roles"))
     return oauth2_post(
-        "oauth2/group/role/create",data={
+        "auth/group/role/create",data={
             "role_name": role_name, "privileges[]": privileges}).either(
         __create_error__,__create_success__)

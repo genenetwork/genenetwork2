@@ -18,7 +18,7 @@ SCOPE = ("profile group role resource register-client user masquerade "
 def oauth2_client():
     def __client__(token) -> OAuth2Session:
         from utility.tools import (
-            GN_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
+            AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
         return OAuth2Session(
             OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET,
             scope=SCOPE, token_endpoint_auth_method="client_secret_post",
@@ -40,12 +40,12 @@ def __no_token__(_err) -> Left:
 def oauth2_get(uri_path: str, data: dict = {}, **kwargs) -> Either:
     def __get__(token) -> Either:
         from utility.tools import (
-            GN_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
+            AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
         client = OAuth2Session(
             OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET,
             token=token, scope=SCOPE)
         resp = client.get(
-            urljoin(GN_SERVER_URL, uri_path),
+            urljoin(AUTH_SERVER_URL, uri_path),
             data=data,
             **kwargs)
         if resp.status_code == 200:
@@ -60,12 +60,12 @@ def oauth2_post(
         **kwargs) -> Either:
     def __post__(token) -> Either:
         from utility.tools import (
-            GN_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
+            AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
         client = OAuth2Session(
             OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET,
             token=token, scope=SCOPE)
         resp = client.post(
-            urljoin(GN_SERVER_URL, uri_path), data=data, json=json,
+            urljoin(AUTH_SERVER_URL, uri_path), data=data, json=json,
             **kwargs)
         if resp.status_code == 200:
             return Right(resp.json())
@@ -75,15 +75,15 @@ def oauth2_post(
     return session.user_token().either(__no_token__, __post__)
 
 def no_token_get(uri_path: str, **kwargs) -> Either:
-    from utility.tools import GN_SERVER_URL
-    resp = requests.get(urljoin(GN_SERVER_URL, uri_path), **kwargs)
+    from utility.tools import AUTH_SERVER_URL
+    resp = requests.get(urljoin(AUTH_SERVER_URL, uri_path), **kwargs)
     if resp.status_code == 200:
         return Right(resp.json())
     return Left(resp)
 
 def no_token_post(uri_path: str, **kwargs) -> Either:
     from utility.tools import (
-        GN_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
+        AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
     data = kwargs.get("data", {})
     the_json = kwargs.get("json", {})
     request_data = {
@@ -99,7 +99,7 @@ def no_token_post(uri_path: str, **kwargs) -> Either:
         },
         ("data" if bool(data) else "json"): request_data
     }
-    resp = requests.post(urljoin(GN_SERVER_URL, uri_path),
+    resp = requests.post(urljoin(AUTH_SERVER_URL, uri_path),
                          **new_kwargs)
     if resp.status_code == 200:
         return Right(resp.json())

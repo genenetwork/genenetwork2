@@ -18,11 +18,11 @@ from .client import oauth2_get, oauth2_post
 data = Blueprint("data", __name__)
 
 def __search_mrna__(query, template, **kwargs):
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     species_name = kwargs["species_name"]
-    search_uri = urljoin(GN_SERVER_URL, "oauth2/data/search")
+    search_uri = urljoin(AUTH_SERVER_URL, "auth/data/search")
     datasets = oauth2_get(
-        "oauth2/data/search",
+        "auth/data/search",
         json = {
             "query": query,
             "dataset_type": "mrna",
@@ -43,11 +43,11 @@ def __selected_datasets__():
                             request.form.get("selected", []))
 
 def __search_genotypes__(query, template, **kwargs):
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     species_name = kwargs["species_name"]
-    search_uri = urljoin(GN_SERVER_URL, "oauth2/data/search")
+    search_uri = urljoin(AUTH_SERVER_URL, "auth/data/search")
     datasets = oauth2_get(
-        "oauth2/data/search",
+        "auth/data/search",
         json = {
             "query": query,
             "dataset_type": "genotype",
@@ -59,7 +59,7 @@ def __search_genotypes__(query, template, **kwargs):
     return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 50))
     selected_traits = request.form.getlist("selected_traits")
@@ -71,18 +71,18 @@ def __search_phenotypes__(query, template, **kwargs):
             template, traits=[], per_page=per_page, query=query,
             selected_traits=selected_traits, search_results=search_results,
             search_endpoint=urljoin(
-                GN_SERVER_URL, "oauth2/data/search"),
-            gn_server_url = GN_SERVER_URL,
+                AUTH_SERVER_URL, "auth/data/search"),
+            gn_server_url = AUTH_SERVER_URL,
             results_endpoint=urljoin(
-                GN_SERVER_URL,
-                f"oauth2/data/search/phenotype/{job_id}"),
+                AUTH_SERVER_URL,
+                f"auth/data/search/phenotype/{job_id}"),
             **kwargs)
-    return oauth2_get("oauth2/data/search", json={
+    return oauth2_get("auth/data/search", json={
         "dataset_type": "phenotype",
         "species_name": kwargs["species_name"],
         "per_page": per_page,
         "page": page,
-        "gn3_server_uri": GN_SERVER_URL
+        "auth_server_uri": AUTH_SERVER_URL
     }).either(
         lambda err: __search_error__(process_error(err)),
         __search_success__)
@@ -94,7 +94,7 @@ def json_search_genotypes() -> Response:
         return jsonify(error), error["status_code"]
     
     return oauth2_get(
-        "oauth2/data/search",
+        "auth/data/search",
         json = {
             "query": request.json["query"],
             "dataset_type": "genotype",
@@ -111,7 +111,7 @@ def json_search_mrna() -> Response:
         return jsonify(error), error["status_code"]
 
     return oauth2_get(
-        "oauth2/data/search",
+        "auth/data/search",
         json = {
             "query": request.json["query"],
             "dataset_type": "mrna",
@@ -124,21 +124,21 @@ def json_search_mrna() -> Response:
 @data.route("/phenotype/search", methods=["POST"])
 def json_search_phenotypes() -> Response:
     """Search for phenotypes."""
-    from utility.tools import GN_SERVER_URL
+    from utility.tools import AUTH_SERVER_URL
     form = request.json
     def __handle_error__(err):
         error = process_error(err)
         return jsonify(error), error["status_code"]
 
     return oauth2_get(
-        "oauth2/data/search",
+        "auth/data/search",
         json={
             "dataset_type": "phenotype",
             "species_name": form["species_name"],
             "query": form.get("query", ""),
             "per_page": int(form.get("per_page", 50)),
             "page": int(form.get("page", 1)),
-            "gn3_server_uri": GN_SERVER_URL,
+            "auth_server_uri": AUTH_SERVER_URL,
             "selected_traits": form.get("selected_traits", [])
         }).either(__handle_error__, jsonify)
 
@@ -156,10 +156,10 @@ def list_data_by_species_and_dataset(
         "genotype": __search_genotypes__,
         "phenotype": __search_phenotypes__
     }
-    roles = oauth2_get("oauth2/user/roles").either(
+    roles = oauth2_get("auth/user/roles").either(
         lambda err: {"roles_error": process_error(err)},
         lambda roles: {"roles": roles})
-    groups = oauth2_get("oauth2/group/list").either(
+    groups = oauth2_get("auth/group/list").either(
         lambda err: {"groups_error": process_error(err)},
         lambda grps: {"groups": grps})
     query = request.args.get("query", "")
@@ -183,13 +183,13 @@ def list_data():
             **{key:val for key,val in kwargs.items()
                if key not in ("groups", "data_items", "user_privileges")})
 
-    groups = oauth2_get("oauth2/group/list").either(
+    groups = oauth2_get("auth/group/list").either(
         lambda err: {"groups_error": process_error(err)},
         lambda grp: {"groups": grp})
-    roles = oauth2_get("oauth2/user/roles").either(
+    roles = oauth2_get("auth/user/roles").either(
         lambda err: {"roles_error": process_error(err)},
         lambda roles: {"roles": roles})
-    species = oauth2_get("oauth2/data/species").either(
+    species = oauth2_get("auth/data/species").either(
         lambda err: {"species_error": process_error(err)},
         lambda species: {"species": species})
 
@@ -232,7 +232,7 @@ def link_data():
             return redirect(url_for(
                 "oauth2.data.list_data", **state_data))
         return oauth2_post(
-            "oauth2/group/data/link",
+            "auth/group/data/link",
             data={
                 "dataset_type": form["dataset_type"],
                 "dataset_ids": dataset_ids,
@@ -261,7 +261,7 @@ def link_genotype_data():
         flash(success["description"], "alert-success")
         return link_source_url
 
-    return oauth2_post("oauth2/data/link/genotype", json={
+    return oauth2_post("auth/data/link/genotype", json={
         "species_name": form.get("species_name"),
         "group_id": form.get("group_id"),
         "selected": tuple(json.loads(dataset) for dataset
@@ -288,7 +288,7 @@ def link_mrna_data():
         flash(success["description"], "alert-success")
         return link_source_url
 
-    return oauth2_post("oauth2/data/link/mrna", json={
+    return oauth2_post("auth/data/link/mrna", json={
         "species_name": form.get("species_name"),
         "group_id": form.get("group_id"),
         "selected": tuple(json.loads(dataset) for dataset
@@ -314,7 +314,7 @@ def link_phenotype_data():
         flash(success["description"], "alert-success")
         return link_source_url
 
-    return oauth2_post("oauth2/data/link/phenotype", json={
+    return oauth2_post("auth/data/link/phenotype", json={
         "species_name": form.get("species_name"),
         "group_id": form.get("group_id"),
         "selected": tuple(

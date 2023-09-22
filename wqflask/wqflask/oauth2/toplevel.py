@@ -51,7 +51,7 @@ def authorisation_code():
             "client_id": app.config["OAUTH2_CLIENT_ID"]
         }
         return no_token_post(
-            "oauth2/token", data=request_data).either(
+            "auth/token", data=request_data).either(
                 lambda err: __error__(process_error(err)), __success__)
     flash("AuthorisationError: No code was provided.", "alert-danger")
     return redirect("/")

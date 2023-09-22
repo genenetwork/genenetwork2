@@ -78,9 +78,9 @@ def collections_add():
     traits = request.args.get("traits", request.form.get("traits"))
     the_hash = request.args.get("hash", request.form.get("hash"))
     collections = g.user_session.user_collections
-    collections = oauth2_get("oauth2/user/collections/list").either(
+    collections = oauth2_get("auth/user/collections/list").either(
         lambda _err: tuple(), lambda colls: tuple(colls)) + no_token_get(
-            f"oauth2/user/collections/{anon_id}/list").either(
+            f"auth/user/collections/{anon_id}/list").either(
                 lambda _err: tuple(), lambda colls: tuple(colls))
 
     def __create_new_coll_error__(error):
@@ -90,7 +90,7 @@ def collections_add():
 
     if len(collections) < 1:
         new_coll = client.post(
-            "oauth2/user/collections/new",
+            "auth/user/collections/new",
             json={
                 "anon_id": str(anon_id),
                 "name": "Your Default Collection",
@@ -127,7 +127,7 @@ def collections_new():
             params.get("new_collection", "").strip() or
             datetime.datetime.utcnow().strftime('Collection_%b_%d_%H:%M'))
         request_data = {
-            "uri_path": "oauth2/user/collections/new",
+            "uri_path": "auth/user/collections/new",
             "json": {
                 "name": collection_name,
                 "anon_id": str(anon_id),
@@ -154,7 +154,7 @@ def collections_new():
         collection_id = uuid.UUID(coll_id)
         resp = redirect(url_for('view_collection', uc_id=collection_id))
         return client.post(
-            f"oauth2/user/collections/{collection_id}/traits/add",
+            f"auth/user/collections/{collection_id}/traits/add",
             json={
                 "anon_id": str(anon_id),
                 "traits": traits
@@ -185,13 +185,13 @@ def list_collections():
     params = request.args
     anon_id = session.session_info()["anon_id"]
     anon_collections = no_token_get(
-        f"oauth2/user/collections/{anon_id}/list").either(
+        f"auth/user/collections/{anon_id}/list").either(
             lambda err: {"anon_collections_error": process_error(err)},
             lambda colls: {"anon_collections": colls})
 
     user_collections = {"collections": []}
     if user_logged_in():
-        user_collections = oauth2_get("oauth2/user/collections/list").either(
+        user_collections = oauth2_get("auth/user/collections/list").either(
             lambda err: {"user_collections_error": process_error(err)},
             lambda colls: {"collections": colls})
 
@@ -216,7 +216,7 @@ def handle_anonymous_collections():
         flash(f"Success: {msg['message']}", "alert-success")
         return redirect("/")
     return oauth2_post(
-        f"oauth2/user/collections/anonymous/{choice}",
+        f"auth/user/collections/anonymous/{choice}",
         json={
             "anon_id": str(session_info()["anon_id"])
         }).either(__impdel_error__, __impdel_success__)
@@ -228,7 +228,7 @@ def remove_traits():
     traits_to_remove = process_traits(params['trait_list'])
     resp = redirect(url_for("view_collection", uc_id=uc_id))
     return client.post(
-        f"oauth2/user/collections/{uc_id}/traits/remove",
+        f"auth/user/collections/{uc_id}/traits/remove",
         json = {
             "anon_id": str(session_info()["anon_id"]),
             "traits": traits_to_remove
@@ -251,7 +251,7 @@ def delete_collection():
               if bool(item)]
     if len(uc_ids) > 0:
         return (oauth2_post if user_logged_in() else no_token_post)(
-            "oauth2/user/collections/delete",
+            "auth/user/collections/delete",
             json = {
                 "anon_id": str(session_info()["anon_id"]),
                 "collection_ids": uc_ids
@@ -328,7 +328,7 @@ def view_collection():
 
     uc_id = params['uc_id']
     request_data = {
-        "uri_path": f"oauth2/user/collections/{uc_id}/view",
+        "uri_path": f"auth/user/collections/{uc_id}/view",
         "json": {"anon_id": str(session_info()["anon_id"])}
     }
     if user_logged_in():
@@ -389,7 +389,7 @@ def change_collection_name():
     collection_id = request.form['collection_id']
     resp = redirect(url_for("view_collection", uc_id=collection_id))
     return client.post(
-        f"oauth2/user/collections/{collection_id}/rename",
+        f"auth/user/collections/{collection_id}/rename",
         json={
             "anon_id": str(session_info()["anon_id"]),
             "new_name": request.form["new_collection_name"]

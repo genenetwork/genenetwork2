@@ -130,7 +130,7 @@ def required_access(access_levels: tuple[str, ...],
                     "the authorisation checks.",
                     session_info()["user"])
             return client.post(
-                "oauth2/data/authorisation",
+                "auth/data/authorisation",
                 json={"traits": [f"{dataset_name}::{trait_name}"]}).either(
                     __error__, __success__)
         return __checker__
