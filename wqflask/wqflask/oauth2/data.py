@@ -186,7 +186,7 @@ def list_data():
     groups = oauth2_get("auth/group/list").either(
         lambda err: {"groups_error": process_error(err)},
         lambda grp: {"groups": grp})
-    roles = oauth2_get("auth/user/roles").either(
+    roles = oauth2_get("auth/system/roles").either(
         lambda err: {"roles_error": process_error(err)},
         lambda roles: {"roles": roles})
     species = oauth2_get("auth/data/species").either(

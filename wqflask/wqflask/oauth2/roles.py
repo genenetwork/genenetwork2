@@ -32,7 +32,7 @@ def user_roles():
             lambda err: __grerror__(roles, uprivs, err),
             lambda groles: __grsuccess__(roles, uprivs, groles))
 
-    return oauth2_get("auth/user/roles").either(
+    return oauth2_get("auth/system/roles").either(
         request_error, __role_success__)
 
 @roles.route("/role/<uuid:role_id>", methods=["GET"])

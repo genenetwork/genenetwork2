@@ -38,7 +38,7 @@ def user_profile():
                 user_details, group_join_error=process_error(err)),
             lambda gjr: __render__(usr_dets, roles=roles, group_join_request=gjr))
 
-    return oauth2_get("auth/user/roles").either(
+    return oauth2_get("auth/system/roles").either(
         lambda err: __render__(usr_dets, role_error=process_error(err)),
         __roles_success__)
 
