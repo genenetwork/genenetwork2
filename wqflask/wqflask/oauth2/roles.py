@@ -39,7 +39,9 @@ def user_roles():
 @require_oauth2
 def role(role_id: uuid.UUID):
     def __success__(the_role):
-        return render_ui("oauth2/role.html", role=the_role)
+        return render_ui("oauth2/role.html",
+                         role=the_role[0],
+                         resource_id=uuid.UUID(the_role[1]))
 
     return oauth2_get(f"auth/role/view/{role_id}").either(
         request_error, __success__)

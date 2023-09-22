@@ -39,6 +39,14 @@
 	    </tbody>
 	  </table>
 	</div>
+	<div class="panel-footer">
+	  <p>
+	    This role acts on the resource with ID:
+	    <a href="{{url_for('oauth2.resource.view_resource', resource_id=resource_id)}}">
+	      {{resource_id}}
+	    </a>
+	  </p>
+	</div>
       </div>
     </div>
 
