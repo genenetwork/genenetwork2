@@ -505,7 +505,7 @@ class ShowTrait:
                     all_samples_ordered.append(sample)
                     other_sample_names.append(sample)
 
-            # ZS: CFW is here because the .geno file doesn't properly
+            # CFW is here because the .geno file doesn't properly
             # contain its full list of samples. This should probably
             # be fixed.
             if self.dataset.group.species == "human" or (set(primary_sample_names) == set(parent_f1_samples)) or self.dataset.group.name == "CFW":
@@ -527,9 +527,6 @@ class ShowTrait:
             # "human" and self.dataset.group.name != "CFW":
             if len(other_sample_names) > 0:
                 other_sample_names.sort()  # Sort other samples
-                if parent_f1_samples:
-                    other_sample_names = parent_f1_samples + other_sample_names
-
                 other_samples = SampleList(dataset=self.dataset,
                                            sample_names=other_sample_names,
                                            this_trait=self.this_trait,
