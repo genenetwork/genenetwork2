@@ -4,11 +4,11 @@ import math
 from redis import Redis
 Redis = Redis()
 
-from flask import g
-
 from base.trait import create_trait, retrieve_sample_data
 from base import data_set, webqtlCaseData
 from utility import corr_result_helpers
+from wqflask.oauth2.collections import num_collections
+
 from scipy import stats
 import numpy as np
 
@@ -102,8 +102,8 @@ class CorrScatterPlot:
             srslope, srintercept, sr_range, sr_range)
 
         self.collections_exist = "False"
-        if g.user_session.num_collections > 0:
-            self.collections_exist = "True"
+        if num_collections() > 0:
+                self.collections_exist = "True"
 
         self.js_data = dict(
             data=self.data,
@@ -133,9 +133,6 @@ class CorrScatterPlot:
             srintercept=srintercept,
             srr_value=srr_value,
             srp_value=srp_value
-
-            #trait3 = self.trait_3.data,
-            #vals_3 = vals_3
         )
         self.jsdata = self.js_data
 
