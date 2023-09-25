@@ -170,8 +170,6 @@ def export_traitlist(targs):
 
             csv_rows.append(row_contents)
 
-        csv_rows = list(
-            map(list, itertools.zip_longest(*[row for row in csv_rows])))
         writer.writerows(csv_rows)
         csv_data = buff.getvalue()
         buff.close()
