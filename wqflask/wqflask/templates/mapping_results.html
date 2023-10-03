@@ -420,7 +420,7 @@
                 'data': null,
                 'render': function(data, type, row, meta) {
                   {% if geno_db_exists == "True" %}
-                  return '<a target"_blank" href="corr_scatter_plot?method=pearson&dataset_1={{ dataset.name }}&dataset_2={{ dataset.group.name }}Geno&trait_1={{ this_trait.name }}&trait_2=' + data.name + '&dataid={{ dataid }}">' + String(parseFloat(data.additive).toFixed(3)) + '</a>'
+                  return '<a target"_blank" href="corr_scatter_plot?method=pearson&dataset_1={{ dataset.group.name }}Geno&dataset_2={{ dataset.name }}&trait_1=' + data.name + '&trait_2={{ this_trait.name }}&cached_trait=trait_2&dataid={{ dataid }}">' + String(parseFloat(data.additive).toFixed(3)) + '</a>'
                   {% else %}
                   return String(parseFloat(data.additive).toFixed(3))
                   {% endif %}

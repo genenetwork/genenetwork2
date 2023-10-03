@@ -12,6 +12,8 @@ from wqflask.oauth2.collections import num_collections
 from scipy import stats
 import numpy as np
 
+import logging
+logger = logging.getLogger(__name__)
 
 class CorrScatterPlot:
     """Page that displays a correlation scatterplot with a line fitted to it"""
@@ -28,12 +30,10 @@ class CorrScatterPlot:
         else:
             self.dataset_2 = data_set.create_dataset(params['dataset_2'])
 
-        #self.dataset_3 = data_set.create_dataset(params['dataset_3'])
         self.trait_1 = create_trait(
             name=params['trait_1'], dataset=self.dataset_1)
         self.trait_2 = create_trait(
             name=params['trait_2'], dataset=self.dataset_2)
-        #self.trait_3 = create_trait(name=params['trait_3'], dataset=self.dataset_3)
 
         self.method = params['method']
 
@@ -46,8 +46,15 @@ class CorrScatterPlot:
         if 'dataid' in params:
             trait_data_dict = json.loads(Redis.get(params['dataid']))
             trait_data = {key:webqtlCaseData.webqtlCaseData(key, float(trait_data_dict[key])) for (key, value) in trait_data_dict.items() if trait_data_dict[key] != "x"}
+            trait_1_data = trait_data
+            trait_2_data = self.trait_2.data
+            # Check if the cached data should be used for the second trait instead
+            if 'cached_trait' in params:
+                if params['cached_trait'] == 'trait_2':
+                    trait_2_data = trait_data
+                    trait_1_data = self.trait_1.data
             samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
-                trait_data, self.trait_2.data)
+                trait_1_data, trait_2_data)
         else:
             samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
                 self.trait_1.data, self.trait_2.data)
