@@ -1,37 +1,3 @@
-{% extends "base.html" %}
-
-{% block css %}
-<style type="text/css">
- .page-header {
-     text-underline-offset: 0.5rem;
-     padding: 1em;
- }
- .panel-about {
-     background: #F8F8F8;
-     max-width: 35em;
-     margin: 10px;
- }
- .panel-metadata {
-     display: inline-block;
-     width: fit-content;
-     height: fit-content;
-     padding: 0;
- }
-
- .panel-metadata dt {
-     color: green;
- }
-
- .panel-metadata dt::after {
-     content: ":";
- }
-
-</style>
-{% endblock %}
-
-{% block title %}Dataset: {{ metadata.label }}{% endblock %}
-{% block content %}
-
 <header class="page-header text-justify">
     <h1>
 	{% if dataset.title %}
@@ -148,12 +114,3 @@
 
 </div>
 
-{% endblock %}
-
-{% block js %}
-<script language="javascript"
-	type="text/javascript"
-		  src="{{ url_for('js', filename='js_alt/htmx.min.js') }}"
-	integrity="sha384-0+7g9BudUk9DgXmamowaKrIUbGxY2XGM2qH3qQe+YB/nzsgA6SdFPTQ6HBKtSyHq"
-		  crossorigin="anonymous"
-{% endblock %}
