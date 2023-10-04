@@ -29,16 +29,15 @@
 </style>
 {% endblock %}
 
-{% block title %}Dataset: {{ name }}{% endblock %}
-
+{% block title %}Dataset: {{ metadata.label }}{% endblock %}
 {% block content %}
 
 <header class="page-header text-justify">
     <h1>
-	{% if metadata.publicationTitle %}
-	<u>{{ metadata.publicationTitle}}</u>
+	{% if metadata.title %}
+	<u>{{ metadata.title}}</u>
 	<br/>
-	<small>({{ metadata.title or metadata.name}})</small>
+	<small>({{ metadata.title or metadata.label}})</small>
         {% else %}
         {{ name }}
         {% endif %}
@@ -54,12 +53,12 @@
         <div class="panel-body">
             <dl class="dl-horizontal">
                 {% if metadata.created %} <dt>Created</dt> <dd>{{ metadata.created }}</dd> {% endif %}
-                {% if metadata.datasetGroup %} <dt>Data Set Group</dt> <dd>{{ metadata.datasetGroup }}</dd> {% endif %}
-                {% if metadata.accessionId %} <dt>Accession Id</dt> <dd>{{ metadata.accessionId }}</dd> {% endif %}
-                {% if metadata.geoSeries %}
+                {% if metadata.InbredSetName %} <dt>Data Set Group</dt> <dd>{{ metadata.inbredSetGroup}}</dd> {% endif %}
+                {% if metadata.identifier %} <dt>Accession Id</dt> <dd>{{ metadata.identifier}}</dd> {% endif %}
+                {% if metadata.hasGeoSeriesId %}
 		<dt>GEO Series</dt>
 		<dd>
-		    <a href="{{ metadata.geoSeries }}" target="_blank">{{ metadata.geoSeries.split("=")[-1] }}</a>
+		    <a href="{{ metadata.hasGeoSeriesId }}" target="_blank">{{ metadata.hasGeoSeriesId.split("=")[-1] }}</a>
 		</dd>
 		{% endif %}
                 {% if metadata.title %} <dt>Name</dt> <dd>{{ metadata.title }}</dd> {% endif %}
@@ -100,19 +99,19 @@
 	<div>{{ metadata.specifics}}</div>
 	{% endif %}
 
-        {% if metadata.summary %}
+        {% if metadata.description %}
         <h3><strong>Summary:</strong></h3>
-        <div>{{ metadata.summary|safe }}</div>
+        <div>{{ metadata.description|safe }}</div>
         {% endif %}
 
-	{% if metadata.experimentDesign %}
+	{% if metadata.hasExperimentDesignInfo %}
         <h3><strong>Experiment Design:</strong></h3>
-        <div>{{ metadata.experimentDesign|safe }}</div>
+        <div>{{ metadata.hasExperimentDesignInfo|safe }}</div>
         {% endif %}
 
-	{% if metadata.aboutCases %}
+	{% if metadata.hasCaseInfo %}
         <h3><strong>About the cases used to generate this set of data:</strong></h3>
-        <div>{{ metadata.aboutCases|safe }}</div>
+        <div>{{ metadata.hasCaseInfo|safe }}</div>
         {% endif %}
 
 	{% if metadata.aboutTissue %}
@@ -120,14 +119,14 @@
         <div>{{ metadata.aboutTissue|safe }}</div>
         {% endif %}
 
-        {% if metadata.aboutPlatform %}
+        {% if metadata.hasPlatformInfo %}
         <h3><strong>About the array platform:</strong></h3>
-        <div>{{ metadata.aboutPlatform|safe }}</div>
+        <div>{{ metadata.hasPlatformInfo|safe }}</div>
         {% endif %}
 
-        {% if metadata.aboutDataProcessing %}
+        {% if metadata.hasDataProcessingInfo %}
         <h3><strong>About data values and data processing:</strong></h3>
-        <div>{{ metadata.aboutDataProcessing|safe }}</div>
+        <div>{{ metadata.hasDataProcessingInfo|safe }}</div>
         {% endif %}
 
 	{% if metadata.notes %}

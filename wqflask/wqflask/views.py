@@ -1106,12 +1106,12 @@ def get_dataset(name):
             f"/api/metadata/dataset/{name}")
     ).json()
     float_p = ""
-    if any([metadata.get("summary"),
-            metadata.get("experimentDesign"),
-            metadata.get("aboutCases"),
-            metadata.get("aboutTissue"),
-            metadata.get("aboutPlatform"),
-            metadata.get("aboutDataProcesing"), metadata.get("notes")]):
+    if any([metadata.get("description"),
+            metadata.get("hasExperimentDesignInfo"),
+            metadata.get("hasCaseInfo"),
+            metadata.get("hasCaseInfo"),
+            metadata.get("hasPlatformInfo"),
+            metadata.get("hasDataProcessingInfo"), metadata.get("notes")]):
         float_p = " pull-right"
     return render_template(
         "dataset.html",
