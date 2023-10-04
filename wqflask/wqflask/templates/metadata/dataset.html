@@ -34,10 +34,10 @@
 
 <header class="page-header text-justify">
     <h1>
-	{% if metadata.title %}
-	<u>{{ metadata.title}}</u>
+	{% if dataset.title %}
+	<u>{{ dataset.title}}</u>
 	<br/>
-	<small>({{ metadata.title or metadata.label}})</small>
+	<small>({{ dataset.prefLabel or dataset.altlabel}})</small>
         {% else %}
         {{ name }}
         {% endif %}
@@ -52,96 +52,96 @@
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
         <div class="panel-body">
             <dl class="dl-horizontal">
-                {% if metadata.created %} <dt>Created</dt> <dd>{{ metadata.created }}</dd> {% endif %}
-                {% if metadata.InbredSetName %} <dt>Data Set Group</dt> <dd>{{ metadata.inbredSetGroup}}</dd> {% endif %}
-                {% if metadata.identifier %} <dt>Accession Id</dt> <dd>{{ metadata.identifier}}</dd> {% endif %}
-                {% if metadata.hasGeoSeriesId %}
+                {% if dataset.created %} <dt>Created</dt> <dd>{{ dataset.created }}</dd> {% endif %}
+                {% if dataset.classifiedUnder %} <dt>Data Set Group</dt> <dd>{{ dataset.classifiedUnder}}</dd> {% endif %}
+                {% if dataset.identifier %} <dt>Accession Id</dt> <dd>{{ dataset.identifier}}</dd> {% endif %}
+                {% if dataset.hasGeoSeriesId %}
 		<dt>GEO Series</dt>
 		<dd>
-		    <a href="{{ metadata.hasGeoSeriesId }}" target="_blank">{{ metadata.hasGeoSeriesId.split("=")[-1] }}</a>
+		    <a href="{{ dataset.hasGeoSeriesId }}" target="_blank">{{ dataset.hasGeoSeriesId.split("=")[-1] }}</a>
 		</dd>
 		{% endif %}
-                {% if metadata.title %} <dt>Name</dt> <dd>{{ metadata.title }}</dd> {% endif %}
-		{% if metadata.organism %}
+                {% if dataset.title %} <dt>Name</dt> <dd>{{ dataset.title }}</dd> {% endif %}
+		{% if dataset.organism %}
 		<dt>Organism</dt>
 		<dd>
-		    <a href="{{ metadata.organismUrl}}" target="_blank">{{ metadata.organism }}</a>
+		    <a href="{{ dataset.organismUrl}}" target="_blank">{{ dataset.organism }}</a>
 		</dd>
 		{% endif %}
-		{% if metadata.inbredSetName %} <dt>Group</dt> <dd>{{ metadata.inbredSetName}}</dd> {% endif %}
-                {% if metadata.tissueName %} <dt>Tissue</dt> <dd>{{ metadata.tissueName}}</dd> {% endif %}
-		{% if metadata.datasetStatusName %} <dt>Dataset Status</dt> <dd>{{ metadata.datasetStatusName }}</dd> {% endif %}
-		{% if metadata.platformName %}
+		{% if dataset.inbredSetName %} <dt>Group</dt> <dd>{{ dataset.inbredSetName}}</dd> {% endif %}
+                {% if dataset.tissueName %} <dt>Tissue</dt> <dd>{{ dataset.tissueName}}</dd> {% endif %}
+		{% if dataset.datasetStatusName %} <dt>Dataset Status</dt> <dd>{{ dataset.datasetStatusName }}</dd> {% endif %}
+		{% if dataset.platformName %}
 		<dt>Platforms</dt>
 		<dd>
-		    {% if metadata.geoPlatformUrl %}
-		    [<a href="{{ metadata.geoPlatformUrl }}" target="_blank">{{ metadata.geoPlatformUrl.split("=")[-1] }}</a>]
+		    {% if dataset.geoPlatformUrl %}
+		    [<a href="{{ dataset.geoPlatformUrl }}" target="_blank">{{ dataset.geoPlatformUrl.split("=")[-1] }}</a>]
 		    {% endif %}
-                    {{ metadata.platformName }}
+                    {{ dataset.platformName }}
 		</dd>
 		{% endif %}
-                {% if metadata.normalization %} <dt>Normalization</dt> <dd>{{ metadata.normalization }}</dd> {% endif %}
-                {% if metadata.investigatorName %}
+                {% if dataset.usesNormalization %} <dt>Normalization</dt> <dd>{{ dataset.usesNormalization }}</dd> {% endif %}
+                {% if dataset.investigatorName %}
                 <dt>Investigator</dt>
                 <dd>
-                    <a href="{{ metadata.investigatorWebUrl }}" target="_blank">{{ metadata.investigatorName }}</a>
+                    <a href="{{ dataset.investigatorWebUrl }}" target="_blank">{{ dataset.investigatorName }}</a>
                 </dd>
                 {% endif %}
-                {% if metadata.contributors %} <dt>Contributors</dt> <dd>{{ metadata.contributors|safe }}</dd> {% endif %}
-		{% if metadata.datasetOfOrganization %} <dt>Organization</dt> <dd>{{ metadata.datasetOfOrganization }}</dd> {% endif %}
+                {% if dataset.contributors %} <dt>Contributors</dt> <dd>{{ dataset.contributors|safe }}</dd> {% endif %}
+		{% if dataset.datasetOfOrganization %} <dt>Organization</dt> <dd>{{ dataset.datasetOfOrganization }}</dd> {% endif %}
             </dl>
         </div>
     </div>
 
     <div class="container">
-	{% if metadata.specifics %}
+	{% if dataset.specifics %}
 	<h3><strong>Specifics of this Data Set:</strong></h3>
-	<div>{{ metadata.specifics}}</div>
+	<div>{{ dataset.specifics}}</div>
 	{% endif %}
 
-        {% if metadata.description %}
+        {% if dataset.description %}
         <h3><strong>Summary:</strong></h3>
-        <div>{{ metadata.description|safe }}</div>
+        <div>{{ dataset.description|safe }}</div>
         {% endif %}
 
-	{% if metadata.hasExperimentDesignInfo %}
+	{% if dataset.hasExperimentDesignInfo %}
         <h3><strong>Experiment Design:</strong></h3>
-        <div>{{ metadata.hasExperimentDesignInfo|safe }}</div>
+        <div>{{ dataset.hasExperimentDesignInfo|safe }}</div>
         {% endif %}
 
-	{% if metadata.hasCaseInfo %}
+	{% if dataset.hasCaseInfo %}
         <h3><strong>About the cases used to generate this set of data:</strong></h3>
-        <div>{{ metadata.hasCaseInfo|safe }}</div>
+        <div>{{ dataset.hasCaseInfo|safe }}</div>
         {% endif %}
 
-	{% if metadata.aboutTissue %}
+	{% if dataset.aboutTissue %}
         <h3><strong>About the tissue used to generate this set of data:</strong></h3>
-        <div>{{ metadata.aboutTissue|safe }}</div>
+        <div>{{ dataset.aboutTissue|safe }}</div>
         {% endif %}
 
-        {% if metadata.hasPlatformInfo %}
+        {% if dataset.hasPlatformInfo %}
         <h3><strong>About the array platform:</strong></h3>
-        <div>{{ metadata.hasPlatformInfo|safe }}</div>
+        <div>{{ dataset.hasPlatformInfo|safe }}</div>
         {% endif %}
 
-        {% if metadata.hasDataProcessingInfo %}
+        {% if dataset.hasDataProcessingInfo %}
         <h3><strong>About data values and data processing:</strong></h3>
-        <div>{{ metadata.hasDataProcessingInfo|safe }}</div>
+        <div>{{ dataset.hasDataProcessingInfo|safe }}</div>
         {% endif %}
 
-	{% if metadata.notes %}
+	{% if dataset.notes %}
         <h3><strong>Notes:</strong></h3>
-        <div>{{ metadata.notes|safe }}</div>
+        <div>{{ dataset.notes|safe }}</div>
         {% endif %}
 
-	{% if metadata.citation|trim %}
+	{% if dataset.citation|trim %}
         <h3><strong>Citation:</strong></h3>
-        <div>{{ metadata.citation|safe}}</div>
+        <div>{{ dataset.citation|safe}}</div>
         {% endif %}
 
-	{% if metadata.acknowledgment|trim %}
+	{% if dataset.acknowledgment|trim %}
         <h3><strong>Acknowledgment:</strong></h3>
-        <div>{{ metadata.acknowledgment|safe}}</div>
+        <div>{{ dataset.acknowledgment|safe}}</div>
         {% endif %}
     </div>
     {% endif %}
@@ -151,5 +151,9 @@
 {% endblock %}
 
 {% block js %}
-<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='js_alt/htmx.min.js') }}"></script>
+<script language="javascript"
+	type="text/javascript"
+		  src="{{ url_for('js', filename='js_alt/htmx.min.js') }}"
+	integrity="sha384-0+7g9BudUk9DgXmamowaKrIUbGxY2XGM2qH3qQe+YB/nzsgA6SdFPTQ6HBKtSyHq"
+		  crossorigin="anonymous"
 {% endblock %}
