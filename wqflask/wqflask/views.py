@@ -1116,7 +1116,7 @@ def get_dataset(name):
     return render_template(
         "dataset.html",
         name=name,
-        metadata=metadata,
+        dataset=metadata,
         float_p=float_p
     )
 
