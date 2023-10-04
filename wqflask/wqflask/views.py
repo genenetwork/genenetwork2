@@ -1105,6 +1105,7 @@ def get_dataset(name):
             GN3_LOCAL_URL,
             f"/api/metadata/dataset/{name}")
     ).json()
+    metadata = {k.split("/")[-1].split("#")[-1]: v for k, v in metadata.items()}
     float_p = ""
     if any([metadata.get("description"),
             metadata.get("hasExperimentDesignInfo"),
