@@ -11,9 +11,6 @@
 </header>
 
 <div class="container">
-    {% if metadata == {} %}
-    <p class="lead">We appreciate your interest, but unfortunately, we don't have any additional information available for: <strong>{{ name }}</strong>. If you have any other questions or need assistance with something else, please feel free to reach out to us.</p>
-    {% else %}
     <div class="panel-about panel panel-info panel-metadata text-muted{{ float_p }}">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
         <div class="panel-body">
@@ -110,7 +107,6 @@
         <div>{{ dataset.acknowledgment|safe}}</div>
         {% endif %}
     </div>
-    {% endif %}
 
 </div>
 
