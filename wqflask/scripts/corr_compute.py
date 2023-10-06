@@ -32,7 +32,6 @@ def e_time():
 
 def compute(form):
     import subprocess
-    from gn3.settings import CORRELATION_COMMAND
     try:
         correlation_results = compute_correlation(form, compute_all=True)
     except Exception as exc:

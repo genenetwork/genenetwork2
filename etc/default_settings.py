@@ -112,6 +112,7 @@ JS_GN_PATH = os.environ['HOME'] + "/genenetwork/javascript"
 # PLINK_COMMAND = str.strip(os.popen("which plink2").read())
 # GEMMA_COMMAND = str.strip(os.popen("which gemma").read())
 REAPER_COMMAND = os.environ['GN2_PROFILE'] + "/bin/qtlreaper"
+CORRELATION_COMMAND = os.environ["GN2_PROFILE"] + "/bin/correlation_rust"
 # GEMMA_WRAPPER_COMMAND = str.strip(os.popen("which gemma-wrapper").read())
 
 OAUTH2_CLIENT_ID="0bbfca82-d73f-4bd4-a140-5ae7abb4a64d"
