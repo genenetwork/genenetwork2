@@ -39,7 +39,7 @@ class SendToWebGestalt:
         else:
             trait_name_list, gene_id_list = gen_gene_id_list(self.trait_list)
 
-            self.target_url = "http://www.webgestalt.org/option.php"
+            self.target_url = "https://www.webgestalt.org/option.php"
 
             id_type = "entrezgene"
 
