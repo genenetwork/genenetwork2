@@ -115,9 +115,9 @@ def __compute_traits__(params):
         unprocessed_traits = params['traits']
     return process_traits(unprocessed_traits)
 
-@app.route("/collections/new")
+@app.route("/collections/new", methods=["POST"])
 def collections_new():
-    params = request.args
+    params = request.form
     anon_id = session_info()["anon_id"]
 
     if "sign_in" in params:

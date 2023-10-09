@@ -5,7 +5,12 @@
         or add to an existing collection.</p>
     </div>
     <div class="modal-body" style="margin-left: 20px;">
-        <form action="/collections/new" target="_blank" data-validate="parsley" id="add_form" class="form-inline">
+      <form action="/collections/new"
+	    method="POST"
+	    target="_blank"
+	    data-validate="parsley"
+	    id="add_form"
+	    class="form-inline">
             {% if traits is defined %}
             <input type="hidden" name="traits" value="{{ traits }}" />
             {% else %}
