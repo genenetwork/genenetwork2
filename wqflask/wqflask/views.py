@@ -108,6 +108,8 @@ import jobs.jobs as jobs
 from wqflask.oauth2.session import session_info
 from wqflask.oauth2.checks import user_logged_in
 
+from wqflask import requests as monad_requests
+
 Redis = get_redis_conn()
 
 
@@ -1179,31 +1181,45 @@ def edit_case_attributes(inbredset_id: int) -> Response:
 
         edit_case_attributes_page = redirect(url_for(
             "edit_case_attributes", inbredset_id=inbredset_id))
-        return client.post(
-            f"case-attribute/{inbredset_id}/edit",
+        token = session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"])
+        return monad_requests.post(
+            urljoin(
+                current_app.config["GN_SERVER_URL"],
+                f"/api/case-attribute/{inbredset_id}/edit"),
             json={
                 "edit-data": reduce(__process_data__, form.items(), {})
-            }).either(
+            },
+            headers={
+                "Authorization": f"Bearer {token}"}).either(
                 with_flash_error(edit_case_attributes_page),
                 with_flash_success(edit_case_attributes_page))
 
     def __fetch_strains__(inbredset_group):
-        return client.get(f"case-attribute/{inbredset_id}/strains").then(
-            lambda strains: {**inbredset_group, "strains": strains})
+        return monad_requests.get(urljoin(
+            current_app.config["GN_SERVER_URL"],
+            f"/api/case-attribute/{inbredset_id}/strains")).then(
+                lambda resp: {**inbredset_group, "strains": resp.json()})
 
     def __fetch_names__(strains):
-        return client.get(f"case-attribute/{inbredset_id}/names").then(
-            lambda canames: {**strains, "case_attribute_names": canames})
+        return monad_requests.get(urljoin(
+            current_app.config["GN_SERVER_URL"],
+            f"/api/case-attribute/{inbredset_id}/names")).then(
+                lambda resp: {**strains, "case_attribute_names": resp.json()})
 
     def __fetch_values__(canames):
-        return client.get(f"case-attribute/{inbredset_id}/values").then(
-            lambda cavalues: {**canames, "case_attribute_values": {
-                value["StrainName"]: value for value in cavalues}})
+        return monad_requests.get(urljoin(
+            current_app.config["GN_SERVER_URL"],
+            f"/api/case-attribute/{inbredset_id}/values")).then(
+                lambda resp: {**canames, "case_attribute_values": {
+                    value["StrainName"]: value for value in resp.json()}})
 
-    return client.get(f"case-attribute/{inbredset_id}").then(
-        lambda iset_group: {"inbredset_group": iset_group}).then(
-            __fetch_strains__).then(__fetch_names__).then(
-                __fetch_values__).either(
-        lambda err: err, ## TODO: Handle error better
-        lambda values: render_template(
-            "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
+    return monad_requests.get(urljoin(
+        current_app.config["GN_SERVER_URL"],
+        f"/api/case-attribute/{inbredset_id}")).then(
+            lambda resp: {"inbredset_group": resp.json()}).then(
+                __fetch_strains__).then(__fetch_names__).then(
+                    __fetch_values__).either(
+                        lambda err: err, ## TODO: Handle error better
+                        lambda values: render_template(
+                            "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
