@@ -51,7 +51,6 @@
             </form>
             <br />
             <div id="export_options" style="float: left;"></div>
-            {% if target_dataset.type != "Publish" %}
             <br />
             <div style="float: left; clear: left; margin-top: 10px; margin-bottom: 20px;">
               <button id="more_options" class="btn btn-primary">More Options...</button>
@@ -79,7 +78,6 @@
             <br />
             <br />
             </div>
-            {% endif %}
         </div>
         <div class="show-hide-container" style="float: left; clear: left;">
           <b>Show/Hide Columns:</b>
@@ -181,7 +179,6 @@
                 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
         };
 
-        {% if target_dataset.type != "Publish" %}
         $.fn.dataTable.ext.search.push( function( settings, data, dataIndex ) {
                 var r_column = {{ filter_cols[0] }};
                 var r_greater = parseFloat($('input[name=r_greater_select]').val())
@@ -221,7 +218,6 @@
                 }
                 return true
         });
-        {% endif %}
 
         $(document).ready( function () {
 

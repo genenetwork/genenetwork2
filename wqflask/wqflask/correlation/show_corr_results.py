@@ -62,7 +62,7 @@ def set_template_vars(start_vars, correlation_data):
     if target_dataset_ob.type == "ProbeSet":
         filter_cols = [7, 6]
     elif target_dataset_ob.type == "Publish":
-        filter_cols = [6, 0]
+        filter_cols = [8, 5]
     else:
         filter_cols = [4, 0]
 
