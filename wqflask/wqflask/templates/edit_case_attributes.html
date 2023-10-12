@@ -34,6 +34,10 @@
     </li>
   </ul>
 
+  <a href="{{url_for('list_case_attribute_diffs', inbredset_id=inbredset_id)}}"
+     title="List out diffs awaiting review"
+     class="btn btn-info">View Diffs</a>
+
   <form method="POST" action="{{url_for('edit_case_attributes', inbredset_id=inbredset_id)}}">
     <div class="form-group" style="text-align: center; padding: 1em 0 0 0;">
       <input type="submit" value="Submit" class="btn btn-primary" />

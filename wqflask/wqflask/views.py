@@ -1228,3 +1228,9 @@ def edit_case_attributes(inbredset_id: int) -> Response:
                         lambda err: err, ## TODO: Handle error better
                         lambda values: render_template(
                             "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
+
+@app.route("/case-attribute/<int:inbredset_id>/list-diffs", methods=["GET"])
+def list_case_attribute_diffs(inbredset_id: int) -> Response:
+    """List any diffs awaiting review."""
+    return render_template(
+        "list_case_attribute_diffs.html", inbredset_id=inbredset_id, diffs=[])

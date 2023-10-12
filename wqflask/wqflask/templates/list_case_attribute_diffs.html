@@ -1,0 +1,60 @@
+{%extends "base.html"%}
+{%block title%}List Case Attribute Diffs{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css"
+      href="/css/DataTables/css/jquery.dataTables.css" />
+<link rel="stylesheet" type="text/css"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+<style>
+  .table-fixed-head {overflow-y: auto; height: 32em;}
+  .table-fixed-head thead th {position: sticky; top: 0;}
+</style>
+{%endblock%}
+
+{%block content%}
+<div class="container">
+  <h1>List Diffs</h1>
+
+  {{flash_me()}}
+
+  <p class="text-danger">
+    <span class="glyphicon glyphicon-exclamation-sign">
+    </span>
+    <strong>WORK IN PROGRESS!!!</strong>
+  </p>
+
+  <table class="table-hover table-striped cell-border dataTable no-footer">
+    <thead>
+      <tr>
+	<th>Edit by</th>
+	<th>Edit on</th>
+	<th>Filename</th>
+	<th colspan="2">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {%for diff in diffs%}
+      <tr>
+      </tr>
+      {%else%}
+      <tr>
+	<td colspan="5" class="text-info" style="text-align: center;line-height: 2em;">
+	  <span class="glyphicon glyphicon-exclamation-sign">
+	  </span>
+	  There are no diffs pending review
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+{%endblock%}
+
+{%block js%}
+<script language="javascript"
+	type="text/javascript"
+	src="{{url_for('js', filename='DataTables/js/jquery.js')}}"></script>
+{%endblock%}
