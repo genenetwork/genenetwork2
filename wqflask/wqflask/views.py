@@ -1183,6 +1183,11 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             "edit_case_attributes", inbredset_id=inbredset_id))
         token = session_info()["user"]["token"].either(
             lambda err: err, lambda tok: tok["access_token"])
+        def flash_success(resp):
+            def __succ__(remote_resp):
+                flash(f"Success: {remote_resp.json()['message']}", "alert-success")
+                return resp
+            return __succ__
         return monad_requests.post(
             urljoin(
                 current_app.config["GN_SERVER_URL"],
@@ -1193,7 +1198,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             headers={
                 "Authorization": f"Bearer {token}"}).either(
                 with_flash_error(edit_case_attributes_page),
-                with_flash_success(edit_case_attributes_page))
+                flash_success(edit_case_attributes_page))
 
     def __fetch_strains__(inbredset_group):
         return monad_requests.get(urljoin(
