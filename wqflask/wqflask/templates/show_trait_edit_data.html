@@ -52,6 +52,10 @@
           </pre>
         </div>
       </div>
+      <a href="{{url_for('edit_case_attributes', inbredset_id=dataset.group.id)}}"
+	     title="Edit case attributes for group."
+	     target="_blank"
+	     class="btn btn-info">Edit CaseAttributes</a>
       {% set outer_loop = loop %}
       <div class="sample_group">
         <div style="position: relative;">
