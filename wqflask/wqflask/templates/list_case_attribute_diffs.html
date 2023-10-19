@@ -39,6 +39,33 @@
     <tbody>
       {%for diff in diffs%}
       <tr>
+	<td>
+	  <a href="#"
+	     title="View the user that submitted the edit.">
+	    {{diff.editor}}
+	  </a>
+	</td>
+	<td>{{diff.time_stamp}}</td>
+	<td>
+	  <a href="#view-diff"
+	     title="View the diff">
+	    {{diff.filename}}
+	  </a>
+	</td>
+	<td>
+	  <a href="#approve-diff"
+	     title="Approve the changes"
+	     class="btn btn-warning">
+	    Approve
+	  </a>
+	</td>
+	<td>
+	  <a href="#reject-diff"
+	     title="Reject the changes"
+	     class="btn btn-danger">
+	    Reject
+	  </a>
+	</td>
       </tr>
       {%else%}
       <tr>
