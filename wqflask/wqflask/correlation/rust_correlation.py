@@ -19,6 +19,7 @@ from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
 from gn3.computations.rust_correlation import get_sample_corr_data
 from gn3.computations.rust_correlation import parse_tissue_corr_data
+from gn3.computations.rust_correlation import  run_lmdb_correlation
 from gn3.db_utils import database_connection
 
 from wqflask.correlation.exceptions import WrongCorrelationType
@@ -258,6 +259,18 @@ def __compute_sample_corr__(
         return {}
 
     if target_dataset.type == "ProbeSet" and start_vars.get("use_cache") == "true":
+
+        #nit code try to fetch lmdb file
+        # add merge case for csv file
+        try:
+
+            lmdb_info = fetch_lmdb_info(target_dataset.name)
+            if lmdb_info:
+                return run_lmdb_correlation(lmdb_info)
+        except Exception:
+            # compute correlation the normal way
+            pass
+
         with database_connection(SQL_URI) as conn:
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
