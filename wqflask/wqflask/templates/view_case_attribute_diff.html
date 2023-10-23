@@ -1,0 +1,114 @@
+{%extends "base.html"%}
+{%block title%}View Case Attribute Diff{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css"
+      href="/css/DataTables/css/jquery.dataTables.css" />
+<link rel="stylesheet" type="text/css"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+<style>
+  .table-fixed-head {overflow-y: auto; height: 32em;}
+  .table-fixed-head thead th {position: sticky; top: 0;}
+  .diff-row {
+      display: grid;
+      grid-template-columns: 1rem 9rem;
+      column-gap: 0.5em;
+      padding: 0.5em;
+      background:#CCCCCC;
+      border-color:#FFFFFF;
+      border-style:solid;
+      border-radius: 10px;
+  }
+  .diff-indicator {
+      grid-column-start: 1;
+      grid-column-end: 2;
+  }
+  .diff-original {
+      grid-column-start: 2;
+      grid-column-end: 3;
+  }
+  .diff-current {
+      grid-column-start: 2;
+      grid-column-end: 3;
+  }
+  .diff-addition {color: green; font-weight: bold;}
+  .diff-deletion {color: red; font-weight: bold;}
+</style>
+{%endblock%}
+
+{%block content%}
+<div class="container">
+  <h1>View Diff</h1>
+
+  {{flash_me()}}
+
+  <div id="diff-display" class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Changes</h3>
+    </div>
+    <div class="panel-body">
+      {%set the_diff = diff.json_diff_data.diff%}
+      {%if the_diff.Additions | length %}
+      <h4>Additions</h4>
+      <div class="diff-row">
+	<span class="diff-indicator"></span>
+	<span class="diff-original"></span>
+	<span class="diff-indicator diff-addition">+</span>
+	<span class="diff-current diff-addition">{{item.Current}}</span>
+      </div>
+      {%endif%}
+      {%if the_diff.Modifications | length %}
+      <h4>Modifications</h4>
+      {%for item in the_diff.Modifications%}
+      <div class="diff-row">
+	<span class="diff-indicator diff-deletion">-</span>
+	<span class="diff-original diff-deletion">{{item.Original}}</span>
+	<span class="diff-indicator diff-addition">+</span>
+	<span class="diff-current diff-addition">{{item.Current}}</span>
+      </div>
+      {%endfor%}
+      {%endif%}
+      {%if the_diff.Deletions | length %}
+      <h4>Deletions</h4>
+      <div class="diff-row">
+	<span class="diff-indicator diff-addition">+</span>
+	<span class="diff-original diff-addition">{{item.Original}}</span>
+	<span class="diff-indicator diff-deletion">-</span>
+	<span class="diff-current diff-deletion">{{item.Current}}</span>
+      </div>
+      {%endif%}
+    </div>
+    <div class="panel-footer">
+      <p>Edited by: {{diff.json_diff_data.user_id}}</p>
+    </div>
+  </div>
+
+  
+
+  <form method="POST" action="{{url_for('approve_reject_diff')}}">
+    <input type="hidden"
+	   name="inbredset_id"
+	   value="{{diff.json_diff_data.inbredset_id}}" />
+    <input type="hidden"
+	   name="diff_id"
+	   value="{{diff.id}}">
+    <button type="submit"
+	    title="Approve the changes"
+	    class="btn btn-warning">
+      Approve
+    </button>
+    <button type="submit"
+	    title="Reject the changes"
+	    class="btn btn-danger">
+      Reject
+    </button>
+  </form>
+{%endblock%}
+
+{%block js%}
+<script language="javascript"
+	type="text/javascript"
+	src="{{url_for('js', filename='DataTables/js/jquery.js')}}"></script>
+{%endblock%}

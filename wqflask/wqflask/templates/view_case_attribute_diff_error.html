@@ -1,0 +1,35 @@
+{%extends "base.html"%}
+{%block title%}View Case Attribute Diff{%endblock%}
+
+{%block css%}
+<link rel="stylesheet" type="text/css"
+      href="/css/DataTables/css/jquery.dataTables.css" />
+<link rel="stylesheet" type="text/css"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+
+<style>
+  .table-fixed-head {overflow-y: auto; height: 32em;}
+  .table-fixed-head thead th {position: sticky; top: 0;}
+</style>
+{%endblock%}
+
+{%block content%}
+<div class="container">
+  <h1>View Diff</h1>
+
+  {{flash_me()}}
+
+  <p class="text-danger">
+    <span class="glyphicon glyphicon-exclamation-sign">
+    </span>
+    <strong>{{error.status_code}}: {{error["error"]}}</strong>
+    {{error.error_description}}
+  </p>
+{%endblock%}
+
+{%block js%}
+<script language="javascript"
+	type="text/javascript"
+	src="{{url_for('js', filename='DataTables/js/jquery.js')}}"></script>
+{%endblock%}
