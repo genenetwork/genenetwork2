@@ -132,8 +132,8 @@
             {% endif %}
           </div>
           {% endif %}
-          <div id="trait_table_container" style="{% if dataset.type == 'Geno' %}width: 450px;{% else %}width: 100%; min-width: 1250px;{% endif %}">
-            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left; width: 100%;">
+          <div id="trait_table_container" style="{% if dataset.type == 'Geno' %}width: 450px;{% else %}width: 90%; min-width: 1250px;{% endif %}">
+            <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
                 <tbody>
                  <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
                 </tbody>
@@ -433,7 +433,8 @@
               "autoWidth": true,
               {% if trait_list|length > 10 %}
               "scrollY": "1000px",
-              "scroller": true
+              "scroller": true,
+              "scrollCollapse":true
               {% else %}
               "scroller": false
               {% endif %}
