@@ -1261,9 +1261,44 @@ def view_diff(inbredset_id:int, diff_id: int) -> Response:
                     "view_case_attribute_diff.html", diff=diff))
 
 @app.route("/case-attribute/diff/approve-reject", methods=["POST"])
-def approve_reject_diff(diff_filename: str) -> Response:
-    """Reject the diff."""
-    return jsonify({
-        "error": "Not Implemented.",
-        "error_description": "Would reject the diff."
-    }), 500
+def approve_reject_diff() -> Response:
+    """Approve/Reject the diff."""
+    try:
+        form = request.form
+        action = form["action"]
+        assert action in ("approve", "reject")
+        diff_data = json.loads(form["diff_data"])
+        diff_data = {
+            **diff_data,
+            "created": datetime.datetime.fromisoformat(diff_data["created"])}
+        inbredset_id = diff_data["inbredset_id"]
+        filename = (
+            f"{inbredset_id}:::{diff_data['user_id']}:::"
+            f"{diff_data['created'].isoformat()}.json")
+
+        list_diffs_page = url_for("list_case_attribute_diffs",
+                                  inbredset_id=inbredset_id)
+        token = session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"])
+        def __error__(resp):
+            error = resp.json()
+            flash((f"{resp.status_code} {error['error']}: "
+                   f"{error['error_description']}"),
+                  "alert-danger")
+            return redirect(list_diffs_page)
+        def __success__(results):
+            flash(results["message"], "alert-success")
+            return redirect(list_diffs_page)
+        return monad_requests.post(
+            urljoin(current_app.config["GN_SERVER_URL"],
+                    f"/api/case-attribute/{action}/{filename}"),
+            headers={"Authorization": f"Bearer {token}"}).then(
+                lambda resp: resp.json()
+            ).either(
+                __error__, __success__)
+    except AssertionError as _ae:
+        flash("Invalid action! Expected either 'approve' or 'reject'.",
+              "alert-danger")
+        return redirect(url_for("view_diff",
+                                inbredset_id=inbredset_id,
+                                diff_id=form["diff_id"]))

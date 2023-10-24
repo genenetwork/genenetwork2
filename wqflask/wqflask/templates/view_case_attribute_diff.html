@@ -35,6 +35,9 @@
   }
   .diff-addition {color: green; font-weight: bold;}
   .diff-deletion {color: red; font-weight: bold;}
+  form input[type="submit"] {
+      text-transform: capitalize;
+  }
 </style>
 {%endblock%}
 
@@ -89,21 +92,21 @@
 
   <form method="POST" action="{{url_for('approve_reject_diff')}}">
     <input type="hidden"
-	   name="inbredset_id"
-	   value="{{diff.json_diff_data.inbredset_id}}" />
-    <input type="hidden"
 	   name="diff_id"
-	   value="{{diff.id}}">
-    <button type="submit"
-	    title="Approve the changes"
-	    class="btn btn-warning">
-      Approve
-    </button>
-    <button type="submit"
-	    title="Reject the changes"
-	    class="btn btn-danger">
-      Reject
-    </button>
+	   value="{{diff.id}}" />
+    <input type="hidden"
+	   name="diff_data"
+	   value='{{diff.json_diff_data | tojson}}' />
+    <input type="submit"
+	   name="action"
+	   title="Approve the changes"
+	   class="btn btn-warning"
+	   value="approve" />
+    <input type="submit"
+	   name="action"
+	   title="Reject the changes"
+	   class="btn btn-danger"
+	   value="reject" />
   </form>
 {%endblock%}
 
