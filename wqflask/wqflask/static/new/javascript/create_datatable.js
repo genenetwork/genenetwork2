@@ -70,6 +70,7 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
             theTable = $('#' + tableId).DataTable(tableSettings);
             theTable.draw();
             $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + 17) + "px");
+            theTable.columns.adjust().draw();
         }
     }
 
