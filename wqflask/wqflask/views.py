@@ -826,10 +826,9 @@ def mapping_results_page(hash_of_inputs=None):
 
 @app.route("/cache_mapping_inputs", methods=('POST',))
 def cache_mapping_inputs():
-    ONE_MONTH = 60 * 60 * 24 * 30
     cache_id = request.form.get("inputs_hash")
     inputs_json = Redis.get(cache_id)
-    Redis.set(cache_id, inputs_json, ex=ONE_MONTH)
+    Redis.set(cache_id, inputs_json)
 
     return "Success"
 
