@@ -9,57 +9,6 @@ if (js_data.has_num_cases === true) {
   attributeStartPos += 1;
 }
 
-buildColumns = function() {
-  let columnList = [
-    {
-      'data': null,
-      'orderDataType': "dom-checkbox",
-      'searchable' : false,
-      'targets': 0,
-      'width': "25px",
-      'render': function() {
-      return '<input type="checkbox" name="searchResult" class="checkbox edit_sample_checkbox" value="">'
-      }
-    },
-    {
-      'title': "ID",
-      'type': "natural",
-      'searchable' : false,
-      'targets': 1,
-      'width': "35px",
-      'data': "this_id"
-    },
-    {
-      'title': "Sample",
-      'type': "natural",
-      'data': null,
-      'targets': 2,
-      'width': "60px",
-      'render': function(data) {
-      return '<span class="edit_sample_sample_name">' + data.name + '</span>'
-      }
-    },
-    {
-      'title': "<div style='text-align: right;'>Value</div>",
-      'orderDataType': "dom-input",
-      'type': "cust-txt",
-      'data': null,
-      'targets': 3,
-      'width': "60px",
-      'render': function(data) {
-        if (data.value == null) {
-            return '<input type="text" data-value="x" data-qnorm="x" data-zscore="x" name="value:' + data.name + '" style="text-align: right;" class="trait_value_input edit_sample_value" value="x" size=' + js_data.max_digits[0] + '>'
-        } else {
-          if (js_data.no_decimal_place == false) {
-            return '<input type="text" data-value="' + data.value.toFixed(3) + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value.toFixed(3) + '" size=' + js_data.max_digits[0] + '>'
-          } else {
-            return '<input type="text" data-value="' + data.value + '" data-qnorm="' + js_data['qnorm_values'][0][parseInt(data.this_id) - 1] + '" data-zscore="' + js_data['zscore_values'][0][parseInt(data.this_id) - 1] + '" name="value:' + data.name + '" class="trait_value_input edit_sample_value" value="' + data.value + '" size=' + js_data.max_digits[0] + '>'
-          }
-        }
-      }
-    }
-  ];
-
 initialize_show_trait_tables = function(new_data = []) {
   buildColumns = function() {
     let columnList = [
@@ -283,24 +232,26 @@ initialize_show_trait_tables = function(new_data = []) {
       create_table(tableId, js_data['sample_lists'][i], columnDefs, tableSettings);
     }
   }
+
   create_table(tableId, js_data['sample_lists'][i], columnDefs, tableSettings);
 
   // Enable mapping compute buttons and replace their text only after table has loaded
   // This is because submitting the form prior to the table loading causes an error
   $('button.submit_special').html('<span class="glyphicon glyphicon-play-circle"></span> Compute');
   $('button.submit_special').prop('disabled', false);
-}
 
-primary_table = $('#samples_primary').DataTable();
-$('#primary_searchbox').on( 'keyup', function () {
-  primary_table.search($(this).val()).draw();
-} );
-
-if ($('#samples_other').length) {
-  other_table = $('#samples_other').DataTable();
-  $('#other_searchbox').on( 'keyup', function () {
-    other_table.search($(this).val()).draw();
+  primary_table = $('#samples_primary').DataTable();
+  $('#primary_searchbox').on( 'keyup', function () {
+    primary_table.search($(this).val()).draw();
   } );
+
+  if ($('#samples_other').length) {
+    other_table = $('#samples_other').DataTable();
+    $('#other_searchbox').on( 'keyup', function () {
+      other_table.search($(this).val()).draw();
+    } );
+  }
+
 }
 
 empty_tables = function() {
