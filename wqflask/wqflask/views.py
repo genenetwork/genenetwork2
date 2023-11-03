@@ -1098,27 +1098,17 @@ def display_generif_page(symbol):
     )
 
 
-@app.route("/dataset/<name>", methods=('GET',))
+@app.route("/datasets/<name>", methods=('GET',))
 def get_dataset(name):
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
-            f"/api/metadata/dataset/{name}")
+            f"/api/metadata/datasets/{name}")
     ).json()
-    metadata = {k.split("/")[-1].split("#")[-1]: v for k, v in metadata.items()}
-    float_p = ""
-    if any([metadata.get("description"),
-            metadata.get("hasExperimentDesignInfo"),
-            metadata.get("hasCaseInfo"),
-            metadata.get("hasCaseInfo"),
-            metadata.get("hasPlatformInfo"),
-            metadata.get("hasDataProcessingInfo"), metadata.get("notes")]):
-        float_p = " pull-right"
     return render_template(
         "dataset.html",
         name=name,
-        dataset=metadata,
-        float_p=float_p
+        dataset=metadata
     )
 
 @app.route("/dataset/search", methods=('POST',))
