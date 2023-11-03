@@ -1111,9 +1111,8 @@ def get_dataset(name):
         dataset=metadata
     )
 
-@app.route("/dataset/search", methods=('POST',))
+@app.route("/datasets/search", methods=('POST',))
 def search_for_dataset():
-    results = {}
     search = request.form.get('search')
     return render_template(
         "metadata/dataset_search_results.html",
