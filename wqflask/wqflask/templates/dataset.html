@@ -16,6 +16,13 @@
      width: fit-content;
      height: fit-content;
      padding: 0;
+     {% if dataset.description or dataset.specificity or dataset.experimentDesignInfo or
+	 dataset.caseInfo or dataset.tissue or
+	 dataset.platform or dataset.processingInfo or
+	 dataset.notes or dataset.references or dataset.acknowledgment or dataset.contributors
+	 %}
+     float: right;
+     {% endif %}
  }
 
  .panel-metadata dt {
