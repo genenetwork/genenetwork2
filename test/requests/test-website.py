@@ -25,7 +25,7 @@ def host_is_online(host):
     for count in range(1, 10):
         try:
             time.sleep(count)
-            requests.get(host)
+            requests.get(host, verify=False)
             return True
         except Exception as cre:
             print(f"Retrying in {count + 1} seconds ...")
