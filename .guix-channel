@@ -7,16 +7,5 @@
   (dependencies
    (channel
     (name guix-bioinformatics)
-    (url "https://gitlab.com/genenetwork/guix-bioinformatics.git")
-    (branch "master")
-    (commit "fb1e8dbcf7cc46fa9a09a431f6842d9290f6e819"))
-   ;; This shouldn't be needed, it should be pulled in by guix-bioinformatics.
-   (channel
-    (name guix-past)
-    (url "https://gitlab.inria.fr/guix-hpc/guix-past")
-    (introduction
-     (channel-introduction
-      (version 0)
-      (commit "0c119db2ea86a389769f4d2b9c6f5c41c027e336")
-      (signer
-       "3CE4 6455 8A84 FDC6 9DB4  0CFB 090B 1199 3D9A EBB5"))))))
+    (url "https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics")
+    (branch "master"))))
