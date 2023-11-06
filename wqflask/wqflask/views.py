@@ -164,7 +164,7 @@ def index_page():
                                anon_id=anon_id)
 
     return no_token_get(
-        f"auth/user/collections/{anon_id}/list").either(
+        f"auth/user/collections/{anon_id}/list", verify=False).either(
             lambda err: __render__([]),
             __render__)
 
