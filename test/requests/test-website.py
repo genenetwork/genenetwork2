@@ -22,13 +22,14 @@ print("Mechanical Rob firing up...")
 def host_is_online(host):
     import time
     import requests
-    for count in range(1, 10):
+    for count in range(1, 5):
         try:
             time.sleep(count)
             requests.get(host, verify=False)
             return True
         except Exception as cre:
             print(f"Retrying in {count + 1} seconds ...")
+            print(f"Error: {cre}")
 
     return False
 
