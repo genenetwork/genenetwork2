@@ -359,7 +359,6 @@
             {
               'title': "Abbreviation",
               'type': "natural",
-              'width': "200px",
               'data': null,
               'render': function(data) {
                 try {
@@ -453,7 +452,7 @@
             {
               'title': "Peak Location",
               'type': "natural-minus-na",
-              'width': "125px",
+              'width': "160px",
               'data': "lrs_location"
             },
             {
@@ -510,6 +509,9 @@
                 }
               }
             ],
+            {% if table_json|length > 2000 %}
+            "scroller": false,
+            {% endif %}
             {% if target_dataset.type == 'Geno' %}
             "order": [[6, "asc" ]],
             {% elif target_dataset.type == 'Publish' %}
