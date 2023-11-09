@@ -109,7 +109,7 @@
           <button class="toggle-vis" data-column="6">Sample p({% if corr_method == 'pearson' %}r{% else %}rho{% endif %})</button>
           {% endif %}
         </div>
-        <div style="width: 100%; {% if target_dataset.type == "ProbeSet" %}min-width: 1700px;{% elif target_dataset.type == "Publish" %}min-width: 1600px;{% else %}width: 650px;{% endif %}">
+        <div style="width: 90%; {% if target_dataset.type == "ProbeSet" %}min-width: 1700px;{% elif target_dataset.type == "Publish" %}min-width: 1600px;{% else %}width: 650px;{% endif %}">
             <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
                 <thead>
                     <tr>
