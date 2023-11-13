@@ -1,5 +1,6 @@
 """Entry point for flask app"""
 # pylint: disable=C0413,E0611
+import os
 import time
 import datetime
 from typing import Tuple
@@ -62,6 +63,12 @@ app.jinja_env.globals.update(
     datetime=datetime)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+
+## BEGIN: SECRETS -- Should be the last of the settings to load
+secrets_file = os.environ.get("GN2_SECRETS")
+if secrets_file and Path(secrets_file).exists():
+    app.config.from_envvar("GN2_SECRETS")
+## END: SECRETS
 
 
 # Registering blueprints
