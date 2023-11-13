@@ -378,7 +378,7 @@
         $("#term").keyup(function(event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
-                $('#searchform').attr('action', "/gsearch").submit();
+                $('#globalsearchform').attr('action', "/gsearch").submit();
                 if ($("#term").val().trim() != "") {
                     saveBeforeSubmit($("#term").val().trim())
                     $("#globalsearchform")[0].submit();
