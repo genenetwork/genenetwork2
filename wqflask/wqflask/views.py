@@ -1119,12 +1119,12 @@ def search_for_dataset():
         results=search
     )
 
-@app.route("/publication/<name>", methods=('GET',))
+@app.route("/publications/<name>", methods=('GET',))
 def get_publication(name):
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
-            f"/api/metadata/publication/{name}")
+            f"/api/metadata/publications/{name}")
     ).json()
     return render_template(
         "publication.html",
