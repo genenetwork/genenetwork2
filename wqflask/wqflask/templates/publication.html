@@ -25,14 +25,14 @@
 </style>
 {% endblock %}
 
-{% block title %}Dataset: {{ name }}{% endblock %}
+{% block title %}Title: {{metadata.title}}{% endblock %}
 
 {% block content %}
 
 <header class="page-header text-justify">
     <h1>
 	{% if metadata.title %}
-	<u>{{ metadata.title}}</u>
+	<u><a href="{{ metadata.id }}">{{ metadata.title}}</a></u>
         {% else %}
         {{ name }}
         {% endif %}
@@ -47,34 +47,14 @@
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
         <div class="panel-body">
             <dl class="dl-horizontal">
-                {% if metadata.pubMedId %}
-		<dt>PUBMED</dt>
-		<dd>
-		    <a href="{{ metadata.pubMedId }}" target="_blank">{{ metadata.pubMedId.split("/")[-1] }}</a>
-		</dd>
-		{% endif %}
-                {% if metadata.abstract %} <dt>Abstract</dt> <dd>{{ metadata.abstract}}</dd> {% endif %}
-                {% if metadata.month %} <dt>Month</dt> <dd>{{ metadata.month }}</dd> {% endif %}
-                {% if metadata.pages %} <dt>Pages</dt> <dd>{{ metadata.pages }}</dd> {% endif %}
-                {% if metadata.volume %} <dt>Volume</dt> <dd>{{ metadata.volume }}</dd> {% endif %}
-            </dl>
+		<dt>Abstract</dt> <dd>{{ metadata.abstract or "N/A" }}</dd>
+		<dt>Journal</dt> <dd>{{ metadata.journal or "N/A" }}</dd>
+		<dt>Month</dt> <dd>{{ metadata.month or "N/A" }}</dd>
+		<dt>Page</dt> <dd>{{ metadata.pages or "N/A" }}</dd>
+		<dt>Year</dt> <dd>{{ metadata.year or "N/A" }}</dd>
+	    </dl>
         </div>
     </div>
-    {% if metadata.phenotypeOfPublication %}
-    <div class="container">
-	<h2>Related Phenotypes:</h2>
-	<table class="table">
-	    {% for link in metadata.phenotypeOfPublication %}
-	    <tr>
-		<td>
-		    <a href="{{ link }}" target="_blank">{{ link }}</a>
-		</td>
-	    </tr>
-	    {% endfor %}
-	</table>
-
-    </div>
-    {% endif %}
     {% endif %}
 
 </div>
