@@ -1,6 +1,8 @@
 # Module to initialize sqlalchemy with flask
 import os
 import sys
+import logging
+import traceback
 from typing import Tuple, Protocol, Any, Iterator
 from urllib.parse import urlparse
 import importlib
@@ -42,6 +44,8 @@ def database_connection(sql_uri: str) -> Iterator[Connection]:
         yield connection
         connection.commit()
     except Exception as _exc:
+        logging.error("===== Query Error =====\r\n%s\r\n===== END: Query Error",
+                      traceback.format_exc())
         connection.rollback()
         raise _exc
     finally:
