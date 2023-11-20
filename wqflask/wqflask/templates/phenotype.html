@@ -14,83 +14,94 @@
 {% block content %}
 
 <h1 class="page-header">
-    {% if metadata.name %}
-    <u>Phenotype: {{ metadata.name }}</u>
-    {% else %}
-    {{ name }}
-    {% endif %}
+    <u>Phenotype: {{ metadata.traitName }} ({{ metadata.abbreviation}})</u>
 </h1>
 
 <div class="container">
     <table class="table">
-        {% if metadata.inbredSetName %}
-        <tr>
-            <td><b>Group</b></td>
-            <td>{{ metadata.inbredSetName }}</td>
-        </tr>
-        {% endif %}
-
-        {% if metadata.speciesName %}
-        <tr>
+	<tr>
             <td><b>Species</b></td>
-            <td>{{ metadata.speciesName }}</td>
+            <td>{{ metadata.species or "N/A" }}</td>
+	</tr>
+	<tr>
+            <td><b>Group</b></td>
+            <td>{{ metadata.group or "N/A" }}</td>
         </tr>
-        {% endif %}
 
-        {% if metadata.publicationDescription %}
-        <tr>
+	<tr>
             <td><b>Phenotype</b></td>
-            <td>{{ metadata.publicationDescription }}</td>
-        </tr>
-        {% endif %}
+            <td>{{ metadata.description or "N/A"}}</td>
+	</tr>
 
-        {% if metadata.author %}
+        {% if metadata.creator %}
         <tr>
             <td><b>Authors</b></td>
             <td>
-                {% if metadata.author is iterable %}
-                {{ metadata.author |join(", ") }}
-                {% for author in metadata.author %}
-                {{ author }}
+                {% if metadata.creator is iterable %}
+                {{ metadata.creator |join(", ") }}
+                {% for creator in metadata.creator %}
+                {{ creator }}
                 {% endfor %}
                 {% else %}
-                metadata.author
+                metadata.creator
                 {% endif %}
                 {% endif %}
             </td>
         </tr>
 
-        {% if metadata.title %}
         <tr>
             <td><b>Title</b></td>
-            <td>{{ metadata.title }}</td>
-        </tr>
-        {% endif %}
-
-        {% if metadata.title %}
-        <tr>
-            <td><b>Title</b></td>
-            <td>{{ metadata.title }}</td>
-        </tr>
-        {% endif %}
-
-        {% if metadata.journal %}
-        <tr>
-            <td><b>Journal</b></td>
-            <td>
-                {{ metadata.journal }}
-                {% if metadata.year %}
-                (
-                <a href="{{ metadata.pubMedId if metadata.pubMedId else '#' }}" target="_blank">
-                    {{ metadata.year }}
-                </a>
-                )
-                {% endif %}
-            </td>
+	    <td><a href="{{ metadata.references.id }}" target="_blank">{{ metadata.title or "N/A"}}</a></td>
         </tr>
 
+	<tr>
+	    <td><b>Database</b></td>
+	    <td>
+		{% for database in metadata.dataset %}
+		<a href="{{ url_for('get_dataset', name='database.identifier' )}}" target="blank">{{ database.prefLabel }}</a> <br/>
+                {% endfor %}
+	    </td>
+	</tr>
 
-        {% endif %}
+	<tr>
+	    <td><b>Journal</b></td>
+	    <td>{{ metadata.journal or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>Volume</b></td>
+	    <td>{{ metadata.volume or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>Month</b></td>
+	    <td>{{ metadata.month or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>Page</b></td>
+	    <td>{{ metadata.page or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>Year</b></td>
+	    <td>{{ metadata.year or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>Mean</b></td>
+	    <td>{{ metadata.mean or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>LRS</b></td>
+	    <td>{{ metadata.LRS or "N/A"}}</td>
+	</tr>
+
+	<tr>
+	    <td><b>Additive</b></td>
+	    <td>{{ metadata.Additive or "N/A"}}</td>
+	</tr>
     </table>
 </div>
 
