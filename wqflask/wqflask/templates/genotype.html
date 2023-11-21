@@ -39,13 +39,14 @@
         </tr>
         {% endif %}
 
-	{% if metadata.speciesName %}
         <tr>
             <td><b>Species</b></td>
-            <td>{{ metadata.speciesName }}</td>
+            <td>{{ metadata.species or "N/A"}}</td>
         </tr>
-        {% endif %}
-
+	<tr>
+            <td><b>Location</b></td>
+            <td>Chr {{ metadata.ch }} @ {{ metadata.mb }} mb </td>
+        </tr>
         {% if metadata.cM %}
         <tr>
             <td><b>cM</b></td>
