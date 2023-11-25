@@ -234,7 +234,7 @@ def parse_loco_output(this_dataset, gwa_output_filename, loco="True"):
                     marker['p_value'] = float(line.split("\t")[10])
                     marker['additive'] = -(float(line.split("\t")[7])/2)
                     if math.isnan(marker['p_value']) or (marker['p_value'] <= 0):
-                        marker['lod_score'] = 0
+                        marker['lod_score'] = marker['p_value'] = 0
                     else:
                         marker['lod_score'] = -math.log10(marker['p_value'])
                     marker_obs.append(marker)
