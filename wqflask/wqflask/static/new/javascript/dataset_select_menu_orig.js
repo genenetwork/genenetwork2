@@ -255,20 +255,21 @@ group_info = function() {
   species = $('#species').val();
   group = $('#group').val();
   url = "http://gn1.genenetwork.org/" + species + "Cross.html#" + group;
-  return open_window(url, "Group Info");
+  return open_window(url, "_blank");
 };
 $('#group_info').click(group_info);
 
 dataset_info = function() {
   var dataset, url;
   accession_id = $('#dataset option:selected').data("id");
-  name = $('#dataset option:selected').val();
   if (accession_id != "None") {
-    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId=" + accession_id + "&InfoPageName=" + name;
+    url = "https://info.genenetwork.org/infofile/source.php?GN_AccesionId=" + accession_id
   } else {
-    url = "http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName=" + name;
+    species = $('#species').val();
+    group = $('#group').val();
+    url = "https://info.genenetwork.org/species/source.php?SpeciesName=" + species + "&InbredSetName=" + group
   }
-  return open_window(url, "Dataset Info");
+  return open_window(url, "_blank");
 };
 $('#dataset_info').click(dataset_info);
 
