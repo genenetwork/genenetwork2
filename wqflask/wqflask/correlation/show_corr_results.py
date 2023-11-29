@@ -185,7 +185,7 @@ def generate_table_metadata(all_traits, dataset_metadata, dataset_obj):
         return jsonable(target_trait_ob, dataset_obj)
 
     metadata = [__fetch_trait_data__(trait, dataset_obj) for
-                trait in (all_traits ^ dataset_metadata.keys())]
+                trait in (all_traits)]
 
     return (dataset_metadata | ({str(trait["name"]): trait for trait in metadata}))
 
