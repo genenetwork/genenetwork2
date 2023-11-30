@@ -3,7 +3,6 @@
 {% block css %}
 <style type="text/css">
  .page-header {
-     text-underline-offset: 0.5rem;
      padding: 1em;
  }
 </style>
@@ -14,7 +13,7 @@
 {% block content %}
 
 <h1 class="page-header">
-    <u>Phenotype: {{ metadata.traitName }} ({{ metadata.abbreviation}})</u>
+    Phenotype: {{ metadata.traitName }} ({{ metadata.abbreviation }})
 </h1>
 
 <div class="container">
