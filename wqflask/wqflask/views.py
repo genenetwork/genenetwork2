@@ -1133,7 +1133,10 @@ def get_publication(name):
 
 
 @app.route("/phenotypes/<name>", methods=('GET',))
-def get_phenotype(name):
+@app.route("/phenotypes/<group>/<name>", methods=('GET',))
+def get_phenotype(name, group=None):
+    if group:
+        name = f"{group}_{name}"
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
