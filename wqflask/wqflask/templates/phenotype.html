@@ -82,6 +82,12 @@
 	    <td><b>Effect Size</b></td>
 	    <td>{{ metadata.additive or "N/A"}}</td>
 	</tr>
+	{% if metadata.locus %}
+	<tr>
+	    <td><b>Peak Location</b></td>
+	    <td>Chr{{ metadata.locus.chromosome }}: {{ metadata.locus.mb }}</td>
+	</tr>
+	{% endif %}
 	{% if metadata.references.id %}
 	<tr>
 	    <td><b>Resource Links</b></td>
