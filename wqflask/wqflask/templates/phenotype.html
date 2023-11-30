@@ -12,6 +12,8 @@
 
 {% block content %}
 
+{% set published_p = "http://rdf.ncbi.nlm.nih.gov/pubmed" in metadata.references.id %}
+
 <h1 class="page-header">
     Phenotype: {{ metadata.traitName }} ({{ metadata.abbreviation }})
 </h1>
@@ -49,11 +51,36 @@
         </tr>
 	{% if metadata.references.id %}
 	<tr>
-	    <td><b>Publication</b></td>
 	    <td>
-		<i>{{ metadata.references.title }}.</i> {{ ', '.join(metadata.references.creator) }}. {{ metadata.references.year }} {{ metadata.references.month }}{{ metadata.references.volume }}:{{ metadata.references.page }}
+		<b>Publication</b>
+		{% if published_p == False %}
+                <sup><small>(unpublished)</small></sup>
+		{% endif %}
+	    </td>
+	    <td>
+		<i>
+		    {% if metadata.references.title %}
+		    {{ metadata.references.title }}.
+		    {% endif %}
+		</i>
+		{% if metadata.references.creator %}
+		{{ ', '.join(metadata.references.creator) }}.
+		{% endif %}
+		{{ metadata.references.year }}
+		{{ metadata.references.month }}
+		{{ metadata.references.month }}
+		{% if metadata.references.volume and metadata.references.page %}
+		{{ metadata.references.volume }}:{{ metadata.references.page }}
+		{% endif %}
+
 		<sup>
-		    <a href="{{ metadata.references.id }}" target="_blank"><small>PubMed<sup>&#32;<span class="glyphicon glyphicon-new-window"></span></sup></small></a>
+		    <a href="{{ metadata.references.id }}" target="_blank"><small>
+			{% if published_p %}
+			PubMed
+			{% else %}
+			GN RDF Page
+			{% endif %}
+			<sup>&#32;<span class="glyphicon glyphicon-new-window"></span></sup></small></a>
 		</sup>
 	    </td>
 	</tr>
@@ -92,7 +119,13 @@
 	<tr>
 	    <td><b>Resource Links</b></td>
 	    <td>
-		<a href="{{ metadata.references.id }}" target="_blank">PubMed</a>
+		<a href="{{ metadata.references.id }}" target="_blank">
+		    {% if published_p %}
+		    PubMed
+		    {% else %}
+		    GN RDF Page
+		    {% endif %}
+		</a>
 	    </td>
 	</tr>
 	{% endif %}
