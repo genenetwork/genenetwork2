@@ -90,7 +90,8 @@
 	    <td><b>Database</b></td>
 	    <td>
 		{% for database in metadata.dataset %}
-		<a href="{{ url_for('get_dataset', name='database.identifier' )}}" target="blank">{{ database.prefLabel }}</a> <br/>
+		{% set dataset_url = url_for('get_dataset', name=database.identifier)%}
+		<a href="{{ dataset_url }}" target="blank">{{ database.prefLabel }}</a> <br/>
                 {% endfor %}
 	    </td>
 	</tr>
