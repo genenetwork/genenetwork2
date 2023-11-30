@@ -47,11 +47,17 @@
                 {% endif %}
             </td>
         </tr>
-
-        <tr>
-            <td><b>Title</b></td>
-	    <td><a href="{{ metadata.references.id }}" target="_blank">{{ metadata.title or "N/A"}}</a></td>
-        </tr>
+	{% if metadata.references.id %}
+	<tr>
+	    <td><b>Publication</b></td>
+	    <td>
+		<i>{{ metadata.references.title }}.</i> {{ ', '.join(metadata.references.creator) }}. {{ metadata.references.year }} {{ metadata.references.month }}{{ metadata.references.volume }}:{{ metadata.references.page }}
+		<sup>
+		    <a href="{{ metadata.references.id }}" target="_blank"><small>PubMed<sup>&#32;<span class="glyphicon glyphicon-new-window"></span></sup></small></a>
+		</sup>
+	    </td>
+	</tr>
+	{% endif %}
 
 	<tr>
 	    <td><b>Database</b></td>
@@ -63,44 +69,27 @@
 	</tr>
 
 	<tr>
-	    <td><b>Journal</b></td>
-	    <td>{{ metadata.journal or "N/A"}}</td>
-	</tr>
-
-	<tr>
-	    <td><b>Volume</b></td>
-	    <td>{{ metadata.volume or "N/A"}}</td>
-	</tr>
-
-	<tr>
-	    <td><b>Month</b></td>
-	    <td>{{ metadata.month or "N/A"}}</td>
-	</tr>
-
-	<tr>
-	    <td><b>Page</b></td>
-	    <td>{{ metadata.page or "N/A"}}</td>
-	</tr>
-
-	<tr>
-	    <td><b>Year</b></td>
-	    <td>{{ metadata.year or "N/A"}}</td>
-	</tr>
-
-	<tr>
 	    <td><b>Mean</b></td>
 	    <td>{{ metadata.mean or "N/A"}}</td>
 	</tr>
 
 	<tr>
-	    <td><b>LRS</b></td>
-	    <td>{{ metadata.LRS or "N/A"}}</td>
+	    <td><b>Peak -logP</b></td>
+	    <td>{{ metadata.lodScore or "N/A"}}</td>
 	</tr>
 
 	<tr>
-	    <td><b>Additive</b></td>
+	    <td><b>Effect Size</b></td>
 	    <td>{{ metadata.additive or "N/A"}}</td>
 	</tr>
+	{% if metadata.references.id %}
+	<tr>
+	    <td><b>Resource Links</b></td>
+	    <td>
+		<a href="{{ metadata.references.id }}" target="_blank">PubMed</a>
+	    </td>
+	</tr>
+	{% endif %}
     </table>
 </div>
 
