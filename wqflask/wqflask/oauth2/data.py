@@ -61,7 +61,7 @@ def __search_genotypes__(query, template, **kwargs):
     return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __search_phenotypes__(query, template, **kwargs):
-    from utility.tools import AUTH_SERVER_URL
+    from utility.tools import GN_SERVER_URL, AUTH_SERVER_URL
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 50))
     selected_traits = request.form.getlist("selected_traits")
@@ -82,7 +82,7 @@ def __search_phenotypes__(query, template, **kwargs):
         "species_name": kwargs["species_name"],
         "per_page": per_page,
         "page": page,
-        "auth_server_uri": AUTH_SERVER_URL
+        "gn3_server_uri": GN_SERVER_URL
     }).either(
         with_flash_error(redirect(url_for('oauth2.data.list_data'))),
         __search_success__)
