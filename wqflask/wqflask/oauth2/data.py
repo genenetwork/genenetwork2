@@ -10,6 +10,8 @@ from flask import (
     flash, request, jsonify, url_for, redirect, Response, Blueprint,
     current_app as app)
 
+from wqflask.oauth2.request_utils import with_flash_error
+
 from jobs import jobs
 from .ui import render_ui
 from .request_utils import process_error
@@ -63,8 +65,6 @@ def __search_phenotypes__(query, template, **kwargs):
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 50))
     selected_traits = request.form.getlist("selected_traits")
-    def __search_error__(error):
-        raise Exception(error)
     def __search_success__(search_results):
         job_id = uuid.UUID(search_results["job_id"])
         return render_ui(
@@ -84,7 +84,7 @@ def __search_phenotypes__(query, template, **kwargs):
         "page": page,
         "auth_server_uri": AUTH_SERVER_URL
     }).either(
-        lambda err: __search_error__(process_error(err)),
+        with_flash_error(redirect(url_for('oauth2.data.list_data'))),
         __search_success__)
 
 @data.route("/genotype/search", methods=["POST"])
@@ -156,16 +156,13 @@ def list_data_by_species_and_dataset(
         "genotype": __search_genotypes__,
         "phenotype": __search_phenotypes__
     }
-    roles = oauth2_get("auth/user/roles").either(
-        lambda err: {"roles_error": process_error(err)},
-        lambda roles: {"roles": roles})
     groups = oauth2_get("auth/group/list").either(
         lambda err: {"groups_error": process_error(err)},
         lambda grps: {"groups": grps})
     query = request.args.get("query", "")
     return search_fns[dataset_type](
-        query, templates[dataset_type], **roles, **groups,
-        species_name=species_name, dataset_type=dataset_type)
+        query, templates[dataset_type], **groups, species_name=species_name,
+        dataset_type=dataset_type)
 
 @data.route("/list", methods=["GET", "POST"])
 def list_data():
