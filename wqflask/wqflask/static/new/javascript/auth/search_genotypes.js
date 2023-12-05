@@ -14,7 +14,7 @@ function search_genotypes() {
     selected = JSON.parse(document.getElementById(
 	"tbl-link-genotypes").getAttribute("data-selected-datasets"));
     species_name = document.getElementById("txt-species-name").value
-    search_endpoint = "/oauth2/data/genotype/search"
+    search_endpoint = "/auth/data/genotype/search"
     search_table = new TableDataSource(
 	"#tbl-genotypes", "data-datasets", search_checkbox);
     $.ajax(

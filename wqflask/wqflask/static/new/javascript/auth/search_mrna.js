@@ -14,7 +14,7 @@ function search_mrna() {
     selected = JSON.parse(document.getElementById(
 	"tbl-link").getAttribute("data-datasets"));
     species_name = document.getElementById("txt-species-name").value
-    search_endpoint = "/oauth2/data/mrna/search"
+    search_endpoint = "/auth/data/mrna/search"
     search_table = new TableDataSource(
 	"#tbl-search", "data-datasets", search_checkbox);
     $.ajax(
