@@ -1,31 +1,32 @@
 <header class="page-header text-justify">
     <h1>
 	{% if dataset.title %}
-	{{ dataset.title }}
-	<br/>
-	<small>({{ dataset.prefLabel or dataset.label }})</small>
-        {% else %}
+	{{ dataset.title or dataset.altLabel or dataset.label }}
+	{% if dataset.title != dataset.altLabel %}
+        <small>({{ dataset.altLabel }})</small>
+	{% endif %}
+	{% else %}
         {{ name }}
         {% endif %}
     </h1>
 </header>
 
-{% if dataset.title or dataset.prefLabel or dataset.label %}
-<hr style="height: 1px;border-width:0;color:rgb(162, 169, 177);background-color:rgb(162, 169, 177);margin:0;">
-{% endif %}
-
-<div class="dataset-content">
+<div class="container dataset-content">
     <div class="panel-about panel panel-info panel-metadata text-muted">
         <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
         <div class="panel-body">
             <dl class="dl-horizontal">
+		{% if dataset.label != dataset.altLabel and dataset.label != dataset.title %}
+		<dt>Name</dt>
+		<dd> {{ dataset.label }} </dd>
+		{% endif %}
                 {% if dataset.created %}
 		<dt>Created</dt>
 		<dd>{{ dataset.created }}</dd>
 		{% endif %}
                 {% if dataset.inbredSet %}
-		<dt>Data Set Group</dt>
-		<dd>{{ dataset.inbredSet}}</dd>
+		<dt>Group</dt>
+		<dd>{{ dataset.inbredSet.label}}</dd>
 		{% endif %}
 
 		{% if dataset.accessionId %}
@@ -40,16 +41,6 @@
 		</dd>
 		{% endif %}
 
-                {% if dataset.title %}
-		<dt>Name</dt>
-		<dd>{{ dataset.title }}</dd>
-		{% endif %}
-
-		{% if dataset.inbredSet %}
-		<dt>Group</dt>
-		<dd>{{dataset.inbredSet}}</dd>
-		{% endif %}
-
                 {% if dataset.tissue %}
 		<dt>Tissue</dt>
 		<dd>{{ dataset.tissue.label }}</dd>
@@ -58,7 +49,7 @@
 		{% if dataset.platform %}
 		<dt>Platforms</dt>
 		<dd>
-		    {{ dataset.platform.prefLabel }}
+		    {{ dataset.platform.label }}
 		    [<a href="{{ dataset.platform.id}}" target="_blank">
 		    {{ dataset.platform.prefLabel}}
 		    </a>]
@@ -67,13 +58,19 @@
 
                 {% if dataset.normalization %}
 		<dt>Normalization</dt>
-		<dd>{{ dataset.normalization }}</dd>
+		<dd>{{ dataset.normalization.label }}</dd>
 		{% endif %}
 
                 {% if dataset.contactPoint %}
                 <dt>Investigator</dt>
                 <dd>
-                    {{ dataset.contactPoint }}
+		    {% if dataset.contactPoint.contactWebUrl %}
+		    <a href="{{ dataset.contactPoint.contactWebUrl }}" target="_blank">
+			{{ dataset.contactPoint.contactName }}
+		    </a>
+		    {% else %}
+		    {{ dataset.contactPoint.contactName }}
+		    {% endif %}
                 </dd>
                 {% endif %}
 
@@ -82,17 +79,17 @@
 		<dd>{{ dataset.organization }}</dd>
 		{% endif %}
             </dl>
-													</div>
+	</div>
     </div>
 
-    <div class="row dataset-metadata">
+    <div class="container row dataset-metadata">
 	{% if dataset.description %}
         <div>{{ dataset.description|safe }}</div>
         {% endif %}
 
 	{% if dataset.specificity %}
 	<h2><strong>Specifics of this Dataset</strong></h2>
-	<div>{{ dataset.specificity}}</div>
+	<div>{{ dataset.specificity }}</div>
 	{% endif %}
 
 	{% if dataset.experimentDesignInfo %}
@@ -106,13 +103,15 @@
         {% endif %}
 
 	{% if dataset.tissue %}
-        <h3><strong>About the Tissue Used to Generate this Dataset</strong></h3>
-        <div>{{ dataset.tissue.info|safe }}</div>
+        <h3><strong>About the Tissue
+	    {%if dataset.tissue and dataset.tissue.label  %}({{ dataset.tissue.label }})
+	    {% endif %}Used to Generate this Dataset</strong></h3>
+        <div>{{ dataset.tissue.tissueInfo|safe }}</div>
         {% endif %}
 
         {% if dataset.platform %}
-        <h3><strong>About the Array Platform</strong></h3>
-        <div>{{ dataset.platform.info|safe }}</div>
+        <h3 title="{{ dataset.platform.label }}"><strong>About the Array Platform</strong></h3>
+        <div>{{ dataset.platform.platformInfo|safe }}</div>
         {% endif %}
 
         {% if dataset.processingInfo %}
@@ -125,21 +124,21 @@
         <div>{{ dataset.notes|safe }}</div>
         {% endif %}
 
-	{% if dataset.references|trim %}
+	{% if dataset.citation|trim %}
         <h3><strong>Citation</strong></h3>
-        <div>{{ dataset.references|safe}}</div>
+        <div>{{ dataset.citation|safe}}</div>
         {% endif %}
 
 	{% if dataset.acknowledgment|trim %}
         <h3><strong>Acknowledgment</strong></h3>
-        <div>{{ dataset.acknowledgment|safe}}</div>
+        <div>{{ dataset.acknowledgement|safe}}</div>
         {% endif %}
 
         {% if dataset.contributors %}
 	<h3><strong>Contributors</strong></h3>
 	<div>{{ dataset.contributors|safe }}</div>
 	{% endif %}
-            </div>
+    </div>
 
 </div>
 
