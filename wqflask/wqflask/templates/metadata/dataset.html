@@ -14,7 +14,17 @@
 
 <div class="container dataset-content">
     <div class="panel-about panel panel-info panel-metadata text-muted">
-        <div class="panel-heading"><strong><span class="glyphicon glyphicon-info-sign aria-hidden=true"></span> Details</strong> </div>
+        <div class="panel-heading">
+	    <strong>
+		<span class="glyphicon glyphicon-info-sign aria-hidden=true"></span>
+		Details
+	    </strong>
+	    {% if dataset.accessionId %}
+	    <small>
+		<a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ dataset.accessionId.split('GN')[-1] }}" target="_blank">(GN1 Link)</a>
+	    </small>
+	    {% endif %}
+	</div>
         <div class="panel-body">
             <dl class="dl-horizontal">
 		{% if dataset.label != dataset.altLabel and dataset.label != dataset.title %}
