@@ -1,8 +1,9 @@
 <header class="page-header text-justify">
     <h1>
-	{% if dataset.title %}
-	{{ dataset.title or dataset.altLabel or dataset.label }}
-	{% if dataset.title != dataset.altLabel %}
+	{% if dataset.title or dataset.label or dataset.altLabel %}
+	{{ dataset.title or dataset.label or dataset.altLabel }}
+	{% if dataset.title != dataset.altLabel and dataset.label != dataset.altLabel %}
+	<br/>
         <small>({{ dataset.altLabel }})</small>
 	{% endif %}
 	{% else %}
