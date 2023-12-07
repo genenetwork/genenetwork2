@@ -1982,9 +1982,9 @@ class DisplayMappingResults:
         i = 0
 
         paddingTop = yTopOffset
+        phenogenPaddingTop = paddingTop + \
+            (self.BAND_HEIGHT + self.BAND_SPACING)
         if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
-            phenogenPaddingTop = paddingTop + \
-                (self.BAND_HEIGHT + self.BAND_SPACING)
             ucscPaddingTop = paddingTop + 2 * \
                 (self.BAND_HEIGHT + self.BAND_SPACING)
             ensemblPaddingTop = paddingTop + 3 * \
@@ -2133,7 +2133,7 @@ class DisplayMappingResults:
                 "Chr %s" % self.ChrList[self.selectedChr][0], font=chrFont)[0]
             im_drawer.text(
                 text="Chr %s" % self.ChrList[self.selectedChr][0],
-                xy=(chrX, phenogenPaddingTop), font=chrFont, fill=GRAY)
+                xy=(chrX, paddingTop), font=chrFont, fill=GRAY)
             # end of drawBrowserClickableRegions
         else:
             # draw the gray text
