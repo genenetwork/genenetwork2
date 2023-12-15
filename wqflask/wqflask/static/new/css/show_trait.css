@@ -122,14 +122,6 @@ div.scatterplot-btn-div {
   margin-bottom:40px;
 }
 
-div.correlation-main {
-  min-width: 1200px;
-}
-
-div.correlation-options {
-  min-width: 700px;
-}
-
 .min-expr-field {
   width: 70px;
 }
@@ -171,17 +163,17 @@ div.normalize-div {
   margin-top:10px;
 }
 
-div.mapping-main {
+div.main {
   display: block;
 }
 
-div.mapping-options {
+div.options {
   float: left;
   width: 600px;
   padding-top: 0px;
 }
 
-div.mapping-descriptions {
+div.descriptions {
   float: left;
   width: 500px;
   min-width: 20%;
