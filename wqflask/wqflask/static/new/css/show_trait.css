@@ -313,3 +313,7 @@ div#cboxContent {
   margin-right: 5px;
   margin-bottom: 2px;
 }
+
+div.container {
+  min-width:750px;
+}
