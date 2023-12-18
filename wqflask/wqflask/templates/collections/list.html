@@ -52,7 +52,6 @@
 
             <tbody>
               {% for uc in anon_collections %}
-              {% if uc.num_members > 0 %}
               <tr class="collection_line">
                 <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                 <td align="right">{{ loop.index }}
@@ -61,7 +60,6 @@
                 <td>{{ uc.changed_timestamp }}</td>
                 <td align="right">{{ uc.num_members }}</td>
               </tr>
-              {% endif %}
               {% endfor %}
             </tbody>
           </table>
@@ -85,16 +83,14 @@
 
             <tbody>
             {% for uc in collections %}
-                {% if uc.num_members > 0 %}
-                <tr class="collection_line">
-                    <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
-                    <td align="right">{{ loop.index }}
-                    <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
-                    <td>{{ uc.created_timestamp }}</td>
-                    <td>{{ uc.changed_timestamp }}</td>
-                    <td align="right">{{ uc.num_members }}</td>
-                </tr>
-                {% endif %}
+            <tr class="collection_line">
+              <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
+              <td align="right">{{ loop.index }}
+              <td><a class="collection_name" href="{{ url_for('view_collection', uc_id=uc.id) }}">{{ uc.name }}</a></td>
+              <td>{{ uc.created_timestamp }}</td>
+              <td>{{ uc.changed_timestamp }}</td>
+              <td align="right">{{ uc.num_members }}</td>
+            </tr>
             {% endfor %}
             </tbody>
         </table>
