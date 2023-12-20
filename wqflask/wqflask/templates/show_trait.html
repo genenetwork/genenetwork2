@@ -24,7 +24,14 @@
     <div class="container">
       <h2>Trait Data and Analysis for <b>{{ this_trait.display_name }}</b></h2>
       {% if this_trait.dataset.type != 'Publish' %}
-	<h3>{{ this_trait.description_fmt[0]|upper }}{{ this_trait.description_fmt[1:]|safe }}</h3>
+	    <h3>
+        {% set trait_description = this_trait.description_fmt[0]|upper + this_trait.description_fmt[1:]|safe %}
+        {% if trait_description|length < 100 %}
+        {{ trait_description }}
+        {% else %}
+        <span class="truncDesc" style="display: block;">{{ trait_description[:99] }}... (<a onclick="toggleDescription()" href="#">Show More</a>)</span><span class="fullDesc" style="display: none;">{{ trait_description }} (<a onclick="toggleDescription()" href="#">Show Less</a>)</span>
+        {% endif %}
+      </h3>
       {% endif %}
 
       <form method="post" action="" target="_blank" name="trait_page" id="trait_data_form" class="form-horizontal">

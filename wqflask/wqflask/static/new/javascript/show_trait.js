@@ -83,7 +83,16 @@ statTableRows.push(
   }
 );
 
-var add, blockByAttributeValue, blockByIndex, blockOutliers, changeStatsValue, createValueDropdown, editDataChange, exportSampleTableData, getSampleTableData, hideNoValue, hideTabs, makeTable, onCorrMethodChange, openTraitSelection, populateSampleAttributesValuesDropdown, processId, updateBarChart, updateHistogram, updateProbPlot, resetSamplesTable, sampleGroupTypes, sampleLists, showHideOutliers, statsMdpChange, updateStatValues;
+toggleDescription = function() {
+  if ($('.truncDesc').is(':visible')) {
+    $('.truncDesc').hide();
+    $('.fullDesc').show();
+  } else {
+    $('.truncDesc').show();
+    $('.fullDesc').hide();
+  }
+}
+
 add = function() {
   var trait;
   trait = $("input[name=trait_hmac]").val();
