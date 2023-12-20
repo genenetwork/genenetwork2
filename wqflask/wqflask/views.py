@@ -262,6 +262,22 @@ def gsearchtable():
     return flask.jsonify(current_page)
 
 
+
+@app.route("/gnqna",methods =["POST","GET"])
+def gnqna():
+    if request.method == "POST":
+        results = dict(request.form)
+        try:
+            response = requests.post("http://localhost:5000/gnqa",json=results)
+            if response.status_code ==200:
+                return render_template("gnqa_answer.html",**response.json())
+            return response.json()
+        except Exception as e:
+            return flask.jsonify({"error occurred":str(e)})
+
+       #return render_template("gnqa_answer.html")
+    return render_template("gnqa.html")
+
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
     result = UpdateGSearch(request.args).__dict__
