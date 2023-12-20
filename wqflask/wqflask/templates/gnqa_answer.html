@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}GNQNA{% endblock %}
+
+{% block content %} <!-- Start of body -->
+
+
+    <style>
+   
+
+
+   #gnqna_search {
+    padding:15px  10px;
+    border-radius: 15px;
+    border:1px solid blue;
+   }
+
+  #gnqna_search{
+    font-weight: bold;
+    font-weight: 18px;
+  }
+
+   #main-search-controller{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+</style>
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />
+{% endblock %}
+
+
+<style type="text/css">
+  
+  #gnqa_ref {
+    height: 90vh;
+    overflow: hidden;
+    overflow-y: scroll;
+  }
+
+
+  #gnqa_ref_item{
+    border-bottom: 1px solid lightgrey;
+    padding:12px;
+  }
+
+
+  #gnqa_query {
+    font-size: 24px;
+    font-family: serif;
+    color: #3071a9;
+    font-style: italic;
+    letter-spacing: 0.3em;
+    text-transform: capitalize;
+
+    text-decoration: underline;
+  }
+
+  #gnqa_query::first-letter {
+    font-size: 30px;
+    font-style: italic;
+
+  }
+
+  #gnqa_answer {
+    text-transform: capitalize;
+  }
+
+  #gnqa_answer::first-letter{
+    font-weight: bold;
+
+
+  }
+  #gnqna_search_home{
+ display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+
+ 
+   #gnqna_search_home input{
+    padding:7px  5px;
+    border-radius: 10px;
+    border:1px solid blue;
+   }
+
+  #gnqna_search_home input{
+    font-weight: bold;
+  }
+
+  .container{
+   / box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
+  }
+
+
+
+</style>
+
+<div style="height: 90vh;width: 100vw; margin-bottom: 10px;">
+<div style="margin:10px; border:1px solid #ccc;padding: 15px;">
+  <div >
+    <h1 id="gnqa_query" style="font-weight: bolder">{{query}}<h1>
+  </div>
+
+  <div style="width:40vw;overflow-wrap: normal; margin-top: 5px;">
+    <p style="word-spacing: 0.7em;" id="gnqa_answer">{{answer}} <p>
+  </div>
+</div>
+
+<div>
+
+ 
+  
+      <div class="container" style="overflow-y: hidden;">
+        <h4> <a href="#">References</a></h4>
+        {% if references %}
+            <ul id="gnqa_ref">
+                {% for reference in references %}
+                    <li id="gnqa_ref_item">
+                        <h2 style="font-weight:bolder;">{{ reference.bibInfo }} </h2>
+                        <p>{{reference.comboTxt}}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No references available.</p>
+        {% endif %}
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+
+     document.addEventListener('DOMContentLoaded', function() {
+        $('#globalsearchform').hide()
+        $('#gnqna_search_home').show()
+         $('footer').hide()
+    });
+
+</script>
+
+<!-- Bootstrap JS and Popper.js -->
+
+
+
+{% endblock %}
+
