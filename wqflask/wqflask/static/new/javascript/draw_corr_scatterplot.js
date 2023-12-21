@@ -904,4 +904,10 @@ $(document).ready(function(){
         remove_cofactors();
     });
 
+    $('#invert_axes').click(function () {
+        var [dataset_1, trait_1] = js_data.trait_2.split(": ")
+        var [dataset_2, trait_2] = js_data.trait_1.split(": ")
+        window.location.replace("/corr_scatter_plot?method=pearson&dataset_1=" + dataset_1 + "&dataset_2=" + dataset_2 + "&trait_1=" + trait_1 + "&trait_2=" + trait_2)
+    });
+
 });
