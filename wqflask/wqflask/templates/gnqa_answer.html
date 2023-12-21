@@ -137,6 +137,15 @@
         $('#globalsearchform').hide()
         $('#gnqna_search_home').show()
          $('footer').hide()
+
+          $("#gnqna_search_home_input").keyup(function(event) {
+
+            console.log("adding input")
+            if (event.keyCode === 13) {
+                console.log("clicked this button")
+            $('#gnqna_search_home').attr('action', "/gnqna").submit();
+            }
+        })
     });
 
 </script>
