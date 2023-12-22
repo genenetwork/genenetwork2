@@ -10,14 +10,13 @@
 ;;
 ;; guix shell -C -Df guix.scm
 
-(define-module (genenetwork2))
-(use-modules (gn packages genenetwork)
-             (guix gexp)
-             (guix utils)
-             (guix git-download)
-             (guix packages)
-             (ice-9 popen)
-             (ice-9 rdelim))
+(define-module (genenetwork2)
+  #:use-module ((gn packages genenetwork)
+                #:select (genenetwork2))
+  #:use-module (guix gexp)
+  #:use-module (guix utils)
+  #:use-module (guix git-download)
+  #:use-module (guix packages))
 
 (define %source-dir
   (string-append (current-source-directory)
