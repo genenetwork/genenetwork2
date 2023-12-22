@@ -12,7 +12,7 @@
 
 (define-module (genenetwork2)
   #:use-module ((gn packages genenetwork)
-                #:select (genenetwork2))
+                #:select (genenetwork2) #:prefix gn:)
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix git-download)
@@ -22,23 +22,12 @@
   (string-append (current-source-directory)
                  "/../.."))
 
-;; This isn't kept up-to-date.
-(define %version
-  (call-with-input-file (string-append %source-dir "/VERSION")
-    (lambda (port)
-      (read-line port))))
-
-(define (%version package)
-  (or (version-major+minor+point (package-version package))
-      (version-major+minor (package-version package))))
-
-(define-public genenetwork2-head
+(define-public genenetwork2
   (package
-    (inherit genenetwork2)
-    (version (string-append (%version genenetwork2) "-HEAD"))
+    (inherit gn:genenetwork2)
     (source (local-file %source-dir "genenetwork2-checkout"
                         #:recursive? #t
                         #:select? (or (git-predicate %source-dir)
                                       (const #t))))))
 
-genenetwork2-head
+genenetwork2
