@@ -159,8 +159,6 @@ set|grep TMPDIR
 
 # Now handle command parameter -c which runs python
 if [ "$1" = '-c' ] ; then
-    cd "${GN2_BASE_DIR}/wqflask"
-    cmd=${2#wqflask/}
     echo PYTHONPATH="${PYTHONPATH}"
     shift ; shift
     echo "RUNNING COMMAND ${cmd} ${*}"
@@ -170,7 +168,6 @@ fi
 
 # Now handle command parameter -cli which runs in bash
 if [ "$1" = "-cli" ] ; then
-    cd "${GN2_BASE_DIR}/wqflask"
     cmd=$2
     echo PYTHONPATH="${PYTHONPATH}"
     shift ; shift
@@ -179,7 +176,6 @@ if [ "$1" = "-cli" ] ; then
     exit $?
 fi
 if [ "$1" = '-gunicorn' ] ; then
-    cd "${GN2_BASE_DIR}/wqflask"
     cmd=$2
     echo PYTHONPATH="${PYTHONPATH}"
     echo "RUNNING gunicorn ${cmd}"
@@ -187,20 +183,18 @@ if [ "$1" = '-gunicorn' ] ; then
     exit $?
 fi
 if [ "$1" = '-gunicorn-dev' ] ; then
-    cd "${GN2_BASE_DIR}/wqflask"
     echo PYTHONPATH="${PYTHONPATH}"
     if [ -z "${SERVER_PORT}" ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload run_gunicorn:app"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload gn2.run_gunicorn:app"
     echo "RUNNING gunicorn ${cmd}"
     gunicorn $cmd
     exit $?
 fi
 if [ "$1" = '-gunicorn-prod' ] ; then
-    cd "${GN2_BASE_DIR}/wqflask"
     echo PYTHONPATH="${PYTHONPATH}"
     if [ -z "${SERVER_PORT}" ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
     PID=$TMPDIR/gunicorn.$USER.pid
-    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID --workers 20 --keep-alive 6000 --max-requests 100 --max-requests-jitter 30 --timeout 1200 wsgi"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID --workers 20 --keep-alive 6000 --max-requests 100 --max-requests-jitter 30 --timeout 1200 gn2.wsgi"
     echo "RUNNING gunicorn ${cmd}"
     gunicorn $cmd
     exit $?
@@ -219,16 +213,14 @@ fi
 
 
 if [ "$1" = "--with-pdb" ] ; then
-    cd "${GN2_BASE_DIR}/wqflask"
     cmd=$2
     echo PYTHONPATH="${PYTHONPATH}"
     shift ; shift
-    echo "RUNNING COMMAND python3 -m runserver.py"
+    echo "RUNNING COMMAND python3 -m gn2.runserver.py"
     python3 -m pdb runserver.py
     exit $?
 fi
 
 # Start the flask server running GN2
-cd "${GN2_BASE_DIR}/wqflask"
 echo "Starting with $settings"
-python runserver.py
+python gn2.runserver.py
