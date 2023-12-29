@@ -160,9 +160,9 @@ set|grep TMPDIR
 # Now handle command parameter -c which runs python
 if [ "$1" = '-c' ] ; then
     echo PYTHONPATH="${PYTHONPATH}"
-    shift ; shift
-    echo "RUNNING COMMAND ${cmd} ${*}"
-    python $cmd $*
+    shift
+    echo "RUNNING COMMAND python ${*}"
+    python $*
     exit $?
 fi
 
