@@ -270,10 +270,11 @@ def gnqna():
             def __error__(resp):
                 return resp.json()
             def __success__(resp):
+
                 return render_template("gnqa_answer.html",**resp.json())
             return monad_requests.post(
-                urljoin(GN3_LOCAL_URL,
-                        "/api/llm/gnqna"),
+                urljoin(GN_SERVER_URL,
+                        "llm/gnqna"),
                 json=dict(request.form),
                 ).then(
                     lambda resp: resp
