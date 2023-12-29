@@ -24,7 +24,7 @@
 import os
 import sys
 
-with open("../etc/VERSION", "r") as version_file:
+with open("etc/VERSION", "r") as version_file:
     GN_VERSION = version_file.read()
 
 SECRET_KEY = ""
