@@ -16,9 +16,9 @@ class AttributesSetter:
 class TestExportTraits(unittest.TestCase):
     """Test methods for exporting traits and metadata"""
 
-    @mock.patch("wqflask.show_trait.export_trait_data.datetime")
-    @mock.patch("wqflask.show_trait.export_trait_data.create_trait")
-    @mock.patch("wqflask.show_trait.export_trait_data.data_set")
+    @mock.patch("gn2.wqflask.show_trait.export_trait_data.datetime")
+    @mock.patch("gn2.wqflask.show_trait.export_trait_data.create_trait")
+    @mock.patch("gn2.wqflask.show_trait.export_trait_data.data_set")
     def test_get_export_metadata(self, data_mock, trait_mock, date_mock):
         """test for exporting metadata with dataset.type=Publish"""
         mock_dataset = AttributesSetter({"type": "Publish",

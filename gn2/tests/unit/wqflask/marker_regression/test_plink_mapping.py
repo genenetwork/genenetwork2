@@ -27,7 +27,7 @@ class TestPlinkMapping(unittest.TestCase):
         self.assertEqual([], build_line_list())
         self.assertEqual(["this", "is", "an,", "irregular", "line"], results)
 
-    @mock.patch("wqflask.marker_regression.plink_mapping.flat_files")
+    @mock.patch("gn2.wqflask.marker_regression.plink_mapping.flat_files")
     def test_get_samples_from_ped_file(self, mock_flat_files):
         """test for getting samples from ped file"""
         dataset = AttributeSetter({"group": AttributeSetter({"name": "n_1"})})
@@ -42,8 +42,8 @@ Expected_2\there
             self.assertEqual(
                 ["Expected_1", "Expected_2", "Expected_3"], results)
 
-    @mock.patch("wqflask.marker_regression.plink_mapping.TMPDIR", "/home/user/data/")
-    @mock.patch("wqflask.marker_regression.plink_mapping.get_samples_from_ped_file")
+    @mock.patch("gn2.wqflask.marker_regression.plink_mapping.TMPDIR", "/home/user/data/")
+    @mock.patch("gn2.wqflask.marker_regression.plink_mapping.get_samples_from_ped_file")
     def test_gen_pheno_txt_file_plink(self, mock_samples):
         """test for getting gen_pheno txt file"""
         mock_samples.return_value = ["Expected_1", "Expected_2", "Expected_3"]
@@ -64,8 +64,8 @@ Expected_2\there
 
             filehandler.close.assert_called_once()
 
-    @mock.patch("wqflask.marker_regression.plink_mapping.TMPDIR", "/home/user/data/")
-    @mock.patch("wqflask.marker_regression.plink_mapping.build_line_list")
+    @mock.patch("gn2.wqflask.marker_regression.plink_mapping.TMPDIR", "/home/user/data/")
+    @mock.patch("gn2.wqflask.marker_regression.plink_mapping.build_line_list")
     def test_parse_plink_output(self, mock_line_list):
         """test for parsing plink output"""
         chromosomes = [0, 34, 110, 89, 123, 23, 2]

@@ -39,10 +39,10 @@ def test_check_if_attr_exists(trait, id_type, expected):
 
 def test_get_ncbi_summary_request(mocker):
     trait = TraitObject({"geneid": "id"})
-    mocker.patch("wqflask.show_trait.show_trait.check_if_attr_exists",
+    mocker.patch("gn2.wqflask.show_trait.show_trait.check_if_attr_exists",
                  return_value=True)
     mock_get = mocker.patch(
-        "wqflask.show_trait.show_trait.requests.get",
+        "gn2.wqflask.show_trait.show_trait.requests.get",
         return_value=TraitObject({"content": """{
           "result":{
             "id":{
@@ -143,7 +143,7 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(results, "this is a descriptionN/A")
         self.assertEqual(results_no_unit, "value")
 
-    @mock.patch("wqflask.show_trait.show_trait.database_connection")
+    @mock.patch("gn2.wqflask.show_trait.show_trait.database_connection")
     def test_get_nearest_marker(self, mock_db):
         """test for getting nearest marker with non-empty db"""
         conn = mock.MagicMock()
@@ -170,7 +170,7 @@ class TestTraits(unittest.TestCase):
 
             self.assertEqual(results_with_item_db, "Geno1")
 
-    @mock.patch("wqflask.show_trait.show_trait.database_connection")
+    @mock.patch("gn2.wqflask.show_trait.show_trait.database_connection")
     def test_get_nearest_marker_empty_db(self, mock_db):
         """test for getting nearest marker with empty db"""
         conn = mock.MagicMock()
@@ -187,7 +187,7 @@ class TestTraits(unittest.TestCase):
             cursor.execute.assert_called_once()
             self.assertEqual(results_empty_db, "")
 
-    @mock.patch("wqflask.show_trait.show_trait.get_scales_from_genofile")
+    @mock.patch("gn2.wqflask.show_trait.show_trait.get_scales_from_genofile")
     def test_get_genotype_scales_with_genofile_is_list(self, mock_get_scales):
         """test for getting genotype scales with genofile as list """
         # where genofile is instance of list
@@ -211,7 +211,7 @@ class TestTraits(unittest.TestCase):
         mock_get_scales.assert_has_calls(multiple_calls)
         self.assertEqual(results, expected_results)
 
-    @mock.patch("wqflask.show_trait.show_trait.get_scales_from_genofile")
+    @mock.patch("gn2.wqflask.show_trait.show_trait.get_scales_from_genofile")
     def test_genotype_scales_with_genofile_other(self, mock_get_scales):
         """test for getting genotype scales with genofile as a string"""
         file_location = "~/another_file_location"
@@ -220,7 +220,7 @@ class TestTraits(unittest.TestCase):
         self.assertEqual(get_genotype_scales(file_location), expected_results)
         mock_get_scales.assert_called_once_with(file_location)
 
-    @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
+    @mock.patch("gn2.wqflask.show_trait.show_trait.locate_ignore_error")
     def test_get_scales_from_genofile_found(self, mock_ignore_location):
         """"add test for get scales from genofile where file is found"""
         mock_ignore_location.return_value = True
@@ -245,7 +245,7 @@ class TestTraits(unittest.TestCase):
             result2 = get_scales_from_genofile(file_location)
             self.assertEqual([['morgan', 'cM']], result2)
 
-    @mock.patch("wqflask.show_trait.show_trait.locate_ignore_error")
+    @mock.patch("gn2.wqflask.show_trait.show_trait.locate_ignore_error")
     def test_get_scales_from_genofile_not_found(self, mock_location_ignore):
         mock_location_ignore.return_value = False
 

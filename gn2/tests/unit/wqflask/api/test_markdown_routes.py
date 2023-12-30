@@ -26,7 +26,7 @@ This is another sub-heading"""
 class TestMarkdownRoutesFunctions(unittest.TestCase):
     """Test cases for functions in markdown"""
 
-    @mock.patch('wqflask.api.markdown.requests.get')
+    @mock.patch('gn2.wqflask.api.markdown.requests.get')
     def test_render_markdown_when_fetching_locally(self, requests_mock):
         requests_mock.return_value = MockRequests404()
         markdown_content = render_markdown("general/glossary/glossary.md")
@@ -38,7 +38,7 @@ class TestMarkdownRoutesFunctions(unittest.TestCase):
         self.assertRegex(markdown_content,
                          "Content for general/glossary/glossary.md not available.")
 
-    @mock.patch('wqflask.api.markdown.requests.get')
+    @mock.patch('gn2.wqflask.api.markdown.requests.get')
     def test_render_markdown_when_fetching_remotely(self, requests_mock):
         requests_mock.return_value = MockRequests200()
         markdown_content = render_markdown("general/glossary/glossary.md")

@@ -258,7 +258,7 @@ class TestGenMenu(unittest.TestCase):
                 "ORDER BY -ProbeSetFreeze.OrderList DESC, "
                 "ProbeSetFreeze.CreateTime DESC")
 
-    @mock.patch('wqflask.api.gen_menu.build_datasets')
+    @mock.patch('gn2.wqflask.api.gen_menu.build_datasets')
     def test_build_types(self, datasets_mock):
         """Test that correct tissue metadata is returned"""
         db_mock = mock.MagicMock()
@@ -286,9 +286,9 @@ class TestGenMenu(unittest.TestCase):
                 "ORDER BY Tissue.Name"
             )
 
-    @mock.patch('wqflask.api.gen_menu.build_types')
-    @mock.patch('wqflask.api.gen_menu.genotypes_exist')
-    @mock.patch('wqflask.api.gen_menu.phenotypes_exist')
+    @mock.patch('gn2.wqflask.api.gen_menu.build_types')
+    @mock.patch('gn2.wqflask.api.gen_menu.genotypes_exist')
+    @mock.patch('gn2.wqflask.api.gen_menu.phenotypes_exist')
     def test_get_types_with_existing_genotype_and_phenotypes(
             self,
             phenotypes_exist_mock,
@@ -310,9 +310,9 @@ class TestGenMenu(unittest.TestCase):
                                    mock.MagicMock()),
                          expected_result)
 
-    @mock.patch('wqflask.api.gen_menu.build_types')
-    @mock.patch('wqflask.api.gen_menu.genotypes_exist')
-    @mock.patch('wqflask.api.gen_menu.phenotypes_exist')
+    @mock.patch('gn2.wqflask.api.gen_menu.build_types')
+    @mock.patch('gn2.wqflask.api.gen_menu.genotypes_exist')
+    @mock.patch('gn2.wqflask.api.gen_menu.phenotypes_exist')
     def test_get_types_with_buildtype_and_non_existent_genotype_and_phenotypes(
             self,
             phenotypes_exist_mock,
@@ -329,9 +329,9 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(get_types(self.test_group, mock.MagicMock()),
                          {'mouse': {}, 'human': {}})
 
-    @mock.patch('wqflask.api.gen_menu.build_types')
-    @mock.patch('wqflask.api.gen_menu.genotypes_exist')
-    @mock.patch('wqflask.api.gen_menu.phenotypes_exist')
+    @mock.patch('gn2.wqflask.api.gen_menu.build_types')
+    @mock.patch('gn2.wqflask.api.gen_menu.genotypes_exist')
+    @mock.patch('gn2.wqflask.api.gen_menu.phenotypes_exist')
     def test_get_types_with_non_existent_genotype_phenotypes_and_buildtype(
             self,
             phenotypes_exist_mock,
@@ -357,7 +357,7 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(get_types(self.test_group, mock.MagicMock()),
                          expected_result)
 
-    @mock.patch('wqflask.api.gen_menu.build_datasets')
+    @mock.patch('gn2.wqflask.api.gen_menu.build_datasets')
     def test_get_datasets_with_existent_datasets(self,
                                                  build_datasets_mock):
         """Test correct dataset is returned with existent build_datasets"""
@@ -379,7 +379,7 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(get_datasets(self.test_type, mock.MagicMock()),
                          expected_result)
 
-    @mock.patch('wqflask.api.gen_menu.build_datasets')
+    @mock.patch('gn2.wqflask.api.gen_menu.build_datasets')
     def test_get_datasets_with_non_existent_datasets(self,
                                                      build_datasets_mock):
         """Test correct dataset is returned with non-existent build_datasets"""
@@ -393,10 +393,10 @@ class TestGenMenu(unittest.TestCase):
         self.assertEqual(get_datasets(self.test_type, mock.MagicMock()),
                          expected_result)
 
-    @mock.patch('wqflask.api.gen_menu.get_datasets')
-    @mock.patch('wqflask.api.gen_menu.get_types')
-    @mock.patch('wqflask.api.gen_menu.get_groups')
-    @mock.patch('wqflask.api.gen_menu.get_all_species')
+    @mock.patch('gn2.wqflask.api.gen_menu.get_datasets')
+    @mock.patch('gn2.wqflask.api.gen_menu.get_types')
+    @mock.patch('gn2.wqflask.api.gen_menu.get_groups')
+    @mock.patch('gn2.wqflask.api.gen_menu.get_all_species')
     def test_gen_dropdown_json(self,
                                species_mock,
                                groups_mock,

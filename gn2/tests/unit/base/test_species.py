@@ -30,7 +30,7 @@ class MockDataset:
      (None, "Random Dataset", None, 1)))
 def test_species(mocker, species_name, dataset,
                  expected_name, chromosome_param):
-    _c = mocker.patch("base.species.Chromosomes",
+    _c = mocker.patch("gn2.base.species.Chromosomes",
                       return_value=chromosome_param)
     test_species = TheSpecies(dataset=dataset,
                               species_name=species_name)

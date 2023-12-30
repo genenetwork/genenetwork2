@@ -173,7 +173,7 @@ class TestDataSetTypes(unittest.TestCase):
                              ("All Phenotypes", redis_mock, cursor_mock), "Publish")
             redis_mock.get.assert_called_once_with("dataset_structure")
 
-    @mock.patch('base.data_set.datasettype.requests.get')
+    @mock.patch('gn2.base.data_set.datasettype.requests.get')
     def test_data_set_type_with_empty_redis(self, request_mock):
         """Test that DatasetType returns correctly if the Redis Instance is empty and
         the name variable exists in the dictionary
@@ -204,8 +204,8 @@ class TestDataSetTypes(unittest.TestCase):
 class TestDatasetAccessionId(unittest.TestCase):
     """Tests for the DataSetType class"""
 
-    @mock.patch("base.data_set.dataset.query_sql")
-    @mock.patch("base.data_set.dataset.DatasetGroup")
+    @mock.patch("gn2.base.data_set.dataset.query_sql")
+    @mock.patch("gn2.base.data_set.dataset.DatasetGroup")
     def test_get_accession_id(self, mock_dataset_group, mock_query_sql):
         def mock_fn():
             yield MonadicDict({"accession_id": 7})
@@ -221,8 +221,8 @@ class TestDatasetAccessionId(unittest.TestCase):
             .accession_id\
             .bind(lambda x: self.assertEqual(7, x))
 
-    @mock.patch("base.data_set.dataset.query_sql")
-    @mock.patch("base.data_set.dataset.DatasetGroup")
+    @mock.patch("gn2.base.data_set.dataset.query_sql")
+    @mock.patch("gn2.base.data_set.dataset.DatasetGroup")
     def test_get_accession_id_empty_return(self, mock_dataset_group,
                                            mock_query_sql):
         mock_dataset_group.return_value = MockGroup()

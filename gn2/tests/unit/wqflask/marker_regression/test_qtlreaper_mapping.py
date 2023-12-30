@@ -7,7 +7,7 @@ from gn2.wqflask.marker_regression.qtlreaper_mapping import gen_pheno_txt_file
 
 
 class TestQtlReaperMapping(unittest.TestCase):
-    @mock.patch("wqflask.marker_regression.qtlreaper_mapping.TEMPDIR", "/home/user/data")
+    @mock.patch("gn2.wqflask.marker_regression.qtlreaper_mapping.TEMPDIR", "/home/user/data")
     def test_gen_pheno_txt_file(self):
         vals = ["V1", "x", "V4", "V3", "x"]
         samples = ["S1", "S2", "S3", "S4", "S5"]

@@ -31,7 +31,7 @@ class MockTrait(GeneralTrait):
 
 class TestRetrieveTraitInfo(unittest.TestCase):
     """Tests for 'retrieve_trait_info'"""
-    @mock.patch('base.trait.database_connection')
+    @mock.patch('gn2.base.trait.database_connection')
     def test_retrieve_trait_info_with_empty_dataset(self, mock_db):
         """Test that an exception is raised when dataset is empty"""
         conn = mock.MagicMock()
@@ -40,9 +40,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
             retrieve_trait_info(trait=mock.MagicMock(),
                                 dataset={})
 
-    @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g', mock.Mock())
-    @mock.patch('base.trait.database_connection')
+    @mock.patch('gn2.base.trait.requests.get')
+    @mock.patch('gn2.base.trait.g', mock.Mock())
+    @mock.patch('gn2.base.trait.database_connection')
     def test_retrieve_trait_info_with_empty_trait_info(self,
                                                        mock_db,
                                                        requests_mock):
@@ -57,9 +57,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
             retrieve_trait_info(trait=mock.MagicMock(),
                                 dataset=mock.MagicMock())
 
-    @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g', mock.Mock())
-    @mock.patch('base.trait.database_connection')
+    @mock.patch('gn2.base.trait.requests.get')
+    @mock.patch('gn2.base.trait.g', mock.Mock())
+    @mock.patch('gn2.base.trait.database_connection')
     def test_retrieve_trait_info_with_non_empty_trait_info(self,
                                                            mock_db,
                                                            requests_mock):
@@ -80,9 +80,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
         self.assertEqual(test_trait.c, 3)
         self.assertEqual(test_trait.d, 4)
 
-    @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g', mock.Mock())
-    @mock.patch('base.trait.database_connection')
+    @mock.patch('gn2.base.trait.requests.get')
+    @mock.patch('gn2.base.trait.g', mock.Mock())
+    @mock.patch('gn2.base.trait.database_connection')
     def test_retrieve_trait_info_utf8_parsing(self,
                                               mock_db,
                                               requests_mock):
@@ -120,9 +120,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
 
 
     @unittest.skip("Too complicated")
-    @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.database_connection')
-    @mock.patch('base.trait.get_resource_id')
+    @mock.patch('gn2.base.trait.requests.get')
+    @mock.patch('gn2.base.trait.database_connection')
+    @mock.patch('gn2.base.trait.get_resource_id')
     def test_retrieve_trait_info_with_non_empty_lrs(self,
                                                     resource_id_mock,
                                                     mock_db,
@@ -169,9 +169,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                              "2.4")
 
     @unittest.skip("Too complicated")
-    @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
-    @mock.patch('base.trait.get_resource_id')
+    @mock.patch('gn2.base.trait.requests.get')
+    @mock.patch('gn2.base.trait.g')
+    @mock.patch('gn2.base.trait.get_resource_id')
     def test_retrieve_trait_info_with_empty_lrs_field(self,
                                                       resource_id_mock,
                                                       g_mock,
@@ -215,9 +215,9 @@ class TestRetrieveTraitInfo(unittest.TestCase):
                          "Chr2: 3.000000")
         
     @unittest.skip("Too complicated")
-    @mock.patch('base.trait.requests.get')
-    @mock.patch('base.trait.g')
-    @mock.patch('base.trait.get_resource_id')
+    @mock.patch('gn2.base.trait.requests.get')
+    @mock.patch('gn2.base.trait.g')
+    @mock.patch('gn2.base.trait.get_resource_id')
     def test_retrieve_trait_info_with_empty_chr_field(self,
                                                       resource_id_mock,
                                                       g_mock,

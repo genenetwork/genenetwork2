@@ -102,7 +102,7 @@ class TestSnpBrowser(unittest.TestCase):
         self.assertEqual(expected_results, results_with_snp)
         self.assertEqual(expected_results_with_indel, results_with_indel)
 
-    @mock.patch("wqflask.snp_browser.snp_browser.database_connection")
+    @mock.patch("gn2.wqflask.snp_browser.snp_browser.database_connection")
     def test_get_gene_id(self, mock_db):
         db_query_value = (
             "SELECT geneId FROM GeneList WHERE " "SpeciesId = %s AND geneSymbol = %s"
@@ -122,7 +122,7 @@ class TestSnpBrowser(unittest.TestCase):
             )
             self.assertEqual(results, "517d729f-aa13-4413-a885-40a3f7ff768a")
 
-    @mock.patch("wqflask.snp_browser.snp_browser.database_connection")
+    @mock.patch("gn2.wqflask.snp_browser.snp_browser.database_connection")
     def test_gene_id_name_dict(self, mock_db):
         no_gene_names = []
         conn = mock.MagicMock()
@@ -164,7 +164,7 @@ class TestSnpBrowser(unittest.TestCase):
             self.assertEqual(results_found, expected_found)
             self.assertEqual(no_results, {})
 
-    @mock.patch("wqflask.snp_browser.snp_browser.database_connection")
+    @mock.patch("gn2.wqflask.snp_browser.snp_browser.database_connection")
     def test_check_if_in_gene(self, mock_db):
         conn = mock.MagicMock()
         mock_db.return_value.__enter__.return_value = conn
@@ -196,7 +196,7 @@ class TestSnpBrowser(unittest.TestCase):
             )
             self.assertEqual(gene_not_found, "")
 
-    @mock.patch("wqflask.snp_browser.snp_browser.database_connection")
+    @mock.patch("gn2.wqflask.snp_browser.snp_browser.database_connection")
     def test_get_browser_sample_lists(self, mock_db):
         conn = mock.MagicMock()
         mock_db.return_value.__enter__.return_value = conn

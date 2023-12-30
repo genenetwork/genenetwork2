@@ -15,9 +15,9 @@ class MockDataset:
 
 class TestRqtlMapping(unittest.TestCase):
     """Tests for functions in rqtl_mapping.py"""
-    @mock.patch("wqflask.marker_regression.rqtl_mapping.requests.post")
-    @mock.patch("wqflask.marker_regression.rqtl_mapping.locate")
-    @mock.patch("wqflask.marker_regression.rqtl_mapping.write_phenotype_file")
+    @mock.patch("gn2.wqflask.marker_regression.rqtl_mapping.requests.post")
+    @mock.patch("gn2.wqflask.marker_regression.rqtl_mapping.locate")
+    @mock.patch("gn2.wqflask.marker_regression.rqtl_mapping.write_phenotype_file")
     def test_run_rqtl_with_perm(self, mock_write_pheno_file, mock_locate, mock_post):
         """Test for run_rqtl with permutations > 0"""
         dataset_group = MockGroup("GP1", "file_geno")

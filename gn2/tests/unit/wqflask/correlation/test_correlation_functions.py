@@ -11,7 +11,7 @@ def test_tissue_corr_computation(mocker):
     """Test for cal_zero_order_corr_for_tiss"""
     primary_values = [9.288, 9.313, 8.988, 9.660, 8.21]
     target_values = [9.586, 8.498, 9.362, 8.820, 8.786]
-    _m = mocker.patch(("wqflask.correlation.correlation_functions."
+    _m = mocker.patch(("gn2.wqflask.correlation.correlation_functions."
                        "compute_corr_coeff_p_value"),
                       return_value=(0.51, 0.7))
     results = cal_zero_order_corr_for_tiss(primary_values, target_values)

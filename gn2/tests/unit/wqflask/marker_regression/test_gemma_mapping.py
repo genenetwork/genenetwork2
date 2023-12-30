@@ -22,7 +22,7 @@ class MockGroup(AttributeSetter):
 
 class TestGemmaMapping(unittest.TestCase):
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.parse_loco_output")
     def test_run_gemma_firstrun_set_false(self, mock_parse_loco):
         """add tests for gemma function where  first run is set to false"""
         dataset = AttributeSetter(
@@ -38,17 +38,17 @@ class TestGemmaMapping(unittest.TestCase):
         expected_results = ([], "file1")
         self.assertEqual(expected_results, result)
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMAOPTS", "-debug")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.GEMMA_WRAPPER_COMMAND", "ghc")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR",
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.webqtlConfig.GENERATED_IMAGE_DIR", "/home/user/img")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.GEMMAOPTS", "-debug")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.GEMMA_WRAPPER_COMMAND", "ghc")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.TEMPDIR",
                 os.path.join(os.path.dirname(__file__), "user/data"))
-    @mock.patch("wqflask.marker_regression.gemma_mapping.parse_loco_output")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.gen_covariates_file")
-    @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.os")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.parse_loco_output")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.flat_files")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.gen_covariates_file")
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.random.choice")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.os")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.gen_pheno_txt_file")
     def test_run_gemma_firstrun_set_true(self, mock_gen_pheno_txt, mock_os, mock_choice, mock_gen_covar, mock_flat_files, mock_parse_loco):
         """add tests for run_gemma where first run is set to true"""
         this_chromosomes = {}
@@ -78,7 +78,7 @@ class TestGemmaMapping(unittest.TestCase):
             ('/home/user/imgfile_output.assoc.txt'))
         self.assertEqual(results, ([], "GP1_GWA_RRRRRR"))
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
     def test_gen_pheno_txt_file(self):
         """add tests for generating pheno txt file"""
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
@@ -95,9 +95,9 @@ class TestGemmaMapping(unittest.TestCase):
 
             filehandler.write.assert_has_calls(write_calls)
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.flat_files")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.create_trait")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.create_dataset")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.flat_files")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.create_trait")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.create_dataset")
     def test_gen_covariates_file(self, create_dataset, create_trait, flat_files):
         """add tests for generating covariates files"""
         covariates = "X1:X2,Y1:Y2,M1:M3,V1:V2"
@@ -140,9 +140,9 @@ class TestGemmaMapping(unittest.TestCase):
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.os")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.json")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.os")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.json")
     def test_parse_loco_outputfile_found(self, mock_json, mock_os):
         """add tests for parse loco output file found"""
         mock_json.load.return_value = {
@@ -174,8 +174,8 @@ X\tM5\t12\tQ\tE\tMMB\tR\t21.1\tW\t0.65\t0.6"""
                 {'name': 'M5', 'chr': 'X', 'Mb': 1.2e-05, 'p_value': 0.6, 'additive': -10.55, 'lod_score': 0.22184874961635637}]
             self.assertEqual(expected_results, results)
 
-    @mock.patch("wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
-    @mock.patch("wqflask.marker_regression.gemma_mapping.os")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/tmp")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.os")
     def test_parse_loco_outputfile_not_found(self, mock_os):
         """add tests for parse loco output where  output file not found"""
 

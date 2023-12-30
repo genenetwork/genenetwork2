@@ -61,7 +61,7 @@ class TestRunMapping(unittest.TestCase):
         result_2 = get_genofile_samplelist(self.dataset)
         self.assertEqual(result_2, [])
 
-    @mock.patch("wqflask.marker_regression.run_mapping.data_set")
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.data_set")
     def test_if_geno_db_exists(self, mock_data_set):
         mock_data_set.create_dataset.side_effect = [
             AttributeSetter({}), Exception()]
@@ -178,7 +178,7 @@ class TestRunMapping(unittest.TestCase):
 
         with mock.patch("builtins.open", mock.mock_open()) as mock_open:
 
-            with mock.patch("wqflask.marker_regression.run_mapping.datetime.datetime", new=datetime_mock):
+            with mock.patch("gn2.wqflask.marker_regression.run_mapping.datetime.datetime", new=datetime_mock):
                 export_mapping_results(dataset=self.dataset, trait=self.trait, markers=markers,
                                        results_path="~/results", mapping_method="gemma", mapping_scale="physic",
                                        score_type="-logP", transform="qnorm",
@@ -215,7 +215,7 @@ class TestRunMapping(unittest.TestCase):
                 filehandler = mock_open()
                 filehandler.write.assert_has_calls(write_calls)
 
-    @mock.patch("wqflask.marker_regression.run_mapping.random.choice")
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.random.choice")
     def test_write_input_for_browser(self, mock_choice):
         """test for writing input for browser"""
         mock_choice.side_effect = ["F", "i", "l", "e", "s", "x"]

@@ -39,7 +39,7 @@ class TestCorrelations(unittest.TestCase):
 
         self.assertEqual(corr_params_results, expected_results)
 
-    @mock.patch("wqflask.api.correlation.database_connection")
+    @mock.patch("gn2.wqflask.api.correlation.database_connection")
     def test_convert_to_mouse_gene_id(self, mock_db):
         conn = mock.MagicMock()
         mock_db.return_value.__enter__.return_value = conn
@@ -59,8 +59,8 @@ class TestCorrelations(unittest.TestCase):
                 convert_to_mouse_gene_id(species="human", gene_id="H1"), "MG-2"
             )
 
-    @mock.patch("wqflask.api.correlation.database_connection")
-    @mock.patch("wqflask.api.correlation.convert_to_mouse_gene_id")
+    @mock.patch("gn2.wqflask.api.correlation.database_connection")
+    @mock.patch("gn2.wqflask.api.correlation.convert_to_mouse_gene_id")
     def test_do_literature_correlation_for_all_traits(
         self, mock_convert_to_mouse_geneid, mock_db
     ):
@@ -88,7 +88,7 @@ class TestCorrelations(unittest.TestCase):
             }
             self.assertEqual(results, expected_results)
 
-    @mock.patch("wqflask.api.correlation.corr_result_helpers.normalize_values")
+    @mock.patch("gn2.wqflask.api.correlation.corr_result_helpers.normalize_values")
     def test_get_sample_r_and_p_values(self, mock_normalize):
 
         group = AttributeSetter(
@@ -146,7 +146,7 @@ class TestCorrelations(unittest.TestCase):
             self.assertAlmostEqual(val, results_spearmanr[i], 4)
         self.assertEqual(results_num_overlap, None)
 
-    @mock.patch("wqflask.api.correlation.do_literature_correlation_for_all_traits")
+    @mock.patch("gn2.wqflask.api.correlation.do_literature_correlation_for_all_traits")
     def test_calculate_results(self, literature_correlation):
 
         literature_correlation.return_value = {

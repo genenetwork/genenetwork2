@@ -63,12 +63,12 @@ class TestMapping(unittest.TestCase):
 
         self.assertEqual(results_2, expected_results)
 
-    @mock.patch("wqflask.api.mapping.rqtl_mapping.run_rqtl")
-    @mock.patch("wqflask.api.mapping.gemma_mapping.run_gemma")
-    @mock.patch("wqflask.api.mapping.initialize_parameters")
-    @mock.patch("wqflask.api.mapping.retrieve_sample_data")
-    @mock.patch("wqflask.api.mapping.create_trait")
-    @mock.patch("wqflask.api.mapping.data_set.create_dataset")
+    @mock.patch("gn2.wqflask.api.mapping.rqtl_mapping.run_rqtl")
+    @mock.patch("gn2.wqflask.api.mapping.gemma_mapping.run_gemma")
+    @mock.patch("gn2.wqflask.api.mapping.initialize_parameters")
+    @mock.patch("gn2.wqflask.api.mapping.retrieve_sample_data")
+    @mock.patch("gn2.wqflask.api.mapping.create_trait")
+    @mock.patch("gn2.wqflask.api.mapping.data_set.create_dataset")
     def test_do_mapping_for_api(self, mock_create_dataset, mock_trait, mock_retrieve_sample, mock_param, run_gemma, run_rqtl_geno):
         start_vars = {
             "db": "Temp",

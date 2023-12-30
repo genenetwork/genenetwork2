@@ -42,7 +42,7 @@ class TestCollect(unittest.TestCase):
     def tearDown(self):
         self.app_context.pop()
 
-    @mock.patch("wqflask.collect.g", MockFlaskG())
+    @mock.patch("gn2.wqflask.collect.g", MockFlaskG())
     def test_process_traits_with_bytestring(self):
         """
         Test that the correct traits are returned when the user is logged
@@ -58,7 +58,7 @@ class TestCollect(unittest.TestCase):
                  '1452447_at:HC_M2_0606_P',
                  '1452452_at:HC_M2_0606_P']))
 
-    @mock.patch("wqflask.collect.g", MockFlaskG())
+    @mock.patch("gn2.wqflask.collect.g", MockFlaskG())
     def test_process_traits_with_normal_string(self):
         """
         Test that the correct traits are returned when the user is logged
