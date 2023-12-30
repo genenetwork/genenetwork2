@@ -16,5 +16,5 @@ echo Running source from $cwd
 
 mkdir -p ~/tmp
 
-env TMPDIR=~/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG GENENETWORK_FILES=/export/data/genenetwork/genotype_files/ SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 etc/default_settings.py -gunicorn-dev 
+env TMPDIR=~/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG GENENETWORK_FILES=/export/data/genenetwork/genotype_files/ SQL_URI=mysql://webqtlout:webqtlout@localhost/db_webqtl ./bin/genenetwork2 gn2/default_settings.py -gunicorn-dev
 

@@ -86,7 +86,7 @@ In fact you can kick off a Python shell with something like
 env SERVER_PORT=5013 WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG \
   SQL_URI=mysql://gn2:webqtl@localhost/db_webqtl_s \
   GN2_PROFILE=~/opt/genenetwork2 \
-  ./bin/genenetwork2 ./etc/default_settings.py -c
+  ./bin/genenetwork2 ./gn2/default_settings.py -c
 Python 2.7.17 (default, Jan  1 1970, 00:00:01)
 [GCC 7.5.0] on linux2
 Type "help", "copyright", "credits" or "license" for more information.

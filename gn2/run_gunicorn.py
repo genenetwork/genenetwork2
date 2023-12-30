@@ -2,7 +2,7 @@
 #
 # Run standalone with
 #
-#   ./bin/genenetwork2 ./etc/default_settings.py -c run_gunicorn.py
+#   ./bin/genenetwork2 ./gn2/default_settings.py -c run_gunicorn.py
 
 # from flask import Flask
 # application = Flask(__name__)

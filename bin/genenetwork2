@@ -25,15 +25,15 @@
 # webserver) run from the base-dir with settings file and add that
 # script with a -c switch, e.g.
 #
-#   env GN2_PROFILE=/usr/local/guix-profiles/gn-latest-20190905 TMPDIR=/export/local/home/zas1024/gn2-zach/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/local/home/zas1024/gn2-zach/genotype_files SQL_URI=mysql://webqtlout:webqtlout@lily.uthsc.edu/db_webqtl ./bin/genenetwork2 ./etc/default_settings.py -c ./maintenance/gen_select_dataset.py
+#   env GN2_PROFILE=/usr/local/guix-profiles/gn-latest-20190905 TMPDIR=/export/local/home/zas1024/gn2-zach/tmp WEBSERVER_MODE=DEBUG LOG_LEVEL=DEBUG SERVER_PORT=5002 GENENETWORK_FILES=/export/local/home/zas1024/gn2-zach/genotype_files SQL_URI=mysql://webqtlout:webqtlout@lily.uthsc.edu/db_webqtl ./bin/genenetwork2 ./gn2/default_settings.py -c ./maintenance/gen_select_dataset.py
 #
 # To run any script in the environment
 #
-#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -cli echo "HELLO WORLD"
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./gn2/default_settings.py -cli echo "HELLO WORLD"
 #
 # To get a python REPL(!)
 #
-#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -cli python
+#   env GN2_PROFILE=~/opt/gn-latest ./bin/genenetwork2 ./gn2/default_settings.py -cli python
 #
 # For development you may want to run
 #
@@ -42,15 +42,15 @@
 # For staging and production we use gunicorn. Run with something like
 # (note you have to provide the server port). Provide a settings file!
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-prod
+#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./gn2/default_settings.py -gunicorn-prod
 #
 # For development use
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./etc/default_settings.py -gunicorn-dev
+#   env GN2_PROFILE=~/opt/gn-latest-guix SERVER_PORT=5003 ./bin/genenetwork2 ./gn2/default_settings.py -gunicorn-dev
 #
 # For extra flexibility you can also provide gunicorn parameters yourself with something like
 #
-#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./etc/default_settings.py -gunicorn "--bind 0.0.0.0:5003 --workers=1 wsgi"
+#   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./gn2/default_settings.py -gunicorn "--bind 0.0.0.0:5003 --workers=1 wsgi"
 
 SCRIPT=$(realpath "$0")
 echo SCRIPT="${SCRIPT}"
@@ -77,7 +77,7 @@ fi
 
 settings=$1
 if [ -z "${settings}" ]; then
-    settings=$GN2_BASE_DIR/etc/default_settings.py
+    settings=$GN2_BASE_DIR/gn2/default_settings.py
 else
     shift
 fi

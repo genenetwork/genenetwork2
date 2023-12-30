@@ -40,7 +40,7 @@ def get_setting(command_id, guess=None):
     Note that we do not use the system path. This is on purpose
     because it will mess up controlled (reproducible) deployment. The
     proper way is to either use the GNU Guix defaults as listed in
-    etc/default_settings.py or override them yourself by creating a
+    gn2/default_settings.py or override them yourself by creating a
     different settings.py file (or setting the environment).
 
     """

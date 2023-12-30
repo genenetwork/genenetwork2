@@ -1,6 +1,6 @@
 # Run with something like
 #
-#   env GN2_PROFILE=/home/wrk/opt/gn-latest ./bin/genenetwork2 ./etc/default_settings.py -c ../test/requests/test-website.py http://localhost:5003
+#   env GN2_PROFILE=/home/wrk/opt/gn-latest ./bin/genenetwork2 ./gn2/default_settings.py -c ../test/requests/test-website.py http://localhost:5003
 #
 # Mostly to pick up the Guix GN2_PROFILE and python modules
 

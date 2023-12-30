@@ -17,7 +17,7 @@ env GN2_PROFILE=$HOME/opt/genenetwork2 \
     GN3_LOCAL_URL=http://localhost:8083 \
     GN_LOCAL_URL=http://localhost:8083 \
     $HOME/projects/oqo-genenetwork2/bin/genenetwork2 \
-    $HOME/projects/oqo-genenetwork2/etc/default_settings.py\
+    $HOME/projects/oqo-genenetwork2/gn2/default_settings.py\
     -cli $*
 #+end_src
 

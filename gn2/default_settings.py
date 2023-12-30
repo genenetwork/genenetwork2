@@ -19,7 +19,7 @@
 #
 # For GNU Guix deployment also check the paths in
 #
-#  ~/.guix-profile/lib/python3.8/site-packages/genenetwork2-2.0-py2.7.egg/etc/default_settings.py
+#  ~/.guix-profile/lib/python3.8/site-packages/genenetwork2-2.0-py2.7.egg/gn2/default_settings.py
 
 import os
 import sys

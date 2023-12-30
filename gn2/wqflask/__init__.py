@@ -48,9 +48,7 @@ app = Flask(__name__)
 
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
-default_settings_file = Path(Path(__file__).parent.parent.parent,
-                             "etc/default_settings.py")
-app.config.from_pyfile(default_settings_file)
+app.config.from_object('gn2.default_settings')
 app.config.from_envvar('GN2_SETTINGS')
 
 app.jinja_env.globals.update(
