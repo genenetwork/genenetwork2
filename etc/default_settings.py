@@ -24,8 +24,7 @@
 import os
 import sys
 
-with open("etc/VERSION", "r") as version_file:
-    GN_VERSION = version_file.read()
+GN_VERSION = "2.11-rc2"
 
 SECRET_KEY = ""
 
