@@ -272,10 +272,15 @@ def gnqna():
             def __success__(resp):
 
                 return render_template("gnqa_answer.html",**resp.json())
+
+            token = session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"])
             return monad_requests.post(
                 urljoin(GN_SERVER_URL,
                         "llm/gnqna"),
                 json=dict(request.form),
+                headers={
+                "Authorization": f"Bearer {token}"}
                 ).then(
                     lambda resp: resp
                 ).either(
