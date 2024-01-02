@@ -90,7 +90,6 @@ from gn2.utility.tools import USE_REDIS
 from gn2.utility.tools import REDIS_URL
 from gn2.utility.tools import GN_SERVER_URL
 from gn2.utility.tools import GN3_LOCAL_URL
-from gn2.utility.tools import GN_VERSION
 from gn2.utility.tools import JS_TWITTER_POST_FETCHER_PATH
 from gn2.utility.tools import JS_GUIX_PATH
 from gn2.utility.helper_functions import get_species_groups
@@ -143,7 +142,7 @@ def handle_generic_exceptions(e):
     resp = make_response(render_template("error.html", message=err_msg,
                                          stack={formatted_lines},
                                          error_image=animation,
-                                         version=GN_VERSION))
+                                         version=current_app.config.get("GN_VERSION")))
     resp.set_cookie(err_msg[:32], animation)
     return resp
 
@@ -157,7 +156,7 @@ def no_access_page():
 def index_page():
     anon_id = session_info()["anon_id"]
     def __render__(colls):
-        return render_template("index_page.html", version=GN_VERSION,
+        return render_template("index_page.html", version=current_app.config.get("GN_VERSION"),
                                gn_server_url=GN_SERVER_URL,
                                anon_collections=(
                                    colls if user_logged_in() else []),
@@ -380,7 +379,7 @@ def submit_trait_form():
         "submit_trait.html",
         species_and_groups=species_and_groups,
         gn_server_url=GN_SERVER_URL,
-        version=GN_VERSION)
+        version=current_app.config.get("GN_VERSION"))
 
 
 @app.route("/create_temp_trait", methods=('POST',))

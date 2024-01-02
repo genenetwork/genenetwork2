@@ -264,18 +264,7 @@ def gn_version_repo_info(root_dir):
     except:
         return ""
 
-def gn_version():
-    """Compute and return the version of the application."""
-    hostname = socket.gethostname()
-    basedir = Path(__file__).absolute().parent.parent.parent
-    with open(Path(basedir, "etc", "VERSION"), encoding="utf8") as version_file:
-        version_contents = version_file.read().strip()
-    base_version = f"{hostname}:{basedir.name}:{version_contents}"
-    repo_info = gn_version_repo_info(basedir)
-    return f"{base_version}-{repo_info}" if bool(repo_info) else base_version
-
 # Cached values
-GN_VERSION = gn_version()
 HOME = get_setting('HOME')
 SERVER_PORT = get_setting('SERVER_PORT')
 WEBSERVER_MODE = get_setting('WEBSERVER_MODE')

@@ -134,7 +134,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
             dataset_id=dataset_id,
             name=name,
             resource_id=request.args.get("resource-id"),
-            version=get_setting("GN_VERSION"),
+            version=current_app.config.get("GN_VERSION"),
             dataset_name=request.args["dataset_name"])
 
 
@@ -158,7 +158,7 @@ def display_probeset_metadata(name: str):
             probeset_id=_d["probeset"]["id_"],
             name=name,
             resource_id=request.args.get("resource-id"),
-            version=get_setting("GN_VERSION"),
+            version=current_app.config.get("GN_VERSION"),
             dataset_name=request.args["dataset_name"],
             sample_list=sample_list,
             sample_data=sample_data
@@ -758,7 +758,7 @@ def show_history(dataset_id: str = "", name: str = ""):
     return render_template(
         "edit_history.html",
         diff={key: set(val) for key,val in diff_data_},
-        version=get_setting("GN_VERSION"),
+        version=current_app.config.get("GN_VERSION"),
     )
 
 def __authorised_p__(dataset_name, trait_name):
