@@ -137,7 +137,7 @@ def handle_generic_exceptions(e):
     animation = request.cookies.get(err_msg[:32])
     if not animation:
         animation = random.choice([fn for fn in os.listdir(
-            "./wqflask/static/gif/error") if fn.endswith(".gif")])
+            "./gn2/wqflask/static/gif/error") if fn.endswith(".gif")])
 
     resp = make_response(render_template("error.html", message=err_msg,
                                          stack={formatted_lines},
