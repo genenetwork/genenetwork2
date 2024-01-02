@@ -33,7 +33,7 @@
 <div id="gnqna_controller">
   <form method="POST" action="/gnqna" id="gnqna_form">
   <input  id="gnqna_search" style="width:45vw" type="text" autocomplete="off" 
-required placeholder="Ask a Question or Topic ( Genes) " value='' name="querygnqa">
+required placeholder="Ask a Question or Topic e.g ( Genes) " value='' name="querygnqa">
 
 </form>
 </div>
@@ -51,10 +51,9 @@ required placeholder="Ask a Question or Topic ( Genes) " value='' name="querygnq
 <script type="text/javascript">
 
     document.addEventListener('DOMContentLoaded', function() {
-
-       $("#gnqna_search").keyup(function(event) {
+       $("#gnqna_search").keypress(function(event) {
             if (event.keyCode === 13) {
-            $('#gnqna_form').attr('action', "/gnqna").submit();
+            $('#gnqna_form').submit();
             }
         })
 
