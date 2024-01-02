@@ -95,11 +95,27 @@
    / box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
   }
 
+  #loader {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.75) url("/static/gif/loader.gif") no-repeat center center;
+    z-index: 10000;
+}
+
 
 
 </style>
 
 <div style="height: 90vh;width: 100vw; margin-bottom: 10px;">
+
+  <div id="loader">
+    
+  </div>
 <div style="margin:10px; border:1px solid #ccc;padding: 15px;">
   <div >
     <h1 id="gnqa_query" style="font-weight: bolder">{{query}}<h1>
@@ -141,6 +157,9 @@
             if (event.keyCode === 13) {
                 console.log("clicked this button")
             $('#gnqna_search_home').submit();
+            let spinner = $("#loader")
+            spinner.show();
+
             }
         })
     });
