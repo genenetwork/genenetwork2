@@ -260,17 +260,17 @@ group_info = function() {
 $('#group_info').click(group_info);
 
 dataset_info = function() {
-  var dataset, url;
   accession_id = $('#dataset option:selected').data("id");
   if (accession_id != "None") {
-    url = "https://info.genenetwork.org/infofile/source.php?GN_AccesionId=" + accession_id
+    $('input[name=accession_id]').val(accession_id);
   } else {
-    species = $('#species').val();
-    group = $('#group').val();
-    url = "https://info.genenetwork.org/species/source.php?SpeciesName=" + species + "&InbredSetName=" + group
+    $('input[name=accession_id]').val("None");
   }
-  return open_window(url, "_blank");
-};
+
+  $('#searchform').prop("action", "/db_info");
+  $('#searchform').submit();
+}
+
 $('#dataset_info').click(dataset_info);
 
 make_default = function() {
@@ -328,3 +328,6 @@ check_search_term = function() {
 };
 
 $("#make_default").click(make_default);
+$("#btsearch").click(function() {
+  $("#searchform").prop("action", "/search")
+});

@@ -203,7 +203,7 @@
                                 <!--  SEARCH, MAKE DEFAULT -->
                                 <div class="form-group">
                                 </div>
-
+                                <input type="hidden" name="accession_id" value="None" class="form-control">
                                 <input type="hidden" name="FormID" value="searchResult" class="form-control">
                             </div>
                         </fieldset>
@@ -386,12 +386,11 @@ $(document).on('submit', '#searchform', function(event){
 
                 if( event.target.value.trim() != "" ) {
                     saveBeforeSubmit(event.target.value.trim())
-                    $("#searchform")[0].submit();   
-                   
+                    $("#searchform").prop("action", "/search")
+                    $("#searchform")[0].submit();
                 }
                 
             }
         }
-
     </script>
 {% endblock %}

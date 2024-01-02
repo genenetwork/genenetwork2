@@ -1003,9 +1003,10 @@ def snp_browser_page():
 
 @app.route("/db_info", methods=('GET',))
 def db_info_page():
-    template_vars = InfoPage(request.args)
-
-    return render_template("info_page.html", **template_vars.__dict__)
+    if request.args['accession_id'] != "None" and not any(x in request.args['dataset'] for x in ["Publish", "Geno"]):
+        return redirect("https://info.genenetwork.org/infofile/source.php?GN_AccesionId=" + request.args['accession_id'])
+    else:
+        return redirect("https://info.genenetwork.org/species/source.php?SpeciesName=" + request.args['species'] + "&InbredSetName=" + request.args['group'])
 
 
 @app.route("/snp_browser_table", methods=('GET',))
@@ -1024,7 +1025,7 @@ def snp_browser_table():
 
 @app.route("/tutorial/WebQTLTour", methods=('GET',))
 def tutorial_page():
-    # ZS: Currently just links to GN1
+    # Currently just links to GN1
     return redirect("http://gn1.genenetwork.org/tutorial/WebQTLTour/")
 
 
