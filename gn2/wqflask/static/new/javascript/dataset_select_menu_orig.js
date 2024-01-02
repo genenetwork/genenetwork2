@@ -251,11 +251,9 @@ open_window = function(url, name) {
 };
 
 group_info = function() {
-  var group, species, url;
-  species = $('#species').val();
-  group = $('#group').val();
-  url = "http://gn1.genenetwork.org/" + species + "Cross.html#" + group;
-  return open_window(url, "_blank");
+  $('input[name=accession_id]').val("None");
+  $('#searchform').prop("action", "/db_info");
+  $('#searchform').submit();
 };
 $('#group_info').click(group_info);
 
