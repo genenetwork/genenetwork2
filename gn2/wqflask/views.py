@@ -1171,6 +1171,20 @@ def get_phenotype(name, group=None):
     )
 
 
+@app.route("/probesets/<name>", methods=('GET',))
+def get_probeset(name):
+    metadata = requests.get(
+        urljoin(
+            GN3_LOCAL_URL,
+            f"/api/metadata/probesets/{name}")
+    ).json()
+    return render_template(
+        "probeset.html",
+        name=name,
+        metadata=metadata,
+    )
+
+
 @app.route("/genotypes/<name>", methods=('GET',))
 def get_genotype(name):
     metadata = requests.get(

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+ .page-header {
+     text-underline-offset: 0.5rem;
+     padding: 1em;
+ }
+</style>
+{% endblock %}
+
+{% block title %}
+mRNA Expression:
+{{ metadata.name or name }}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+    <h2>
+	mRNA Expression:
+	{{ metadata.name or name }}
+    </h2>
+    {% if metadata.description %}
+    <h3>{{ metadata.description }}</h3>
+    {% endif %}
+    <table class="table">
+	{% if metadata.dataset %}
+	<tr>
+            <td><b>Group </b></td>
+            <td>
+		<a href="{{ metadata.group }}" target="_blank">{{ metadata.dataset }}</a>
+	    </td>
+	</tr>
+	<tr>
+            <td><b>Dataset </b></td>
+            <td>
+		<a href="{{ metadata.group }}" target="_blank">{{ metadata.datasetName }}</a>
+	    </td>
+        </tr>
+	<tr>
+            <td><b>Tissue</b></td>
+            <td>{{ metadata.tissue}}</td>
+		</tr>
+	{% endif %}
+
+	{% if metadata.symbol %}
+	<tr>
+	    <td><b>Gene Symbol</b></td>
+	    <td>
+		{% if metadata.symbol.__class__.__name__ == 'list' %}
+		{% for symbol in metadata.symbol %}
+		{{ symbol.symbol }};
+		{% endfor %}
+		{% else %}
+		{{ metadata.symbol }}
+		{% endif %}
+	    </td>
+	</tr>
+	{% endif %}
+
+	{% if metadata.alias %}
+	<td><b>Aliases</b></td>
+	<!-- XXX TODO: How do you fetch the Wikidata Alias for a given genesymbol? -->
+	<td>GeneneNetwork: {{ metadata.alias }}</td>
+	{% endif %}
+
+	{% if metadata.location %}
+	<tr>
+            <td><b>Location</b></td>
+            <td> {{ metadata.location }}</td>
+	</tr>
+	{% endif %}
+
+        {% if metadata.blatSeq %}
+        <tr>
+	    <td><b>BLAT Sequence</b></td>
+	    <td style="inline-size: fit-content; writing-mode: horizontal-tb; overflow-wrap: break-word; max-width: 70vw;">
+		{{ metadata.blatSeq }}
+	    </td>
+        </tr>
+        {% endif %}
+
+	{% if metadata.specificity or metadata.blatScore %}
+        <tr>
+	    <td><b>Target Score</b></td>
+	    <td>
+		{% if metadata.specificity %}
+		<a href="http://gn1.genenetwork.org/blatInfo.html" target="_blank">BLAT Specificity</a>: {{ metadata.specificity }}
+		{% endif %}
+
+		{% if metadata.blatScore %}
+		&emsp;Score: {{ metadata.blatScore }}
+		{% endif %}
+	    </td>
+        </tr>
+        {% endif %}
+
+	{% if metadata.references %}
+	<tr>
+	    <td><b>Resource Links</b></td>
+	    <td>
+		{% for reference in metadata.references %}
+		<a href="{{ reference.id }}" target="_blank" title="{{ reference.comments }}">{{ reference.name }}</a>&emsp;
+		{% endfor %}
+	    </td>
+
+	</tr>
+	{% endif %}
+    </table>
+</div>
+
+{% endblock %}
