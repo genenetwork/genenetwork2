@@ -26,23 +26,22 @@ mRNA Expression:
     <h3>{{ metadata.description }}</h3>
     {% endif %}
     <table class="table">
-	{% if metadata.dataset %}
+	{% if metadata.group and metadata.species %}
 	<tr>
             <td><b>Group </b></td>
             <td>
-		<a href="{{ metadata.group }}" target="_blank">{{ metadata.dataset }}</a>
+		{{ metadata.species|capitalize }}: {{ metadata.group }}
 	    </td>
 	</tr>
+	{% endif %}
+
+	{% if metadata.tissue %}
 	<tr>
-            <td><b>Dataset </b></td>
-            <td>
-		<a href="{{ metadata.group }}" target="_blank">{{ metadata.datasetName }}</a>
+	    <td><b>Tissue</b></td>
+	    <td>
+		{{ metadata.tissue }}
 	    </td>
-        </tr>
-	<tr>
-            <td><b>Tissue</b></td>
-            <td>{{ metadata.tissue}}</td>
-		</tr>
+	</tr>
 	{% endif %}
 
 	{% if metadata.symbol %}
@@ -81,6 +80,13 @@ mRNA Expression:
 	    </td>
         </tr>
         {% endif %}
+
+	{% if metadata.dataset and dataset %}
+	<tr>
+	    <td><b>Database</b></td>
+	    <td><a href={{ url_for('get_dataset', name=dataset) }} target="_blank">{{ metadata.dataset }}</a></td>
+	</tr>
+	{% endif %}
 
 	{% if metadata.specificity or metadata.blatScore %}
         <tr>
