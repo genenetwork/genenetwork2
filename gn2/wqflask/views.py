@@ -1182,7 +1182,8 @@ def get_phenotype(name, group=None):
 
 
 @app.route("/probesets/<name>", methods=('GET',))
-def get_probeset(name):
+@app.route("/probesets/<dataset>/<name>", methods=["GET"])
+def get_probeset(name, dataset=None):
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
@@ -1191,6 +1192,7 @@ def get_probeset(name):
     return render_template(
         "probeset.html",
         name=name,
+        dataset=dataset,
         metadata=metadata,
     )
 
