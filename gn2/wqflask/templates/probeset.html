@@ -22,6 +22,10 @@ mRNA Expression:
 	mRNA Expression:
 	{{ metadata.name or name }}
     </h2>
+    {% if name and dataset %}
+    <a href={{ url_for('show_trait_page', dataset=dataset, trait_id=name) }} target="blank">[compare]</a>
+    {% endif %}
+
     {% if metadata.description %}
     <h3>{{ metadata.description }}</h3>
     {% endif %}
