@@ -155,6 +155,7 @@ def no_access_page():
 @app.route("/")
 def index_page():
     anon_id = session_info()["anon_id"]
+
     def __render__(colls):
         return render_template("index_page.html", version=current_app.config.get("GN_VERSION"),
                                gn_server_url=GN_SERVER_URL,
@@ -261,27 +262,26 @@ def gsearchtable():
     return flask.jsonify(current_page)
 
 
-
-
-@app.route("/gnqna",methods =["POST","GET"])
+@app.route("/gnqna", methods=["POST", "GET"])
 def gnqna():
     if request.method == "POST":
         try:
             def __error__(resp):
                 return resp.json()
+
             def __success__(resp):
 
-                return render_template("gnqa_answer.html",**resp.json())
+                return render_template("gnqa_answer.html", **resp.json())
             return monad_requests.post(
-                urljoin(GN3_LOCAL_URL,
-                        "/api/llm/gnqna"),
+                urljoin(current_app.config.get(GN_SERVER_URL),
+                        "llm/gnqna"),
                 json=dict(request.form),
-                ).then(
-                    lambda resp: resp
-                ).either(
-                    __error__, __success__)
+            ).then(
+                lambda resp: resp
+            ).either(
+                __error__, __success__)
         except Exception as error:
-            return flask.jsonify({"error":str(error)})
+            return flask.jsonify({"error": str(error)})
     return render_template("gnqa.html")
 
 
@@ -526,7 +526,8 @@ def show_trait_page():
     def __show_trait__(privileges_data):
         assert len(privileges_data) == 1
         privileges_data = privileges_data[0]
-        trait_privileges = tuple(item for item in privileges_data["privileges"])
+        trait_privileges = tuple(
+            item for item in privileges_data["privileges"])
         with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
 
             user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
@@ -573,7 +574,8 @@ def heatmap_page():
                 result = pickle.loads(result)
 
             else:
-                template_vars = heatmap.Heatmap(cursor, request.form, temp_uuid)
+                template_vars = heatmap.Heatmap(
+                    cursor, request.form, temp_uuid)
                 template_vars.js_data = json.dumps(template_vars.js_data,
                                                    default=json_default_handler,
                                                    indent="   ")
@@ -851,6 +853,7 @@ def mapping_results_page(hash_of_inputs=None):
 
     return rendered_template
 
+
 @app.route("/cache_mapping_inputs", methods=('POST',))
 def cache_mapping_inputs():
     cache_id = request.form.get("inputs_hash")
@@ -858,6 +861,7 @@ def cache_mapping_inputs():
     Redis.set(cache_id, inputs_json)
 
     return "Success"
+
 
 @app.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
@@ -916,25 +920,28 @@ def network_graph_page():
     else:
         return render_template("empty_collection.html", **{'tool': 'Network Graph'})
 
+
 def __handle_correlation_error__(exc):
     return render_template(
         "correlation_error_page.html",
-        error = {
+        error={
             "error-type": {
                 "WrongCorrelationType": "Wrong Correlation Type"
             }[type(exc).__name__],
             "error-message": exc.args[0]
         })
 
+
 @app.route("/corr_compute", methods=('POST', 'GET'))
 def corr_compute_page():
     with Redis.from_url(REDIS_URL, decode_responses=True) as rconn:
         if request.method == "POST":
             request_received = datetime.datetime.utcnow()
-            filename=hmac.hmac_creation(f"request_form_{request_received.isoformat()}")
+            filename = hmac.hmac_creation(f"request_form_{request_received.isoformat()}")
             filepath = f"{TMPDIR}{filename}"
             with open(filepath, "wb") as pfile:
-                pickle.dump(request.form, pfile, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(request.form, pfile,
+                            protocol=pickle.HIGHEST_PROTOCOL)
                 job_id = jobs.queue(
                     rconn, {
                         "command": [
@@ -1135,6 +1142,7 @@ def get_dataset(name):
         dataset=metadata
     )
 
+
 @app.route("/datasets/search", methods=('POST',))
 def search_for_dataset():
     search = request.form.get('search')
@@ -1142,6 +1150,7 @@ def search_for_dataset():
         "metadata/dataset_search_results.html",
         results=search
     )
+
 
 @app.route("/publications/<name>", methods=('GET',))
 def get_publication(name):
@@ -1184,6 +1193,7 @@ def get_genotype(name):
         metadata=metadata,
     )
 
+
 @app.route("/case-attribute/<int:inbredset_id>/edit", methods=["GET", "POST"])
 def edit_case_attributes(inbredset_id: int) -> Response:
     """
@@ -1191,8 +1201,10 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     """
     if request.method == "POST":
         form = request.form
+
         def __process_data__(acc, item):
-            _new, strain, calabel = tuple(val.strip() for val in item[0].split(":"))
+            _new, strain, calabel = tuple(val.strip()
+                                          for val in item[0].split(":"))
             old_row = acc.get(strain, {})
             return {
                 **acc,
@@ -1208,6 +1220,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             "edit_case_attributes", inbredset_id=inbredset_id))
         token = session_info()["user"]["token"].either(
             lambda err: err, lambda tok: tok["access_token"])
+
         def flash_success(resp):
             def __succ__(remote_resp):
                 flash(f"Success: {remote_resp.json()['message']}", "alert-success")
@@ -1222,8 +1235,8 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             },
             headers={
                 "Authorization": f"Bearer {token}"}).either(
-                with_flash_error(edit_case_attributes_page),
-                flash_success(edit_case_attributes_page))
+            with_flash_error(edit_case_attributes_page),
+            flash_success(edit_case_attributes_page))
 
     def __fetch_strains__(inbredset_group):
         return monad_requests.get(urljoin(
@@ -1250,9 +1263,10 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             lambda resp: {"inbredset_group": resp.json()}).then(
                 __fetch_strains__).then(__fetch_names__).then(
                     __fetch_values__).either(
-                        lambda err: err, ## TODO: Handle error better
+                        lambda err: err,  # TODO: Handle error better
                         lambda values: render_template(
                             "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
+
 
 @app.route("/case-attribute/<int:inbredset_id>/list-diffs", methods=["GET"])
 def list_case_attribute_diffs(inbredset_id: int) -> Response:
@@ -1266,12 +1280,13 @@ def list_case_attribute_diffs(inbredset_id: int) -> Response:
                     inbredset_id=inbredset_id,
                     error=err),
                 lambda diffs: render_template(
-                "list_case_attribute_diffs.html",
+                    "list_case_attribute_diffs.html",
                     inbredset_id=inbredset_id,
                     diffs=diffs))
 
+
 @app.route("/case-attribute/<int:inbredset_id>/diff/<int:diff_id>/view", methods=["GET"])
-def view_diff(inbredset_id:int, diff_id: int) -> Response:
+def view_diff(inbredset_id: int, diff_id: int) -> Response:
     """View the pending diff."""
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
@@ -1284,6 +1299,7 @@ def view_diff(inbredset_id:int, diff_id: int) -> Response:
                     "view_case_attribute_diff_error.html", error=err.json()),
                 lambda diff: render_template(
                     "view_case_attribute_diff.html", diff=diff))
+
 
 @app.route("/case-attribute/diff/approve-reject", methods=["POST"])
 def approve_reject_diff() -> Response:
@@ -1305,12 +1321,14 @@ def approve_reject_diff() -> Response:
                                   inbredset_id=inbredset_id)
         token = session_info()["user"]["token"].either(
             lambda err: err, lambda tok: tok["access_token"])
+
         def __error__(resp):
             error = resp.json()
             flash((f"{resp.status_code} {error['error']}: "
                    f"{error['error_description']}"),
                   "alert-danger")
             return redirect(list_diffs_page)
+
         def __success__(results):
             flash(results["message"], "alert-success")
             return redirect(list_diffs_page)
@@ -1319,7 +1337,7 @@ def approve_reject_diff() -> Response:
                     f"/api/case-attribute/{action}/{filename}"),
             headers={"Authorization": f"Bearer {token}"}).then(
                 lambda resp: resp.json()
-            ).either(
+        ).either(
                 __error__, __success__)
     except AssertionError as _ae:
         flash("Invalid action! Expected either 'approve' or 'reject'.",
