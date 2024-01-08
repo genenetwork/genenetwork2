@@ -697,7 +697,7 @@ def get_ncbi_summary(this_trait):
         # the output later
         try:
             response = requests.get(
-                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=%s&retmode=json" % this_trait.geneid)
+                "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=%s&retmode=json" % this_trait.geneid)
             summary = json.loads(response.content)[
                 'result'][this_trait.geneid]['summary']
             return summary
