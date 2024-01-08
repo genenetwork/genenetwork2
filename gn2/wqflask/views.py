@@ -262,6 +262,7 @@ def gsearchtable():
     return flask.jsonify(current_page)
 
 
+
 @app.route("/gnqna", methods=["POST", "GET"])
 def gnqna():
     if request.method == "POST":
@@ -273,7 +274,7 @@ def gnqna():
 
                 return render_template("gnqa_answer.html", **resp.json())
             return monad_requests.post(
-                urljoin(current_app.config["GN_SERVER_URL"],
+                urljoin(GN3_LOCAL_URL,
                         "/api/llm/gnqna"),
                 json=dict(request.form),
             ).then(
