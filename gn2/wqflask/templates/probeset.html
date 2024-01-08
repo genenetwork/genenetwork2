@@ -72,6 +72,13 @@ mRNA Expression:
 	</tr>
 	{% endif %}
 
+	{% if summary %}
+	<tr>
+	    <td><b>Summary</b></td>
+	    <td>{{ summary }}</td>
+	</tr>
+	{% endif %}
+
         {% if metadata.blatSeq %}
         <tr>
 	    <td><b>BLAT Sequence</b></td>
