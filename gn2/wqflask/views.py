@@ -274,7 +274,7 @@ def gnqna():
                 return render_template("gnqa_answer.html", **resp.json())
             return monad_requests.post(
                 urljoin(current_app.config.get(GN_SERVER_URL),
-                        "llm/gnqna"),
+                        "/api/llm/gnqna"),
                 json=dict(request.form),
             ).then(
                 lambda resp: resp
