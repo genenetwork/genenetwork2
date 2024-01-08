@@ -44,7 +44,7 @@ class DataSet:
             self.retrieve_other_names()
             # sets self.group and self.group_id and gets genotype
             self.group = DatasetGroup(self)
-            self.accession_id = self.get_accession_id()
+            self.accession_id = self.get_accession_id().value
         if get_samplelist == True:
             self.group.get_samplelist(redis_conn)
         self.species = species.TheSpecies(dataset=self)

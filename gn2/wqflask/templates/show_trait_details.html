@@ -59,13 +59,15 @@
     <tr>
         <td><b>Database</b></td>
         <td>
-            <a href="http://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&InfoPageName={{ dataset.name }}" target="_blank">
+            {% if dataset.type != "ProbeSet" %}
+            <a href="https://info.genenetwork.org/species/source.php?SpeciesName={{ dataset.group.species }}&InbredSetName={{ dataset.group.name }}" target="_blank">
                 {{ dataset.fullname }}
             </a>
-	    <br/>
-	    <a href="{{ url_for('get_dataset', name=dataset.name) }}" target="_blank">
-                GN2 Link: {{ dataset.fullname }}
+            {% else %}
+            <a href="https://info.genenetwork.org/infofile/source.php?GN_AccesionId={{ dataset.accession_id }}" target="_blank">
+                {{ dataset.fullname }}
             </a>
+            {% endif %}
         </td>
     </tr>
     {% if this_trait.probe_set_specificity %}
