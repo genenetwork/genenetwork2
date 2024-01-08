@@ -275,8 +275,8 @@ class DisplayMappingResults:
         self.mapping_method = start_vars['mapping_method']
         self.mapping_results_path = start_vars['mapping_results_path']
         if self.mapping_method == "rqtl_geno":
-            self.mapmethod_rqtl_geno = start_vars['method']
-            self.mapmodel_rqtl_geno = start_vars['model']
+            self.mapmethod_rqtl = start_vars['method']
+            self.mapmodel_rqtl = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
 
         self.js_data = start_vars['js_data']
