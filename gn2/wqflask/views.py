@@ -946,7 +946,7 @@ def corr_compute_page():
                 job_id = jobs.queue(
                     rconn, {
                         "command": [
-                            sys.executable, "-m", "scripts.corr_compute", filepath,
+                            sys.executable, "-m", "gn2.scripts.corr_compute", filepath,
                             g.user_session.user_id],
                         "request_received_time": request_received.isoformat(),
                         "status": "queued"
