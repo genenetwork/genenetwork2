@@ -17,7 +17,7 @@
         <div style="padding-top: 10px; padding-bottom: 10px; font-size: 16px;">
         <!-- Need to customize text more for other types of searches -->
 
-          <p>We searched {% if dataset.type != "ProbeSet" %}<a href="https://info.genenetwork.org/species/source.php?SpeciesName={{ dataset.group.species }}&InbredSetName={{ dataset.group.name }}" target="_blank">{{ dataset.fullname }}</a>{% else %}<a href="https://info.genenetwork.org/infofile/source.php?GN_AccesionId={{ dataset.accession_id }}" target="_blank">{{ dataset.fullname }}</a>{% endif %}
+          <p>We searched <a href='https://info.genenetwork.org/{% if dataset.type != "ProbeSet" %}species/source.php?SpeciesName={{ dataset.group.species }}&InbredSetName={{ dataset.group.name }}{% else %}infofile/source.php?GN_AccesionId={{ dataset.accession_id.value }}{% endif %}' target="_blank">{{ dataset.fullname }}</a>
           <br>
           to find all records
                 {% if go_term is not none %}

@@ -17,12 +17,12 @@
             <hr style="height: 1px; background-color: #A9A9A9;">
         </div>
         <div style="max-width: 100%;">
-          <p>Values of record {{ this_trait.name }} in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if this_dataset.accession_id %}GN_AccessionId={{ this_dataset.accession_id }}{% else %}InfoPageName={{ this_dataset.name }}{% endif %}">{{ this_dataset.fullname }}</a>
-          dataset were compared to all records in the <a href="http://genenetwork.org/webqtl/main.py?FormID=sharinginfo&{% if target_dataset.accession_id %}GN_AccessionId={{ target_dataset.accession_id }}{% else %}InfoPageName={{ target_dataset.name }}{% endif %}">{{ target_dataset.fullname }}</a>
-          dataset. The top {{ return_results }} correlations ranked by the {{ formatted_corr_type }} are displayed.
-          You can resort this list by clicking the headers. Select the Record ID to open the trait data
-          and analysis page.
-          </p>
+          <p>Values of record {{ this_trait.name }} in the <a href='https://info.genenetwork.org/{% if this_dataset.type != "ProbeSet" %}species/source.php?SpeciesName={{ this_dataset.group.species }}&InbredSetName={{ this_dataset.group.name }}{% else %}infofile/source.php?GN_AccesionId={{ this_dataset.accession_id }}{% endif %}' target="_blank">{{ this_dataset.fullname }}</a>
+            dataset were compared to all records in the <a href='https://info.genenetwork.org/{% if target_dataset.type != "ProbeSet" %}species/source.php?SpeciesName={{ target_dataset.group.species }}&InbredSetName={{ target_dataset.group.name }}{% else %}infofile/source.php?GN_AccesionId={{ target_dataset.accession_id }}{% endif %}' target="_blank">{{ target_dataset.fullname }}</a>
+            dataset. The top {{ return_results }} correlations ranked by the {{ formatted_corr_type }} are displayed.
+            You can resort this list by clicking the headers. Select the Record ID to open the trait data
+            and analysis page.
+            </p>
         </div>
         <div class="tool-button-container">
           <form id="correlation_form" target="_blank" action="/corr_matrix" method="post">

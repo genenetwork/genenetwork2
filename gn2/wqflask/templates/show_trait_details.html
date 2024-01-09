@@ -59,15 +59,7 @@
     <tr>
         <td><b>Database</b></td>
         <td>
-            {% if dataset.type != "ProbeSet" %}
-            <a href="https://info.genenetwork.org/species/source.php?SpeciesName={{ dataset.group.species }}&InbredSetName={{ dataset.group.name }}" target="_blank">
-                {{ dataset.fullname }}
-            </a>
-            {% else %}
-            <a href="https://info.genenetwork.org/infofile/source.php?GN_AccesionId={{ dataset.accession_id }}" target="_blank">
-                {{ dataset.fullname }}
-            </a>
-            {% endif %}
+            <a href='https://info.genenetwork.org/{% if dataset.type != "ProbeSet" %}species/source.php?SpeciesName={{ dataset.group.species }}&InbredSetName={{ dataset.group.name }}{% else %}infofile/source.php?GN_AccesionId={{ dataset.accession_id.value }}{% endif %}' target="_blank">{{ dataset.fullname }}</a>
         </td>
     </tr>
     {% if this_trait.probe_set_specificity %}
