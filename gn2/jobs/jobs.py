@@ -58,7 +58,7 @@ def queue(redis_conn: Redis, job: dict) -> UUID:
 
 def run(job_id: UUID, redis_uri: str):
     command = [
-        sys.executable, "-m", "scripts.run_external",
+        sys.executable, "-m", "gn2.scripts.run_external",
         f"--redis-uri={redis_uri}", "run-job", str(job_id)]
     print(f"COMMAND: {shlex.join(command)}")
     subprocess.Popen(command)

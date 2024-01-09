@@ -223,4 +223,4 @@ fi
 
 # Start the flask server running GN2
 echo "Starting with $settings"
-python gn2.runserver.py
+python -m gn2.runserver
