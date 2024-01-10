@@ -25,7 +25,7 @@
 
 <div class="container">
     <table class="table">
-	{% if metadata.dataset.group and metadata.species %}
+	{% if metadata.dataset and metadata.dataset.group and metadata.species %}
 	<tr>
 	    <td><b>Group</b></td>
             <td>{{ metadata.dataset.group }}: {{ metadata.species.speciesName }}</td>
