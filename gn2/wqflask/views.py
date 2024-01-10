@@ -1209,7 +1209,10 @@ def get_probeset(name, dataset=None):
 
 
 @app.route("/genotypes/<name>", methods=('GET',))
-def get_genotype(name):
+@app.route("/genotypes/<dataset>/<name>", methods=('GET',))
+def get_genotype(name, dataset=None):
+    if dataset:
+           name = f"{dataset}/{name}"
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
@@ -1217,6 +1220,7 @@ def get_genotype(name):
     ).json()
     return render_template(
         "genotype.html",
+        name=name,
         metadata=metadata,
     )
 

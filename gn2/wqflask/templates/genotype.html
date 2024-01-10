@@ -3,7 +3,6 @@
 {% block css %}
 <style type="text/css">
  .page-header {
-     text-underline-offset: 0.5rem;
      padding: 1em;
  }
 </style>
@@ -13,58 +12,44 @@
 
 {% block content %}
 
-<h1 class="page-header">
-    {% if metadata.name %}
-    <u>Genotype: {{ metadata.name }}</u>
-    {% else %}
-    {{ name }}
-    {% endif %}
-</h1>
+<h2 class="page-header">
+    Genotype: {{ metadata.name or name }}
+</h2>
 
 <div class="container">
     <table class="table">
-	{% if metadata.datasetName %}
-        <tr>
-            <td><b>Dataset: </b></td>
-            <td>
-		<a href="{{ metadata.genotypeOfDataset }}" target="_blank">{{ metadata.datasetName }}</a>
-	    </td>
-        </tr>
-        {% endif %}
-
-        {% if metadata.inbredSetName %}
-        <tr>
-            <td><b>Group</b></td>
-            <td>{{ metadata.inbredSetName }}</td>
-        </tr>
-        {% endif %}
-
-        <tr>
+	{% if metadata.dataset.group and metadata.species %}
+	<tr>
+	    <td><b>Group</b></td>
+            <td>{{ metadata.dataset.group }}: {{ metadata.species.speciesName }}</td>
+	</tr>
+	{% elif metadata.species %}
+	<tr>
             <td><b>Species</b></td>
-            <td>{{ metadata.species or "N/A"}}</td>
-        </tr>
+            <td>{{ metadata.species.speciesName }}</td>
+	</tr>
+	{% endif %}
+
+	{% if metadata.chr and metadata.mb %}
 	<tr>
             <td><b>Location</b></td>
-            <td>Chr {{ metadata.ch }} @ {{ metadata.mb }} mb </td>
+            <td>Chr {{ metadata.chr }} @ {{ metadata.mb }} mb </td>
         </tr>
-        {% if metadata.cM %}
+	{% endif %}
+	{% if metadata.dataset %}
         <tr>
-            <td><b>cM</b></td>
-            <td>{{ metadata.cM }}</td>
+            <td><b>Database </b></td>
+            <td>
+		<a href={{ url_for("get_dataset", name= metadata.dataset.name) }} target="_blank">
+		    {{ metadata.dataset.prefLabel }}
+		</a>
+	    </td>
         </tr>
-        {% endif %}
-
-        {% if metadata.mb %}
-        <tr>
-            <td><b>mb</b></td>
-            <td>{{ metadata.mb }}</td>
-        </tr>
-        {% endif %}
-
+	{% endif %}
         {% if metadata.sequence %}
         <tr>
 	    <td><b>Sequence</b></td>
-	    <td>metadata.sequence</td>
+	    <td style="inline-size: fit-content; writing-mode: horizontal-tb; overflow-wrap: break-word; max-width: 70vw;">{{ metadata.sequence }}</td>
         </tr>
         {% endif %}
 
@@ -72,13 +57,6 @@
         <tr>
             <td><b>Source</b></td>
             <td>{{ metadata.source}}</td>
-        </tr>
-        {% endif %}
-
-        {% if metadata.markerName %}
-        <tr>
-            <td><b>Marker Name</b></td>
-            <td>{{ metadata.markerName}}</td>
         </tr>
         {% endif %}
     </table>
