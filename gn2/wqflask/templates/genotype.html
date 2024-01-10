@@ -14,6 +14,13 @@
 
 <h2 class="page-header">
     Genotype: {{ metadata.name or name }}
+    <small>
+	{% if name and metadata.dataset %}
+	<sup>
+	    <a href={{ url_for('show_trait_page', dataset=metadata.dataset, trait_id=name) }} target="blank">[compare]</a>
+	</sup>
+	{% endif %}
+    </small>
 </h2>
 
 <div class="container">
