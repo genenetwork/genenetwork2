@@ -1195,7 +1195,7 @@ def get_probeset(name, dataset=None):
         gene_id = gene_id.get("id").split("=")[-1]
         result = json.loads(
             requests.get(
-                f"http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={gene_id}&retmode=json"
+                f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={gene_id}&retmode=json"
             ).content
         )['result']
         summary = result[gene_id]['summary']

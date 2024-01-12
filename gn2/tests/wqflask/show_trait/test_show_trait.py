@@ -53,7 +53,7 @@ def test_get_ncbi_summary_request(mocker):
         """}))
     assert get_ncbi_summary(trait) == "this is a summary of the geneid"
     mock_get.assert_called_once_with(
-        "http://eutils.ncbi.nlm.nih.gov/entrez/"
+        "https://eutils.ncbi.nlm.nih.gov/entrez/"
         "eutils/esummary.fcgi?db=gene&id="
         f"{trait.geneid}&retmode=json"
     )
