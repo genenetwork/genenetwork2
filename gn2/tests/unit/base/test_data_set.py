@@ -204,13 +204,14 @@ class TestDataSetTypes(unittest.TestCase):
 class TestDatasetAccessionId(unittest.TestCase):
     """Tests for the DataSetType class"""
 
-    @mock.patch("gn2.base.data_set.dataset.query_sql")
+    @mock.patch("gn2.base.data_set.dataset.database_connection")
     @mock.patch("gn2.base.data_set.dataset.DatasetGroup")
-    def test_get_accession_id(self, mock_dataset_group, mock_query_sql):
+    def test_get_accession_id(self, mock_dataset_group, conn):
         def mock_fn():
             yield MonadicDict({"accession_id": 7})
         mock_dataset_group.return_value = MockGroup()
-        mock_query_sql.return_value = mock_fn()
+        conn = mock.MagicMock()
+        conn.return_value.__enter__ = mock_fn
         sample_dataset = MockPhenotypeDataset(
             name="BXD-LongevityPublish",
             get_samplelist=False,
@@ -221,12 +222,13 @@ class TestDatasetAccessionId(unittest.TestCase):
             .accession_id\
             .bind(lambda x: self.assertEqual(7, x))
 
-    @mock.patch("gn2.base.data_set.dataset.query_sql")
+    @mock.patch("gn2.base.data_set.dataset.database_connection")
     @mock.patch("gn2.base.data_set.dataset.DatasetGroup")
     def test_get_accession_id_empty_return(self, mock_dataset_group,
-                                           mock_query_sql):
+                                           conn):
         mock_dataset_group.return_value = MockGroup()
-        mock_query_sql.return_value = None
+        conn = mock.MagicMock()
+        conn.return_value.__enter__ = None
         sample_dataset = MockPhenotypeDataset(
             name="BXD-LongevityPublish",
             get_samplelist=False,
