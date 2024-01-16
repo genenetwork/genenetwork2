@@ -2,8 +2,6 @@
 {% block title %}GNQNA{% endblock %}
 
 {% block content %} <!-- Start of body -->
-
-
  
 
 {% block css %}
@@ -27,6 +25,26 @@
 }
 
 
+.btn{
+  cursor: pointer;
+  outline: 0;
+  color: #AAA;
+
+}
+
+.btn:focus {
+  outline: none;
+}
+
+
+.blue{
+  color: blue;
+}
+
+.red{
+  color: red;
+}
+
 
 </style>
 
@@ -47,8 +65,8 @@
 
 <div>
 
- 
-  
+
+
       <div class="container" style="overflow-y: hidden;">
         <h4> <a href="#">References</a></h4>
         {% if references %}
@@ -57,6 +75,13 @@
                     <li id="gnqa_ref_item">
                         <h2 style="font-weight:bolder;">{{ reference.bibInfo }} </h2>
                         <p>{{reference.comboTxt}}</p>
+
+                        <div class="rating" style="margin-right:20px;padding:5px;text-align: right;" data-doc-id="{{reference.doc_id}}" data-task-id="{{task_id['task_id']}}">
+
+                             <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this reference +1 "><i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i></button>
+                             <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this reference  -1"><i class="fa fa-thumbs-down fa-lg" aria-hidden="true"></i></button>
+                            
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
@@ -66,9 +91,14 @@
     </div>
 </div>
 </div>
+
+<script src="https://use.fontawesome.com/fe459689b4.js"></script>
 <script type="text/javascript">
 
+
      document.addEventListener('DOMContentLoaded', function() {
+      const GN_SERVER_URL = {{gn_server_url|tojson}}
+      console.log(GN_SERVER_URL)
         $('#globalsearchform').hide()
         $('#gnqna_search_home').show()
          $('footer').hide()
@@ -81,13 +111,45 @@
 
             }
         })
-    });
 
+
+     $(".rating").each(function() {
+        let  item = $(this);
+        let  likeBtn = item.find("#green")
+        let dislikeBtn = item.find("#red")
+
+
+let voteRequest = (gn_server_url,task_id,doc_id,vote_count)=>{
+    try{
+    fetch(`${GN_SERVER_URL}/api/llm/rating/${task_id}/${doc_id}/${vote_count}`,{
+        method:"POST",
+        body:""
+    })
+    .then(response => response.text())
+    .then(data=> console.log(data));
+    }
+    catch {
+        alert("An error occurred")
+    }
+}
+    likeBtn.on("click",function() {
+    if(dislikeBtn.hasClass("red")){
+        dislikeBtn.removeClass("red")
+    }
+    likeBtn.toggleClass("blue")
+    likeBtn.hasClass("blue")? voteRequest(GN_SERVER_URL,item.data("taskId"),item.data("docId"),1) : 0 
+})
+
+dislikeBtn.on("click",function(){
+if(likeBtn.hasClass("blue")){
+        likeBtn.removeClass("blue")
+    }
+    dislikeBtn.toggleClass("red")
+    likeBtn.hasClass("red") ? voteRequest(GN_SERVER_URL,item.data("taskId"),item.data("docId"),-1):0
+})
+ })
+ })
 </script>
-
-<!-- Bootstrap JS and Popper.js -->
-
-
 
 {% endblock %}
 

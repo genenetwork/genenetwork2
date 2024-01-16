@@ -272,7 +272,9 @@ def gnqna():
 
             def __success__(resp):
 
-                return render_template("gnqa_answer.html", **resp.json())
+                result = resp.json()
+                result["gn_server_url"] = GN3_LOCAL_URL
+                return render_template("gnqa_answer.html", **result)
             return monad_requests.post(
                 urljoin(GN3_LOCAL_URL,
                         "/api/llm/gnqna"),
