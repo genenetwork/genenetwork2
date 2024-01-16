@@ -145,7 +145,7 @@ if(likeBtn.hasClass("blue")){
         likeBtn.removeClass("blue")
     }
     dislikeBtn.toggleClass("red")
-    likeBtn.hasClass("red") ? voteRequest(GN_SERVER_URL,item.data("taskId"),item.data("docId"),-1):0
+    dislikeBtn.hasClass("red") ? voteRequest(GN_SERVER_URL,item.data("taskId"),item.data("docId"),-1):0
 })
  })
  })
