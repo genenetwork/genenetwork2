@@ -23,14 +23,14 @@
 
   
   #gnqa_ref {
-    height: 90vh;
+    min-height: 100vh;
     overflow: hidden;
-    overflow-y: scroll;
+    overflow-y:auto;
+   /* overflow-y: scroll; */
   }
 
 
   #gnqa_ref_item{
-    border-bottom: 1px solid lightgrey;
     padding:12px;
   }
 
@@ -39,7 +39,6 @@
     font-size: 24px;
     font-family: serif;
     color: #3071a9;
-    text-transform: capitalize;
     text-decoration: underline;
   }
 
@@ -48,12 +47,10 @@
 
   }
 
-  #gnqa_answer {
-    text-transform: capitalize;
-  }
 
   #gnqa_answer::first-letter{
     font-weight: bold;
+    text-transform: uppercase;
 
 
   }

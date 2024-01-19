@@ -46,9 +46,44 @@
 }
 
 
+}
+.panel-heading {
+  padding: 0;
+    border:0;
+}
+.panel-title>a, .panel-title>a:active{
+    display:block;
+  padding:15px;
+  color:#555;
+  font-weight:bold;
+text-decoration:none;
+border: none;
+
+outline: none;
+}
+
+.panel-heading  a:before {
+   font-family: 'Glyphicons Halflings';
+   content: "\e114";
+   float: right;
+   transition: all 0.5s;
+}
+.panel-heading.active a:before {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+
+
+
 </style>
 
-<div style="height: 90vh;width: 100vw; margin-bottom: 10px;">
+
+
+
+
+<div style="min-height: 100vh;width: 100vw; margin-bottom: 10px;">
 
   <div id="loader">
     
@@ -58,31 +93,91 @@
     <h1 id="gnqa_query" style="font-weight: bolder">{{query}}<h1>
   </div>
 
-  <div style="width:80vw;overflow-wrap: normal; margin-top: 5px;">
-    <p style="word-spacing: 0.7em;" id="gnqa_answer">{{answer}} <p>
+  <div style="width:90vw;overflow-wrap: normal; margin-top: 5px;">
+    <p id="gnqa_answer">{{answer}} <p>
   </div>
 </div>
 
 <div>
 
 
-
-      <div class="container" style="overflow-y: hidden;">
-        <h4> <a href="#">References</a></h4>
+      <div class="container" style="min-width:85vw;overflow-y: auto;min-height: 100vh;">
+        <h4> <a href="#" style="font-weight: bold;">References</a></h4>
         {% if references %}
             <ul id="gnqa_ref">
-                {% for reference in references %}
-                    <li id="gnqa_ref_item">
-                        <h2 style="font-weight:bolder;">{{ reference.bibInfo }} </h2>
-                        <p>{{reference.comboTxt}}</p>
 
-                        <div class="rating" style="margin-right:20px;padding:5px;text-align: right;" data-doc-id="{{reference.doc_id}}" data-task-id="{{task_id['task_id']}}">
+     {% for reference in references %}
 
-                             <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this reference +1 "><i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i></button>
-                             <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this reference  -1"><i class="fa fa-thumbs-down fa-lg" aria-hidden="true"></i></button>
-                            
-                        </div>
-                    </li>
+    <li id="gnqa_ref_item">
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+<!--panel starts here -->
+<div class="panel panel-default">
+        {% if loop.first %}
+
+           <div class="panel-heading active" role="tab" id="heading{{reference.doc_id}}">
+             <h4 class="panel-title">
+
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{reference.doc_id}}" aria-expanded="true" aria-controls="collapse{{reference.doc_id}}">
+               <h2 style="font-weight:bold;">{{ reference.bibInfo }} </h2>
+        </a>
+         </h4>
+     </div>
+
+
+        <div id="collapse{{reference.doc_id}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
+      <div class="panel-body">
+        
+            <p>{{reference.comboTxt}}</p>
+            <div class="rating" style="margin-right:20px;padding:5px;text-align: right;" data-doc-id="{{reference.doc_id}}" data-task-id="{{task_id['task_id']}}">
+
+                 <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this reference +1 "><i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i></button>
+                 <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this reference  -1"><i class="fa fa-thumbs-down fa-lg" aria-hidden="true"></i></button>
+                
+            </div>
+
+
+      </div>
+    </div>
+
+
+
+          {% else %}
+
+
+
+          
+        <div class="panel-heading" role="tab" id="heading{{reference.doc_id}}">
+                 <h4 class="panel-title">
+
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{reference.doc_id}}" aria-expanded="false" aria-controls="collapse{{reference.doc_id}}">
+                   <h2 style="font-weight:bold;">{{ reference.bibInfo }} </h2>
+            </a>
+             </h4>
+         </div>
+
+
+
+    <div id="collapse{{reference.doc_id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
+      <div class="panel-body">
+        
+            <p>{{reference.comboTxt}}</p>
+            <div class="rating" style="margin-right:20px;padding:5px;text-align: right;" data-doc-id="{{reference.doc_id}}" data-task-id="{{task_id['task_id']}}">
+
+                 <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this reference +1 "><i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i></button>
+                 <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this reference  -1"><i class="fa fa-thumbs-down fa-lg" aria-hidden="true"></i></button>
+                
+            </div>
+
+
+      </div>
+    </div>
+
+        {% endif %} 
+
+  </div>
+
+            </div>
+        </li>
                 {% endfor %}
             </ul>
         {% else %}
@@ -92,9 +187,19 @@
 </div>
 </div>
 
-<script src="https://use.fontawesome.com/fe459689b4.js"></script>
-<script type="text/javascript">
 
+
+<script src="https://use.fontawesome.com/fe459689b4.js"></script>
+<script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
+
+<script type="text/javascript">
+$('.panel-collapse').on('show.bs.collapse', function () {
+    $(this).siblings('.panel-heading').addClass('active');
+  });
+
+  $('.panel-collapse').on('hide.bs.collapse', function () {
+    $(this).siblings('.panel-heading').removeClass('active');
+  });
 
      document.addEventListener('DOMContentLoaded', function() {
       const GN_SERVER_URL = {{gn_server_url|tojson}}
