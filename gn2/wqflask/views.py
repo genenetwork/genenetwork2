@@ -262,7 +262,6 @@ def gsearchtable():
     return flask.jsonify(current_page)
 
 
-
 @app.route("/gnqna", methods=["POST", "GET"])
 def gnqna():
     if request.method == "POST":
@@ -271,10 +270,7 @@ def gnqna():
                 return resp.json()
 
             def __success__(resp):
-
-                result = resp.json()
-                result["gn_server_url"] = GN3_LOCAL_URL
-                return render_template("gnqa_answer.html", **result)
+                return render_template("gnqa_answer.html", **{"gn_server_url":GN3_LOCAL_URL,**(resp.json())})
             return monad_requests.post(
                 urljoin(GN3_LOCAL_URL,
                         "/api/llm/gnqna"),
@@ -285,7 +281,27 @@ def gnqna():
                 __error__, __success__)
         except Exception as error:
             return flask.jsonify({"error": str(error)})
-    return render_template("gnqa.html")
+
+    prev_queries = monad_requests.get(
+        urljoin(GN3_LOCAL_URL,
+                "/api/llm/get_hist_names")
+    ).then(
+        lambda resp: resp
+    ).either(lambda x: [], lambda x: x.json()["prev_queries"])
+
+    return render_template("gnqa.html", prev_queries=prev_queries)
+
+
+@app.route("/gnqna/hist/search/<search_term>", methods=["GET"])
+def gnqna_hist(search_term):
+
+    # todo add token validation
+    response = monad_requests.get(urljoin(GN3_LOCAL_URL,f"/api/llm/historys/{search_term}")).then(lambda resp :resp).either(
+        lambda x:  x.json(),lambda x : x.json())
+    return  render_template("gnqa_answer.html",**{"gn_server_url":GN3_LOCAL_URL,**response})
+
+
+
 
 
 @app.route("/gsearch_updating", methods=('POST',))
@@ -1214,7 +1230,7 @@ def get_probeset(name, dataset=None):
 @app.route("/genotypes/<dataset>/<name>", methods=('GET',))
 def get_genotype(name, dataset=None):
     if dataset:
-           name = f"{dataset}/{name}"
+        name = f"{dataset}/{name}"
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
