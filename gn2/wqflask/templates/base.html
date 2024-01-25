@@ -82,6 +82,31 @@
 
 }
 
+.search-hist-btn{
+ padding:15px;
+
+ margin: 0 auto;
+ border-bottom: 1px solid #ccc;
+}
+
+
+.search-hist-btn a:hover {
+
+    text-decoration: None;
+    padding:5px;
+    border-radius: 10px;
+    color:blue;
+    cursor:pointer;
+}
+
+
+
+.search-hist-btn a {
+    font-weight: bold;
+    color:#000;
+}
+
+
 
 </style>
 </head>
@@ -199,12 +224,56 @@
     </div>
     <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative;background-color: #d5d5d5; height: 100px;">
         <form id="gnqna_search_home" method="POST" action="/gnqna" style="display:none;width: 100%;">
-           
            <div >
               <input  id="gnqna_search_home_input" style="width:45vw" type="text" autocomplete="off" 
 required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa">  
            </div> 
-        </form>
+
+           <!-- Large modal -->
+<button type="button"  data-toggle="modal" data-target=".bd-example-modal-lg" style="border:none;outline: none;padding:5px;margin-left:15px">Search History</button>
+            
+            
+            
+            
+            
+<div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="exampleModalLabel">Your Search History</h2>
+
+      </div>
+            <div class="modal-body">
+                <div>
+                    <form></form>
+                </div>
+          <div>
+            <div >
+                {% for search in prev_queries[:8] %}
+            
+                <div class="search-hist-btn" style="display:flex;justify-content: space-between;align-items: center;">
+                <form  class="search-hist-btn-form" method="GET" data-link="{{search}}">
+                    <a  class="search-hist-btn-link" data-link="{{search}}">{{search}}</a>
+                </form>
+
+                </div>
+
+                {% endfor %}
+            </div>
+              
+          </div>
+      </div>
+      <div class="modal-footer">
+
+        <button type="button" class="btn btn-danger " style="color:white" >Delete All</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" style="color:white">Cancel</button>
+     </div>
+    </div>
+  </div>
+</div>
+
+            
+</form>
         <form method="get" action="/gsearch" id="globalsearchform">
             <div class="form-group">
                 <div class="controls">
@@ -340,6 +409,10 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
     <script type="text/javascript">
     $(document).ready(function() {
 
+        $("#btn-hist-gnqa").on("click",function() {
+            $("#exampleModal").modal("show")
+        })
+
     const urlParams = new  URLSearchParams(window.location.search)
    let term = urlParams.get("terms")
 
@@ -388,9 +461,18 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
         let timeToLoad = document.createElement("p");
         timeToLoad.innerHTML = "It took your browser " + ((Date.now() - pageLoadStart) / 1000) + " second(s) to render this page";
         document.querySelector("footer .row .col-xs-6").appendChild(timeToLoad);
+  
+    $(".search-hist-btn-form").each(function(){
+let item = $(this)
+item.on("click",(e)=>{
+    item.attr("action",`/gnqna/hist/search/${item.data("link")}`).submit()
+})
+
+ 
 
 
     });
+})
     </script>
 </body>
 
