@@ -248,6 +248,7 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
                     <form></form>
                 </div>
           <div>
+            {% if prev_queries %}
             <div >
                 {% for search in prev_queries[:8] %}
             
@@ -260,8 +261,12 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
 
                 {% endfor %}
             </div>
+
+
+            {% endif %}
               
           </div>
+            
       </div>
       <div class="modal-footer">
 
