@@ -1,6 +1,8 @@
 """General request utilities"""
+import uuid
 from typing import Optional, Callable
 from urllib.parse import urljoin, urlparse
+from requests.exceptions import JSONDecodeError
 
 import simplejson
 from flask import (
@@ -43,7 +45,22 @@ def process_error(error: Response,
             "error_description": msg,
             "status_code": error.status_code
         }
-    return {**error.json(), "status_code": error.status_code}
+    try:
+        return {**error.json(), "status_code": error.status_code}
+    except JSONDecodeError as _exc:
+        error_id = uuid.uuid4()
+        app.logger.error(f"(error-id: %s): '%s' responded with:\n%s",
+                         error_id,
+                         error.url,
+                         error.content)
+        error_desc = (
+            f"(error-id: {error_id}): Could not parse received response.")
+        return {
+            "error": error.reason,
+            "error_message": error_desc,
+            "error_description": error_desc,
+            "status_code": error.status_code
+        }
 
 def request_error(response):
     app.logger.error(f"{response}: {response.url} [{response.status_code}]")
