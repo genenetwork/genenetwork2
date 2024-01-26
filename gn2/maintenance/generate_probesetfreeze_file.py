@@ -27,7 +27,7 @@ def get_strains(cursor):
                       where Strain.Id = StrainXRef.StrainId and
                             StrainXRef.InbredSetId = InbredSet.Id
                             and InbredSet.Name=%s;
-                """, "BXD")
+                """, ("BXD",))
 
     strains = [strain[0] for strain in cursor.fetchall()]
     print("strains:", pf(strains))
@@ -45,7 +45,7 @@ def get_probeset_vals(cursor, dataset_name):
                 where ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id and
                       ProbeSetFreeze.Name = %s and
                       ProbeSetXRef.ProbeSetId = ProbeSet.Id;
-            """, dataset_name)
+            """, (dataset_name,))
 
     probesets = cursor.fetchall()
 
@@ -87,7 +87,7 @@ def trim_strains(strains, probeset_vals):
 
 
 def write_data_matrix_file(strains, probeset_vals, filename):
-    with open(filename, "wb") as fh:
+    with open(filename, "w") as fh:
         csv_writer = csv.writer(fh, delimiter=",", quoting=csv.QUOTE_ALL)
         #print("strains is:", pf(strains))
         csv_writer.writerow(['ID'] + strains)
