@@ -30,8 +30,13 @@ def check_search_page(host):
 def check_traits_page(host, traits_url):
     results = requests.get(host+traits_url)
     doc = document_fromstring(results.text)
-    traits_form = doc.forms[1]
-    assert(traits_form.fields["corr_dataset"] == "HC_M2_0606_P")
+    traits_forms = doc.xpath('//form[@id="trait_data_form"]')
+
+    assert len(traits_forms) > 0, "Traits' form not found!"
+    assert len(traits_forms) == 1, "More than one form with the same ID"
+    traits_form2 = traits_forms[0]
+
+    assert(traits_form2.fields["corr_dataset"] == "HC_M2_0606_P")
     print("OK")
     check_page(host, host+traits_url)
 
