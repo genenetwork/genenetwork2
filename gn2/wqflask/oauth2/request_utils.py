@@ -1,11 +1,14 @@
 """General request utilities"""
 from typing import Optional, Callable
 from urllib.parse import urljoin, urlparse
+from requests.exceptions import JSONDecodeError
 
 import simplejson
 from flask import (
     flash, request, url_for, redirect, Response, render_template,
     current_app as app)
+
+from gn2.wqflask.external_errors import ExternalRequestError
 
 from .client import SCOPE, oauth2_get
 
@@ -43,7 +46,13 @@ def process_error(error: Response,
             "error_description": msg,
             "status_code": error.status_code
         }
-    return {**error.json(), "status_code": error.status_code}
+    try:
+        return {**error.json(), "status_code": error.status_code}
+    except JSONDecodeError as exc:
+        raise ExternalRequestError(
+            error.url,
+            exc,
+            f"Could not parse error record into JSON:\n\n{error.content}")
 
 def request_error(response):
     app.logger.error(f"{response}: {response.url} [{response.status_code}]")

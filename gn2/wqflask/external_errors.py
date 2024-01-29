@@ -7,7 +7,8 @@ class ExternalRequestError(Exception):
 
     def __init__(self,
                  externaluri: str,
-                 error: Exception):
+                 error: Exception,
+                 extrainfo: str = ""):
         """Initialise the error message."""
         self.errorid = uuid4()
         self.error = error
@@ -15,4 +16,5 @@ class ExternalRequestError(Exception):
         super().__init__(
             f"error-id: {self.errorid}: We got an error of type "
             f"'{type(error).__name__}' trying to access {externaluri}:\n\n "
-            f"{''.join(traceback.format_exception(error))}")
+            f"{''.join(traceback.format_exception(error))} " +
+            (f"\n\n{extrainfo}" if bool(extrainfo) else ""))
