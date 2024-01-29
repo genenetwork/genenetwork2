@@ -51,13 +51,20 @@ app = Flask(__name__)
 app.config.from_object('gn2.default_settings')
 app.config.from_envvar('GN2_SETTINGS')
 
+def numcoll():
+    """Handle possible errors."""
+    try:
+        return num_collections()
+    except Exception as _exc:
+        return "ERROR"
+
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
     numify=formatting.numify,
     logged_in=user_logged_in,
     authserver_authorise_uri=authserver_authorise_uri,
     user_details=user_details,
-    num_collections=num_collections,
+    num_collections=numcoll,
     datetime=datetime)
 
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])

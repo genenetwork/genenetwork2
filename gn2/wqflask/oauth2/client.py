@@ -1,4 +1,5 @@
 """Common oauth2 client utilities."""
+import uuid
 import json
 import requests
 from typing import Any, Optional
@@ -11,6 +12,7 @@ from authlib.integrations.requests_client import OAuth2Session
 
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.oauth2.checks import user_logged_in
+from gn2.wqflask.external_errors import ExternalRequestError
 
 SCOPE = ("profile group role resource register-client user masquerade "
          "introspect migrate-data")
@@ -76,10 +78,14 @@ def oauth2_post(
 
 def no_token_get(uri_path: str, **kwargs) -> Either:
     from gn2.utility.tools import AUTH_SERVER_URL
-    resp = requests.get(urljoin(AUTH_SERVER_URL, uri_path), **kwargs)
-    if resp.status_code == 200:
-        return Right(resp.json())
-    return Left(resp)
+    uri = urljoin(AUTH_SERVER_URL, uri_path)
+    try:
+        resp = requests.get(uri, **kwargs)
+        if resp.status_code == 200:
+            return Right(resp.json())
+        return Left(resp)
+    except requests.exceptions.RequestException as exc:
+        raise ExternalRequestError(uri, exc) from exc
 
 def no_token_post(uri_path: str, **kwargs) -> Either:
     from gn2.utility.tools import (
@@ -99,11 +105,14 @@ def no_token_post(uri_path: str, **kwargs) -> Either:
         },
         ("data" if bool(data) else "json"): request_data
     }
-    resp = requests.post(urljoin(AUTH_SERVER_URL, uri_path),
-                         **new_kwargs)
-    if resp.status_code == 200:
-        return Right(resp.json())
-    return Left(resp)
+    try:
+        resp = requests.post(urljoin(AUTH_SERVER_URL, uri_path),
+                             **new_kwargs)
+        if resp.status_code == 200:
+            return Right(resp.json())
+        return Left(resp)
+    except requests.exceptions.RequestException as exc:
+        raise ExternalRequestError(uri, exc) from exc
 
 def post(uri_path: str, **kwargs) -> Either:
     """
