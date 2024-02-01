@@ -93,9 +93,17 @@
 	</div>
     </div>
 
-    <div class="container row dataset-metadata">
+    <div id="dataset-description" class="container row dataset-metadata">
 	{% if dataset.description %}
-        <div>{{ dataset.description|safe }}</div>
+	<h3>
+	    Description
+	    <sup>
+		[&nbsp;
+		<a href="/metadata/edit?type=dcat:Dataset&section=description&name={{ dataset.label}}" target="_blank">edit</a>
+		&nbsp;]
+	    </sup>
+	</h3>
+        <div>{{ dataset.description|safe }}</div>g
         {% endif %}
 
 	{% if dataset.experimentType %}

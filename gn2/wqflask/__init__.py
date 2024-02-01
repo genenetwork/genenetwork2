@@ -21,6 +21,7 @@ from gn3.authentication import DataRole, AdminRole
 from gn2.wqflask.group_manager import group_management
 from gn2.wqflask.resource_manager import resource_management
 from gn2.wqflask.metadata_edits import metadata_edit
+from gn2.wqflask.edit import metadata
 
 from gn2.wqflask.api.markdown import glossary_blueprint
 from gn2.wqflask.api.markdown import references_blueprint
@@ -89,6 +90,8 @@ app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
 
 app.register_blueprint(resource_management, url_prefix="/resource-management")
 app.register_blueprint(metadata_edit, url_prefix="/datasets/")
+app.register_blueprint(metadata,
+                       url_prefix="/metadata/")
 app.register_blueprint(group_management, url_prefix="/group-management")
 app.register_blueprint(jobs_bp, url_prefix="/jobs")
 app.register_blueprint(oauth2, url_prefix="/oauth2")
