@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style>
+ .panel {
+     width: 90%;
+     margin: 2em;
+ }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="container">
+    <h1>{{ name }}</h1>
+    <div class="row">
+	<div class="panel-about panel panel-info text-muted">
+	    <div class="panel-heading">
+		<strong>{{ section|capitalize }}</strong>
+	    </div>
+	    <div class="panel-body">
+		<form action="/metadata/save" method="POST">
+		    <input name="type" type="hidden" value="{{ metadata.type }}"/>
+		    <input name="label" type="hidden" value="{{ metadata.label }}"/>
+
+		    {% if metadata.type == "dcat:Dataset" %}
+		    <input name="accession-id" type="hidden" value="{{ metadata.accessionId }}"/>
+		    {% endif %}
+
+		    <textarea name="editor" id="editor">
+{{ edit|safe }}
+		    </textarea>
+		    <br/>
+		    <label for="summary">
+			Edit Summary (Briefly describe your changes)
+		    </label>
+		    <br/>
+		    <textarea cols="80" name="summary" rows="3" autocomplete="on" autocorrection="on" id="summary"></textarea>
+		    <br/>
+		    <input type="submit" class="btn btn-primary" value="Publish changes" />
+		</form>
+	    </div>
+	</div>
+    </div>
+</section>
+{% endblock %}
+
+
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='ckeditor/ckeditor.js') }}"></script>
+
+<script>
+ function isWysiwygareaAvailable() {
+     if ( CKEDITOR.revision == ( '%RE' + 'V%' ) ) {
+	 return true;
+     }
+
+     return !!CKEDITOR.plugins.get( 'wysiwygarea' );
+ }
+
+ if ( CKEDITOR.env.ie && CKEDITOR.env.version < 9 )
+     CKEDITOR.tools.enableHtml5Elements( document );
+
+ CKEDITOR.config.height = 250;
+ CKEDITOR.config.width = 'auto';
+
+ let editorElement = CKEDITOR.document.getById( 'editor' );
+ let wysiwygareaAvailable = isWysiwygareaAvailable();
+ if ( wysiwygareaAvailable ) {
+     CKEDITOR.replace( 'editor' );
+ } else {
+     editorElement.setAttribute( 'contenteditable', 'true' );
+     CKEDITOR.inline( 'editor' );
+ }
+</script>
+{% endblock %}
+
