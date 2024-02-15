@@ -98,6 +98,11 @@
         <div>{{ dataset.description|safe }}</div>
         {% endif %}
 
+	{% if dataset.experimentType %}
+        <h3><strong>Experiment Type</strong></h3>
+        <div>{{ dataset.experimentType|safe }}</div>
+        {% endif %}
+
 	{% if dataset.specificity %}
 	<h2><strong>Specifics of this Dataset</strong></h2>
 	<div>{{ dataset.specificity }}</div>
