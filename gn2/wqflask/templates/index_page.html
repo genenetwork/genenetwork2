@@ -2,14 +2,18 @@
 {% block title %}GeneNetwork{% endblock %}
 {% block css %}
 <!-- UIkit CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/css/uikit.min.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='uikit/css/uikit.min.css') }}"/>
+
 <link rel="stylesheet" href="/static/new/css/index_page.css" />
 <link rel="stylesheet" href="/static/new/css/autocomplete.css"/>
 
 <!-- UIkit JS -->
-<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/uikit@3.7.4/dist/js/uikit-icons.min.js"></script>
-<script type="module" src="https://esm.sh/emfed"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='uikit/js/uikit.min.js') }}"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='uikit/js/uikit-icons.min.js') }}"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emfed@1.4.2/dist/emfed.min.js"></script> -->
+
+<!--<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='emfed/jsjs') }}"></script> -->
 <link rel="stylesheet" type="text/css"
     href="https://cdn.jsdelivr.net/gh/sampsyo/emfed@1/toots.css">
 
