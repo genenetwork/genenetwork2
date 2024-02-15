@@ -118,16 +118,16 @@
         <div>{{ dataset.caseInfo|safe }}</div>
         {% endif %}
 
-	{% if dataset.tissue %}
+	{% if dataset.tissue and dataset.tissueInfo %}
         <h3><strong>About the Tissue
 	    {%if dataset.tissue and dataset.tissue.label  %}({{ dataset.tissue.label }})
 	    {% endif %}Used to Generate this Dataset</strong></h3>
-        <div>{{ dataset.tissue.tissueInfo|safe }}</div>
+        <div>{{ dataset.tissueInfo|safe }}</div>
         {% endif %}
 
-        {% if dataset.platform %}
+        {% if dataset.platform and dataset.platformInfo %}
         <h3 title="{{ dataset.platform.label }}"><strong>About the Array Platform</strong></h3>
-        <div>{{ dataset.platform.platformInfo|safe }}</div>
+        <div>{{ dataset.platformInfo|safe }}</div>
         {% endif %}
 
         {% if dataset.processingInfo %}
