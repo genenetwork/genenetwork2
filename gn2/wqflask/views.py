@@ -264,30 +264,42 @@ def gsearchtable():
 
 @app.route("/gnqna", methods=["POST", "GET"])
 def gnqna():
+
+
+
     if request.method == "POST":
         try:
             def __error__(resp):
                 return resp.json()
 
+
+            def error_page(error_msg):
+                return  render_template("gnqa_errors.html",error = error_msg)
             def __success__(resp):
                 return render_template("gnqa_answer.html", **{"gn_server_url":GN3_LOCAL_URL,**(resp.json())})
+            if  user_logged_in():
+                return error_page("Please Login/Register to  Genenetwork to access this Service")
+            token = session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"])
             return monad_requests.post(
                 urljoin(GN3_LOCAL_URL,
                         "/api/llm/gnqna"),
                 json=dict(request.form),
+                headers={
+                "Authorization":f"Bearer {token}"
+                }
             ).then(
                 lambda resp: resp
             ).either(
                 __error__, __success__)
         except Exception as error:
             return flask.jsonify({"error": str(error)})
-
-    prev_queries = monad_requests.get(
+    prev_queries = (monad_requests.get(
         urljoin(GN3_LOCAL_URL,
                 "/api/llm/get_hist_names")
     ).then(
         lambda resp: resp
-    ).either(lambda x: [], lambda x: x.json()["prev_queries"])
+    ).either(lambda x: [], lambda x: x.json()["prev_queries"])) 
 
     return render_template("gnqa.html", prev_queries=prev_queries)
 
