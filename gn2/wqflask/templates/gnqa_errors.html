@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}GNQNA{% endblock %}
+
+{% block content %} <!-- Start of body -->
+ 
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/new/css/llm.css">
+{% endblock %}
+
+
+<style type="text/css">
+
+</style>
+
+<div style="min-height: 50vh;width: 100vw;text-align: center;display:flex;justify-content: center;align-items: center;">
+    <div>
+        <h2 style="color:red;text-decoration: underline;font-weight: bold;">Error:
+        {{error}} </h2>
+   </div>
+
+</div>
+
+
+<script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
+
+<script type="text/javascript">
+</script>
+
+{% endblock %}
+
