@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="/static/new/css/autocomplete.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    {% block css %}
+   {% block css %}
     {% endblock %}
     <style>
         .form-rounded {
@@ -224,16 +224,18 @@
     </div>
     <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative;background-color: #d5d5d5; height: 100px;">
         <form id="gnqna_search_home" method="POST" action="/gnqna" style="display:none;width: 100%;">
-           <div >
-              <input  id="gnqna_search_home_input" style="width:45vw" type="text" autocomplete="off" 
-required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa">  
-           </div> 
 
-           <!-- Large modal -->
-<button type="button"  data-toggle="modal" data-target=".bd-example-modal-lg" style="border:none;outline: none;padding:5px;margin-left:25px"> GNQA-History</button>
-            
-            
-            
+            <!--- init gnqa codebase here -->
+           <div  style="width: 100%; display: flex;justify-content: space-evenly;">
+
+              <input  id="gnqna_search_home_input" style="width:50vw" type="text" autocomplete="off" 
+required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa">  
+
+
+      <button type="button"  data-toggle="modal" data-target=".bd-example-modal-lg" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background-color:  #d5d5d5;"> 
+     GNQA Search History
+      </button>
+      </div>    
             
             
 <div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -277,7 +279,7 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
   </div>
 </div>
 
-            
+     
 </form>
         <form method="get" action="/gsearch" id="globalsearchform">
             <div class="form-group">
@@ -309,6 +311,7 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
     
                 </div>
             </div>
+
         </form>
 
     </div>
