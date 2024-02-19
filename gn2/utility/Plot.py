@@ -41,9 +41,9 @@ BLACK = ImageColor.getrgb("black")
 # ---- END: Define common colours ---- #
 
 # ---- FONT FILES ---- #
-VERDANA_FILE = "./wqflask/static/fonts/verdana.ttf"
-COUR_FILE = "./wqflask/static/fonts/courbd.ttf"
-TAHOMA_FILE = "./wqflask/static/fonts/tahoma.ttf"
+VERDANA_FILE = "./gn2/wqflask/static/fonts/verdana.ttf"
+COUR_FILE = "./gn2/wqflask/static/fonts/courbd.ttf"
+TAHOMA_FILE = "./gn2/wqflask/static/fonts/tahoma.ttf"
 # ---- END: FONT FILES ---- #
 
 
