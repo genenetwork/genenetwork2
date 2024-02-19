@@ -65,6 +65,7 @@ class AuthorisationError(Exception):
 def required_trait_access(access_levels: tuple[str, ...],
                     dataset_key: str = "dataset_name",
                     trait_key: str = "name") -> Callable:
+    @wraps(required_trait_access)
     def __build_access_checker__(func: Callable):
         @wraps(func)
         def __checker__(*args, **kwargs):
