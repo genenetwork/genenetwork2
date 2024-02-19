@@ -26,7 +26,7 @@ from gn2.utility.json import CustomJSONEncoder
 
 from gn2.wqflask.database import database_connection
 from gn2.wqflask.decorators import login_required
-from gn2.wqflask.decorators import required_access
+from gn2.wqflask.decorators import required_trait_access
 from gn2.wqflask.decorators import edit_admins_access_required
 
 from gn2.wqflask.oauth2 import client
@@ -111,7 +111,7 @@ def edit_phenotype(conn, name, dataset_id):
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
 @login_required(pagename="phenotype edit")
-@required_access(
+@required_trait_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
 def display_phenotype_metadata(dataset_id: str, name: str):
     from gn2.utility.tools import get_setting
@@ -139,7 +139,7 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
 
 @metadata_edit.route("/traits/<name>")
-@required_access(
+@required_trait_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
 def display_probeset_metadata(name: str):
     from gn2.utility.tools import get_setting
@@ -167,7 +167,7 @@ def display_probeset_metadata(name: str):
 
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
 @login_required(pagename="phenotype update")
-@required_access(
+@required_trait_access(
     ("group:resource:view-resource", "group:resource:edit-resource"))
 def update_phenotype(dataset_id: str, name: str):
     from gn2.utility.tools import get_setting
@@ -385,7 +385,7 @@ View the diffs <a href='{url}' target='_blank'>here</a>", "success")
 
 
 @metadata_edit.route("/traits/<name>", methods=("POST",))
-@required_access(
+@required_trait_access(
     ("group:resource:view-resource", "group:resource:edit-resource"),
     dataset_key="dataset_id", trait_key="name")
 def update_probeset(name: str):
@@ -788,7 +788,7 @@ def __authorised_p__(dataset_name, trait_name):
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
 @login_required(pagename="sample data rejection")
-@required_access(
+@required_trait_access(
     ("group:resource:view-resource", "group:resource:edit-resource"),
     trait_key="trait_name")
 def reject_data(resource_id: str, file_name: str):
@@ -815,7 +815,7 @@ def reject_data(resource_id: str, file_name: str):
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
 @login_required(pagename="Sample Data Approval")
-@required_access(
+@required_trait_access(
     ("group:resource:view-resource", "group:resource:edit-resource"),
     trait_key="trait_name")
 def approve_data(resource_id: str, file_name: str):

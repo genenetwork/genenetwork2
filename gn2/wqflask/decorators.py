@@ -62,7 +62,7 @@ class AuthorisationError(Exception):
         self.user = user
         super().__init__(self, description, user)
 
-def required_access(access_levels: tuple[str, ...],
+def required_trait_access(access_levels: tuple[str, ...],
                     dataset_key: str = "dataset_name",
                     trait_key: str = "name") -> Callable:
     def __build_access_checker__(func: Callable):
