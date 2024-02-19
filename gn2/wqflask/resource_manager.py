@@ -19,8 +19,6 @@ from gn3.authentication import get_highest_user_access_role
 from typing import Dict, Tuple
 from urllib.parse import urljoin
 
-
-from gn2.wqflask.decorators import edit_access_required
 from gn2.wqflask.decorators import edit_admins_access_required
 from gn2.wqflask.decorators import login_required
 

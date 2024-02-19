@@ -34,35 +34,6 @@ def login_required(pagename: str = ""):
     return __build_wrap__
 
 
-def edit_access_required(f):
-    """Use this for endpoints where people with admin or edit privileges
-are required"""
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        resource_id: str = ""
-        if request.args.get("resource-id"):
-            resource_id = request.args.get("resource-id")
-        elif kwargs.get("resource_id"):
-            resource_id = kwargs.get("resource_id")
-        response: Dict = {}
-        try:
-            user_id = ((g.user_session.record.get(b"user_id") or
-                        b"").decode("utf-8")
-                       or g.user_session.record.get("user_id") or "")
-            response = json.loads(
-                requests.get(urljoin(
-                    current_app.config.get("GN2_PROXY"),
-                    ("available?resource="
-                     f"{resource_id}&user={user_id}"))).content)
-        except:
-            response = {}
-        if max([DataRole(role) for role in response.get(
-                "data", ["no-access"])]) < DataRole.EDIT:
-            return redirect(url_for("no_access_page"))
-        return f(*args, **kwargs)
-    return wrap
-
-
 def edit_admins_access_required(f):
     """Use this for endpoints where ownership of a resource is required"""
     @wraps(f)
