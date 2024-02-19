@@ -76,7 +76,6 @@ from gn2.wqflask.export_traits import export_traits
 from gn2.wqflask.gsearch import GSearch
 from gn2.wqflask.update_search_results import GSearch as UpdateGSearch
 from gn2.wqflask.docs import Docs, update_text
-from gn2.wqflask.decorators import edit_access_required
 from gn2.wqflask.db_info import InfoPage
 
 from gn2.wqflask.oauth2 import client
@@ -1125,20 +1124,6 @@ def json_default_handler(obj):
     else:
         raise TypeError('Object of type %s with value of %s is not JSON serializable' % (
             type(obj), repr(obj)))
-
-
-@app.route("/admin/data-sample/diffs/")
-@edit_access_required
-def display_diffs_admin():
-    TMPDIR = current_app.config.get("TMPDIR")
-    DIFF_DIR = f"{TMPDIR}/sample-data/diffs"
-    files = []
-    if os.path.exists(DIFF_DIR):
-        files = os.listdir(DIFF_DIR)
-        files = filter(lambda x: not(x.endswith((".approved", ".rejected"))),
-                       files)
-    return render_template("display_files_admin.html",
-                           files=files)
 
 
 @app.route("/user/data-sample/diffs/")
