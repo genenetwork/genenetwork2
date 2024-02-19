@@ -27,14 +27,11 @@ from gn2.utility.json import CustomJSONEncoder
 from gn2.wqflask.database import database_connection
 from gn2.wqflask.decorators import login_required
 from gn2.wqflask.decorators import required_trait_access
-from gn2.wqflask.decorators import edit_admins_access_required
 
 from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.oauth2.request_utils import flash_error, process_error
 
-from gn3.authentication import AdminRole
-from gn3.authentication import get_highest_user_access_role
 from gn3.csvcmp import create_dirs_if_not_exists
 from gn3.csvcmp import csv_diff
 from gn3.csvcmp import extract_invalid_csv_headers
