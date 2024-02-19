@@ -1,6 +1,5 @@
 import json
 import redis
-import requests
 
 from flask import Blueprint
 from flask import current_app
@@ -13,11 +12,9 @@ from flask import url_for
 
 from gn3.authentication import AdminRole
 from gn3.authentication import DataRole
-from gn3.authentication import get_user_membership
 from gn3.authentication import get_highest_user_access_role
 
-from typing import Dict, Tuple
-from urllib.parse import urljoin
+from typing import Dict
 
 from gn2.wqflask.decorators import edit_admins_access_required
 from gn2.wqflask.decorators import login_required
@@ -96,7 +93,6 @@ def view_resource(resource_id: str):
 
 @resource_management.route("/resources/<resource_id>/make-public",
                            methods=('POST',))
-@edit_access_required
 @login_required()
 def update_resource_publicity(resource_id: str):
     redis_conn = redis.from_url(

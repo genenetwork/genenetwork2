@@ -5,11 +5,9 @@ from functools import wraps
 from urllib.parse import urljoin
 from typing import Dict, Callable
 
-import redis
 from flask import g, flash, request, url_for, redirect, current_app
 
 from gn3.authentication import AdminRole
-from gn3.authentication import DataRole
 
 from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2.session import session_info
