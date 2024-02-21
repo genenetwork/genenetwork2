@@ -22,6 +22,10 @@
 		<form action="/metadata/save" method="POST">
 		    <input name="type" type="hidden" value="{{ metadata.type }}"/>
 		    <input name="label" type="hidden" value="{{ metadata.label }}"/>
+		    {% if metadata.classifiedUnder %}
+		    <input name="classified-under" type="hidden" value="{{ metadata.classifiedUnder.id }}"/>
+		    {% endif %}
+
 
 		    {% if metadata.accessionId %}
 		    <input name="accession-id" type="hidden" value="{{ metadata.accessionId }}"/>
