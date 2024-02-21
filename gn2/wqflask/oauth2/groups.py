@@ -9,8 +9,7 @@ from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
-    user_details, handle_error, process_error, handle_success,
-    raise_unimplemented)
+    user_details, handle_error, process_error, handle_success)
 
 groups = Blueprint("group", __name__)
 

@@ -22,8 +22,6 @@ def authserver_authorise_uri():
         f"&client_id={oauth2_clientid()}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
-def raise_unimplemented():
-    raise Exception("NOT IMPLEMENTED")
 
 def user_details():
     return oauth2_get("auth/user/").either(
