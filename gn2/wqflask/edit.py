@@ -12,7 +12,6 @@ from flask import (Blueprint,
                    request)
 
 from gn2.wqflask.decorators import login_required
-from gn2.utility.tools import GN3_LOCAL_URL
 
 
 metadata = Blueprint("metadata", __name__)
@@ -50,6 +49,7 @@ def save_dataset_metadata(
 @metadata.route("/edit")
 @login_required(pagename="Dataset Metadata Editing")
 def metadata_edit():
+    from gn2.utility.tools import GN3_LOCAL_URL
     match request.args.get("type"):
         case "dcat:Dataset":
             metadata = requests.get(
