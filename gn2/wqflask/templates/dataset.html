@@ -73,35 +73,178 @@
 
 {% if dataset %}
 
-{% include 'metadata/dataset.html' %}
+<header class="page-header text-justify">
+    <h1>
+	{% if dataset.title or dataset.label or dataset.altLabel %}
+	{{ dataset.title or dataset.label or dataset.altLabel }}
+	{% if dataset.title != dataset.altLabel and dataset.label != dataset.altLabel %}
+	<br/>
+        <small>({{ dataset.altLabel }})</small>
+	{% endif %}
+	{% else %}
+        {{ name }}
+        {% endif %}
+    </h1>
+</header>
+
+<div class="container dataset-content">
+    <div class="panel-about panel panel-info panel-metadata text-muted">
+        <div class="panel-heading">
+	    <strong>
+		<span class="glyphicon glyphicon-info-sign aria-hidden=true"></span>
+		Details
+	    </strong>
+	    {% if dataset.accessionId %}
+	    <small>
+		<a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{ dataset.accessionId.split('GN')[-1] }}" target="_blank">(GN1 Link)</a>
+	    </small>
+	    {% endif %}
+	</div>
+        <div class="panel-body">
+            <dl class="dl-horizontal">
+		{% if dataset.label != dataset.altLabel and dataset.label != dataset.title %}
+		<dt>Name</dt>
+		<dd> {{ dataset.label }} </dd>
+		{% endif %}
+                {% if dataset.created %}
+		<dt>Created</dt>
+		<dd>{{ dataset.created }}</dd>
+		{% endif %}
+                {% if dataset.inbredSet %}
+		<dt>Group</dt>
+		<dd>{{ dataset.inbredSet.label}}</dd>
+		{% endif %}
+
+		{% if dataset.accessionId %}
+		<dt>Accession Id</dt>
+		<dd>{{ dataset.accessionId}}</dd>
+		{% endif %}
+
+                {% if dataset.hasGeoSeriesId %}
+		<dt>GEO Series</dt>
+		<dd>
+		    <a href="{{ dataset.geoSeriesId }}" target="_blank">{{ dataset.geoSeriesId.split("=")[-1] }}</a>
+		</dd>
+		{% endif %}
+
+                {% if dataset.tissue %}
+		<dt>Tissue</dt>
+		<dd>{{ dataset.tissue.label }}</dd>
+		{% endif %}
+
+		{% if dataset.platform %}
+		<dt>Platforms</dt>
+		<dd>
+		    {{ dataset.platform.label }}
+		    [<a href="{{ dataset.platform.id}}" target="_blank">
+		    {{ dataset.platform.prefLabel}}
+		    </a>]
+		</dd>
+		{% endif %}
+
+                {% if dataset.normalization %}
+		<dt>Normalization</dt>
+		<dd>{{ dataset.normalization.label }}</dd>
+		{% endif %}
+
+                {% if dataset.contactPoint %}
+                <dt>Investigator</dt>
+                <dd>
+		    {% if dataset.contactPoint.contactWebUrl %}
+		    <a href="{{ dataset.contactPoint.contactWebUrl }}" target="_blank">
+			{{ dataset.contactPoint.contactName }}
+		    </a>
+		    {% else %}
+		    {{ dataset.contactPoint.contactName }}
+		    {% endif %}
+                </dd>
+                {% endif %}
+
+		{% if dataset.organization %}
+		<dt>Organization</dt>
+		<dd>{{ dataset.organization }}</dd>
+		{% endif %}
+            </dl>
+	</div>
+    </div>
+
+    <div id="dataset-description" class="container row dataset-metadata">
+	{% if dataset.description %}
+	<h3>
+	    Description
+	    <sup>
+		[&nbsp;
+		<a href="/metadata/edit?type=dcat:Dataset&section=description&name={{ dataset.label}}" target="_blank">edit</a>
+		&nbsp;]
+	    </sup>
+	</h3>
+        <div>{{ dataset.description|safe }}</div>g
+        {% endif %}
+
+	{% if dataset.experimentType %}
+        <h3><strong>Experiment Type</strong></h3>
+        <div>{{ dataset.experimentType|safe }}</div>
+        {% endif %}
+
+	{% if dataset.specificity %}
+	<h2><strong>Specifics of this Dataset</strong></h2>
+	<div>{{ dataset.specificity }}</div>
+	{% endif %}
+
+	{% if dataset.experimentDesignInfo %}
+        <h3><strong>Experiment Design</strong></h3>
+        <div>{{ dataset.experimentDesignInfo|safe }}</div>
+        {% endif %}
+
+	{% if dataset.caseInfo %}
+        <h3><strong>About the Cases Used to Generate this Dataset:</strong></h3>
+        <div>{{ dataset.caseInfo|safe }}</div>
+        {% endif %}
+
+	{% if dataset.tissue and dataset.tissueInfo %}
+        <h3><strong>About the Tissue
+	    {%if dataset.tissue and dataset.tissue.label  %}({{ dataset.tissue.label }})
+	    {% endif %}Used to Generate this Dataset</strong></h3>
+        <div>{{ dataset.tissueInfo|safe }}</div>
+        {% endif %}
+
+        {% if dataset.platform and dataset.platformInfo %}
+        <h3 title="{{ dataset.platform.label }}"><strong>About the Array Platform</strong></h3>
+        <div>{{ dataset.platformInfo|safe }}</div>
+        {% endif %}
+
+        {% if dataset.processingInfo %}
+        <h3><strong>About Data Values and Data Processing</strong></h3>
+        <div>{{ dataset.processingInfo|safe }}</div>
+        {% endif %}
+
+	{% if dataset.notes %}
+        <h3><strong>Notes</strong></h3>
+        <div>{{ dataset.notes|safe }}</div>
+        {% endif %}
+
+	{% if dataset.citation|trim %}
+        <h3><strong>Citation</strong></h3>
+        <div>{{ dataset.citation|safe}}</div>
+        {% endif %}
+
+	{% if dataset.acknowledgement|trim %}
+        <h3><strong>Acknowledgment</strong></h3>
+        <div>{{ dataset.acknowledgement|safe}}</div>
+        {% endif %}
+
+        {% if dataset.contributors %}
+	<h3><strong>Contributors</strong></h3>
+	<div>{{ dataset.contributors|safe }}</div>
+	{% endif %}
+    </div>
+</div>
 
 {% else %}
 <div class="container dataset-search">
-    <p class="lead">We appreciate your interest, but unfortunately, we don't have any additional information available for: <strong>{{ name }}</strong>.  If you have other inquiries or need assistance with something else, please don't hesitate to get in touch with us.  <b><i>In the meantime you can explore other datasets here:</i></b></p>.
-
-    <!-- Actual search box -->
-    <div class="search">
-	<form class="form-group has-feedback has-search"
-	      hx-post="/datasets/search"
-	      hx-target="#search-results">
-	    <span class="glyphicon glyphicon-search form-control-feedback"></span>
-	    <input class="form-control"
-		   type="search"
-		   name="search" placeholder="Start your dataset search here">
-	</form>
-    </div>
-
-    <div id="search-results"></div>
-
+    <p class="lead">We appreciate your interest, but unfortunately, we don't have any additional information available for: <strong>{{ name }}</strong>.  If you have other inquiries or need assistance with something else, please don't hesitate to get in touch with us.
 </div>
-
 
 {% endif %}
 
-{% endblock %}
-
-{% block js %}
-<script language="javascript"
-        type="text/javascript"
-		  src="{{ url_for('js', filename='htmx.min.js') }}"></script>
 {% endblock %}
