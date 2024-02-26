@@ -27,8 +27,7 @@ def save_dataset_metadata(
     @curry(2)
     def __run_cmd(cmd, status_code):
         __result = subprocess.run(
-            cmd.split(" "), shell=True,
-            capture_output=True
+            cmd, capture_output=True
         )
         if __result.stderr or status_code != 0:
             return Left({
