@@ -1,6 +1,7 @@
 import requests
 import subprocess
 
+from urllib.parse import urljoin
 from pathlib import Path
 
 from pymonad.either import Either, Left
@@ -50,19 +51,19 @@ def save_dataset_metadata(
 @login_required(pagename="Dataset Metadata Editing")
 def metadata_edit():
     from gn2.utility.tools import GN3_LOCAL_URL
+    __name = request.args.get("name")
     match request.args.get("type"):
         case "dcat:Dataset":
             metadata = requests.get(
-                Path(
+                urljoin(
                     GN3_LOCAL_URL,
-                    "metadata/datasets/",
-                    (_name := request.args.get("name"))
-                ).as_posix()
+                    f"api/metadata/datasets/{ __name }"
+                )
             ).json()
             __section = request.args.get("section")
             return render_template(
                 "metadata/editor.html",
-                name=_name,
+                name=__name,
                 metadata=metadata,
                 section=__section,
                 edit=metadata.get(__section),
