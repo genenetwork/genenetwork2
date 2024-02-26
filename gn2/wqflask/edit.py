@@ -4,6 +4,7 @@ import subprocess
 from urllib.parse import urljoin
 from pathlib import Path
 
+from pymonad.tools import curry
 from pymonad.either import Either, Left
 
 from flask import (Blueprint,
@@ -23,6 +24,7 @@ def save_dataset_metadata(
         content: str, msg: str
 ) -> Either:
     """Save dataset metadata to git"""
+    @curry(2)
     def __run_cmd(cmd, status_code):
         __result = subprocess.run(
             cmd.split(" "), shell=True,
