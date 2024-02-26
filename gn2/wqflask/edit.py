@@ -3,6 +3,7 @@ import subprocess
 
 from urllib.parse import urljoin
 from pathlib import Path
+from gn2.wqflask.oauth2.session import session_info
 
 from pymonad.tools import curry
 from pymonad.either import Either, Left
@@ -21,7 +22,7 @@ metadata = Blueprint("metadata", __name__)
 
 def save_dataset_metadata(
         git_dir: str, output: str,
-        content: str, msg: str
+        author: str, content: str, msg: str
 ) -> Either:
     """Save dataset metadata to git"""
     @curry(2)
@@ -36,15 +37,17 @@ def save_dataset_metadata(
             })
         return 0
 
-    with Path(output) as _f:
-        _f.write(content)
+    (Either.insert(0)
+        .then(__run_cmd(f"git -C {git_dir} reset --hard origin".split(" ")))
+        .then(__run_cmd(f"git -C {git_dir} pull".split(" "))))
 
+    with Path(output).open(mode="w") as _f:
+        _f.write(content)
     return (
         Either.insert(0)
-        .then(__run_cmd(f"git -C {git_dir} pull"))
-        .then(__run_cmd(f"git -C {git_dir} add ."))
-        .then(__run_cmd(f"git -C {git_dir} commit --all --message {msg}"))
-        .then(__run_cmd(f"git -C {git_dir} push origin master --dry-run"))
+        .then(__run_cmd(f"git -C {git_dir} add .".split(" ")))
+        .then(__run_cmd(f"git -C {git_dir} commit -m".split(" ") + [f'{msg}', f"--author='{author}'", "--no-gpg-sign"]))
+        .then(__run_cmd(f"git -C {git_dir} push origin master --dry-run".split(" ")))
     )
 
 
@@ -55,7 +58,7 @@ def metadata_edit():
     __name = request.args.get("name")
     match request.args.get("type"):
         case "dcat:Dataset":
-            metadata = requests.get(
+            __metadata = requests.get(
                 urljoin(
                     GN3_LOCAL_URL,
                     f"api/metadata/datasets/{ __name }"
@@ -65,9 +68,9 @@ def metadata_edit():
             return render_template(
                 "metadata/editor.html",
                 name=__name,
-                metadata=metadata,
+                metadata=__metadata,
                 section=__section,
-                edit=metadata.get(__section),
+                edit=__metadata.get(__section),
             )
 
 
@@ -79,16 +82,35 @@ def save():
         get_setting("DATA_DIR"),
         "gn-docs"
     )
+    __map = {
+        "description": "summary.rtf",
+        "tissueInfo": "tissue.rtf",
+        "specifics": "specifics.rtf",
+        "caseInfo": "cases.rtf",
+        "platformInfo": "platform.rtf",
+        "processingInfo": "processing.rtf",
+        "notes": "notes.rtf",
+        "experimentDesignInfo": "experiment-design.rtf",
+        "acknowledgement": "acknowledgement.rtf",
+        "citation": "citation.rtf",
+        "experimentType": "experiment-type.rtf",
+        "contributors": "contributors.rtf"
+    }
     __output = Path(
         __gn_docs,
         "general/datasets/",
-        request.form.get("id").split("/")[-1]
+        request.form.get("id").split("/")[-1],
+        f"{__map.get(request.form.get('section'))}"
     )
+    __result = {}
     match request.form.get("type"):
         case "dcat:Dataset":
-            save_dataset_metadata(
+            __session = session_info()["user"]
+            __author = f"{__session['name']} <{__session['email']}>"
+            __result = save_dataset_metadata(
                 git_dir=__gn_docs,
                 output=__output,
+                author=__author,
                 content=request.form.get("editor"),
                 msg=request.form.get("edit-summary")
             ).either(
