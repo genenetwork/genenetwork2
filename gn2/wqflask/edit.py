@@ -103,5 +103,5 @@ def save():
                 )
             )
     return redirect(
-        Path("/datasets", request.form.get('label'))
+        f"/datasets/{request.form.get('label')}"
     )
