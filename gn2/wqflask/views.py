@@ -1171,15 +1171,6 @@ def get_dataset(name):
     )
 
 
-@app.route("/datasets/search", methods=('POST',))
-def search_for_dataset():
-    search = request.form.get('search')
-    return render_template(
-        "metadata/dataset_search_results.html",
-        results=search
-    )
-
-
 @app.route("/publications/<name>", methods=('GET',))
 def get_publication(name):
     metadata = requests.get(
