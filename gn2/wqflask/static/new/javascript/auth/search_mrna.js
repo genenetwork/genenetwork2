@@ -10,6 +10,7 @@ function toggle_link_button() {
 }
 
 function search_mrna() {
+    form = document.getElementById("txt-query").form;
     query = document.getElementById("txt-query").value;
     selected = JSON.parse(document.getElementById(
 	"tbl-link").getAttribute("data-datasets"));
@@ -18,7 +19,7 @@ function search_mrna() {
     search_table = new TableDataSource(
 	"#tbl-search", "data-datasets", search_checkbox);
     $.ajax(
-	search_endpoint,
+	form.action,
 	{
 	    "method": "POST",
 	    "contentType": "application/json; charset=utf-8",
@@ -29,7 +30,7 @@ function search_mrna() {
 		"dataset_type": "mrna",
 		"species_name": species_name}),
 	    "error": function(jqXHR, textStatus, errorThrown) {
-		error_data = jqXHR.responseJSON
+		error_data = jqXHR.responseJSON;
 		console.debug("ERROR_DATA:", error_data);
 		elt = document.getElementById("search-error").setAttribute(
 		    "style", "display: block;");
