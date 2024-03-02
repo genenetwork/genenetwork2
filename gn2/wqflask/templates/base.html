@@ -223,21 +223,22 @@
         </div>
     </div>
     <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative;background-color: #d5d5d5; height: 100px;">
+      <!--
         <form id="gnqna_search_home" method="POST" action="/gnqna" style="display:none;width: 100%;">
 
-            <!--- init gnqa codebase here -->
+            <!--- init gnqa codebase here ->
            <div  style="width: 100%; display: flex;justify-content: space-evenly;">
 
-              <input  id="gnqna_search_home_input" style="width:50vw" type="text" autocomplete="off" 
-required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa">  
+              <input  id="gnqna_search_home_input" style="width:50vw" type="text" autocomplete="off"
+required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa">
 
 
-      <button type="button"  data-toggle="modal" data-target=".bd-example-modal-lg" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background-color:  #d5d5d5;"> 
+      <button type="button"  data-toggle="modal" data-target=".bd-example-modal-lg" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background-color:  #d5d5d5;">
      GNQA Search History
       </button>
-      </div>    
-            
-            
+      </div>
+      -->
+
 <div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document" >
     <div class="modal-content">
@@ -253,7 +254,7 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
             {% if prev_queries %}
             <div >
                 {% for search in prev_queries[:8] %}
-            
+
                 <div class="search-hist-btn" style="display:flex;justify-content: space-between;align-items: center;">
                 <form  class="search-hist-btn-form" method="GET" data-link="{{search}}">
                     <a  class="search-hist-btn-link" data-link="{{search}}">{{search}}</a>
@@ -266,9 +267,9 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
 
 
             {% endif %}
-              
+
           </div>
-            
+
       </div>
       <div class="modal-footer">
 
@@ -279,7 +280,7 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
   </div>
 </div>
 
-     
+
 </form>
         <form method="get" action="/gsearch" id="globalsearchform">
             <div class="form-group">
@@ -294,7 +295,7 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
                   <button   type="submit" class="btn-stc" style="position: absolute;  background-color: #336699"><i class="fa fa-search" title="Search " style="color:white;"></i></button>
                     </div>
 
-  
+
 
                     <!-- todo fix text overlap for this;;responsiveness-->
 
@@ -306,9 +307,9 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
                                 <a style="text-decoration: none" target="_blank" href="https://issues.genenetwork.org/topics/xapian/xapian-search-queries">
                                     <i  style="text-align: center;color:#336699;;" class="fa fa-question-circle fa-2x" title="see more search hints" aria-hidden="true"></i>
                                 </a>
-                
+
                     </span>
-    
+
                 </div>
             </div>
 
@@ -469,14 +470,14 @@ required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="
         let timeToLoad = document.createElement("p");
         timeToLoad.innerHTML = "It took your browser " + ((Date.now() - pageLoadStart) / 1000) + " second(s) to render this page";
         document.querySelector("footer .row .col-xs-6").appendChild(timeToLoad);
-  
+
     $(".search-hist-btn-form").each(function(){
 let item = $(this)
 item.on("click",(e)=>{
     item.attr("action",`/gnqna/hist/search/${item.data("link")}`).submit()
 })
 
- 
+
 
 
     });
