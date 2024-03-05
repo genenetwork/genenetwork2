@@ -7,6 +7,7 @@ from flask import (
     flash, request, url_for, redirect, current_app, session as flask_session)
 
 from . import session
+from .client import authserver_uri, oauth2_clientid, oauth2_clientsecret
 
 def user_logged_in():
     """Check whether the user has logged in."""
@@ -32,10 +33,8 @@ def require_oauth2(func):
             return redirect("/")
 
         def __with_token__(token):
-            from gn2.utility.tools import (
-                AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
             client = OAuth2Session(
-                OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET, token=token)
+                oauth2_clientid(), oauth2_clientsecret(), token=token)
             resp = client.get(
                 urljoin(AUTH_SERVER_URL, "auth/user/"))
             user_details = resp.json()
