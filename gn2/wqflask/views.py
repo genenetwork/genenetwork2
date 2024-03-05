@@ -275,8 +275,11 @@ def gnqna():
 
             def __success__(resp):
                 return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **(resp.json())})
+            """
+            disable gn-auth currently not stable
             if not user_logged_in():
                 return error_page("Please Login/Register to  Genenetwork to access this Service")
+            """
             token = session_info()["user"]["token"].either(
                 lambda err: err, lambda tok: tok["access_token"])
             return monad_requests.post(
