@@ -10,16 +10,16 @@ from flask import (
 
 from gn2.wqflask.external_errors import ExternalRequestError
 
-from .client import SCOPE, oauth2_get
+from .client import (
+    SCOPE, oauth2_get, authserver_uri, oauth2_clientid, oauth2_clientsecret)
 
 def authserver_authorise_uri():
-    from gn2.utility.tools import AUTH_SERVER_URL, OAUTH2_CLIENT_ID
     req_baseurl = urlparse(request.base_url, scheme=request.scheme)
     host_uri = f"{req_baseurl.scheme}://{req_baseurl.netloc}/"
     return urljoin(
-        AUTH_SERVER_URL,
+        authserver_uri(),
         "auth/authorise?response_type=code"
-        f"&client_id={OAUTH2_CLIENT_ID}"
+        f"&client_id={oauth2_clientid()}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
 def raise_unimplemented():

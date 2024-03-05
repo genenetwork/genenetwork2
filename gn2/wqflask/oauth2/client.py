@@ -17,12 +17,22 @@ from gn2.wqflask.external_errors import ExternalRequestError
 SCOPE = ("profile group role resource register-client user masquerade "
          "introspect migrate-data")
 
+def authserver_uri():
+    """Return URI to authorisation server."""
+    return app.config["AUTH_SERVER_URL"]
+
+def oauth2_clientid():
+    """Return the client id."""
+    return app.config["OAUTH2_CLIENT_ID"]
+
+def oauth2_clientsecret():
+    """Return the client secret."""
+    return app.config["OAUTH2_CLIENT_SECRET"]
+
 def oauth2_client():
     def __client__(token) -> OAuth2Session:
-        from gn2.utility.tools import (
-            AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
         return OAuth2Session(
-            OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET,
+            oauth2_clientid(), oauth2_clientsecret(),
             scope=SCOPE, token_endpoint_auth_method="client_secret_post",
             token=token)
     return session.user_token().either(
@@ -41,13 +51,11 @@ def __no_token__(_err) -> Left:
 
 def oauth2_get(uri_path: str, data: dict = {}, **kwargs) -> Either:
     def __get__(token) -> Either:
-        from gn2.utility.tools import (
-            AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
         client = OAuth2Session(
-            OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET,
+            oauth2_clientid(), oauth2_clientsecret(),
             token=token, scope=SCOPE)
         resp = client.get(
-            urljoin(AUTH_SERVER_URL, uri_path),
+            urljoin(authserver_uri(), uri_path),
             data=data,
             **kwargs)
         if resp.status_code == 200:
@@ -61,13 +69,11 @@ def oauth2_post(
         uri_path: str, data: Optional[dict] = None, json: Optional[dict] = None,
         **kwargs) -> Either:
     def __post__(token) -> Either:
-        from gn2.utility.tools import (
-            AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
         client = OAuth2Session(
-            OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET,
+            oauth2_clientid(), oauth2_clientsecret(),
             token=token, scope=SCOPE)
         resp = client.post(
-            urljoin(AUTH_SERVER_URL, uri_path), data=data, json=json,
+            urljoin(authserver_uri(), uri_path), data=data, json=json,
             **kwargs)
         if resp.status_code == 200:
             return Right(resp.json())
@@ -77,8 +83,7 @@ def oauth2_post(
     return session.user_token().either(__no_token__, __post__)
 
 def no_token_get(uri_path: str, **kwargs) -> Either:
-    from gn2.utility.tools import AUTH_SERVER_URL
-    uri = urljoin(AUTH_SERVER_URL, uri_path)
+    uri = urljoin(authserver_uri(), uri_path)
     try:
         resp = requests.get(uri, **kwargs)
         if resp.status_code == 200:
@@ -88,15 +93,13 @@ def no_token_get(uri_path: str, **kwargs) -> Either:
         raise ExternalRequestError(uri, exc) from exc
 
 def no_token_post(uri_path: str, **kwargs) -> Either:
-    from gn2.utility.tools import (
-        AUTH_SERVER_URL, OAUTH2_CLIENT_ID, OAUTH2_CLIENT_SECRET)
     data = kwargs.get("data", {})
     the_json = kwargs.get("json", {})
     request_data = {
         **data,
         **the_json,
-        "client_id": OAUTH2_CLIENT_ID,
-        "client_secret": OAUTH2_CLIENT_SECRET
+        "client_id": oauth2_clientid(),
+        "client_secret": oauth2_clientsecret()
     }
     new_kwargs = {
         **{
@@ -106,7 +109,7 @@ def no_token_post(uri_path: str, **kwargs) -> Either:
         ("data" if bool(data) else "json"): request_data
     }
     try:
-        resp = requests.post(urljoin(AUTH_SERVER_URL, uri_path),
+        resp = requests.post(urljoin(authserver_uri(), uri_path),
                              **new_kwargs)
         if resp.status_code == 200:
             return Right(resp.json())
