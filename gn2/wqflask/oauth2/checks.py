@@ -7,17 +7,8 @@ from flask import (
     flash, request, url_for, redirect, current_app, session as flask_session)
 
 from . import session
-from .client import authserver_uri, oauth2_clientid, oauth2_clientsecret
-
-def user_logged_in():
-    """Check whether the user has logged in."""
-    suser = session.session_info()["user"]
-    if suser["logged_in"]:
-        if session.expired():
-            session.clear_session_info()
-            return False
-        return suser["token"].is_right()
-    return False
+from .client import (
+    authserver_uri, user_logged_in, oauth2_clientid, oauth2_clientsecret)
 
 def require_oauth2(func):
     """Decorator for ensuring user is logged in."""

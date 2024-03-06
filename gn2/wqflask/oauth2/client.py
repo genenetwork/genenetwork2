@@ -11,7 +11,6 @@ from pymonad.either import Left, Right, Either
 from authlib.integrations.requests_client import OAuth2Session
 
 from gn2.wqflask.oauth2 import session
-from gn2.wqflask.oauth2.checks import user_logged_in
 from gn2.wqflask.external_errors import ExternalRequestError
 
 SCOPE = ("profile group role resource register-client user masquerade "
@@ -28,6 +27,18 @@ def oauth2_clientid():
 def oauth2_clientsecret():
     """Return the client secret."""
     return app.config["OAUTH2_CLIENT_SECRET"]
+
+
+def user_logged_in():
+    """Check whether the user has logged in."""
+    suser = session.session_info()["user"]
+    if suser["logged_in"]:
+        if session.expired():
+            session.clear_session_info()
+            return False
+        return suser["token"].is_right()
+    return False
+
 
 def oauth2_client():
     def __client__(token) -> OAuth2Session:
