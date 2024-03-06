@@ -27,7 +27,7 @@ def require_oauth2(func):
             client = OAuth2Session(
                 oauth2_clientid(), oauth2_clientsecret(), token=token)
             resp = client.get(
-                urljoin(AUTH_SERVER_URL, "auth/user/"))
+                urljoin(authserver_uri(), "auth/user/"))
             user_details = resp.json()
             if not user_details.get("error", False):
                 return func(*args, **kwargs)

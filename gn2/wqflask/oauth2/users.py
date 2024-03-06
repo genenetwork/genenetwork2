@@ -11,7 +11,7 @@ from . import client
 from . import session
 from .ui import render_ui
 from .checks import require_oauth2, user_logged_in
-from .client import oauth2_get, oauth2_post, oauth2_client
+from .client import oauth2_get, oauth2_post, oauth2_client, authserver_uri
 from .request_utils import (
     user_details, request_error, process_error, with_flash_error)
 
@@ -65,7 +65,6 @@ def request_add_to_group() -> Response:
 @users.route("/login", methods=["GET", "POST"])
 def login():
     """Route to allow users to sign up."""
-    from gn2.utility.tools import AUTH_SERVER_URL
     next_endpoint=request.args.get("next", False)
 
     if request.method == "POST":
@@ -73,7 +72,7 @@ def login():
         client = oauth2_client()
         try:
             token = client.fetch_token(
-                urljoin(AUTH_SERVER_URL, "auth/token"),
+                urljoin(authserver_uri(), "auth/token"),
                 username=form.get("email_address"),
                 password=form.get("password"),
                 grant_type="password")
@@ -101,10 +100,9 @@ def login():
 
 @users.route("/logout", methods=["GET", "POST"])
 def logout():
-    from gn2.utility.tools import AUTH_SERVER_URL
     if user_logged_in():
         resp = oauth2_client().revoke_token(
-            urljoin(AUTH_SERVER_URL, "auth/revoke"))
+            urljoin(authserver_uri(), "auth/revoke"))
         the_session = session.session_info()
         if not bool(the_session["masquerading"]):
             # Normal session - clear and go back.
@@ -124,7 +122,6 @@ def logout():
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
-    from gn2.utility.tools import AUTH_SERVER_URL
     if user_logged_in():
         next_endpoint=request.args.get("next", "/")
         flash(("You cannot register a new user while logged in. "
@@ -137,7 +134,7 @@ def register_user():
 
     form = request.form
     response = requests.post(
-        urljoin(AUTH_SERVER_URL, "auth/user/register"),
+        urljoin(authserver_uri(), "auth/user/register"),
         data = {
             "user_name": form.get("user_name"),
             "email": form.get("email_address"),
