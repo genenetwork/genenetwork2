@@ -95,7 +95,8 @@ if [ ! -e "${settings}" ]; then
     exit 1
 fi
 
-export GN2_SETTINGS=$settings     # Python
+# If $GN2_SETTINGS is set, use that, otherwise use default provided at invocation
+export GN2_SETTINGS=${GN2_SETTINGS:-$settings}
 echo GN2_SETTINGS="${settings}"
 
 if [ -z "${GN2_PROFILE}" ] ; then
