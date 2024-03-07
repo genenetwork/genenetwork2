@@ -141,7 +141,7 @@ def reject_join_request():
 @require_oauth2
 def group_role(group_role_id: uuid.UUID):
     """View the details of a particular role."""
-    def __render_error(**kwargs):
+    def __render_error__(**kwargs):
         return render_ui("oauth2/view-group-role.html", **kwargs)
 
     def __gprivs_success__(role, group_privileges):

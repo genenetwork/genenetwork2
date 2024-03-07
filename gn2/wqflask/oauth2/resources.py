@@ -82,7 +82,7 @@ def view_resource(resource_id: uuid.UUID):
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
                 this_user=this_user, group_roles=group_roles,
-                users_error=process_error(err)),
+                users_error=process_error(err), count_per_page=count_per_page),
             lambda users: __users_success__(
                 resource, unlinked_data, users_n_roles, this_user, group_roles,
                 users))
