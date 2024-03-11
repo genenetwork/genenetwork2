@@ -125,13 +125,13 @@ class SampleList:
         # Get attribute names and distinct values for each attribute
         with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
-                "SELECT DISTINCT CaseAttribute.CaseAttributeId, "
+                "SELECT DISTINCT CaseAttribute.Id, "
                 "CaseAttribute.Name, CaseAttribute.Description, "
                 "CaseAttributeXRefNew.Value FROM "
                 "CaseAttribute, CaseAttributeXRefNew WHERE "
-                "CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.CaseAttributeId "
+                "CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.Id "
                 "AND CaseAttributeXRefNew.InbredSetId = %s "
-                "ORDER BY CaseAttribute.CaseAttributeId", (str(self.dataset.group.id),)
+                "ORDER BY CaseAttribute.Id", (str(self.dataset.group.id),)
             )
 
             self.attributes = {}
