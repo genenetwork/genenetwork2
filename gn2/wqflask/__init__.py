@@ -70,9 +70,9 @@ app.jinja_env.globals.update(
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
 
 ## BEGIN: SECRETS -- Should be the last of the settings to load
-secrets_file = os.environ.get("GN2_SECRETS")
-if secrets_file and Path(secrets_file).exists():
-    app.config.from_envvar("GN2_SECRETS")
+secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
+if secrets_file.exists() and secrets_file.is_file():
+    app.config.from_pyfile(str(secrets_file))
 ## END: SECRETS
 
 

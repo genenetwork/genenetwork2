@@ -14,6 +14,7 @@ include gn2/wqflask/templates/admin/*
 include gn2/wqflask/templates/email/*
 include gn2/wqflask/templates/collections/*
 include gn2/wqflask/templates/new_security/*
+include gn2/wqflask/templates/**/*.html
 include gn2/wqflask/correlation/*
 include gn2/wqflask/interval_mapping/*
 include gn2/wqflask/interval_analyst/*

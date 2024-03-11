@@ -48,8 +48,7 @@
 
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
 
- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-<script type="text/javascript">
+ <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script><script type="text/javascript">
 
     document.addEventListener('DOMContentLoaded', function() {
        $("#gnqna_search").keypress(function(event) {
