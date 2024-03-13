@@ -15,7 +15,8 @@
             {{ sample_group_types['samples_other'] }}
           </option>
         </select>
-        <input type="button" id="block_by_index" class="btn btn-danger" value="Block">
+        <input type="button" id="block_by_index" class="btn btn-danger" title="Block all values for the specified indices" value="Block">
+        <input type="button" id="select_by_index" class="btn btn-danger" title="Block all values *except* for the specified indices" value="Select">
     </div>
     <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
           Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
@@ -42,7 +43,8 @@
             {{ sample_group_types['samples_other'] }}
           </option>
         </select>
-        <input type="button" id="exclude_by_attr" class="btn btn-danger" value="Block">
+        <input type="button" id="exclude_by_attr" class="btn btn-danger" title="Block all values that meet the criteria" value="Block">
+        <input type="button" id="select_by_attr" class="btn btn-danger" title="Block all values that *don't* meet the criteria" value="Select">
     </div>
     {% endif %}
     {% if study_samplelists|length > 0 %}

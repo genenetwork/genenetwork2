@@ -661,7 +661,7 @@ if (js_data.categorical_attr_exists == "true"){
 }
 
 $('#exclude_column').change(populateSampleAttributesValuesDropdown);
-blockByAttributeValue = function() {
+blockByAttributeValue = function(block=true) {
   var attribute_name, cell_class, exclude_by_value;
 
   let exclude_group = $('#exclude_by_attr_group').val();
@@ -683,8 +683,14 @@ blockByAttributeValue = function() {
       let this_col_value = exclude_val_nodes[i].childNodes[0].data;
       let this_val_node = val_nodes[i].childNodes[0];
 
-      if (this_col_value == exclude_by_value){
-        this_val_node.value = "x";
+      if (block) {
+        if (this_col_value == exclude_by_value){
+          this_val_node.value = "x";
+        }
+      } else {
+        if (this_col_value != exclude_by_value){
+          this_val_node.value = "x";
+        }
       }
     }
   }
@@ -692,8 +698,11 @@ blockByAttributeValue = function() {
   editDataChange();
 };
 $('#exclude_by_attr').click(blockByAttributeValue);
+$('#select_by_attr').click(function() {
+  blockByAttributeValue(block=false);
+});
 
-blockByIndex = function() {
+blockByIndex = function(block=true) {
   var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref;
   index_string = $('#remove_samples_field').val();
   index_list = [];
@@ -724,10 +733,20 @@ blockByIndex = function() {
     tableApi = $('#samples_primary').DataTable();
   }
   val_nodes = tableApi.column(3).nodes().to$();
-  for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
-    index = index_list[_k];
-    val_nodes[index - 1].childNodes[0].value = "x";
+  if (block) {
+    for (_k = 0, _len1 = index_list.length; _k < _len1; _k++) {
+      index = index_list[_k];
+      val_nodes[index - 1].childNodes[0].value = "x";
+    }
+  } else {
+    for (_k = 0, _len1 = val_nodes.length; _k < _len1; _k++) {
+      if (!index_list.includes(_k + 1)) {
+        val_nodes[_k].childNodes[0].value = "x";
+      }
+    }
   }
+
+  editDataChange();
 };
 
 filter_by_study = function() {
@@ -1648,8 +1667,12 @@ $('.stats_panel').click(function() {
 
 $('#block_by_index').click(function(){
   blockByIndex();
-  editDataChange();
 });
+
+$('#select_by_index').click(function(){
+  blockByIndex(block=false);
+});
+
 
 $('#filter_by_study').click(function(){
   filter_by_study();
