@@ -131,10 +131,10 @@ outline: none;
         </div>
         {% if reference.pubmed %}
 
-        <div>
+        <div style="margin: 5px;color:#3071a9;cursor: pointer;" >
            
-      <button type="button"  data-toggle="modal" data-target=".bd-pubmed-modal-lg-{{reference.doc_id}}" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background-color:  #d5d5d5;"> 
-     Pubmed Link
+      <button type="button"  data-toggle="modal" data-target=".bd-pubmed-modal-lg-{{reference.doc_id}}" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background: transparent;"> 
+          <span><b>*See PubMed Search</b></span>
       </button>        
   </div>
 
@@ -180,9 +180,15 @@ outline: none;
 
      {% if reference.pubmed %}
 
-     <button type="button"  data-toggle="modal" data-target=".bd-pubmed-modal-lg-{{reference.doc_id}}" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background-color:  #d5d5d5;"> 
-     Pubmed Link
-      </button>
+
+     <div style="margin: 5px;color:#3071a9;cursor: pointer;" >
+           
+      <button type="button"  data-toggle="modal" data-target=".bd-pubmed-modal-lg-{{reference.doc_id}}" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background: transparent;"> 
+      <span><b>*See PubMed Search</b></span>
+      </button>        
+  </div>
+
+
 
       <div>
       {% include 'pubmed_modal.html' %}
