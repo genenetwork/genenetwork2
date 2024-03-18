@@ -1,5 +1,27 @@
 
+<style type="text/css">
+	
+	 .collapsible-btn:after {
+  content: '\02795'; /* Unicode character for "plus" sign (+) */
+  font-size: 13px;
+  color: white;
+  float: right;
+  margin-left: 5px;
+}
 
+.active-btn, .collapsible-btn:hover {
+  background-color: #ccc;
+}
+
+
+
+.active-btn:after {
+  content: "\2796"; /* Unicode character for "minus" sign (-) */
+}
+
+
+
+</style>
 <div>
             <div class="modal fade  bd-pubmed-modal-lg-{{reference.doc_id}} " id="pubmedModal-{{reference.doc_id}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel-{{reference.doc_id}}" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document" >
@@ -11,8 +33,21 @@
         <h2 class="modal-title" id="pubmedModalLabel-{{reference.doc_id}}" style="font-weight: bold">{{reference.pubmed[0].get('title')}}</h2>
         </div>
          
-        <div style="color:#0071bc; padding-top: 15px;">
-            {{reference.pubmed[0].get('authors')}}
+
+
+        <div>
+        	<p style="margin: 12px;">
+        <span><b>Authors:</b></span>
+		  <button class="btn btn-primary collapsible-btn" type="button" data-toggle="collapse" data-target="#collapseExample-{{reference.doc_id}}" aria-expanded="false" aria-controls="collapseExample-{{reference.doc_id}}" style="color:white;">
+		    Expand
+		  </button>
+		</p>
+		<div class="collapse" id="collapseExample-{{reference.doc_id}}">
+		        <div style="color:#0071bc; padding: 15px;" class="card card-body">
+		            {{reference.pubmed[0].get('authors')}}
+		        </div>
+		</div>
+
         </div>
 
         <h3 style="font-weight: bold;"> PMID:{{reference.pubmed[0].get('pub_id')}}</h3>
@@ -22,21 +57,21 @@
          <h3 style="font-weight:bold"> 
             Abstract 
          </h3>
-   <div style="font-size:1.7rem;padding: 0 2rem;margin: 0 auto;">
+   <div style="font-size:1.7rem;padding: 0 2rem;margin: 0 auto;" class="pubmed-abstract">
         <div >{{reference.pubmed[0].get('abstract')|safe}}
 
         </div>           
-       
-   </div>
-            
+      
+   </div> 
       </div>
       <div class="modal-footer" style="font-weight:bold;text-decoration: underline;">
-        <a href="{{reference.pubmed[0].get('source')}}" target="_blank" style="float:left;">See full Article Pubmed</a>
+        <a href="{{reference.pubmed[0].get('source')}}" target="_blank" style="float:left;">See full Article on Pubmed</a>
      </div>
     </div>
   </div>
 </div>
 </div>
+
 
 
 
