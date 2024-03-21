@@ -170,7 +170,6 @@ def index_page():
 
 @app.route("/tmp/<img_path>")
 def tmp_page(img_path):
-    initial_start_vars = request.form
     imgfile = open(GENERATED_IMAGE_DIR + img_path, 'rb')
     imgdata = imgfile.read()
     imgB64 = base64.b64encode(imgdata)
