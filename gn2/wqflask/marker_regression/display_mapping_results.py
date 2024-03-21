@@ -390,7 +390,7 @@ class DisplayMappingResults:
         else:
             self.genotype = self.dataset.group.read_genotype_file()
 
-        # Darwing Options
+        # Drawing Options
         try:
             if self.selectedChr > -1:
                 self.graphWidth = min(self.GRAPH_MAX_WIDTH, max(
@@ -1940,7 +1940,7 @@ class DisplayMappingResults:
                             fill=BLACK)
                         im_drawer.text(
                             text="%2.2f" % (expr),
-                            xy=((xLeftOffset + plotWidth + 60),
+                            xy=((xLeftOffset + plotWidth + 80),
                                 geneYLocation + 11 + 2 * ind * self.EACH_GENE_HEIGHT * zoom),
                             font=ImageFont.truetype(
                                 font=VERDANA_FILE, size=12),
