@@ -46,8 +46,11 @@ def save_dataset_metadata(
     return (
         Either.insert(0)
         .then(__run_cmd(f"git -C {git_dir} add .".split(" ")))
-        .then(__run_cmd(f"git -C {git_dir} commit -m".split(" ") + [f'{msg}', f"--author='{author}'", "--no-gpg-sign"]))
-        .then(__run_cmd(f"git -C {git_dir} push origin master --dry-run".split(" ")))
+        .then(__run_cmd(f"git -C {git_dir} commit -m".split(" ") + [
+            f'{msg}', f"--author='{author}'", "--no-gpg-sign"
+        ]))
+        .then(__run_cmd(f"git -C {git_dir} \
+push origin master --dry-run".split(" ")))
     )
 
 
@@ -102,12 +105,11 @@ def save():
         request.form.get("id").split("/")[-1],
         f"{__map.get(request.form.get('section'))}"
     )
-    __result = {}
     match request.form.get("type"):
         case "dcat:Dataset":
             __session = session_info()["user"]
             __author = f"{__session['name']} <{__session['email']}>"
-            __result = save_dataset_metadata(
+            save_dataset_metadata(
                 git_dir=__gn_docs,
                 output=__output,
                 author=__author,
