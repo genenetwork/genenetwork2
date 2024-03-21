@@ -1,12 +1,10 @@
 """Common oauth2 client utilities."""
-import uuid
 import json
 import requests
-from typing import Any, Optional
+from typing import Optional
 from urllib.parse import urljoin
 
-from flask import jsonify, current_app as app
-from pymonad.maybe import Just, Maybe, Nothing
+from flask import current_app as app
 from pymonad.either import Left, Right, Either
 from authlib.integrations.requests_client import OAuth2Session
 
