@@ -14,7 +14,7 @@ from flask import (Blueprint,
                    render_template,
                    request)
 
-from gn2.wqflask.decorators import login_required
+from gn2.wqflask.oauth2.checks import require_oauth2
 
 
 metadata = Blueprint("metadata", __name__)
@@ -52,7 +52,7 @@ def save_dataset_metadata(
 
 
 @metadata.route("/edit")
-@login_required(pagename="Dataset Metadata Editing")
+@require_oauth2
 def metadata_edit():
     from gn2.utility.tools import GN3_LOCAL_URL
     __name = request.args.get("name")
@@ -75,7 +75,7 @@ def metadata_edit():
 
 
 @metadata.route("/save", methods=["POST"])
-@login_required(pagename="Dataset Metadata Editing")
+@require_oauth2
 def save():
     from gn2.utility.tools import get_setting
     __gn_docs = Path(
