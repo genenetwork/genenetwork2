@@ -213,9 +213,9 @@ class DisplayMappingResults:
     DOMINANCE_COLOR_NEGATIVE = RED
 
     # BEGIN HaplotypeAnalyst
-    HAPLOTYPE_POSITIVE = GREEN
-    HAPLOTYPE_NEGATIVE = RED
-    HAPLOTYPE_HETEROZYGOUS = BLUE
+    HAPLOTYPE_POSITIVE = BLUE
+    HAPLOTYPE_NEGATIVE = YELLOW
+    HAPLOTYPE_HETEROZYGOUS = GREEN
     HAPLOTYPE_RECOMBINATION = DARKGRAY
     # END HaplotypeAnalyst
 
@@ -1824,8 +1824,11 @@ class DisplayMappingResults:
 
                         # Draw Genes
 
-                        geneYLocation = yPaddingTop + self.NUM_GENE_ROWS * \
-                            (self.EACH_GENE_HEIGHT) * zoom
+                        geneYLocation = yPaddingTop
+                        if (self.geneChecked and self.geneCol):
+                            geneYLocation += self.NUM_GENE_ROWS * self.EACH_GENE_HEIGHT * zoom
+                        if (self.homologyChecked and self.homology):
+                            geneYLocation += self.NUM_GENE_ROWS * self.EACH_GENE_HEIGHT * zoom
                         if self.dataset.group.species == "mouse" or self.dataset.group.species == "rat":
                             geneYLocation += 4 * self.BAND_HEIGHT + 4 * self.BAND_SPACING
                         else:
