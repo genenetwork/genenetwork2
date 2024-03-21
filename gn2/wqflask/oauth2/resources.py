@@ -1,7 +1,7 @@
 import uuid
 
 from flask import (
-    flash, request, jsonify, url_for, redirect, Response, Blueprint)
+    flash, request, url_for, redirect, Response, Blueprint)
 
 from . import client
 from .ui import render_ui

@@ -41,14 +41,11 @@ from flask import redirect
 from flask import send_file
 from flask import url_for
 from flask import flash
-from flask import session
 
-# Some of these (like collect) might contain endpoints, so they're still used.
-# Blueprints should probably be used instead.
-from gn2.wqflask import collect
 from gn2.wqflask import search_results
 from gn2.wqflask import server_side
-from gn2.base.data_set import create_dataset  # Used by YAML in marker_regression
+# Used by YAML in marker_regression
+from gn2.base.data_set import create_dataset
 from gn2.wqflask.show_trait import show_trait
 from gn2.wqflask.show_trait import export_trait_data
 from gn2.wqflask.show_trait.show_trait import get_diff_of_vals
@@ -61,12 +58,8 @@ from gn2.wqflask.marker_regression import run_mapping
 from gn2.wqflask.marker_regression.exceptions import NoMappingResultsError
 from gn2.wqflask.marker_regression import display_mapping_results
 from gn2.wqflask.network_graph import network_graph
-from gn2.wqflask.correlation.show_corr_results import set_template_vars
-from gn2.wqflask.correlation.correlation_gn3_api import compute_correlation
-from gn2.wqflask.correlation.rust_correlation import compute_correlation_rust
 from gn2.wqflask.correlation_matrix import show_corr_matrix
 from gn2.wqflask.correlation import corr_scatter_plot
-from gn2.wqflask.correlation.exceptions import WrongCorrelationType
 from gn2.wqflask.ctl.gn3_ctl_analysis import run_ctl
 
 from gn2.wqflask.wgcna.gn3_wgcna import run_wgcna
@@ -76,11 +69,10 @@ from gn2.wqflask.export_traits import export_traits
 from gn2.wqflask.gsearch import GSearch
 from gn2.wqflask.update_search_results import GSearch as UpdateGSearch
 from gn2.wqflask.docs import Docs, update_text
-from gn2.wqflask.db_info import InfoPage
 
 from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2.client import no_token_get
-from gn2.wqflask.oauth2.request_utils import with_flash_error, with_flash_success
+from gn2.wqflask.oauth2.request_utils import with_flash_error
 
 from gn2.utility import temp_data
 from gn2.utility.tools import get_setting
