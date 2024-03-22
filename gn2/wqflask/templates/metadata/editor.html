@@ -20,6 +20,7 @@
 	    </div>
 	    <div class="panel-body">
 		<form action="/metadata/save" method="POST">
+		    <input name="name" type="hidden" value="{{ name }}"/>
 		    <input name="id" type="hidden" value="{{ metadata.id }}"/>
 		    <input name="section" type="hidden" value="{{ section }}"/>
 		    <input name="type" type="hidden" value="{{ metadata.type }}"/>
