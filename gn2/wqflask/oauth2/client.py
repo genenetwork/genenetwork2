@@ -124,7 +124,7 @@ def no_token_post(uri_path: str, **kwargs) -> Either:
             return Right(resp.json())
         return Left(resp)
     except requests.exceptions.RequestException as exc:
-        raise ExternalRequestError(uri, exc) from exc
+        raise ExternalRequestError(uri_path, exc) from exc
 
 def post(uri_path: str, **kwargs) -> Either:
     """
