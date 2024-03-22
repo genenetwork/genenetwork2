@@ -77,6 +77,9 @@ def metadata_edit():
                 section=_section,
                 edit=_metadata.get(_section),
             )
+        case _:
+            return redirect(
+                f"/datasets/{_name}"
             )
 
 
