@@ -13,7 +13,6 @@ def render_ui(templatepath: str, **kwargs):
             lambda err: {"roles_error": process_error(err)},
             lambda roles: {"roles": roles})
         kwargs = {**kwargs, **roles_results}
-        roles = kwargs.get("roles", tuple())
     user_privileges = tuple(
         privilege["privilege_id"] for role in roles
         for privilege in role["privileges"])
