@@ -15,6 +15,7 @@ from flask import (Blueprint,
                    request)
 
 from gn2.wqflask.oauth2.checks import require_oauth2
+from gn2.wqflask.oauth2.checks import require_oauth2_edit_resource_access
 
 
 metadata = Blueprint("metadata", __name__)
@@ -55,6 +56,7 @@ push origin master --dry-run".split(" ")))
 
 
 @metadata.route("/edit")
+@require_oauth2_edit_resource_access
 @require_oauth2
 def metadata_edit():
     from gn2.utility.tools import GN3_LOCAL_URL
@@ -79,6 +81,7 @@ def metadata_edit():
 
 
 @metadata.route("/save", methods=["POST"])
+@require_oauth2_edit_resource_access
 @require_oauth2
 def save():
     from gn2.utility.tools import get_setting
