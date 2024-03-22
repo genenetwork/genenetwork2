@@ -59,6 +59,7 @@ push origin master --dry-run".split(" ")))
 @require_oauth2_edit_resource_access
 @require_oauth2
 def metadata_edit():
+    """Endpoint that provides editing functionality for datasets."""
     from gn2.utility.tools import GN3_LOCAL_URL
     _name = request.args.get("name")
     match request.args.get("type"):
@@ -87,6 +88,7 @@ def metadata_edit():
 @require_oauth2_edit_resource_access
 @require_oauth2
 def save():
+    """Save dataset edits in git."""
     from gn2.utility.tools import get_setting
     _gn_docs = Path(
         get_setting("DATA_DIR"),
