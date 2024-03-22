@@ -268,8 +268,8 @@ async function voteRequest (gn_server_url,task_id,metadata){
            return {"message":"success",status:0}
         }
         else {
-             let {error} = await response.json()
-             return  {"message":`HTTP Error:HTTP Response Code: ${response?.status}-reason-${error}`,status:1}
+             let {error,error_description} = await response.json()
+             return  {"message":`HTTP Error:HTTP Response Code: ${response?.status}-reason-${error_description}`,status:1}
         }
     }
     catch (err){
