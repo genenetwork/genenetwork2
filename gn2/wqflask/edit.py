@@ -58,22 +58,23 @@ push origin master --dry-run".split(" ")))
 @require_oauth2
 def metadata_edit():
     from gn2.utility.tools import GN3_LOCAL_URL
-    __name = request.args.get("name")
+    _name = request.args.get("name")
     match request.args.get("type"):
         case "dcat:Dataset":
-            __metadata = requests.get(
+            _metadata = requests.get(
                 urljoin(
                     GN3_LOCAL_URL,
-                    f"api/metadata/datasets/{ __name }"
+                    f"api/metadata/datasets/{ _name }"
                 )
             ).json()
-            __section = request.args.get("section")
+            _section = request.args.get("section")
             return render_template(
                 "metadata/editor.html",
-                name=__name,
-                metadata=__metadata,
-                section=__section,
-                edit=__metadata.get(__section),
+                name=_name,
+                metadata=_metadata,
+                section=_section,
+                edit=_metadata.get(_section),
+            )
             )
 
 
@@ -81,11 +82,13 @@ def metadata_edit():
 @require_oauth2
 def save():
     from gn2.utility.tools import get_setting
-    __gn_docs = Path(
+    _gn_docs = Path(
         get_setting("DATA_DIR"),
         "gn-docs"
     )
-    __map = {
+    # This maps the form elements to the actual path in the git
+    # repository
+    _map = {
         "description": "summary.rtf",
         "tissueInfo": "tissue.rtf",
         "specifics": "specifics.rtf",
@@ -99,20 +102,20 @@ def save():
         "experimentType": "experiment-type.rtf",
         "contributors": "contributors.rtf"
     }
-    __output = Path(
-        __gn_docs,
+    _output = Path(
+        _gn_docs,
         "general/datasets/",
         request.form.get("id").split("/")[-1],
-        f"{__map.get(request.form.get('section'))}"
+        f"{_map.get(request.form.get('section'))}"
     )
     match request.form.get("type"):
         case "dcat:Dataset":
-            __session = session_info()["user"]
-            __author = f"{__session['name']} <{__session['email']}>"
+            _session = session_info()["user"]
+            _author = f"{_session['name']} <{_session['email']}>"
             save_dataset_metadata(
-                git_dir=__gn_docs,
-                output=__output,
-                author=__author,
+                git_dir=_gn_docs,
+                output=_output,
+                author=_author,
                 content=request.form.get("editor"),
                 msg=request.form.get("edit-summary")
             ).either(
