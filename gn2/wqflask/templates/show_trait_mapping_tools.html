@@ -410,15 +410,15 @@
                 {% for mapping_method in dataset.group.mapping_names %}
                 {% if mapping_method == "GEMMA" %}
                 <dt>GEMMA</dt>
-                <dd>GEMMA maps with correction for kinship using a linear mixed model and can include covariates such as sex and age. Defaults include a minor allele frequency of 0.05  and the leave-one-chromosome-out method (<a href="https://www.ncbi.nlm.nih.gov/pubmed/24531419">PMID: 2453419</a>, and <a href="https://github.com/genetics-statistics/GEMMA"> GitHub code</a>).</dd>
+                <dd>GEMMA maps with correction for kinship using a linear mixed model and can include covariates such as sex and age. Defaults include a minor allele frequency of 0.05  and the leave-one-chromosome-out method (<a href="https://www.ncbi.nlm.nih.gov/pubmed/24531419">PMID:&nbsp;2453419</a>, and <a href="https://github.com/genetics-statistics/GEMMA"> GitHub code</a>).</dd>
                 {% elif mapping_method == "R/qtl" %}
                 <dt class="map-method-text">R/qtl (version 1.44.9)</dt>
-                <dd><a href="https://www.ncbi.nlm.nih.gov/pubmed/12724300">R/qtl</a> maps using several models and uniquely support 4-way intercrosses such as the "Aging Mouse Lifespan Studies" (NIA UM-HET3). We will add support for R/qtl2 (<a href="https://www.ncbi.nlm.nih.gov/pubmed/30591514">PMID: 30591514</a>) in 2023—a version that handles complex populations with admixture and many haplotypes.</dd>
+                <dd><a href="https://www.ncbi.nlm.nih.gov/pubmed/12724300">R/qtl</a> maps using several models and uniquely support 4-way intercrosses such as the "Aging Mouse Lifespan Studies" (NIA UM-HET3). We will add support for R/qtl2 (<a href="https://www.ncbi.nlm.nih.gov/pubmed/30591514">PMID:&nbsp;30591514</a>) in the near future—a version that handles complex populations with admixture and many haplotypes.</dd>
                 <dt class="map-method-text">Pair Scan (R/qtl v 1.44.9)</dt>
                 <dd>The Pair Scan mapping tool performs a search for joint effects of two separate loci that may influence a trait. This search typically requires large sample sizes. Pair Scans can included covariates such as age and sex. For more on this function by K. Broman and colleagues see www.rdocumentation.org/packages/qtl/versions/1.60/topics/scantwo</dd>
                 {% elif mapping_method == "QTLReaper" %}
                 <dt class="map-method-text">Haley-Knott Regression</dt>
-                <dd>HK regression (QTL Reaper) is a fast mapping method with permutation that works well with F2 intercrosses and backcrosses (<a href="https://www.ncbi.nlm.nih.gov/pubmed/16718932">PMID 16718932</a>), but is not recommended for admixed populations, advanced intercrosses, or strain families such as the BXDs (<a href="https://github.com/pjotrp/QTLReaper">QTL Reaper code</a>).</dd>
+                <dd>HK regression (QTL Reaper) is a fast mapping method with permutation that works well with F2 intercrosses and backcrosses (<a href="https://www.ncbi.nlm.nih.gov/pubmed/16718932">PMID:&nbsp;16718932</a>), but is not recommended for admixed populations, advanced intercrosses, or strain families such as the BXDs (<a href="https://github.com/pjotrp/QTLReaper">QTL Reaper code</a>).</dd>
                 {% endif %}
                 {% endfor %}
             </dl>
