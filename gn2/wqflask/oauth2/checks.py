@@ -39,3 +39,26 @@ def require_oauth2(func):
         return session.user_token().either(__clear_session__, __with_token__)
 
     return __token_valid__
+
+
+def require_oauth2_edit_resource_access(func):
+    """Check if a user has edit access for a given resource."""
+    @wraps(func)
+    def __check_edit_access__(*args, **kwargs):
+        # Check edit access, if not return to the same page.
+
+        # This is for a GET
+        resource_name = request.args.get("name", "")
+        # And for a POST request.
+        if request.method == "POST":
+            resource_name = request.form.get("name", "")
+        result = oauth2_get(
+            f"auth/resource/authorisation/{resource_name}"
+        ).either(
+            lambda _: {"roles": []},
+            lambda val: val
+        )
+        if "group:resource:edit-resource" not in result.get("roles", []):
+            return redirect(f"/datasets/{resource_name}")
+        return func(*args, **kwargs)
+    return __check_edit_access__
