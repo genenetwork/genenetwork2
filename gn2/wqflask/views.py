@@ -1136,11 +1136,23 @@ def display_generif_page(symbol):
 
 @app.route("/datasets/<name>", methods=('GET',))
 def get_dataset(name):
+    from gn2.wqflask.oauth2.client import oauth2_get
+    from gn2.wqflask.oauth2.client import user_logged_in
+    from gn2.wqflask.oauth2.request_utils import user_details
+    from gn2.wqflask.oauth2.request_utils import process_error
+
+    result = oauth2_get(
+        f"auth/resource/authorisation/{name}"
+    ).either(
+        lambda err: {"roles": []},
+        lambda val: val
+    )
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
             f"/api/metadata/datasets/{name}")
     ).json()
+    metadata["editable"] = "group:resource:edit-resource" in result["roles"]
     return render_template(
         "dataset.html",
         name=name,
