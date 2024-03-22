@@ -27,7 +27,7 @@ from gn2.base.data_set import create_dataset
 from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.oauth2.session import session_info
-from gn2.wqflask.oauth2.checks import user_logged_in
+from gn2.wqflask.oauth2.client import user_logged_in
 from gn2.wqflask.oauth2.request_utils import (
     process_error, with_flash_error, with_flash_success)
 from gn2.wqflask.oauth2.client import (

@@ -10,8 +10,9 @@ from flask import (
 from . import client
 from . import session
 from .ui import render_ui
-from .checks import require_oauth2, user_logged_in
-from .client import oauth2_get, oauth2_post, oauth2_client, authserver_uri
+from .checks import require_oauth2
+from .client import (oauth2_get, oauth2_post, oauth2_client,
+                     authserver_uri, user_logged_in)
 from .request_utils import (
     user_details, request_error, process_error, with_flash_error)
 

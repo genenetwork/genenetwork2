@@ -2,7 +2,7 @@
 from flask import session, render_template
 
 from .client import oauth2_get
-from .checks import user_logged_in
+from .client import user_logged_in
 from .request_utils import process_error
 
 def render_ui(templatepath: str, **kwargs):

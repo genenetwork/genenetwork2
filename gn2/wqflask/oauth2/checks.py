@@ -4,11 +4,13 @@ from urllib.parse import urljoin
 
 from authlib.integrations.requests_client import OAuth2Session
 from flask import (
-    flash, request, url_for, redirect, current_app, session as flask_session)
+    flash, request, redirect, session as flask_session)
 
 from . import session
 from .client import (
-    authserver_uri, user_logged_in, oauth2_clientid, oauth2_clientsecret)
+    authserver_uri, oauth2_clientid, oauth2_clientsecret, oauth2_get)
+from .session import clear_session_info
+
 
 def require_oauth2(func):
     """Decorator for ensuring user is logged in."""

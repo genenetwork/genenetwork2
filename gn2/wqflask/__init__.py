@@ -33,7 +33,7 @@ from gn2.wqflask.api.markdown import blogs_blueprint
 from gn2.wqflask.api.markdown import news_blueprint
 from gn2.wqflask.api.jobs import jobs as jobs_bp
 from gn2.wqflask.oauth2.routes import oauth2
-from gn2.wqflask.oauth2.checks import user_logged_in
+from gn2.wqflask.oauth2.client import user_logged_in
 from gn2.wqflask.oauth2.collections import num_collections
 from gn2.wqflask.oauth2.request_utils import user_details, authserver_authorise_uri
 

@@ -6,8 +6,8 @@ from flask import (
     current_app as app)
 
 from . import session
-from .client import SCOPE, no_token_post
-from .checks import require_oauth2, user_logged_in
+from .client import SCOPE, no_token_post, user_logged_in
+from .checks import require_oauth2
 from .request_utils import user_details, process_error
 
 toplevel = Blueprint("toplevel", __name__)
