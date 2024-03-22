@@ -37,11 +37,11 @@
 }
 
 
-.blue{
+.blue-btn{
   color: blue;
 }
 
-.red{
+.red-btn{
   color: red;
 }
 
@@ -96,6 +96,16 @@ outline: none;
   <div style="width:90vw;overflow-wrap: normal; margin-top: 5px;">
     <p id="gnqa_answer">{{answer}} <p>
   </div>
+
+  <div>
+                  <div class="rating" style="margin-right:30px;padding:8px;text-align: right;" data-doc-id="{{query}}" data-task-id="{{task_id['task_id']}}">
+
+                 <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this answer +1 "><i class="fa fa-thumbs-up fa-lg fa-2x" aria-hidden="true"></i></button>
+                 <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this answer -1"><i class="fa fa-thumbs-down fa-lg fa-2x" aria-hidden="true"></i></button>
+                
+            </div>
+
+  </div>
 </div>
 
 <div>
@@ -147,12 +157,6 @@ outline: none;
         {% endif %}
         
             <p class="node-references">{{reference.comboTxt}}</p>
-            <div class="rating" style="margin-right:20px;padding:5px;text-align: right;" data-doc-id="{{reference.doc_id}}" data-task-id="{{task_id['task_id']}}">
-
-                 <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this reference +1 "><i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i></button>
-                 <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this reference  -1"><i class="fa fa-thumbs-down fa-lg" aria-hidden="true"></i></button>
-                
-            </div>
 
 
       </div>
@@ -199,20 +203,10 @@ outline: none;
 
     {% endif %}
    
-
-        
             <p class="node-references">{{reference.comboTxt}}</p>
-            <div class="rating" style="margin-right:20px;padding:5px;text-align: right;" data-doc-id="{{reference.doc_id}}" data-task-id="{{task_id['task_id']}}">
-
-                 <button class="btn" id="green" data-toggle="tooltip" data-placement="top" title="rate this reference +1 "><i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i></button>
-                 <button class="btn" id="red" data-toggle="tooltip" data-placement="top" title="rate this reference  -1"><i class="fa fa-thumbs-down fa-lg" aria-hidden="true"></i></button>
-                
-            </div>
-
 
       </div>
     </div>
-
         {% endif %} 
 
   </div>
@@ -241,6 +235,9 @@ $('.panel-collapse').on('show.bs.collapse', function () {
     $(this).siblings('.panel-heading').removeClass('active');
   });
 
+
+
+
      document.addEventListener('DOMContentLoaded', function() {
       const GN_SERVER_URL = {{gn_server_url|tojson}}
         $('#globalsearchform').hide()
@@ -255,44 +252,80 @@ $('.panel-collapse').on('show.bs.collapse', function () {
 
             }
         })
-
-
-     $(".rating").each(function() {
-        let  item = $(this);
-        let  likeBtn = item.find("#green")
-        let dislikeBtn = item.find("#red")
-
-
-let voteRequest = (gn_server_url,task_id,doc_id,vote_count)=>{
+const answer = {{ answer | tojson }};
+const query = {{query | tojson }}
+const task_id = {{ task_id | tojson }}["task_id"];
+async function voteRequest (gn_server_url,task_id,metadata){
     try{
-    fetch(`${GN_SERVER_URL}/api/llm/rating/${task_id}/${doc_id}/${vote_count}`,{
+        const response = await fetch(`/gnqna/rating/${task_id}`,{
         method:"POST",
-        body:""
+        headers: {
+           'Content-Type': 'application/json'
+       },
+        body: JSON.stringify(metadata)
     })
-    .then(response => response.text())
-    .then(data=> console.log(data));
+        if (response.ok){
+           return {"message":"success",status:0}
+        }
+        else {
+             let {error} = await response.json()
+             return  {"message":`HTTP Error:HTTP Response Code: ${response?.status}-reason-${error}`,status:1}
+        }
     }
-    catch {
-        alert("An error occurred")
-    }
+    catch (err){
+        return {"message":err,status:1}}
 }
-    likeBtn.on("click",function() {
-    if(dislikeBtn.hasClass("red")){
-        dislikeBtn.removeClass("red")
-    }
-    likeBtn.toggleClass("blue")
-    likeBtn.hasClass("blue")? voteRequest(GN_SERVER_URL,item.data("taskId"),item.data("docId"),1) : 0 
-})
+likeBtn = document.querySelector("#green");
+dislikeBtn = document.querySelector("#red")
+likeBtn.addEventListener("click",(event)=>{
+   if (likeBtn.classList.contains("blue-btn")){
+    var {caller,weight} = (voteWeight["default"])
+   }
+   else {
+    var {caller,weight} = voteWeight["like"]
 
-dislikeBtn.on("click",function(){
-if(likeBtn.hasClass("blue")){
-        likeBtn.removeClass("blue")
-    }
-    dislikeBtn.toggleClass("red")
-    dislikeBtn.hasClass("red") ? voteRequest(GN_SERVER_URL,item.data("taskId"),item.data("docId"),-1):0
+   }
+       voteRequest(GN_SERVER_URL,task_id,{weight,query,answer}).then(({message,status})=>{
+        alert(message)
+        status == 0 ? caller():""
+    })
 })
- })
- })
+dislikeBtn.addEventListener("click",(event)=>{       
+var {caller,weight} = voteWeight["dislike"]
+   if (dislikeBtn.classList.contains("red-btn")){
+    var {caller,weight} = (voteWeight["default"])
+   }
+       voteRequest(GN_SERVER_URL,task_id,{weight,query,answer}).then(({message,status})=>{
+        alert(message)
+        status == 0 ? caller():""
+    })
+})
+let voteWeight =  {
+  like: {
+    caller:function(){
+        dislikeBtn.classList.remove("red-btn")
+        likeBtn.classList.toggle("blue-btn")
+
+    },
+    weight: 1
+  },
+  dislike: {
+    caller:function(){
+        likeBtn.classList.remove("blue-btn")
+        dislikeBtn.classList.toggle("red-btn")
+    },
+
+    weight:-1
+  },
+  default: {
+    caller:function() {
+    likeBtn.classList.remove("blue-btn")
+    dislikeBtn.classList.remove("red-btn")
+}, 
+    weight:0
+}}})
+
+
 </script>
 
 

@@ -314,6 +314,20 @@ def gnqna_hist(search_term):
     return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **response})
 
 
+
+@app.route("/gnqna/rating/<task_id>",methods=["POST"])
+def gnqna_rating(task_id):
+    token = session_info()["user"]["token"].either(
+                lambda err: err, lambda tok: tok["access_token"])
+    return monad_requests.post(
+        urljoin(GN3_LOCAL_URL,
+                f"/api/llm/rating/{task_id}"),
+        json= request.json,
+        headers={
+            "Authorization": f"Bearer {token}"
+        }
+    ).then(
+    lambda resp: resp).either(lambda x: (x.json(),x.status_code),lambda x:(x.json(),x.status_code))
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
     result = UpdateGSearch(request.args).__dict__
