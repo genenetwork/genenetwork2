@@ -172,11 +172,13 @@
 	{% if dataset.description %}
 	<h3>
 	    <strong>Description</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=description&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.description|safe }}</div>
         {% endif %}
@@ -184,11 +186,13 @@
 	{% if dataset.experimentType %}
         <h3>
 	    <strong>Experiment Type</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=experimentType&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.experimentType|safe }}</div>
         {% endif %}
@@ -196,11 +200,13 @@
 	{% if dataset.specifics %}
 	<h3>
 	    <strong>Specifics of this Dataset</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=specifics&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
 	<div>{{ dataset.specifics }}</div>
 	{% endif %}
@@ -208,11 +214,13 @@
 	{% if dataset.experimentDesignInfo %}
         <h3>
 	    <strong>Experiment Design</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=experimentDesignInfo&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.experimentDesignInfo|safe }}</div>
         {% endif %}
@@ -220,11 +228,13 @@
 	{% if dataset.caseInfo %}
         <h3>
 	    <strong>About the Cases Used to Generate this Dataset:</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=caseInfo&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.caseInfo|safe }}</div>
         {% endif %}
@@ -234,11 +244,13 @@
 	    <strong>About the Tissue
 	    {%if dataset.tissue and dataset.tissue.label  %}({{ dataset.tissue.label }})
 		{% endif %}Used to Generate this Dataset</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=tissueInfo&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.tissueInfo|safe }}</div>
         {% endif %}
@@ -246,11 +258,13 @@
         {% if dataset.platform and dataset.platformInfo %}
         <h3 title="{{ dataset.platform.label }}">
 	    <strong>About the Array Platform</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=platformInfo&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.platformInfo|safe }}</div>
         {% endif %}
@@ -258,11 +272,13 @@
         {% if dataset.processingInfo %}
         <h3>
 	    <strong>About Data Values and Data Processing</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=processingInfo&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.processingInfo|safe }}</div>
         {% endif %}
@@ -270,23 +286,27 @@
 	{% if dataset.notes %}
         <h3>
 	    <strong>Notes</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=notes&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
 	</h3>
+	{% endif %}
         <div>{{ dataset.notes|safe }}</div>
         {% endif %}
 
 	{% if dataset.citation|trim %}
         <h3>
 	    <strong>Citation</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=citation&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.citation|safe}}</div>
         {% endif %}
@@ -294,11 +314,13 @@
 	{% if dataset.acknowledgement|trim %}
         <h3>
 	    <strong>Acknowledgment</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=acknowledgement&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
         <div>{{ dataset.acknowledgement|safe}}</div>
         {% endif %}
@@ -306,11 +328,13 @@
         {% if dataset.contributors %}
 	<h3>
 	    <strong>Contributors</strong>
+	    {% if dataset.editable %}
 	    <sup>
 		[&nbsp;
 		<a href="/metadata/edit?type=dcat:Dataset&section=contributors&name={{ dataset.label}}" target="_blank">edit</a>
 		&nbsp;]
 	    </sup>
+	    {% endif %}
 	</h3>
 	<div>{{ dataset.contributors|safe }}</div>
 	{% endif %}
