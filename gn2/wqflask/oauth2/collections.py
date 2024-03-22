@@ -1,6 +1,6 @@
 """Functions for collections."""
 from .session import session_info
-from .checks import user_logged_in
+from .client import user_logged_in
 from .client import oauth2_get, no_token_get
 
 def num_collections() -> int:

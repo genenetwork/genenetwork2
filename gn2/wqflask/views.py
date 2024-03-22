@@ -96,7 +96,7 @@ from gn2.wqflask.database import database_connection
 import gn2.jobs.jobs as jobs
 
 from gn2.wqflask.oauth2.session import session_info
-from gn2.wqflask.oauth2.checks import user_logged_in
+from gn2.wqflask.oauth2.client import user_logged_in
 
 from gn2.wqflask import requests as monad_requests
 

@@ -11,7 +11,7 @@ from gn3.authentication import AdminRole
 
 from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2.session import session_info
-from gn2.wqflask.oauth2.checks import user_logged_in
+from gn2.wqflask.oauth2.client import user_logged_in
 from gn2.wqflask.oauth2.request_utils import process_error
 
 
