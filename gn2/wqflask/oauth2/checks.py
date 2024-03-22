@@ -17,7 +17,7 @@ def require_oauth2(func):
     @wraps(func)
     def __token_valid__(*args, **kwargs):
         """Check that the user is logged in and their token is valid."""
-        config = current_app.config
+
         def __clear_session__(_no_token):
             session.clear_session_info()
             flask_session.pop("oauth2_token", None)
