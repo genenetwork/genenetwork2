@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% block title %}GNQA{% endblock %}
 
-{% block content %} <!-- Start of body -->
-
-
 {% block css %}
 <link rel="stylesheet" type="text/css" href="/static/new/css/llm.css">
 <style>
@@ -18,14 +15,78 @@
      background: rgba(0,0,0,0.75) url("/static/gif/loader.gif") no-repeat center center;
      z-index: 10000;
  }
-
  .gnqa-copy p {
      font-size: 16px;
      line-height: 1.5;
  }
+ .search-hist-btn{
+     padding:15px;
+
+     margin: 0 auto;
+     border-bottom: 1px solid #ccc;
+ }
+ .search-hist-btn a:hover {
+     text-decoration: None;
+     padding:5px;
+     border-radius: 10px;
+     color:blue;
+     cursor:pointer;
+ }
+ .search-hist-btn a {
+     font-weight: bold;
+     color:#000;
+ }
+ #gnqna_search_home input{
+     min-width: 25em;
+ }
 </style>
 {% endblock %}
 
+{% block search %}
+<form class="row" id="gnqna_search_home" method="POST" action="/gnqna">
+    <!--- init gnqa codebase here -->
+    <div class="col-sm-1">
+	<button type="button" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-link btn-sm ">
+            <i class="fa fa-history fa-2x" aria-hidden="true" title="Search History"></i>
+	</button>
+    </div>
+
+	<input class="col-sm-6 text-center" id="gnqna_search_home_input" type="text" autocomplete="off"
+               required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa"/>
+</form>
+{% endblock %}
+
+<div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document" >
+		<div class="modal-content">
+                    <div class="modal-header">
+			<h2 class="modal-title" id="exampleModalLabel">Your Search History</h2>
+
+                    </div>
+                    <div class="modal-body">
+			<div>
+                            {% if prev_queries %}
+                            <div>
+				{% for search in prev_queries[:8] %}
+				<div class="search-hist-btn" style="display:flex;justify-content: space-between;align-items: center;">
+                                    <form  class="search-hist-btn-form" method="GET" data-link="{{search}}">
+					<a  class="search-hist-btn-link" data-link="{{search}}">{{search}}</a>
+                                    </form>
+				</div>
+				{% endfor %}
+                            </div>
+                            {% endif %}
+			</div>
+                    </div>
+                    <div class="modal-footer">
+			<button type="button" class="btn btn-danger " style="color:white" >Delete All</button>
+			<button type="button" class="btn btn-primary" data-dismiss="modal" style="color:white">Cancel</button>
+                    </div>
+		</div>
+            </div>
+</div>
+
+{% block content %} <!-- Start of body -->
 <section class="container-fluid">
 
     <div id="loader"></div>
@@ -55,23 +116,30 @@
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
 <script type="text/javascript">
  document.addEventListener('DOMContentLoaded', function() {
+     $("#btn-hist-gnqa").on("click",function() {
+	 $("#exampleModal").modal("show")
+     });
+
+     $(".search-hist-btn-form").each(function(){
+	 let item = $(this);
+	 item.on("click", (e) => {
+	     item.attr("action", `/gnqna/hist/search/${item.data("link")}`).submit();
+	 })
+     });
      $("#gnqna_search").keypress(function(event) {
-         if (event.keyCode === 13) {
-             $('#gnqna_form').submit();
-             let spinner = $("#loader")
-             spinner.show()
-         }
-     })
-     $('#globalsearchform').hide()
-     $('#gnqna_search_home').show()
+	 if (event.keyCode === 13) {
+	     $('#gnqna_form').submit();
+	     let spinner = $("#loader")
+	     spinner.show()
+	 }
+     });
      $('footer').hide()
      $("#gnqna_search_home_input").keypress(function(event) {
-         if (event.keyCode === 13) {
-             console.log("clicked this button")
-             $('#gnqna_search_home').submit();
-             let spinner = $("#loader")
-             spinner.show();
-         }
+	 if (event.keyCode === 13) {
+	     $('#gnqna_search_home').submit();
+	     let spinner = $("#loader")
+	     spinner.show();
+	 }
      })
  });
 </script>
