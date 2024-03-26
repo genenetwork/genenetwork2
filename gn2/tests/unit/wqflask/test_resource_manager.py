@@ -58,7 +58,7 @@ class TestGetUserMembership(unittest.TestCase):
 class TestCheckUserAccessRole(unittest.TestCase):
     """Test cases for `get_highest_user_access_role`"""
 
-    def test_edit_access(self):
+    def test_edit_access(self, requests_mock):
         """Test that the right access roles are set"""
         response = mock.PropertyMock(return_value=json.dumps(
             {
@@ -67,6 +67,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
                 'admin': ['not-admin', 'edit-access', ],
             }
         ))
+        type(requests_mock.return_value).content = response
         self.assertEqual(get_highest_user_access_role(
             resource_id="0196d92e1665091f202f",
             user_id="8ad942fe-490d-453e-bd37"),
@@ -74,7 +75,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
              "metadata": DataRole.EDIT,
              "admin": AdminRole.EDIT_ACCESS})
 
-    def test_no_access(self):
+    def test_no_access(self, requests_mock):
         response = mock.PropertyMock(return_value=json.dumps(
             {
                 'data': ['no-access', ],
@@ -82,6 +83,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
                 'admin': ['not-admin', ],
             }
         ))
+        type(requests_mock.return_value).content = response
         self.assertEqual(get_highest_user_access_role(
             resource_id="0196d92e1665091f202f",
             user_id=""),
