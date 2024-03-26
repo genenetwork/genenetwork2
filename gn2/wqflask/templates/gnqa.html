@@ -4,16 +4,19 @@
 {% block css %}
 <link rel="stylesheet" type="text/css" href="/static/new/css/llm.css">
 <style>
- #loader {
-     display: none;
-     position: fixed;
-     top: 0;
-     left: 0;
-     right: 0;
-     bottom: 0;
-     width: 100%;
-     background: rgba(0,0,0,0.75) url("/static/gif/loader.gif") no-repeat center center;
-     z-index: 10000;
+ .htmx-indicator{
+     display:none;
+     opacity: 0;
+     transition: opacity 500ms ease-in;
+     width: 50px;
+ }
+ .htmx-request .htmx-indicator, .htmx-request.htmx-indicator {
+     opacity: 1;
+     display: block;
+     position: absolute;
+     left: 50%;
+     top: 50%;
+     z-index: 19;
  }
  .search-header {
      font-size: 3.5em;
@@ -92,8 +95,6 @@
 
 {% block content %} <!-- Start of body -->
 <section class="container-fluid">
-
-    <div id="loader"></div>
     <header class="row">
 	<h1 class="col-sm-12 text-center search-header">
 	    AI Search
@@ -102,15 +103,27 @@
 	    </small>
 	</h1>
     </header>
-    <form class="col-sm-12" id="gnqna_search_home" method="POST" action="/gnqna">
+    <form class="col-sm-12" id="gnqna_search_home"
+	  hx-post="/gnqna"
+	  hx-target=".gnqa-copy"
+	  hx-swap="outerHTML"
+	  hx-indicator="#indicator">
     <!--- init gnqa codebase here -->
 	<div class="col-sm-6">
-	    <button type="button" type="submit" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-default btn-sm ">
+	    <button type="submit" class="btn btn-default btn-sm">
 		<i class="fa fa-search fa-2x" aria-hidden="true" title="Search History"></i>
 	    </button>
-            <input class="text-center" id="gnqna_search_home_input" type="text" autocomplete="off"
-		   required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa"/>
-    </div>
+            <input
+		class="text-center"
+		id="gnqna_search_home_input"
+		type="text" autocomplete="off"
+		required
+		placeholder="Ask More Questions or Topics (E.g Genes)"
+		value=''
+		name="querygnqa"
+	    />
+	</div>
+	<img id="indicator" class="htmx-indicator" src="/static/gif/loader.gif"/>
     </form>
     <div class="row gnqa-copy">
 	<p class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6">
@@ -147,21 +160,7 @@
 	     item.attr("action", `/gnqna/hist/search/${item.data("link")}`).submit();
 	 })
      });
-     $("#gnqna_search").keypress(function(event) {
-	 if (event.keyCode === 13) {
-	     $('#gnqna_form').submit();
-	     let spinner = $("#loader")
-	     spinner.show()
-	 }
-     });
      $('footer').hide()
-     $("#gnqna_search_home_input").keypress(function(event) {
-	 if (event.keyCode === 13) {
-	     $('#gnqna_search_home').submit();
-	     let spinner = $("#loader")
-	     spinner.show();
-	 }
-     })
  });
 </script>
 {% endblock %}
