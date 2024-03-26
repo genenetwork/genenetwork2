@@ -58,7 +58,7 @@ class TestGetUserMembership(unittest.TestCase):
 class TestCheckUserAccessRole(unittest.TestCase):
     """Test cases for `get_highest_user_access_role`"""
 
-    @mock.patch("gn2.wqflask.resource_manager.requests.get")
+    @mock.patch("gn3.authentication.requests.get")
     def test_edit_access(self, requests_mock):
         """Test that the right access roles are set"""
         response = mock.PropertyMock(return_value=json.dumps(
@@ -76,7 +76,7 @@ class TestCheckUserAccessRole(unittest.TestCase):
              "metadata": DataRole.EDIT,
              "admin": AdminRole.EDIT_ACCESS})
 
-    @mock.patch("gn2.wqflask.resource_manager.requests.get")
+    @mock.patch("gn3.authentication.requests.get")
     def test_no_access(self, requests_mock):
         response = mock.PropertyMock(return_value=json.dumps(
             {
