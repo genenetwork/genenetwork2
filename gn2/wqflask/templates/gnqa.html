@@ -15,13 +15,24 @@
      background: rgba(0,0,0,0.75) url("/static/gif/loader.gif") no-repeat center center;
      z-index: 10000;
  }
+ .search-header {
+     font-size: 3.5em;
+     color:#808080;
+     font-family: sans serif;
+ }
+ .search-header small {
+     font-size: 14px;
+ }
+
+ .search-header sup {
+     top: -2em;
+ }
  .gnqa-copy p {
      font-size: 16px;
      line-height: 1.5;
  }
  .search-hist-btn{
      padding:15px;
-
      margin: 0 auto;
      border-bottom: 1px solid #ccc;
  }
@@ -36,9 +47,14 @@
      font-weight: bold;
      color:#000;
  }
- #gnqna_search_home input{
+ #gnqna_search_home input {
      min-width: 25em;
+     margin: 1.5em 0;
  }
+ #gnqna_search_home {
+     field-sizing: normal;
+ }
+
 </style>
 {% endblock %}
 
@@ -78,26 +94,26 @@
 <section class="container-fluid">
 
     <div id="loader"></div>
-    <div class="row">
-	<h2 class="col-sm-12 text-center" style="font-variant:small-caps">Gnqa System</h2>
-    </div>
+    <header class="row">
+	<h1 class="col-sm-12 text-center search-header">
+	    AI Search
+	    <small>
+		<sup><a href="#">[Search History]</a></sup>
+	    </small>
+	</h1>
+    </header>
     <form class="col-sm-12" id="gnqna_search_home" method="POST" action="/gnqna">
     <!--- init gnqa codebase here -->
-    <!-- <div class="col-sm-1">
-	 <button type="button" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-link btn-sm ">
-         <i class="fa fa-history fa-2x" aria-hidden="true" title="Search History"></i>
-	 </button>
-	 </div> -->
-    <div class="col-sm-6">
-	<input class="text-center" id="gnqna_search_home_input" type="text" autocomplete="off"
-               required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa"/>
-	<button type="button" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-primary btn-sm ">
-            <i class="fa fa-search fa-2x" aria-hidden="true" title="Search History"></i>
-	</button>
+	<div class="col-sm-6">
+	    <button type="button" type="submit" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-default btn-sm ">
+		<i class="fa fa-search fa-2x" aria-hidden="true" title="Search History"></i>
+	    </button>
+            <input class="text-center" id="gnqna_search_home_input" type="text" autocomplete="off"
+		   required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa"/>
     </div>
     </form>
     <div class="row gnqa-copy">
-	<p class="col-sm-11 col-md-offset-3 col-md-6">
+	<p class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6">
 	    Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org </a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
 	</p>
 	<p class="col-sm-11 col-md-offset-3 col-md-6">At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.</p>
@@ -116,6 +132,9 @@
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
 
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='htmx.min.js') }}"></script>
+
 <script type="text/javascript">
  document.addEventListener('DOMContentLoaded', function() {
      $("#btn-hist-gnqa").on("click",function() {
