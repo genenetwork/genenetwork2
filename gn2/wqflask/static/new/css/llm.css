@@ -1,81 +1,73 @@
-   
-  
-
-   #gnqna_search {
+#gnqna_search {
     padding:15px  10px;
     border-radius: 15px;
     border:1px solid blue;
-   }
-
-  #gnqna_search{
-    font-weight: bold;
-    font-weight: 18px;
-  }
-
-   #main-search-controller{
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
+#gnqna_search{
+    font-weight: bold;
+    font-weight: 18px;
+}
 
+#main-search-controller{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-
-  
-  #gnqa_ref {
+#gnqa_ref {
     min-height: 100vh;
     overflow: hidden;
     overflow-y:auto;
-   /* overflow-y: scroll; */
-  }
+    /* overflow-y: scroll; */
+}
 
 
-  #gnqa_ref_item{
+#gnqa_ref_item{
     padding:12px;
-  }
+}
 
 
-  #gnqa_query {
+#gnqa_query {
     font-size: 24px;
     font-family: serif;
     color: #3071a9;
     text-decoration: underline;
-  }
+}
 
-  #gnqa_query::first-letter {
+#gnqa_query::first-letter {
     font-size: 30px;
 
-  }
+}
 
-
-  #gnqa_answer::first-letter{
+#gnqa_answer::first-letter{
     font-weight: bold;
     text-transform: uppercase;
 
 
-  }
-  #gnqna_search_home{
- display: flex;
-  justify-content: center;
-  align-items: center;
-  }
+}
 
- 
-   #gnqna_search_home input{
+#gnqna_search_home{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gnqna_search_home input{
     padding:7px  5px;
     border-radius: 10px;
     border:1px solid blue;
-   }
+}
 
-  #gnqna_search_home input{
+#gnqna_search_home input{
     font-weight: bold;
-  }
+}
 
-  .container{
-   / box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
-  }
+.container{
+    / box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
+}
 
-  #loader {
+#loader {
     display: none;
     position: fixed;
     top: 0;
