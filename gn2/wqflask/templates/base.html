@@ -162,14 +162,13 @@
                                 Profile
                             </a>
                         </li>
-                        {%endif%}
+                        {% endif %}
                     </ul>
                 </div>
             </div>
         </div>
+	{% block search %}
         <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative;background-color: #d5d5d5; height: 100px;">
-
-            {% block search %}
             <form method="get" action="/gsearch" id="globalsearchform">
 		<div class="form-group">
                     <div class="controls">
@@ -195,10 +194,10 @@
 			</span>
 		    </div>
 		</div>
-	    </form>
-            {% endblock %}
-
-            {% block content %}
+		    </form>
+	</div>
+	{% endblock %}
+        {% block content %}
             {% endblock %}
 
             <footer class="footer">
