@@ -100,6 +100,9 @@ from gn2.wqflask.oauth2.client import user_logged_in
 
 from gn2.wqflask import requests as monad_requests
 
+from gn2.wqflask.oauth2.checks import require_oauth2
+
+
 Redis = get_redis_conn()
 
 
@@ -253,6 +256,7 @@ def gsearchtable():
 
 
 @app.route("/gnqna", methods=["POST", "GET"])
+@require_oauth2
 def gnqna():
 
     if request.method == "POST":
