@@ -223,15 +223,6 @@
      const GN_SERVER_URL = {{gn_server_url|tojson}}
      $('#globalsearchform').hide()
      $('footer').hide()
-     $("#gnqna_search_home_input").keypress(function(event) {
-	 if (event.keyCode === 13) {
-	     console.log("clicked this button")
-	     $('#gnqna_search_home').submit();
-	     let spinner = $("#loader")
-	     spinner.show();
-
-	 }
-     })
      const answer = {{ answer | tojson }};
      const query = {{query | tojson }}
      const task_id = {{ task_id | tojson }}["task_id"];
