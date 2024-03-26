@@ -42,19 +42,7 @@
 </style>
 {% endblock %}
 
-{% block search %}
-<form class="row" id="gnqna_search_home" method="POST" action="/gnqna">
-    <!--- init gnqa codebase here -->
-    <div class="col-sm-1">
-	<button type="button" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-link btn-sm ">
-            <i class="fa fa-history fa-2x" aria-hidden="true" title="Search History"></i>
-	</button>
-    </div>
-
-	<input class="col-sm-6 text-center" id="gnqna_search_home_input" type="text" autocomplete="off"
-               required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa"/>
-</form>
-{% endblock %}
+{% block search %}{% endblock %}
 
 <div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document" >
@@ -90,10 +78,24 @@
 <section class="container-fluid">
 
     <div id="loader"></div>
-
     <div class="row">
 	<h2 class="col-sm-12 text-center" style="font-variant:small-caps">Gnqa System</h2>
     </div>
+    <form class="col-sm-12" id="gnqna_search_home" method="POST" action="/gnqna">
+    <!--- init gnqa codebase here -->
+    <!-- <div class="col-sm-1">
+	 <button type="button" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-link btn-sm ">
+         <i class="fa fa-history fa-2x" aria-hidden="true" title="Search History"></i>
+	 </button>
+	 </div> -->
+    <div class="col-sm-6">
+	<input class="text-center" id="gnqna_search_home_input" type="text" autocomplete="off"
+               required placeholder="Ask More Questions or Topics (E.g Genes) " value='' name="querygnqa"/>
+	<button type="button" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-primary btn-sm ">
+            <i class="fa fa-search fa-2x" aria-hidden="true" title="Search History"></i>
+	</button>
+    </div>
+    </form>
     <div class="row gnqa-copy">
 	<p class="col-sm-11 col-md-offset-3 col-md-6">
 	    Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org </a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
