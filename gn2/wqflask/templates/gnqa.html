@@ -6,78 +6,70 @@
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="/static/new/css/llm.css">
-{% endblock %}
-
-
- <style>   
-  #loader {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0,0,0,0.75) url("/static/gif/loader.gif") no-repeat center center;
-    z-index: 10000;
-}
+<style>
+ #loader {
+     display: none;
+     position: fixed;
+     top: 0;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     width: 100%;
+     background: rgba(0,0,0,0.75) url("/static/gif/loader.gif") no-repeat center center;
+     z-index: 10000;
+ }
 
 </style>
+{% endblock %}
 
-
-
-<div style="height: 100vh;width: 100vw; ">
+<section class="container-fluid">
 
 <div id="loader"></div>
 
-<div style="margin-x:auto;margin-top: 50px;text-align: center;font-size: 16px;">
-  <h2 style="text-decoration: underline;text-transform: uppercase; font-weight: bold;padding: 5px;">GNQA System</h2>
+<div class="row container">
+    <h2 style="font-variant:small-caps">Gnqa System</h2>
 
-
-  <p style="padding:15px">
-    Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <span style="text-decoration:underline;"><strong><a href="/">GeneNetwork.org </a></strong> research</span>, <span style="text-decoration:underline;">genomics/genetics with regards to diabetes </span>, and <span style="text-decoration:underline;">genomics/genetics with regards to aging. </span> 
-     At the moment when you ask GNQA something it will attempt to return a sensible answer with ``real'' references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter. 
-   GNQA is not a finished product as we are working diligently to improve it daily. 
-  </p>
-   <p style="font-weight: bold;">Thanks for using GNQA! </p>
+    <div>
+	<p>
+	    Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org </a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
+	</p>
+	<p>At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.</p>
+	<p>
+	    GNQA is not a finished product as we are working diligently to improve it daily.
+	</p>
+	<p style="font-weight: bold;">Thanks for using GNQA! </p>
+    </div>
 </div>
 
-</div>
+</section>
 
+{% endblock %}
 
-
+{% block js %}
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
 
- <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script><script type="text/javascript">
-
-    document.addEventListener('DOMContentLoaded', function() {
-       $("#gnqna_search").keypress(function(event) {
-            if (event.keyCode === 13) {
-            $('#gnqna_form').submit();
-            let spinner = $("#loader")
-            spinner.show()
-            }
-        })
-
-
-        $('#globalsearchform').hide()
-        $('#gnqna_search_home').show()
-         $('footer').hide()
-          $("#gnqna_search_home_input").keypress(function(event) {
-            if (event.keyCode === 13) {
-                console.log("clicked this button")
-            $('#gnqna_search_home').submit();
-            let spinner = $("#loader")
-            spinner.show();
-
-            }
-        })
-
-
-    });
-
-
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
+<script type="text/javascript">
+ document.addEventListener('DOMContentLoaded', function() {
+     $("#gnqna_search").keypress(function(event) {
+         if (event.keyCode === 13) {
+             $('#gnqna_form').submit();
+             let spinner = $("#loader")
+             spinner.show()
+         }
+     })
+     $('#globalsearchform').hide()
+     $('#gnqna_search_home').show()
+     $('footer').hide()
+     $("#gnqna_search_home_input").keypress(function(event) {
+         if (event.keyCode === 13) {
+             console.log("clicked this button")
+             $('#gnqna_search_home').submit();
+             let spinner = $("#loader")
+             spinner.show();
+         }
+     })
+ });
 </script>
-<!-- Bootstrap JS and Popper.js -->
 {% endblock %}
 
