@@ -300,9 +300,8 @@ def gnqna():
 
 
 @app.route("/gnqna/hist/search/<search_term>", methods=["GET"])
+@require_oauth2
 def gnqna_hist(search_term):
-
-    # todo add token validation
     response = monad_requests.get(urljoin(GN3_LOCAL_URL, f"/api/llm/historys/{search_term}")).then(lambda resp: resp).either(
         lambda x:  x.json(), lambda x: x.json())
     return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **response})
