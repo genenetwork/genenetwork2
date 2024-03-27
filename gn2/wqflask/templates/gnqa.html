@@ -144,16 +144,6 @@
 
 <script type="text/javascript">
  document.addEventListener('DOMContentLoaded', function() {
-     $("#btn-hist-gnqa").on("click",function() {
-	 $("#exampleModal").modal("show")
-     });
-
-     $(".search-hist-btn-form").each(function(){
-	 let item = $(this);
-	 item.on("click", (e) => {
-	     item.attr("action", `/gnqna/hist/search/${item.data("link")}`).submit();
-	 })
-     });
      $('footer').hide()
  });
 </script>
