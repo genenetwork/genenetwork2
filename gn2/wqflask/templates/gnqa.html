@@ -13,9 +13,9 @@
  .htmx-request .htmx-indicator, .htmx-request.htmx-indicator {
      opacity: 1;
      display: block;
-     position: absolute;
-     left: 50%;
-     top: 50%;
+     position: fixed;
+     left: 50vw;
+     top: 50vh;
      z-index: 19;
  }
 
@@ -48,6 +48,7 @@
 
  #gnqna_search_home button {
      margin-right: 10px;
+     width: fit-content;
  }
  .answers {
      width: 75%;
@@ -58,33 +59,33 @@
 {% block search %}{% endblock %}
 
 <div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document" >
-		<div class="modal-content">
-                    <div class="modal-header">
-			<h2 class="modal-title" id="exampleModalLabel">Your Search History</h2>
+    <div class="modal-dialog modal-lg" role="document" >
+	<div class="modal-content">
+            <div class="modal-header">
+		<h2 class="modal-title" id="exampleModalLabel">Your Search History</h2>
 
-                    </div>
-                    <div class="modal-body">
-			<div>
-                            {% if prev_queries %}
-                            <div>
-				{% for search in prev_queries[:8] %}
-				<div class="search-hist-btn" style="display:flex;justify-content: space-between;align-items: center;">
-                                    <form  class="search-hist-btn-form" method="GET" data-link="{{search}}">
-					<a  class="search-hist-btn-link" data-link="{{search}}">{{search}}</a>
-                                    </form>
-				</div>
-				{% endfor %}
-                            </div>
-                            {% endif %}
+            </div>
+            <div class="modal-body">
+		<div>
+                    {% if prev_queries %}
+                    <div>
+			{% for search in prev_queries[:8] %}
+			<div class="search-hist-btn" style="display:flex;justify-content: space-between;align-items: center;">
+                            <form  class="search-hist-btn-form" method="GET" data-link="{{search}}">
+				<a  class="search-hist-btn-link" data-link="{{search}}">{{search}}</a>
+                            </form>
 			</div>
+			{% endfor %}
                     </div>
-                    <div class="modal-footer">
-			<button type="button" class="btn btn-danger " style="color:white" >Delete All</button>
-			<button type="button" class="btn btn-primary" data-dismiss="modal" style="color:white">Cancel</button>
-                    </div>
+                    {% endif %}
 		</div>
             </div>
+            <div class="modal-footer">
+		<button type="button" class="btn btn-danger " style="color:white" >Delete All</button>
+		<button type="button" class="btn btn-primary" data-dismiss="modal" style="color:white">Cancel</button>
+            </div>
+	</div>
+    </div>
 </div>
 
 {% block content %} <!-- Start of body -->
@@ -97,39 +98,47 @@
 	    </small>
 	</h1>
     </header>
-    <form class="col-sm-10 col-sm-offset-1 col-md-6 col-md-offset-3 form-horizontal" id="gnqna_search_home"
-	  hx-post="/gnqna"
-	  hx-target=".gnqa-copy"
-	  hx-swap="outerHTML"
-	  hx-indicator="#indicator">
-    <!--- init gnqa codebase here -->
-	<div class="form-group form-group-lg">
-	    <button type="submit" class="btn btn-default btn-sm col-sm-1 col-xs-1">
-		<i class="fa fa-search fa-3x" aria-hidden="true" title="Search History"></i>
+    <form class="row form-horizontal" id="gnqna_search_home"
+	  action="/gnqna" method="POST">
+	<!--- init gnqa codebase here -->
+	<div class="form-group form-group-lg col col-xs-12 col-sm-6 col-sm-offset-3">
+	    <button class="btn btn-default btn-sm col-xs-1 col-sm-1 col-sm-offset-3"
+		    hx-post="/gnqna"
+		    hx-target="#swap"
+		    hx-swap="innerHTML"
+		    hx-indicator="#indicator">
+		<i class="fa fa-search fa-3x" aria-hidden="true" title="Search"></i>
+		<img id="indicator" class="htmx-indicator" src="/static/gif/loader.gif"/>
 	    </button>
             <input
-		class="text-left input-lg col-xs-10 col-sm-10"
-		id="gnqna_search_home_input"
-		type="text" autocomplete="on"
-		required
+		class="text-left input-lg col-sm-5"
+		       id="gnqna_search_home_input"
+		       type="text" autocomplete="on"
+		       required
 		placeholder="Ask More Questions or Topics (E.g Genes)"
-		value=''
+		       value=''
 		name="querygnqa"
+		       hx-post="/gnqna"
+		hx-target="#swap
+		hx-swap="innerHTML"
+		hx-indicator="#indicator"
 	    />
 	</div>
-	<img id="indicator" class="htmx-indicator" src="/static/gif/loader.gif"/>
     </form>
-    <div class="row gnqa-copy">
-	<p class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6">
-	    Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org </a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
-	</p>
-	<p class="col-sm-11 col-md-offset-3 col-md-6">At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.</p>
-	<p class="col-sm-11 col-md-offset-3 col-md-6">
-	    GNQA is not a finished product as we are working diligently to improve it daily.
-	</p>
-	<p class="col-sm-11 col-md-offset-3 col-md-6"><b>Thanks for using GNQA!</b> </p>
+    <article id="swap" class="row">
+	<div class="row gnqa-copy">
+	    <p class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6">
+		Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org </a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
+	    </p>
+	    <p class="col-sm-11 col-md-offset-3 col-md-6">At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.</p>
+	    <p class="col-sm-11 col-md-offset-3 col-md-6">
+		GNQA is not a finished product as we are working diligently to improve it daily.
+	    </p>
+	    <p class="col-sm-11 col-md-offset-3 col-md-6"><b>Thanks for using GNQA!</b> </p>
 
-    </div>
+	</div>
+    </article>
+
 
 </section>
 
