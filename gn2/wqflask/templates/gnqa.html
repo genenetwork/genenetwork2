@@ -56,7 +56,9 @@
  #gnqna_search_home {
      field-sizing: normal;
  }
-
+ .answers {
+     width: 75%;
+ }
 </style>
 {% endblock %}
 
@@ -103,6 +105,7 @@
 	</h1>
     </header>
     <form class="col-sm-12" id="gnqna_search_home"
+	  hx-history="true"
 	  hx-post="/gnqna"
 	  hx-target=".gnqa-copy"
 	  hx-swap="outerHTML"
