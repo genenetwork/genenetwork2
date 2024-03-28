@@ -45,17 +45,22 @@ def save_dataset_metadata(
         author: str, content: str, msg: str
 ) -> Either:
     """Save dataset metadata to git"""
-
-    (__run_cmd__(f"git -C {git_dir} reset --hard origin".split(" "))
-     .then(lambda _: __run_cmd__(
-         f"git -C {git_dir} pull".split(" ")))
-     )
-
-    with Path(output).open(mode="w") as _f:
-        _f.write(content)
+    def __write__():
+        try:
+            with Path(output).open(mode="w") as f_:
+                f_.write(content)
+                return Right(0)
+        except Exception as e_:
+            return Left({
+                "command": "Writing to File",
+                "error": str(e_)
+            })
 
     return (
-        __run_cmd__(f"git -C {git_dir} add .".split(" "))
+        __run_cmd__(f"git -C {git_dir} reset --hard origin".split(" "))
+        .then(lambda _: __run_cmd__(f"git -C {git_dir} pull".split(" ")))
+        .then(lambda _: __write__())
+        .then(lambda _: __run_cmd__(f"git -C {git_dir} add .".split(" ")))
         .then(lambda _: __run_cmd__(
             f"git -C {git_dir} commit -m".split(" ") + [
                 f'{msg}', f"--author='{author}'", "--no-gpg-sign"
