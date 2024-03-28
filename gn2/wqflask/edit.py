@@ -5,8 +5,7 @@ from urllib.parse import urljoin
 from pathlib import Path
 from gn2.wqflask.oauth2.session import session_info
 
-from pymonad.tools import curry
-from pymonad.either import Either, Left
+from pymonad.either import Either, Left, Right
 
 from flask import (Blueprint,
                    flash,
@@ -21,36 +20,47 @@ from gn2.wqflask.oauth2.checks import require_oauth2_edit_resource_access
 metadata = Blueprint("metadata", __name__)
 
 
+def __run_cmd__(cmd) -> Either:
+    """Run a given command and return it's results as an Either monad"""
+    _result = ""
+    try:
+        _result = subprocess.run(
+            cmd, capture_output=True
+        )
+    except Exception as e_:
+        return Left({
+            "command": cmd,
+            "error": str(e_),
+        })
+    if _result.stderr:
+        return Left({
+            "command": cmd,
+            "error": _result.stderr.decode()
+        })
+    return Right(_result.stdout)
+
+
 def save_dataset_metadata(
         git_dir: str, output: str,
         author: str, content: str, msg: str
 ) -> Either:
     """Save dataset metadata to git"""
-    @curry(2)
-    def __run_cmd(cmd, status_code):
-        __result = subprocess.run(
-            cmd, capture_output=True
-        )
-        if __result.stderr or status_code != 0:
-            return Left({
-                "command": cmd,
-                "error": __result.stderr.decode()
-            })
-        return 0
 
-    (Either.insert(0)
-        .then(__run_cmd(f"git -C {git_dir} reset --hard origin".split(" ")))
-        .then(__run_cmd(f"git -C {git_dir} pull".split(" "))))
+    (__run_cmd__(f"git -C {git_dir} reset --hard origin".split(" "))
+     .then(lambda _: __run_cmd__(
+         f"git -C {git_dir} pull".split(" ")))
+     )
 
     with Path(output).open(mode="w") as _f:
         _f.write(content)
+
     return (
-        Either.insert(0)
-        .then(__run_cmd(f"git -C {git_dir} add .".split(" ")))
-        .then(__run_cmd(f"git -C {git_dir} commit -m".split(" ") + [
-            f'{msg}', f"--author='{author}'", "--no-gpg-sign"
-        ]))
-        .then(__run_cmd(f"git -C {git_dir} \
+        __run_cmd__(f"git -C {git_dir} add .".split(" "))
+        .then(lambda _: __run_cmd__(
+            f"git -C {git_dir} commit -m".split(" ") + [
+                f'{msg}', f"--author='{author}'", "--no-gpg-sign"
+            ]))
+        .then(lambda _: __run_cmd__(f"git -C {git_dir} \
 push origin master --dry-run".split(" ")))
     )
 
