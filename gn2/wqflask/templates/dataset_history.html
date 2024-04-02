@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container" id="history">
+    {% if data.error %}
+    <p class="lead">There was an error fetching the history.</p>
+    {% else %}
+    <table class=" table-condensed">
+	<tr>
+	    <th>Age</th>
+	    <th>Commit</th>
+	    <th>Summary</th>
+	    <th>Author</th>
+	</tr>
+	{{ data|safe }}
+    </table>
+    {% endif %}
+</section>
+
+{% endblock %}

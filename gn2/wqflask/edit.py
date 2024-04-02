@@ -154,3 +154,41 @@ def save():
     return redirect(
         f"/datasets/{request.form.get('label')}"
     )
+
+
+def __fetch_dataset_git_history__(
+        git_dir:str , dataset_name: str
+) -> Either:
+    """Fetch the git history of a given dataset."""
+    # Age, Commit, Message, Author
+    dataset_path = Path(git_dir) / "general/datasets/" / dataset_name
+    format_ = "<tr><td><i>%cr</i></td>\
+<td>\
+<a style='color:green;' href='https://git.genenetwork.org/gn-docs/commit/general?id=%H' \
+target='_blank'>%h</a></td>\
+<td>%s</td><td>%an</td></tr>"
+    args = [
+            "git", "-C", str(dataset_path), "log",
+            f"--pretty=format:{format_}"
+    ]
+    results = __run_cmd__(
+        args
+    )
+    return results
+
+
+@metadata.route("<id_>/history")
+def view_history(id_):
+    """View a datasets history"""
+    from gn2.utility.tools import get_setting
+    data = __fetch_dataset_git_history__(
+        Path(get_setting("DATA_DIR"), "gn-docs"), id_
+    ).either(
+        lambda error: flash(f"{error=}", error),
+        lambda x: x
+    )
+    return render_template(
+        "dataset_history.html",
+        name=request.args.get("name",""),
+        data=data.decode()
+    )
