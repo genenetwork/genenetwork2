@@ -1155,17 +1155,20 @@ def get_dataset(name):
     from gn2.wqflask.oauth2.request_utils import user_details
     from gn2.wqflask.oauth2.request_utils import process_error
 
-    result = oauth2_get(
-        f"auth/resource/authorisation/{name}"
-    ).either(
-        lambda err: {"roles": []},
-        lambda val: val
-    )
+    # We need to use the "id" as the identifier
     metadata = requests.get(
         urljoin(
             GN3_LOCAL_URL,
             f"/api/metadata/datasets/{name}")
     ).json()
+    id_ = metadata.get("id", "").split("/")[-1]
+    result = oauth2_get(
+        f"auth/resource/authorisation/{id_}"
+    ).either(
+        lambda err: {"roles": []},
+        lambda val: val
+    )
+
     metadata["editable"] = "group:resource:edit-resource" in result["roles"]
     return render_template(
         "dataset.html",
