@@ -30,6 +30,12 @@
      font-size: 14px;
  }
 
+ .search-hist-btn{
+     background-color:transparent;
+     color:#3071a9;
+     border:none     
+ }
+
  .search-header sup {
      top: -2em;
  }
@@ -117,7 +123,11 @@
 	<h1 class="col-sm-12 text-center search-header">
 	    AI Search
 	    <small>
-		<sup><a href="#">[Search History]</a></sup>
+	      <sup>
+		<button class="search-hist-btn" hx-get="/gnqna/hist/" hx-target="#swap" hx-swap="innerHTML" >
+		  [Search History]
+		</button>
+	      </sup>
 	    </small>
 	</h1>
     </header>
@@ -142,7 +152,7 @@
 		       value=''
 		name="querygnqa"
 		       hx-post="/gnqna"
-		hx-target="#swap
+		hx-target="#swap"
 		hx-swap="innerHTML"
 		hx-indicator="#indicator"
 	    />
