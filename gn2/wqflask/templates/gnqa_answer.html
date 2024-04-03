@@ -32,15 +32,18 @@
 			    <div id="collapse{{reference.doc_id}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
 				<div class="panel-body">
 				    <p class="node-references">{{ reference.comboTxt }}</p>
-				    <div style="margin: 5px;color:#3071a9;cursor: pointer;" >
+				    <div>
 					{% if reference.pubmed %}
-					<details>
-					    <summary>See PubMed Info</summary>
-					    <h4 style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;">{{ reference.pubmed[0].get('title') }}</h4>
-					    <p><b>Authors: {{ reference.pubmed[0].get('authors') }}</b></p>
-					    <p><b>PMID: {{ reference.pubmed[0].get('pub_id') }}</b></p>
-					    <p><b>Abstract: </b> {{ reference.pubmed[0].get('abstract')|safe }}</p>
-					    <p><i><a href="{{reference.pubmed[0].get('source')}}" target="_blank" style="float:left;">See full Article on Pubmed</a></i></p>
+					<details open>
+					  <summary>See PubMed Info</summary>
+					  <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;margin-top:1.4em">
+					    <h3><b>{{ reference.pubmed[0].get('title') }}:</b></h3>			
+					    <p><b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get('authors') }}</span></p>
+					    <p><b>PMID: <span class="text-info">{{ reference.pubmed[0].get('pub_id') }}</span></b></p>
+					    <p><b>Abstract: </b></p>
+					    <p>{{ reference.pubmed[0].get('abstract')|safe }}</p>
+					    <p><a href="{{reference.pubmed[0].get('source')}}" target="_blank">See full Article on Pubmed</a></p>
+					  </div>
 					</details>
 					{% endif %}
 				    </div>
@@ -54,26 +57,24 @@
 					</a>
 				    </h4>
 				</div>
-
 				<div id="collapse{{reference.doc_id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
-
 				    <div class="panel-body">
-
-
-					{% if reference.pubmed %}
-
-
-					<div style="margin: 5px;color:#3071a9;cursor: pointer;" >
-
-					    <button type="button"  data-toggle="modal" data-target=".bd-pubmed-modal-lg-{{reference.doc_id}}" style="border:none;text-decoration:underline;outline: none;padding:5px;margin-left:25px;background: transparent;">
-						<span><b>See PubMed Info</b></span>
-					    </button>
-					</div>
-
-					{% endif %}
-
 					<p class="node-references">{{reference.comboTxt}}</p>
-
+				    <div>
+					{% if reference.pubmed %}
+					<details >
+					  <summary>See PubMed Info</summary>
+					  <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;margin-top:1.4em">
+					    <h3><b>{{ reference.pubmed[0].get('title') }}:</b></h3>			
+					    <p><b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get('authors') }}</span></p>
+					    <p><b>PMID: <span class="text-info">{{ reference.pubmed[0].get('pub_id') }}</span></b></p>
+					    <p><b>Abstract: </b></p>
+					    <p>{{ reference.pubmed[0].get('abstract')|safe }}</p>
+					    <p><a href="{{reference.pubmed[0].get('source')}}" target="_blank" style="float:left;">See full Article on Pubmed</a></p>
+					  </div>
+					</details>
+					{% endif %}
+				    </div>					
 				    </div>
 				</div>
 				{% endif %}
@@ -82,11 +83,9 @@
 		</li>
 		{% endfor %}
 	    </ul>
-
 	    {% else %}
 	    <p><i>No references available.</i></p>
 	    {% endif %}
 	</details>
-
 		    </div>
 </section>
