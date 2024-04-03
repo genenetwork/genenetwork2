@@ -299,12 +299,34 @@ def gnqna():
     return render_template("gnqa.html", prev_queries=prev_queries)
 
 
+@app.route("/gnqna/hist/", methods=["GET"])
+@require_oauth2
+def get_hist_titles():
+    token = session_info()["user"]["token"].either(
+        lambda err: err, lambda tok: tok["access_token"])
+    response = monad_requests.get(urljoin(GN3_LOCAL_URL,
+                                          "/api/llm/hist/titles"),
+                                  headers={
+        "Authorization": f"Bearer {token}"
+    }
+    ).then(lambda resp: resp).either(
+        lambda x:  x.json(), lambda x: x.json())
+    return render_template("gnqa_search_history.html", **response)
+
+
 @app.route("/gnqna/hist/search/<search_term>", methods=["GET"])
 @require_oauth2
-def gnqna_hist(search_term):
-    response = monad_requests.get(urljoin(GN3_LOCAL_URL, f"/api/llm/historys/{search_term}")).then(lambda resp: resp).either(
+def fetch_hist_records(search_term):
+    token = session_info()["user"]["token"].either(
+        lambda err: err, lambda tok: tok["access_token"])
+    response = monad_requests.get(urljoin(GN3_LOCAL_URL,
+                                          f"/api/llm/history/{search_term}"),
+                                  headers={
+        "Authorization": f"Bearer {token}"
+    }
+    ).then(lambda resp: resp).either(
         lambda x:  x.json(), lambda x: x.json())
-    return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **response})
+    return render_template("gnqa_answer.html", **response)
 
 
 @app.route("/gnqna/rating/<task_id>/<int(signed=True):weight>",
