@@ -24,7 +24,7 @@
 import os
 import sys
 
-GN_VERSION = "2.12-rc1"
+GN_VERSION = "3.12-rc1" # sync up with GN2
 
 SECRET_KEY = ""
 
