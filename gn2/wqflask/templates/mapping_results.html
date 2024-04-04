@@ -2,11 +2,7 @@
 {% block title %}Mapping Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
-    
-    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
-
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='purescript-genome-browser/css/purescript-genetics-browser.css') }}" />
-
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
     <link rel="stylesheet" type="text/css" href="static/new/css/show_trait.css" />
 
@@ -226,16 +222,16 @@
                 <div id="browser" style="margin-right: 20px; width: 90%;">
                     <div id="controls">
                         <button id="scrollLeft"  type="button" >
-                          <i class="fas fa-arrow-left"></i>
+                          <i class="fa fa-arrow-left"></i>
                         </button>
                         <button id="scrollRight" type="button" >
-                          <i class="fas fa-arrow-right"></i>
+                          <i class="fa fa-arrow-right"></i>
                         </button>
                         <button id="zoomOut" type="button" >
-                          <i class="fas fa-search-minus"></i>
+                          <i class="fa fa-search-minus"></i>
                         </button>
                         <button id="zoomIn"  type="button" >
-                          <i class="fas fa-search-plus"></i>
+                          <i class="fa fa-search-plus"></i>
                         </button>
                         <button id="reset"  type="button" >Reset</button>
                     </div>
