@@ -86,37 +86,6 @@
 {% endblock %}
 
 {% block search %}{% endblock %}
-
-<div class="modal fade  bd-example-modal-lg " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document" >
-	<div class="modal-content">
-            <div class="modal-header">
-		<h2 class="modal-title" id="exampleModalLabel">Your Search History</h2>
-
-            </div>
-            <div class="modal-body">
-		<div>
-                    {% if prev_queries %}
-                    <div>
-			{% for search in prev_queries[:8] %}
-			<div class="search-hist-btn" style="display:flex;justify-content: space-between;align-items: center;">
-                            <form  class="search-hist-btn-form" method="GET" data-link="{{search}}">
-				<a  class="search-hist-btn-link" data-link="{{search}}">{{search}}</a>
-                            </form>
-			</div>
-			{% endfor %}
-                    </div>
-                    {% endif %}
-		</div>
-            </div>
-            <div class="modal-footer">
-		<button type="button" class="btn btn-danger " style="color:white" >Delete All</button>
-		<button type="button" class="btn btn-primary" data-dismiss="modal" style="color:white">Cancel</button>
-            </div>
-	</div>
-    </div>
-</div>
-
 {% block content %} <!-- Start of body -->
 <section class="container-fluid">
     <header class="row">
@@ -171,8 +140,6 @@
 
 	</div>
     </article>
-
-
 </section>
 
 {% endblock %}
