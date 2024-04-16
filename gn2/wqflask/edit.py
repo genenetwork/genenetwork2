@@ -1,9 +1,14 @@
+import uuid
 import requests
 import subprocess
+import time
 
 from urllib.parse import urljoin
 from pathlib import Path
+
+from gn2.wqflask.oauth2.client import oauth2_get
 from gn2.wqflask.oauth2.session import session_info
+from gn2.wqflask.oauth2.tokens import JWTToken
 
 from pymonad.either import Either, Left, Right
 
@@ -66,8 +71,7 @@ def save_dataset_metadata(
                 f'{msg}', f"--author='{author}'", "--no-gpg-sign"
             ]))
         .then(lambda _: __run_cmd__(f"git -C {git_dir} \
-push origin master --dry-run".split(" ")))
-    )
+push origin master --dry-run".split(" "))))
 
 
 @metadata.route("/edit")
@@ -94,9 +98,7 @@ def metadata_edit():
                 edit=_metadata.get(_section),
             )
         case _:
-            return redirect(
-                f"/datasets/{_name}"
-            )
+            return redirect(f"/datasets/{_name}")
 
 
 @metadata.route("/save", methods=["POST"])
@@ -105,55 +107,47 @@ def metadata_edit():
 def save():
     """Save dataset edits in git."""
     from gn2.utility.tools import get_setting
-    _gn_docs = Path(
-        get_setting("DATA_DIR"),
-        "gn-docs"
-    )
-    # This maps the form elements to the actual path in the git
-    # repository
-    _map = {
-        "description": "summary.rtf",
-        "tissueInfo": "tissue.rtf",
-        "specifics": "specifics.rtf",
-        "caseInfo": "cases.rtf",
-        "platformInfo": "platform.rtf",
-        "processingInfo": "processing.rtf",
-        "notes": "notes.rtf",
-        "experimentDesignInfo": "experiment-design.rtf",
-        "acknowledgement": "acknowledgement.rtf",
-        "citation": "citation.rtf",
-        "experimentType": "experiment-type.rtf",
-        "contributors": "contributors.rtf"
-    }
-    _output = Path(
-        _gn_docs,
-        "general/datasets/",
-        request.form.get("id").split("/")[-1],
-        f"{_map.get(request.form.get('section'))}"
-    )
-    match request.form.get("type"):
-        case "dcat:Dataset":
-            _session = session_info()["user"]
-            _author = f"{_session['name']} <{_session['email']}>"
-            save_dataset_metadata(
-                git_dir=_gn_docs,
-                output=_output,
-                author=_author,
-                content=request.form.get("editor"),
-                msg=request.form.get("edit-summary")
+    from gn2.utility.tools import GN3_LOCAL_URL
+    # Call an endpoint to GN3 with special headers
+    name = request.form.get('label')
+    metadata = requests.get(
+                urljoin(
+                    GN3_LOCAL_URL,
+                    f"api/metadata/datasets/{name}")).json()
+    _session = session_info()["user"]
+    outgoing_url = urljoin(
+        GN3_LOCAL_URL,
+        "api/metadata/datasets/edit")
+    iat = int(time.time())
+    exp = iat + 300  # Expire after 300 seconds
+    token = JWTToken(
+        key=get_setting("JWT_SECRET_KEY"),
+        registered_claims={
+            "iat": iat,
+            "iss": request.url,
+            "sub": request.form.get("label"),
+            "aud": outgoing_url,
+            "exp": exp,
+            "jti": str(uuid.uuid4())},
+        private_claims={
+            "account-name": _session["name"],
+            "email": _session['email'],
+            "account-roles": oauth2_get(
+                f"auth/resource/authorisation\
+/{metadata.get('id', '').split('/')[-1]}"
             ).either(
-                lambda error: flash(
-                    f"{error=}",
-                    "error"
-                ),
-                lambda x: flash(
-                    "Successfully updated data.",
-                    "success"
-                )
-            )
-    return redirect(
-        f"/datasets/{request.form.get('label')}"
-    )
+                lambda err: {"roles": []},
+                lambda val: val)})
+    response = requests.post(
+        outgoing_url,
+        data=request.form,
+        headers=token.bearer_token)
+    if response.status_code == 201:
+        flash("Unable to update data", "alert-danger")
+    else:
+        flash("Successfully updated data", "success")
+    # Make a request to GN3 save endpoint
+    return redirect(f"/datasets/{name}")
 
 
 def __fetch_dataset_git_history__(
