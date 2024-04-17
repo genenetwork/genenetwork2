@@ -45,35 +45,6 @@ def __run_cmd__(cmd) -> Either:
     return Right(_result.stdout)
 
 
-def save_dataset_metadata(
-        git_dir: str, output: str,
-        author: str, content: str, msg: str
-) -> Either:
-    """Save dataset metadata to git"""
-    def __write__():
-        try:
-            with Path(output).open(mode="w") as f_:
-                f_.write(content)
-                return Right(0)
-        except Exception as e_:
-            return Left({
-                "command": "Writing to File",
-                "error": str(e_)
-            })
-
-    return (
-        __run_cmd__(f"git -C {git_dir} reset --hard origin".split(" "))
-        .then(lambda _: __run_cmd__(f"git -C {git_dir} pull".split(" ")))
-        .then(lambda _: __write__())
-        .then(lambda _: __run_cmd__(f"git -C {git_dir} add .".split(" ")))
-        .then(lambda _: __run_cmd__(
-            f"git -C {git_dir} commit -m".split(" ") + [
-                f'{msg}', f"--author='{author}'", "--no-gpg-sign"
-            ]))
-        .then(lambda _: __run_cmd__(f"git -C {git_dir} \
-push origin master --dry-run".split(" "))))
-
-
 @metadata.route("/edit")
 @require_oauth2_edit_resource_access
 @require_oauth2
