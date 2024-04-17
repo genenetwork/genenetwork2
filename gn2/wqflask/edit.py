@@ -25,26 +25,6 @@ from gn2.wqflask.oauth2.checks import require_oauth2_edit_resource_access
 metadata = Blueprint("metadata", __name__)
 
 
-def __run_cmd__(cmd) -> Either:
-    """Run a given command and return it's results as an Either monad"""
-    _result = ""
-    try:
-        _result = subprocess.run(
-            cmd, capture_output=True
-        )
-    except Exception as e_:
-        return Left({
-            "command": cmd,
-            "error": str(e_),
-        })
-    if _result.stderr:
-        return Left({
-            "command": cmd,
-            "error": _result.stderr.decode()
-        })
-    return Right(_result.stdout)
-
-
 @metadata.route("/edit")
 @require_oauth2_edit_resource_access
 @require_oauth2
