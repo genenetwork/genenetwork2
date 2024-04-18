@@ -10,6 +10,7 @@ from urllib.parse import urljoin, urlparse
 import redis
 import jinja2
 from flask_session import Session
+from authlib.jose import JsonWebKey
 from authlib.integrations.requests_client import OAuth2Session
 from flask import g, Flask, flash, session, url_for, redirect, current_app
 
@@ -106,6 +107,9 @@ except StartupError as serr:
     app.register_blueprint(startup_errors, url_prefix="/")
 
 server_session = Session(app)
+
+with open(app.config["SSL_KEY_PAIR_PUBLIC_KEY"]) as _sslkey:
+    app.config["JWT_PUBLIC_KEY"] = JsonWebKey.import_key(_sslkey.read())
 
 @app.before_request
 def before_request():
