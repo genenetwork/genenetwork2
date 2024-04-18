@@ -18,6 +18,7 @@ def register_client():
     """Register an OAuth2 client."""
     return "USER IS LOGGED IN AND SUCCESSFULLY ACCESSED THIS ENDPOINT!"
 
+
 @toplevel.route("/code", methods=["GET"])
 def authorisation_code():
     """Use authorisation code to get token."""
@@ -42,12 +43,13 @@ def authorisation_code():
     if bool(code):
         base_url = urlparse(request.base_url, scheme=request.scheme)
         request_data = {
-            "grant_type": "authorization_code",
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
             "code": code,
             "scope": SCOPE,
             "redirect_uri": urljoin(
                 urlunparse(base_url),
                 url_for("oauth2.toplevel.authorisation_code")),
+            "assertion": request.args["jwt"],
             "client_id": app.config["OAUTH2_CLIENT_ID"]
         }
         return no_token_post(
