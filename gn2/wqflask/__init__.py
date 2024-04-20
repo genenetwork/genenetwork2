@@ -108,8 +108,8 @@ except StartupError as serr:
 
 server_session = Session(app)
 
-with open(app.config["SSL_KEY_PAIR_PUBLIC_KEY"]) as _sslkey:
-    app.config["JWT_PUBLIC_KEY"] = JsonWebKey.import_key(_sslkey.read())
+with open(app.config["SSL_KEY_PAIR_PRIVATE_KEY"]) as _sslkey:
+    app.config["JWT_PRIVATE_KEY"] = JsonWebKey.import_key(_sslkey.read())
 
 @app.before_request
 def before_request():
