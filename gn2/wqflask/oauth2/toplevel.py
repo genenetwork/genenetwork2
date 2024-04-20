@@ -1,14 +1,18 @@
 """Authentication endpoints."""
-from uuid import UUID
+import uuid
+import datetime
 from urllib.parse import urljoin, urlparse, urlunparse
+
+from authlib.jose import jwt
 from flask import (
     flash, request, Blueprint, url_for, redirect, render_template,
     current_app as app)
 
 from . import session
-from .client import SCOPE, no_token_post, user_logged_in
 from .checks import require_oauth2
 from .request_utils import user_details, process_error
+from .client import (
+    SCOPE, no_token_post, user_logged_in, authserver_uri, oauth2_clientid)
 
 toplevel = Blueprint("toplevel", __name__)
 
@@ -31,7 +35,7 @@ def authorisation_code():
         session.set_user_token(token)
         udets = user_details()
         session.set_user_details({
-            "user_id": UUID(udets["user_id"]),
+            "user_id": uuid.UUID(udets["user_id"]),
             "name": udets["name"],
             "email": udets["email"],
             "token": session.user_token(),
@@ -42,6 +46,8 @@ def authorisation_code():
     code = request.args.get("code", "")
     if bool(code):
         base_url = urlparse(request.base_url, scheme=request.scheme)
+        jwtkey = app.config["JWT_PRIVATE_KEY"]
+        issued = datetime.datetime.now()
         request_data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
             "code": code,
@@ -49,7 +55,17 @@ def authorisation_code():
             "redirect_uri": urljoin(
                 urlunparse(base_url),
                 url_for("oauth2.toplevel.authorisation_code")),
-            "assertion": request.args["jwt"],
+            "assertion": jwt.encode(
+                header={"alg": "RS256", "typ": "jwt", "kid": jwtkey.kid},
+                payload={
+                    "iss": str(oauth2_clientid()),
+                    "sub": request.args["user_id"],
+                    "aud": urljoin(authserver_uri(), "auth/token"),
+                    "exp": (issued + datetime.timedelta(minutes=5)),
+                    "nbf": int(issued.timestamp()),
+                    "iat": int(issued.timestamp()),
+                    "jti": str(uuid.uuid4())},
+                key=jwtkey),
             "client_id": app.config["OAUTH2_CLIENT_ID"]
         }
         return no_token_post(
