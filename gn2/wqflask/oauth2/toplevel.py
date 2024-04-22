@@ -46,7 +46,7 @@ def authorisation_code():
     code = request.args.get("code", "")
     if bool(code):
         base_url = urlparse(request.base_url, scheme=request.scheme)
-        jwtkey = app.config["JWT_PRIVATE_KEY"]
+        jwtkey = app.config["SSL_PRIVATE_KEY"]
         issued = datetime.datetime.now()
         request_data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -56,7 +56,10 @@ def authorisation_code():
                 urlunparse(base_url),
                 url_for("oauth2.toplevel.authorisation_code")),
             "assertion": jwt.encode(
-                header={"alg": "RS256", "typ": "jwt", "kid": jwtkey.kid},
+                header={
+                    "alg": "RS256",
+                    "typ": "jwt",
+                    "kid": jwtkey.as_dict()["kid"]},
                 payload={
                     "iss": str(oauth2_clientid()),
                     "sub": request.args["user_id"],

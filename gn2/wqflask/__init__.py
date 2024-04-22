@@ -45,13 +45,6 @@ from gn2.wqflask.startup import (
     startup_errors,
     check_mandatory_configs)
 
-app = Flask(__name__)
-
-
-# See http://flask.pocoo.org/docs/config/#configuring-from-files
-# Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
-app.config.from_object('gn2.default_settings')
-app.config.from_envvar('GN2_SETTINGS')
 
 def numcoll():
     """Handle possible errors."""
@@ -59,6 +52,21 @@ def numcoll():
         return num_collections()
     except Exception as _exc:
         return "ERROR"
+
+
+def parse_ssl_key(app: Flask, keyconfig: str):
+    """Parse key file paths into objects"""
+    with open(app.config[keyconfig]) as _sslkey:
+        app.config[keyconfig] = JsonWebKey.import_key(_sslkey.read())
+
+
+
+app = Flask(__name__)
+
+# See http://flask.pocoo.org/docs/config/#configuring-from-files
+# Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
+app.config.from_object('gn2.default_settings')
+app.config.from_envvar('GN2_SETTINGS')
 
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
@@ -108,8 +116,8 @@ except StartupError as serr:
 
 server_session = Session(app)
 
-with open(app.config["SSL_KEY_PAIR_PRIVATE_KEY"]) as _sslkey:
-    app.config["JWT_PRIVATE_KEY"] = JsonWebKey.import_key(_sslkey.read())
+parse_ssl_key(app, "SSL_PRIVATE_KEY")
+parse_ssl_key(app, "AUTH_SERVER_SSL_PUBLIC_KEY")
 
 @app.before_request
 def before_request():
