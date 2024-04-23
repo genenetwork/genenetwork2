@@ -2,6 +2,7 @@
 # pylint: disable=C0413,E0611
 import os
 import time
+import logging
 import datetime
 from typing import Tuple
 from pathlib import Path
@@ -56,8 +57,13 @@ def numcoll():
 
 def parse_ssl_key(app: Flask, keyconfig: str):
     """Parse key file paths into objects"""
-    with open(app.config[keyconfig]) as _sslkey:
-        app.config[keyconfig] = JsonWebKey.import_key(_sslkey.read())
+    keypath = app.config.get(keyconfig, "").strip()
+    if not bool(keypath):
+        logging.error(f"Expected configuration '{keyconfig}'")
+        return
+
+    with open(keypath) as _sslkey:
+            app.config[keyconfig] = JsonWebKey.import_key(_sslkey.read())
 
 
 
