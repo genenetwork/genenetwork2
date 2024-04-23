@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}GNQA test{% endblock %}
+{% block css %}
+<style>
+  .main-content-container {
+      border-right: 1px solid #ccc;
+      border-left: 1px solid #ccc;
+  }
+  .main-content-container div>section{
+      margin-top:3.8em;
+      color: rgb(85,88,99);
+      opacity:1;
+      font-size:1.7rem;
+      padding:10px;     
+  }
+  #submit-qnqa-btn {
+      position:absolute;
+      right:100%;
+      padding:6px;
+  }
+
+  button.well {
+      border-radius:15px
+  }
+  button.well:focus{
+      background:#ccc;
+  }
+  .list-group-item{
+      color:#000;
+      background-color:#ececec
+  }
+  .error-container {
+      margin-top:4rem;background-color:#ececec;height:250px;padding:20px
+  }
+  #smallModal {
+top:18%;
+right:75%;
+outline: none;
+}
+</style>
+{% endblock %}
+{% block search %}{% endblock %}
+{% block content %} <!-- Start of body -->
+<section class="container-fluid">
+  <div class="row" >
+    <div class="col-sm-2" style="background-color:#ececec;font-family:sans-serif;font-size:1.5rem;height:100vh">
+      <Header  style="padding-top:10px;">
+	<div class="row">
+	  <div class="col-sm-5">
+	    <a href="/gnqa/testing" class="btn btn-primary">New chat </a>
+	</div>
+	</div>
+	<div style="margin-top:3.2rem">
+	  <div class="col-sm-offset-2">
+	    <h4>Search History</h4>
+	  </div>
+	  <ul class="list-group">
+	    {% for record in history %}
+	    <li class="list-group-item">
+	      <div class="row">
+            <div class="col-sm-10">
+	     <a  href="/gnqa/testing?query={{record}}"><small>{{record}}</small>
+	     </a>
+	    </div>
+            <div class="col-sm-2">
+	    <div class="modal fade" id="smallModal" tabindex="-1" role="dialog" aria-labelledby="smallModal" aria-hidden="true">
+	      <div class="modal-dialog modal-sm">
+		<div class="modal-content">
+		  <div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		    <h4 class="modal-title" id="myModalLabel">Small Modal</h4>
+		  </div>
+		  <div class="modal-body">
+		    <h3>Modal Body</h3>
+		  </div>
+		  <div class="modal-footer">
+		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    <button type="button" class="btn btn-primary">Save changes</button>
+		  </div>
+		</div>
+	      </div>
+	    </div>
+	    <div>
+	    <div>
+	      <svg  style="cursor:pointer" width="15" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.5555 4C10.099 4 9.70052 4.30906 9.58693 4.75114L9.29382 5.8919H14.715L14.4219 4.75114C14.3083 4.30906 13.9098 4 13.4533 4H10.5555ZM16.7799 5.8919L16.3589 4.25342C16.0182 2.92719 14.8226 2 13.4533 2H10.5555C9.18616 2 7.99062 2.92719 7.64985 4.25342L7.22886 5.8919H4C3.44772 5.8919 3 6.33961 3 6.8919C3 7.44418 3.44772 7.8919 4 7.8919H4.10069L5.31544 19.3172C5.47763 20.8427 6.76455 22 8.29863 22H15.7014C17.2354 22 18.5224 20.8427 18.6846 19.3172L19.8993 7.8919H20C20.5523 7.8919 21 7.44418 21 6.8919C21 6.33961 20.5523 5.8919 20 5.8919H16.7799ZM17.888 7.8919H6.11196L7.30423 19.1057C7.3583 19.6142 7.78727 20 8.29863 20H15.7014C16.2127 20 16.6417 19.6142 16.6958 19.1057L17.888 7.8919ZM10 10C10.5523 10 11 10.4477 11 11V16C11 16.5523 10.5523 17 10 17C9.44772 17 9 16.5523 9 16V11C9 10.4477 9.44772 10 10 10ZM14 10C14.5523 10 15 10.4477 15 11V16C15 16.5523 14.5523 17 14 17C13.4477 17 13 16.5523 13 16V11C13 10.4477 13.4477 10 14 10Z" fill="currentColor"></path></svg>
+	    </div>	    
+	      </div>
+	     </div>
+	    </li>
+	    {% endfor %} 
+          </ul>
+	</div
+      </Header>
+      </div>
+      <div class="col-sm-10  contaner-fluid main-content-container" id="swap">
+      <div class="col-sm-10">
+      <section   style="height:72vh">
+	<div>
+	<article  class="row" >
+	<div class="row gnqa-copy">
+	    <p class="col-sm-11 col-sm-offset-1 col-md-offset-2 col-md-8">
+		Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org </a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
+	    </p>
+	    <p class="col-sm-11 col-md-offset-2 col-md-8">At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.</p>
+	    <p class="col-sm-11 col-md-offset-2 col-md-8">
+		GNQA is not a finished product as we are working diligently to improve it daily.
+	    </p>
+	    <p class="col-sm-11 col-md-offset-2 col-md-8"><b>Thanks for using GNQA!</b> </p>
+
+	</div>
+	</article>
+	<article class="row" style="margin-top:15px">
+	  <div class="col-md-10 col-md-offset-2">
+	    <div class="panel-info col-md-8 col-md-offset-2" style="padding:4.2rem">
+	      Examples of Questions
+	    </div>
+	    <div class="row ">
+              <button type="button"
+		      hx-trigger="click"
+		      hx-post="/gnqa/testing?what is a gene"
+		      hx-swap="none"
+	         class="well  col-md-4   btn-default btn-lg">What is a gene?
+	      </button>
+	      <button type="button"
+		      hx-trigger="click"
+		      hx-post="/gnqa/testing?what is a genetic study"
+		      hx-swap="none"
+		      class="well  col-md-4 col-md-offset-1 btn-default btn-lg">What is genetic study?</button>
+	      <button type="button"
+		      hx-trigger="click"
+		      hx-post="/gnqa/testing?which genes are involved in aging"
+		      hx-swap = "none"
+		      class="well  col-md-4   btn-default btn-lg">Which genes are involved in the aging process?</button>
+	    </div>
+	  </div>
+	</article>
+	</div>
+	<div>
+	</div>	
+      </section>
+      <section id="input-btn-section">
+	    <form class="row form-horizontal" id="gnqna_search_home"
+		  action="/gnqa/testing" method="POST">
+	      	<div class="form-group form-group-lg col col-xs-12 col-sm-6 col-sm-offset-3">
+            <input
+		class="text-left input-lg col-sm-8 col-sm-offset-2"
+		id="gnqna_search_home_input"
+		type="text" autocomplete="on"
+		required
+		placeholder="Ask More Questions or Topics (E.g Genes)"
+		value=''
+		name="query"
+		hx-post="/gnqa/testing"
+		hx-target="#swap"
+	      hx-swap="innerHTML"
+	      />
+	  <div class="col-sm-1">
+	    <button  id="submit-qnqa-btn" hx-post="/gnqa/testing" hx-swap="innerHTML" hx-target="#swap" class="btn-primary"><span><svg width="48" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></button>
+	   </div>
+	</div>
+         </form>
+      </section>
+      </div> 
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block js %}
+<script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='htmx.min.js') }}"></script>
+<script type="text/javascript">
+ document.addEventListener('DOMContentLoaded', function() {
+     $('footer').hide()
+ });
+</script>
+{% endblock %}
+
