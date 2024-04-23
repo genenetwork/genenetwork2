@@ -1,21 +1,11 @@
-{% extends "base.html" %}
-{% block title %}GNQNA{% endblock %}
-
-{% block content %} <!-- Start of body -->
-
-<div style="min-height: 50vh;width: 100vw;text-align: center;display:flex;justify-content: center;align-items: center;">
-    <div>
-        <h2 style="color:red;text-decoration: underline;font-weight: bold;">Error:
-        {{error}} </h2>
-   </div>
-
-</div>
-
-
-<script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
-
-<script type="text/javascript">
-</script>
-
-{% endblock %}
+<section class="container-fluid row">
+  <div class="col-sm-6 col-sm-offset-3 error-container">
+    <span><b>Search_Query:</b> <b><mark>{{ query }} </mark></b></span>
+    <br/>
+    <span><b>Status_Code:</b> <b><mark>{{ status_code }}</mark></b></span>
+    <br/>
+    <span><b>Error/Reason:</b>  <b><mark>{{ error }}</mark></b></span>
+    <br/>
+  </div>
+</section>
 
