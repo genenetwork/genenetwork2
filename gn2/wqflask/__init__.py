@@ -60,7 +60,7 @@ def parse_ssl_key(app: Flask, keyconfig: str):
     """Parse key file paths into objects"""
     keypath = app.config.get(keyconfig, "").strip()
     if not bool(keypath):
-        logging.error(f"Expected configuration '{keyconfig}'")
+        app.logger.error("Expected configuration '%s'", keyconfig)
         return
 
     with open(keypath) as _sslkey:
