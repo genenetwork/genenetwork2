@@ -186,7 +186,7 @@ fi
 if [ "$1" = '-gunicorn-dev' ] ; then
     echo PYTHONPATH="${PYTHONPATH}"
     if [ -z "${SERVER_PORT}" ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
-    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload gn2.run_gunicorn:app"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --workers=1 --timeout 180 --reload ${GUNICORN_EXTRA_ARGS} gn2.run_gunicorn:app"
     echo "RUNNING gunicorn ${cmd}"
     gunicorn $cmd
     exit $?
@@ -195,7 +195,7 @@ if [ "$1" = '-gunicorn-prod' ] ; then
     echo PYTHONPATH="${PYTHONPATH}"
     if [ -z "${SERVER_PORT}" ]; then echo "ERROR: Provide a SERVER_PORT" ; exit 1 ; fi
     PID=$TMPDIR/gunicorn.$USER.pid
-    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID --workers 20 --keep-alive 6000 --max-requests 100 --max-requests-jitter 30 --timeout 1200 gn2.wsgi"
+    cmd="--bind 0.0.0.0:$SERVER_PORT --pid $PID --workers 20 --keep-alive 6000 --max-requests 100 --max-requests-jitter 30 --timeout 1200 ${GUNICORN_EXTRA_ARGS} gn2.wsgi"
     echo "RUNNING gunicorn ${cmd}"
     gunicorn $cmd
     exit $?
