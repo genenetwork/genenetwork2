@@ -1,6 +1,7 @@
 """Entry point for flask app"""
 # pylint: disable=C0413,E0611
 import os
+import sys
 import time
 import logging
 import datetime
@@ -66,8 +67,34 @@ def parse_ssl_key(app: Flask, keyconfig: str):
             app.config[keyconfig] = JsonWebKey.import_key(_sslkey.read())
 
 
+def dev_loggers(appl: Flask) -> None:
+    """Default development logging."""
+    formatter = logging.Formatter(
+        fmt="[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+    stderr_handler = logging.StreamHandler(stream=sys.stderr)
+    stderr_handler.setFormatter(formatter)
+    appl.logger.addHandler(stderr_handler)
+
+    root_logger = logging.getLogger()
+    root_logger.addHandler(stderr_handler)
+    root_logger.setLevel(appl.config.get("LOGLEVEL", "WARNING"))
+
+
+def gunicorn_loggers(appl: Flask) -> None:
+    """Logging with gunicorn WSGI server."""
+    logger = logging.getLogger("gunicorn.error")
+    appl.logger.handlers = logger.handlers
+    appl.logger.setLevel(logger.level)
+
+def setup_logging(appl: Flask) -> None:
+    """Setup appropriate logging"""
+    software, *_version_and_comments = os.environ.get(
+        "SERVER_SOFTWARE", "").split('/')
+    gunicorn_loggers(app) if software == "gunicorn" else dev_loggers(app)
+
 
 app = Flask(__name__)
+setup_logging(app)
 
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
