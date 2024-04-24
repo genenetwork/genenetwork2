@@ -26,23 +26,6 @@ def register_client():
 @toplevel.route("/code", methods=["GET"])
 def authorisation_code():
     """Use authorisation code to get token."""
-    def __error__(error):
-        flash(f"{error['error']}: {error['error_description']}",
-              "alert-danger")
-        return redirect("/")
-
-    def __success__(token):
-        session.set_user_token(token)
-        udets = user_details()
-        session.set_user_details({
-            "user_id": uuid.UUID(udets["user_id"]),
-            "name": udets["name"],
-            "email": udets["email"],
-            "token": session.user_token(),
-            "logged_in": True
-        })
-        return redirect("/")
-
     code = request.args.get("code", "")
     if bool(code):
         base_url = urlparse(request.base_url, scheme=request.scheme)
@@ -71,6 +54,27 @@ def authorisation_code():
                 key=jwtkey),
             "client_id": app.config["OAUTH2_CLIENT_ID"]
         }
+
+        def __error__(error):
+            flash(f"{error['error']}: {error['error_description']}",
+                  "alert-danger")
+            app.logger.debug("Request error (%s) %s: %s",
+                             error["status_code"], error["error_description"],
+                             request_data)
+            return redirect("/")
+
+        def __success__(token):
+            session.set_user_token(token)
+            udets = user_details()
+            session.set_user_details({
+                "user_id": uuid.UUID(udets["user_id"]),
+                "name": udets["name"],
+                "email": udets["email"],
+                "token": session.user_token(),
+                "logged_in": True
+            })
+            return redirect("/")
+
         return no_token_post(
             "auth/token", data=request_data).either(
                 lambda err: __error__(process_error(err)), __success__)
