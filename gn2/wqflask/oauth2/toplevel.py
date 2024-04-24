@@ -51,7 +51,7 @@ def authorisation_code():
                     "nbf": int(issued.timestamp()),
                     "iat": int(issued.timestamp()),
                     "jti": str(uuid.uuid4())},
-                key=jwtkey),
+                key=jwtkey).decode("utf8"),
             "client_id": app.config["OAUTH2_CLIENT_ID"]
         }
 
