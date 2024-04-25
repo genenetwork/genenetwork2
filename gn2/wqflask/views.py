@@ -347,6 +347,39 @@ def gnqna_rating(task_id, weight):
                                   lambda x: (x.json(), x.status_code))
 
 
+@app.route("/gnqa/testing", methods=["GET", "POST"])
+@require_oauth2
+def qnqa_testing():
+    def __error__(resp):
+        return render_template("gnqa_errors.html",
+                               **{"status_code": resp.status_code,
+                                  **resp.json()})
+
+    def __success__(result):
+        return render_template("gnqa_chat_box.html",
+                               **{"query": result["query"],
+                                  "answer": result["answer"],
+                                  "task_id": result["task_id"]["task_id"],
+                                  "references": result["references"]})
+    if request.method == "POST" or request.args.get("query") is not None:
+        token = session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"])
+        return (monad_requests.post(
+            urljoin(GN3_LOCAL_URL,
+                    "/api/llm/gnqna"),
+            json={"querygnqa": request.form.get("query") or
+                  request.args.get("query")},
+            headers={
+                "Authorization": f"Bearer {token}"
+            }
+        ).then(
+            lambda resp: resp.json()
+        ).either(__error__, __success__))
+    return render_template("gnqa_test.html", history=["what is a gene",
+                                                      "which genes are involved",
+                                                      "what is a gene"])
+
+
 @app.route("/gsearch_updating", methods=('POST',))
 def gsearch_updating():
     result = UpdateGSearch(request.args).__dict__

@@ -1,0 +1,136 @@
+<section id="swap2">
+<div class="col-sm-8" id="swap2">
+  <section >
+  <div style="max-height:75vh;margin-bottom:8px;overflow-y:auto" >
+  <div>
+    <div >
+      <h3>You</h3>
+      <p>
+	{{ query }}
+    </p>
+   </div>
+  </div>
+  <div>
+    <h3> GNQA </h3>
+    <div  style="border-radius:6px;background-color:#F5F5F5;padding:5px">
+     {{ answer }}
+    </div>  
+  </div>
+ <div class="row container">
+	<details open>
+	    <summary><h3 style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>References Metadata related to your query</i></b></h3></summary>
+	    {% if references %}
+	    <ul class="list-unstyled">
+		{% for reference in references %}
+		<li>
+                    <div class="panel-group" role="tablist" aria-multiselectable="true" style="margin-bottom:0;">
+			<div class="panel panel-default">
+			    {% if loop.first %}
+			    <div class="panel-heading active" role="tab" id="heading{{ reference.doc_id }}">
+				<h4 class="panel-title" style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;">
+
+				    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ reference.doc_id }}" aria-expanded="true" aria-controls="collapse{{reference.doc_id}}">
+					{{ reference.bibInfo }}
+				    </a>
+				</h4>
+			    </div>
+			    <div id="collapse{{reference.doc_id}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
+				<div class="panel-body">
+				    <p class="node-references">{{ reference.comboTxt }}</p>
+				    <div>
+				      {% if reference.pubmed %}
+				      <hr/>
+					<details open>
+					  <summary><mark>See PubMed Info</mark></summary>
+					  <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;margin-top:1.4em">
+					    <h3><b>{{ reference.pubmed[0].get('title') }}:</b></h3>			
+					    <p><b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get('authors') }}</span></p>
+					    <p><b>PMID: <span class="text-info">{{ reference.pubmed[0].get('pub_id') }}</span></b></p>
+					    <p><b>Abstract: </b></p>
+					    <p>{{ reference.pubmed[0].get('abstract')|safe }}</p>
+					    <p><a href="{{reference.pubmed[0].get('source')}}" target="_blank">Click to view full Article on Pubmed</a></p>
+					  </div>
+					</details>
+					{% endif %}
+				    </div>
+				</div>
+				{% else %}
+				<div class="panel-heading " role="tab" id="heading{{reference.doc_id}}">
+				    <h4 class="panel-title" style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;">
+
+					<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{reference.doc_id}}" aria-expanded="true" aria-controls="collapse{{reference.doc_id}}">
+					    {{ reference.bibInfo }}
+					</a>
+				    </h4>
+				</div>
+				<div id="collapse{{reference.doc_id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
+				    <div class="panel-body" id="section-{{reference.doc_id}}">
+					<p class="node-references">{{reference.comboTxt}}</p>
+				    <div>
+				      {% if reference.pubmed %}
+				      <hr/>
+					<details open>
+					  <summary><mark>See PubMed Info</mark></summary>
+					  <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;margin-top:1.4em">
+					    <h3><b>{{ reference.pubmed[0].get('title') }}:</b></h3>			
+					    <p><b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get('authors') }}</span></p>
+					    <p><b>PMID: <span class="text-info">{{ reference.pubmed[0].get('pub_id') }}</span></b></p>
+					    <p><b>Abstract: </b></p>
+					    <p>{{ reference.pubmed[0].get('abstract')|safe }}</p>
+					    <p><a href="{{reference.pubmed[0].get('source')}}" target="_blank">Click to view full Article on Pubmed</a></p>
+					  </div>
+					</details>				      
+
+					{% endif %}
+				    </div>					
+				    </div>
+				</div>
+				{% endif %}
+			    </div>
+			</div>
+		</li>
+		{% endfor %}
+	    </ul>
+	    {% else %}
+	    <p><i>No references available.</i></p>
+	    {% endif %}
+	</details>
+</div>
+</div>	 
+<section>
+	    <form class="row form-horizontal" id="gnqna_search_home"
+		  action="/gnqa/testing" method="POST">
+	      	<div class="form-group form-group-lg col col-xs-12 col-sm-6 col-sm-offset-3">
+            <input
+		class="text-left input-lg col-sm-8 col-sm-offset-2"
+		id="gnqna_search_home_input"
+		type="text" autocomplete="on"
+		required
+		placeholder="Ask More Questions or Topics (E.g Genes)"
+		value=''
+		name="query"
+		hx-post="/gnqa/testing"
+	      hx-target="#swap2"
+	      hx-trigger="submit"
+	      hx-swap="outerHTML"
+	      />
+	  <div class="col-sm-1">
+	    <button  id="submit-qnqa-btn" hx-post="/gnqa/testing" hx-swap="outerHTML" hx-target="#swap2" hx-trigger="click" class="btn-primary"><span><svg width="48" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></button>
+	   </div>
+	</div>
+         </form>
+      </section>
+      </div>
+ <div class="col-sm-4">
+   <div class="row">
+   <div class="col-sm-10 col-sm-offset-1">
+   <h4><mark>Click links below to view references</mark></h4>
+   {% for reference in references %}
+    <a href="#heading{{reference.doc_id}}">{{reference.bibInfo}}</a>
+   <br/>
+   {% endfor %}
+   </div>
+   </div>
+  </div>
+ </div>
+</section>
