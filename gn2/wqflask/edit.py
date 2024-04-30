@@ -53,7 +53,6 @@ def metadata_edit():
 @require_oauth2
 def save():
     """Save dataset edits in git."""
-    from gn2.utility.tools import get_setting
     from gn2.utility.tools import GN3_LOCAL_URL
     # Call an endpoint to GN3 with special headers
     name = request.form.get('label')
@@ -61,34 +60,17 @@ def save():
                 urljoin(
                     GN3_LOCAL_URL,
                     f"api/metadata/datasets/{name}")).json()
-    _session = session_info()["user"]
-    outgoing_url = urljoin(
-        GN3_LOCAL_URL,
-        "api/metadata/datasets/edit")
-    iat = int(time.time())
-    exp = iat + 300  # Expire after 300 seconds
-    token = JWTToken(
-        key=get_setting("JWT_SECRET_KEY"),
-        registered_claims={
-            "iat": iat,
-            "iss": request.url,
-            "sub": request.form.get("label"),
-            "aud": outgoing_url,
-            "exp": exp,
-            "jti": str(uuid.uuid4())},
-        private_claims={
-            "account-name": _session["name"],
-            "email": _session['email'],
-            "account-roles": oauth2_get(
-                f"auth/resource/authorisation\
-/{metadata.get('id', '').split('/')[-1]}"
-            ).either(
-                lambda err: {"roles": []},
-                lambda val: val)})
+    headers = oauth2_get(
+        f"auth/resource/authorisation/{metadata.get('label')}",
+        jsonify_p=True
+    ).either(
+        lambda err: {},
+        lambda val: {"Authorization": val.headers.get("Authorization", "")}
+    )
     response = requests.post(
-        outgoing_url,
+        urljoin(GN3_LOCAL_URL, "api/metadata/datasets/edit"),
         data=request.form,
-        headers=token.bearer_token)
+        headers=headers)
     if response.status_code == 201:
         flash("Unable to update data", "alert-danger")
     else:
