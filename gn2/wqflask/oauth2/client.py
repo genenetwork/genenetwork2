@@ -58,7 +58,8 @@ def __no_token__(_err) -> Left:
     resp.status_code = 400
     return Left(resp)
 
-def oauth2_get(uri_path: str, data: dict = {}, **kwargs) -> Either:
+def oauth2_get(uri_path: str, data: dict = {},
+               jsonify_p: bool = False, **kwargs) -> Either:
     def __get__(token) -> Either:
         client = OAuth2Session(
             oauth2_clientid(), oauth2_clientsecret(),
@@ -68,6 +69,8 @@ def oauth2_get(uri_path: str, data: dict = {}, **kwargs) -> Either:
             data=data,
             **kwargs)
         if resp.status_code == 200:
+            if jsonify_p:
+                return Right(resp)
             return Right(resp.json())
 
         return Left(resp)
