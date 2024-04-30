@@ -85,13 +85,6 @@
 	    {% else %}
             {{ name }}
             {% endif %}
-	    <small>
-		<sup>
-		    [&nbsp;
-		    <a hx-get={{ url_for('metadata.view_history', id_=dataset.id.split('/')[-1], name=name, title=(dataset.title or dataset.label or dataset.altLabel)) }} hx-target=".dataset-content" hx-push-url="true" hx-select="#history">History</a>
-		    &nbsp;]
-		</sup>
-	    </small>
 	</h1>
     </header>
     <div class="panel-about panel panel-info panel-metadata text-muted">
