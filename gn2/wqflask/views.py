@@ -1223,9 +1223,8 @@ def get_dataset(name):
             GN3_LOCAL_URL,
             f"/api/metadata/datasets/{name}")
     ).json()
-    id_ = metadata.get("id", "").split("/")[-1]
     result = oauth2_get(
-        f"auth/resource/authorisation/{id_}"
+        f"auth/resource/authorisation/{metadata.get('label')}"
     ).either(
         lambda err: {"roles": []},
         lambda val: val
