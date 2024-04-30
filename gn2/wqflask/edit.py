@@ -1,12 +1,8 @@
-import uuid
 import requests
-import time
 
 from urllib.parse import urljoin
 
 from gn2.wqflask.oauth2.client import oauth2_get
-from gn2.wqflask.oauth2.session import session_info
-from gn2.wqflask.oauth2.tokens import JWTToken
 
 from flask import (Blueprint,
                    flash,
