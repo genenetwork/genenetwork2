@@ -85,6 +85,13 @@
 	    {% else %}
             {{ name }}
             {% endif %}
+	    <small>
+		<sup>
+		    [&nbsp;
+		    <a href="https://git.genenetwork.org/gn-docs/log/general/datasets/{{ dataset.id.split('/')[-1] }}" target="_blank">History</a>
+		    &nbsp;]
+		</sup>
+	    </small>
 	</h1>
     </header>
     <div class="panel-about panel panel-info panel-metadata text-muted">
