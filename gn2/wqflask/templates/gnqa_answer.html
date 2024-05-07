@@ -5,11 +5,9 @@
 	    <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>{{ query }}</i></b></mark><br/>
 	    {{ answer }}
 	</p>
-	<div class="rating row" data-doc-id="{{query}}" data-task-id="{{task_id['task_id']}}"
-	      hx-vals='{"query": "{{query}}","answer":"{{answer}}"}'
-	     >
-	    <button class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Vote Up" hx-post="/gnqna/rating/{{task_id['task_id']}}/1" hx-target="#rate" hx-swap="innerHTML" hx-trigger="click"><i class="fa fa-thumbs-up fa-sm fa-1x" aria-hidden="true"></i></button>
-            <button class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Vote Down" hx-post="/gnqna/rating/{{task_id['task_id']}}/-1" hx-target="#rate" hx-swap="innerHTML" hx-trigger="click"><i class="fa fa-thumbs-down fa-sm fa-1x" aria-hidden="true"></i></button>
+	<div class="rating row" data-doc-id="{{query}}">
+	    <button class="btn" id="upvote" data-toggle="tooltip" data-placement="top" title="Vote Up"><i class="fa fa-thumbs-up fa-sm fa-1x" aria-hidden="true"></i></button>
+            <button class="btn" id="downvote" data-toggle="tooltip" data-placement="top" title="Vote Down"><i class="fa fa-thumbs-down fa-sm fa-1x" aria-hidden="true"></i></button>
 	    <sub id="rate" class="text-info">	    
 	     </sub>
 	</div>
@@ -92,3 +90,23 @@
 	</details>
 		    </div>
 </section>
+{% block js %}
+
+<script>
+var query = {{ query|tojson }};
+var answer = {{ answer|tojson }}
+var {task_id} = {{ task_id|tojson }}
+  htmx.on("#upvote", "click", function(evt){
+      vote_count = htmx.find(".btn-success") ? 0 : 1
+      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate", swap:"innerHTML",values: {'query': query, 'answer': answer}}).then(()=>{
+	  htmx.toggleClass(htmx.find('#upvote'), 'btn-success');
+	  htmx.removeClass(htmx.find("#downvote"), "btn-danger");
+})});
+  htmx.on("#downvote", "click", function(evt){
+      vote_count = htmx.find(".btn-danger") ? 0 : -1
+      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate", swap:"innerHTML",values: {'query': query, 'answer': answer}}).then(()=>{
+      htmx.toggleClass(htmx.find('#downvote'), 'btn-danger');
+      htmx.removeClass(htmx.find("#upvote"), "btn-success")
+      })});
+</script>
+{% endblock %}
