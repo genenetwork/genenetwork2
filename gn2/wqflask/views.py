@@ -265,7 +265,6 @@ def gnqna():
                 return resp.json()
 
             def error_page(resp):
-                breakpoint()
                 return render_template("gnqa_errors.html",
                                        **{"status_code": resp.status_code, **resp.json()})
 
