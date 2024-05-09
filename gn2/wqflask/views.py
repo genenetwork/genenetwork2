@@ -264,8 +264,10 @@ def gnqna():
             def __error__(resp):
                 return resp.json()
 
-            def error_page(error_msg):
-                return render_template("gnqa_errors.html", error=error_msg)
+            def error_page(resp):
+                breakpoint()
+                return render_template("gnqa_errors.html",
+                                       **{"status_code": resp.status_code, **resp.json()})
 
             def __success__(resp):
                 return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **(resp.json())})
@@ -286,7 +288,7 @@ def gnqna():
             ).then(
                 lambda resp: resp
             ).either(
-                __error__, __success__)
+                error_page, __success__)
         except Exception as error:
             return flask.jsonify({"error": str(error)})
     prev_queries = (monad_requests.get(
