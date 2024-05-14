@@ -63,41 +63,6 @@ def request_add_to_group() -> Response:
     return oauth2_post(f"auth/group/requests/join/{group_id}",
                        data=form).either(__error__, __success__)
 
-@users.route("/login", methods=["GET", "POST"])
-def login():
-    """Route to allow users to sign up."""
-    next_endpoint=request.args.get("next", False)
-
-    if request.method == "POST":
-        form = request.form
-        client = oauth2_client()
-        try:
-            token = client.fetch_token(
-                urljoin(authserver_uri(), "auth/token"),
-                username=form.get("email_address"),
-                password=form.get("password"),
-                grant_type="password")
-            session.set_user_token(token)
-            udets = user_details()
-            session.set_user_details({
-                "user_id": UUID(udets["user_id"]),
-                "name": udets["name"],
-                "email": udets["email"],
-                "token": session.user_token(),
-                "logged_in": True
-            })
-        except OAuthError as _oaerr:
-            flash(_oaerr.args[0], "alert-danger")
-            return render_ui(
-                "oauth2/login.html", next_endpoint=next_endpoint,
-                email=form.get("email_address"))
-
-    if user_logged_in():
-        if next_endpoint:
-            return redirect(url_for(next_endpoint))
-        return redirect("/")
-
-    return render_ui("oauth2/login.html", next_endpoint=next_endpoint)
 
 @users.route("/logout", methods=["GET", "POST"])
 def logout():
@@ -151,7 +116,7 @@ def register_user():
         return redirect(url_for("oauth2.user.register_user"))
 
     flash("Registration successful! Please login to continue.", "alert-success")
-    return redirect(url_for("oauth2.user.login"))
+    return redirect(url_for("/"))
 
 @users.route("/masquerade", methods=["GET", "POST"])
 def masquerade():
