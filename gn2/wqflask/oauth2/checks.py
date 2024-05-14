@@ -7,9 +7,13 @@ from flask import (
     flash, request, redirect, session as flask_session)
 
 from . import session
-from .client import (
-    authserver_uri, oauth2_clientid, oauth2_clientsecret, oauth2_get)
 from .session import clear_session_info
+from .client import (
+    oauth2_get,
+    oauth2_client,
+    authserver_uri,
+    oauth2_clientid,
+    oauth2_clientsecret)
 
 
 def require_oauth2(func):
@@ -26,9 +30,7 @@ def require_oauth2(func):
             return redirect("/")
 
         def __with_token__(token):
-            client = OAuth2Session(
-                oauth2_clientid(), oauth2_clientsecret(), token=token)
-            resp = client.get(
+            resp = oauth2_client().get(
                 urljoin(authserver_uri(), "auth/user/"))
             user_details = resp.json()
             if not user_details.get("error", False):

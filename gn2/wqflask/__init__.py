@@ -13,7 +13,6 @@ import redis
 import jinja2
 from flask_session import Session
 from authlib.jose import JsonWebKey
-from authlib.integrations.requests_client import OAuth2Session
 from flask import g, Flask, flash, session, url_for, redirect, current_app
 
 
@@ -159,11 +158,9 @@ def before_request():
 
     token = session.get("oauth2_token", False)
     if token and not bool(session.get("user_details", False)):
+        from gn2.wqflask.oauth2.client import oauth2_client
         config = current_app.config
-        client = OAuth2Session(
-            config["OAUTH2_CLIENT_ID"], config["OAUTH2_CLIENT_SECRET"],
-            token=token)
-        resp = client.get(
+        resp = oauth2_client().client.get(
             urljoin(config["GN_SERVER_URL"], "oauth2/user"))
         user_details = resp.json()
         session["user_details"] = user_details

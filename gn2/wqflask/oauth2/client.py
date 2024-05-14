@@ -73,10 +73,7 @@ def __no_token__(_err) -> Left:
 def oauth2_get(uri_path: str, data: dict = {},
                jsonify_p: bool = False, **kwargs) -> Either:
     def __get__(token) -> Either:
-        client = OAuth2Session(
-            oauth2_clientid(), oauth2_clientsecret(),
-            token=token, scope=SCOPE)
-        resp = client.get(
+        resp = oauth2_client().get(
             urljoin(authserver_uri(), uri_path),
             data=data,
             **kwargs)
@@ -93,10 +90,7 @@ def oauth2_post(
         uri_path: str, data: Optional[dict] = None, json: Optional[dict] = None,
         **kwargs) -> Either:
     def __post__(token) -> Either:
-        client = OAuth2Session(
-            oauth2_clientid(), oauth2_clientsecret(),
-            token=token, scope=SCOPE)
-        resp = client.post(
+        resp = oauth2_client().post(
             urljoin(authserver_uri(), uri_path), data=data, json=json,
             **kwargs)
         if resp.status_code == 200:
