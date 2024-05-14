@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 
 from flask import current_app as app
 from pymonad.either import Left, Right, Either
+from authlib.jose import jwt
 from authlib.integrations.requests_client import OAuth2Session
 
 from gn2.wqflask.oauth2 import session
@@ -39,11 +40,22 @@ def user_logged_in():
 
 
 def oauth2_client():
+    def __update_token__(token, refresh_token=None, access_token=None):
+        """Update the token when refreshed."""
+        session.set_user_token(token)
+
     def __client__(token) -> OAuth2Session:
-        return OAuth2Session(
-            oauth2_clientid(), oauth2_clientsecret(),
-            scope=SCOPE, token_endpoint_auth_method="client_secret_post",
-            token=token)
+        _jwt = jwt.decode(token["access_token"],
+                          app.config["AUTH_SERVER_SSL_PUBLIC_KEY"])
+        client = OAuth2Session(
+            oauth2_clientid(),
+            oauth2_clientsecret(),
+            scope=SCOPE,
+            token_endpoint=urljoin(authserver_uri(), "/auth/token"),
+            token_endpoint_auth_method="client_secret_post",
+            token=token,
+            update_token=__update_token__)
+        return client
     return session.user_token().either(
         lambda _notok: __client__(None),
         lambda token: __client__(token))
