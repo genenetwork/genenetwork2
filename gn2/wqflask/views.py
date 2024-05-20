@@ -1234,8 +1234,8 @@ def get_dataset(name):
         lambda err: {"roles": []},
         lambda val: val
     )
-
-    metadata["editable"] = "group:resource:edit-resource" in result["roles"]
+    if metadata:
+        metadata["editable"] = "group:resource:edit-resource" in result["roles"]
     return render_template(
         "dataset.html",
         name=name,
