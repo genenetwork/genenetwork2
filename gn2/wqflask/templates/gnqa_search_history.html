@@ -1,39 +1,40 @@
 <section class="container-fluid  gnqa-copy">
   <header class="row">
-
     <div class="panel panel default col-sm-6 col-sm-offset-3">
       <div class="panel panel-default">
 	<div class="panel-heading">
 	  <div>
-	    <h4 class="text-primary">You search History </h4>
+	    <h4 class="text-secondary" style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;font-size:2.3rem">Your AI search History </h4>
 	  </div>
 	</div>
       </div>
     </div>
   </header>
   <div class="container row">
-  <div class="panel panel-default col-sm-6 col-sm-offset-3 ">
-    {% for (key,val) in prev_queries.items() %}
-    <div class="panel-body">
-      <div class="row">
-	<input name="" type="checkbox" value="" class="col-sm-1">
+    <div class="panel panel-default col-sm-6 col-sm-offset-3 ">
+      <div>
+	<ul class="list-group list-group-flush">
+    {% for item in  prev_queries %}
+    <li class="row list-group-item">
+      	<input name="" type="checkbox"  value="" class="col-sm-1" style="height: 20px;
+  width: 20px;">
 	<div class="col-sm-10">
 	    <button
-	      hx-get="/gnqna/hist?search_term={{key}}"
+	      hx-get="/gnqna/hist?query={{item['query']}}&search_term={{item['task_id']}}"
               hx-target="#swap"
 	      hx-swap="innerHTML"
 	      hx-trigger= "click"
 	      data-bs-toggle="tooltip"
 	      data-bs-placement="left"
-	      title="/gnqna/hist?search_term={{key}}"
+	      title="/gnqna/hist?query={{item['query']}}&search_term={{item['task_id']}}"
 	      style="background:transparent;border:none;cursor:pointer"
 	      >
-	      <b class="text-info">{{val.get('query')}} </b>
+	      <p class="text-info">{{item.get('query')}} </p>
 	    </button>
-	</div>
-      </div>
-      </div>
-     {% endfor %}
+     </div>
+    </li>
+    {% endfor %}
+    </ul>
    </div>
   </div>
   </div>

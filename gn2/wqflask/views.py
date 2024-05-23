@@ -270,7 +270,7 @@ def gnqna():
                 lambda err: err, lambda tok: tok["access_token"])
             return monad_requests.post(
                 urljoin(GN3_LOCAL_URL,
-                        "/api/llm/gnqna"),
+                        "/api/llm/search"),
                 json=dict(request.form),
                 headers={
                     "Authorization": f"Bearer {token}"
@@ -287,6 +287,10 @@ def gnqna():
 @app.route("/gnqna/hist", methods=["GET"])
 @require_oauth2
 def get_gnqa_history():
+    def _error_(resp):
+        return render_template("gnqa_errors.html",
+                               **{"status_code": resp.status_code,
+                                  **resp.json()})
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
     response = monad_requests.get(urljoin(GN3_LOCAL_URL,
@@ -296,10 +300,9 @@ def get_gnqa_history():
         "Authorization": f"Bearer {token}"
     }
     ).then(lambda resp: resp).either(
-        lambda x:  x.json(), lambda x: x.json())
+        _error_, lambda x: x.json())
     if request.args.get("search_term"):
-        return render_template("gnqa_answer.html",
-                               **{"gn_server_url": "GN3_LOCAL_URL", **response})
+        return render_template("gnqa_answer.html", **response)
     return render_template("gnqa_search_history.html",
                            prev_queries=response)
 
