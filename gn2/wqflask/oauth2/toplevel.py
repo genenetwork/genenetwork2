@@ -47,7 +47,7 @@ def authorisation_code():
                     "iss": str(oauth2_clientid()),
                     "sub": request.args["user_id"],
                     "aud": urljoin(authserver_uri(), "auth/token"),
-                    "exp": (issued + datetime.timedelta(minutes=5)),
+                    "exp": (issued + datetime.timedelta(minutes=5)).timestamp(),
                     "nbf": int(issued.timestamp()),
                     "iat": int(issued.timestamp()),
                     "jti": str(uuid.uuid4())},
