@@ -137,6 +137,7 @@ def handle_generic_exceptions(e):
                                          stack={formatted_lines},
                                          error_image=animation,
                                          version=current_app.config.get("GN_VERSION")))
+    resp.status_code = exc_type.code or 500
     resp.set_cookie(err_msg[:32], animation)
     return resp
 
