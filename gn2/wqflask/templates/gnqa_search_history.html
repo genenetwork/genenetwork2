@@ -1,4 +1,4 @@
-<section class="container-fluid  gnqa-copy">
+<section class="container-fluid  gnqa-copy" id="search-hist">
   <header class="row">
     <div class="panel panel default col-sm-6 col-sm-offset-3">
       <div class="panel panel-default">
@@ -15,8 +15,8 @@
       <div class="col-sm-6 col-sm-offset-3" style="margin-bottom:10px">
 	<button type="button" class="btn btn-danger" id="delete-btn">Delete Selected </button>
       </div>
-      <div>
-	<div class="panel panel-default col-sm-6 col-sm-offset-3 ">
+      <div >
+      <div class="panel panel-default col-sm-6 col-sm-offset-3 ">
       <div>
 	<ul class="list-group list-group-flush" style="overflow-y:scroll">
     {% for item in  prev_queries %}
@@ -44,15 +44,9 @@
   </div>
   </div>
 </section>
-{% block js %}
-  <script>
+<script>
   htmx.on("#delete-btn", "click", function(evt){
-      // todo: complete this for delete /export functionality
-      htmx.ajax("POST", "/gnqna/hist", {target:"",
-				swap:"innerHTML",values:
-			Array.from(htmx.findAll("input[type=checkbox]:checked"), e => e.value);}
-      )
+      htmx.ajax("DELETE","/gnqna/hist", {target: "#search-hist","swap" :"outerHTML",
+				      values: Array.from(htmx.findAll("input[type=checkbox]:checked"), e => e.value)}) 
   })
 </script>
-
-{% endblock %}
