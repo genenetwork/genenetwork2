@@ -288,7 +288,8 @@ def gnqna():
     return render_template("gnqa.html")
 
 
-@app.route("/gnqna/hist", methods=["GET"])
+
+@app.route("/gnqna/hist", methods=["GET", "DELETE"])
 @require_oauth2
 def get_gnqa_history():
     def _error_(resp):
@@ -297,6 +298,14 @@ def get_gnqa_history():
                                   **resp.json()})
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
+    if request.method == "DELETE":
+        monad_requests.post(urljoin(GN3_LOCAL_URL, "/api/llm/history"),
+                            json=dict(request.form),
+                            headers={
+                                 "Authorization": f"Bearer {token}"
+                            }
+                            ).either(
+                   _error_, lambda x: x.json())
     response = monad_requests.get(urljoin(GN3_LOCAL_URL,
                  (f"/api/llm/history?search_term={request.args.get('search_term')}"
                   if request.args.get("search_term") else "/api/llm/history")),
