@@ -116,7 +116,7 @@ def register_user():
         return redirect(url_for("oauth2.user.register_user"))
 
     flash("Registration successful! Please login to continue.", "alert-success")
-    return redirect(url_for("/"))
+    return redirect("/")
 
 @users.route("/masquerade", methods=["GET", "POST"])
 def masquerade():
