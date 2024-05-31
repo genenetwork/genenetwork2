@@ -15,5 +15,6 @@ from gn2.wqflask import search_results
 from gn2.wqflask import resource_manager
 from gn2.wqflask import update_search_results
 
+import gn2.wqflask.collect
 import gn2.wqflask.views
 import gn2.wqflask.partial_correlations_views
