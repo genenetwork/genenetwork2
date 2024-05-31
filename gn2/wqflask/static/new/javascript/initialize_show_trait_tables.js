@@ -141,7 +141,7 @@ buildColumns = function() {
     columnList.push(
       {
         'title': "<div title='" + js_data.attributes[attrKeys[i]].description + "' style='text-align: " + js_data.attributes[attrKeys[i]].alignment + "'>" + js_data.attributes[attrKeys[i]].name + "</div>",
-        'type': "natural",
+        'type': "natural-minus-na",
         'data': null,
         'targets': attrStart + i,
         'render': function(data, type, row, meta) {
