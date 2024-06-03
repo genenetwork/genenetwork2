@@ -84,7 +84,8 @@ def logout():
             f"{the_session['masquerading']['name']} "
             f"({the_session['masquerading']['email']})",
             "alert-success")
-        return redirect("/")
+
+    return redirect("/")
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
