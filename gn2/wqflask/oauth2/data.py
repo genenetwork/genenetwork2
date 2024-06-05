@@ -124,6 +124,7 @@ def json_search_mrna() -> Response:
 @data.route("/phenotype/search", methods=["POST"])
 def json_search_phenotypes() -> Response:
     """Search for phenotypes."""
+    from gn2.utility.tools import GN_SERVER_URL
     form = request.json
     def __handle_error__(err):
         error = process_error(err)
@@ -138,6 +139,7 @@ def json_search_phenotypes() -> Response:
             "per_page": int(form.get("per_page", 50)),
             "page": int(form.get("page", 1)),
             "auth_server_uri": authserver_uri(),
+            "gn3_server_uri": GN_SERVER_URL,
             "selected_traits": form.get("selected_traits", [])
         }).either(__handle_error__, jsonify)
 
