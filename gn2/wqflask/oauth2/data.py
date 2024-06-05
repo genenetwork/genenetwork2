@@ -70,7 +70,9 @@ def __search_phenotypes__(query, template, **kwargs):
             selected_traits=selected_traits, search_results=search_results,
             search_endpoint=urljoin(
                 authserver_uri(), "auth/data/search"),
-            gn_server_url = authserver_uri(),
+            auth_server_url=authserver_uri(),
+            pheno_results_template=urljoin(
+                authserver_uri(), "auth/data/search/phenotype/<jobid>"),
             results_endpoint=urljoin(
                 authserver_uri(),
                 f"auth/data/search/phenotype/{job_id}"),
