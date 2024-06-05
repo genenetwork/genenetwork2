@@ -119,7 +119,7 @@ function search_phenotypes() {
     per_page = document.getElementById("txt-per-page").value
     search_table = new TableDataSource(
 	"#tbl-phenotypes", "data-traits", search_checkbox);
-    endpoint = "/auth/data/phenotype/search"
+    endpoint = endpoint = $("#frm-search-traits").attr("data-search-endpoint");
     $.ajax(
 	endpoint,
 	{
