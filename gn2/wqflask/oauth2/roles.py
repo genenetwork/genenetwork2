@@ -10,31 +10,6 @@ from .request_utils import request_error, process_error
 
 roles = Blueprint("role", __name__)
 
-@roles.route("/user", methods=["GET"])
-@require_oauth2
-def user_roles():
-    def  __grerror__(roles, user_privileges, error):
-        return render_ui(
-            "oauth2/list_roles.html", roles=roles,
-            user_privileges=user_privileges,
-            group_roles_error=process_error(error))
-
-    def  __grsuccess__(roles, user_privileges, group_roles):
-        return render_ui(
-            "oauth2/list_roles.html", roles=roles,
-            user_privileges=user_privileges, group_roles=group_roles)
-
-    def __role_success__(roles):
-        uprivs = tuple(
-            privilege["privilege_id"] for role in roles
-            for privilege in role["privileges"])
-        return oauth2_get("auth/group/roles").either(
-            lambda err: __grerror__(roles, uprivs, err),
-            lambda groles: __grsuccess__(roles, uprivs, groles))
-
-    return oauth2_get("auth/system/roles").either(
-        request_error, __role_success__)
-
 @roles.route("/role/<uuid:role_id>", methods=["GET"])
 @require_oauth2
 def role(role_id: uuid.UUID):
