@@ -230,7 +230,15 @@
     </div>
 
     <div class="row">
-      <h3>User Roles</h3>
+      <h3>Available Resource Roles</h3>
+      <p class="text-info">
+        <span class="glyphicon glyphicon-exclamation-sign text-info"></span>
+        The resource roles will go here when they are implemented …
+      </p>
+    </div>
+
+    <div class="row">
+      <h3>Users: Assigned Roles</h3>
       {%if users_n_roles_error is defined%}
       {{display_error("Users and Roles", users_n_roles_error)}}
       {%else%}
