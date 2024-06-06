@@ -93,7 +93,12 @@ def create_role():
     def __create_success__(*args):
         flash("Role created successfully.", "alert-success")
         return redirect(url_for("oauth2.role.user_roles"))
-    return oauth2_post(
-        "auth/group/role/create",data={
-            "role_name": role_name, "privileges[]": privileges}).either(
-        __create_error__,__create_success__)
+
+    raise DeprecationWarning(
+        f"The `{__name__}.create_role(…)` function, as is currently, can "
+        "lead to unbounded privilege escalation. See "
+        "https://issues.genenetwork.org/issues/gn-auth/problems-with-roles")
+    # return oauth2_post(
+    #     "auth/group/role/create",data={
+    #         "role_name": role_name, "privileges[]": privileges}).either(
+    #     __create_error__,__create_success__)
