@@ -36,6 +36,7 @@ class SearchResultPage:
 
         self.uc_id = uuid.uuid4()
         self.go_term = None
+        self.type = kw['search_type']
 
         if kw['search_terms_or']:
             self.and_or = "or"
