@@ -329,3 +329,8 @@ $("#make_default").click(make_default);
 $("#btsearch").click(function() {
   $("#searchform").prop("action", "/search")
 });
+
+$("#xapianSearch").click(function() {
+  $("input[name='search_type']").val("xapian")
+  $("#searchform").prop("action", "/search")
+});
