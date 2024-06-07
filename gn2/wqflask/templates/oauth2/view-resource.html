@@ -231,10 +231,58 @@
 
     <div class="row">
       <h3>Available Resource Roles</h3>
-      <p class="text-info">
-        <span class="glyphicon glyphicon-exclamation-sign text-info"></span>
-        The resource roles will go here when they are implemented …
-      </p>
+        <table class="table">
+          <caption>Roles Acting on this Resource</caption>
+          <thead>
+            <tr>
+              <th>Role Name</th>
+              <th>Privilege</th>
+              <th>Privilege Description</th>
+              <th colspan="2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {%for role in resource_roles%}
+          {%for priv in role.privileges%}
+          {%if loop.index == 1%}
+          <tr>
+            <td rowspan="{{role.privileges | length}}"
+                style="text-align: center;vertical-align: middle;">
+              {{role.role_name}}
+            </td>
+            <td>{{priv.privilege_id}}</td>
+            <td>{{priv.privilege_description}}</td>
+            <td rowspan="{{role.privileges | length}}"
+                style="text-align: center;vertical-align: middle;">
+              <a href="" class="btn btn-danger"
+                 title="Not implemented: Would delete role.">Delete</a>
+            </td>
+            <td rowspan="{{role.privileges | length}}"
+                style="text-align: center;vertical-align: middle;">
+              <a href="" class="btn btn-info"
+                 title="Not implemented: Would edit role.">Edit</a>
+            </td>
+          </tr>
+          {%else%}
+          <tr>
+            <td>{{priv.privilege_id}}</td>
+            <td>{{priv.privilege_description}}</td>
+          </tr>
+          {%endif%}
+          {%endfor%}
+          {%else%}
+          <tr>
+            <td colspan="4">
+              <p class="text-info">
+                <span
+                  class="glyphicon glyphicon-exclamation-sign text-info"></span>
+                No roles defined for this resource.
+              </p>
+              </td>
+          </tr>
+          {%endfor%}
+          </tbody>
+        </table>
     </div>
 
     <div class="row">
