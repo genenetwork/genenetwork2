@@ -2,6 +2,7 @@ import uuid
 from math import *
 import requests
 import unicodedata
+from urllib.parse import urlencode, urljoin
 import re
 
 import json
@@ -17,9 +18,8 @@ from gn2.wqflask.database import database_connection
 
 from gn2.utility import hmac
 from gn2.utility.authentication_tools import check_resource_availability
-from gn2.utility.tools import get_setting, GN2_BASE_URL
+from gn2.utility.tools import get_setting, GN2_BASE_URL, GN3_LOCAL_URL
 from gn2.utility.type_checking import is_str
-
 
 class SearchResultPage:
     #maxReturn = 3000
@@ -36,7 +36,7 @@ class SearchResultPage:
 
         self.uc_id = uuid.uuid4()
         self.go_term = None
-        self.type = kw['search_type']
+        self.search_type = kw['search_type']
 
         if kw['search_terms_or']:
             self.and_or = "or"
@@ -230,89 +230,92 @@ class SearchResultPage:
         """
         self.search_terms = parser.parse(self.search_terms)
 
-        combined_from_clause = ""
-        combined_where_clause = ""
-        # The same table can't be referenced twice in the from clause
-        previous_from_clauses = []
+        if self.search_type == "xapian":
+            self.results = requests.get(generate_xapian_request(self.dataset, self.search_terms, self.and_or)).json()
+        else:
+            combined_from_clause = ""
+            combined_where_clause = ""
+            # The same table can't be referenced twice in the from clause
+            previous_from_clauses = []
 
-        for i, a_search in enumerate(self.search_terms):
-            if a_search['key'] == "GO":
-                self.go_term = a_search['search_term'][0]
-                gene_list = get_GO_symbols(a_search)
-                self.search_terms += gene_list
-                continue
-            else:
-                the_search = self.get_search_ob(a_search)
-                if the_search != None:
-                    if a_search['key'] == None and self.dataset.type == "ProbeSet":
-                        alias_terms = get_alias_terms(a_search['search_term'][0], self.dataset.group.species)
-                        alias_where_clauses = []
-                        for alias_search in alias_terms:
-                            alias_search_ob = self.get_search_ob(alias_search)
-                            if alias_search_ob != None:
-                                get_from_clause = getattr(
-                                    alias_search_ob, "get_from_clause", None)
-                                if callable(get_from_clause):
-                                    from_clause = alias_search_ob.get_from_clause()
-                                    if from_clause in previous_from_clauses:
-                                        pass
-                                    else:
-                                        previous_from_clauses.append(from_clause)
-                                        combined_from_clause += from_clause
-                                where_clause = alias_search_ob.get_alias_where_clause()
-                                alias_where_clauses.append(where_clause)
-
-                        get_from_clause = getattr(
-                            the_search, "get_from_clause", None)
-                        if callable(get_from_clause):
-                            from_clause = the_search.get_from_clause()
-                            if from_clause in previous_from_clauses:
-                                pass
-                            else:
-                                previous_from_clauses.append(from_clause)
-                                combined_from_clause += from_clause
-
-                        where_clause = the_search.get_where_clause()
-                        alias_where_clauses.append(where_clause)
-
-                        combined_where_clause += "(" + " OR ".join(alias_where_clauses) + ")"
-                        if (i + 1) < len(self.search_terms):
-                            if self.and_or == "and":
-                                combined_where_clause += "AND"
-                            else:
-                                combined_where_clause += "OR"
-                    else:
-                        get_from_clause = getattr(
-                            the_search, "get_from_clause", None)
-                        if callable(get_from_clause):
-                            from_clause = the_search.get_from_clause()
-                            if from_clause in previous_from_clauses:
-                                pass
-                            else:
-                                previous_from_clauses.append(from_clause)
-                                combined_from_clause += from_clause
-
-                        where_clause = the_search.get_where_clause()
-                        combined_where_clause += "(" + where_clause + ")"
-                        if (i + 1) < len(self.search_terms):
-                            if self.and_or == "and":
-                                combined_where_clause += "AND"
-                            else:
-                                combined_where_clause += "OR"
+            for i, a_search in enumerate(self.search_terms):
+                if a_search['key'] == "GO":
+                    self.go_term = a_search['search_term'][0]
+                    gene_list = get_GO_symbols(a_search)
+                    self.search_terms += gene_list
+                    continue
                 else:
-                    self.search_term_exists = False
+                    the_search = self.get_search_ob(a_search)
+                    if the_search != None:
+                        if a_search['key'] == None and self.dataset.type == "ProbeSet":
+                            alias_terms = get_alias_terms(a_search['search_term'][0], self.dataset.group.species)
+                            alias_where_clauses = []
+                            for alias_search in alias_terms:
+                                alias_search_ob = self.get_search_ob(alias_search)
+                                if alias_search_ob != None:
+                                    get_from_clause = getattr(
+                                        alias_search_ob, "get_from_clause", None)
+                                    if callable(get_from_clause):
+                                        from_clause = alias_search_ob.get_from_clause()
+                                        if from_clause in previous_from_clauses:
+                                            pass
+                                        else:
+                                            previous_from_clauses.append(from_clause)
+                                            combined_from_clause += from_clause
+                                    where_clause = alias_search_ob.get_alias_where_clause()
+                                    alias_where_clauses.append(where_clause)
 
-        if self.search_term_exists:
-            combined_where_clause = "(" + combined_where_clause + ")"
-            final_query = the_search.compile_final_query(
-                combined_from_clause, combined_where_clause)
+                            get_from_clause = getattr(
+                                the_search, "get_from_clause", None)
+                            if callable(get_from_clause):
+                                from_clause = the_search.get_from_clause()
+                                if from_clause in previous_from_clauses:
+                                    pass
+                                else:
+                                    previous_from_clauses.append(from_clause)
+                                    combined_from_clause += from_clause
 
-            results = the_search.execute(final_query)
-            self.results.extend(results)
+                            where_clause = the_search.get_where_clause()
+                            alias_where_clauses.append(where_clause)
 
-        if self.search_term_exists:
-            if the_search != None:
-                self.header_fields = the_search.header_fields
+                            combined_where_clause += "(" + " OR ".join(alias_where_clauses) + ")"
+                            if (i + 1) < len(self.search_terms):
+                                if self.and_or == "and":
+                                    combined_where_clause += "AND"
+                                else:
+                                    combined_where_clause += "OR"
+                        else:
+                            get_from_clause = getattr(
+                                the_search, "get_from_clause", None)
+                            if callable(get_from_clause):
+                                from_clause = the_search.get_from_clause()
+                                if from_clause in previous_from_clauses:
+                                    pass
+                                else:
+                                    previous_from_clauses.append(from_clause)
+                                    combined_from_clause += from_clause
+
+                            where_clause = the_search.get_where_clause()
+                            combined_where_clause += "(" + where_clause + ")"
+                            if (i + 1) < len(self.search_terms):
+                                if self.and_or == "and":
+                                    combined_where_clause += "AND"
+                                else:
+                                    combined_where_clause += "OR"
+                    else:
+                        self.search_term_exists = False
+
+            if self.search_term_exists:
+                combined_where_clause = "(" + combined_where_clause + ")"
+                final_query = the_search.compile_final_query(
+                    combined_from_clause, combined_where_clause)
+
+                results = the_search.execute(final_query)
+                self.results.extend(results)
+
+            if self.search_term_exists:
+                if the_search != None:
+                    self.header_fields = the_search.header_fields
 
     def get_search_ob(self, a_search):
         search_term = a_search['search_term']
@@ -432,3 +435,43 @@ def get_alias_terms(symbol, species):
         alias_terms.append(the_search_term)
 
     return alias_terms
+
+def generate_xapian_request(dataset, search_terms, and_or):
+    match dataset.type:
+        case "ProbeSet":
+            search_type = "gene"
+        case "Publish":
+            search_type = "phenotype"
+        case "Geno":
+            search_type = "genotype"
+        case _: # This should never happen, not sure if it's necessary
+            search_type = "gene"
+
+    xapian_terms = and_or.join([create_xapian_term(dataset, term) for term in search_terms])
+
+    return urljoin(GN3_LOCAL_URL, "/api/search?" + urlencode({"query": xapian_terms,
+                                                              "type": search_type}))
+
+def create_xapian_term(dataset, term):
+    search_term = term['search_term']
+    xapian_term = f"species:{dataset.group.species} AND group:{dataset.group.name} AND dataset:{dataset.name} AND "
+    match term['key']:
+        case 'MEAN':
+            return xapian_term + f"mean:{search_term[0]}..{search_term[1]}"
+        case 'POSITION':
+            return xapian_term + f"chr:{search_term[0].lower().replace('chr', '')} AND position:{search_term[1]}..{search_term[2]}"
+        case 'AUTHOR':
+            return xapian_term + f"author:{search_term[0]}"
+        case 'LRS':
+            xapian_term += f"peak:{search_term[0]}..{search_term[1]}"
+            if len(term) == 5:
+                xapian_term += f"peakchr:{search_term[2].lower().replace('chr', '')} AND peakmb:{search_term[3]}..{search_term[4]}"
+            return xapian_term
+        case 'LOD': # Basically just LRS search but all values are multiplied by 4.61
+            xapian_term += f"peak:{float(search_term[0]) * 4.61}..{float(search_term[1]) * 4.61}"
+            if len(term) == 5:
+                xapian_term += f"peakchr:{search_term[2].lower().replace('chr', '')} AND "
+                xapian_term += f"peakmb:{float(search_term[3]) * 4.61}..{float(search_term[4]) * 4.61}"
+            return xapian_term
+        case None:
+            return xapian_term + f"{search_term[0]}"
