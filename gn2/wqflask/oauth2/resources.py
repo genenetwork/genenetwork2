@@ -67,39 +67,40 @@ def view_resource(resource_id: uuid.UUID):
                             int(request.args.get("page", "1"), base=10))
     count_per_page = int(request.args.get("count_per_page", "100"), base=10)
     def __users_success__(
-            resource, unlinked_data, users_n_roles, this_user, group_roles,
+            resource, unlinked_data, users_n_roles, this_user, resource_roles,
             users):
         return render_ui(
             "oauth2/view-resource.html", resource=resource,
             unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-            this_user=this_user, group_roles=group_roles, users=users,
+            this_user=this_user, resource_roles=resource_roles, users=users,
             page=page, count_per_page=count_per_page)
 
-    def __group_roles_success__(
-            resource, unlinked_data, users_n_roles, this_user, group_roles):
+    def __resource_roles_success__(
+            resource, unlinked_data, users_n_roles, this_user, resource_roles):
         return oauth2_get("auth/user/list").either(
             lambda err: render_ui(
                 "oauth2/view-resource.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-                this_user=this_user, group_roles=group_roles,
+                this_user=this_user, resource_roles=resource_roles,
                 users_error=process_error(err), count_per_page=count_per_page),
             lambda users: __users_success__(
-                resource, unlinked_data, users_n_roles, this_user, group_roles,
+                resource, unlinked_data, users_n_roles, this_user, resource_roles,
                 users))
 
     def __this_user_success__(resource, unlinked_data, users_n_roles, this_user):
-        return oauth2_get("auth/group/roles").either(
+        return oauth2_get(f"auth/resource/{resource_id}/roles").either(
             lambda err: render_ui(
-                "oauth2/view-resources.html", resource=resource,
+                "oauth2/view-resource.html", resource=resource,
                 unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-                this_user=this_user, group_roles_error=process_error(err)),
-            lambda groles: __group_roles_success__(
-                resource, unlinked_data, users_n_roles, this_user, groles))
+                this_user=this_user, resource_roles_error=process_error(err),
+                count_per_page=count_per_page),
+            lambda rroles: __resource_roles_success__(
+                resource, unlinked_data, users_n_roles, this_user, rroles))
 
     def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
         return oauth2_get("auth/user/").either(
             lambda err: render_ui(
-                "oauth2/view-resources.html",
+                "oauth2/view-resource.html",
                 this_user_error=process_error(err)),
             lambda usr_dets: __this_user_success__(
                 resource, unlinked_data, users_n_roles, usr_dets))
@@ -229,7 +230,7 @@ def assign_role(resource_id: uuid.UUID) -> Response:
             }).either(__assign_error__, __assign_success__)
     except AssertionError as aserr:
         flash(aserr.args[0], "alert-danger")
-        return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
+        return redirect(url_for("oauth2.resource.view_resource", resource_id=resource_id))
 
 @resources.route("<uuid:resource_id>/user/unassign", methods=["POST"])
 @require_oauth2
@@ -260,7 +261,7 @@ def unassign_role(resource_id: uuid.UUID) -> Response:
             }).either(__unassign_error__, __unassign_success__)
     except AssertionError as aserr:
         flash(aserr.args[0], "alert-danger")
-        return redirect(url_for("oauth2.resources.view_resource", resource_id=resource_id))
+        return redirect(url_for("oauth2.resource.view_resource", resource_id=resource_id))
 
 @resources.route("/toggle/<uuid:resource_id>", methods=["POST"])
 @require_oauth2

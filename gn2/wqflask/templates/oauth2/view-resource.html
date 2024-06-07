@@ -309,8 +309,8 @@
 
     <div class="row">
       <h3>Assign</h3>
-      {%if group_roles_error is defined%}
-      {{display_error("Group Roles", group_roles_error)}}
+      {%if resource_roles_error is defined%}
+      {{display_error("Resource Roles", resource_roles_error)}}
       {%elif users_error is defined%}
       {{display_error("Users", users_error)}}
       {%else%}
@@ -320,13 +320,13 @@
 	    method="POST" autocomplete="off">
 	<input type="hidden" name="resource_id" value="{{resource_id}}" />
 	<div class="form-group">
-	  <label for="group_role_id" class="form-label">Role</label>
-	  <select class="form-control" name="group_role_id"
-		  id="group_role_id" required="required">
-	    <option value="">Select role</option>
-	    {%for grole in group_roles%}
-	    <option value="{{grole.group_role_id}}">
-	      {{grole.role.role_name}}
+	  <label for="role_id" class="form-label">Role</label>
+	  <select class="form-control" name="role_id"
+		  id="role_id" required="required">
+	    <option value="">Select role</option>>
+	    {%for rrole in resource_roles%}
+	    <option value="{{rrole.role_id}}">
+	      {{rrole.role_name}}
 	    </option>
 	    {%endfor%}
 	  </select>
