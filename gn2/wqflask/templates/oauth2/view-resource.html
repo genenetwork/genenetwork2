@@ -237,7 +237,11 @@
       <h3>Available Resource Roles</h3>
       <div class="resource_roles">
         {%for role in resource_roles%}
-        <a class="pill" href="#" title="Role page for role named '{{role.role_name}}'">
+        <a class="pill"
+           href="{{url_for('oauth2.resource.view_resource_role',
+                 resource_id=resource.resource_id,
+                 role_id=role.role_id)}}"
+           title="Role page for role named '{{role.role_name}}'">
           {{role.role_name}}
         </a>
         {%endfor%}
