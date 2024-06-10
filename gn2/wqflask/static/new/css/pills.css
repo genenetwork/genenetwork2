@@ -1,0 +1,25 @@
+a.pill{
+    border: 1px;
+    color: #3071A9;
+    text-decoration: none;
+    border: 1px solid #3071A9;
+    border-radius: 5px;
+    padding: 0.3em;
+    box-shadow: 3px 3px #DEDEDE;
+    text-align: center;
+}
+
+a.pill:active {
+    box-shadow: 1px 1px aquamarine;
+    position: relative;
+    left: 2px;
+    top: 2px;
+}
+
+a.pill:hover {
+    text-decoration: none;
+}
+
+a.pill:focus {
+    text-decoration: none;
+}
