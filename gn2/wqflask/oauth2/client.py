@@ -70,12 +70,18 @@ def __no_token__(_err) -> Left:
     resp.status_code = 400
     return Left(resp)
 
-def oauth2_get(uri_path: str, data: dict = {},
-               jsonify_p: bool = False, **kwargs) -> Either:
+def oauth2_get(
+        uri_path: str,
+        data: dict = {},
+        jsonify_p: bool = False,
+        headers: dict = {"Content-Type": "application/json"},
+        **kwargs
+) -> Either:
     def __get__(token) -> Either:
         resp = oauth2_client().get(
             urljoin(authserver_uri(), uri_path),
             data=data,
+            headers=headers,
             **kwargs)
         if resp.status_code == 200:
             if jsonify_p:
@@ -87,11 +93,18 @@ def oauth2_get(uri_path: str, data: dict = {},
     return session.user_token().either(__no_token__, __get__)
 
 def oauth2_post(
-        uri_path: str, data: Optional[dict] = None, json: Optional[dict] = None,
-        **kwargs) -> Either:
+        uri_path: str,
+        data: Optional[dict] = None,
+        json: Optional[dict] = None,
+        headers: dict = {"Content-Type": "application/json"},
+        **kwargs
+) -> Either:
     def __post__(token) -> Either:
         resp = oauth2_client().post(
-            urljoin(authserver_uri(), uri_path), data=data, json=json,
+            urljoin(authserver_uri(), uri_path),
+            data=data,
+            json=json,
+            headers=headers,
             **kwargs)
         if resp.status_code == 200:
             return Right(resp.json())
@@ -100,10 +113,14 @@ def oauth2_post(
 
     return session.user_token().either(__no_token__, __post__)
 
-def no_token_get(uri_path: str, **kwargs) -> Either:
+def no_token_get(
+        uri_path: str,
+        headers: dict = {"Content-Type": "application/json"},
+        **kwargs
+) -> Either:
     uri = urljoin(authserver_uri(), uri_path)
     try:
-        resp = requests.get(uri, **kwargs)
+        resp = requests.get(uri, headers=headers, **kwargs)
         if resp.status_code == 200:
             return Right(resp.json())
         return Left(resp)
