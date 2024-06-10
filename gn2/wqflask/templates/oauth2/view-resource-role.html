@@ -5,8 +5,10 @@
 {%block content%}
 
 {%macro unassign_button(resource_id, role_id, privilege_id)%}
-<form method="POST"
-      action="#"
+<form method="GET"
+      action="{{url_for('oauth2.resource.unassign_privilege_from_resource_role',
+              resource_id=resource_id,
+              role_id=role_id)}}"
       id="frm_unlink_privilege_{{privilege_id}}">
   <input type="hidden" name="resource_id" value="{{resource_id}}" />
   <input type="hidden" name="role_id" value="{{role_id}}" />
@@ -17,6 +19,7 @@
 
 <div class="container">
   {{profile_nav(uipages, user_privileges)}}
+  {{flash_me()}}
   {%if resource_error is defined%}
   {{display_error("Resource", resource_error)}}
   {%else%}
