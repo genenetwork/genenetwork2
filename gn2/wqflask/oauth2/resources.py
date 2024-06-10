@@ -7,8 +7,12 @@ from . import client
 from .ui import render_ui as _render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
-from .request_utils import (
-    flash_error, flash_success, request_error, process_error)
+from .request_utils import (flash_error,
+                            flash_success,
+                            request_error,
+                            process_error,
+                            with_flash_error,
+                            with_flash_success)
 
 resources = Blueprint("resource", __name__)
 
@@ -331,3 +335,51 @@ def view_resource_role(resource_id: UUID, role_id: UUID):
             lambda error: __render_template__(
                 resource_error=process_error(error)),
             lambda resource: __fetch_resource_role__(resource=resource))
+
+@resources.route("/<uuid:resource_id>/role/<uuid:role_id>/unassign-privilege",
+                 methods=["GET", "POST"])
+@require_oauth2
+def unassign_privilege_from_resource_role(resource_id: UUID, role_id: UUID):
+    """Remove a privilege from a resource role."""
+    form = request.form
+    returnto = redirect(url_for("oauth2.resource.view_resource_role",
+                                resource_id=resource_id,
+                                role_id=role_id))
+    privilege_id = (request.args.get("privilege_id")
+                    or form.get("privilege_id"))
+    if not privilege_id:
+        flash("You need to specify a privilege to unassign.", "alert-danger")
+        return returnto
+
+    if request.method=="POST" and form.get("confirm") == "Unassign":
+        return oauth2_post(
+            f"auth/resource/{resource_id}/role/{role_id}/unassign-privilege",
+            json={
+                "privilege_id": form["privilege_id"]
+            }).either(with_flash_error(returnto), with_flash_success(returnto))
+
+    if form.get("confirm") == "Cancel":
+        flash("Cancelled the operation to unassign the privilege.",
+              "alert-info")
+        return returnto
+
+    def __fetch_privilege__(resource, role):
+        return oauth2_get(
+            f"auth/privileges/{privilege_id}/view").either(
+                with_flash_error(returnto),
+                lambda privilege: render_ui(
+                    "oauth2/confirm-resource-role-unassign-privilege.html",
+                    resource=resource,
+                    role=role,
+                    privilege=privilege))
+
+    def __fetch_resource_role__(resource):
+        return oauth2_get(
+            f"auth/resource/{resource_id}/role/{role_id}").either(
+                with_flash_error(returnto),
+                lambda role: __fetch_privilege__(resource, role))
+
+    return oauth2_get(
+        f"auth/resource/view/{resource_id}").either(
+            with_flash_error(returnto),
+            __fetch_resource_role__)

@@ -1,0 +1,34 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+{%block content%}
+<div class="container">
+  {{profile_nav(uipages, user_privileges)}}
+  {{flash_me()}}
+
+  <form id="frm_confirm_resource_role_unassign_privilege"
+        method="POST"
+        action="{{url_for('oauth2.resource.unassign_privilege_from_resource_role',
+                resource_id=resource.resource_id,
+                role_id=role.role_id)}}">
+    <p>
+      Are you sure you want to unassign the privilege to
+      '{{privilege.privilege_description}}' from the role '{{role.role_name}}'
+      on resource '{{resource.resource_name}}'?</p>
+    <input type="hidden"
+           name="privilege_id"
+           value="{{privilege.privilege_id}}" />
+    
+    <input type="submit"
+           name="confirm"
+           value="Cancel"
+           class="btn btn-success" />
+
+    <input type="submit"
+           name="confirm"
+           value="Unassign"
+           class="btn btn-danger" />
+  </form>
+</div>
+{%endblock%}
