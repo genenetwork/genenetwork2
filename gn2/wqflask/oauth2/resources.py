@@ -296,3 +296,38 @@ def edit_resource(resource_id: uuid.UUID):
 def delete_resource(resource_id: uuid.UUID):
     """Delete the given resource."""
     return "WOULD DELETE THE GIVEN RESOURCE"
+
+@resources.route("/<uuid:resource_id>/role/<uuid:role_id>", methods=["GET"])
+@require_oauth2
+def view_resource_role(resource_id: uuid.UUID, role_id: uuid.UUID):
+    """View resource role page."""
+    def __render_template__(**kwargs):
+        return render_ui("oauth2/view-resource-role.html", **kwargs)
+
+    def __fetch_all_roles__(resource, role):
+        return oauth2_get(f"auth/resource/{resource_id}/roles").either(
+            lambda error: __render_template__(
+                all_roles_error=process_error(error)),
+            lambda all_roles: __render_template__(
+                resource=resource,
+                role=role,
+                unassigned_privileges=[
+                    priv for role in all_roles
+                    for priv in role["privileges"]
+                    if priv not in role["privileges"]
+                ]))
+
+    def __fetch_resource_role__(resource):
+        return oauth2_get(
+        f"auth/resource/{resource_id}/role/{role_id}").either(
+            lambda error: __render_template__(
+                resource=resource,
+                role_id=role_id,
+                role_error=process_error(error)),
+            lambda role: __fetch_all_roles__(resource, role))
+
+    return oauth2_get(
+        f"auth/resource/view/{resource_id}").either(
+            lambda error: __render_template__(
+                resource_error=process_error(error)),
+            lambda resource: __fetch_resource_role__(resource=resource))
