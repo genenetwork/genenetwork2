@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 
 from flask import (
     flash, request, url_for, redirect, Response, Blueprint)
@@ -64,7 +64,7 @@ def __compute_page__(submit, current_page):
 
 @resources.route("/view/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
-def view_resource(resource_id: uuid.UUID):
+def view_resource(resource_id: UUID):
     """View the given resource."""
     page = __compute_page__(request.args.get("submit"),
                             int(request.args.get("page", "1"), base=10))
@@ -206,7 +206,7 @@ def unlink_data_from_resource():
 
 @resources.route("<uuid:resource_id>/user/assign", methods=["POST"])
 @require_oauth2
-def assign_role(resource_id: uuid.UUID) -> Response:
+def assign_role(resource_id: UUID) -> Response:
     form = request.form
     group_role_id = form.get("group_role_id", "")
     user_email = form.get("user_email", "")
@@ -237,7 +237,7 @@ def assign_role(resource_id: uuid.UUID) -> Response:
 
 @resources.route("<uuid:resource_id>/user/unassign", methods=["POST"])
 @require_oauth2
-def unassign_role(resource_id: uuid.UUID) -> Response:
+def unassign_role(resource_id: UUID) -> Response:
     form = request.form
     group_role_id = form.get("group_role_id", "")
     user_id = form.get("user_id", "")
@@ -268,7 +268,7 @@ def unassign_role(resource_id: uuid.UUID) -> Response:
 
 @resources.route("/toggle/<uuid:resource_id>", methods=["POST"])
 @require_oauth2
-def toggle_public(resource_id: uuid.UUID):
+def toggle_public(resource_id: UUID):
     """Toggle the given resource's public status."""
     def __handle_error__(err):
         flash_error(process_error(err))
@@ -287,19 +287,19 @@ def toggle_public(resource_id: uuid.UUID):
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
-def edit_resource(resource_id: uuid.UUID):
+def edit_resource(resource_id: UUID):
     """Edit the given resource."""
     return "WOULD Edit THE GIVEN RESOURCE'S DETAILS"
 
 @resources.route("/delete/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
-def delete_resource(resource_id: uuid.UUID):
+def delete_resource(resource_id: UUID):
     """Delete the given resource."""
     return "WOULD DELETE THE GIVEN RESOURCE"
 
 @resources.route("/<uuid:resource_id>/role/<uuid:role_id>", methods=["GET"])
 @require_oauth2
-def view_resource_role(resource_id: uuid.UUID, role_id: uuid.UUID):
+def view_resource_role(resource_id: UUID, role_id: UUID):
     """View resource role page."""
     def __render_template__(**kwargs):
         return render_ui("oauth2/view-resource-role.html", **kwargs)
