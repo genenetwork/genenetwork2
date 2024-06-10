@@ -4,13 +4,16 @@ from flask import (
     flash, request, url_for, redirect, Response, Blueprint)
 
 from . import client
-from .ui import render_ui
+from .ui import render_ui as _render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
     flash_error, flash_success, request_error, process_error)
 
 resources = Blueprint("resource", __name__)
+
+def render_ui(template, **kwargs):
+    return _render_ui(template, uipages="resources", **kwargs)
 
 @resources.route("/", methods=["GET"])
 @require_oauth2
