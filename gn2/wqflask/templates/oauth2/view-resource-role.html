@@ -98,6 +98,38 @@
     </form>
   </div>
 
+  {%if user_error is defined%}
+  {{display_error("Users", user_error)}}
+  {%endif%}
+
+  {%if users is defined and users | length > 0%}
+  <div class="row">
+    <h3>Users</h3>
+
+    <table class="table">
+      <caption>
+        Users assigned role '{{role.role_name}}' on resource
+        '{{resource.resource_name}}'
+      </caption>
+
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {%for user in users%}
+        <tr>
+          <td>{{user.email}}</td>
+          <td>{{user.name}}</td>
+        </tr>
+        {%endfor%}
+        </tbody>
+    </table>
+  </div>
+  {%endif%}
       &nbsp;
     </p>
   {%endif%}
