@@ -130,8 +130,18 @@
     </table>
   </div>
   {%endif%}
+
+  {%if users is defined and users | length == 0%}
+  <div class="row">
+    <h3>Delete this role</h3>
+    <p class="text-danger">
+      <strong>Delete Role</strong>:
+      <span class="glyphicon glyphicon-exclamation-sign text-danger"></span>
       &nbsp;
+      This will delete this role, and you will no longer have access to it.
     </p>
+  </div>
+  {%endif%}
   {%endif%}
   {%endif%}
 </div>
