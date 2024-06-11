@@ -308,11 +308,25 @@ def view_resource_role(resource_id: UUID, role_id: UUID):
     def __render_template__(**kwargs):
         return render_ui("oauth2/view-resource-role.html", **kwargs)
 
+    def __fetch_users__(resource, role, unassigned_privileges):
+        return oauth2_get(
+            f"auth/resource/{resource_id}/role/{role_id}/users").either(
+            lambda error: __render_template__(
+                resource=resource,
+                role=role,
+                unassigned_privileges=unassigned_privileges,
+                user_error=process_error(error)),
+            lambda users: __render_template__(
+                resource=resource,
+                role=role,
+                unassigned_privileges=unassigned_privileges,
+                users=users))
+
     def __fetch_all_roles__(resource, role):
         return oauth2_get(f"auth/resource/{resource_id}/roles").either(
             lambda error: __render_template__(
                 all_roles_error=process_error(error)),
-            lambda all_roles: __render_template__(
+            lambda all_roles: __fetch_users__(
                 resource=resource,
                 role=role,
                 unassigned_privileges=[
