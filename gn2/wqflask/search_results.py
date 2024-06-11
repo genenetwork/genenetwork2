@@ -445,8 +445,8 @@ def generate_xapian_request(dataset, search_terms, and_or):
             search_type = "phenotype"
         case "Geno":
             search_type = "genotype"
-        case _: # This should never happen, not sure if it's necessary
-            search_type = "gene"
+        case _: # This should never happen
+            raise ValueError(f"Dataset types should only be ProbeSet, Publish, or Geno, not '{dataset.type}'")
 
     xapian_terms = and_or.join([create_xapian_term(dataset, term) for term in search_terms])
 
