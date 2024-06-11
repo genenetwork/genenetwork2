@@ -437,6 +437,7 @@ def get_alias_terms(symbol, species):
     return alias_terms
 
 def generate_xapian_request(dataset, search_terms, and_or):
+    """ Generate the resquest to GN3 which queries Xapian """
     match dataset.type:
         case "ProbeSet":
             search_type = "gene"
@@ -453,8 +454,9 @@ def generate_xapian_request(dataset, search_terms, and_or):
                                                               "type": search_type}))
 
 def create_xapian_term(dataset, term):
+    """ Create Xapian term for each search term """
     search_term = term['search_term']
-    xapian_term = f"species:{dataset.group.species} AND group:{dataset.group.name} AND dataset:{dataset.name} AND "
+    xapian_term = f"dataset:{dataset.fullname} AND "
     match term['key']:
         case 'MEAN':
             return xapian_term + f"mean:{search_term[0]}..{search_term[1]}"
