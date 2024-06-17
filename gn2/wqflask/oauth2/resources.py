@@ -4,6 +4,7 @@ from flask import (
     flash, request, url_for, redirect, Response, Blueprint)
 
 from . import client
+from . import session
 from .ui import render_ui as _render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
@@ -408,9 +409,12 @@ def create_resource_role(resource_id: UUID):
         return render_ui("oauth2/create-role.html", **kwargs)
 
     def __fetch_resource_roles__(resource):
-        return oauth2_get(f"auth/resource/{resource_id}/roles").either(
             lambda error: __render__(resource_role_error=error),
-            lambda roles: {"resource": resource, "roles": roles})
+        user = session.session_info()["user"]
+        return oauth2_get(
+            f"auth/resource/{resource_id}/users/{user['user_id']}"
+            "/roles").either(
+                lambda roles: {"resource": resource, "roles": roles})
 
     if request.method == "GET":
         return oauth2_get(f"auth/resource/view/{resource_id}").map(
