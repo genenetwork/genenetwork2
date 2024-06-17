@@ -7,31 +7,43 @@
   {{profile_nav("roles", user_privileges)}}
   <h3>Create Role</h3>
 
-  {{flash_me()}}
+  <p>Create a new role to act on resource "{{resource.resource_name}}"</p>
 
   {%if group_privileges_error is defined%}
   {{display_error("Group Privileges", group_privileges_error)}}
   {%else%}
-  {%if "group:role:create-role" in user_privileges%}
-  <form method="POST" action="{{url_for('oauth2.role.create_role')}}">
-    <legend>Create Group Role</legend>
+  {%if "resource:role:create-role" in (user_privileges|map(attribute="privilege_id")) %}
+  <form method="POST" action="{{url_for('oauth2.resource.create_resource_role',
+                              resource_id=resource.resource_id)}}">
+    <legend>create resource role</legend>
+
+    {{flash_me()}}
+
     <div class="form-group">
       <label for="role_name" class="form-label">Name</label>
-      <input type="text" id="role_name" name="role_name" required="required"
-	     class="form-control"
-	     {%if prev_role_name is defined and prev_role_name is not none%}
-	     value="{{prev_role_name}}"
-	     {%endif%} />
+      <div class="input-group">
+        <span class="input-group-addon">
+          {{resource.resource_name|replace(" ", "_")}}::
+        </span>
+        <input type="text" id="role_name" name="role_name" required="required"
+	       class="form-control"
+	       {%if prev_role_name is defined and prev_role_name is not none%}
+	       value="{{prev_role_name}}"
+	       {%endif%} />
+      </div>
+      <span class="form-text text-muted">
+        The name of the role will have the resource's name appended.
+      </span>
     </div>
     <label class="form-label">Privileges</label>
-    {%for priv in group_privileges%}
+    {%for priv in user_privileges%}
     <div class="checkbox">
-      <label for="chk:{{priv.privilege_id}}">
-	<input type="checkbox" id="chk:{{priv.privilege_id}}"
+      <label for="chk-{{priv.privilege_id}}">
+	<input type="checkbox" id="chk-{{priv.privilege_id}}"
 	       name="privileges[]" value={{priv.privilege_id}} />
 	<span style="text-transform: capitalize;">
 	  {{priv.privilege_description}}
-	</span> ({{priv.privilege_id}})
+	</span>
       </label>
     </div>
     {%endfor%}
