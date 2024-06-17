@@ -66,7 +66,7 @@ def __compute_page__(submit, current_page):
         return current_page + 1
     return (current_page - 1) or 1
 
-@resources.route("/view/<uuid:resource_id>", methods=["GET"])
+@resources.route("/<uuid:resource_id>/view", methods=["GET"])
 @require_oauth2
 def view_resource(resource_id: UUID):
     """View the given resource."""
@@ -301,7 +301,7 @@ def delete_resource(resource_id: UUID):
     """Delete the given resource."""
     return "WOULD DELETE THE GIVEN RESOURCE"
 
-@resources.route("/<uuid:resource_id>/role/<uuid:role_id>", methods=["GET"])
+@resources.route("/<uuid:resource_id>/roles/<uuid:role_id>", methods=["GET"])
 @require_oauth2
 def view_resource_role(resource_id: UUID, role_id: UUID):
     """View resource role page."""
@@ -350,7 +350,7 @@ def view_resource_role(resource_id: UUID, role_id: UUID):
                 resource_error=process_error(error)),
             lambda resource: __fetch_resource_role__(resource=resource))
 
-@resources.route("/<uuid:resource_id>/role/<uuid:role_id>/unassign-privilege",
+@resources.route("/<uuid:resource_id>/roles/<uuid:role_id>/unassign-privilege",
                  methods=["GET", "POST"])
 @require_oauth2
 def unassign_privilege_from_resource_role(resource_id: UUID, role_id: UUID):
