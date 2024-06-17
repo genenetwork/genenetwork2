@@ -9,8 +9,8 @@
 
   <p>Create a new role to act on resource "{{resource.resource_name}}"</p>
 
-  {%if group_privileges_error is defined%}
-  {{display_error("Group Privileges", group_privileges_error)}}
+  {%if resource_role_error is defined%}
+  {{display_error("Resource Role", resource_role_error)}}
   {%else%}
   {%if "resource:role:create-role" in (user_privileges|map(attribute="privilege_id")) %}
   <form method="POST" action="{{url_for('oauth2.resource.create_resource_role',
