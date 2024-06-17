@@ -409,11 +409,14 @@ def create_resource_role(resource_id: UUID):
         return render_ui("oauth2/create-role.html", **kwargs)
 
     def __fetch_resource_roles__(resource):
-            lambda error: __render__(resource_role_error=error),
         user = session.session_info()["user"]
         return oauth2_get(
             f"auth/resource/{resource_id}/users/{user['user_id']}"
             "/roles").either(
+                lambda error: {
+                    "resource": resource,
+                    "resource_role_error": process_error(error)
+                },
                 lambda roles: {"resource": resource, "roles": roles})
 
     if request.method == "GET":
