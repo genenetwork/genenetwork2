@@ -397,3 +397,51 @@ def unassign_privilege_from_resource_role(resource_id: UUID, role_id: UUID):
         f"auth/resource/view/{resource_id}").either(
             with_flash_error(returnto),
             __fetch_resource_role__)
+
+
+@resources.route("/<uuid:resource_id>/roles/create-role",
+                 methods=["GET", "POST"])
+@require_oauth2
+def create_resource_role(resource_id: UUID):
+    """Create new role for the resource."""
+    def __render__(**kwargs):
+        return render_ui("oauth2/create-role.html", **kwargs)
+
+    def __fetch_resource_roles__(resource):
+        return oauth2_get(f"auth/resource/{resource_id}/roles").either(
+            lambda error: __render__(resource_role_error=error),
+            lambda roles: {"resource": resource, "roles": roles})
+
+    if request.method == "GET":
+        return oauth2_get(f"auth/resource/view/{resource_id}").map(
+            __fetch_resource_roles__).either(
+            lambda error: __render__(resource_error=error),
+            lambda kwargs: __render__(**kwargs))
+
+    formdata = request.form
+    privileges = formdata.getlist("privileges[]")
+    if not bool(privileges):
+        flash(
+            "You must provide at least one privilege for creation of the new "
+            "role.",
+            "alert-danger")
+        return redirect(url_for("oauth2.resource.create_resource_role",
+                                resource_id=resource_id))
+
+    def __handle_error__(error):
+        flash_error(process_error(error))
+        return redirect(url_for(
+            "oauth2.resource.create_resource_role", resource_id=resource_id))
+
+    def __handle_success__(success):
+        flash("Role successfully created.", "alert-success")
+        return redirect(url_for(
+            "oauth2.resource.view_resource", resource_id=resource_id))
+
+    return oauth2_post(
+        f"auth/resource/{resource_id}/roles/create",
+        json={
+            "role_name": formdata["role_name"],
+            "privileges": privileges
+        }).either(
+            __handle_error__, __handle_success__)

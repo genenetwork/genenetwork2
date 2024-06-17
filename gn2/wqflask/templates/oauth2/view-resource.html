@@ -246,6 +246,11 @@
         </a>
         {%endfor%}
       </div>
+      <hr />
+      <a title="create a new role for this resource"
+         href="{{url_for('oauth2.resource.create_resource_role',
+               resource_id=resource.resource_id)}}"
+         class="btn btn-info">New Role</a>
     </div>
 
     <div class="row">
