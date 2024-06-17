@@ -58,7 +58,7 @@ def create_resource():
         flash("Resource created successfully", "alert-success")
         return redirect(url_for("oauth2.resource.user_resources"))
     return oauth2_post(
-        "auth/resource/create", data=request.form).either(
+        "auth/resource/create", json=dict(request.form)).either(
             __perr__, __psuc__)
 
 def __compute_page__(submit, current_page):
@@ -231,7 +231,7 @@ def assign_role(resource_id: UUID) -> Response:
 
         return oauth2_post(
             f"auth/resource/{resource_id}/user/assign",
-            data={
+            json={
                 "group_role_id": group_role_id,
                 "user_email": user_email
             }).either(__assign_error__, __assign_success__)
@@ -262,7 +262,7 @@ def unassign_role(resource_id: UUID) -> Response:
 
         return oauth2_post(
             f"auth/resource/{resource_id}/user/unassign",
-            data={
+            json={
                 "group_role_id": group_role_id,
                 "user_id": user_id
             }).either(__unassign_error__, __unassign_success__)
@@ -285,7 +285,7 @@ def toggle_public(resource_id: UUID):
             "oauth2.resource.view_resource", resource_id=resource_id))
 
     return oauth2_post(
-        f"auth/resource/{resource_id}/toggle-public", data={}).either(
+        f"auth/resource/{resource_id}/toggle-public").either(
             lambda err: __handle_error__(err),
             lambda suc: __handle_success__(suc))
 
