@@ -278,14 +278,14 @@
 	    <th>Role</th>
 	    <th>Action</th>
 	  </tr>
-	  {%for grole in user_row.roles%}
+	  {%for role in user_row.roles%}
 	  <tr>
 	    <td>
 	      <a href="{{url_for(
 		       'oauth2.role.role',
-		       role_id=grole.role_id)}}"
-		 title="Details for '{{grole.role_name}}' role">
-		{{grole.role_name}}
+		       role_id=role.role_id)}}"
+		 title="Details for '{{role.role_name}}' role">
+		{{role.role_name}}
 	      </a>
 	    </td>
 	    <td>
@@ -294,8 +294,8 @@
 		    method="POST">
 		<input type="hidden" name="user_id"
 		       value="{{user_row.user.user_id}}" />
-		<input type="hidden" name="group_role_id"
-		       value="{{grole.group_role_id}}">
+		<input type="hidden" name="role_id"
+		       value="{{role.role_id}}">
 		<input type="submit"
 		       value="Unassign"
 		       class="btn btn-danger"

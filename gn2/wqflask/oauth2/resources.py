@@ -213,10 +213,10 @@ def unlink_data_from_resource():
 @require_oauth2
 def assign_role(resource_id: UUID) -> Response:
     form = request.form
-    group_role_id = form.get("group_role_id", "")
+    role_id = form.get("role_id", "")
     user_email = form.get("user_email", "")
     try:
-        assert bool(group_role_id), "The role must be provided."
+        assert bool(role_id), "The role must be provided."
         assert bool(user_email), "The user email must be provided."
 
         def __assign_error__(error):
@@ -233,7 +233,7 @@ def assign_role(resource_id: UUID) -> Response:
         return oauth2_post(
             f"auth/resource/{resource_id}/user/assign",
             json={
-                "group_role_id": group_role_id,
+                "role_id": role_id,
                 "user_email": user_email
             }).either(__assign_error__, __assign_success__)
     except AssertionError as aserr:
@@ -244,10 +244,10 @@ def assign_role(resource_id: UUID) -> Response:
 @require_oauth2
 def unassign_role(resource_id: UUID) -> Response:
     form = request.form
-    group_role_id = form.get("group_role_id", "")
+    role_id = form.get("role_id", "")
     user_id = form.get("user_id", "")
     try:
-        assert bool(group_role_id), "The role must be provided."
+        assert bool(role_id), "The role must be provided."
         assert bool(user_id), "The user id must be provided."
 
         def __unassign_error__(error):
@@ -264,7 +264,7 @@ def unassign_role(resource_id: UUID) -> Response:
         return oauth2_post(
             f"auth/resource/{resource_id}/user/unassign",
             json={
-                "group_role_id": group_role_id,
+                "role_id": role_id,
                 "user_id": user_id
             }).either(__unassign_error__, __unassign_success__)
     except AssertionError as aserr:
