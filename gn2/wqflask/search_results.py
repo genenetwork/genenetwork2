@@ -26,7 +26,7 @@ from gn2.utility.hmac import hmac_creation
 from gn2.utility.tools import get_setting, GN2_BASE_URL, GN3_LOCAL_URL
 from gn2.utility.type_checking import is_str
 
-MAX_SEARCH_RESULTS = 20000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
+MAX_SEARCH_RESULTS = 50000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
 
 class SearchResultPage:
     #maxReturn = 3000
