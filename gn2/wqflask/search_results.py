@@ -129,6 +129,12 @@ class SearchResultPage:
                 trait["mean"] = trait["mean"].map(format3f)
                 trait["lrs_location"] = (Maybe.apply(chr_mb)
                                         .to_arguments(trait.pop("geno_chr"), trait.pop("geno_mb")))
+
+                description_text = trait['description'].maybe("N/A", lambda a: a)
+                if len(description_text) > 200:
+                    description_text = description_text[:200] + "..."
+                trait['description'] = Just(description_text)
+
                 if self.dataset.type == "ProbeSet":
                     trait["hmac"] = (Maybe.apply(hmac)
                                     .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait['name']}:{trait['dataset']}"))))
@@ -141,37 +147,18 @@ class SearchResultPage:
 
                     trait["hmac"] = (Maybe.apply(hmac)
                                     .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait['name']}:{trait['dataset']}"))))
-                    trait["authors_display"] = (trait.pop("authors").map(
+                    trait["authors"] = trait["authors_display"] = (trait.pop("authors").map(
                         lambda authors:
                         ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors)))
                     trait["pubmed_text"] = trait["year"].map(str)
                 trait_list.append(trait.data)
-#                if self.dataset.type == "ProbeSet":
-#                    trait_dict['display_name'] = result['name']
-#                    trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))
-#                    trait_dict['symbol'] = "N/A" if not result['symbol'] else result['symbol'].strip()
-#                    description_text = ""
-#                    if result['description']:
-#                        description_text = unicodedata.normalize("NFKD", result['description'].decode('latin1'))
-#
-#                    target_string = None # Will change this one the probe_target_description values are indexed
-#
-#                    description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
-#                    trait_dict['description'] = description_display
-#
-#                    trait_dict['location'] = "N/A"
-#                    if result['chr'] and result['chr'] != "" and result['chr'] != "Un" and result['mb'] and result['mb'] != 0:
-#                        trait_dict['location'] = f"Chr{result['chr']}: {float(result['mb']):.6f}"
-#
-#                    trait_dict['mean'] = "N/A" if not result['mean'] else f"{result['mean']:.3f}"
-#                    trait_dict['additive'] = "N/A" if not result['additive']
             else:
                 trait_dict = {}
                 trait_dict['index'] = index + 1
                 trait_dict['dataset'] = self.dataset.name
                 if self.dataset.type == "ProbeSet":
                     trait_dict['display_name'] = result[2]
-                    trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))
+                    trait_dict['hmac'] = hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))
                     trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
                     description_text = ""
                     if result[4] is not None and str(result[4]) != "":
@@ -198,7 +185,7 @@ class SearchResultPage:
                 elif self.dataset.type == "Publish":
                     # Check permissions on a trait-by-trait basis for phenotype traits
                     trait_dict['name'] = trait_dict['display_name'] = str(result[0])
-                    trait_dict['hmac'] = hmac.data_hmac('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
+                    trait_dict['hmac'] = hmac_creation('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))
                     permissions = check_resource_availability(
                         self.dataset, g.user_session.user_id, trait_dict['display_name'])
                     if not any(x in permissions['data'] for x in ["view", "edit"]):
@@ -289,9 +276,13 @@ class SearchResultPage:
         """
         self.search_terms = parser.parse(self.search_terms)
 
-        if self.search_type == "xapian":
+        # Set of terms compatible with Xapian currently (None is a search without a term)
+        xapian_terms = ["POSITION", "MEAN", "LRS", "LOD"]
+
+        if self.search_type == "xapian" and all([(the_term['key'] in xapian_terms) or not the_term['key'] for the_term in self.search_terms]):
             self.results = requests.get(generate_xapian_request(self.dataset, self.search_terms, self.and_or)).json()
         else:
+            self.search_type = "sql"
             combined_from_clause = ""
             combined_where_clause = ""
             # The same table can't be referenced twice in the from clause
